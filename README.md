@@ -1,2 +1,4 @@
 # roonmatrix
-Flutter app to view and control roonmatrix devices in local network, and read variables, config and log details of each device
+
+This app is the frontend for the roonmatrix LED-Matrix Hardware to configure and control.
+
