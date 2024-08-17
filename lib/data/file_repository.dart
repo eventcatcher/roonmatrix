@@ -26,7 +26,8 @@ class FileRepository {
 
   void init() async {
     prefs = await SharedPreferences.getInstance();
-    if (saveDownloadsInPublicStorage == true) {
+    if ((Platform.isIOS || Platform.isAndroid) &&
+        saveDownloadsInPublicStorage == true) {
       accessIsGranted = await downloadFolderPermissionRequest();
     }
     myLocalPath = await fetchLocalPath();
@@ -70,19 +71,21 @@ class FileRepository {
 
   Future<String> fetchLocalPath() async {
     Directory? publicDir = generalAndroidDownloadDir;
-    if (Platform.isAndroid) {
-      publicDir = generalAndroidDownloadDir;
-    } else if (Platform.isIOS) {
-      publicDir = await getApplicationDocumentsDirectory();
-    } else {
-      publicDir = await getExternalStorageDirectory();
-    }
+    if (Platform.isIOS || Platform.isAndroid) {
+      if (Platform.isAndroid) {
+        publicDir = generalAndroidDownloadDir;
+      } else if (Platform.isIOS) {
+        publicDir = await getApplicationDocumentsDirectory();
+      } else {
+        publicDir = await getExternalStorageDirectory();
+      }
 
-    if (!kIsWeb && publicDir != null) {
-      final Directory directory = saveDownloadsInPublicStorage
-          ? publicDir
-          : await getApplicationDocumentsDirectory();
-      return directory.path;
+      if (!kIsWeb && publicDir != null) {
+        final Directory directory = saveDownloadsInPublicStorage
+            ? publicDir
+            : await getApplicationDocumentsDirectory();
+        return directory.path;
+      }
     }
     return './';
   }
