@@ -11,4 +11,5 @@ The app can display the actual variables of the python script which is running o
 On the control page can you select which roon zone, Apple Music or Spotify app you will control with the buttons.
 With the buttons you can control the playout of the Music Software (next track, previous track, play, pause, shuffle) like the hardware buttons on the roonmatrix device.
 
-
+The roonmatrix app is build with Flutter, Dart, and Visual Code, a fine cross platform programming environment.
+With this source code its possible, supported, and tested to build executable code for Apple iOS (iPhone, iPad), Android, MacOS (Universal), Windows (x64) and Linux (Arm / x64).
