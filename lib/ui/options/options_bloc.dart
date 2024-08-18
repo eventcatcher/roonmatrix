@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/options/options_event.dart';
@@ -14,7 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:network_tools/network_tools.dart';
+//ignore:depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 
 class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
@@ -29,6 +28,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   final int pollingIntervalInSeconds = 30;
   final String startIp = '192.168.0.50'; // min: 1
   final String endIp = '192.168.0.59'; // max: 254
+  final int port = 8000;
+  final int timeoutInMilliseconds = 500;
+  final int logTextDelayInMilliseconds = 500;
+  http.Client client = http.Client();
   Timer? timer;
   bool isScanning = false;
 
@@ -175,8 +178,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         ));
 
         try {
-          http.Client client = http.Client();
-          String url = 'http://$ip:8000/info/';
+          String url = 'http://$ip:$port/info/';
           Uri uri = Uri.parse(url);
           try {
             var response = await client.get(uri);
@@ -251,8 +253,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         ));
 
         try {
-          http.Client client = http.Client();
-          String url = 'http://$ip:8000/config/';
+          String url = 'http://$ip:$port/config/';
           Uri uri = Uri.parse(url);
           try {
             var response = await client.get(uri);
@@ -324,8 +325,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         ));
 
         try {
-          http.Client client = http.Client();
-          String url = 'http://$ip:8000/log/';
+          String url = 'http://$ip:$port/log/';
           Uri uri = Uri.parse(url);
           try {
             var response = await client.get(uri);
@@ -392,8 +392,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         };
 
         try {
-          http.Client client = http.Client();
-          String url = 'http://$ip:8000/zone_control/';
+          String url = 'http://$ip:$port/zone_control/';
           Uri uri = Uri.parse(url);
           try {
             var response = await client.post(uri,
@@ -616,9 +615,11 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
     if (isScanning == true) {
       if (logDebugMessage == true) {
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(
+            Duration(milliseconds: logTextDelayInMilliseconds));
         addToLogMessage(msg: 'networkscan is running...');
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(
+            Duration(milliseconds: logTextDelayInMilliseconds));
       }
     } else {
       List<String> devices = [];
@@ -628,117 +629,77 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       try {
         addToLogMessage(msg: 'start networkscan', clear: true);
         if (logDebugMessage == true) {
-          await Future.delayed(const Duration(milliseconds: 500));
+          await Future.delayed(
+              Duration(milliseconds: logTextDelayInMilliseconds));
         }
 
         final int firstHostId = int.parse(startIp.split('.').last);
         final int lastHostId = int.parse(endIp.split('.').last);
         final String subnet = startIp.substring(0, startIp.lastIndexOf('.'));
-        // or You can also get address using network_info_plus package
-        //final String? myAddress = await (NetworkInfo().getWifiIP());
-        // if (kDebugMode) {
-        //   print('myAddress: $myAddress, address: $address');
-        // }
-        //if (address != null) {
 
-        final stream = HostScannerService.instance.getAllPingableDevices(
-          subnet,
-          firstHostId: firstHostId,
-          lastHostId: lastHostId,
-          resultsInAddressAscendingOrder: true,
-          timeoutInSeconds: 1,
-          progressCallback: (progress) {
-            //print('Progress for host discovery : $progress');
-          },
-        );
-        addToLogMessage(msg: 'HostScanner initialized');
-        http.Client client = http.Client();
-        List<ActiveHost> hosts = [];
+        for (int i = firstHostId; i <= lastHostId; i++) {
+          String ip = '$subnet.$i';
+          await Socket.connect(ip, port,
+                  timeout: Duration(milliseconds: timeoutInMilliseconds))
+              .then((socket) async {
+            if (logDebugMessage == true) {
+              await Future.delayed(
+                  Duration(milliseconds: logTextDelayInMilliseconds));
+              addToLogMessage(msg: 'found device on ip: $ip');
+              await Future.delayed(
+                  Duration(milliseconds: logTextDelayInMilliseconds));
+            }
+            if (kDebugMode) {
+              print('found device on ip: $ip');
+            }
 
-        stream.listen((ActiveHost host) async {
-          hosts.add(host);
-          addToLogMessage(msg: 'add host: ${host.address}');
-        }, onDone: () async {
-          if (logDebugMessage == true) {
-            await Future.delayed(const Duration(milliseconds: 500));
-            addToLogMessage(msg: 'hosts scan done');
-            await Future.delayed(const Duration(milliseconds: 500));
-          }
-          if (kDebugMode) {
-            print('Scan of hosts completed => check ports');
-          }
-          for (ActiveHost host in hosts) {
-            ActiveHost? portFound =
-                await PortScannerService.instance.isOpen(host.address, 8000);
-            addToLogMessage(
-                msg: 'PortScanner isOpen-check on ${host.address} done');
-            if (portFound != null) {
-              if (logDebugMessage == true) {
-                await Future.delayed(const Duration(milliseconds: 500));
-                addToLogMessage(
-                    msg: 'Found device: $host, portFound: $portFound');
-                await Future.delayed(const Duration(milliseconds: 500));
-              }
-              if (kDebugMode) {
-                print('Found device: $host, portFound: $portFound');
-              }
-
-              String url = 'http://${host.address}:8000/info/';
-              Uri uri = Uri.parse(url);
-              addToLogMessage(msg: 'call host api: ${host.address}');
-              try {
-                var response = await client.get(uri);
-                if (response.statusCode == 200) {
-                  if (response.body.substring(0, 1) == '{') {
-                    Map<String, dynamic> json =
-                        jsonDecode(response.body) as Map<String, dynamic>;
-                    if (json['name'] != null && json['time'] != null) {
-                      addToLogMessage(
-                          msg:
-                              'host found on ip: ${host.address}, name: ${json['name']}');
-                      if (kDebugMode) {
-                        print(
-                            'host found on ip: ${host.address}, name: ${json['name']}, time: ${json['time']}');
-                      }
-
-                      devices.add(host.address);
-                      info[host.address] = json;
+            String url = 'http://$ip:$port/info/';
+            Uri uri = Uri.parse(url);
+            addToLogMessage(msg: 'test rest-api route: $url');
+            try {
+              var response = await client.get(uri);
+              if (response.statusCode == 200) {
+                if (response.body.substring(0, 1) == '{') {
+                  Map<String, dynamic> json =
+                      jsonDecode(response.body) as Map<String, dynamic>;
+                  if (json['name'] != null && json['time'] != null) {
+                    addToLogMessage(
+                        msg:
+                            'roonmatrix device found on ip: $ip, name: ${json['name']}');
+                    if (kDebugMode) {
+                      print(
+                          'roonmatrix device found on ip: $ip, name: ${json['name']}, time: ${json['time']}');
                     }
+
+                    devices.add(ip);
+                    info[ip] = json;
                   }
                 }
-              } catch (e) {
-                addToLogMessage(msg: 'error by access to $url: $e');
-                if (kDebugMode) {
-                  print('error by access to $url: $e');
-                }
+              }
+            } catch (e) {
+              addToLogMessage(msg: 'error by access to $url: $e');
+              if (kDebugMode) {
+                print('error by access to $url: $e');
               }
             }
-          }
 
-          addToLogMessage(
-              msg: 'PortScan completed, devices found: ${devices.length}');
-          if (kDebugMode) {
-            print('PortScan completed, devices found: ${devices.length}');
-          }
+            socket.destroy();
+          }).catchError((error) {
+            if (kDebugMode) {
+              print("nothing found on ip: $ip");
+            }
+          });
+        }
 
-          add(LoadDevicesAndInfo(devices: devices, info: info));
-          isScanning = false;
-        }, onError: (e) async {
-          if (logDebugMessage == true) {
-            await Future.delayed(const Duration(milliseconds: 500));
-            addToLogMessage(msg: 'error on ip scan: $e');
-            await Future.delayed(const Duration(milliseconds: 500));
-          }
-          if (kDebugMode) {
-            print('error on ip scan: $e');
-          }
-        }, cancelOnError: false);
-        //}
+        add(LoadDevicesAndInfo(devices: devices, info: info));
+        isScanning = false;
       } catch (e) {
         if (logDebugMessage == true) {
-          await Future.delayed(const Duration(milliseconds: 500));
+          await Future.delayed(
+              Duration(milliseconds: logTextDelayInMilliseconds));
           addToLogMessage(msg: 'general ip scan error: $e');
-          await Future.delayed(const Duration(milliseconds: 500));
+          await Future.delayed(
+              Duration(milliseconds: logTextDelayInMilliseconds));
         }
         if (kDebugMode) {
           print('general ip scan error: $e');

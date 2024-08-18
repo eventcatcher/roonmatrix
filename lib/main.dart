@@ -2,10 +2,6 @@ import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:dart_ping_ios/dart_ping_ios.dart';
-import 'package:flutter/foundation.dart';
-import 'package:network_tools/network_tools.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
@@ -18,19 +14,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //await _configureMacosWindowUtils();
-
-  if (Platform.isIOS) {
-    DartPingIOS.register();
-  }
-
-  final appDocDirectory = await getApplicationDocumentsDirectory();
-  try {
-    configureNetworkTools(appDocDirectory.path, enableDebugging: false);
-  } catch (e) {
-    if (kDebugMode) {
-      print('configureNetworkTools error: $e');
-    }
-  }
 
   runApp(const RoonMatrix());
 
