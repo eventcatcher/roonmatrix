@@ -35,7 +35,7 @@ class SearchFieldState extends State<SearchField> {
     return Padding(
       padding: const EdgeInsets.only(left: 8.0),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 200.0),
+        constraints: const BoxConstraints(minWidth: 200.0, minHeight: 36.0),
         child: Container(
           decoration: BoxDecoration(
               boxShadow: const [

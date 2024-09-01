@@ -64,6 +64,7 @@ dependencies:
   permission_handler: ^11.3.1
   shared_preferences: ^2.3.2
   dio: ^5.6.0
+  validators: ^3.0.0
 
 dependency_overrides:
   analyzer: ^6.4.1

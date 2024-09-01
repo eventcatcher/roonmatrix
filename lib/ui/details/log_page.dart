@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
+import 'package:roonmatrix/ui/layout/select_bow_with_icon.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
 
@@ -31,6 +32,7 @@ class LogPageState extends State<LogPage> {
   String get ip => widget.ip;
   VoidCallback get close => widget.close;
 
+  int hours = 1;
   bool saveIdle = false;
 
   late OptionsBloc optionsBloc;
@@ -38,7 +40,7 @@ class LogPageState extends State<LogPage> {
   @override
   void initState() {
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
-    optionsBloc.getLog(ip: ip);
+    optionsBloc.getLog(ip: ip, hours: hours);
 
     super.initState();
   }
@@ -82,6 +84,21 @@ class LogPageState extends State<LogPage> {
                     child: SearchField(
                       type: 'log',
                       controller: optionsBloc.getSearchController(type: 'log'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 0.0),
+                    child: SelectBoxWithIcon(
+                      options: optionsBloc.logHoursOptions,
+                      placeholder: 'Please Select',
+                      labelColor: Colors.black,
+                      selected: hours.toString(),
+                      onChanged: (String? value) {
+                        if (mounted && value != null) {
+                          setState(() => hours = int.parse(value));
+                          optionsBloc.getLog(ip: ip, hours: hours);
+                        }
+                      },
                     ),
                   ),
                   Expanded(

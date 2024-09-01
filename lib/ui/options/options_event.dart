@@ -82,8 +82,9 @@ class GetConfig extends OptionsEvent {
 
 class GetLog extends OptionsEvent {
   final String ip;
+  final int hours;
 
-  const GetLog({required this.ip});
+  const GetLog({required this.ip, required this.hours});
 
   @override
   List<Object> get props => [ip];

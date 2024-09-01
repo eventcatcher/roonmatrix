@@ -67,8 +67,17 @@ class RoonMatrixState extends State<RoonMatrix> {
       ],
       child: MaterialApp(
         title: 'RoonMatrix',
-        theme: ThemeData.light(
-            useMaterial3: false), // ThemeData(primarySwatch: Colors.blue),
+        theme: ThemeData(
+          useMaterial3: false,
+          tabBarTheme: const TabBarTheme(
+              labelColor: Colors.white,
+              dividerColor: Colors.grey,
+              //overlayColor: WidgetStatePropertyAll(Colors.purple),
+              labelStyle: TextStyle(fontWeight: FontWeight.bold),
+              unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+              indicator: UnderlineTabIndicator(
+                  borderSide: BorderSide(width: 2, color: Colors.red))),
+        ),
         darkTheme: ThemeData.dark(),
         themeMode: ThemeMode.light, // system
         home: BlocBuilder(

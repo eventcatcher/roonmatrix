@@ -10,6 +10,7 @@ abstract class OptionsState extends Equatable {
   final List<String> devices;
   final Map<String, dynamic> info;
   final Map<String, dynamic> config;
+  final Map fieldValues;
   final String log;
   final bool idle;
   final String logMessage;
@@ -21,6 +22,7 @@ abstract class OptionsState extends Equatable {
     this.devices = const [],
     this.info = const {},
     this.config = const {},
+    this.fieldValues = const {},
     this.log = '',
     this.idle = false,
     this.logMessage = '',
@@ -33,6 +35,7 @@ abstract class OptionsState extends Equatable {
       devices,
       info,
       config,
+      fieldValues,
       log,
       idle,
       logMessage,
@@ -67,6 +70,7 @@ class OptionsStateLoaded extends OptionsState {
     required super.devices,
     required super.info,
     required super.config,
+    required super.fieldValues,
     required super.log,
     required super.idle,
     required super.logMessage,

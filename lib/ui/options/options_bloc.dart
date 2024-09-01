@@ -35,8 +35,85 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   Timer? timer;
   bool isScanning = false;
 
+  List<String> negativeListOfFields = [
+    'led_modules',
+    'led_block_orientation',
+    'led_rotate',
+    'led_inreverse',
+    'controlswitch_gpio_top',
+    'controlswitch_gpio_down',
+    'controlswitch_gpio_left',
+    'controlswitch_gpio_center',
+    'controlswitch_gpio_right',
+    'conversions',
+    'deg_to_compass',
+    'token_filename',
+    'roon_commandline_version',
+    'roon_commandline_release',
+    'weatherbit_api_key',
+  ];
+
+  final List<String> jsonMapFields = [
+    'zone_control_map',
+    'weather_description',
+    'weather_properties',
+    'messages',
+  ];
+
+  final List<String> jsonListOfMapFields = [
+    'zones',
+    'feeds',
+  ];
+
+  final Map<String, dynamic> listOfHexFields = {
+    'led_contrast': {'min': 1, 'max': 255},
+  };
+
+  final Map<String, List<String>> listOfUrlFields = {
+    'internet_connection_url': ['http', 'https'],
+  };
+
+  final Map<String, String> valueTypes = {
+    'led_scroll_delay': 'ms',
+    'led_contrast': '1-255',
+    'controlswitch_bouncetime': 'ms',
+    'internet_connection_timeout': 'seconds',
+    'zone_control_timeout': 'seconds',
+    'socket_timeout': 'seconds',
+    'discovery_delay': 'seconds',
+    'webcheck_update_interval': 'seconds',
+    'webserver_head_request_timeout': 'seconds',
+    'webserver_url_request_timeout': 'seconds',
+    'weather_update_interval': 'seconds',
+    'clock_refresh_per_second': 'seconds',
+    'max_idle_time': 'minutes',
+    'max_show_time': 'minutes',
+    'audioinfo_timer': 'seconds',
+    'internet_connection_url': 'url',
+    'zone_control_map': 'json',
+    'weather_description': 'json',
+    'weather_properties': 'json',
+    'messages': 'json',
+    'zones': 'json list',
+    'feeds': 'json list',
+  };
+
+  Map<String, dynamic> logHoursOptions = {};
+
+  generateLogHours() {
+    for (int i = 1; i <= 24; i++) {
+      logHoursOptions[i.toString()] = {
+        "name": "$i hour${i > 1 ? 's' : ''} ago",
+        "fontWeight": FontWeight.normal,
+        "icon": null
+      };
+    }
+  }
+
   OptionsBloc({required this.fileRepository})
       : super(const OptionsStateInitial()) {
+    generateLogHours();
+
     // ====================== //
     // event to state handler //
     // ====================== //
@@ -52,6 +129,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
           logMessage: state.logMessage,
@@ -70,6 +148,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
           logMessage: logMessage,
@@ -84,6 +163,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: event.devices,
           info: event.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: false,
           logMessage: state.logMessage,
@@ -103,6 +183,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
           logMessage: state.logMessage,
@@ -121,6 +202,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
           logMessage: state.logMessage,
@@ -140,6 +222,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
           logMessage: state.logMessage,
@@ -154,6 +237,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: true,
           logMessage: state.logMessage,
@@ -172,6 +256,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: true,
           logMessage: state.logMessage,
@@ -197,6 +282,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                   devices: state.devices,
                   info: info,
                   config: state.config,
+                  fieldValues: state.fieldValues,
                   log: state.log,
                   idle: false,
                   logMessage: state.logMessage,
@@ -214,6 +300,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               devices: state.devices,
               info: state.info,
               config: state.config,
+              fieldValues: state.fieldValues,
               log: state.log,
               idle: false,
               logMessage: state.logMessage,
@@ -230,6 +317,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             devices: state.devices,
             info: state.info,
             config: state.config,
+            fieldValues: state.fieldValues,
             log: state.log,
             idle: false,
             logMessage: state.logMessage,
@@ -247,6 +335,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: state.log,
           idle: true,
           logMessage: state.logMessage,
@@ -261,6 +350,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               if (response.body.substring(0, 1) == '{') {
                 Map<String, dynamic> json =
                     jsonDecode(response.body) as Map<String, dynamic>;
+                Map fieldValues = getFieldValues(json: json);
 
                 emit(OptionsStateLoaded(
                   update: DateTime.now(),
@@ -269,6 +359,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                   devices: state.devices,
                   info: state.info,
                   config: json,
+                  fieldValues: fieldValues,
                   log: state.log,
                   idle: false,
                   logMessage: state.logMessage,
@@ -286,6 +377,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               devices: state.devices,
               info: state.info,
               config: state.config,
+              fieldValues: state.fieldValues,
               log: state.log,
               idle: false,
               logMessage: state.logMessage,
@@ -302,6 +394,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             devices: state.devices,
             info: state.info,
             config: state.config,
+            fieldValues: state.fieldValues,
             log: state.log,
             idle: false,
             logMessage: state.logMessage,
@@ -311,6 +404,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
       if (event is GetLog) {
         String ip = event.ip;
+        int hours = event.hours;
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
@@ -319,16 +413,27 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          fieldValues: state.fieldValues,
           log: '',
           idle: true,
           logMessage: state.logMessage,
         ));
 
+        Map<String, String> headers = {
+          "Content-Type": 'application/json',
+          "Accept": 'application/json',
+        };
+
+        Map<String, dynamic> payload = {
+          "hours": hours,
+        };
+
         try {
           String url = 'http://$ip:$port/log/';
           Uri uri = Uri.parse(url);
           try {
-            var response = await client.get(uri);
+            var response = await client.post(uri,
+                headers: headers, body: json.encode(payload));
             if (response.statusCode == 200) {
               emit(OptionsStateLoaded(
                 update: DateTime.now(),
@@ -337,6 +442,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                 devices: state.devices,
                 info: state.info,
                 config: state.config,
+                fieldValues: state.fieldValues,
                 log: response.body,
                 idle: false,
                 logMessage: state.logMessage,
@@ -353,6 +459,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               devices: state.devices,
               info: state.info,
               config: state.config,
+              fieldValues: state.fieldValues,
               log: '',
               idle: false,
               logMessage: state.logMessage,
@@ -369,6 +476,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             devices: state.devices,
             info: state.info,
             config: state.config,
+            fieldValues: state.fieldValues,
             log: '',
             idle: false,
             logMessage: state.logMessage,
@@ -500,6 +608,110 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     }
 
     return Future.value(null);
+  }
+
+  String? getFieldType(
+      {required String fieldKey, required dynamic fieldValue}) {
+    String? fieldType;
+
+    if (!negativeListOfFields.contains(fieldKey)) {
+      fieldType = 'text';
+      int? testInt = int.tryParse(fieldValue.toString());
+      if (testInt != null && fieldValue.toString() == testInt.toString()) {
+        fieldType = 'int';
+      }
+      String testStr = fieldValue.toString().toLowerCase();
+      bool? testBool = bool.tryParse(testStr);
+      if (testBool != null && testStr == testBool.toString()) {
+        fieldType = 'bool';
+      }
+    }
+
+    return fieldType;
+  }
+
+  Map getFieldValues({required Map<String, dynamic> json}) {
+    Map fieldValues = {};
+
+    for (String areaKey in json.keys) {
+      Map<String, dynamic> area = json[areaKey];
+      if (area.keys.isNotEmpty) {
+        fieldValues[areaKey] = {};
+        for (String fieldKey in area.keys) {
+          String? fieldType =
+              getFieldType(fieldKey: fieldKey, fieldValue: area[fieldKey]);
+          if (fieldType != null) {
+            if (fieldType == 'int') {
+              fieldValues[areaKey][fieldKey] = int.parse(area[fieldKey]);
+            }
+            if (fieldType == 'bool') {
+              fieldValues[areaKey][fieldKey] =
+                  bool.parse(area[fieldKey].toString().toLowerCase());
+            }
+            if (fieldType == 'text') {
+              fieldValues[areaKey][fieldKey] = area[fieldKey];
+            }
+            if (kDebugMode) {
+              print(
+                  'area: $areaKey, field: $fieldKey, value: ${fieldValues[areaKey][fieldKey]}, fieldType: $fieldType');
+            }
+          }
+        }
+      }
+    }
+
+    return fieldValues;
+  }
+
+  Future<bool> saveConfig(
+      {required String name, required String ip, required dynamic data}) async {
+    if (state.devices.isNotEmpty) {
+      try {
+        String jsonStr = jsonEncode(data);
+        if (kDebugMode) {
+          print('saveConfig, name: $name, ip: $ip, data: $jsonStr');
+        }
+
+        Map<String, String> headers = {
+          "Content-Type": 'application/json',
+          "Accept": 'application/json',
+        };
+
+        Map<String, dynamic> payload = {
+          "data": jsonStr,
+        };
+
+        try {
+          String url = 'http://$ip:$port/setup/';
+          Uri uri = Uri.parse(url);
+          try {
+            var response = await client.post(uri,
+                headers: headers, body: json.encode(payload));
+
+            if (response.statusCode == 200) {
+              if (kDebugMode) {
+                print('setup => ip: $ip, data: $jsonStr');
+              }
+              return Future.value(true);
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('Setup error by access to $url: $e');
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('Setup error: $e');
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Setup error: $e');
+        }
+      }
+    }
+
+    return Future.value(false);
   }
 
   Future<bool?> exportDevicesData() async {
@@ -774,8 +986,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     add(GetConfig(ip: ip));
   }
 
-  void getLog({required String ip}) {
-    add(GetLog(ip: ip));
+  void getLog({required String ip, required int hours}) {
+    add(GetLog(ip: ip, hours: hours));
   }
 
   void zoneControl(
