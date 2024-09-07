@@ -13,6 +13,7 @@ class EditableSinglelineText extends StatefulWidget {
   final String? placeholder;
   final String text;
   final dynamic prefixIcon;
+  final dynamic suffixIcon;
   final int? maxLength;
   final bool readOnly;
   final bool noCounter;
@@ -36,6 +37,7 @@ class EditableSinglelineText extends StatefulWidget {
     required this.text,
     this.errorMessageHandler,
     this.prefixIcon,
+    this.suffixIcon,
     this.maxLength,
     this.readOnly = false,
     this.noCounter = false,
@@ -202,6 +204,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 decoration: RoonmatrixStyles.inputDecoration(
                   placeholder: widget.placeholder,
                   prefixIcon: widget.prefixIcon,
+                  suffixIcon: widget.suffixIcon,
                   noCounter: widget.noCounter,
                   fillColor:
                       (widget.fillColorForValidationError != null && !valid)

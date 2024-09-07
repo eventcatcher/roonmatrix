@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/options.dart';
 
 abstract class OptionsState extends Equatable {
@@ -10,6 +11,7 @@ abstract class OptionsState extends Equatable {
   final List<String> devices;
   final Map<String, dynamic> info;
   final Map<String, dynamic> config;
+  final ConfigDefinition? definitions;
   final Map fieldValues;
   final String log;
   final bool idle;
@@ -22,6 +24,7 @@ abstract class OptionsState extends Equatable {
     this.devices = const [],
     this.info = const {},
     this.config = const {},
+    this.definitions,
     this.fieldValues = const {},
     this.log = '',
     this.idle = false,
@@ -41,6 +44,9 @@ abstract class OptionsState extends Equatable {
       logMessage,
     ];
 
+    if (definitions != null) {
+      props.add(definitions!);
+    }
     if (update != null) {
       props.add(update!);
     }
@@ -70,6 +76,7 @@ class OptionsStateLoaded extends OptionsState {
     required super.devices,
     required super.info,
     required super.config,
+    required super.definitions,
     required super.fieldValues,
     required super.log,
     required super.idle,

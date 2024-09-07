@@ -2,10 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:roonmatrix/model/config_definition.dart';
+import 'package:roonmatrix/model/config_definition_area.dart';
+import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/headline.dart';
+import 'package:roonmatrix/ui/layout/key_val_items.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
+import 'package:roonmatrix/ui/layout/map_list_items.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
@@ -14,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_text/tags/styled_text_tag.dart';
 import 'package:styled_text/widgets/styled_text.dart';
-import 'package:validators/validators.dart';
 
 class ConfigPage extends StatefulWidget {
   final String name;
@@ -52,233 +56,179 @@ class ConfigPageState extends State<ConfigPage> {
     super.initState();
   }
 
-  bool validateText({required String text, required String fieldKey}) {
-    bool valid = true;
-    if (text == '') {
-      valid = false;
-    }
-
-    if (valid == true && optionsBloc.jsonMapFields.contains(fieldKey)) {
-      if (text.length < 2) {
-        valid = false;
-      }
-      if (valid == true && !text.startsWith('{')) {
-        valid = false;
-      }
-      if (valid == true && !text.endsWith('}')) {
-        valid = false;
-      }
-      if (valid == true) {
-        try {
-          jsonDecode(text.replaceAll("'", '"'));
-        } catch (e) {
-          valid = false;
-        }
-      }
-    }
-
-    if (valid == true && optionsBloc.jsonListOfMapFields.contains(fieldKey)) {
-      if (text.length < 2) {
-        valid = false;
-      }
-      if (text == '[]') {
-        return true;
-      }
-      if (valid == true && !text.startsWith('[{')) {
-        valid = false;
-      }
-      if (valid == true && !text.endsWith('}]')) {
-        valid = false;
-      }
-      if (valid == true) {
-        try {
-          jsonDecode(text.replaceAll("'", '"'));
-        } catch (e) {
-          valid = false;
-        }
-      }
-    }
-
-    if (valid == true) {
-      valid = validateUrl(text: text, fieldKey: fieldKey);
-    }
-
-    return valid;
-  }
-
-  bool validateUrl({required String text, required String fieldKey}) {
-    bool valid = true;
-    List<String>? protocols = optionsBloc.listOfUrlFields[fieldKey];
-
-    if (protocols != null) {
-      valid = false;
-      for (String protocol in protocols) {
-        if (text.startsWith('$protocol://')) {
-          valid = true;
-        }
-      }
-      if (valid == true) {
-        valid = isURL(text, requireTld: true, requireProtocol: true);
-      }
-    }
-
-    return valid;
-  }
-
-  bool validateNumber({required int num, required String fieldKey}) {
-    bool valid = true;
-
-    Map<String, int>? obj = optionsBloc.listOfHexFields[fieldKey];
-    if (obj != null) {
-      int min = obj['min']!;
-      int max = obj['max']!;
-      if (num < min || num > max) {
-        valid = false;
-      }
-    }
-
-    return valid;
-  }
-
-  List<Widget> getFormFields({required Map<String, dynamic> json}) {
+  List<Widget> getFormFields({required ConfigDefinition defs}) {
     List<Widget> widgets = [];
 
-    for (String areaKey in json.keys) {
-      Map<String, dynamic> area = json[areaKey];
-      if (area.keys.isNotEmpty) {
-        List<Widget> fields = [];
+    for (ConfigDefinitionArea area in defs.area) {
+      List<Widget> fields = [];
 
-        for (String fieldKey in area.keys) {
-          String? fieldType = optionsBloc.getFieldType(
-              fieldKey: fieldKey, fieldValue: area[fieldKey]);
-          if (fieldType != null) {
-            if (kDebugMode) {
-              print(
-                  'area: $areaKey, field: $fieldKey, value: ${fieldValues[areaKey][fieldKey]}, fieldType: $fieldType');
-            }
+      for (ConfigDefinitionItem fieldDefinition in area.items) {
+        String? fieldType =
+            optionsBloc.getFieldType(fieldDefinition: fieldDefinition);
+        if (fieldType != null && fieldDefinition.editable == true) {
+          if (kDebugMode) {
+            print(
+                'area: ${area.name}, field: ${fieldDefinition.name}, value: ${fieldValues[area.name][fieldDefinition.name]}, fieldType: $fieldType');
+          }
 
-            Widget? widgetField;
-            if (fieldType == 'text') {
-              widgetField = Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
-                child: EditableSinglelineText(
-                  inputType: TextInputType.text,
-                  noCounter: true,
-                  label: fieldKey +
-                      (optionsBloc.valueTypes[fieldKey] != null
-                          ? ' (${optionsBloc.valueTypes[fieldKey]})'
-                          : ''),
-                  labelColor: Colors.red,
-                  borderColor: Colors.red.shade300,
-                  text: fieldValues[areaKey][fieldKey],
-                  filter: (String text) {
-                    if (text == '') {
+          Widget? widgetField;
+          if (fieldType == 'text') {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: EditableSinglelineText(
+                inputType: TextInputType.text,
+                noCounter: true,
+                label: fieldDefinition.label +
+                    (fieldDefinition.unit != ''
+                        ? ' (${fieldDefinition.unit})'
+                        : ''),
+                labelColor: Colors.red,
+                borderColor: Colors.red.shade300,
+                text: fieldValues[area.name][fieldDefinition.name],
+                filter: (String text) {
+                  if (text == '') {
+                    setState(() {
+                      fieldValues[area.name][fieldDefinition.name] = '';
+                    });
+                  }
+                  return text;
+                },
+                errorMessageHandler: (String newValue) {
+                  if (newValue == '') {
+                    return 'Textfeld darf nicht leer sein';
+                  }
+
+                  if (fieldDefinition.type.type.startsWith('url') &&
+                      !optionsBloc.validateUrl(
+                          text: newValue, type: fieldDefinition.type.type)) {
+                    return 'Url hat ein ungültiges Format';
+                  }
+
+                  return 'Textfeld ist kein gültiges Json';
+                },
+                validation: (String text) => optionsBloc.validateText(
+                    text: text,
+                    fieldDefinition: fieldDefinition,
+                    type: fieldDefinition.type.type),
+                onChanged: (value) {
+                  if (mounted) {
+                    setState(() =>
+                        fieldValues[area.name][fieldDefinition.name] = value);
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'int') {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: EditableSinglelineText(
+                inputType: TextInputType.number,
+                noCounter: true,
+                label: fieldDefinition.label +
+                    (fieldDefinition.unit != ''
+                        ? ' (${fieldDefinition.unit})'
+                        : ''),
+                labelColor: Colors.red,
+                borderColor: Colors.red.shade300,
+                text: fieldValues[area.name][fieldDefinition.name].toString(),
+                filter: (String text) {
+                  if (text == '') {
+                    setState(() {
+                      fieldValues[area.name][fieldDefinition.name] = '';
+                    });
+                  }
+                  return text;
+                },
+                errorMessageHandler: (String newValue) {
+                  if (newValue == '') {
+                    return 'Zahlenfeld darf nicht leer sein';
+                  }
+                  return 'Zahlenwert ist ausserhalb des gültigen Bereichs';
+                },
+                validation: (String text) {
+                  int? num = int.tryParse(text);
+                  if (num == null) {
+                    return false;
+                  }
+                  return optionsBloc.validateNumber(
+                      num: num, type: fieldDefinition.type.type);
+                },
+                onChanged: (value) {
+                  if (mounted) {
+                    try {
+                      setState(() => fieldValues[area.name]
+                          [fieldDefinition.name] = int.parse(value));
+                    } catch (e) {
                       setState(() {
-                        fieldValues[areaKey][fieldKey] = '';
+                        fieldValues[area.name][fieldDefinition.name] = '';
                       });
                     }
-                    return text;
-                  },
-                  errorMessageHandler: (String newValue) {
-                    if (newValue == '') {
-                      return 'Textfeld darf nicht leer sein';
-                    }
-
-                    List<String>? protocols =
-                        optionsBloc.listOfUrlFields[fieldKey];
-                    if (protocols != null &&
-                        !validateUrl(text: newValue, fieldKey: fieldKey)) {
-                      return 'Url hat ein ungültiges Format';
-                    }
-
-                    return 'Textfeld ist kein gültiges Json';
-                  },
-                  validation: (String text) =>
-                      validateText(text: text, fieldKey: fieldKey),
-                  onChanged: (value) {
-                    if (mounted) {
-                      setState(() => fieldValues[areaKey][fieldKey] = value);
-                    }
-                  },
-                ),
-              );
-            }
-            if (fieldType == 'int') {
-              widgetField = Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
-                child: EditableSinglelineText(
-                  inputType: TextInputType.number,
-                  noCounter: true,
-                  label: fieldKey +
-                      (optionsBloc.valueTypes[fieldKey] != null
-                          ? ' (${optionsBloc.valueTypes[fieldKey]})'
-                          : ''),
-                  labelColor: Colors.red,
-                  borderColor: Colors.red.shade300,
-                  text: fieldValues[areaKey][fieldKey].toString(),
-                  filter: (String text) {
-                    if (text == '') {
-                      setState(() {
-                        fieldValues[areaKey][fieldKey] = '';
-                      });
-                    }
-                    return text;
-                  },
-                  errorMessageHandler: (String newValue) {
-                    if (newValue == '') {
-                      return 'Zahlenfeld darf nicht leer sein';
-                    }
-                    return 'Zahlenwert ist ausserhalb des gültigen Bereichs';
-                  },
-                  validation: (String text) {
-                    int? num = int.tryParse(text);
-                    if (num == null) {
-                      return false;
-                    }
-                    return validateNumber(num: num, fieldKey: fieldKey);
-                  },
-                  onChanged: (value) {
-                    if (mounted) {
-                      try {
-                        setState(() =>
-                            fieldValues[areaKey][fieldKey] = int.parse(value));
-                      } catch (e) {
-                        setState(() {
-                          fieldValues[areaKey][fieldKey] = '';
-                        });
-                      }
-                    }
-                  },
-                ),
-              );
-            }
-            if (fieldType == 'bool') {
-              widgetField = Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
-                child: SwitchButton(
-                  label: fieldKey,
-                  labelColor: Colors.red,
-                  enabled: fieldValues[areaKey][fieldKey],
-                  onChanged: (value) {
-                    if (mounted) {
-                      setState(() => fieldValues[areaKey][fieldKey] = value);
-                    }
-                  },
-                ),
-              );
-            }
-            if (widgetField != null) {
-              fields.add(widgetField);
-            }
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'bool') {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: SwitchButton(
+                label: fieldDefinition.label +
+                    (fieldDefinition.unit != ''
+                        ? ' (${fieldDefinition.unit})'
+                        : ''),
+                labelColor: Colors.red,
+                enabled: fieldValues[area.name][fieldDefinition.name],
+                onChanged: (value) {
+                  if (mounted) {
+                    setState(() =>
+                        fieldValues[area.name][fieldDefinition.name] = value);
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'keyValItems') {
+            Map<String, dynamic> json = jsonDecode(
+                (fieldValues[area.name][fieldDefinition.name] as String)
+                    .replaceAll("'", '"'));
+            widgetField = KeyValItems(
+              label: fieldDefinition.label,
+              labelColor: Colors.red,
+              fieldDefinition: fieldDefinition,
+              fieldValues: json,
+              onChanged: (String value) {
+                setState(
+                    () => fieldValues[area.name][fieldDefinition.name] = value);
+              },
+            );
+          }
+          if (fieldType == 'list') {
+            List<dynamic> json = jsonDecode(
+                (fieldValues[area.name][fieldDefinition.name] as String)
+                    .replaceAll("'", '"'));
+            widgetField = MapListItems(
+              label: fieldDefinition.label,
+              labelColor: Colors.red,
+              fieldDefinition: fieldDefinition,
+              fieldValues: json,
+              onChanged: (String value) {
+                setState(
+                    () => fieldValues[area.name][fieldDefinition.name] = value);
+              },
+            );
+          }
+          if (widgetField != null) {
+            fields.add(widgetField);
           }
         }
-        Widget widgetArea = Card(
-          child: Column(
-            children: [Headline(text: areaKey), ...fields],
-          ),
-        );
-        widgets.add(widgetArea);
       }
+      Widget widgetArea = Card(
+        child: Column(
+          children: [Headline(text: area.name), ...fields],
+        ),
+      );
+      widgets.add(widgetArea);
     }
 
     return widgets;
@@ -295,35 +245,19 @@ class ConfigPageState extends State<ConfigPage> {
 
           String search = optionsState.searchFilter['config']!;
           String jsonStr = optionsBloc.getPrettyJSONString(optionsState.config);
-          Map<String, dynamic> json = jsonDecode(jsonStr);
           if (search.isNotEmpty) {
             jsonStr = jsonStr.replaceAll(
                 RegExp(search, caseSensitive: false), '<b>$search</b>');
           }
 
-          validData = false;
-          bool test = true;
-          outerLoop:
-          for (Map obj in fieldValues.values) {
-            for (String fieldKey in obj.keys) {
-              String? fieldType = optionsBloc.getFieldType(
-                  fieldKey: fieldKey, fieldValue: obj[fieldKey]);
-              if (fieldType == 'int') {
-                test = validateNumber(
-                    num: int.parse(obj[fieldKey].toString()),
-                    fieldKey: fieldKey);
-              } else {
-                test = validateText(
-                    text: obj[fieldKey].toString(), fieldKey: fieldKey);
-              }
-
-              if (!test) break outerLoop;
-            }
+          if (optionsState.definitions == null) {
+            return const LoadingIndicator();
           }
-          validData = test;
-
+          ConfigDefinition defs = optionsState.definitions!;
           fieldValues = optionsState.fieldValues;
-          formFields = getFormFields(json: json);
+          validData = optionsBloc.validateAll(
+              definitions: defs, fieldValues: fieldValues);
+          formFields = getFormFields(defs: defs);
 
           return DefaultTabController(
             initialIndex: 0,

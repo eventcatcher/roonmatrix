@@ -1,6 +1,12 @@
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_value/standard_json_plugin.dart';
 import 'package:roonmatrix/data/storage_folder_type.dart';
+import 'package:roonmatrix/model/config_definition.dart';
+import 'package:roonmatrix/model/config_definition_area.dart';
+import 'package:roonmatrix/model/config_definition_item.dart';
+import 'package:roonmatrix/model/item_type.dart';
+import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/model/shortcut.dart';
 
@@ -10,6 +16,11 @@ part 'serializers.g.dart';
   Options,
   Shortcut,
   StorageFolderType,
+  ItemType,
+  ItemTypeStructure,
+  ConfigDefinitionItem,
+  ConfigDefinitionArea,
+  ConfigDefinition,
 ])
 final Serializers serializers =
     (_$serializers.toBuilder()..addPlugin(StandardJsonPlugin())).build();

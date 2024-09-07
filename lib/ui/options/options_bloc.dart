@@ -2,10 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:roonmatrix/data/file_repository.dart';
+import 'package:roonmatrix/model/config_definition.dart';
+import 'package:roonmatrix/model/config_definition_area.dart';
+import 'package:roonmatrix/model/config_definition_item.dart';
+import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/options/options_event.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
@@ -15,6 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 //ignore:depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:validators/validators.dart';
 
 class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   final FileRepository fileRepository;
@@ -32,73 +38,9 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   final int timeoutInMilliseconds = 500;
   final int logTextDelayInMilliseconds = 500;
   http.Client client = http.Client();
-  Timer? timer;
-  bool isScanning = false;
-
-  List<String> negativeListOfFields = [
-    'led_modules',
-    'led_block_orientation',
-    'led_rotate',
-    'led_inreverse',
-    'controlswitch_gpio_top',
-    'controlswitch_gpio_down',
-    'controlswitch_gpio_left',
-    'controlswitch_gpio_center',
-    'controlswitch_gpio_right',
-    'conversions',
-    'deg_to_compass',
-    'token_filename',
-    'roon_commandline_version',
-    'roon_commandline_release',
-    'weatherbit_api_key',
-  ];
-
-  final List<String> jsonMapFields = [
-    'zone_control_map',
-    'weather_description',
-    'weather_properties',
-    'messages',
-  ];
-
-  final List<String> jsonListOfMapFields = [
-    'zones',
-    'feeds',
-  ];
-
-  final Map<String, dynamic> listOfHexFields = {
-    'led_contrast': {'min': 1, 'max': 255},
-  };
-
-  final Map<String, List<String>> listOfUrlFields = {
-    'internet_connection_url': ['http', 'https'],
-  };
-
-  final Map<String, String> valueTypes = {
-    'led_scroll_delay': 'ms',
-    'led_contrast': '1-255',
-    'controlswitch_bouncetime': 'ms',
-    'internet_connection_timeout': 'seconds',
-    'zone_control_timeout': 'seconds',
-    'socket_timeout': 'seconds',
-    'discovery_delay': 'seconds',
-    'webcheck_update_interval': 'seconds',
-    'webserver_head_request_timeout': 'seconds',
-    'webserver_url_request_timeout': 'seconds',
-    'weather_update_interval': 'seconds',
-    'clock_refresh_per_second': 'seconds',
-    'max_idle_time': 'minutes',
-    'max_show_time': 'minutes',
-    'audioinfo_timer': 'seconds',
-    'internet_connection_url': 'url',
-    'zone_control_map': 'json',
-    'weather_description': 'json',
-    'weather_properties': 'json',
-    'messages': 'json',
-    'zones': 'json list',
-    'feeds': 'json list',
-  };
-
   Map<String, dynamic> logHoursOptions = {};
+  bool isScanning = false;
+  Timer? timer;
 
   generateLogHours() {
     for (int i = 1; i <= 24; i++) {
@@ -129,6 +71,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
@@ -148,6 +91,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
@@ -163,6 +107,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: event.devices,
           info: event.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: false,
@@ -183,6 +128,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
@@ -202,6 +148,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
@@ -222,6 +169,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
@@ -237,6 +185,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: true,
@@ -256,6 +205,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: true,
@@ -282,6 +232,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                   devices: state.devices,
                   info: info,
                   config: state.config,
+                  definitions: state.definitions,
                   fieldValues: state.fieldValues,
                   log: state.log,
                   idle: false,
@@ -300,6 +251,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               devices: state.devices,
               info: state.info,
               config: state.config,
+              definitions: state.definitions,
               fieldValues: state.fieldValues,
               log: state.log,
               idle: false,
@@ -317,6 +269,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             devices: state.devices,
             info: state.info,
             config: state.config,
+            definitions: state.definitions,
             fieldValues: state.fieldValues,
             log: state.log,
             idle: false,
@@ -335,6 +288,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: true,
@@ -350,7 +304,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               if (response.body.substring(0, 1) == '{') {
                 Map<String, dynamic> json =
                     jsonDecode(response.body) as Map<String, dynamic>;
-                Map fieldValues = getFieldValues(json: json);
+                ConfigDefinition definitions =
+                    ConfigDefinition.fromJson(json['definitions']);
+                Map fieldValues =
+                    getFieldValues(defs: definitions, json: json['config']);
 
                 emit(OptionsStateLoaded(
                   update: DateTime.now(),
@@ -358,7 +315,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                   searchFilter: state.searchFilter,
                   devices: state.devices,
                   info: state.info,
-                  config: json,
+                  config: json['config'],
+                  definitions: definitions,
                   fieldValues: fieldValues,
                   log: state.log,
                   idle: false,
@@ -377,6 +335,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               devices: state.devices,
               info: state.info,
               config: state.config,
+              definitions: state.definitions,
               fieldValues: state.fieldValues,
               log: state.log,
               idle: false,
@@ -394,6 +353,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             devices: state.devices,
             info: state.info,
             config: state.config,
+            definitions: state.definitions,
             fieldValues: state.fieldValues,
             log: state.log,
             idle: false,
@@ -413,6 +373,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           devices: state.devices,
           info: state.info,
           config: state.config,
+          definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: '',
           idle: true,
@@ -442,6 +403,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                 devices: state.devices,
                 info: state.info,
                 config: state.config,
+                definitions: state.definitions,
                 fieldValues: state.fieldValues,
                 log: response.body,
                 idle: false,
@@ -459,6 +421,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               devices: state.devices,
               info: state.info,
               config: state.config,
+              definitions: state.definitions,
               fieldValues: state.fieldValues,
               log: '',
               idle: false,
@@ -476,6 +439,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             devices: state.devices,
             info: state.info,
             config: state.config,
+            definitions: state.definitions,
             fieldValues: state.fieldValues,
             log: '',
             idle: false,
@@ -610,50 +574,72 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     return Future.value(null);
   }
 
-  String? getFieldType(
-      {required String fieldKey, required dynamic fieldValue}) {
+  String? getFieldType({required ConfigDefinitionItem fieldDefinition}) {
     String? fieldType;
 
-    if (!negativeListOfFields.contains(fieldKey)) {
+    if (fieldDefinition.editable == true) {
       fieldType = 'text';
-      int? testInt = int.tryParse(fieldValue.toString());
-      if (testInt != null && fieldValue.toString() == testInt.toString()) {
+
+      if (fieldDefinition.type.type.startsWith('int')) {
         fieldType = 'int';
       }
-      String testStr = fieldValue.toString().toLowerCase();
-      bool? testBool = bool.tryParse(testStr);
-      if (testBool != null && testStr == testBool.toString()) {
+
+      if (fieldDefinition.type.type == 'bool') {
         fieldType = 'bool';
+      }
+
+      if (fieldDefinition.type.type == 'list') {
+        fieldType = 'list';
+        if (fieldDefinition.type.structure.length == 2) {
+          List<String> names = ['key', 'val'];
+          String name1 = fieldDefinition.type.structure[0].name;
+          String name2 = fieldDefinition.type.structure[1].name;
+          if (name1 != name2 &&
+              names.contains(name1) &&
+              names.contains(name2)) {
+            fieldType = 'keyValItems';
+          }
+        }
       }
     }
 
     return fieldType;
   }
 
-  Map getFieldValues({required Map<String, dynamic> json}) {
+  Map getFieldValues(
+      {required ConfigDefinition defs, required Map<String, dynamic> json}) {
     Map fieldValues = {};
 
     for (String areaKey in json.keys) {
       Map<String, dynamic> area = json[areaKey];
       if (area.keys.isNotEmpty) {
         fieldValues[areaKey] = {};
+
         for (String fieldKey in area.keys) {
-          String? fieldType =
-              getFieldType(fieldKey: fieldKey, fieldValue: area[fieldKey]);
-          if (fieldType != null) {
-            if (fieldType == 'int') {
-              fieldValues[areaKey][fieldKey] = int.parse(area[fieldKey]);
-            }
-            if (fieldType == 'bool') {
-              fieldValues[areaKey][fieldKey] =
-                  bool.parse(area[fieldKey].toString().toLowerCase());
-            }
-            if (fieldType == 'text') {
-              fieldValues[areaKey][fieldKey] = area[fieldKey];
-            }
-            if (kDebugMode) {
-              print(
-                  'area: $areaKey, field: $fieldKey, value: ${fieldValues[areaKey][fieldKey]}, fieldType: $fieldType');
+          ConfigDefinitionItem? fieldDefinition = defs.area
+              .firstWhereOrNull((ConfigDefinitionArea el) => el.name == areaKey)
+              ?.items
+              .firstWhereOrNull(
+                  (ConfigDefinitionItem el) => el.name == fieldKey);
+          if (fieldDefinition != null) {
+            String? fieldType = getFieldType(fieldDefinition: fieldDefinition);
+            if (fieldType != null) {
+              if (fieldType == 'int') {
+                fieldValues[areaKey][fieldKey] = int.parse(area[fieldKey]);
+              }
+              if (fieldType == 'bool') {
+                fieldValues[areaKey][fieldKey] =
+                    bool.parse(area[fieldKey].toString().toLowerCase());
+              }
+              if (fieldType == 'text' ||
+                  fieldType == 'list' ||
+                  fieldType == 'keyValItems') {
+                fieldValues[areaKey][fieldKey] = area[fieldKey];
+              }
+              if (kDebugMode) {
+                print(
+                    'area: $areaKey, field: $fieldKey, value: ${fieldValues[areaKey][fieldKey]}, fieldType: $fieldType');
+              }
             }
           }
         }
@@ -661,6 +647,214 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     }
 
     return fieldValues;
+  }
+
+  bool validateUrl({required String text, required String type}) {
+    bool valid = true;
+
+    if (type.startsWith('url(')) {
+      List<String> protocols = type.substring(4, type.length - 1).split(',');
+      valid = false;
+      if (protocols.isNotEmpty) {
+        for (String protocol in protocols) {
+          if (text.startsWith('$protocol://')) {
+            valid = true;
+          }
+        }
+        if (valid == true) {
+          valid = isURL(text, requireTld: true, requireProtocol: true);
+        }
+      }
+    }
+
+    return valid;
+  }
+
+  bool validateNumber({required int num, required String type}) {
+    bool valid = true;
+
+    if (type.startsWith('int(')) {
+      List<String> minMax = type.substring(4, type.length - 1).split(',');
+      if (minMax.length == 2) {
+        int? min = int.tryParse(minMax[0]);
+        int? max = int.tryParse(minMax[1]);
+        if (min != null && max != null && (num < min || num > max)) {
+          valid = false;
+        }
+      }
+    }
+
+    return valid;
+  }
+
+  bool validateText(
+      {required String text,
+      ConfigDefinitionItem? fieldDefinition,
+      required String type}) {
+    bool valid = true;
+    if (text == '') {
+      valid = false;
+    }
+
+    if (valid == true &&
+        fieldDefinition != null &&
+        fieldDefinition.unit == 'json' &&
+        fieldDefinition.type.structure.isNotEmpty) {
+      if (text.length < 2) {
+        valid = false;
+      }
+      if (valid == true && !text.startsWith('{')) {
+        valid = false;
+      }
+      if (valid == true && !text.endsWith('}')) {
+        valid = false;
+      }
+      if (valid == true) {
+        try {
+          jsonDecode(text.replaceAll("'", '"'));
+        } catch (e) {
+          valid = false;
+        }
+      }
+    }
+
+    if (valid == true &&
+        fieldDefinition != null &&
+        fieldDefinition.unit == 'json list' &&
+        fieldDefinition.type.structure.isNotEmpty) {
+      if (text.length < 2) {
+        valid = false;
+      }
+      if (text == '[]') {
+        return true;
+      }
+      if (valid == true && !text.startsWith('[{')) {
+        valid = false;
+      }
+      if (valid == true && !text.endsWith('}]')) {
+        valid = false;
+      }
+      if (valid == true) {
+        try {
+          jsonDecode(text.replaceAll("'", '"'));
+        } catch (e) {
+          valid = false;
+        }
+      }
+    }
+
+    if (valid == true) {
+      valid = validateUrl(text: text, type: type);
+    }
+
+    return valid;
+  }
+
+  bool validateList({
+    required String jsonStr,
+    required ConfigDefinitionItem fieldDefinition,
+  }) {
+    bool valid = true;
+    List<dynamic> fieldValues = jsonDecode(jsonStr.replaceAll("'", '"'));
+
+    for (int idx = 0; idx < fieldValues.length; idx++) {
+      Map<String, dynamic> map = fieldValues[idx];
+      for (String key in map.keys) {
+        String fieldType = fieldDefinition.type.structure
+            .firstWhere((ItemTypeStructure el) => el.name == key)
+            .type;
+
+        if (fieldType.startsWith('int')) {
+          int? num = int.tryParse(fieldValues[idx][key].toString());
+          if (num == null) {
+            return false;
+          }
+          bool itemValid = validateNumber(num: num, type: fieldType);
+          if (itemValid == false) {
+            return false;
+          }
+        }
+
+        if (fieldType.startsWith('url')) {
+          bool itemValid =
+              validateUrl(text: fieldValues[idx][key], type: fieldType);
+          if (itemValid == false) {
+            return false;
+          }
+        }
+
+        if (fieldType.startsWith('string')) {
+          bool itemValid =
+              validateText(text: fieldValues[idx][key], type: fieldType);
+          if (itemValid == false) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return valid;
+  }
+
+  bool validateAll(
+      {required ConfigDefinition definitions, required Map fieldValues}) {
+    bool validData = false;
+    bool test = true;
+    outerLoop:
+    for (String areaKey in fieldValues.keys) {
+      for (String fieldKey in fieldValues[areaKey].keys) {
+        ConfigDefinitionItem? fieldDefinition = definitions.area
+            .firstWhereOrNull((ConfigDefinitionArea el) => el.name == areaKey)
+            ?.items
+            .firstWhereOrNull((ConfigDefinitionItem el) => el.name == fieldKey);
+        if (fieldDefinition != null && fieldDefinition.editable == true) {
+          String? fieldType = getFieldType(fieldDefinition: fieldDefinition);
+          if (fieldType != null) {
+            if (fieldType == 'int') {
+              test = fieldValues[areaKey][fieldKey] != '' &&
+                  validateNumber(
+                      num: int.parse(fieldValues[areaKey][fieldKey].toString()),
+                      type: fieldDefinition.type.type);
+            } else if (fieldType == 'list') {
+              test = validateList(
+                  jsonStr: fieldValues[areaKey][fieldKey].toString(),
+                  fieldDefinition: fieldDefinition);
+            } else {
+              test = validateText(
+                  text: fieldValues[areaKey][fieldKey].toString(),
+                  fieldDefinition: fieldDefinition,
+                  type: fieldDefinition.type.type);
+            }
+
+            if (!test) break outerLoop;
+          }
+        }
+      }
+    }
+    validData = test;
+
+    return validData;
+  }
+
+  String getListFieldUnit(String type) {
+    String unit = '';
+
+    if (type.startsWith('int(')) {
+      List<String> minMax = type.substring(4, type.length - 1).split(',');
+      if (minMax.length == 2) {
+        int? min = int.tryParse(minMax[0]);
+        int? max = int.tryParse(minMax[1]);
+        if (min != null && max != null) {
+          unit = ' ($min-$max)';
+        }
+      }
+    }
+
+    // if (type.startsWith('url')) {
+    //   unit = ' (url)';
+    // }
+
+    return unit;
   }
 
   Future<bool> saveConfig(

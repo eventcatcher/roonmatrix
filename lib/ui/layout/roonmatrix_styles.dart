@@ -16,13 +16,15 @@ abstract class RoonmatrixStyles {
     ],
   );
 
-  static dynamic inputDecoration = (
-      {String? placeholder,
-      String? label,
-      dynamic prefixIcon,
-      Color? fillColor,
-      Color? borderColor,
-      bool? noCounter}) {
+  static dynamic inputDecoration = ({
+    String? placeholder,
+    String? label,
+    dynamic prefixIcon,
+    dynamic suffixIcon,
+    Color? fillColor,
+    Color? borderColor,
+    bool? noCounter,
+  }) {
     return InputDecoration(
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
       border: InputBorder.none,
@@ -34,6 +36,7 @@ abstract class RoonmatrixStyles {
       floatingLabelBehavior: FloatingLabelBehavior.never,
       alignLabelWithHint: true,
       prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
       counterText: noCounter == true ? '' : null,
       prefixIconConstraints: const BoxConstraints(minHeight: 28, minWidth: 28),
       focusedBorder: OutlineInputBorder(
