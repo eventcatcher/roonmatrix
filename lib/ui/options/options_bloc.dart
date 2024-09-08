@@ -304,8 +304,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               if (response.body.substring(0, 1) == '{') {
                 Map<String, dynamic> json =
                     jsonDecode(response.body) as Map<String, dynamic>;
+
                 ConfigDefinition definitions =
                     ConfigDefinition.fromJson(json['definitions']);
+
                 Map fieldValues =
                     getFieldValues(defs: definitions, json: json['config']);
 
@@ -692,8 +694,20 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       ConfigDefinitionItem? fieldDefinition,
       required String type}) {
     bool valid = true;
+
     if (text == '') {
       valid = false;
+    }
+
+    if (type.startsWith('string(')) {
+      List<String> minMax = type.substring(7, type.length - 1).split(',');
+      int? min = int.tryParse(minMax[0]);
+      int? max = int.tryParse(minMax[1]);
+      if (min != null &&
+          max != null &&
+          (text.length < min || text.length > max)) {
+        valid = false;
+      }
     }
 
     if (valid == true &&
@@ -743,7 +757,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       }
     }
 
-    if (valid == true) {
+    if (valid == true && type.startsWith('url')) {
       valid = validateUrl(text: text, type: type);
     }
 

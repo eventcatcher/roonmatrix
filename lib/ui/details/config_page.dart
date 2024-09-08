@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:roonmatrix/model/config_definition.dart';
@@ -102,6 +103,18 @@ class ConfigPageState extends State<ConfigPage> {
                       !optionsBloc.validateUrl(
                           text: newValue, type: fieldDefinition.type.type)) {
                     return 'Url hat ein ungültiges Format';
+                  }
+
+                  if (fieldDefinition.type.type.startsWith('string(')) {
+                    List<String> minMax = fieldDefinition.type.type
+                        .substring(7, fieldDefinition.type.type.length - 1)
+                        .split(',');
+                    int? min = int.tryParse(minMax[0]);
+                    int? max = int.tryParse(minMax[1]);
+                    if (min != null &&
+                        max != null &&
+                        (newValue.length < min || newValue.length > max)) {}
+                    return 'Textfeld ist ausserhalb des gültigen Längenbereichs';
                   }
 
                   return 'Textfeld ist kein gültiges Json';
@@ -339,6 +352,15 @@ class ConfigPageState extends State<ConfigPage> {
                                                 "save config successfully done"),
                                             backgroundColor: Colors.green,
                                           ));
+
+                                          Timer.periodic(
+                                              const Duration(seconds: 3),
+                                              (Timer timer) {
+                                            timer.cancel();
+                                            if (context.mounted) {
+                                              Navigator.of(context).pop();
+                                            }
+                                          });
                                         }
                                       } else {
                                         if (context.mounted) {
