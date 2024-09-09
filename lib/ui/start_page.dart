@@ -785,7 +785,7 @@ class StartPageState extends State<StartPage> {
                                 ),
                                 label: const Text('refresh'),
                                 onPressed: () {
-                                  optionsBloc.searching();
+                                  optionsBloc.searching(idle: true);
                                 },
                               ),
                             ]

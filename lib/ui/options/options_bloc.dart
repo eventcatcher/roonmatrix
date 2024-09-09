@@ -217,6 +217,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
         ipStart = prefs.getString('ipStart');
         ipEnd = prefs.getString('ipEnd');
+        bool idle = event.idle ?? false;
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
@@ -230,7 +231,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
-          idle: true,
+          idle: idle,
           logMessage: state.logMessage,
         ));
 
@@ -558,7 +559,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     });
 
     setPollingTimer(stateBefore: state.options?.polling, newState: true);
-    searching();
+    searching(idle: true);
   }
 
   // ============== //
@@ -1256,8 +1257,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     add(SetLogMessage(msg: msg));
   }
 
-  void searching() {
-    add(Searching());
+  void searching({bool? idle}) {
+    add(Searching(idle: idle));
   }
 
   void getInfo({required String ip}) {

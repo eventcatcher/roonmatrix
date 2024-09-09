@@ -221,7 +221,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                                 //       LogicalKeyboardKey.keyL,
                                 //       meta: true),
                                 //   onSelected: () {
-                                //     optionsBloc.searching();
+                                //     optionsBloc.searching(idle:true);
                                 //   },
                                 // ),
                               ],

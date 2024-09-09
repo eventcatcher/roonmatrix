@@ -20,8 +20,12 @@ class SetLogMessage extends OptionsEvent {
 }
 
 class Searching extends OptionsEvent {
+  final bool? idle;
+
+  const Searching({this.idle});
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [idle ?? false];
 }
 
 class SetOptionsPolling extends OptionsEvent {
