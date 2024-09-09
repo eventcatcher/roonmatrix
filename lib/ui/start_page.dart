@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/scheduler.dart';
 import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/control_page.dart';
@@ -11,6 +12,7 @@ import 'package:roonmatrix/ui/options/options_bloc.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:text_scroll/text_scroll.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -63,6 +65,28 @@ class StartPageState extends State<StartPage> {
           builder: (context, OptionsState optionsState) {
             if (optionsState is! OptionsStateLoaded) {
               return Container();
+            }
+
+            if (optionsState.ipStart == null || optionsState.ipEnd == null) {
+              SchedulerBinding.instance.addPostFrameCallback((_) async {
+                if (mounted) {
+                  await showGeneralDialog(
+                    context: context,
+                    barrierColor:
+                        Colors.black12.withOpacity(0.6), // Background color
+                    barrierDismissible: false,
+                    barrierLabel: 'Dialog',
+                    transitionDuration: const Duration(milliseconds: 400),
+                    pageBuilder: (_, __, ___) {
+                      return SettingsPage(
+                        close: () {
+                          Navigator.pop(context);
+                        },
+                      );
+                    },
+                  );
+                }
+              });
             }
 
             options = optionsState.options ?? options;

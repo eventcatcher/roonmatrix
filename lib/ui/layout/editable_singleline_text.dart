@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 class EditableSinglelineText extends StatefulWidget {
   final TextInputType inputType;
+  final List<TextInputFormatter>? formatters;
   final String? aligned;
   final String? label;
   final Color? labelColor;
@@ -29,6 +30,7 @@ class EditableSinglelineText extends StatefulWidget {
   const EditableSinglelineText({
     super.key,
     this.inputType = TextInputType.text,
+    this.formatters,
     this.aligned,
     this.label,
     this.labelColor = Colors.black,
@@ -196,11 +198,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                       }
                     : null,
                 keyboardType: widget.inputType,
-                inputFormatters: widget.inputType == TextInputType.number
-                    ? <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ]
-                    : null,
+                inputFormatters: widget.formatters,
                 decoration: RoonmatrixStyles.inputDecoration(
                   placeholder: widget.placeholder,
                   prefixIcon: widget.prefixIcon,

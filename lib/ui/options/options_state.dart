@@ -4,10 +4,10 @@ import 'package:roonmatrix/model/options.dart';
 
 abstract class OptionsState extends Equatable {
   final DateTime? update;
+  final String? ipStart;
+  final String? ipEnd;
   final Options? options;
-
   final Map<String, String> searchFilter;
-
   final List<String> devices;
   final Map<String, dynamic> info;
   final Map<String, dynamic> config;
@@ -19,6 +19,8 @@ abstract class OptionsState extends Equatable {
 
   const OptionsState({
     this.update,
+    this.ipStart,
+    this.ipEnd,
     this.options,
     this.searchFilter = const {"main": "", "info": "", "config": "", "log": ""},
     this.devices = const [],
@@ -44,6 +46,12 @@ abstract class OptionsState extends Equatable {
       logMessage,
     ];
 
+    if (ipStart != null) {
+      props.add(ipStart!);
+    }
+    if (ipEnd != null) {
+      props.add(ipEnd!);
+    }
     if (definitions != null) {
       props.add(definitions!);
     }
@@ -71,6 +79,8 @@ class OptionsStateInitial extends OptionsState {
 class OptionsStateLoaded extends OptionsState {
   const OptionsStateLoaded({
     required super.update,
+    required super.ipStart,
+    required super.ipEnd,
     required super.options,
     required super.searchFilter,
     required super.devices,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
@@ -137,6 +138,7 @@ class ConfigPageState extends State<ConfigPage> {
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: EditableSinglelineText(
                 inputType: TextInputType.number,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
                 noCounter: true,
                 label: fieldDefinition.label +
                     (fieldDefinition.unit != ''

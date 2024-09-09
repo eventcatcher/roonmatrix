@@ -6,6 +6,8 @@ import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
+import 'package:roonmatrix/ui/settings/settings_bloc.dart';
+import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:roonmatrix/ui/start_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -47,10 +49,12 @@ class RoonMatrixState extends State<RoonMatrix> {
   bool saveIdle = false;
 
   late OptionsBloc optionsBloc;
+  late SettingsBloc settingsBloc;
 
   @override
   void initState() {
     fileRepository.init();
+    settingsBloc = SettingsBloc();
     optionsBloc = OptionsBloc(fileRepository: fileRepository);
     optionsBloc.loadOptions(options);
     super.initState();
@@ -61,6 +65,9 @@ class RoonMatrixState extends State<RoonMatrix> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
+        BlocProvider<SettingsBloc>(
+          create: (BuildContext context) => settingsBloc,
+        ),
         BlocProvider<OptionsBloc>(
           create: (BuildContext context) => optionsBloc,
         ),
@@ -98,6 +105,34 @@ class RoonMatrixState extends State<RoonMatrix> {
                                     PlatformProvidedMenuItemType.about))
                                   const PlatformProvidedMenuItem(
                                       type: PlatformProvidedMenuItemType.about),
+                              ],
+                            ),
+                            PlatformMenuItemGroup(
+                              members: <PlatformMenuItem>[
+                                PlatformMenuItem(
+                                  label: 'Settings',
+                                  shortcut: const SingleActivator(
+                                      LogicalKeyboardKey.comma,
+                                      meta: true),
+                                  onSelected: () {
+                                    showGeneralDialog(
+                                      context: context,
+                                      barrierColor: Colors.black12
+                                          .withOpacity(0.6), // Background color
+                                      barrierDismissible: false,
+                                      barrierLabel: 'Dialog',
+                                      transitionDuration:
+                                          const Duration(milliseconds: 400),
+                                      pageBuilder: (_, __, ___) {
+                                        return SettingsPage(
+                                          close: () {
+                                            Navigator.pop(context);
+                                          },
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                             PlatformMenuItemGroup(

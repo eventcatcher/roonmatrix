@@ -20,10 +20,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 //ignore:depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:validators/validators.dart';
 
 class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   final FileRepository fileRepository;
+
   final Map<String, TextEditingController> conrollerSearch = {
     "main": TextEditingController(),
     "info": TextEditingController(),
@@ -32,13 +34,13 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   };
   final bool logDebugMessage = false;
   final int pollingIntervalInSeconds = 30;
-  final String startIp = '192.168.0.50'; // min: 1
-  final String endIp = '192.168.0.59'; // max: 254
   final int port = 8000;
   final int timeoutInMilliseconds = 500;
   final int logTextDelayInMilliseconds = 500;
   http.Client client = http.Client();
   Map<String, dynamic> logHoursOptions = {};
+  String? ipStart;
+  String? ipEnd;
   bool isScanning = false;
   Timer? timer;
 
@@ -60,12 +62,35 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     // event to state handler //
     // ====================== //
     on<OptionsEvent>((event, emit) async {
+      if (event is SetIpRange) {
+        String? ipStart = event.ipStart;
+        String? ipEnd = event.ipEnd;
+
+        emit(OptionsStateLoaded(
+          update: DateTime.now(),
+          ipStart: ipStart,
+          ipEnd: ipEnd,
+          options: state.options,
+          searchFilter: state.searchFilter,
+          devices: state.devices,
+          info: state.info,
+          config: state.config,
+          definitions: state.definitions,
+          fieldValues: state.fieldValues,
+          log: state.log,
+          idle: state.idle,
+          logMessage: state.logMessage,
+        ));
+      }
+
       if (event is ResetOptions) {
         setPollingTimer(stateBefore: state.options?.polling, newState: false);
         Options options = Options((OptionsBuilder b) => b..polling = false);
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: options,
           searchFilter: state.searchFilter,
           devices: state.devices,
@@ -86,6 +111,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
@@ -102,6 +129,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       if (event is LoadDevicesAndInfo) {
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: state.options,
           searchFilter: state.searchFilter,
           devices: event.devices,
@@ -123,6 +152,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: options,
           searchFilter: state.searchFilter,
           devices: state.devices,
@@ -143,6 +174,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: options,
           searchFilter: state.searchFilter,
           devices: state.devices,
@@ -164,6 +197,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: state.options,
           searchFilter: searchFilter,
           devices: state.devices,
@@ -178,8 +213,15 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       }
 
       if (event is Searching) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        ipStart = prefs.getString('ipStart');
+        ipEnd = prefs.getString('ipEnd');
+
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: ipStart,
+          ipEnd: ipEnd,
           options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
@@ -200,6 +242,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
@@ -227,6 +271,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
                 emit(OptionsStateLoaded(
                   update: DateTime.now(),
+                  ipStart: state.ipStart,
+                  ipEnd: state.ipEnd,
                   options: state.options,
                   searchFilter: state.searchFilter,
                   devices: state.devices,
@@ -246,6 +292,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             }
             emit(OptionsStateLoaded(
               update: DateTime.now(),
+              ipStart: state.ipStart,
+              ipEnd: state.ipEnd,
               options: state.options,
               searchFilter: state.searchFilter,
               devices: state.devices,
@@ -264,6 +312,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           }
           emit(OptionsStateLoaded(
             update: DateTime.now(),
+            ipStart: state.ipStart,
+            ipEnd: state.ipEnd,
             options: state.options,
             searchFilter: state.searchFilter,
             devices: state.devices,
@@ -283,6 +333,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
@@ -313,6 +365,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
                 emit(OptionsStateLoaded(
                   update: DateTime.now(),
+                  ipStart: state.ipStart,
+                  ipEnd: state.ipEnd,
                   options: state.options,
                   searchFilter: state.searchFilter,
                   devices: state.devices,
@@ -332,6 +386,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             }
             emit(OptionsStateLoaded(
               update: DateTime.now(),
+              ipStart: state.ipStart,
+              ipEnd: state.ipEnd,
               options: state.options,
               searchFilter: state.searchFilter,
               devices: state.devices,
@@ -350,6 +406,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           }
           emit(OptionsStateLoaded(
             update: DateTime.now(),
+            ipStart: state.ipStart,
+            ipEnd: state.ipEnd,
             options: state.options,
             searchFilter: state.searchFilter,
             devices: state.devices,
@@ -370,6 +428,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
         emit(OptionsStateLoaded(
           update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
           options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
@@ -400,6 +460,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             if (response.statusCode == 200) {
               emit(OptionsStateLoaded(
                 update: DateTime.now(),
+                ipStart: state.ipStart,
+                ipEnd: state.ipEnd,
                 options: state.options,
                 searchFilter: state.searchFilter,
                 devices: state.devices,
@@ -418,6 +480,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             }
             emit(OptionsStateLoaded(
               update: DateTime.now(),
+              ipStart: state.ipStart,
+              ipEnd: state.ipEnd,
               options: state.options,
               searchFilter: state.searchFilter,
               devices: state.devices,
@@ -436,6 +500,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           }
           emit(OptionsStateLoaded(
             update: DateTime.now(),
+            ipStart: state.ipStart,
+            ipEnd: state.ipEnd,
             options: state.options,
             searchFilter: state.searchFilter,
             devices: state.devices,
@@ -1053,65 +1119,69 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               Duration(milliseconds: logTextDelayInMilliseconds));
         }
 
-        final int firstHostId = int.parse(startIp.split('.').last);
-        final int lastHostId = int.parse(endIp.split('.').last);
-        final String subnet = startIp.substring(0, startIp.lastIndexOf('.'));
+        if (ipStart != null && ipEnd != null) {
+          final int firstHostId = int.parse(ipStart!.split('.').last);
+          final int lastHostId = int.parse(ipEnd!.split('.').last);
+          final String subnet =
+              ipStart!.substring(0, ipStart!.lastIndexOf('.'));
 
-        for (int i = firstHostId; i <= lastHostId; i++) {
-          String ip = '$subnet.$i';
-          await Socket.connect(ip, port,
-                  timeout: Duration(milliseconds: timeoutInMilliseconds))
-              .then((socket) async {
-            if (logDebugMessage == true) {
-              await Future.delayed(
-                  Duration(milliseconds: logTextDelayInMilliseconds));
-              addToLogMessage(msg: 'found device on ip: $ip');
-              await Future.delayed(
-                  Duration(milliseconds: logTextDelayInMilliseconds));
-            }
-            if (kDebugMode) {
-              print('found device on ip: $ip');
-            }
+          for (int i = firstHostId; i <= lastHostId; i++) {
+            String ip = '$subnet.$i';
+            await Socket.connect(ip, port,
+                    timeout: Duration(milliseconds: timeoutInMilliseconds))
+                .then((socket) async {
+              if (logDebugMessage == true) {
+                await Future.delayed(
+                    Duration(milliseconds: logTextDelayInMilliseconds));
+                addToLogMessage(msg: 'found device on ip: $ip');
+                await Future.delayed(
+                    Duration(milliseconds: logTextDelayInMilliseconds));
+              }
+              if (kDebugMode) {
+                print('found device on ip: $ip');
+              }
 
-            String url = 'http://$ip:$port/info/';
-            Uri uri = Uri.parse(url);
-            addToLogMessage(msg: 'test rest-api route: $url');
-            try {
-              var response = await client.get(uri);
-              if (response.statusCode == 200) {
-                if (response.body.substring(0, 1) == '{') {
-                  Map<String, dynamic> json =
-                      jsonDecode(response.body) as Map<String, dynamic>;
-                  if (json['name'] != null && json['time'] != null) {
-                    addToLogMessage(
-                        msg:
-                            'roonmatrix device found on ip: $ip, name: ${json['name']}');
-                    if (kDebugMode) {
-                      print(
-                          'roonmatrix device found on ip: $ip, name: ${json['name']}, time: ${json['time']}');
+              String url = 'http://$ip:$port/info/';
+              Uri uri = Uri.parse(url);
+              addToLogMessage(msg: 'test rest-api route: $url');
+              try {
+                var response = await client.get(uri);
+                if (response.statusCode == 200) {
+                  if (response.body.substring(0, 1) == '{') {
+                    Map<String, dynamic> json =
+                        jsonDecode(response.body) as Map<String, dynamic>;
+                    if (json['name'] != null && json['time'] != null) {
+                      addToLogMessage(
+                          msg:
+                              'roonmatrix device found on ip: $ip, name: ${json['name']}');
+                      if (kDebugMode) {
+                        print(
+                            'roonmatrix device found on ip: $ip, name: ${json['name']}, time: ${json['time']}');
+                      }
+
+                      devices.add(ip);
+                      info[ip] = json;
                     }
-
-                    devices.add(ip);
-                    info[ip] = json;
                   }
                 }
+              } catch (e) {
+                addToLogMessage(msg: 'error by access to $url: $e');
+                if (kDebugMode) {
+                  print('error by access to $url: $e');
+                }
               }
-            } catch (e) {
-              addToLogMessage(msg: 'error by access to $url: $e');
-              if (kDebugMode) {
-                print('error by access to $url: $e');
-              }
-            }
 
-            socket.destroy();
-          }).catchError((error) {
-            if (kDebugMode) {
-              print("nothing found on ip: $ip");
-            }
-          });
+              socket.destroy();
+            }).catchError((error) {
+              if (kDebugMode) {
+                print("nothing found on ip: $ip");
+              }
+            });
+          }
+
+          add(LoadDevicesAndInfo(devices: devices, info: info));
         }
 
-        add(LoadDevicesAndInfo(devices: devices, info: info));
         isScanning = false;
       } catch (e) {
         if (logDebugMessage == true) {
@@ -1159,7 +1229,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       }
       timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds),
           (Timer timer) {
-        searchDevices();
+        searching();
       });
     }
     if (stateBefore != false && newState == false) {
@@ -1173,6 +1243,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   // ==================== //
   // public event methods //
   // ==================== //
+
+  void setIpRange({required String? ipStart, required String? ipEnd}) {
+    add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
+  }
 
   void resetOptions() {
     add(ResetOptions());

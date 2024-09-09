@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
@@ -110,6 +111,9 @@ class MapListItemsState extends State<MapListItems> {
             inputType: fieldType.startsWith('int')
                 ? TextInputType.number
                 : TextInputType.text,
+            formatters: fieldType.startsWith('int')
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : null,
             noCounter: true,
             label: key == ': '
                 ? '[: ]'

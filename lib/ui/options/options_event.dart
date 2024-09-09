@@ -101,3 +101,23 @@ class ZoneControl extends OptionsEvent {
   @override
   List<Object> get props => [ip, controlId, cmd];
 }
+
+class SetIpRange extends OptionsEvent {
+  final String? ipStart;
+  final String? ipEnd;
+
+  const SetIpRange({required this.ipStart, required this.ipEnd});
+
+  @override
+  List<Object> get props {
+    List<Object> props = [];
+    if (ipStart != null) {
+      props.add(ipStart!);
+    }
+    if (ipEnd != null) {
+      props.add(ipEnd!);
+    }
+
+    return props;
+  }
+}
