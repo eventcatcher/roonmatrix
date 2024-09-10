@@ -90,19 +90,16 @@ class MapListItemsState extends State<MapListItems> {
     super.dispose();
   }
 
-  returnJson(fieldValues) {
+  void returnJson(List<dynamic> fieldValues) {
     String json = jsonEncode(fieldValues).replaceAll('"', "'");
     widget.onChanged(json);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> getWidgets() {
     List<Widget> colWidgets = [];
     double width = MediaQuery.of(context).size.width;
 
-    String deviceType = width < 1024 || Platform.isAndroid || Platform.isIOS
-        ? 'mobile'
-        : 'desktop';
+    String deviceType = width < 1024 ? 'mobile' : 'desktop';
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
       Map<String, dynamic> map = fieldValues[idx];
@@ -256,6 +253,11 @@ class MapListItemsState extends State<MapListItems> {
     ));
     colWidgets.add(const SizedBox(height: 6.0));
 
+    return colWidgets;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       margin: margin,
       alignment: Alignment.topLeft,
@@ -281,7 +283,7 @@ class MapListItemsState extends State<MapListItems> {
                   height: 4.0,
                 ),
               ],
-              Column(children: colWidgets),
+              Column(children: getWidgets()),
               const SizedBox(height: 6.0),
             ],
           ),
