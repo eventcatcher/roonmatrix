@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -97,6 +98,11 @@ class MapListItemsState extends State<MapListItems> {
   @override
   Widget build(BuildContext context) {
     List<Widget> colWidgets = [];
+    double width = MediaQuery.of(context).size.width;
+
+    String deviceType = width < 1024 || Platform.isAndroid || Platform.isIOS
+        ? 'mobile'
+        : 'desktop';
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
       Map<String, dynamic> map = fieldValues[idx];
@@ -105,86 +111,120 @@ class MapListItemsState extends State<MapListItems> {
         String fieldType = fieldDefinition.type.structure
             .firstWhere((ItemTypeStructure el) => el.name == key)
             .type;
-        Widget widget = Flexible(
-          flex: 1,
-          child: EditableSinglelineText(
-            inputType: fieldType.startsWith('int')
-                ? TextInputType.number
-                : TextInputType.text,
-            formatters: fieldType.startsWith('int')
-                ? [FilteringTextInputFormatter.digitsOnly]
-                : null,
-            noCounter: true,
-            label: key == ': '
-                ? '[: ]'
-                : key + optionsBloc.getListFieldUnit(fieldType),
-            labelColor: Colors.red,
-            borderColor: Colors.red.shade300,
-            text: fieldValues[idx][key].toString(),
-            errorMessageHandler: (String newValue) {
-              if (fieldType.startsWith('int')) {
-                if (newValue == '') {
-                  return 'Zahlenfeld darf nicht leer sein';
-                }
-                return 'Zahlenwert ist ausserhalb des gültigen Bereichs';
+        Widget widget = EditableSinglelineText(
+          inputType: fieldType.startsWith('int')
+              ? TextInputType.number
+              : TextInputType.text,
+          formatters: fieldType.startsWith('int')
+              ? [FilteringTextInputFormatter.digitsOnly]
+              : null,
+          noCounter: true,
+          label: key == ': '
+              ? '[: ]'
+              : key + optionsBloc.getListFieldUnit(fieldType),
+          labelColor: Colors.red,
+          borderColor: Colors.red.shade300,
+          text: fieldValues[idx][key].toString(),
+          errorMessageHandler: (String newValue) {
+            if (fieldType.startsWith('int')) {
+              if (newValue == '') {
+                return 'Zahlenfeld darf nicht leer sein';
               }
-              if (fieldType.startsWith('url') &&
-                  !optionsBloc.validateUrl(text: newValue, type: fieldType)) {
-                return 'Url hat ein ungültiges Format';
-              }
+              return 'Zahlenwert ist ausserhalb des gültigen Bereichs';
+            }
+            if (fieldType.startsWith('url') &&
+                !optionsBloc.validateUrl(text: newValue, type: fieldType)) {
+              return 'Url hat ein ungültiges Format';
+            }
 
-              return 'Textfeld darf nicht leer sein';
-            },
-            validation: (String text) {
-              if (fieldType.startsWith('int')) {
-                int? num = int.tryParse(text);
-                if (num == null) {
-                  return false;
-                }
-                return optionsBloc.validateNumber(num: num, type: fieldType);
+            return 'Textfeld darf nicht leer sein';
+          },
+          validation: (String text) {
+            if (fieldType.startsWith('int')) {
+              int? num = int.tryParse(text);
+              if (num == null) {
+                return false;
               }
+              return optionsBloc.validateNumber(num: num, type: fieldType);
+            }
 
-              if (fieldType.startsWith('url')) {
-                return optionsBloc.validateUrl(text: text, type: fieldType);
-              }
+            if (fieldType.startsWith('url')) {
+              return optionsBloc.validateUrl(text: text, type: fieldType);
+            }
 
-              if (fieldType.startsWith('string')) {
-                return optionsBloc.validateText(text: text, type: fieldType);
-              }
+            if (fieldType.startsWith('string')) {
+              return optionsBloc.validateText(text: text, type: fieldType);
+            }
 
-              return false;
-            },
-            onChanged: (String value) {
-              if (mounted) {
-                try {
-                  setState(() => fieldValues[idx][key] =
-                      (fieldType.startsWith('int') ? int.parse(value) : value));
+            return false;
+          },
+          onChanged: (String value) {
+            if (mounted) {
+              try {
+                setState(() => fieldValues[idx][key] =
+                    (fieldType.startsWith('int') ? int.parse(value) : value));
+                returnJson(fieldValues);
+              } catch (e) {
+                setState(() {
+                  fieldValues[idx][key] = '';
                   returnJson(fieldValues);
-                } catch (e) {
-                  setState(() {
-                    fieldValues[idx][key] = '';
-                    returnJson(fieldValues);
-                  });
-                }
+                });
               }
+            }
+          },
+        );
+        rowWidgets.add(
+            deviceType == 'mobile' ? widget : Flexible(flex: 1, child: widget));
+      }
+
+      if (deviceType == 'desktop') {
+        rowWidgets.add(
+          IconButton(
+            onPressed: () {
+              setState(() => fieldValues.removeAt(idx));
+              returnJson(fieldValues);
             },
+            icon: const Icon(Icons.clear),
           ),
         );
-        rowWidgets.add(widget);
       }
-      rowWidgets.add(
-        IconButton(
-          onPressed: () {
-            setState(() => fieldValues.removeAt(idx));
-            returnJson(fieldValues);
-          },
-          icon: const Icon(Icons.clear),
-        ),
-      );
-      colWidgets.add(Row(
-        mainAxisSize: MainAxisSize.max,
-        children: rowWidgets,
-      ));
+      if (deviceType == 'mobile') {
+        colWidgets.addAll(rowWidgets);
+      } else {
+        colWidgets
+            .add(Row(mainAxisSize: MainAxisSize.max, children: rowWidgets));
+      }
+
+      if (deviceType == 'mobile') {
+        colWidgets.add(const SizedBox(height: 6.0));
+        colWidgets.add(Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding:
+                const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
+            child: ElevatedButton.icon(
+              style: ButtonStyle(
+                minimumSize: WidgetStateProperty.all<Size>(
+                    const Size(double.infinity, 20)),
+              ),
+              icon: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Icon(
+                  Icons.remove,
+                  color: Colors.white,
+                  size: 20.0,
+                ),
+              ),
+              label: const Text('remove'),
+              onPressed: () async {
+                setState(() => fieldValues.removeAt(idx));
+                returnJson(fieldValues);
+              },
+            ),
+          ),
+        ));
+        colWidgets.add(const SizedBox(height: 3.0));
+      }
     }
 
     colWidgets.add(const SizedBox(height: 6.0));
