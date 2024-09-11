@@ -264,7 +264,9 @@ class ConfigPageState extends State<ConfigPage> {
                     height: 38.0,
                     child: IconButton(
                       onPressed: () async {
-                        final Uri url = Uri.parse(fieldDefinition.link);
+                        final Uri url = Uri.parse(fieldDefinition.link == '*'
+                            ? fieldDefinition.value.toString()
+                            : fieldDefinition.link.toString());
                         if (!await launchUrl(
                           url,
                           mode: LaunchMode.externalApplication,

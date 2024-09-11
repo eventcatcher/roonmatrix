@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,8 @@ import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:validators/validators.dart';
 
 class MapListItems extends StatefulWidget {
   final String? aligned;
@@ -103,7 +106,11 @@ class MapListItemsState extends State<MapListItems> {
     for (int idx = 0; idx < fieldValues.length; idx++) {
       Map<String, dynamic> map = fieldValues[idx];
       List<Widget> rowWidgets = [];
+      String link = "";
       for (String key in map.keys) {
+        if (key == 'url') {
+          link = fieldValues[idx][key].toString();
+        }
         String fieldType = fieldDefinition.type.structure
             .firstWhere((ItemTypeStructure el) => el.name == key)
             .type;
@@ -159,6 +166,9 @@ class MapListItemsState extends State<MapListItems> {
               try {
                 setState(() => fieldValues[idx][key] =
                     (fieldType.startsWith('int') ? int.parse(value) : value));
+                if (key == 'url') {
+                  link = value;
+                }
                 returnJson(fieldValues);
               } catch (e) {
                 setState(() {
@@ -174,13 +184,45 @@ class MapListItemsState extends State<MapListItems> {
       }
 
       if (deviceType == 'desktop') {
+        rowWidgets.add(Container(
+          margin: const EdgeInsets.only(
+            top: 18.0,
+            right: 16.0,
+          ),
+          height: 38.0,
+          child: IconButton(
+            onPressed: link != '' &&
+                    isURL(link, requireTld: true, requireProtocol: true)
+                ? () async {
+                    final Uri url = Uri.parse(link);
+                    if (!await launchUrl(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                    )) {
+                      if (kDebugMode) {
+                        print('Could not launch url: $url');
+                      }
+                    }
+                  }
+                : null,
+            icon: const Icon(Icons.link),
+          ),
+        ));
+
         rowWidgets.add(
-          IconButton(
-            onPressed: () {
-              setState(() => fieldValues.removeAt(idx));
-              returnJson(fieldValues);
-            },
-            icon: const Icon(Icons.clear),
+          Container(
+            margin: const EdgeInsets.only(
+              top: 18.0,
+              right: 8.0,
+            ),
+            height: 38.0,
+            child: IconButton(
+              onPressed: () {
+                setState(() => fieldValues.removeAt(idx));
+                returnJson(fieldValues);
+              },
+              icon: const Icon(Icons.clear),
+            ),
           ),
         );
       }
@@ -193,9 +235,10 @@ class MapListItemsState extends State<MapListItems> {
 
       if (deviceType == 'mobile') {
         colWidgets.add(const SizedBox(height: 6.0));
-        colWidgets.add(Align(
-          alignment: Alignment.topRight,
-          child: Padding(
+
+        if (link != '' &&
+            isURL(link, requireTld: true, requireProtocol: true)) {
+          colWidgets.add(Padding(
             padding:
                 const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
             child: ElevatedButton.icon(
@@ -206,17 +249,47 @@ class MapListItemsState extends State<MapListItems> {
               icon: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Icon(
-                  Icons.remove,
+                  Icons.link,
                   color: Colors.white,
                   size: 20.0,
                 ),
               ),
-              label: const Text('remove'),
+              label: const Text('open link'),
               onPressed: () async {
-                setState(() => fieldValues.removeAt(idx));
-                returnJson(fieldValues);
+                final Uri url = Uri.parse(link);
+                if (!await launchUrl(
+                  url,
+                  mode: LaunchMode.externalApplication,
+                )) {
+                  if (kDebugMode) {
+                    print('Could not launch url: $url');
+                  }
+                }
               },
             ),
+          ));
+        }
+
+        colWidgets.add(Padding(
+          padding: const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
+          child: ElevatedButton.icon(
+            style: ButtonStyle(
+              minimumSize: WidgetStateProperty.all<Size>(
+                  const Size(double.infinity, 20)),
+            ),
+            icon: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.0),
+              child: Icon(
+                Icons.remove,
+                color: Colors.white,
+                size: 20.0,
+              ),
+            ),
+            label: const Text('remove'),
+            onPressed: () async {
+              setState(() => fieldValues.removeAt(idx));
+              returnJson(fieldValues);
+            },
           ),
         ));
         colWidgets.add(const SizedBox(height: 3.0));
