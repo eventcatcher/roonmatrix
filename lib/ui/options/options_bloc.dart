@@ -659,6 +659,9 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
       if (fieldDefinition.type.type == 'list') {
         fieldType = 'list';
+        if (fieldDefinition.type.structure.isEmpty) {
+          fieldType = 'listItems';
+        }
         if (fieldDefinition.type.structure.length == 2) {
           List<String> names = ['key', 'val'];
           String name1 = fieldDefinition.type.structure[0].name;
@@ -702,7 +705,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               }
               if (fieldType == 'text' ||
                   fieldType == 'list' ||
-                  fieldType == 'keyValItems') {
+                  fieldType == 'keyValItems' ||
+                  fieldType == 'listItems') {
                 fieldValues[areaKey][fieldKey] = area[fieldKey];
               }
               if (kDebugMode) {
@@ -839,36 +843,47 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     List<dynamic> fieldValues = jsonDecode(jsonStr.replaceAll("'", '"'));
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
-      Map<String, dynamic> map = fieldValues[idx];
-      for (String key in map.keys) {
-        String fieldType = fieldDefinition.type.structure
-            .firstWhere((ItemTypeStructure el) => el.name == key)
-            .type;
-
-        if (fieldType.startsWith('int')) {
-          int? num = int.tryParse(fieldValues[idx][key].toString());
-          if (num == null) {
-            return false;
-          }
-          bool itemValid = validateNumber(num: num, type: fieldType);
+      if (getFieldType(fieldDefinition: fieldDefinition) == 'listItems') {
+        List<dynamic> items = fieldValues[idx];
+        for (int key = 0; key < items.length; key++) {
+          bool itemValid =
+              validateText(text: fieldValues[idx][key], type: 'string');
           if (itemValid == false) {
             return false;
           }
         }
+      } else {
+        Map<String, dynamic> map = fieldValues[idx];
+        for (String key in map.keys) {
+          String fieldType = fieldDefinition.type.structure
+              .firstWhere((ItemTypeStructure el) => el.name == key)
+              .type;
 
-        if (fieldType.startsWith('url')) {
-          bool itemValid =
-              validateUrl(text: fieldValues[idx][key], type: fieldType);
-          if (itemValid == false) {
-            return false;
+          if (fieldType.startsWith('int')) {
+            int? num = int.tryParse(fieldValues[idx][key].toString());
+            if (num == null) {
+              return false;
+            }
+            bool itemValid = validateNumber(num: num, type: fieldType);
+            if (itemValid == false) {
+              return false;
+            }
           }
-        }
 
-        if (fieldType.startsWith('string')) {
-          bool itemValid =
-              validateText(text: fieldValues[idx][key], type: fieldType);
-          if (itemValid == false) {
-            return false;
+          if (fieldType.startsWith('url')) {
+            bool itemValid =
+                validateUrl(text: fieldValues[idx][key], type: fieldType);
+            if (itemValid == false) {
+              return false;
+            }
+          }
+
+          if (fieldType.startsWith('string')) {
+            bool itemValid =
+                validateText(text: fieldValues[idx][key], type: fieldType);
+            if (itemValid == false) {
+              return false;
+            }
           }
         }
       }

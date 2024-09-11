@@ -11,6 +11,7 @@ import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/headline.dart';
 import 'package:roonmatrix/ui/layout/key_val_items.dart';
+import 'package:roonmatrix/ui/layout/list_items.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
 import 'package:roonmatrix/ui/layout/map_list_items.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_text/tags/styled_text_tag.dart';
 import 'package:styled_text/widgets/styled_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ConfigPage extends StatefulWidget {
   final String name;
@@ -203,6 +205,21 @@ class ConfigPageState extends State<ConfigPage> {
               ),
             );
           }
+          if (fieldType == 'listItems') {
+            List<dynamic> json = jsonDecode(
+                (fieldValues[area.name][fieldDefinition.name] as String)
+                    .replaceAll("'", '"'));
+            widgetField = ListItems(
+              label: fieldDefinition.label,
+              labelColor: Colors.red,
+              fieldDefinition: fieldDefinition,
+              fieldValues: json,
+              onChanged: (String value) {
+                setState(
+                    () => fieldValues[area.name][fieldDefinition.name] = value);
+              },
+            );
+          }
           if (fieldType == 'keyValItems') {
             Map<String, dynamic> json = jsonDecode(
                 (fieldValues[area.name][fieldDefinition.name] as String)
@@ -234,7 +251,37 @@ class ConfigPageState extends State<ConfigPage> {
             );
           }
           if (widgetField != null) {
-            fields.add(widgetField);
+            if (fieldDefinition.link != '') {
+              fields.add(Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(child: widgetField),
+                  Container(
+                    margin: const EdgeInsets.only(
+                      top: 18.0,
+                      right: 16.0,
+                    ),
+                    height: 38.0,
+                    child: IconButton(
+                      onPressed: () async {
+                        final Uri url = Uri.parse(fieldDefinition.link);
+                        if (!await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        )) {
+                          if (kDebugMode) {
+                            print('Could not launch url: $url');
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.link),
+                    ),
+                  ),
+                ],
+              ));
+            } else {
+              fields.add(widgetField);
+            }
           }
         }
       }

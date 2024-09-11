@@ -40,6 +40,8 @@ class _$ConfigDefinitionItemSerializer
       'value',
       serializers.serialize(object.value,
           specifiedType: const FullType(String)),
+      'link',
+      serializers.serialize(object.link, specifiedType: const FullType(String)),
     ];
 
     return result;
@@ -81,6 +83,10 @@ class _$ConfigDefinitionItemSerializer
           result.value = serializers.deserialize(value,
               specifiedType: const FullType(String))! as String;
           break;
+        case 'link':
+          result.link = serializers.deserialize(value,
+              specifiedType: const FullType(String))! as String;
+          break;
       }
     }
 
@@ -101,6 +107,8 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
   final String unit;
   @override
   final String value;
+  @override
+  final String link;
 
   factory _$ConfigDefinitionItem(
           [void Function(ConfigDefinitionItemBuilder)? updates]) =>
@@ -112,7 +120,8 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
       required this.type,
       required this.label,
       required this.unit,
-      required this.value})
+      required this.value,
+      required this.link})
       : super._() {
     BuiltValueNullFieldError.checkNotNull(
         name, r'ConfigDefinitionItem', 'name');
@@ -126,6 +135,8 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
         unit, r'ConfigDefinitionItem', 'unit');
     BuiltValueNullFieldError.checkNotNull(
         value, r'ConfigDefinitionItem', 'value');
+    BuiltValueNullFieldError.checkNotNull(
+        link, r'ConfigDefinitionItem', 'link');
   }
 
   @override
@@ -146,7 +157,8 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
         type == other.type &&
         label == other.label &&
         unit == other.unit &&
-        value == other.value;
+        value == other.value &&
+        link == other.link;
   }
 
   @override
@@ -158,6 +170,7 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
     _$hash = $jc(_$hash, label.hashCode);
     _$hash = $jc(_$hash, unit.hashCode);
     _$hash = $jc(_$hash, value.hashCode);
+    _$hash = $jc(_$hash, link.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -170,7 +183,8 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
           ..add('type', type)
           ..add('label', label)
           ..add('unit', unit)
-          ..add('value', value))
+          ..add('value', value)
+          ..add('link', link))
         .toString();
   }
 }
@@ -203,6 +217,10 @@ class ConfigDefinitionItemBuilder
   String? get value => _$this._value;
   set value(String? value) => _$this._value = value;
 
+  String? _link;
+  String? get link => _$this._link;
+  set link(String? link) => _$this._link = link;
+
   ConfigDefinitionItemBuilder();
 
   ConfigDefinitionItemBuilder get _$this {
@@ -214,6 +232,7 @@ class ConfigDefinitionItemBuilder
       _label = $v.label;
       _unit = $v.unit;
       _value = $v.value;
+      _link = $v.link;
       _$v = null;
     }
     return this;
@@ -249,7 +268,9 @@ class ConfigDefinitionItemBuilder
               unit: BuiltValueNullFieldError.checkNotNull(
                   unit, r'ConfigDefinitionItem', 'unit'),
               value: BuiltValueNullFieldError.checkNotNull(
-                  value, r'ConfigDefinitionItem', 'value'));
+                  value, r'ConfigDefinitionItem', 'value'),
+              link: BuiltValueNullFieldError.checkNotNull(
+                  link, r'ConfigDefinitionItem', 'link'));
     } catch (_) {
       late String _$failedField;
       try {

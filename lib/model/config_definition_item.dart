@@ -13,6 +13,7 @@ abstract class ConfigDefinitionItem
   String get label;
   String get unit;
   String get value;
+  String get link;
 
   ConfigDefinitionItem._();
   factory ConfigDefinitionItem(
@@ -25,6 +26,7 @@ abstract class ConfigDefinitionItem
     b.label ??= '';
     b.unit ??= '';
     b.value ??= '';
+    b.link ??= '';
   }
 
   Map<String, dynamic> toJson() {
