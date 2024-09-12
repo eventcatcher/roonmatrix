@@ -11,6 +11,7 @@ class ListItems extends StatefulWidget {
   final String? placeholder;
   final ConfigDefinitionItem? fieldDefinition;
   final List<dynamic> fieldValues;
+  final bool predefinedLength;
   final bool? noVerticalSpace;
   final bool? readOnly;
   final bool? readOnlyColoredGrey;
@@ -25,6 +26,7 @@ class ListItems extends StatefulWidget {
     this.placeholder,
     required this.fieldDefinition,
     required this.fieldValues,
+    required this.predefinedLength,
     this.noVerticalSpace,
     this.readOnly,
     this.readOnlyColoredGrey = false,
@@ -39,6 +41,7 @@ class ListItems extends StatefulWidget {
 class ListItemsState extends State<ListItems> {
   List<dynamic> get fieldValues => widget.fieldValues;
   String? get label => widget.label;
+  bool get predefinedLength => widget.predefinedLength;
   late TextEditingController textController;
   late EdgeInsetsGeometry margin;
 
@@ -97,13 +100,15 @@ class ListItemsState extends State<ListItems> {
         noCounter: true,
         labelColor: Colors.red,
         borderColor: Colors.red.shade300,
-        suffixIcon: IconButton(
-          onPressed: () {
-            setState(() => fieldValues.removeAt(idx));
-            returnJson(fieldValues);
-          },
-          icon: const Icon(Icons.clear),
-        ),
+        suffixIcon: predefinedLength
+            ? null
+            : IconButton(
+                onPressed: () {
+                  setState(() => fieldValues.removeAt(idx));
+                  returnJson(fieldValues);
+                },
+                icon: const Icon(Icons.clear),
+              ),
         text: fieldValues[idx].toString(),
         onChanged: (value) {
           if (mounted) {
@@ -149,63 +154,66 @@ class ListItemsState extends State<ListItems> {
                 ),
               ],
               Column(children: widgets),
-              const SizedBox(height: 6.0),
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: ElevatedButton.icon(
-                    icon: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 20.0,
+              if (!predefinedLength) ...[
+                const SizedBox(height: 6.0),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: ElevatedButton.icon(
+                      icon: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                          size: 20.0,
+                        ),
                       ),
+                      label: const Text('add'),
+                      onPressed: () async {
+                        String? newKey = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Add a new item'),
+                              content: TextField(
+                                controller: textController,
+                                autofocus: true,
+                                decoration: const InputDecoration(
+                                    hintText: "Enter the value of the item."),
+                              ),
+                              actions: [
+                                TextButton(
+                                  child: const Text('Cancel'),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text('Add'),
+                                  onPressed: () {
+                                    if (textController.text.isNotEmpty) {
+                                      Navigator.pop(
+                                          context, textController.text);
+                                    }
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        if (newKey != null) {
+                          setState(() {
+                            fieldValues.add(textController.text);
+                            textController.text = '';
+                            returnJson(fieldValues);
+                          });
+                        }
+                      },
                     ),
-                    label: const Text('add'),
-                    onPressed: () async {
-                      String? newKey = await showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text('Add a new item'),
-                            content: TextField(
-                              controller: textController,
-                              autofocus: true,
-                              decoration: const InputDecoration(
-                                  hintText: "Enter the value of the item."),
-                            ),
-                            actions: [
-                              TextButton(
-                                child: const Text('Cancel'),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                              ),
-                              TextButton(
-                                child: const Text('Add'),
-                                onPressed: () {
-                                  if (textController.text.isNotEmpty) {
-                                    Navigator.pop(context, textController.text);
-                                  }
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                      if (newKey != null) {
-                        setState(() {
-                          fieldValues.add(textController.text);
-                          textController.text = '';
-                          returnJson(fieldValues);
-                        });
-                      }
-                    },
                   ),
                 ),
-              ),
+              ],
               const SizedBox(height: 12.0),
             ],
           ),

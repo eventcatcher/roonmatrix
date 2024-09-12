@@ -205,7 +205,7 @@ class ConfigPageState extends State<ConfigPage> {
               ),
             );
           }
-          if (fieldType == 'listItems') {
+          if (fieldType.startsWith('listItems')) {
             List<dynamic> json = jsonDecode(
                 (fieldValues[area.name][fieldDefinition.name] as String)
                     .replaceAll("'", '"'));
@@ -214,6 +214,7 @@ class ConfigPageState extends State<ConfigPage> {
               labelColor: Colors.red,
               fieldDefinition: fieldDefinition,
               fieldValues: json,
+              predefinedLength: fieldType.endsWith('PredefinedLength'),
               onChanged: (String value) {
                 setState(
                     () => fieldValues[area.name][fieldDefinition.name] = value);

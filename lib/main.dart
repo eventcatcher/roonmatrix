@@ -97,7 +97,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                   ? PlatformMenuBar(
                       menus: <PlatformMenuItem>[
                         PlatformMenu(
-                          label: 'roonmatrix',
+                          label: 'RoonMatrix',
                           menus: <PlatformMenuItem>[
                             PlatformMenuItemGroup(
                               members: <PlatformMenuItem>[

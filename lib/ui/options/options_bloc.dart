@@ -265,7 +265,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             if (response.statusCode == 200) {
               if (response.body.substring(0, 1) == '{') {
                 Map<String, dynamic> json =
-                    jsonDecode(response.body) as Map<String, dynamic>;
+                    jsonDecode(utf8.decode(response.bodyBytes))
+                        as Map<String, dynamic>;
 
                 Map<String, dynamic> info = state.info;
                 info[ip] = json;
@@ -356,7 +357,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             if (response.statusCode == 200) {
               if (response.body.substring(0, 1) == '{') {
                 Map<String, dynamic> json =
-                    jsonDecode(response.body) as Map<String, dynamic>;
+                    jsonDecode(utf8.decode(response.bodyBytes))
+                        as Map<String, dynamic>;
 
                 ConfigDefinition definitions =
                     ConfigDefinition.fromJson(json['definitions']);
@@ -470,7 +472,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                 config: state.config,
                 definitions: state.definitions,
                 fieldValues: state.fieldValues,
-                log: response.body,
+                log: utf8.decode(response.bodyBytes),
                 idle: false,
                 logMessage: state.logMessage,
               ));
@@ -523,7 +525,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         String cmd = event.cmd; // previous, next, shufflemode, playmode
 
         Map<String, String> headers = {
-          "Content-Type": 'application/json',
+          "Content-Type": 'application/json; charset=utf-8',
           "Accept": 'application/json',
         };
 
@@ -657,10 +659,12 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         fieldType = 'bool';
       }
 
-      if (fieldDefinition.type.type == 'list') {
+      if (fieldDefinition.type.type.startsWith('list')) {
         fieldType = 'list';
         if (fieldDefinition.type.structure.isEmpty) {
-          fieldType = 'listItems';
+          fieldType = fieldDefinition.type.type.startsWith('list(')
+              ? 'listItemsPredefinedLength'
+              : 'listItems';
         }
         if (fieldDefinition.type.structure.length == 2) {
           List<String> names = ['key', 'val'];
@@ -704,9 +708,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                     bool.parse(area[fieldKey].toString().toLowerCase());
               }
               if (fieldType == 'text' ||
-                  fieldType == 'list' ||
-                  fieldType == 'keyValItems' ||
-                  fieldType == 'listItems') {
+                  fieldType.startsWith('list') ||
+                  fieldType == 'keyValItems') {
                 fieldValues[areaKey][fieldKey] = area[fieldKey];
               }
               if (kDebugMode) {
@@ -843,7 +846,9 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     List<dynamic> fieldValues = jsonDecode(jsonStr.replaceAll("'", '"'));
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
-      if (getFieldType(fieldDefinition: fieldDefinition) == 'listItems') {
+      if (getFieldType(fieldDefinition: fieldDefinition) != null &&
+          getFieldType(fieldDefinition: fieldDefinition)!
+              .startsWith('listItems')) {
         List<dynamic> items = fieldValues[idx];
         for (int key = 0; key < items.length; key++) {
           bool itemValid =
@@ -963,7 +968,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         }
 
         Map<String, String> headers = {
-          "Content-Type": 'application/json',
+          "Content-Type": 'application/json; charset=utf-8',
           "Accept": 'application/json',
         };
 
@@ -1165,7 +1170,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                 if (response.statusCode == 200) {
                   if (response.body.substring(0, 1) == '{') {
                     Map<String, dynamic> json =
-                        jsonDecode(response.body) as Map<String, dynamic>;
+                        jsonDecode(utf8.decode(response.bodyBytes))
+                            as Map<String, dynamic>;
                     if (json['name'] != null && json['time'] != null) {
                       addToLogMessage(
                           msg:
