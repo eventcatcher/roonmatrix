@@ -261,9 +261,8 @@ class StartPageState extends State<StartPage> {
                                             ],
                                           ),
                                           padding: const EdgeInsets.all(8.0),
-                                          child: Center(
-                                              child: const Text(
-                                                  'no devices found'))),
+                                          child: const Center(
+                                              child: Text('no devices found'))),
                                     ],
                                   )
                                 : ListView.separated(
