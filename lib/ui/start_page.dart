@@ -233,487 +233,564 @@ class StartPageState extends State<StartPage> {
                         ),
                       Expanded(
                         child: idle == true
-                            ? const LoadingIndicator()
-                            : ListView.separated(
-                                key: ValueKey('deviceList${devices.length}'),
-                                separatorBuilder: (context, index) =>
-                                    const Divider(
-                                      color: Colors.white,
-                                      height: 1,
-                                    ),
-                                itemCount: devices.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  dynamic i = info[devices[index]];
-
-                                  String zoneName = '';
-                                  if (i['control_id'] != null) {
-                                    String controlId = i['control_id'];
-                                    if (i['channels'] != null &&
-                                        i['channels'][controlId] != null) {
-                                      if (i['channels'][controlId] ==
-                                          'webserver') {
-                                        zoneName = controlId;
-                                      } else {
-                                        zoneName = i['channels'][controlId];
-                                      }
-                                    }
-                                  }
-
-                                  return Container(
-                                    color: const Color(0xffe0e0e0),
-                                    child: Stack(
-                                      children: [
-                                        ListTile(
-                                          minLeadingWidth: 28,
-                                          tileColor: Colors.lightBlueAccent,
-                                          iconColor: Colors.black,
-                                          textColor: Colors.black,
-                                          leading: SizedBox(
-                                            width: 32,
-                                            height: 32,
-                                            child: SvgPicture.asset(
-                                              'assets/svg/8-8-led-matrix-display-unit.svg',
-                                              allowDrawingOutsideViewBox: false,
-                                              fit: BoxFit.cover,
-                                              clipBehavior: Clip.hardEdge,
+                            ? const LoadingIndicator(
+                                message: 'scan for devices')
+                            : devices.isEmpty
+                                ? Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                          width: 150,
+                                          height: 150,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: Colors.deepOrange,
                                             ),
+                                            borderRadius:
+                                                const BorderRadius.all(
+                                                    Radius.circular(8.0)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.deepOrange
+                                                    .withOpacity(0.15),
+                                                spreadRadius: 1,
+                                                blurRadius: 8,
+                                                offset: const Offset(3,
+                                                    3), // changes position of shadow
+                                              ),
+                                            ],
                                           ),
-                                          title: Text(
-                                            i['name'],
-                                            softWrap: false,
-                                            maxLines: 1,
-                                            style: (Platform.isMacOS ||
-                                                    Platform.isWindows ||
-                                                    Platform.isLinux)
-                                                ? const TextStyle(
-                                                    fontSize: 16.0)
-                                                : const TextStyle(
-                                                    fontSize: 14.0),
-                                          ),
-                                          subtitle: Text(
-                                            devices[index],
-                                            softWrap: false,
-                                            maxLines: 1,
-                                            style: (Platform.isMacOS ||
-                                                    Platform.isWindows ||
-                                                    Platform.isLinux)
-                                                ? const TextStyle(
-                                                    fontSize: 13.0)
-                                                : const TextStyle(
-                                                    fontSize: 11.0),
-                                          ),
-                                          isThreeLine: true,
-                                          trailing: Platform.isMacOS ||
-                                                  Platform.isWindows ||
-                                                  Platform.isLinux
-                                              ? Row(
-                                                  // desktop variant
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Text(
-                                                      'time: ${i['time']}  |  zone: $zoneName  |  playcount: ${i['playcount']}  ',
-                                                      softWrap: true,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.fade,
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8.0),
-                                                      child:
-                                                          ElevatedButton.icon(
-                                                        onPressed: () {
-                                                          showGeneralDialog(
-                                                            context: context,
-                                                            barrierColor: Colors
-                                                                .black12
-                                                                .withOpacity(
-                                                                    0.6), // Background color
-                                                            barrierDismissible:
-                                                                false,
-                                                            barrierLabel:
-                                                                'Dialog',
-                                                            transitionDuration:
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        400),
-                                                            pageBuilder:
-                                                                (_, __, ___) {
-                                                              return InfoPage(
-                                                                name: i['name'],
-                                                                ip: devices[
-                                                                    index],
-                                                                close: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                        icon: const Icon(
-                                                            Icons.info),
-                                                        label:
-                                                            const Text('Info'),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8.0),
-                                                      child:
-                                                          ElevatedButton.icon(
-                                                        onPressed: () {
-                                                          showGeneralDialog(
-                                                            context: context,
-                                                            barrierColor: Colors
-                                                                .black12
-                                                                .withOpacity(
-                                                                    0.6), // Background color
-                                                            barrierDismissible:
-                                                                false,
-                                                            barrierLabel:
-                                                                'Dialog',
-                                                            transitionDuration:
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        400),
-                                                            pageBuilder:
-                                                                (_, __, ___) {
-                                                              return ConfigPage(
-                                                                name: i['name'],
-                                                                ip: devices[
-                                                                    index],
-                                                                close: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                        icon: const Icon(
-                                                            Icons.settings),
-                                                        label: const Text(
-                                                            'Config'),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8.0),
-                                                      child:
-                                                          ElevatedButton.icon(
-                                                        onPressed: () {
-                                                          showGeneralDialog(
-                                                            context: context,
-                                                            barrierColor: Colors
-                                                                .black12
-                                                                .withOpacity(
-                                                                    0.6), // Background color
-                                                            barrierDismissible:
-                                                                false,
-                                                            barrierLabel:
-                                                                'Dialog',
-                                                            transitionDuration:
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        400),
-                                                            pageBuilder:
-                                                                (_, __, ___) {
-                                                              return LogPage(
-                                                                name: i['name'],
-                                                                ip: devices[
-                                                                    index],
-                                                                close: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                        icon: const Icon(Icons
-                                                            .remove_red_eye),
-                                                        label:
-                                                            const Text('Log'),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8.0),
-                                                      child:
-                                                          ElevatedButton.icon(
-                                                        onPressed: () {
-                                                          showGeneralDialog(
-                                                            context: context,
-                                                            barrierColor: Colors
-                                                                .black12
-                                                                .withOpacity(
-                                                                    0.6), // Background color
-                                                            barrierDismissible:
-                                                                false,
-                                                            barrierLabel:
-                                                                'Dialog',
-                                                            transitionDuration:
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        400),
-                                                            pageBuilder:
-                                                                (_, __, ___) {
-                                                              return ControlPage(
-                                                                ip: devices[
-                                                                    index],
-                                                                name: i['name'],
-                                                                close: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              );
-                                                            },
-                                                          );
-                                                        },
-                                                        icon: const Icon(
-                                                            Icons.play_circle),
-                                                        label: const Text(
-                                                            'Control'),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              : Row(
-                                                  // mobile variant
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    if (orientation ==
-                                                        Orientation.portrait)
-                                                      Text('${i['playcount']}',
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Center(
+                                              child: const Text(
+                                                  'no devices found'))),
+                                    ],
+                                  )
+                                : ListView.separated(
+                                    key:
+                                        ValueKey('deviceList${devices.length}'),
+                                    separatorBuilder: (context, index) =>
+                                        const Divider(
+                                          color: Colors.white,
+                                          height: 1,
+                                        ),
+                                    itemCount: devices.length,
+                                    itemBuilder:
+                                        (BuildContext context, int index) {
+                                      dynamic i = info[devices[index]];
+
+                                      String zoneName = '';
+                                      if (i['control_id'] != null) {
+                                        String controlId = i['control_id'];
+                                        if (i['channels'] != null &&
+                                            i['channels'][controlId] != null) {
+                                          if (i['channels'][controlId] ==
+                                              'webserver') {
+                                            zoneName = controlId;
+                                          } else {
+                                            zoneName = i['channels'][controlId];
+                                          }
+                                        }
+                                      }
+
+                                      return Container(
+                                        color: const Color(0xffe0e0e0),
+                                        child: Stack(
+                                          children: [
+                                            ListTile(
+                                              minLeadingWidth: 28,
+                                              tileColor: Colors.lightBlueAccent,
+                                              iconColor: Colors.black,
+                                              textColor: Colors.black,
+                                              leading: SizedBox(
+                                                width: 32,
+                                                height: 32,
+                                                child: SvgPicture.asset(
+                                                  'assets/svg/8-8-led-matrix-display-unit.svg',
+                                                  allowDrawingOutsideViewBox:
+                                                      false,
+                                                  fit: BoxFit.cover,
+                                                  clipBehavior: Clip.hardEdge,
+                                                ),
+                                              ),
+                                              title: Text(
+                                                i['name'],
+                                                softWrap: false,
+                                                maxLines: 1,
+                                                style: (Platform.isMacOS ||
+                                                        Platform.isWindows ||
+                                                        Platform.isLinux)
+                                                    ? const TextStyle(
+                                                        fontSize: 16.0)
+                                                    : const TextStyle(
+                                                        fontSize: 14.0),
+                                              ),
+                                              subtitle: Text(
+                                                devices[index],
+                                                softWrap: false,
+                                                maxLines: 1,
+                                                style: (Platform.isMacOS ||
+                                                        Platform.isWindows ||
+                                                        Platform.isLinux)
+                                                    ? const TextStyle(
+                                                        fontSize: 13.0)
+                                                    : const TextStyle(
+                                                        fontSize: 11.0),
+                                              ),
+                                              isThreeLine: true,
+                                              trailing: Platform.isMacOS ||
+                                                      Platform.isWindows ||
+                                                      Platform.isLinux
+                                                  ? Row(
+                                                      // desktop variant
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Text(
+                                                          'time: ${i['time']}  |  zone: $zoneName  |  playcount: ${i['playcount']}  ',
                                                           softWrap: true,
+                                                          maxLines: 2,
                                                           overflow:
                                                               TextOverflow.fade,
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 9)),
-                                                    if (orientation ==
-                                                        Orientation.landscape)
-                                                      Text(
-                                                        'time: ${i['time']}\nzone: $zoneName  |  playcount: ${i['playcount']}  ',
-                                                        softWrap: true,
-                                                        maxLines: 2,
-                                                        overflow:
-                                                            TextOverflow.fade,
-                                                        style: const TextStyle(
-                                                            fontSize: 11),
-                                                      ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8.0),
-                                                      child: CircleAvatar(
-                                                        radius: 15,
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        child: IconButton(
+                                                        ),
+                                                        Padding(
                                                           padding:
-                                                              EdgeInsets.zero,
-                                                          onPressed: () {
-                                                            showGeneralDialog(
-                                                              context: context,
-                                                              barrierColor: Colors
-                                                                  .black12
-                                                                  .withOpacity(
-                                                                      0.6), // Background color
-                                                              barrierDismissible:
-                                                                  false,
-                                                              barrierLabel:
-                                                                  'Dialog',
-                                                              transitionDuration:
-                                                                  const Duration(
-                                                                      milliseconds:
-                                                                          400),
-                                                              pageBuilder:
-                                                                  (_, __, ___) {
-                                                                return InfoPage(
-                                                                  name:
-                                                                      i['name'],
-                                                                  ip: devices[
-                                                                      index],
-                                                                  close: () {
-                                                                    Navigator.pop(
-                                                                        context);
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 8.0),
+                                                          child: ElevatedButton
+                                                              .icon(
+                                                            onPressed: () {
+                                                              showGeneralDialog(
+                                                                context:
+                                                                    context,
+                                                                barrierColor: Colors
+                                                                    .black12
+                                                                    .withOpacity(
+                                                                        0.6), // Background color
+                                                                barrierDismissible:
+                                                                    false,
+                                                                barrierLabel:
+                                                                    'Dialog',
+                                                                transitionDuration:
+                                                                    const Duration(
+                                                                        milliseconds:
+                                                                            400),
+                                                                pageBuilder: (_,
+                                                                    __, ___) {
+                                                                  return InfoPage(
+                                                                    name: i[
+                                                                        'name'],
+                                                                    ip: devices[
+                                                                        index],
+                                                                    close: () {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                  );
+                                                                },
+                                                              );
+                                                            },
+                                                            icon: const Icon(
+                                                                Icons.info),
+                                                            label: const Text(
+                                                                'Info'),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 8.0),
+                                                          child: ElevatedButton
+                                                              .icon(
+                                                            onPressed: () {
+                                                              showGeneralDialog(
+                                                                context:
+                                                                    context,
+                                                                barrierColor: Colors
+                                                                    .black12
+                                                                    .withOpacity(
+                                                                        0.6), // Background color
+                                                                barrierDismissible:
+                                                                    false,
+                                                                barrierLabel:
+                                                                    'Dialog',
+                                                                transitionDuration:
+                                                                    const Duration(
+                                                                        milliseconds:
+                                                                            400),
+                                                                pageBuilder: (_,
+                                                                    __, ___) {
+                                                                  return ConfigPage(
+                                                                    name: i[
+                                                                        'name'],
+                                                                    ip: devices[
+                                                                        index],
+                                                                    close: () {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                  );
+                                                                },
+                                                              );
+                                                            },
+                                                            icon: const Icon(
+                                                                Icons.settings),
+                                                            label: const Text(
+                                                                'Config'),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 8.0),
+                                                          child: ElevatedButton
+                                                              .icon(
+                                                            onPressed: () {
+                                                              showGeneralDialog(
+                                                                context:
+                                                                    context,
+                                                                barrierColor: Colors
+                                                                    .black12
+                                                                    .withOpacity(
+                                                                        0.6), // Background color
+                                                                barrierDismissible:
+                                                                    false,
+                                                                barrierLabel:
+                                                                    'Dialog',
+                                                                transitionDuration:
+                                                                    const Duration(
+                                                                        milliseconds:
+                                                                            400),
+                                                                pageBuilder: (_,
+                                                                    __, ___) {
+                                                                  return LogPage(
+                                                                    name: i[
+                                                                        'name'],
+                                                                    ip: devices[
+                                                                        index],
+                                                                    close: () {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                  );
+                                                                },
+                                                              );
+                                                            },
+                                                            icon: const Icon(Icons
+                                                                .remove_red_eye),
+                                                            label: const Text(
+                                                                'Log'),
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 8.0),
+                                                          child: ElevatedButton
+                                                              .icon(
+                                                            onPressed: () {
+                                                              showGeneralDialog(
+                                                                context:
+                                                                    context,
+                                                                barrierColor: Colors
+                                                                    .black12
+                                                                    .withOpacity(
+                                                                        0.6), // Background color
+                                                                barrierDismissible:
+                                                                    false,
+                                                                barrierLabel:
+                                                                    'Dialog',
+                                                                transitionDuration:
+                                                                    const Duration(
+                                                                        milliseconds:
+                                                                            400),
+                                                                pageBuilder: (_,
+                                                                    __, ___) {
+                                                                  return ControlPage(
+                                                                    ip: devices[
+                                                                        index],
+                                                                    name: i[
+                                                                        'name'],
+                                                                    close: () {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                  );
+                                                                },
+                                                              );
+                                                            },
+                                                            icon: const Icon(Icons
+                                                                .play_circle),
+                                                            label: const Text(
+                                                                'Control'),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )
+                                                  : Row(
+                                                      // mobile variant
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        if (orientation ==
+                                                            Orientation
+                                                                .portrait)
+                                                          Text(
+                                                              '${i['playcount']}',
+                                                              softWrap: true,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .fade,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          9)),
+                                                        if (orientation ==
+                                                            Orientation
+                                                                .landscape)
+                                                          Text(
+                                                            'time: ${i['time']}\nzone: $zoneName  |  playcount: ${i['playcount']}  ',
+                                                            softWrap: true,
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .fade,
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        11),
+                                                          ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 8.0),
+                                                          child: CircleAvatar(
+                                                            radius: 15,
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            child: IconButton(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              onPressed: () {
+                                                                showGeneralDialog(
+                                                                  context:
+                                                                      context,
+                                                                  barrierColor: Colors
+                                                                      .black12
+                                                                      .withOpacity(
+                                                                          0.6), // Background color
+                                                                  barrierDismissible:
+                                                                      false,
+                                                                  barrierLabel:
+                                                                      'Dialog',
+                                                                  transitionDuration:
+                                                                      const Duration(
+                                                                          milliseconds:
+                                                                              400),
+                                                                  pageBuilder:
+                                                                      (_, __,
+                                                                          ___) {
+                                                                    return InfoPage(
+                                                                      name: i[
+                                                                          'name'],
+                                                                      ip: devices[
+                                                                          index],
+                                                                      close:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                    );
                                                                   },
                                                                 );
                                                               },
-                                                            );
-                                                          },
-                                                          icon: const Icon(
-                                                              Icons.info),
+                                                              icon: const Icon(
+                                                                  Icons.info),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8.0),
-                                                      child: CircleAvatar(
-                                                        radius: 15,
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        child: IconButton(
+                                                        Padding(
                                                           padding:
-                                                              EdgeInsets.zero,
-                                                          onPressed: () {
-                                                            showGeneralDialog(
-                                                              context: context,
-                                                              barrierColor: Colors
-                                                                  .black12
-                                                                  .withOpacity(
-                                                                      0.6), // Background color
-                                                              barrierDismissible:
-                                                                  false,
-                                                              barrierLabel:
-                                                                  'Dialog',
-                                                              transitionDuration:
-                                                                  const Duration(
-                                                                      milliseconds:
-                                                                          400),
-                                                              pageBuilder:
-                                                                  (_, __, ___) {
-                                                                return ConfigPage(
-                                                                  name:
-                                                                      i['name'],
-                                                                  ip: devices[
-                                                                      index],
-                                                                  close: () {
-                                                                    Navigator.pop(
-                                                                        context);
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 8.0),
+                                                          child: CircleAvatar(
+                                                            radius: 15,
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            child: IconButton(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              onPressed: () {
+                                                                showGeneralDialog(
+                                                                  context:
+                                                                      context,
+                                                                  barrierColor: Colors
+                                                                      .black12
+                                                                      .withOpacity(
+                                                                          0.6), // Background color
+                                                                  barrierDismissible:
+                                                                      false,
+                                                                  barrierLabel:
+                                                                      'Dialog',
+                                                                  transitionDuration:
+                                                                      const Duration(
+                                                                          milliseconds:
+                                                                              400),
+                                                                  pageBuilder:
+                                                                      (_, __,
+                                                                          ___) {
+                                                                    return ConfigPage(
+                                                                      name: i[
+                                                                          'name'],
+                                                                      ip: devices[
+                                                                          index],
+                                                                      close:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                    );
                                                                   },
                                                                 );
                                                               },
-                                                            );
-                                                          },
-                                                          icon: const Icon(
-                                                              Icons.settings),
+                                                              icon: const Icon(
+                                                                  Icons
+                                                                      .settings),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8.0),
-                                                      child: CircleAvatar(
-                                                        radius: 15,
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        child: IconButton(
+                                                        Padding(
                                                           padding:
-                                                              EdgeInsets.zero,
-                                                          onPressed: () {
-                                                            showGeneralDialog(
-                                                              context: context,
-                                                              barrierColor: Colors
-                                                                  .black12
-                                                                  .withOpacity(
-                                                                      0.6), // Background color
-                                                              barrierDismissible:
-                                                                  false,
-                                                              barrierLabel:
-                                                                  'Dialog',
-                                                              transitionDuration:
-                                                                  const Duration(
-                                                                      milliseconds:
-                                                                          400),
-                                                              pageBuilder:
-                                                                  (_, __, ___) {
-                                                                return LogPage(
-                                                                  name:
-                                                                      i['name'],
-                                                                  ip: devices[
-                                                                      index],
-                                                                  close: () {
-                                                                    Navigator.pop(
-                                                                        context);
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 8.0),
+                                                          child: CircleAvatar(
+                                                            radius: 15,
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            child: IconButton(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              onPressed: () {
+                                                                showGeneralDialog(
+                                                                  context:
+                                                                      context,
+                                                                  barrierColor: Colors
+                                                                      .black12
+                                                                      .withOpacity(
+                                                                          0.6), // Background color
+                                                                  barrierDismissible:
+                                                                      false,
+                                                                  barrierLabel:
+                                                                      'Dialog',
+                                                                  transitionDuration:
+                                                                      const Duration(
+                                                                          milliseconds:
+                                                                              400),
+                                                                  pageBuilder:
+                                                                      (_, __,
+                                                                          ___) {
+                                                                    return LogPage(
+                                                                      name: i[
+                                                                          'name'],
+                                                                      ip: devices[
+                                                                          index],
+                                                                      close:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                    );
                                                                   },
                                                                 );
                                                               },
-                                                            );
-                                                          },
-                                                          icon: const Icon(Icons
-                                                              .remove_red_eye),
+                                                              icon: const Icon(Icons
+                                                                  .remove_red_eye),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 8.0),
-                                                      child: CircleAvatar(
-                                                        radius: 15,
-                                                        backgroundColor:
-                                                            Colors.white,
-                                                        child: IconButton(
+                                                        Padding(
                                                           padding:
-                                                              EdgeInsets.zero,
-                                                          onPressed: () {
-                                                            showGeneralDialog(
-                                                              context: context,
-                                                              barrierColor: Colors
-                                                                  .black12
-                                                                  .withOpacity(
-                                                                      0.6), // Background color
-                                                              barrierDismissible:
-                                                                  false,
-                                                              barrierLabel:
-                                                                  'Dialog',
-                                                              transitionDuration:
-                                                                  const Duration(
-                                                                      milliseconds:
-                                                                          400),
-                                                              pageBuilder:
-                                                                  (_, __, ___) {
-                                                                return ControlPage(
-                                                                  ip: devices[
-                                                                      index],
-                                                                  name:
-                                                                      i['name'],
-                                                                  close: () {
-                                                                    Navigator.pop(
-                                                                        context);
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 8.0),
+                                                          child: CircleAvatar(
+                                                            radius: 15,
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            child: IconButton(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              onPressed: () {
+                                                                showGeneralDialog(
+                                                                  context:
+                                                                      context,
+                                                                  barrierColor: Colors
+                                                                      .black12
+                                                                      .withOpacity(
+                                                                          0.6), // Background color
+                                                                  barrierDismissible:
+                                                                      false,
+                                                                  barrierLabel:
+                                                                      'Dialog',
+                                                                  transitionDuration:
+                                                                      const Duration(
+                                                                          milliseconds:
+                                                                              400),
+                                                                  pageBuilder:
+                                                                      (_, __,
+                                                                          ___) {
+                                                                    return ControlPage(
+                                                                      ip: devices[
+                                                                          index],
+                                                                      name: i[
+                                                                          'name'],
+                                                                      close:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      },
+                                                                    );
                                                                   },
                                                                 );
                                                               },
-                                                            );
-                                                          },
-                                                          icon: const Icon(Icons
-                                                              .play_circle),
+                                                              icon: const Icon(Icons
+                                                                  .play_circle),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
-                                        ),
-                                        Positioned(
-                                            top: 60,
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                            ),
+                                            Positioned(
+                                                top: 60,
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
                                                       horizontal: 16.0),
-                                              child: SizedBox(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width -
-                                                      30,
-                                                  child: TextScroll(
-                                                      '${i['displaystr']}    ////    ')),
-                                            ))
-                                      ],
-                                    ),
-                                  );
-                                }),
+                                                  child: SizedBox(
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width -
+                                                              30,
+                                                      child: TextScroll(
+                                                          '${i['displaystr']}    ////    ')),
+                                                ))
+                                          ],
+                                        ),
+                                      );
+                                    }),
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(

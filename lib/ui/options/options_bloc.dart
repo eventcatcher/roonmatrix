@@ -1251,7 +1251,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       }
       timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds),
           (Timer timer) {
-        searching();
+        searching(idle: state.devices.isEmpty);
       });
     }
     if (stateBefore != false && newState == false) {
