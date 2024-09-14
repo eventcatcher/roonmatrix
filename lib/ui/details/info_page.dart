@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
-import 'package:roonmatrix/ui/layout/loading_indicator.dart';
+import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
 
@@ -83,7 +83,7 @@ class InfoPageState extends State<InfoPage> {
                   ),
                   Expanded(
                     child: optionsState.idle == true
-                        ? const LoadingIndicator()
+                        ? const LoadingIndicatorSmall()
                         : ListView(
                             shrinkWrap: true,
                             children: [

@@ -12,7 +12,7 @@ import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/headline.dart';
 import 'package:roonmatrix/ui/layout/key_val_items.dart';
 import 'package:roonmatrix/ui/layout/list_items.dart';
-import 'package:roonmatrix/ui/layout/loading_indicator.dart';
+import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/map_list_items.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
@@ -316,7 +316,7 @@ class ConfigPageState extends State<ConfigPage> {
           }
 
           if (optionsState.definitions == null) {
-            return const LoadingIndicator();
+            return const LoadingIndicatorSmall();
           }
           ConfigDefinition defs = optionsState.definitions!;
           fieldValues = optionsState.fieldValues;
@@ -354,7 +354,7 @@ class ConfigPageState extends State<ConfigPage> {
                     children: [
                       Expanded(
                         child: optionsState.idle == true
-                            ? const LoadingIndicator()
+                            ? const LoadingIndicatorSmall()
                             : ListView(
                                 shrinkWrap: true,
                                 children: [...formFields],
@@ -444,7 +444,7 @@ class ConfigPageState extends State<ConfigPage> {
                       ),
                       Expanded(
                         child: optionsState.idle == true
-                            ? const LoadingIndicator()
+                            ? const LoadingIndicatorSmall()
                             : ListView(
                                 shrinkWrap: true,
                                 children: [

@@ -286,18 +286,19 @@ class StartPageState extends State<StartPage> {
                         ),
                       Expanded(
                         child: idle == true
-                            ? const LoadingIndicator(
+                            ? const LoadingIndicatorBig(
                                 message: 'scan for devices')
                             : devices.isEmpty
                                 ? Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Container(
-                                          width: 150,
-                                          height: 150,
+                                          width: 184,
+                                          height: 184,
                                           decoration: BoxDecoration(
                                             border: Border.all(
                                               color: Colors.deepOrange,
+                                              width: 5.0,
                                             ),
                                             borderRadius:
                                                 const BorderRadius.all(
@@ -306,10 +307,8 @@ class StartPageState extends State<StartPage> {
                                               BoxShadow(
                                                 color: Colors.deepOrange
                                                     .withOpacity(0.15),
-                                                spreadRadius: 1,
-                                                blurRadius: 8,
-                                                offset: const Offset(3,
-                                                    3), // changes position of shadow
+                                                spreadRadius: 0,
+                                                blurRadius: 0,
                                               ),
                                             ],
                                           ),

@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 
-class LoadingIndicator extends StatelessWidget {
+class LoadingIndicatorBig extends StatelessWidget {
   final String? message;
 
-  const LoadingIndicator({super.key, this.message});
+  const LoadingIndicatorBig({super.key, this.message});
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (message != null)
-              Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(message!)),
-            const CircularProgressIndicator(),
+        child: Stack(
+          children: <Widget>[
+            SizedBox(
+              height: 200.0,
+              width: 200.0,
+              child: Center(
+                  child: Transform.scale(
+                scale: 5,
+                child: const Center(
+                    child: CircularProgressIndicator(
+                  strokeWidth: 1,
+                )),
+              )),
+            ),
+            SizedBox(
+                height: 200.0,
+                width: 200.0,
+                child: Center(child: Text(message!)))
           ],
         ),
       );
