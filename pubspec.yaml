@@ -68,7 +68,6 @@ dependencies:
   url_launcher: ^6.3.0
   menu_bar: ^0.5.3
   package_info_plus: ^8.0.2
-  flutter_exit_app: ^1.1.4
   flutter_window_close: ^1.1.0
 
 dependency_overrides:

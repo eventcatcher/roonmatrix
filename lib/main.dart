@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:menu_bar/menu_bar.dart';
@@ -132,9 +131,7 @@ class RoonMatrixState extends State<RoonMatrix> {
             ),
             const MenuDivider(),
             MenuButton(
-              onTap: () => Platform.isAndroid || Platform.isIOS
-                  ? FlutterExitApp.exitApp(iosForceExit: true)
-                  : FlutterWindowClose.closeWindow(),
+              onTap: () => FlutterWindowClose.closeWindow(),
               shortcut:
                   const SingleActivator(LogicalKeyboardKey.keyQ, control: true),
               shortcutText: 'Ctrl+Q',
