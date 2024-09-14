@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/scheduler.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/control_page.dart';
@@ -7,6 +8,8 @@ import 'package:roonmatrix/ui/details/info_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/labeled_checkbox.dart';
+import 'package:roonmatrix/ui/layout/approve_modal.dart';
+import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
@@ -46,13 +49,71 @@ class StartPageState extends State<StartPage> {
 
   late Options options;
   late OptionsBloc optionsBloc;
+  late String appVersionAndBuildNumber;
 
   @override
   void initState() {
+    getAppVersionAndBuildNumber();
     options = widget.options;
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     super.initState();
   }
+
+  Future<void> getAppVersionAndBuildNumber() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appVersionAndBuildNumber =
+        '${packageInfo.version}+${packageInfo.buildNumber}';
+  }
+
+  void openAboutModal() =>
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        if (mounted) {
+          await ApproveModal(
+            context: context,
+            icon: Container(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: SizedBox(
+                width: 64,
+                height: 64,
+                child: SvgPicture.asset(
+                  'assets/svg/8-8-led-matrix-display-unit.svg',
+                  allowDrawingOutsideViewBox: false,
+                  fit: BoxFit.cover,
+                  clipBehavior: Clip.hardEdge,
+                ),
+              ),
+            ),
+            title: "roonmatrix",
+            question:
+                "Version $appVersionAndBuildNumber\n\nCopyright © 2024 de.eventcatcher. All rights reserved.",
+            okText: 'OK',
+            cancelText: '',
+            onApproved: () {
+              //
+            },
+          ).show();
+        }
+      });
+
+  void openSettingsPage() =>
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        if (mounted) {
+          await showGeneralDialog(
+            context: context,
+            barrierColor: Colors.black12.withOpacity(0.6), // Background color
+            barrierDismissible: false,
+            barrierLabel: 'Dialog',
+            transitionDuration: const Duration(milliseconds: 400),
+            pageBuilder: (_, __, ___) {
+              return SettingsPage(
+                close: () {
+                  Navigator.pop(context);
+                },
+              );
+            },
+          );
+        }
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +121,16 @@ class StartPageState extends State<StartPage> {
       appBar: AppBar(
         title: Text(title),
       ),
+      drawer: Platform.isIOS || Platform.isAndroid || Platform.isFuchsia
+          ? Drawer(child: BurgerMenu(onClose: (String? key) {
+              if (key == 'about') {
+                openAboutModal();
+              }
+              if (key == 'settings') {
+                openSettingsPage();
+              }
+            }))
+          : null,
       body: BlocBuilder(
           bloc: optionsBloc,
           builder: (context, OptionsState optionsState) {
@@ -68,25 +139,7 @@ class StartPageState extends State<StartPage> {
             }
 
             if (optionsState.ipStart == null || optionsState.ipEnd == null) {
-              SchedulerBinding.instance.addPostFrameCallback((_) async {
-                if (mounted) {
-                  await showGeneralDialog(
-                    context: context,
-                    barrierColor:
-                        Colors.black12.withOpacity(0.6), // Background color
-                    barrierDismissible: false,
-                    barrierLabel: 'Dialog',
-                    transitionDuration: const Duration(milliseconds: 400),
-                    pageBuilder: (_, __, ___) {
-                      return SettingsPage(
-                        close: () {
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  );
-                }
-              });
+              openSettingsPage();
             }
 
             options = optionsState.options ?? options;
