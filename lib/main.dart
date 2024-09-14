@@ -131,7 +131,24 @@ class RoonMatrixState extends State<RoonMatrix> {
             ),
             const MenuDivider(),
             MenuButton(
-              onTap: () => FlutterWindowClose.closeWindow(),
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                          title: const Text('Do you really want to quit?'),
+                          actions: [
+                            ElevatedButton(
+                                onPressed: () =>
+                                    FlutterWindowClose.closeWindow(),
+                                child: const Text('Yes')),
+                            ElevatedButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(false),
+                                child: const Text('No')),
+                          ]);
+                    });
+              },
               shortcut:
                   const SingleActivator(LogicalKeyboardKey.keyQ, control: true),
               shortcutText: 'Ctrl+Q',
