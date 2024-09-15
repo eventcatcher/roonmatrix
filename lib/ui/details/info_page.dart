@@ -1,13 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
+import 'package:roonmatrix/ui/translations/translations_bloc.dart';
+import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class InfoPage extends StatefulWidget {
   final String name;
@@ -31,149 +31,162 @@ class InfoPageState extends State<InfoPage> {
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
+  bool translationsLoaded = false;
   bool saveIdle = false;
 
+  late TranslationsBloc translationsBloc;
   late OptionsBloc optionsBloc;
 
   @override
   void initState() {
-    getTranslations();
-
+    translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getInfo(ip: ip);
 
     super.initState();
   }
 
-  Future<void> getTranslations() async {
-    String translationsJsonString =
-        await rootBundle.loadString('assets/json/translations.json');
-    translations = jsonDecode(translationsJsonString);
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        bloc: optionsBloc,
-        builder: (context, OptionsState optionsState) {
-          if (optionsState is! OptionsStateLoaded) {
-            return Container();
+        bloc: translationsBloc,
+        builder: (context, TranslationsState translationsState) {
+          if (translationsState is TranslationsStateLoaded) {
+            translations = translationsState.translations;
+            translationsLoaded = translationsState.translationsLoaded;
           }
 
-          String search = optionsState.searchFilter['info']!;
-          Map<String, dynamic> info =
-              Map.from((optionsState.info[ip] ?? {}) as Map<String, dynamic>);
-          if (search.isNotEmpty) {
-            info.removeWhere((key, value) =>
-                !key.toLowerCase().contains(search.toLowerCase()));
+          if (translationsState is! TranslationsStateLoaded ||
+              !translationsLoaded) {
+            return const SizedBox();
           }
 
-          String infoStr = info
-              .map((k, v) {
-                return MapEntry(k, '$k: $v');
-              })
-              .values
-              .toList()
-              .join('\n');
+          return BlocBuilder(
+              bloc: optionsBloc,
+              builder: (context, OptionsState optionsState) {
+                if (optionsState is! OptionsStateLoaded) {
+                  return Container();
+                }
 
-          return DefaultTabController(
-            length: 2,
-            child: Scaffold(
-              appBar: AppBar(
-                title: Text(
-                    '$name : ${translations['infoPageHeaderText'] ?? 'Info'}'),
-                actions: const [],
-              ),
-              body: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: SearchField(
-                      type: 'info',
-                      controller: optionsBloc.getSearchController(type: 'info'),
+                String search = optionsState.searchFilter['info']!;
+                Map<String, dynamic> info = Map.from(
+                    (optionsState.info[ip] ?? {}) as Map<String, dynamic>);
+                if (search.isNotEmpty) {
+                  info.removeWhere((key, value) =>
+                      !key.toLowerCase().contains(search.toLowerCase()));
+                }
+
+                String infoStr = info
+                    .map((k, v) {
+                      return MapEntry(k, '$k: $v');
+                    })
+                    .values
+                    .toList()
+                    .join('\n');
+
+                return DefaultTabController(
+                  length: 2,
+                  child: Scaffold(
+                    appBar: AppBar(
+                      title: Text(
+                          '$name : ${translations['infoPageHeaderText'] ?? 'Info'}'),
+                      actions: const [],
                     ),
-                  ),
-                  Expanded(
-                    child: optionsState.idle == true
-                        ? const LoadingIndicatorSmall()
-                        : ListView(
-                            shrinkWrap: true,
+                    body: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: SearchField(
+                            type: 'info',
+                            controller:
+                                optionsBloc.getSearchController(type: 'info'),
+                          ),
+                        ),
+                        Expanded(
+                          child: optionsState.idle == true
+                              ? const LoadingIndicatorSmall()
+                              : ListView(
+                                  shrinkWrap: true,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(20),
+                                      child: Text(infoStr),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: Platform.isMacOS ||
+                                      Platform.isWindows ||
+                                      Platform.isLinux
+                                  ? 16.0
+                                  : 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Text(infoStr),
+                              ElevatedButton.icon(
+                                icon: const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Icon(
+                                    Icons.download,
+                                    color: Colors.white,
+                                    size: 20.0,
+                                  ),
+                                ),
+                                label: Text(translations['exportButtonText'] ??
+                                    'export'),
+                                onPressed: saveIdle == true ||
+                                        optionsState.idle == true
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          saveIdle = true;
+                                        });
+                                        bool? valid =
+                                            await optionsBloc.exportData(
+                                                name: name,
+                                                ip: ip,
+                                                type: 'info');
+                                        setState(() {
+                                          saveIdle = false;
+                                        });
+                                        if (valid == null) {
+                                          return;
+                                        }
+                                        if (valid == true) {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                              content: Text(translations[
+                                                      'exportDoneMessage'] ??
+                                                  'export successfully done'),
+                                              backgroundColor: Colors.green,
+                                            ));
+                                          }
+                                        } else {
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(SnackBar(
+                                              content: Text(translations[
+                                                      'exportFailedMessage'] ??
+                                                  'export failed!'),
+                                              backgroundColor: Colors.red,
+                                            ));
+                                          }
+                                        }
+                                      },
                               ),
                             ],
                           ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                        vertical: Platform.isMacOS ||
-                                Platform.isWindows ||
-                                Platform.isLinux
-                            ? 16.0
-                            : 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ElevatedButton.icon(
-                          icon: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Icon(
-                              Icons.download,
-                              color: Colors.white,
-                              size: 20.0,
-                            ),
-                          ),
-                          label: Text(
-                              translations['exportButtonText'] ?? 'export'),
-                          onPressed: saveIdle == true ||
-                                  optionsState.idle == true
-                              ? null
-                              : () async {
-                                  setState(() {
-                                    saveIdle = true;
-                                  });
-                                  bool? valid = await optionsBloc.exportData(
-                                      name: name, ip: ip, type: 'info');
-                                  setState(() {
-                                    saveIdle = false;
-                                  });
-                                  if (valid == null) {
-                                    return;
-                                  }
-                                  if (valid == true) {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                            translations['exportDoneMessage'] ??
-                                                'export successfully done'),
-                                        backgroundColor: Colors.green,
-                                      ));
-                                    }
-                                  } else {
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(translations[
-                                                'exportFailedMessage'] ??
-                                            'export failed!'),
-                                        backgroundColor: Colors.red,
-                                      ));
-                                    }
-                                  }
-                                },
                         ),
+                        if (Platform.isIOS) const SizedBox(height: 14.0),
                       ],
                     ),
                   ),
-                  if (Platform.isIOS) const SizedBox(height: 14.0),
-                ],
-              ),
-            ),
-          );
+                );
+              });
         });
   }
 }

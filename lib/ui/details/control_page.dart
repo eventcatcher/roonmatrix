@@ -1,13 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
+import 'package:roonmatrix/ui/translations/translations_bloc.dart';
+import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class ControlPage extends StatefulWidget {
   final String name;
@@ -34,25 +34,20 @@ class ControlPageState extends State<ControlPage> {
       Platform.isMacOS || Platform.isWindows || Platform.isLinux ? 128.0 : 88.0;
 
   Map<String, dynamic> translations = {};
+  bool translationsLoaded = false;
   String selectedZoneId = '';
   String? controlId;
 
+  late TranslationsBloc translationsBloc;
   late OptionsBloc optionsBloc;
 
   @override
   void initState() {
-    getTranslations();
-
+    translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getInfo(ip: ip);
 
     super.initState();
-  }
-
-  Future<void> getTranslations() async {
-    String translationsJsonString =
-        await rootBundle.loadString('assets/json/translations.json');
-    translations = jsonDecode(translationsJsonString);
   }
 
   Widget controlButtons(Orientation orientation) {
@@ -202,136 +197,152 @@ class ControlPageState extends State<ControlPage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        bloc: optionsBloc,
-        builder: (context, OptionsState optionsState) {
-          if (optionsState is! OptionsStateLoaded) {
-            return Container();
+        bloc: translationsBloc,
+        builder: (context, TranslationsState translationsState) {
+          if (translationsState is TranslationsStateLoaded) {
+            translations = translationsState.translations;
+            translationsLoaded = translationsState.translationsLoaded;
           }
 
-          Map<String, dynamic> info = optionsState.info[ip] ?? {};
-          Map<String, dynamic> channels = (info['channels'] ?? {});
-          Map<String, String> options = {};
-
-          String zoneName = '';
-          String value = '';
-          String? selectedZoneId;
-
-          if (info['control_id'] != null) {
-            if (controlId == null && info['control_id'] != null) {
-              controlId = info['control_id'];
-              if (kDebugMode) {
-                print('controlId preset: $controlId');
-              }
-            }
-
-            if (controlId != null) {
-              if (channels[controlId] == 'webserver') {
-                selectedZoneId = controlId;
-              } else {
-                selectedZoneId = channels[controlId]!;
-              }
-            }
-          }
-          if (info['channels'] != null) {
-            for (String key in channels.keys) {
-              if (channels[key] == 'webserver') {
-                zoneName = key;
-                value = channels[key];
-              } else {
-                zoneName = channels[key]!;
-                value = key;
-              }
-              options.putIfAbsent(zoneName, () => value);
-            }
+          if (translationsState is! TranslationsStateLoaded ||
+              !translationsLoaded) {
+            return const SizedBox();
           }
 
-          return OrientationBuilder(
-              builder: (BuildContext context, Orientation orientation) {
-            return DefaultTabController(
-              length: 2,
-              child: Scaffold(
-                appBar: AppBar(
-                  title: Text(
-                      '$name : ${translations['controlPageHeaderText'] ?? 'Control'}'),
-                  actions: const [],
-                ),
-                body: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Center(
-                    child: orientation == Orientation.portrait ||
-                            Platform.isMacOS ||
-                            Platform.isWindows ||
-                            Platform.isLinux
-                        ? Column(
-                            // portrait view
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              SelectBox(
-                                  aligned: 'horizontal',
-                                  label:
-                                      '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
-                                  placeholder:
-                                      '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                                  inRow: false,
-                                  noVerticalSpace: false,
-                                  readOnly: false,
-                                  selected: selectedZoneId,
-                                  options: options,
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      if (options[newValue] != null &&
-                                          options[newValue] == 'webserver') {
-                                        controlId = newValue ?? '';
-                                      } else {
-                                        controlId = options[newValue];
-                                      }
-                                      selectedZoneId = newValue;
-                                    });
-                                  }),
-                              controlButtons(orientation),
-                            ],
-                          )
-                        : Row(
-                            // landscape view
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width -
-                                    3 * buttonSize -
-                                    128 -
-                                    (Platform.isIOS ? 24 : 0),
-                                child: SelectBox(
-                                    aligned: 'horizontal',
-                                    label:
-                                        '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
-                                    placeholder:
-                                        '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                                    inRow: false,
-                                    noVerticalSpace: false,
-                                    readOnly: false,
-                                    selected: selectedZoneId,
-                                    options: options,
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        if (options[newValue] != null &&
-                                            options[newValue] == 'webserver') {
-                                          controlId = newValue ?? '';
-                                        } else {
-                                          controlId = options[newValue];
-                                        }
-                                        selectedZoneId = newValue;
-                                      });
-                                    }),
-                              ),
-                              controlButtons(orientation),
-                            ],
-                          ),
-                  ),
-                ),
-              ),
-            );
-          });
+          return BlocBuilder(
+              bloc: optionsBloc,
+              builder: (context, OptionsState optionsState) {
+                if (optionsState is! OptionsStateLoaded) {
+                  return Container();
+                }
+
+                Map<String, dynamic> info = optionsState.info[ip] ?? {};
+                Map<String, dynamic> channels = (info['channels'] ?? {});
+                Map<String, String> options = {};
+
+                String zoneName = '';
+                String value = '';
+                String? selectedZoneId;
+
+                if (info['control_id'] != null) {
+                  if (controlId == null && info['control_id'] != null) {
+                    controlId = info['control_id'];
+                    if (kDebugMode) {
+                      print('controlId preset: $controlId');
+                    }
+                  }
+
+                  if (controlId != null) {
+                    if (channels[controlId] == 'webserver') {
+                      selectedZoneId = controlId;
+                    } else {
+                      selectedZoneId = channels[controlId]!;
+                    }
+                  }
+                }
+                if (info['channels'] != null) {
+                  for (String key in channels.keys) {
+                    if (channels[key] == 'webserver') {
+                      zoneName = key;
+                      value = channels[key];
+                    } else {
+                      zoneName = channels[key]!;
+                      value = key;
+                    }
+                    options.putIfAbsent(zoneName, () => value);
+                  }
+                }
+
+                return OrientationBuilder(
+                    builder: (BuildContext context, Orientation orientation) {
+                  return DefaultTabController(
+                    length: 2,
+                    child: Scaffold(
+                      appBar: AppBar(
+                        title: Text(
+                            '$name : ${translations['controlPageHeaderText'] ?? 'Control'}'),
+                        actions: const [],
+                      ),
+                      body: SingleChildScrollView(
+                        padding: const EdgeInsets.all(20),
+                        child: Center(
+                          child: orientation == Orientation.portrait ||
+                                  Platform.isMacOS ||
+                                  Platform.isWindows ||
+                                  Platform.isLinux
+                              ? Column(
+                                  // portrait view
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    SelectBox(
+                                        aligned: 'horizontal',
+                                        label:
+                                            '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+                                        placeholder:
+                                            '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                                        inRow: false,
+                                        noVerticalSpace: false,
+                                        readOnly: false,
+                                        selected: selectedZoneId,
+                                        options: options,
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            if (options[newValue] != null &&
+                                                options[newValue] ==
+                                                    'webserver') {
+                                              controlId = newValue ?? '';
+                                            } else {
+                                              controlId = options[newValue];
+                                            }
+                                            selectedZoneId = newValue;
+                                          });
+                                        }),
+                                    controlButtons(orientation),
+                                  ],
+                                )
+                              : Row(
+                                  // landscape view
+                                  mainAxisSize: MainAxisSize.max,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width -
+                                          3 * buttonSize -
+                                          128 -
+                                          (Platform.isIOS ? 24 : 0),
+                                      child: SelectBox(
+                                          aligned: 'horizontal',
+                                          label:
+                                              '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+                                          placeholder:
+                                              '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                                          inRow: false,
+                                          noVerticalSpace: false,
+                                          readOnly: false,
+                                          selected: selectedZoneId,
+                                          options: options,
+                                          onChanged: (String? newValue) {
+                                            setState(() {
+                                              if (options[newValue] != null &&
+                                                  options[newValue] ==
+                                                      'webserver') {
+                                                controlId = newValue ?? '';
+                                              } else {
+                                                controlId = options[newValue];
+                                              }
+                                              selectedZoneId = newValue;
+                                            });
+                                          }),
+                                    ),
+                                    controlButtons(orientation),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ),
+                  );
+                });
+              });
         });
   }
 }

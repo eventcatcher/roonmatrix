@@ -1,11 +1,10 @@
-import 'dart:convert';
-
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
+import 'package:roonmatrix/ui/translations/translations_bloc.dart';
+import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class SearchField extends StatefulWidget {
   final TextEditingController controller;
@@ -28,29 +27,32 @@ class SearchFieldState extends State<SearchField> {
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
 
+  late TranslationsBloc translationsBloc;
   late OptionsBloc optionsBloc;
 
   @override
   void initState() {
-    getTranslations();
-
+    translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     super.initState();
   }
 
-  Future<void> getTranslations() async {
-    String translationsJsonString =
-        await rootBundle.loadString('assets/json/translations.json');
-    translations = jsonDecode(translationsJsonString);
-    setState(() {
-      translationsLoaded = true;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return translationsLoaded
-        ? Padding(
+    return BlocBuilder(
+        bloc: translationsBloc,
+        builder: (context, TranslationsState translationsState) {
+          if (translationsState is TranslationsStateLoaded) {
+            translations = translationsState.translations;
+            translationsLoaded = translationsState.translationsLoaded;
+          }
+
+          if (translationsState is! TranslationsStateLoaded ||
+              !translationsLoaded) {
+            return const SizedBox();
+          }
+
+          return Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: ConstrainedBox(
               constraints:
@@ -120,7 +122,7 @@ class SearchFieldState extends State<SearchField> {
                 ),
               ),
             ),
-          )
-        : const SizedBox();
+          );
+        });
   }
 }

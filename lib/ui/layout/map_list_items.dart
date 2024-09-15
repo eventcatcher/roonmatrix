@@ -8,6 +8,8 @@ import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
+import 'package:roonmatrix/ui/translations/translations_bloc.dart';
+import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:validators/validators.dart';
 
@@ -50,13 +52,14 @@ class MapListItemsState extends State<MapListItems> {
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
 
+  late TranslationsBloc translationsBloc;
   late TextEditingController textController;
   late EdgeInsetsGeometry margin;
   late OptionsBloc optionsBloc;
 
   @override
   void initState() {
-    getTranslations();
+    translationsBloc = BlocProvider.of<TranslationsBloc>(context);
 
     switch (widget.aligned) {
       case "left":
@@ -96,15 +99,6 @@ class MapListItemsState extends State<MapListItems> {
   void dispose() {
     textController.dispose();
     super.dispose();
-  }
-
-  Future<void> getTranslations() async {
-    String translationsJsonString =
-        await rootBundle.loadString('assets/json/translations.json');
-    translations = jsonDecode(translationsJsonString);
-    setState(() {
-      translationsLoaded = true;
-    });
   }
 
   void returnJson(List<dynamic> fieldValues) {
@@ -349,8 +343,20 @@ class MapListItemsState extends State<MapListItems> {
 
   @override
   Widget build(BuildContext context) {
-    return translationsLoaded
-        ? Container(
+    return BlocBuilder(
+        bloc: translationsBloc,
+        builder: (context, TranslationsState translationsState) {
+          if (translationsState is TranslationsStateLoaded) {
+            translations = translationsState.translations;
+            translationsLoaded = translationsState.translationsLoaded;
+          }
+
+          if (translationsState is! TranslationsStateLoaded ||
+              !translationsLoaded) {
+            return const SizedBox();
+          }
+
+          return Container(
             margin: margin,
             alignment: Alignment.topLeft,
             child: Container(
@@ -381,7 +387,7 @@ class MapListItemsState extends State<MapListItems> {
                 ),
               ),
             ),
-          )
-        : const SizedBox();
+          );
+        });
   }
 }

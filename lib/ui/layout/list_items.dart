@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
+import 'package:roonmatrix/ui/translations/translations_bloc.dart';
+import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class ListItems extends StatefulWidget {
   final String? aligned;
@@ -47,12 +49,13 @@ class ListItemsState extends State<ListItems> {
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
 
+  late TranslationsBloc translationsBloc;
   late TextEditingController textController;
   late EdgeInsetsGeometry margin;
 
   @override
   void initState() {
-    getTranslations();
+    translationsBloc = BlocProvider.of<TranslationsBloc>(context);
 
     switch (widget.aligned) {
       case "left":
@@ -90,15 +93,6 @@ class ListItemsState extends State<ListItems> {
   void dispose() {
     textController.dispose();
     super.dispose();
-  }
-
-  Future<void> getTranslations() async {
-    String translationsJsonString =
-        await rootBundle.loadString('assets/json/translations.json');
-    translations = jsonDecode(translationsJsonString);
-    setState(() {
-      translationsLoaded = true;
-    });
   }
 
   returnJson(fieldValues) {
@@ -143,8 +137,20 @@ class ListItemsState extends State<ListItems> {
       widgets.add(widget);
     }
 
-    return translationsLoaded
-        ? Container(
+    return BlocBuilder(
+        bloc: translationsBloc,
+        builder: (context, TranslationsState translationsState) {
+          if (translationsState is TranslationsStateLoaded) {
+            translations = translationsState.translations;
+            translationsLoaded = translationsState.translationsLoaded;
+          }
+
+          if (translationsState is! TranslationsStateLoaded ||
+              !translationsLoaded) {
+            return const SizedBox();
+          }
+
+          return Container(
             margin: margin,
             alignment: Alignment.topLeft,
             child: Container(
@@ -244,7 +250,7 @@ class ListItemsState extends State<ListItems> {
                 ),
               ),
             ),
-          )
-        : const SizedBox();
+          );
+        });
   }
 }

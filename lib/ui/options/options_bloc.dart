@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/config_definition.dart';
@@ -13,6 +13,7 @@ import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/model/options.dart';
+import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/options/options_event.dart';
 import 'package:roonmatrix/ui/options/options_state.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,10 +22,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 //ignore:depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:validators/validators.dart';
 
 class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
+  final TranslationsBloc translationsBloc;
   final FileRepository fileRepository;
 
   final Map<String, TextEditingController> conrollerSearch = {
@@ -41,44 +44,13 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
-  Map<String, dynamic> logHoursOptions = {};
   String? ipStart;
   String? ipEnd;
   bool isScanning = false;
   Timer? timer;
 
-  Future<void> getTranslations() async {
-    String translationsJsonString =
-        await rootBundle.loadString('assets/json/translations.json');
-    translations = jsonDecode(translationsJsonString);
-  }
-
-  generateLogHours() async {
-    await getTranslations();
-
-    for (int i = 1; i <= 24; i++) {
-      String optionTextSingle =
-          translations['logHoursAgoSelectionHourMaskSingle'] ?? '# hour ago';
-      String optionTextMultiple =
-          translations['logHoursAgoSelectionHourMaskMultiple'] ?? '# hours ago';
-      String optionText = '';
-
-      optionText = i > 1
-          ? optionTextMultiple.replaceFirst('#', i.toString())
-          : optionTextSingle.replaceFirst('#', i.toString());
-
-      logHoursOptions[i.toString()] = {
-        "name": optionText,
-        "fontWeight": FontWeight.normal,
-        "icon": null
-      };
-    }
-  }
-
-  OptionsBloc({required this.fileRepository})
+  OptionsBloc({required this.translationsBloc, required this.fileRepository})
       : super(const OptionsStateInitial()) {
-    generateLogHours();
-
     // ====================== //
     // event to state handler //
     // ====================== //
@@ -1282,6 +1254,34 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       timer?.cancel();
     }
   }
+
+  void openAboutModal(
+          {required BuildContext context,
+          required String aboutAppMessage,
+          required Map<String, dynamic> translations}) async =>
+      ApproveModal(
+        context: context,
+        icon: Container(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: SizedBox(
+            width: 64,
+            height: 64,
+            child: SvgPicture.asset(
+              'assets/svg/8-8-led-matrix-display-unit.svg',
+              allowDrawingOutsideViewBox: false,
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+            ),
+          ),
+        ),
+        title: "roonmatrix",
+        question: aboutAppMessage,
+        okText: translations['okButtonText'] ?? 'OK',
+        cancelText: '',
+        onApproved: () {
+          //
+        },
+      ).show();
 
   // ==================== //
   // public event methods //
