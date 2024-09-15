@@ -71,5 +71,4 @@
      "settingsIpFieldEmptyError": "IP-Feld darf nicht leer sein",
      "settingsIpFieldInvalidError": "IP hat ein ungültiges Format",
      "settingsIpRangeInvalidError" : "IP-Bereich ist ungültig"
-   
 }
