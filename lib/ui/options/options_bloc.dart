@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/config_definition.dart';
@@ -37,17 +38,37 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   final int port = 8000;
   final int timeoutInMilliseconds = 500;
   final int logTextDelayInMilliseconds = 500;
+
   http.Client client = http.Client();
+  Map<String, dynamic> translations = {};
   Map<String, dynamic> logHoursOptions = {};
   String? ipStart;
   String? ipEnd;
   bool isScanning = false;
   Timer? timer;
 
-  generateLogHours() {
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
+  }
+
+  generateLogHours() async {
+    await getTranslations();
+
     for (int i = 1; i <= 24; i++) {
+      String optionTextSingle =
+          translations['logHoursAgoSelectionHourMaskSingle'] ?? '# hour ago';
+      String optionTextMultiple =
+          translations['logHoursAgoSelectionHourMaskMultiple'] ?? '# hours ago';
+      String optionText = '';
+
+      optionText = i > 1
+          ? optionTextMultiple.replaceFirst('#', i.toString())
+          : optionTextSingle.replaceFirst('#', i.toString());
+
       logHoursOptions[i.toString()] = {
-        "name": "$i hour${i > 1 ? 's' : ''} ago",
+        "name": optionText,
         "fontWeight": FontWeight.normal,
         "icon": null
       };

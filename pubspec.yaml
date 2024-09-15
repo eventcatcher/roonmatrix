@@ -148,5 +148,7 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   assets:
+  # svg
     - assets/svg/8-8-led-matrix-display-unit.svg
-
+  # data
+    - assets/json/translations.json

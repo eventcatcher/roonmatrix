@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
@@ -31,6 +33,7 @@ class ControlPageState extends State<ControlPage> {
   final double buttonSize =
       Platform.isMacOS || Platform.isWindows || Platform.isLinux ? 128.0 : 88.0;
 
+  Map<String, dynamic> translations = {};
   String selectedZoneId = '';
   String? controlId;
 
@@ -38,10 +41,18 @@ class ControlPageState extends State<ControlPage> {
 
   @override
   void initState() {
+    getTranslations();
+
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getInfo(ip: ip);
 
     super.initState();
+  }
+
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
   }
 
   Widget controlButtons(Orientation orientation) {
@@ -52,10 +63,10 @@ class ControlPageState extends State<ControlPage> {
             Platform.isMacOS ||
             Platform.isWindows ||
             Platform.isLinux)
-          const Text('previous'),
+          Text(translations['controlButtonPreviousText'] ?? 'previous'),
         Column(
           children: [
-            //const Text('up'),
+            // Text(translations['controlButtonUpText'] ?? 'up'),
             SizedBox(
               width: 3 * buttonSize,
               height: 3 * buttonSize,
@@ -173,16 +184,16 @@ class ControlPageState extends State<ControlPage> {
                 ],
               ),
             ),
-            const Text('shuffle'),
+            Text(translations['controlButtonShuffleText'] ?? 'shuffle'),
           ],
         ),
         if (orientation == Orientation.landscape ||
             Platform.isMacOS ||
             Platform.isWindows ||
             Platform.isLinux)
-          const Padding(
-            padding: EdgeInsets.only(left: 8.0),
-            child: Text('next'),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Text(translations['controlButtonNextText'] ?? 'next'),
           ),
       ],
     );
@@ -240,7 +251,8 @@ class ControlPageState extends State<ControlPage> {
               length: 2,
               child: Scaffold(
                 appBar: AppBar(
-                  title: Text('$name : Control'),
+                  title: Text(
+                      '$name : ${translations['controlPageHeaderText'] ?? 'Control'}'),
                   actions: const [],
                 ),
                 body: SingleChildScrollView(
@@ -256,8 +268,10 @@ class ControlPageState extends State<ControlPage> {
                             children: [
                               SelectBox(
                                   aligned: 'horizontal',
-                                  label: 'Zone:',
-                                  placeholder: 'Select zone...',
+                                  label:
+                                      '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+                                  placeholder:
+                                      '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
                                   inRow: false,
                                   noVerticalSpace: false,
                                   readOnly: false,
@@ -289,8 +303,10 @@ class ControlPageState extends State<ControlPage> {
                                     (Platform.isIOS ? 24 : 0),
                                 child: SelectBox(
                                     aligned: 'horizontal',
-                                    label: 'Zone:',
-                                    placeholder: 'Select zone...',
+                                    label:
+                                        '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+                                    placeholder:
+                                        '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
                                     inRow: false,
                                     noVerticalSpace: false,
                                     readOnly: false,

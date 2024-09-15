@@ -45,6 +45,7 @@ class ConfigPageState extends State<ConfigPage> {
   String get ip => widget.ip;
   VoidCallback get close => widget.close;
 
+  Map<String, dynamic> translations = {};
   List<Widget> formFields = [];
   Map fieldValues = {};
   bool saveIdle = false;
@@ -54,10 +55,18 @@ class ConfigPageState extends State<ConfigPage> {
 
   @override
   void initState() {
+    getTranslations();
+
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getConfig(ip: ip);
 
     super.initState();
+  }
+
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
   }
 
   List<Widget> getFormFields({required ConfigDefinition defs}) {
@@ -99,13 +108,15 @@ class ConfigPageState extends State<ConfigPage> {
                 },
                 errorMessageHandler: (String newValue) {
                   if (newValue == '') {
-                    return 'Textfeld darf nicht leer sein';
+                    return translations['configTextFieldEmptyError'] ??
+                        'Text field cannot be empty';
                   }
 
                   if (fieldDefinition.type.type.startsWith('url') &&
                       !optionsBloc.validateUrl(
                           text: newValue, type: fieldDefinition.type.type)) {
-                    return 'Url hat ein ungültiges Format';
+                    return translations['configTextFieldUrlInvalidError'] ??
+                        'Url is invalid';
                   }
 
                   if (fieldDefinition.type.type.startsWith('string(')) {
@@ -117,10 +128,12 @@ class ConfigPageState extends State<ConfigPage> {
                     if (min != null &&
                         max != null &&
                         (newValue.length < min || newValue.length > max)) {}
-                    return 'Textfeld ist ausserhalb des gültigen Längenbereichs';
+                    return translations['configTextFieldRangeError'] ??
+                        'Text field is out of valid range';
                   }
 
-                  return 'Textfeld ist kein gültiges Json';
+                  return translations['configTextFieldJsonError'] ??
+                      'Text field has no valid Json';
                 },
                 validation: (String text) => optionsBloc.validateText(
                     text: text,
@@ -159,9 +172,11 @@ class ConfigPageState extends State<ConfigPage> {
                 },
                 errorMessageHandler: (String newValue) {
                   if (newValue == '') {
-                    return 'Zahlenfeld darf nicht leer sein';
+                    return translations['configNumberFieldEmptyError'] ??
+                        'Number field cannot be empty';
                   }
-                  return 'Zahlenwert ist ausserhalb des gültigen Bereichs';
+                  return translations['configNumberFieldRangeError'] ??
+                      'Number field is out of valid range';
                 },
                 validation: (String text) {
                   int? num = int.tryParse(text);
@@ -329,19 +344,22 @@ class ConfigPageState extends State<ConfigPage> {
             length: 2,
             child: Scaffold(
               appBar: AppBar(
-                title: Text('$name : Config'),
+                title: Text(
+                    '$name : ${translations['configPageHeaderText'] ?? 'Config'}'),
                 actions: const [],
-                bottom: const PreferredSize(
-                  preferredSize: Size.fromHeight(48.0),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(48.0),
                   child: Material(
                     color: Colors.lightBlue,
                     child: TabBar(
                       tabs: <Widget>[
                         Tab(
-                          text: 'Edit',
+                          text:
+                              translations['configPageTabEditLabel'] ?? 'Edit',
                         ),
                         Tab(
-                          text: 'Read',
+                          text:
+                              translations['configPageTabReadLabel'] ?? 'View',
                         ),
                       ],
                     ),
@@ -380,7 +398,8 @@ class ConfigPageState extends State<ConfigPage> {
                                   size: 20.0,
                                 ),
                               ),
-                              label: const Text('save'),
+                              label: Text(
+                                  translations['saveButtonText'] ?? 'save'),
                               onPressed: !validData ||
                                       saveIdle == true ||
                                       optionsState.idle == true
@@ -399,8 +418,9 @@ class ConfigPageState extends State<ConfigPage> {
                                       if (valid == true) {
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                            content: Text(
+                                              .showSnackBar(SnackBar(
+                                            content: Text(translations[
+                                                    'saveDoneMessage'] ??
                                                 "save config successfully done"),
                                             backgroundColor: Colors.green,
                                           ));
@@ -417,9 +437,10 @@ class ConfigPageState extends State<ConfigPage> {
                                       } else {
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                            content:
-                                                Text("save config failed!"),
+                                              .showSnackBar(SnackBar(
+                                            content: Text(translations[
+                                                    'saveFailedMessage'] ??
+                                                "save config failed!"),
                                             backgroundColor: Colors.red,
                                           ));
                                         }
@@ -483,7 +504,8 @@ class ConfigPageState extends State<ConfigPage> {
                                   size: 20.0,
                                 ),
                               ),
-                              label: const Text('export'),
+                              label: Text(
+                                  translations['exportButtonText'] ?? 'export'),
                               onPressed:
                                   saveIdle == true || optionsState.idle == true
                                       ? null
@@ -505,17 +527,20 @@ class ConfigPageState extends State<ConfigPage> {
                                           if (valid == true) {
                                             if (context.mounted) {
                                               ScaffoldMessenger.of(context)
-                                                  .showSnackBar(const SnackBar(
-                                                content: Text(
-                                                    "export successfully done"),
+                                                  .showSnackBar(SnackBar(
+                                                content: Text(translations[
+                                                        'exportDoneMessage'] ??
+                                                    'export successfully done'),
                                                 backgroundColor: Colors.green,
                                               ));
                                             }
                                           } else {
                                             if (context.mounted) {
                                               ScaffoldMessenger.of(context)
-                                                  .showSnackBar(const SnackBar(
-                                                content: Text("export failed!"),
+                                                  .showSnackBar(SnackBar(
+                                                content: Text(translations[
+                                                        'exportFailedMessage'] ??
+                                                    'export failed!'),
                                                 backgroundColor: Colors.red,
                                               ));
                                             }

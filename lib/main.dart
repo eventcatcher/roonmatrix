@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -29,7 +30,7 @@ void main() async {
 
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     doWhenWindowReady(() {
-      const initialSize = Size(1152, 768);
+      const initialSize = Size(1280, 768);
       appWindow.minSize = initialSize;
       appWindow.size = initialSize;
 
@@ -47,9 +48,9 @@ class RoonMatrix extends StatefulWidget {
 }
 
 class RoonMatrixState extends State<RoonMatrix> {
-  final bool showOptions = false;
   final FileRepository fileRepository = FileRepository();
 
+  Map<String, dynamic> translations = {};
   Options options = Options((OptionsBuilder b) => b..polling = true);
   bool saveIdle = false;
 
@@ -60,11 +61,19 @@ class RoonMatrixState extends State<RoonMatrix> {
   @override
   void initState() {
     getAppVersionAndBuildNumber();
+    getTranslations();
+
     fileRepository.init();
     settingsBloc = SettingsBloc();
     optionsBloc = OptionsBloc(fileRepository: fileRepository);
     optionsBloc.loadOptions(options);
     super.initState();
+  }
+
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
   }
 
   Future<void> getAppVersionAndBuildNumber() async {
@@ -98,6 +107,36 @@ class RoonMatrixState extends State<RoonMatrix> {
         },
       ).show();
 
+  Future<void> exportDeviceList(BuildContext context) async {
+    setState(() {
+      saveIdle = true;
+    });
+    bool? valid = await optionsBloc.exportDevicesData();
+    setState(() {
+      saveIdle = false;
+    });
+    if (valid == null) {
+      return;
+    }
+    if (valid == true) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              translations['exportDoneMessage'] ?? 'export successfully done'),
+          backgroundColor: Colors.green,
+        ));
+      }
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text(translations['exportFailedMessage'] ?? 'export failed!'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    }
+  }
+
   List<BarButton> menuBarButtons(BuildContext context) {
     return [
       BarButton(
@@ -107,6 +146,16 @@ class RoonMatrixState extends State<RoonMatrix> {
         ),
         submenu: SubMenu(
           menuItems: [
+            MenuButton(
+              onTap: () async => await exportDeviceList(context),
+              shortcutText: 'Ctrl+E',
+              shortcut: const SingleActivator(LogicalKeyboardKey.comma,
+                  control: true),
+              text: Text(translations['menuEntryExportDeviceList'] ??
+                  'Export Device List'),
+              icon: const Icon(Icons.settings),
+            ),
+            const MenuDivider(),
             MenuButton(
               onTap: () => showGeneralDialog(
                 context: context,
@@ -126,7 +175,7 @@ class RoonMatrixState extends State<RoonMatrix> {
               shortcutText: 'Ctrl+,',
               shortcut: const SingleActivator(LogicalKeyboardKey.comma,
                   control: true),
-              text: const Text('Settings'),
+              text: Text(translations['menuEntrySettings'] ?? 'Settings'),
               icon: const Icon(Icons.settings),
             ),
             const MenuDivider(),
@@ -136,47 +185,42 @@ class RoonMatrixState extends State<RoonMatrix> {
                     context: context,
                     builder: (context) {
                       return AlertDialog(
-                          title: const Text('Do you really want to quit?'),
+                          title: Text(translations['dialogQuitQuestion'] ??
+                              'Do you really want to quit?'),
                           actions: [
                             ElevatedButton(
                                 onPressed: () =>
                                     FlutterWindowClose.closeWindow(),
-                                child: const Text('Yes')),
+                                child: Text(
+                                    translations['dialogQuitYes'] ?? 'Yes')),
                             ElevatedButton(
                                 onPressed: () =>
                                     Navigator.of(context).pop(false),
-                                child: const Text('No')),
+                                child:
+                                    Text(translations['dialogQuitNo'] ?? 'No')),
                           ]);
                     });
               },
               shortcut:
                   const SingleActivator(LogicalKeyboardKey.keyQ, control: true),
               shortcutText: 'Ctrl+Q',
-              text: const Text('Quit'),
+              text: Text(translations['menuEntryQuit'] ?? 'Quit'),
               icon: const Icon(Icons.exit_to_app),
             ),
           ],
         ),
       ),
       BarButton(
-        text: const Text(
-          'Help',
-          style: TextStyle(color: Colors.white),
+        text: Text(
+          translations['menuEntryHelp'] ?? 'Help',
+          style: const TextStyle(color: Colors.white),
         ),
         submenu: SubMenu(
           menuItems: [
-            // MenuButton(
-            //   onTap: () {},
-            //   shortcut:
-            //       const SingleActivator(LogicalKeyboardKey.keyU, control: true),
-            //   shortcutText: 'Ctrl+U',
-            //   text: const Text('Check for updates'),
-            // ),
-            // const MenuDivider(),
             MenuButton(
               onTap: () => openAboutModal(context),
               icon: const Icon(Icons.info),
-              text: const Text('About'),
+              text: Text(translations['menuEntryAbout'] ?? 'About'),
             ),
           ],
         ),
@@ -234,7 +278,8 @@ class RoonMatrixState extends State<RoonMatrix> {
                         PlatformMenuItemGroup(
                           members: <PlatformMenuItem>[
                             PlatformMenuItem(
-                              label: 'Settings',
+                              label: translations['menuEntrySettings'] ??
+                                  'Settings',
                               shortcut: const SingleActivator(
                                   LogicalKeyboardKey.comma,
                                   meta: true),
@@ -297,103 +342,77 @@ class RoonMatrixState extends State<RoonMatrix> {
                       ],
                     ),
                     PlatformMenu(
-                      label: 'File',
+                      label: translations['menuEntryFile'] ?? 'File',
                       menus: <PlatformMenuItem>[
                         PlatformMenuItemGroup(
                           members: <PlatformMenuItem>[
                             PlatformMenuItem(
-                              label: 'Export Device Data',
+                              label:
+                                  translations['menuEntryExportDeviceList'] ??
+                                      'Export Device List',
                               shortcut: const SingleActivator(
-                                  LogicalKeyboardKey.keyD,
+                                  LogicalKeyboardKey.keyE,
                                   meta: true),
-                              onSelected: () async {
-                                setState(() {
-                                  saveIdle = true;
-                                });
-                                bool? valid =
-                                    await optionsBloc.exportDevicesData();
-                                setState(() {
-                                  saveIdle = false;
-                                });
-                                if (valid == null) {
-                                  return;
-                                }
-                                if (valid == true) {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                      content: Text("export successfully done"),
-                                      backgroundColor: Colors.green,
-                                    ));
-                                  }
-                                } else {
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                      content: Text("export failed!"),
-                                      backgroundColor: Colors.red,
-                                    ));
-                                  }
-                                }
-                              },
+                              onSelected: () async =>
+                                  await exportDeviceList(context),
                             ),
-                            // PlatformMenuItem(
-                            //   label: 'Searching',
-                            //   shortcut: const SingleActivator(
-                            //       LogicalKeyboardKey.keyL,
-                            //       meta: true),
-                            //   onSelected: () {
-                            //     optionsBloc.searching(idle:true);
-                            //   },
-                            // ),
                           ],
                         ),
                       ],
                     ),
                     PlatformMenu(
-                      label: 'Edit',
+                      label: translations['menuEntryEdit'] ?? 'Edit',
                       menus: <PlatformMenuItem>[
-                        const PlatformMenuItemGroup(
+                        PlatformMenuItemGroup(
                           members: <PlatformMenuItem>[
                             PlatformMenuItem(
-                              label: 'Undo',
-                              shortcut: SingleActivator(LogicalKeyboardKey.keyZ,
+                              label: translations['menuEntryUndo'] ?? 'Undo',
+                              shortcut: const SingleActivator(
+                                  LogicalKeyboardKey.keyZ,
                                   meta: true),
                             ),
                             PlatformMenuItem(
-                              label: 'Redo',
-                              shortcut: SingleActivator(LogicalKeyboardKey.keyZ,
-                                  meta: true, shift: true),
+                              label: translations['menuEntryRedo'] ?? 'Redo',
+                              shortcut: const SingleActivator(
+                                  LogicalKeyboardKey.keyZ,
+                                  meta: true,
+                                  shift: true),
                             ),
                           ],
                         ),
-                        const PlatformMenuItemGroup(
+                        PlatformMenuItemGroup(
                           members: <PlatformMenuItem>[
                             PlatformMenuItem(
-                              label: 'Cut',
-                              shortcut: SingleActivator(LogicalKeyboardKey.keyX,
+                              label: translations['menuEntryCut'] ?? 'Cut',
+                              shortcut: const SingleActivator(
+                                  LogicalKeyboardKey.keyX,
                                   meta: true),
                             ),
                             PlatformMenuItem(
-                              label: 'Copy',
-                              shortcut: SingleActivator(LogicalKeyboardKey.keyC,
+                              label: translations['menuEntryCopy'] ?? 'Copy',
+                              shortcut: const SingleActivator(
+                                  LogicalKeyboardKey.keyC,
                                   meta: true),
                             ),
                             PlatformMenuItem(
-                              label: 'Paste',
-                              shortcut: SingleActivator(LogicalKeyboardKey.keyV,
+                              label: translations['menuEntryPaste'] ?? 'Paste',
+                              shortcut: const SingleActivator(
+                                  LogicalKeyboardKey.keyV,
                                   meta: true),
                             ),
                             PlatformMenuItem(
-                              label: 'Delete',
+                              label:
+                                  translations['menuEntryDelete'] ?? 'Delete',
                             ),
                           ],
                         ),
-                        const PlatformMenuItemGroup(
+                        PlatformMenuItemGroup(
                           members: <PlatformMenuItem>[
                             PlatformMenuItem(
-                              label: 'Select All',
-                              shortcut: SingleActivator(LogicalKeyboardKey.keyA,
+                              label: translations['menuEntrySelectAll'] ??
+                                  'Select All',
+                              shortcut: const SingleActivator(
+                                  LogicalKeyboardKey.keyA,
                                   meta: true),
                             ),
                           ],
@@ -401,7 +420,8 @@ class RoonMatrixState extends State<RoonMatrix> {
                         PlatformMenuItemGroup(
                           members: <PlatformMenuItem>[
                             PlatformMenu(
-                              label: 'Speach',
+                              label:
+                                  translations['menuEntrySpeach'] ?? 'Speach',
                               menus: <PlatformMenuItem>[
                                 PlatformMenuItemGroup(
                                   members: <PlatformMenuItem>[
@@ -426,7 +446,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                       ],
                     ),
                     PlatformMenu(
-                      label: 'View',
+                      label: translations['menuEntryView'] ?? 'View',
                       menus: <PlatformMenuItem>[
                         PlatformMenuItemGroup(
                           members: <PlatformMenuItem>[
@@ -439,38 +459,8 @@ class RoonMatrixState extends State<RoonMatrix> {
                         ),
                       ],
                     ),
-                    if (showOptions == true)
-                      PlatformMenu(
-                        label: 'Options',
-                        menus: <PlatformMenuItem>[
-                          PlatformMenuItemGroup(
-                            members: <PlatformMenuItem>[
-                              PlatformMenuItem(
-                                  label:
-                                      '${options.polling ? '\u2713 ' : '    '}polling',
-                                  shortcut: const SingleActivator(
-                                      LogicalKeyboardKey.keyP,
-                                      meta: true,
-                                      alt: true),
-                                  onSelected: () {
-                                    optionsBloc.setOptionsPolling(
-                                        polling: !options.polling);
-                                  }),
-                              PlatformMenuItem(
-                                  label: '    Reset Options',
-                                  shortcut: const SingleActivator(
-                                      LogicalKeyboardKey.keyR,
-                                      meta: true,
-                                      alt: true),
-                                  onSelected: () {
-                                    optionsBloc.resetOptions();
-                                  }),
-                            ],
-                          ),
-                        ],
-                      ),
                     PlatformMenu(
-                      label: 'Window',
+                      label: translations['menuEntryWindow'] ?? 'Window',
                       menus: <PlatformMenuItem>[
                         PlatformMenuItemGroup(
                           members: <PlatformMenuItem>[
@@ -499,10 +489,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                       ],
                     ),
                   ],
-                  child: StartPage(
-                      title: 'RoonMatrix',
-                      showOptions: showOptions,
-                      options: options),
+                  child: StartPage(title: 'RoonMatrix', options: options),
                 );
               }
               if (Platform.isWindows || Platform.isLinux) {
@@ -537,17 +524,11 @@ class RoonMatrixState extends State<RoonMatrix> {
                   enabled: true,
 
                   // Set the child, i.e. the application under the menu bar
-                  child: StartPage(
-                      title: 'RoonMatrix',
-                      showOptions: showOptions,
-                      options: options),
+                  child: StartPage(title: 'RoonMatrix', options: options),
                 );
               }
 
-              return StartPage(
-                  title: 'RoonMatrix',
-                  showOptions: showOptions,
-                  options: options);
+              return StartPage(title: 'RoonMatrix', options: options);
             }),
       ),
     );

@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
@@ -7,7 +9,6 @@ import 'package:roonmatrix/ui/details/control_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
-import 'package:roonmatrix/ui/labeled_checkbox.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
@@ -23,12 +24,10 @@ class StartPage extends StatefulWidget {
   const StartPage({
     super.key,
     required this.title,
-    required this.showOptions,
     required this.options,
   });
 
   final String title;
-  final bool showOptions;
   final Options options;
 
   @override
@@ -37,11 +36,10 @@ class StartPage extends StatefulWidget {
 
 class StartPageState extends State<StartPage> {
   String get title => widget.title;
-  bool get showOptions => widget.showOptions;
 
   final double treeFontSize = 12;
+  Map<String, dynamic> translations = {};
 
-  bool polling = false;
   bool idle = false;
   bool saveIdle = false;
   List<String> devices = [];
@@ -54,9 +52,17 @@ class StartPageState extends State<StartPage> {
   @override
   void initState() {
     getAppVersionAndBuildNumber();
+    getTranslations();
+
     options = widget.options;
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     super.initState();
+  }
+
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
   }
 
   Future<void> getAppVersionAndBuildNumber() async {
@@ -171,8 +177,6 @@ class StartPageState extends State<StartPage> {
             //   ...devices
             // ];
 
-            polling = options.polling;
-
             debugPrint(
                 'uuu state changed => rebuild, devices: ${devices.length}, idle: $idle');
             return OrientationBuilder(
@@ -193,52 +197,6 @@ class StartPageState extends State<StartPage> {
                               crossAxisAlignment: WrapCrossAlignment.start,
                               direction: Axis.horizontal,
                               children: [
-                                if (showOptions == true)
-                                  Card(
-                                    color: Colors.white,
-                                    margin: const EdgeInsets.only(
-                                      left: 8.0,
-                                      bottom: 4.0,
-                                    ),
-                                    child: Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 0.0),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.max,
-                                        children: [
-                                          const Padding(
-                                            padding:
-                                                EdgeInsets.only(left: 10.0),
-                                            child: Text(
-                                              'Options:',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.normal,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          LabeledCheckbox(
-                                            label: "polling",
-                                            value: options.polling,
-                                            onChanged: (bool newValue) {
-                                              optionsBloc.setOptionsPolling(
-                                                  polling: newValue);
-                                            },
-                                          ),
-                                          const Spacer(),
-                                          IconButton(
-                                            icon: const Icon(Icons.close),
-                                            padding: const EdgeInsets.all(4.0),
-                                            constraints: const BoxConstraints(),
-                                            splashRadius: 1,
-                                            onPressed: () {
-                                              optionsBloc.resetOptions();
-                                            },
-                                            color: Colors.black45,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
                                 SearchField(
                                   type: 'main',
                                   controller: optionsBloc.getSearchController(
@@ -262,11 +220,13 @@ class StartPageState extends State<StartPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Padding(
-                                      padding: EdgeInsets.only(bottom: 8.0),
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 8.0),
                                       child: Text(
-                                        'Debug Messages:',
-                                        style: TextStyle(
+                                        translations['debugMessage'] ??
+                                            'Debug Messages:',
+                                        style: const TextStyle(
                                             fontSize: 16.0,
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -286,8 +246,9 @@ class StartPageState extends State<StartPage> {
                         ),
                       Expanded(
                         child: idle == true
-                            ? const LoadingIndicatorBig(
-                                message: 'scan for devices')
+                            ? LoadingIndicatorBig(
+                                message: translations['scanMessage'] ??
+                                    'scan for devices')
                             : devices.isEmpty
                                 ? Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -313,8 +274,10 @@ class StartPageState extends State<StartPage> {
                                             ],
                                           ),
                                           padding: const EdgeInsets.all(8.0),
-                                          child: const Center(
-                                              child: Text('no devices found'))),
+                                          child: Center(
+                                              child: Text(translations[
+                                                      'scanNoFoundMessage'] ??
+                                                  'no devices found'))),
                                     ],
                                   )
                                 : ListView.separated(
@@ -398,7 +361,7 @@ class StartPageState extends State<StartPage> {
                                                           MainAxisSize.min,
                                                       children: [
                                                         Text(
-                                                          'time: ${i['time']}  |  zone: $zoneName  |  playcount: ${i['playcount']}  ',
+                                                          '${translations['deviceListTime'] ?? 'time'}: ${i['time']}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
                                                           softWrap: true,
                                                           maxLines: 2,
                                                           overflow:
@@ -444,8 +407,10 @@ class StartPageState extends State<StartPage> {
                                                             },
                                                             icon: const Icon(
                                                                 Icons.info),
-                                                            label: const Text(
-                                                                'Info'),
+                                                            label: Text(
+                                                                translations[
+                                                                        'infoButtonText'] ??
+                                                                    'Info'),
                                                           ),
                                                         ),
                                                         Padding(
@@ -488,8 +453,10 @@ class StartPageState extends State<StartPage> {
                                                             },
                                                             icon: const Icon(
                                                                 Icons.settings),
-                                                            label: const Text(
-                                                                'Config'),
+                                                            label: Text(
+                                                                translations[
+                                                                        'configButtonText'] ??
+                                                                    'Config'),
                                                           ),
                                                         ),
                                                         Padding(
@@ -532,8 +499,10 @@ class StartPageState extends State<StartPage> {
                                                             },
                                                             icon: const Icon(Icons
                                                                 .remove_red_eye),
-                                                            label: const Text(
-                                                                'Log'),
+                                                            label: Text(
+                                                                translations[
+                                                                        'logButtonText'] ??
+                                                                    'Log'),
                                                           ),
                                                         ),
                                                         Padding(
@@ -576,8 +545,10 @@ class StartPageState extends State<StartPage> {
                                                             },
                                                             icon: const Icon(Icons
                                                                 .play_circle),
-                                                            label: const Text(
-                                                                'Control'),
+                                                            label: Text(
+                                                                translations[
+                                                                        'controlButtonText'] ??
+                                                                    'Control'),
                                                           ),
                                                         ),
                                                       ],
@@ -604,7 +575,7 @@ class StartPageState extends State<StartPage> {
                                                             Orientation
                                                                 .landscape)
                                                           Text(
-                                                            'time: ${i['time']}\nzone: $zoneName  |  playcount: ${i['playcount']}  ',
+                                                            '${translations['deviceListTime'] ?? 'time'}: ${i['time']}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${i['playcount']}  ',
                                                             softWrap: true,
                                                             maxLines: 2,
                                                             overflow:
@@ -863,7 +834,8 @@ class StartPageState extends State<StartPage> {
                                   size: 20.0,
                                 ),
                               ),
-                              label: const Text('export'),
+                              label: Text(
+                                  translations['exportButtonText'] ?? 'export'),
                               onPressed: saveIdle == true ||
                                       idle == true ||
                                       devices.isEmpty
@@ -883,40 +855,26 @@ class StartPageState extends State<StartPage> {
                                       if (valid == true) {
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                            content: Text(
-                                                "export successfully done"),
+                                              .showSnackBar(SnackBar(
+                                            content: Text(translations[
+                                                    'exportDoneMessage'] ??
+                                                'export successfully done'),
                                             backgroundColor: Colors.green,
                                           ));
                                         }
                                       } else {
                                         if (context.mounted) {
                                           ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                            content: Text("export failed!"),
+                                              .showSnackBar(SnackBar(
+                                            content: Text(translations[
+                                                    'exportFailedMessage'] ??
+                                                'export failed!'),
                                             backgroundColor: Colors.red,
                                           ));
                                         }
                                       }
                                     },
                             ),
-                            if (!polling) ...[
-                              const SizedBox(width: 32.0),
-                              ElevatedButton.icon(
-                                icon: const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                                  child: Icon(
-                                    Icons.refresh,
-                                    color: Colors.white,
-                                    size: 20.0,
-                                  ),
-                                ),
-                                label: const Text('refresh'),
-                                onPressed: () {
-                                  optionsBloc.searching(idle: true);
-                                },
-                              ),
-                            ]
                           ],
                         ),
                       ),

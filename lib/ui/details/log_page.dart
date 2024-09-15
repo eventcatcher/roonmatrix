@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/select_box_with_icon.dart';
@@ -32,6 +34,7 @@ class LogPageState extends State<LogPage> {
   String get ip => widget.ip;
   VoidCallback get close => widget.close;
 
+  Map<String, dynamic> translations = {};
   int hours = 1;
   bool saveIdle = false;
 
@@ -39,10 +42,18 @@ class LogPageState extends State<LogPage> {
 
   @override
   void initState() {
+    getTranslations();
+
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getLog(ip: ip, hours: hours);
 
     super.initState();
+  }
+
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
   }
 
   @override
@@ -74,7 +85,8 @@ class LogPageState extends State<LogPage> {
             length: 2,
             child: Scaffold(
               appBar: AppBar(
-                title: Text('$name : Log'),
+                title: Text(
+                    '$name :  ${translations['logPageHeaderText'] ?? 'Log'}'),
                 actions: const [],
               ),
               body: Column(
@@ -90,7 +102,8 @@ class LogPageState extends State<LogPage> {
                     padding: const EdgeInsets.only(right: 0.0),
                     child: SelectBoxWithIcon(
                       options: optionsBloc.logHoursOptions,
-                      placeholder: 'Please Select',
+                      placeholder: translations['pleaseSelectPlaceholder'] ??
+                          'Please Select',
                       labelColor: Colors.black,
                       selected: hours.toString(),
                       onChanged: (String? value) {
@@ -142,7 +155,8 @@ class LogPageState extends State<LogPage> {
                               size: 20.0,
                             ),
                           ),
-                          label: const Text('export'),
+                          label: Text(
+                              translations['exportButtonText'] ?? 'export'),
                           onPressed: saveIdle == true ||
                                   optionsState.idle == true
                               ? null
@@ -161,17 +175,20 @@ class LogPageState extends State<LogPage> {
                                   if (valid == true) {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content:
-                                            Text("export successfully done"),
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            translations['exportDoneMessage'] ??
+                                                'export successfully done'),
                                         backgroundColor: Colors.green,
                                       ));
                                     }
                                   } else {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text("export failed!"),
+                                          .showSnackBar(SnackBar(
+                                        content: Text(translations[
+                                                'exportFailedMessage'] ??
+                                            'export failed!'),
                                         backgroundColor: Colors.red,
                                       ));
                                     }

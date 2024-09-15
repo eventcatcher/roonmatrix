@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
@@ -28,16 +30,25 @@ class InfoPageState extends State<InfoPage> {
   String get ip => widget.ip;
   VoidCallback get close => widget.close;
 
+  Map<String, dynamic> translations = {};
   bool saveIdle = false;
 
   late OptionsBloc optionsBloc;
 
   @override
   void initState() {
+    getTranslations();
+
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getInfo(ip: ip);
 
     super.initState();
+  }
+
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
   }
 
   @override
@@ -69,7 +80,8 @@ class InfoPageState extends State<InfoPage> {
             length: 2,
             child: Scaffold(
               appBar: AppBar(
-                title: Text('$name : Info'),
+                title: Text(
+                    '$name : ${translations['infoPageHeaderText'] ?? 'Info'}'),
                 actions: const [],
               ),
               body: Column(
@@ -114,7 +126,8 @@ class InfoPageState extends State<InfoPage> {
                               size: 20.0,
                             ),
                           ),
-                          label: const Text('export'),
+                          label: Text(
+                              translations['exportButtonText'] ?? 'export'),
                           onPressed: saveIdle == true ||
                                   optionsState.idle == true
                               ? null
@@ -133,17 +146,20 @@ class InfoPageState extends State<InfoPage> {
                                   if (valid == true) {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content:
-                                            Text("export successfully done"),
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            translations['exportDoneMessage'] ??
+                                                'export successfully done'),
                                         backgroundColor: Colors.green,
                                       ));
                                     }
                                   } else {
                                     if (context.mounted) {
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text("export failed!"),
+                                          .showSnackBar(SnackBar(
+                                        content: Text(translations[
+                                                'exportFailedMessage'] ??
+                                            'export failed!'),
                                         backgroundColor: Colors.red,
                                       ));
                                     }

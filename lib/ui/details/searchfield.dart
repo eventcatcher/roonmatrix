@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/options/options_bloc.dart';
 
@@ -22,83 +25,102 @@ class SearchFieldState extends State<SearchField> {
   TextEditingController get controller => widget.controller;
   String get type => widget.type;
 
+  Map<String, dynamic> translations = {};
+  bool translationsLoaded = false;
+
   late OptionsBloc optionsBloc;
 
   @override
   void initState() {
+    getTranslations();
+
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     super.initState();
   }
 
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
+    setState(() {
+      translationsLoaded = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 8.0),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 200.0, minHeight: 36.0),
-        child: Container(
-          decoration: BoxDecoration(
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.grey,
-                  offset: Offset(0.1, 0.5),
-                  blurRadius: 0.1,
-                  blurStyle: BlurStyle.normal,
-                )
-              ],
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.all(Radius.circular(4))),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.only(left: 4.0, bottom: 1.0, top: 9.0),
-                  child: TextFormField(
-                    decoration: const InputDecoration(
-                      hintText: 'search',
-                      counter: Offstage(),
-                      icon: Padding(
-                        padding: EdgeInsets.only(left: 4.0),
-                        child: Icon(CupertinoIcons.search, size: 18.0),
+    return translationsLoaded
+        ? Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: ConstrainedBox(
+              constraints:
+                  const BoxConstraints(minWidth: 200.0, minHeight: 36.0),
+              child: Container(
+                decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.grey,
+                        offset: Offset(0.1, 0.5),
+                        blurRadius: 0.1,
+                        blurStyle: BlurStyle.normal,
+                      )
+                    ],
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: const BorderRadius.all(Radius.circular(4))),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 4.0, bottom: 1.0, top: 9.0),
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            hintText:
+                                translations['searchfieldHint'] ?? 'search',
+                            counter: const Offstage(),
+                            icon: const Padding(
+                              padding: EdgeInsets.only(left: 4.0),
+                              child: Icon(CupertinoIcons.search, size: 18.0),
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                            contentPadding: const EdgeInsets.all(0),
+                          ),
+                          maxLines: 1,
+                          style: const TextStyle(
+                              fontSize: 19.0,
+                              decorationStyle: TextDecorationStyle.double),
+                          enableSuggestions: false,
+                          controller: controller,
+                          onChanged: (String value) {
+                            EasyDebounce.debounce('searchfield-debouncer',
+                                const Duration(milliseconds: 500), () {
+                              optionsBloc.setSearchFilter(
+                                  type: type, filter: value);
+                            });
+                          },
+                        ),
                       ),
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.all(0),
                     ),
-                    maxLines: 1,
-                    style: const TextStyle(
-                        fontSize: 19.0,
-                        decorationStyle: TextDecorationStyle.double),
-                    enableSuggestions: false,
-                    controller: controller,
-                    onChanged: (String value) {
-                      EasyDebounce.debounce('searchfield-debouncer',
-                          const Duration(milliseconds: 500), () {
-                        optionsBloc.setSearchFilter(type: type, filter: value);
-                      });
-                    },
-                  ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      padding: const EdgeInsets.all(4.0),
+                      constraints: const BoxConstraints(),
+                      splashRadius: 1,
+                      onPressed: () {
+                        setState(() {
+                          controller.text = '';
+                          optionsBloc.setSearchFilter(type: type, filter: '');
+                        });
+                      },
+                      color: Colors.black45,
+                    )
+                  ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                padding: const EdgeInsets.all(4.0),
-                constraints: const BoxConstraints(),
-                splashRadius: 1,
-                onPressed: () {
-                  setState(() {
-                    controller.text = '';
-                    optionsBloc.setSearchFilter(type: type, filter: '');
-                  });
-                },
-                color: Colors.black45,
-              )
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          )
+        : const SizedBox();
   }
 }

@@ -46,12 +46,18 @@ class MapListItems extends StatefulWidget {
 class MapListItemsState extends State<MapListItems> {
   ConfigDefinitionItem get fieldDefinition => widget.fieldDefinition;
   List<dynamic> get fieldValues => widget.fieldValues;
+
+  Map<String, dynamic> translations = {};
+  bool translationsLoaded = false;
+
   late TextEditingController textController;
   late EdgeInsetsGeometry margin;
   late OptionsBloc optionsBloc;
 
   @override
   void initState() {
+    getTranslations();
+
     switch (widget.aligned) {
       case "left":
         margin = const EdgeInsets.only(
@@ -90,6 +96,15 @@ class MapListItemsState extends State<MapListItems> {
   void dispose() {
     textController.dispose();
     super.dispose();
+  }
+
+  Future<void> getTranslations() async {
+    String translationsJsonString =
+        await rootBundle.loadString('assets/json/translations.json');
+    translations = jsonDecode(translationsJsonString);
+    setState(() {
+      translationsLoaded = true;
+    });
   }
 
   void returnJson(List<dynamic> fieldValues) {
@@ -131,16 +146,20 @@ class MapListItemsState extends State<MapListItems> {
           errorMessageHandler: (String newValue) {
             if (fieldType.startsWith('int')) {
               if (newValue == '') {
-                return 'Zahlenfeld darf nicht leer sein';
+                return translations['configNumberFieldEmptyError'] ??
+                    'Number field cannot be empty';
               }
-              return 'Zahlenwert ist ausserhalb des gültigen Bereichs';
+              return translations['configNumberFieldRangeError'] ??
+                  'Number field is out of valid range';
             }
             if (fieldType.startsWith('url') &&
                 !optionsBloc.validateUrl(text: newValue, type: fieldType)) {
-              return 'Url hat ein ungültiges Format';
+              return translations['configTextFieldUrlInvalidError'] ??
+                  'Url is invalid';
             }
 
-            return 'Textfeld darf nicht leer sein';
+            return translations['configTextFieldEmptyError'] ??
+                'Text field cannot be empty';
           },
           validation: (String text) {
             if (fieldType.startsWith('int')) {
@@ -254,7 +273,7 @@ class MapListItemsState extends State<MapListItems> {
                   size: 20.0,
                 ),
               ),
-              label: const Text('open link'),
+              label: Text(translations['openLinkButtonText'] ?? 'open link'),
               onPressed: () async {
                 final Uri url = Uri.parse(link);
                 if (!await launchUrl(
@@ -285,7 +304,7 @@ class MapListItemsState extends State<MapListItems> {
                 size: 20.0,
               ),
             ),
-            label: const Text('remove'),
+            label: Text(translations['removeButtonText'] ?? 'remove'),
             onPressed: () async {
               setState(() => fieldValues.removeAt(idx));
               returnJson(fieldValues);
@@ -310,7 +329,7 @@ class MapListItemsState extends State<MapListItems> {
               size: 20.0,
             ),
           ),
-          label: const Text('add'),
+          label: Text(translations['addButtonText'] ?? 'add'),
           onPressed: () async {
             Map<String, dynamic> props = {};
             for (ItemTypeStructure typeStruct
@@ -330,37 +349,39 @@ class MapListItemsState extends State<MapListItems> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: margin,
-      alignment: Alignment.topLeft,
-      child: Container(
-        margin:
-            EdgeInsets.only(bottom: widget.noVerticalSpace == true ? 0 : 10),
-        child: Card(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (widget.label != null) ...[
-                Text(
-                  widget.label!,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  softWrap: false,
-                  style: TextStyle(
-                    color: widget.labelColor,
-                    fontSize: 12.0,
-                  ),
+    return translationsLoaded
+        ? Container(
+            margin: margin,
+            alignment: Alignment.topLeft,
+            child: Container(
+              margin: EdgeInsets.only(
+                  bottom: widget.noVerticalSpace == true ? 0 : 10),
+              child: Card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (widget.label != null) ...[
+                      Text(
+                        widget.label!,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: TextStyle(
+                          color: widget.labelColor,
+                          fontSize: 12.0,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 4.0,
+                      ),
+                    ],
+                    Column(children: getWidgets()),
+                    const SizedBox(height: 6.0),
+                  ],
                 ),
-                const SizedBox(
-                  height: 4.0,
-                ),
-              ],
-              Column(children: getWidgets()),
-              const SizedBox(height: 6.0),
-            ],
-          ),
-        ),
-      ),
-    );
+              ),
+            ),
+          )
+        : const SizedBox();
   }
 }
