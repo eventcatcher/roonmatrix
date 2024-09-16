@@ -331,7 +331,8 @@ class ControlPageState extends State<ControlPage> {
                                             });
                                           }),
                                     ),
-                                    Expanded(
+                                    SizedBox(
+                                      width: 600.0,
                                       child: controlButtons(orientation),
                                     ),
                                   ],
