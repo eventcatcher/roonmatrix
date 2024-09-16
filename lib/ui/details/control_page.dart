@@ -302,14 +302,11 @@ class ControlPageState extends State<ControlPage> {
                                 )
                               : Row(
                                   // landscape view
-                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width -
-                                          3 * buttonSize -
-                                          128 -
-                                          (Platform.isIOS ? 24 : 0),
+                                    Flexible(
+                                      fit: FlexFit.loose,
                                       child: SelectBox(
                                           aligned: 'horizontal',
                                           label:
@@ -334,7 +331,9 @@ class ControlPageState extends State<ControlPage> {
                                             });
                                           }),
                                     ),
-                                    controlButtons(orientation),
+                                    Expanded(
+                                      child: controlButtons(orientation),
+                                    ),
                                   ],
                                 ),
                         ),
