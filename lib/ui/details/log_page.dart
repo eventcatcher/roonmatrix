@@ -35,6 +35,7 @@ class LogPageState extends State<LogPage> {
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
+  String title = '';
   bool translationsLoaded = false;
   int hours = 1;
   bool saveIdle = false;
@@ -44,6 +45,7 @@ class LogPageState extends State<LogPage> {
 
   @override
   void initState() {
+    title = '$name : Log';
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getLog(ip: ip, hours: hours);
@@ -59,11 +61,16 @@ class LogPageState extends State<LogPage> {
           if (translationsState is TranslationsStateLoaded) {
             translations = translationsState.translations;
             translationsLoaded = translationsState.translationsLoaded;
+            title = '$name :  ${translations['logPageHeaderText'] ?? 'Log'}';
           }
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            return const SizedBox();
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text(title),
+                ),
+                body: const SizedBox());
           }
 
           return BlocBuilder(
@@ -93,8 +100,7 @@ class LogPageState extends State<LogPage> {
                   length: 2,
                   child: Scaffold(
                     appBar: AppBar(
-                      title: Text(
-                          '$name :  ${translations['logPageHeaderText'] ?? 'Log'}'),
+                      title: Text(title),
                       actions: const [],
                     ),
                     body: Column(
@@ -125,7 +131,7 @@ class LogPageState extends State<LogPage> {
                           ),
                         ),
                         Expanded(
-                          child: optionsState.idle == true
+                          child: optionsState.subPageIdle == true
                               ? const LoadingIndicatorSmall()
                               : ListView(
                                   shrinkWrap: true,
@@ -168,7 +174,7 @@ class LogPageState extends State<LogPage> {
                                 label: Text(translations['exportButtonText'] ??
                                     'export'),
                                 onPressed: saveIdle == true ||
-                                        optionsState.idle == true
+                                        optionsState.subPageIdle == true
                                     ? null
                                     : () async {
                                         setState(() {

@@ -140,11 +140,6 @@ class KeyValItemsState extends State<KeyValItems> {
             translationsLoaded = translationsState.translationsLoaded;
           }
 
-          if (translationsState is! TranslationsStateLoaded ||
-              !translationsLoaded) {
-            return const SizedBox();
-          }
-
           return Container(
             margin: margin,
             alignment: Alignment.topLeft,
@@ -177,64 +172,68 @@ class KeyValItemsState extends State<KeyValItems> {
                       alignment: Alignment.topRight,
                       child: Padding(
                         padding: const EdgeInsets.only(right: 16.0),
-                        child: ElevatedButton.icon(
-                          icon: const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 20.0,
-                            ),
-                          ),
-                          label: Text(translations['addButtonText'] ?? 'add'),
-                          onPressed: () async {
-                            String? newKey = await showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text(
-                                      translations['dialogAddItemTitle'] ??
-                                          'Add a new item'),
-                                  content: TextField(
-                                    controller: textController,
-                                    autofocus: true,
-                                    decoration: InputDecoration(
-                                        hintText: translations[
-                                                'dialogAddItemHintText'] ??
-                                            "Enter here the name of the new item"),
+                        child: translationsLoaded
+                            ? ElevatedButton.icon(
+                                icon: const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 20.0,
                                   ),
-                                  actions: [
-                                    TextButton(
-                                      child: Text(translations[
-                                              'dialogAddItemCancelButtonText'] ??
-                                          'Cancel'),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                    ),
-                                    TextButton(
-                                      child: Text(translations[
-                                              'dialogAddItemAddButtonText'] ??
-                                          'Add'),
-                                      onPressed: () {
-                                        if (textController.text.isNotEmpty) {
-                                          Navigator.pop(
-                                              context, textController.text);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                            if (newKey != null) {
-                              setState(() {
-                                fieldValues.putIfAbsent(newKey, () => '');
-                                returnJson(fieldValues);
-                              });
-                            }
-                          },
-                        ),
+                                ),
+                                label: Text(
+                                    translations['addButtonText'] ?? 'add'),
+                                onPressed: () async {
+                                  String? newKey = await showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text(translations[
+                                                'dialogAddItemTitle'] ??
+                                            'Add a new item'),
+                                        content: TextField(
+                                          controller: textController,
+                                          autofocus: true,
+                                          decoration: InputDecoration(
+                                              hintText: translations[
+                                                      'dialogAddItemHintText'] ??
+                                                  "Enter here the name of the new item"),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            child: Text(translations[
+                                                    'dialogAddItemCancelButtonText'] ??
+                                                'Cancel'),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: Text(translations[
+                                                    'dialogAddItemAddButtonText'] ??
+                                                'Add'),
+                                            onPressed: () {
+                                              if (textController
+                                                  .text.isNotEmpty) {
+                                                Navigator.pop(context,
+                                                    textController.text);
+                                              }
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                  if (newKey != null) {
+                                    setState(() {
+                                      fieldValues.putIfAbsent(newKey, () => '');
+                                      returnJson(fieldValues);
+                                    });
+                                  }
+                                },
+                              )
+                            : const SizedBox(),
                       ),
                     ),
                     const SizedBox(height: 12.0),

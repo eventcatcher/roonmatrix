@@ -47,6 +47,7 @@ class RoonMatrix extends StatefulWidget {
 
 class RoonMatrixState extends State<RoonMatrix> {
   final FileRepository fileRepository = FileRepository();
+  final String title = 'RoonMatrix';
 
   Map<String, dynamic> translations = {};
   String aboutAppMessage = '';
@@ -210,7 +211,7 @@ class RoonMatrixState extends State<RoonMatrix> {
         ),
       ],
       child: MaterialApp(
-        title: 'RoonMatrix',
+        title: title,
         theme: ThemeData(
           useMaterial3: false,
           tabBarTheme: const TabBarTheme(
@@ -235,7 +236,11 @@ class RoonMatrixState extends State<RoonMatrix> {
 
               if (translationsState is! TranslationsStateLoaded ||
                   !translationsLoaded) {
-                return const SizedBox();
+                return Scaffold(
+                    appBar: AppBar(
+                      title: Text(title),
+                    ),
+                    body: const SizedBox());
               }
 
               return BlocBuilder(
@@ -249,7 +254,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                       return PlatformMenuBar(
                         menus: <PlatformMenuItem>[
                           PlatformMenu(
-                            label: 'RoonMatrix',
+                            label: title,
                             menus: <PlatformMenuItem>[
                               PlatformMenuItemGroup(
                                 members: <PlatformMenuItem>[
@@ -486,7 +491,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                             ],
                           ),
                         ],
-                        child: StartPage(title: 'RoonMatrix', options: options),
+                        child: StartPage(title: title, options: options),
                       );
                     }
                     if (Platform.isWindows || Platform.isLinux) {
@@ -523,11 +528,11 @@ class RoonMatrixState extends State<RoonMatrix> {
                         enabled: true,
 
                         // Set the child, i.e. the application under the menu bar
-                        child: StartPage(title: 'RoonMatrix', options: options),
+                        child: StartPage(title: title, options: options),
                       );
                     }
 
-                    return StartPage(title: 'RoonMatrix', options: options);
+                    return StartPage(title: title, options: options);
                   });
             }),
       ),

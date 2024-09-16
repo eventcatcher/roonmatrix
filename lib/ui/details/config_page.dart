@@ -49,6 +49,7 @@ class ConfigPageState extends State<ConfigPage> {
 
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
+  String title = '';
   List<Widget> formFields = [];
   Map fieldValues = {};
   bool saveIdle = false;
@@ -59,6 +60,7 @@ class ConfigPageState extends State<ConfigPage> {
 
   @override
   void initState() {
+    title = '$name : Config';
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getConfig(ip: ip);
@@ -319,11 +321,17 @@ class ConfigPageState extends State<ConfigPage> {
           if (translationsState is TranslationsStateLoaded) {
             translations = translationsState.translations;
             translationsLoaded = translationsState.translationsLoaded;
+            title =
+                '$name : ${translations['configPageHeaderText'] ?? 'Config'}';
           }
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            return const SizedBox();
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text(title),
+                ),
+                body: const SizedBox());
           }
 
           return BlocBuilder(
@@ -355,8 +363,7 @@ class ConfigPageState extends State<ConfigPage> {
                   length: 2,
                   child: Scaffold(
                     appBar: AppBar(
-                      title: Text(
-                          '$name : ${translations['configPageHeaderText'] ?? 'Config'}'),
+                      title: Text(title),
                       actions: const [],
                       bottom: PreferredSize(
                         preferredSize: const Size.fromHeight(48.0),
@@ -382,7 +389,7 @@ class ConfigPageState extends State<ConfigPage> {
                         Column(
                           children: [
                             Expanded(
-                              child: optionsState.idle == true
+                              child: optionsState.subPageIdle == true
                                   ? const LoadingIndicatorSmall()
                                   : ListView(
                                       shrinkWrap: true,
@@ -415,7 +422,7 @@ class ConfigPageState extends State<ConfigPage> {
                                             'save'),
                                     onPressed: !validData ||
                                             saveIdle == true ||
-                                            optionsState.idle == true
+                                            optionsState.subPageIdle == true
                                         ? null
                                         : () async {
                                             setState(() {
@@ -478,7 +485,7 @@ class ConfigPageState extends State<ConfigPage> {
                               ),
                             ),
                             Expanded(
-                              child: optionsState.idle == true
+                              child: optionsState.subPageIdle == true
                                   ? const LoadingIndicatorSmall()
                                   : ListView(
                                       shrinkWrap: true,
@@ -524,7 +531,7 @@ class ConfigPageState extends State<ConfigPage> {
                                         translations['exportButtonText'] ??
                                             'export'),
                                     onPressed: saveIdle == true ||
-                                            optionsState.idle == true
+                                            optionsState.subPageIdle == true
                                         ? null
                                         : () async {
                                             setState(() {

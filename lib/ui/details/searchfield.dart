@@ -47,11 +47,6 @@ class SearchFieldState extends State<SearchField> {
             translationsLoaded = translationsState.translationsLoaded;
           }
 
-          if (translationsState is! TranslationsStateLoaded ||
-              !translationsLoaded) {
-            return const SizedBox();
-          }
-
           return Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: ConstrainedBox(
@@ -78,8 +73,9 @@ class SearchFieldState extends State<SearchField> {
                             left: 4.0, bottom: 1.0, top: 9.0),
                         child: TextFormField(
                           decoration: InputDecoration(
-                            hintText:
-                                translations['searchfieldHint'] ?? 'search',
+                            hintText: translationsLoaded
+                                ? translations['searchfieldHint'] ?? 'search'
+                                : 'search',
                             counter: const Offstage(),
                             icon: const Padding(
                               padding: EdgeInsets.only(left: 4.0),

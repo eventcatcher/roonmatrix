@@ -25,6 +25,7 @@ class _SettingsPageState extends State<SettingsPage> {
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
+  String title = '';
   bool translationsLoaded = false;
   TextEditingController ipStart = TextEditingController();
   TextEditingController ipEnd = TextEditingController();
@@ -34,6 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
+    title = 'Settings';
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
     ipStart.text = '';
@@ -50,11 +52,16 @@ class _SettingsPageState extends State<SettingsPage> {
           if (translationsState is TranslationsStateLoaded) {
             translations = translationsState.translations;
             translationsLoaded = translationsState.translationsLoaded;
+            title = translations['menuEntrySettings'] ?? 'Settings';
           }
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            return const SizedBox();
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text(title),
+                ),
+                body: const SizedBox());
           }
 
           return BlocBuilder(
@@ -73,8 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   length: 2,
                   child: Scaffold(
                     appBar: AppBar(
-                      title:
-                          Text(translations['menuEntrySettings'] ?? 'Settings'),
+                      title: Text(title),
                       actions: const [],
                     ),
                     body: SingleChildScrollView(

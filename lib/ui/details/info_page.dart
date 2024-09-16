@@ -31,6 +31,7 @@ class InfoPageState extends State<InfoPage> {
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
+  String title = '';
   bool translationsLoaded = false;
   bool saveIdle = false;
 
@@ -39,6 +40,7 @@ class InfoPageState extends State<InfoPage> {
 
   @override
   void initState() {
+    title = '$name : Info';
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getInfo(ip: ip);
@@ -54,11 +56,16 @@ class InfoPageState extends State<InfoPage> {
           if (translationsState is TranslationsStateLoaded) {
             translations = translationsState.translations;
             translationsLoaded = translationsState.translationsLoaded;
+            title = '$name : ${translations['infoPageHeaderText'] ?? 'Info'}';
           }
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            return const SizedBox();
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text(title),
+                ),
+                body: const SizedBox());
           }
 
           return BlocBuilder(
@@ -88,8 +95,7 @@ class InfoPageState extends State<InfoPage> {
                   length: 2,
                   child: Scaffold(
                     appBar: AppBar(
-                      title: Text(
-                          '$name : ${translations['infoPageHeaderText'] ?? 'Info'}'),
+                      title: Text(title),
                       actions: const [],
                     ),
                     body: Column(
@@ -103,7 +109,7 @@ class InfoPageState extends State<InfoPage> {
                           ),
                         ),
                         Expanded(
-                          child: optionsState.idle == true
+                          child: optionsState.subPageIdle == true
                               ? const LoadingIndicatorSmall()
                               : ListView(
                                   shrinkWrap: true,
@@ -138,7 +144,7 @@ class InfoPageState extends State<InfoPage> {
                                 label: Text(translations['exportButtonText'] ??
                                     'export'),
                                 onPressed: saveIdle == true ||
-                                        optionsState.idle == true
+                                        optionsState.subPageIdle == true
                                     ? null
                                     : () async {
                                         setState(() {

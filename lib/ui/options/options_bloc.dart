@@ -72,6 +72,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
+          subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
       }
@@ -93,6 +94,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
+          subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
 
@@ -115,6 +117,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
+          subPageIdle: state.subPageIdle,
           logMessage: logMessage,
         ));
       }
@@ -133,6 +136,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           fieldValues: state.fieldValues,
           log: state.log,
           idle: false,
+          subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
       }
@@ -156,6 +160,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
+          subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
 
@@ -178,6 +183,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
+          subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
       }
@@ -201,6 +207,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           fieldValues: state.fieldValues,
           log: state.log,
           idle: state.idle,
+          subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
       }
@@ -225,6 +232,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           fieldValues: state.fieldValues,
           log: state.log,
           idle: idle,
+          subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
 
@@ -246,7 +254,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
-          idle: true,
+          idle: state.idle,
+          subPageIdle: true,
           logMessage: state.logMessage,
         ));
 
@@ -276,7 +285,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                   definitions: state.definitions,
                   fieldValues: state.fieldValues,
                   log: state.log,
-                  idle: false,
+                  idle: state.idle,
+                  subPageIdle: false,
                   logMessage: state.logMessage,
                 ));
               }
@@ -297,7 +307,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               definitions: state.definitions,
               fieldValues: state.fieldValues,
               log: state.log,
-              idle: false,
+              idle: state.idle,
+              subPageIdle: false,
               logMessage: state.logMessage,
             ));
           }
@@ -317,7 +328,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             definitions: state.definitions,
             fieldValues: state.fieldValues,
             log: state.log,
-            idle: false,
+            idle: state.idle,
+            subPageIdle: false,
             logMessage: state.logMessage,
           ));
         }
@@ -338,7 +350,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
-          idle: true,
+          idle: state.idle,
+          subPageIdle: true,
           logMessage: state.logMessage,
         ));
 
@@ -371,7 +384,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                   definitions: definitions,
                   fieldValues: fieldValues,
                   log: state.log,
-                  idle: false,
+                  idle: state.idle,
+                  subPageIdle: false,
                   logMessage: state.logMessage,
                 ));
               }
@@ -392,7 +406,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               definitions: state.definitions,
               fieldValues: state.fieldValues,
               log: state.log,
-              idle: false,
+              idle: state.idle,
+              subPageIdle: false,
               logMessage: state.logMessage,
             ));
           }
@@ -412,7 +427,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             definitions: state.definitions,
             fieldValues: state.fieldValues,
             log: state.log,
-            idle: false,
+            idle: state.idle,
+            subPageIdle: false,
             logMessage: state.logMessage,
           ));
         }
@@ -434,7 +450,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: '',
-          idle: true,
+          idle: state.idle,
+          subPageIdle: true,
           logMessage: state.logMessage,
         ));
 
@@ -466,7 +483,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                 definitions: state.definitions,
                 fieldValues: state.fieldValues,
                 log: utf8.decode(response.bodyBytes),
-                idle: false,
+                idle: state.idle,
+                subPageIdle: false,
                 logMessage: state.logMessage,
               ));
             }
@@ -486,7 +504,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
               definitions: state.definitions,
               fieldValues: state.fieldValues,
               log: '',
-              idle: false,
+              idle: state.idle,
+              subPageIdle: false,
               logMessage: state.logMessage,
             ));
           }
@@ -506,7 +525,8 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             definitions: state.definitions,
             fieldValues: state.fieldValues,
             log: '',
-            idle: false,
+            idle: state.idle,
+            subPageIdle: false,
             logMessage: state.logMessage,
           ));
         }

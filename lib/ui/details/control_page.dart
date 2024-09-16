@@ -35,6 +35,7 @@ class ControlPageState extends State<ControlPage> {
   final bool showButtonUp = false;
 
   Map<String, dynamic> translations = {};
+  String title = '';
   bool translationsLoaded = false;
   String selectedZoneId = '';
   String? controlId;
@@ -44,6 +45,7 @@ class ControlPageState extends State<ControlPage> {
 
   @override
   void initState() {
+    title = '$name : Control';
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     optionsBloc = BlocProvider.of<OptionsBloc>(context);
     optionsBloc.getInfo(ip: ip);
@@ -209,11 +211,17 @@ class ControlPageState extends State<ControlPage> {
           if (translationsState is TranslationsStateLoaded) {
             translations = translationsState.translations;
             translationsLoaded = translationsState.translationsLoaded;
+            title =
+                '$name : ${translations['controlPageHeaderText'] ?? 'Control'}';
           }
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            return const SizedBox();
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text(title),
+                ),
+                body: const SizedBox());
           }
 
           return BlocBuilder(
@@ -266,8 +274,7 @@ class ControlPageState extends State<ControlPage> {
                     length: 2,
                     child: Scaffold(
                       appBar: AppBar(
-                        title: Text(
-                            '$name : ${translations['controlPageHeaderText'] ?? 'Control'}'),
+                        title: Text(title),
                         actions: const [],
                       ),
                       body: SingleChildScrollView(

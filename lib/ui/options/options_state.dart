@@ -15,6 +15,7 @@ abstract class OptionsState extends Equatable {
   final Map fieldValues;
   final String log;
   final bool idle;
+  final bool subPageIdle;
   final String logMessage;
 
   const OptionsState({
@@ -30,6 +31,7 @@ abstract class OptionsState extends Equatable {
     this.fieldValues = const {},
     this.log = '',
     this.idle = false,
+    this.subPageIdle = false,
     this.logMessage = '',
   });
 
@@ -43,6 +45,7 @@ abstract class OptionsState extends Equatable {
       fieldValues,
       log,
       idle,
+      subPageIdle,
       logMessage,
     ];
 
@@ -90,6 +93,7 @@ class OptionsStateLoaded extends OptionsState {
     required super.fieldValues,
     required super.log,
     required super.idle,
+    required super.subPageIdle,
     required super.logMessage,
   });
 

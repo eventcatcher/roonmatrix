@@ -24,6 +24,8 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
             await generateLogHours(translations);
         String aboutAppMessage = await getAboutMessage(translations);
 
+        //await Future.delayed(const Duration(seconds: 5));
+
         emit(TranslationsStateLoaded(
           languageCode: languageCode,
           translations: translations,

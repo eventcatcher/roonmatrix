@@ -351,11 +351,6 @@ class MapListItemsState extends State<MapListItems> {
             translationsLoaded = translationsState.translationsLoaded;
           }
 
-          if (translationsState is! TranslationsStateLoaded ||
-              !translationsLoaded) {
-            return const SizedBox();
-          }
-
           return Container(
             margin: margin,
             alignment: Alignment.topLeft,
@@ -381,7 +376,7 @@ class MapListItemsState extends State<MapListItems> {
                         height: 4.0,
                       ),
                     ],
-                    Column(children: getWidgets()),
+                    Column(children: translationsLoaded ? getWidgets() : []),
                     const SizedBox(height: 6.0),
                   ],
                 ),
