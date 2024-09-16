@@ -32,6 +32,7 @@ class ControlPageState extends State<ControlPage> {
 
   final double buttonSize =
       Platform.isMacOS || Platform.isWindows || Platform.isLinux ? 128.0 : 88.0;
+  final bool showButtonUp = false;
 
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
@@ -58,10 +59,16 @@ class ControlPageState extends State<ControlPage> {
             Platform.isMacOS ||
             Platform.isWindows ||
             Platform.isLinux)
-          Text(translations['controlButtonPreviousText'] ?? 'previous'),
+          Container(
+            margin: const EdgeInsets.only(bottom: 6.0),
+            child:
+                Text(translations['controlButtonPreviousText'] ?? 'previous'),
+          ),
         Column(
           children: [
-            // Text(translations['controlButtonUpText'] ?? 'up'),
+            Text(showButtonUp == true
+                ? translations['controlButtonUpText'] ?? 'up'
+                : ''),
             SizedBox(
               width: 3 * buttonSize,
               height: 3 * buttonSize,
@@ -186,8 +193,8 @@ class ControlPageState extends State<ControlPage> {
             Platform.isMacOS ||
             Platform.isWindows ||
             Platform.isLinux)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+          Container(
+            margin: const EdgeInsets.only(bottom: 6.0),
             child: Text(translations['controlButtonNextText'] ?? 'next'),
           ),
       ],
