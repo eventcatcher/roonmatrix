@@ -332,7 +332,7 @@ class ControlPageState extends State<ControlPage> {
                                           }),
                                     ),
                                     SizedBox(
-                                      width: 585.0,
+                                      width: 200 + 3 * buttonSize,
                                       child: controlButtons(orientation),
                                     ),
                                   ],
