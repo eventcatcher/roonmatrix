@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/select_box_with_icon.dart';
-import 'package:roonmatrix/ui/options/options_bloc.dart';
-import 'package:roonmatrix/ui/options/options_state.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,14 +41,14 @@ class LogPageState extends State<LogPage> {
   bool saveIdle = false;
 
   late TranslationsBloc translationsBloc;
-  late OptionsBloc optionsBloc;
+  late MainBloc mainBloc;
 
   @override
   void initState() {
     title = '$name : Log';
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
-    optionsBloc = BlocProvider.of<OptionsBloc>(context);
-    optionsBloc.getLog(ip: ip, hours: hours);
+    mainBloc = BlocProvider.of<MainBloc>(context);
+    mainBloc.getLog(ip: ip, hours: hours);
 
     super.initState();
   }
@@ -74,14 +74,14 @@ class LogPageState extends State<LogPage> {
           }
 
           return BlocBuilder(
-              bloc: optionsBloc,
-              builder: (context, OptionsState optionsState) {
-                if (optionsState is! OptionsStateLoaded) {
+              bloc: mainBloc,
+              builder: (context, MainState mainState) {
+                if (mainState is! MainStateLoaded) {
                   return Container();
                 }
 
-                String search = optionsState.searchFilter['log']!;
-                String log = optionsState.log;
+                String search = mainState.searchFilter['log']!;
+                String log = mainState.log;
                 if (log.isNotEmpty) {
                   if (log.endsWith('"')) {
                     log = log.substring(0, log.length - 1);
@@ -110,7 +110,7 @@ class LogPageState extends State<LogPage> {
                           child: SearchField(
                             type: 'log',
                             controller:
-                                optionsBloc.getSearchController(type: 'log'),
+                                mainBloc.getSearchController(type: 'log'),
                           ),
                         ),
                         Padding(
@@ -125,13 +125,13 @@ class LogPageState extends State<LogPage> {
                             onChanged: (String? value) {
                               if (mounted && value != null) {
                                 setState(() => hours = int.parse(value));
-                                optionsBloc.getLog(ip: ip, hours: hours);
+                                mainBloc.getLog(ip: ip, hours: hours);
                               }
                             },
                           ),
                         ),
                         Expanded(
-                          child: optionsState.subPageIdle == true
+                          child: mainState.subPageIdle == true
                               ? const LoadingIndicatorSmall()
                               : ListView(
                                   shrinkWrap: true,
@@ -174,17 +174,14 @@ class LogPageState extends State<LogPage> {
                                 label: Text(translations['exportButtonText'] ??
                                     'export'),
                                 onPressed: saveIdle == true ||
-                                        optionsState.subPageIdle == true
+                                        mainState.subPageIdle == true
                                     ? null
                                     : () async {
                                         setState(() {
                                           saveIdle = true;
                                         });
-                                        bool? valid =
-                                            await optionsBloc.exportData(
-                                                name: name,
-                                                ip: ip,
-                                                type: 'log');
+                                        bool? valid = await mainBloc.exportData(
+                                            name: name, ip: ip, type: 'log');
                                         setState(() {
                                           saveIdle = false;
                                         });

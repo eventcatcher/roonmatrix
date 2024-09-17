@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
-import 'package:roonmatrix/ui/options/options_bloc.dart';
-import 'package:roonmatrix/ui/options/options_state.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
@@ -41,14 +41,14 @@ class ControlPageState extends State<ControlPage> {
   String? controlId;
 
   late TranslationsBloc translationsBloc;
-  late OptionsBloc optionsBloc;
+  late MainBloc mainBloc;
 
   @override
   void initState() {
     title = '$name : Control';
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
-    optionsBloc = BlocProvider.of<OptionsBloc>(context);
-    optionsBloc.getInfo(ip: ip);
+    mainBloc = BlocProvider.of<MainBloc>(context);
+    mainBloc.getInfo(ip: ip);
 
     super.initState();
   }
@@ -108,7 +108,7 @@ class ControlPageState extends State<ControlPage> {
                           hoverColor: Colors.blue,
                           onPressed: () {
                             if (selectedZoneId.isNotEmpty) {
-                              optionsBloc.zoneControl(
+                              mainBloc.zoneControl(
                                   ip: ip,
                                   controlId: controlId!,
                                   cmd: 'previous');
@@ -128,7 +128,7 @@ class ControlPageState extends State<ControlPage> {
                           hoverColor: Colors.blue,
                           onPressed: () {
                             if (selectedZoneId.isNotEmpty) {
-                              optionsBloc.zoneControl(
+                              mainBloc.zoneControl(
                                   ip: ip,
                                   controlId: controlId!,
                                   cmd: 'playmode');
@@ -148,7 +148,7 @@ class ControlPageState extends State<ControlPage> {
                           hoverColor: Colors.blue,
                           onPressed: () {
                             if (selectedZoneId.isNotEmpty) {
-                              optionsBloc.zoneControl(
+                              mainBloc.zoneControl(
                                   ip: ip, controlId: controlId!, cmd: 'next');
                             }
                           },
@@ -171,7 +171,7 @@ class ControlPageState extends State<ControlPage> {
                           hoverColor: Colors.blue,
                           onPressed: () {
                             if (selectedZoneId.isNotEmpty) {
-                              optionsBloc.zoneControl(
+                              mainBloc.zoneControl(
                                   ip: ip,
                                   controlId: controlId!,
                                   cmd: 'shufflemode');
@@ -225,13 +225,13 @@ class ControlPageState extends State<ControlPage> {
           }
 
           return BlocBuilder(
-              bloc: optionsBloc,
-              builder: (context, OptionsState optionsState) {
-                if (optionsState is! OptionsStateLoaded) {
+              bloc: mainBloc,
+              builder: (context, MainState mainState) {
+                if (mainState is! MainStateLoaded) {
                   return Container();
                 }
 
-                Map<String, dynamic> info = optionsState.info[ip] ?? {};
+                Map<String, dynamic> info = mainState.info[ip] ?? {};
                 Map<String, dynamic> channels = (info['channels'] ?? {});
                 Map<String, String> options = {};
 

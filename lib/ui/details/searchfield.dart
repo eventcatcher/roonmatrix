@@ -2,7 +2,7 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:roonmatrix/ui/options/options_bloc.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
@@ -28,12 +28,12 @@ class SearchFieldState extends State<SearchField> {
   bool translationsLoaded = false;
 
   late TranslationsBloc translationsBloc;
-  late OptionsBloc optionsBloc;
+  late MainBloc mainBloc;
 
   @override
   void initState() {
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
-    optionsBloc = BlocProvider.of<OptionsBloc>(context);
+    mainBloc = BlocProvider.of<MainBloc>(context);
     super.initState();
   }
 
@@ -94,7 +94,7 @@ class SearchFieldState extends State<SearchField> {
                           onChanged: (String value) {
                             EasyDebounce.debounce('searchfield-debouncer',
                                 const Duration(milliseconds: 500), () {
-                              optionsBloc.setSearchFilter(
+                              mainBloc.setSearchFilter(
                                   type: type, filter: value);
                             });
                           },
@@ -109,7 +109,7 @@ class SearchFieldState extends State<SearchField> {
                       onPressed: () {
                         setState(() {
                           controller.text = '';
-                          optionsBloc.setSearchFilter(type: type, filter: '');
+                          mainBloc.setSearchFilter(type: type, filter: '');
                         });
                       },
                       color: Colors.black45,

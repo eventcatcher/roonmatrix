@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:roonmatrix/ui/options/options_bloc.dart';
 
 class BurgerMenu extends StatefulWidget {
   final Function(String? key) onClose;
@@ -12,12 +10,10 @@ class BurgerMenu extends StatefulWidget {
 }
 
 class BurgerMenuState extends State<BurgerMenu> {
-  late OptionsBloc optionsBloc;
   List<dynamic> popupData = [];
 
   @override
   void initState() {
-    optionsBloc = BlocProvider.of<OptionsBloc>(context);
     initPopupData();
 
     super.initState();

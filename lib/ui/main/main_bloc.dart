@@ -12,21 +12,19 @@ import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
-import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
-import 'package:roonmatrix/ui/options/options_event.dart';
-import 'package:roonmatrix/ui/options/options_state.dart';
+import 'package:roonmatrix/ui/main/main_event.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path_provider/path_provider.dart';
 //ignore:depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:validators/validators.dart';
 
-class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
+class MainBloc extends Bloc<MainEvent, MainState> {
   final TranslationsBloc translationsBloc;
   final FileRepository fileRepository;
 
@@ -49,21 +47,20 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   bool isScanning = false;
   Timer? timer;
 
-  OptionsBloc({required this.translationsBloc, required this.fileRepository})
-      : super(const OptionsStateInitial()) {
+  MainBloc({required this.translationsBloc, required this.fileRepository})
+      : super(const MainStateInitial()) {
     // ====================== //
     // event to state handler //
     // ====================== //
-    on<OptionsEvent>((event, emit) async {
+    on<MainEvent>((event, emit) async {
       if (event is SetIpRange) {
         String? ipStart = event.ipStart;
         String? ipEnd = event.ipEnd;
 
-        emit(OptionsStateLoaded(
+        emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: ipStart,
           ipEnd: ipEnd,
-          options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
           info: state.info,
@@ -75,40 +72,15 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
-      }
-
-      if (event is ResetOptions) {
-        setPollingTimer(stateBefore: state.options?.polling, newState: false);
-        Options options = Options((OptionsBuilder b) => b..polling = false);
-
-        emit(OptionsStateLoaded(
-          update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          options: options,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
-          subPageIdle: state.subPageIdle,
-          logMessage: state.logMessage,
-        ));
-
-        saveOptions(options);
       }
 
       if (event is SetLogMessage) {
         String logMessage = event.msg;
 
-        emit(OptionsStateLoaded(
+        emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: state.ipStart,
           ipEnd: state.ipEnd,
-          options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
           info: state.info,
@@ -123,11 +95,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       }
 
       if (event is LoadDevicesAndInfo) {
-        emit(OptionsStateLoaded(
+        emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: state.ipStart,
           ipEnd: state.ipEnd,
-          options: state.options,
           searchFilter: state.searchFilter,
           devices: event.devices,
           info: event.info,
@@ -141,64 +112,16 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         ));
       }
 
-      if (event is SetOptionsPolling) {
-        bool polling = event.polling;
-        setPollingTimer(stateBefore: state.options?.polling, newState: polling);
-        Options options =
-            state.options!.rebuild((OptionsBuilder b) => b..polling = polling);
-
-        emit(OptionsStateLoaded(
-          update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          options: options,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
-          subPageIdle: state.subPageIdle,
-          logMessage: state.logMessage,
-        ));
-
-        saveOptions(options);
-      }
-
-      if (event is SetOptions) {
-        Options options = event.options;
-
-        emit(OptionsStateLoaded(
-          update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          options: options,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
-          subPageIdle: state.subPageIdle,
-          logMessage: state.logMessage,
-        ));
-      }
-
       if (event is SetSearchFilter) {
         String type = event.type;
         String filter = event.filter;
         Map<String, String> searchFilter = Map.from(state.searchFilter);
         searchFilter[type] = filter;
 
-        emit(OptionsStateLoaded(
+        emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: state.ipStart,
           ipEnd: state.ipEnd,
-          options: state.options,
           searchFilter: searchFilter,
           devices: state.devices,
           info: state.info,
@@ -219,11 +142,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         ipEnd = prefs.getString('ipEnd');
         bool idle = event.idle ?? false;
 
-        emit(OptionsStateLoaded(
+        emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: ipStart,
           ipEnd: ipEnd,
-          options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
           info: state.info,
@@ -242,11 +164,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       if (event is GetInfo) {
         String ip = event.ip;
 
-        emit(OptionsStateLoaded(
+        emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: state.ipStart,
           ipEnd: state.ipEnd,
-          options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
           info: state.info,
@@ -273,11 +194,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                 Map<String, dynamic> info = state.info;
                 info[ip] = json;
 
-                emit(OptionsStateLoaded(
+                emit(MainStateLoaded(
                   update: DateTime.now(),
                   ipStart: state.ipStart,
                   ipEnd: state.ipEnd,
-                  options: state.options,
                   searchFilter: state.searchFilter,
                   devices: state.devices,
                   info: info,
@@ -295,11 +215,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             if (kDebugMode) {
               print('error by access to $url: $e');
             }
-            emit(OptionsStateLoaded(
+            emit(MainStateLoaded(
               update: DateTime.now(),
               ipStart: state.ipStart,
               ipEnd: state.ipEnd,
-              options: state.options,
               searchFilter: state.searchFilter,
               devices: state.devices,
               info: state.info,
@@ -316,11 +235,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           if (kDebugMode) {
             print(e);
           }
-          emit(OptionsStateLoaded(
+          emit(MainStateLoaded(
             update: DateTime.now(),
             ipStart: state.ipStart,
             ipEnd: state.ipEnd,
-            options: state.options,
             searchFilter: state.searchFilter,
             devices: state.devices,
             info: state.info,
@@ -338,11 +256,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       if (event is GetConfig) {
         String ip = event.ip;
 
-        emit(OptionsStateLoaded(
+        emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: state.ipStart,
           ipEnd: state.ipEnd,
-          options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
           info: state.info,
@@ -372,11 +289,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
                 Map fieldValues =
                     getFieldValues(defs: definitions, json: json['config']);
 
-                emit(OptionsStateLoaded(
+                emit(MainStateLoaded(
                   update: DateTime.now(),
                   ipStart: state.ipStart,
                   ipEnd: state.ipEnd,
-                  options: state.options,
                   searchFilter: state.searchFilter,
                   devices: state.devices,
                   info: state.info,
@@ -394,11 +310,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             if (kDebugMode) {
               print('error by access to $url: $e');
             }
-            emit(OptionsStateLoaded(
+            emit(MainStateLoaded(
               update: DateTime.now(),
               ipStart: state.ipStart,
               ipEnd: state.ipEnd,
-              options: state.options,
               searchFilter: state.searchFilter,
               devices: state.devices,
               info: state.info,
@@ -415,11 +330,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           if (kDebugMode) {
             print(e);
           }
-          emit(OptionsStateLoaded(
+          emit(MainStateLoaded(
             update: DateTime.now(),
             ipStart: state.ipStart,
             ipEnd: state.ipEnd,
-            options: state.options,
             searchFilter: state.searchFilter,
             devices: state.devices,
             info: state.info,
@@ -438,11 +352,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
         String ip = event.ip;
         int hours = event.hours;
 
-        emit(OptionsStateLoaded(
+        emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: state.ipStart,
           ipEnd: state.ipEnd,
-          options: state.options,
           searchFilter: state.searchFilter,
           devices: state.devices,
           info: state.info,
@@ -471,11 +384,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             var response = await client.post(uri,
                 headers: headers, body: json.encode(payload));
             if (response.statusCode == 200) {
-              emit(OptionsStateLoaded(
+              emit(MainStateLoaded(
                 update: DateTime.now(),
                 ipStart: state.ipStart,
                 ipEnd: state.ipEnd,
-                options: state.options,
                 searchFilter: state.searchFilter,
                 devices: state.devices,
                 info: state.info,
@@ -492,11 +404,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
             if (kDebugMode) {
               print('error by access to $url: $e');
             }
-            emit(OptionsStateLoaded(
+            emit(MainStateLoaded(
               update: DateTime.now(),
               ipStart: state.ipStart,
               ipEnd: state.ipEnd,
-              options: state.options,
               searchFilter: state.searchFilter,
               devices: state.devices,
               info: state.info,
@@ -513,11 +424,10 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
           if (kDebugMode) {
             print(e);
           }
-          emit(OptionsStateLoaded(
+          emit(MainStateLoaded(
             update: DateTime.now(),
             ipStart: state.ipStart,
             ipEnd: state.ipEnd,
-            options: state.options,
             searchFilter: state.searchFilter,
             devices: state.devices,
             info: state.info,
@@ -573,7 +483,7 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
       }
     });
 
-    setPollingTimer(stateBefore: state.options?.polling, newState: true);
+    setPollingTimer();
     searching(idle: true);
   }
 
@@ -1087,47 +997,6 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     return Future.value(null);
   }
 
-  void saveOptions(Options options) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path;
-    String filePath = '$appDocPath/options.json';
-    debugPrint('saveOptions => filePath: $filePath');
-    File file = File(filePath);
-
-    Map<String, dynamic> map = options.toJson();
-    String jsonStr = jsonEncode(map);
-
-    file.writeAsString(jsonStr);
-  }
-
-  Future<Options> loadOptions(Options optionPresets) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path;
-    String filePath = '$appDocPath/options.json';
-    File file = File(filePath);
-
-    Options options;
-
-    if (file.existsSync() == true) {
-      List<String> lines = file.readAsLinesSync();
-      if (lines.isNotEmpty) {
-        options = Options.fromJson(jsonDecode(lines.first));
-      } else {
-        options = optionPresets;
-        saveOptions(options);
-      }
-    } else {
-      options = optionPresets;
-      saveOptions(options);
-    }
-
-    debugPrint('loadOptions => filePath: $filePath');
-    debugPrint(options.toString());
-    setOptions(options: options);
-
-    return options;
-  }
-
   Future<void> searchDevices() async {
     if (kDebugMode) {
       print('searchDevices, isScanning: $isScanning');
@@ -1257,22 +1126,11 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     }
   }
 
-  setPollingTimer({required bool? stateBefore, required bool newState}) {
-    if (stateBefore != true && newState == true) {
-      if (kDebugMode) {
-        print('enable polling');
-      }
-      timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds),
-          (Timer timer) {
-        searching(idle: state.devices.isEmpty);
-      });
-    }
-    if (stateBefore != false && newState == false) {
-      if (kDebugMode) {
-        print('disable polling');
-      }
-      timer?.cancel();
-    }
+  setPollingTimer() {
+    timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds),
+        (Timer timer) {
+      searching(idle: state.devices.isEmpty);
+    });
   }
 
   void openAboutModal(
@@ -1311,10 +1169,6 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
     add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
   }
 
-  void resetOptions() {
-    add(ResetOptions());
-  }
-
   void setLogMessage({required String msg}) {
     add(SetLogMessage(msg: msg));
   }
@@ -1338,14 +1192,6 @@ class OptionsBloc extends Bloc<OptionsEvent, OptionsState> {
   void zoneControl(
       {required String ip, required String controlId, required String cmd}) {
     add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd));
-  }
-
-  void setOptionsPolling({required bool polling}) {
-    add(SetOptionsPolling(polling: polling));
-  }
-
-  void setOptions({required Options options}) {
-    add(SetOptions(options: options));
   }
 
   void setSearchFilter({required String type, required String filter}) {

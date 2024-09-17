@@ -15,8 +15,8 @@ import 'package:roonmatrix/ui/layout/list_items.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/map_list_items.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
-import 'package:roonmatrix/ui/options/options_bloc.dart';
-import 'package:roonmatrix/ui/options/options_state.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,14 +56,14 @@ class ConfigPageState extends State<ConfigPage> {
   bool validData = false;
 
   late TranslationsBloc translationsBloc;
-  late OptionsBloc optionsBloc;
+  late MainBloc mainBloc;
 
   @override
   void initState() {
     title = '$name : Config';
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
-    optionsBloc = BlocProvider.of<OptionsBloc>(context);
-    optionsBloc.getConfig(ip: ip);
+    mainBloc = BlocProvider.of<MainBloc>(context);
+    mainBloc.getConfig(ip: ip);
 
     super.initState();
   }
@@ -76,7 +76,7 @@ class ConfigPageState extends State<ConfigPage> {
 
       for (ConfigDefinitionItem fieldDefinition in area.items) {
         String? fieldType =
-            optionsBloc.getFieldType(fieldDefinition: fieldDefinition);
+            mainBloc.getFieldType(fieldDefinition: fieldDefinition);
         if (fieldType != null && fieldDefinition.editable == true) {
           if (kDebugMode) {
             print(
@@ -112,7 +112,7 @@ class ConfigPageState extends State<ConfigPage> {
                   }
 
                   if (fieldDefinition.type.type.startsWith('url') &&
-                      !optionsBloc.validateUrl(
+                      !mainBloc.validateUrl(
                           text: newValue, type: fieldDefinition.type.type)) {
                     return translations['configTextFieldUrlInvalidError'] ??
                         'Url is invalid';
@@ -134,7 +134,7 @@ class ConfigPageState extends State<ConfigPage> {
                   return translations['configTextFieldJsonError'] ??
                       'Text field has no valid Json';
                 },
-                validation: (String text) => optionsBloc.validateText(
+                validation: (String text) => mainBloc.validateText(
                     text: text,
                     fieldDefinition: fieldDefinition,
                     type: fieldDefinition.type.type),
@@ -182,7 +182,7 @@ class ConfigPageState extends State<ConfigPage> {
                   if (num == null) {
                     return false;
                   }
-                  return optionsBloc.validateNumber(
+                  return mainBloc.validateNumber(
                       num: num, type: fieldDefinition.type.type);
                 },
                 onChanged: (value) {
@@ -335,26 +335,25 @@ class ConfigPageState extends State<ConfigPage> {
           }
 
           return BlocBuilder(
-              bloc: optionsBloc,
-              builder: (context, OptionsState optionsState) {
-                if (optionsState is! OptionsStateLoaded) {
+              bloc: mainBloc,
+              builder: (context, MainState mainState) {
+                if (mainState is! MainStateLoaded) {
                   return Container();
                 }
 
-                String search = optionsState.searchFilter['config']!;
-                String jsonStr =
-                    optionsBloc.getPrettyJSONString(optionsState.config);
+                String search = mainState.searchFilter['config']!;
+                String jsonStr = mainBloc.getPrettyJSONString(mainState.config);
                 if (search.isNotEmpty) {
                   jsonStr = jsonStr.replaceAll(
                       RegExp(search, caseSensitive: false), '<b>$search</b>');
                 }
 
-                if (optionsState.definitions == null) {
+                if (mainState.definitions == null) {
                   return const LoadingIndicatorSmall();
                 }
-                ConfigDefinition defs = optionsState.definitions!;
-                fieldValues = optionsState.fieldValues;
-                validData = optionsBloc.validateAll(
+                ConfigDefinition defs = mainState.definitions!;
+                fieldValues = mainState.fieldValues;
+                validData = mainBloc.validateAll(
                     definitions: defs, fieldValues: fieldValues);
                 formFields = getFormFields(defs: defs);
 
@@ -389,7 +388,7 @@ class ConfigPageState extends State<ConfigPage> {
                         Column(
                           children: [
                             Expanded(
-                              child: optionsState.subPageIdle == true
+                              child: mainState.subPageIdle == true
                                   ? const LoadingIndicatorSmall()
                                   : ListView(
                                       shrinkWrap: true,
@@ -422,14 +421,14 @@ class ConfigPageState extends State<ConfigPage> {
                                             'save'),
                                     onPressed: !validData ||
                                             saveIdle == true ||
-                                            optionsState.subPageIdle == true
+                                            mainState.subPageIdle == true
                                         ? null
                                         : () async {
                                             setState(() {
                                               saveIdle = true;
                                             });
                                             bool valid =
-                                                await optionsBloc.saveConfig(
+                                                await mainBloc.saveConfig(
                                                     name: name,
                                                     ip: ip,
                                                     data: fieldValues);
@@ -480,12 +479,12 @@ class ConfigPageState extends State<ConfigPage> {
                               padding: const EdgeInsets.only(right: 8.0),
                               child: SearchField(
                                 type: 'config',
-                                controller: optionsBloc.getSearchController(
+                                controller: mainBloc.getSearchController(
                                     type: 'config'),
                               ),
                             ),
                             Expanded(
-                              child: optionsState.subPageIdle == true
+                              child: mainState.subPageIdle == true
                                   ? const LoadingIndicatorSmall()
                                   : ListView(
                                       shrinkWrap: true,
@@ -531,14 +530,14 @@ class ConfigPageState extends State<ConfigPage> {
                                         translations['exportButtonText'] ??
                                             'export'),
                                     onPressed: saveIdle == true ||
-                                            optionsState.subPageIdle == true
+                                            mainState.subPageIdle == true
                                         ? null
                                         : () async {
                                             setState(() {
                                               saveIdle = true;
                                             });
                                             bool? valid =
-                                                await optionsBloc.exportData(
+                                                await mainBloc.exportData(
                                                     name: name,
                                                     ip: ip,
                                                     type: 'config');

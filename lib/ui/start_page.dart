@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:flutter/scheduler.dart';
-import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/control_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
@@ -8,8 +7,8 @@ import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
-import 'package:roonmatrix/ui/options/options_bloc.dart';
-import 'package:roonmatrix/ui/options/options_state.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_page.dart';
@@ -22,11 +21,9 @@ class StartPage extends StatefulWidget {
   const StartPage({
     super.key,
     required this.title,
-    required this.options,
   });
 
   final String title;
-  final Options options;
 
   @override
   State<StartPage> createState() => StartPageState();
@@ -45,16 +42,14 @@ class StartPageState extends State<StartPage> {
   List<String> devices = [];
   Map<String, dynamic> info = {};
 
-  late Options options;
   late TranslationsBloc translationsBloc;
-  late OptionsBloc optionsBloc;
+  late MainBloc mainBloc;
   late String appVersionAndBuildNumber;
 
   @override
   void initState() {
-    options = widget.options;
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
-    optionsBloc = BlocProvider.of<OptionsBloc>(context);
+    mainBloc = BlocProvider.of<MainBloc>(context);
     super.initState();
   }
 
@@ -64,7 +59,7 @@ class StartPageState extends State<StartPage> {
           required Map<String, dynamic> translations}) =>
       SchedulerBinding.instance.addPostFrameCallback((_) async {
         if (mounted) {
-          optionsBloc.openAboutModal(
+          mainBloc.openAboutModal(
               context: context,
               aboutAppMessage: aboutAppMessage,
               translations: translations);
@@ -139,30 +134,26 @@ class StartPageState extends State<StartPage> {
             }
 
             return BlocBuilder(
-                bloc: optionsBloc,
-                builder: (context, OptionsState optionsState) {
-                  if (optionsState is! OptionsStateLoaded) {
+                bloc: mainBloc,
+                builder: (context, MainState mainState) {
+                  if (mainState is! MainStateLoaded) {
                     return Container();
                   }
 
-                  if (optionsState.ipStart == null ||
-                      optionsState.ipEnd == null) {
+                  if (mainState.ipStart == null || mainState.ipEnd == null) {
                     openSettingsPage();
                   }
 
-                  options = optionsState.options ?? options;
-                  devices = optionsState.devices;
-                  info = optionsState.info;
-                  idle = optionsState.idle;
+                  devices = mainState.devices;
+                  info = mainState.info;
+                  idle = mainState.idle;
 
-                  if (optionsState.searchFilter.isNotEmpty &&
-                      devices.isNotEmpty) {
+                  if (mainState.searchFilter.isNotEmpty && devices.isNotEmpty) {
                     devices = devices
                         .where((String el) => (info[el]['name'] as String)
                             .toLowerCase()
-                            .contains(
-                                (optionsState.searchFilter['main'] as String)
-                                    .toLowerCase()))
+                            .contains((mainState.searchFilter['main'] as String)
+                                .toLowerCase()))
                         .toList();
                   }
 
@@ -192,7 +183,7 @@ class StartPageState extends State<StartPage> {
                           children: <Widget>[
                             Stack(
                               children: [
-                                // options and searchfield area
+                                // searchfield area
                                 Padding(
                                   padding: const EdgeInsets.only(
                                       bottom: 8.0, right: 8.0),
@@ -204,7 +195,7 @@ class StartPageState extends State<StartPage> {
                                     children: [
                                       SearchField(
                                         type: 'main',
-                                        controller: optionsBloc
+                                        controller: mainBloc
                                             .getSearchController(type: 'main'),
                                       ),
                                     ],
@@ -212,7 +203,7 @@ class StartPageState extends State<StartPage> {
                                 ),
                               ],
                             ),
-                            if (optionsState.logMessage.isNotEmpty)
+                            if (mainState.logMessage.isNotEmpty)
                               SizedBox(
                                 height: 300.0,
                                 child: Padding(
@@ -240,7 +231,7 @@ class StartPageState extends State<StartPage> {
                                           Expanded(
                                             child: ListView(
                                               children: [
-                                                Text(optionsState.logMessage),
+                                                Text(mainState.logMessage),
                                               ],
                                             ),
                                           ),
@@ -843,7 +834,7 @@ class StartPageState extends State<StartPage> {
                                             setState(() {
                                               saveIdle = true;
                                             });
-                                            bool? valid = await optionsBloc
+                                            bool? valid = await mainBloc
                                                 .exportDevicesData();
                                             setState(() {
                                               saveIdle = false;

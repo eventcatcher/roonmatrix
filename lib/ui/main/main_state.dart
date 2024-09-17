@@ -1,12 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:roonmatrix/model/config_definition.dart';
-import 'package:roonmatrix/model/options.dart';
 
-abstract class OptionsState extends Equatable {
+abstract class MainState extends Equatable {
   final DateTime? update;
   final String? ipStart;
   final String? ipEnd;
-  final Options? options;
   final Map<String, String> searchFilter;
   final List<String> devices;
   final Map<String, dynamic> info;
@@ -18,11 +16,10 @@ abstract class OptionsState extends Equatable {
   final bool subPageIdle;
   final String logMessage;
 
-  const OptionsState({
+  const MainState({
     this.update,
     this.ipStart,
     this.ipEnd,
-    this.options,
     this.searchFilter = const {"main": "", "info": "", "config": "", "log": ""},
     this.devices = const [],
     this.info = const {},
@@ -61,30 +58,26 @@ abstract class OptionsState extends Equatable {
     if (update != null) {
       props.add(update!);
     }
-    if (options != null) {
-      props.add(options!);
-    }
 
     return props;
   }
 
   @override
-  String toString() => 'OptionsState';
+  String toString() => 'MainState';
 }
 
-class OptionsStateInitial extends OptionsState {
-  const OptionsStateInitial();
+class MainStateInitial extends MainState {
+  const MainStateInitial();
 
   @override
-  String toString() => 'OptionsStateInitial';
+  String toString() => 'MainStateInitial';
 }
 
-class OptionsStateLoaded extends OptionsState {
-  const OptionsStateLoaded({
+class MainStateLoaded extends MainState {
+  const MainStateLoaded({
     required super.update,
     required super.ipStart,
     required super.ipEnd,
-    required super.options,
     required super.searchFilter,
     required super.devices,
     required super.info,
@@ -98,5 +91,5 @@ class OptionsStateLoaded extends OptionsState {
   });
 
   @override
-  String toString() => 'OptionsStateLoaded';
+  String toString() => 'MainStateLoaded';
 }

@@ -7,13 +7,11 @@ import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
-import 'package:roonmatrix/model/options.dart';
 import 'package:roonmatrix/model/shortcut.dart';
 
 part 'serializers.g.dart';
 
 @SerializersFor([
-  Options,
   Shortcut,
   StorageFolderType,
   ItemType,

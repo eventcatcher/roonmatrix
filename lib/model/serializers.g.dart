@@ -12,7 +12,6 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..add(ConfigDefinitionItem.serializer)
       ..add(ItemType.serializer)
       ..add(ItemTypeStructure.serializer)
-      ..add(Options.serializer)
       ..add(Shortcut.serializer)
       ..add(StorageFolderType.serializer)
       ..addBuilderFactory(

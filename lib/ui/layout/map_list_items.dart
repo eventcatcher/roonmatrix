@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
-import 'package:roonmatrix/ui/options/options_bloc.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -55,7 +55,7 @@ class MapListItemsState extends State<MapListItems> {
   late TranslationsBloc translationsBloc;
   late TextEditingController textController;
   late EdgeInsetsGeometry margin;
-  late OptionsBloc optionsBloc;
+  late MainBloc mainBloc;
 
   @override
   void initState() {
@@ -90,7 +90,7 @@ class MapListItemsState extends State<MapListItems> {
             left: 16.0, right: 16.0, top: 16.0, bottom: 5.0);
     }
 
-    optionsBloc = BlocProvider.of<OptionsBloc>(context);
+    mainBloc = BlocProvider.of<MainBloc>(context);
     textController = TextEditingController();
     super.initState();
   }
@@ -131,9 +131,8 @@ class MapListItemsState extends State<MapListItems> {
               ? [FilteringTextInputFormatter.digitsOnly]
               : null,
           noCounter: true,
-          label: key == ': '
-              ? '[: ]'
-              : key + optionsBloc.getListFieldUnit(fieldType),
+          label:
+              key == ': ' ? '[: ]' : key + mainBloc.getListFieldUnit(fieldType),
           labelColor: Colors.red,
           borderColor: Colors.red.shade300,
           text: fieldValues[idx][key].toString(),
@@ -147,7 +146,7 @@ class MapListItemsState extends State<MapListItems> {
                   'Number field is out of valid range';
             }
             if (fieldType.startsWith('url') &&
-                !optionsBloc.validateUrl(text: newValue, type: fieldType)) {
+                !mainBloc.validateUrl(text: newValue, type: fieldType)) {
               return translations['configTextFieldUrlInvalidError'] ??
                   'Url is invalid';
             }
@@ -161,15 +160,15 @@ class MapListItemsState extends State<MapListItems> {
               if (num == null) {
                 return false;
               }
-              return optionsBloc.validateNumber(num: num, type: fieldType);
+              return mainBloc.validateNumber(num: num, type: fieldType);
             }
 
             if (fieldType.startsWith('url')) {
-              return optionsBloc.validateUrl(text: text, type: fieldType);
+              return mainBloc.validateUrl(text: text, type: fieldType);
             }
 
             if (fieldType.startsWith('string')) {
-              return optionsBloc.validateText(text: text, type: fieldType);
+              return mainBloc.validateText(text: text, type: fieldType);
             }
 
             return false;
