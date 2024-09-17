@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/control_page.dart';
@@ -33,14 +34,14 @@ class StartPageState extends State<StartPage> {
   String get title => widget.title;
 
   final double treeFontSize = 12;
+
+  Map<String, dynamic> info = {};
   Map<String, dynamic> translations = {};
+  List<String> devices = [];
   String aboutAppMessage = '';
   bool translationsLoaded = false;
-
   bool idle = false;
   bool saveIdle = false;
-  List<String> devices = [];
-  Map<String, dynamic> info = {};
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -158,7 +159,7 @@ class StartPageState extends State<StartPage> {
                   }
 
                   // devices = [
-                  //   // enable to test with multiple fake-devices
+                  //   // enable this to test with multiple fake-devices
                   //   ...devices,
                   //   ...devices,
                   //   ...devices,
@@ -172,8 +173,10 @@ class StartPageState extends State<StartPage> {
                   //   ...devices
                   // ];
 
-                  debugPrint(
-                      'uuu state changed => rebuild, devices: ${devices.length}, idle: $idle');
+                  if (kDebugMode) {
+                    print(
+                        'state changed => rebuild, devices: ${devices.length}, idle: $idle');
+                  }
                   return OrientationBuilder(
                       builder: (BuildContext context, Orientation orientation) {
                     return Container(

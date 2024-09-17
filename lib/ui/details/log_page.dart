@@ -36,8 +36,8 @@ class LogPageState extends State<LogPage> {
 
   Map<String, dynamic> translations = {};
   String title = '';
-  bool translationsLoaded = false;
   int hours = 1;
+  bool translationsLoaded = false;
   bool saveIdle = false;
 
   late TranslationsBloc translationsBloc;
@@ -46,6 +46,7 @@ class LogPageState extends State<LogPage> {
   @override
   void initState() {
     title = '$name : Log';
+
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getLog(ip: ip, hours: hours);

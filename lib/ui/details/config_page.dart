@@ -48,10 +48,10 @@ class ConfigPageState extends State<ConfigPage> {
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
-  bool translationsLoaded = false;
-  String title = '';
-  List<Widget> formFields = [];
   Map fieldValues = {};
+  List<Widget> formFields = [];
+  String title = '';
+  bool translationsLoaded = false;
   bool saveIdle = false;
   bool validData = false;
 
@@ -61,6 +61,7 @@ class ConfigPageState extends State<ConfigPage> {
   @override
   void initState() {
     title = '$name : Config';
+
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getConfig(ip: ip);
@@ -226,7 +227,6 @@ class ConfigPageState extends State<ConfigPage> {
             widgetField = ListItems(
               label: fieldDefinition.label,
               labelColor: Colors.red,
-              fieldDefinition: fieldDefinition,
               fieldValues: json,
               predefinedLength: fieldType.endsWith('PredefinedLength'),
               onChanged: (String value) {
@@ -242,7 +242,6 @@ class ConfigPageState extends State<ConfigPage> {
             widgetField = KeyValItems(
               label: fieldDefinition.label,
               labelColor: Colors.red,
-              fieldDefinition: fieldDefinition,
               fieldValues: json,
               onChanged: (String value) {
                 setState(
@@ -351,6 +350,7 @@ class ConfigPageState extends State<ConfigPage> {
                 if (mainState.definitions == null) {
                   return const LoadingIndicatorSmall();
                 }
+
                 ConfigDefinition defs = mainState.definitions!;
                 fieldValues = mainState.fieldValues;
                 validData = mainBloc.validateAll(

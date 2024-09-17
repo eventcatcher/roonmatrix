@@ -14,30 +14,20 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:validators/validators.dart';
 
 class MapListItems extends StatefulWidget {
-  final String? aligned;
   final String? label;
   final Color? labelColor;
-  final String? placeholder;
   final ConfigDefinitionItem fieldDefinition;
   final List<dynamic> fieldValues;
   final bool? noVerticalSpace;
-  final bool? readOnly;
-  final bool? readOnlyColoredGrey;
-  final bool? optionsWithVerticalSpace;
   final void Function(String value) onChanged;
 
   const MapListItems({
     super.key,
-    this.aligned,
     this.label,
     this.labelColor = Colors.black,
-    this.placeholder,
     required this.fieldDefinition,
     required this.fieldValues,
     this.noVerticalSpace,
-    this.readOnly,
-    this.readOnlyColoredGrey = false,
-    this.optionsWithVerticalSpace,
     required this.onChanged,
   });
 
@@ -53,52 +43,14 @@ class MapListItemsState extends State<MapListItems> {
   bool translationsLoaded = false;
 
   late TranslationsBloc translationsBloc;
-  late TextEditingController textController;
   late EdgeInsetsGeometry margin;
   late MainBloc mainBloc;
 
   @override
   void initState() {
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
-
-    switch (widget.aligned) {
-      case "left":
-        margin = const EdgeInsets.only(
-            left: 16.0, right: 8.0, top: 16.0, bottom: 5.0);
-        break;
-      case "right":
-        margin = const EdgeInsets.only(
-            left: 8.0, right: 16.0, top: 16.0, bottom: 5.0);
-        break;
-      case "leftSmallBottom":
-        margin = const EdgeInsets.only(left: 16.0, right: 8.0, bottom: 5.0);
-        break;
-      case "rightSmallBottom":
-        margin = const EdgeInsets.only(left: 8.0, right: 16.0, bottom: 5.0);
-        break;
-      case "horizontal":
-        margin = const EdgeInsets.only(left: 16.0, right: 16.0);
-        break;
-      case "horizontalSmallBottom":
-        margin = const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 5.0);
-        break;
-      case "inline":
-        margin = const EdgeInsets.all(0);
-        break;
-      default:
-        margin = const EdgeInsets.only(
-            left: 16.0, right: 16.0, top: 16.0, bottom: 5.0);
-    }
-
     mainBloc = BlocProvider.of<MainBloc>(context);
-    textController = TextEditingController();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    textController.dispose();
-    super.dispose();
   }
 
   void returnJson(List<dynamic> fieldValues) {
@@ -351,7 +303,8 @@ class MapListItemsState extends State<MapListItems> {
           }
 
           return Container(
-            margin: margin,
+            margin: const EdgeInsets.only(
+                left: 16.0, right: 16.0, top: 16.0, bottom: 5.0),
             alignment: Alignment.topLeft,
             child: Container(
               margin: EdgeInsets.only(

@@ -37,7 +37,7 @@ class ControlPageState extends State<ControlPage> {
   Map<String, dynamic> translations = {};
   String title = '';
   bool translationsLoaded = false;
-  String selectedZoneId = '';
+  String? selectedZoneId;
   String? controlId;
 
   late TranslationsBloc translationsBloc;
@@ -46,6 +46,7 @@ class ControlPageState extends State<ControlPage> {
   @override
   void initState() {
     title = '$name : Control';
+
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getInfo(ip: ip);
@@ -107,7 +108,8 @@ class ControlPageState extends State<ControlPage> {
                           padding: EdgeInsets.zero,
                           hoverColor: Colors.blue,
                           onPressed: () {
-                            if (selectedZoneId.isNotEmpty) {
+                            if (selectedZoneId != null &&
+                                selectedZoneId!.isNotEmpty) {
                               mainBloc.zoneControl(
                                   ip: ip,
                                   controlId: controlId!,
@@ -127,7 +129,8 @@ class ControlPageState extends State<ControlPage> {
                           padding: EdgeInsets.zero,
                           hoverColor: Colors.blue,
                           onPressed: () {
-                            if (selectedZoneId.isNotEmpty) {
+                            if (selectedZoneId != null &&
+                                selectedZoneId!.isNotEmpty) {
                               mainBloc.zoneControl(
                                   ip: ip,
                                   controlId: controlId!,
@@ -147,7 +150,8 @@ class ControlPageState extends State<ControlPage> {
                           padding: EdgeInsets.zero,
                           hoverColor: Colors.blue,
                           onPressed: () {
-                            if (selectedZoneId.isNotEmpty) {
+                            if (selectedZoneId != null &&
+                                selectedZoneId!.isNotEmpty) {
                               mainBloc.zoneControl(
                                   ip: ip, controlId: controlId!, cmd: 'next');
                             }
@@ -170,7 +174,8 @@ class ControlPageState extends State<ControlPage> {
                           padding: EdgeInsets.zero,
                           hoverColor: Colors.blue,
                           onPressed: () {
-                            if (selectedZoneId.isNotEmpty) {
+                            if (selectedZoneId != null &&
+                                selectedZoneId!.isNotEmpty) {
                               mainBloc.zoneControl(
                                   ip: ip,
                                   controlId: controlId!,
@@ -203,6 +208,45 @@ class ControlPageState extends State<ControlPage> {
     );
   }
 
+  Map<String, String> generateOptionsAndPreselect(Map<String, dynamic> info) {
+    Map<String, dynamic> channels = (info['channels'] ?? {});
+    Map<String, String> options = {};
+
+    String zoneName = '';
+    String value = '';
+
+    if (info['control_id'] != null) {
+      if (controlId == null && info['control_id'] != null) {
+        controlId = info['control_id'];
+        if (kDebugMode) {
+          print('controlId preset: $controlId');
+        }
+      }
+
+      if (controlId != null) {
+        if (channels[controlId] == 'webserver') {
+          selectedZoneId = controlId;
+        } else {
+          selectedZoneId = channels[controlId]!;
+        }
+      }
+    }
+    if (info['channels'] != null) {
+      for (String key in channels.keys) {
+        if (channels[key] == 'webserver') {
+          zoneName = key;
+          value = channels[key];
+        } else {
+          zoneName = channels[key]!;
+          value = key;
+        }
+        options.putIfAbsent(zoneName, () => value);
+      }
+    }
+
+    return options;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
@@ -228,45 +272,11 @@ class ControlPageState extends State<ControlPage> {
               bloc: mainBloc,
               builder: (context, MainState mainState) {
                 if (mainState is! MainStateLoaded) {
-                  return Container();
+                  return const SizedBox();
                 }
 
                 Map<String, dynamic> info = mainState.info[ip] ?? {};
-                Map<String, dynamic> channels = (info['channels'] ?? {});
-                Map<String, String> options = {};
-
-                String zoneName = '';
-                String value = '';
-                String? selectedZoneId;
-
-                if (info['control_id'] != null) {
-                  if (controlId == null && info['control_id'] != null) {
-                    controlId = info['control_id'];
-                    if (kDebugMode) {
-                      print('controlId preset: $controlId');
-                    }
-                  }
-
-                  if (controlId != null) {
-                    if (channels[controlId] == 'webserver') {
-                      selectedZoneId = controlId;
-                    } else {
-                      selectedZoneId = channels[controlId]!;
-                    }
-                  }
-                }
-                if (info['channels'] != null) {
-                  for (String key in channels.keys) {
-                    if (channels[key] == 'webserver') {
-                      zoneName = key;
-                      value = channels[key];
-                    } else {
-                      zoneName = channels[key]!;
-                      value = key;
-                    }
-                    options.putIfAbsent(zoneName, () => value);
-                  }
-                }
+                Map<String, String> options = generateOptionsAndPreselect(info);
 
                 return OrientationBuilder(
                     builder: (BuildContext context, Orientation orientation) {

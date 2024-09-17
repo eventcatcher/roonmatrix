@@ -29,7 +29,6 @@ void main() async {
       const initialSize = Size(1280, 768);
       appWindow.minSize = initialSize;
       appWindow.size = initialSize;
-
       //appWindow.alignment = Alignment.center;
       appWindow.show();
     });
@@ -60,6 +59,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   @override
   void initState() {
     fileRepository.init();
+
     translationsBloc = TranslationsBloc();
     settingsBloc = SettingsBloc();
     mainBloc = MainBloc(
@@ -214,7 +214,6 @@ class RoonMatrixState extends State<RoonMatrix> {
           tabBarTheme: const TabBarTheme(
               labelColor: Colors.white,
               dividerColor: Colors.grey,
-              //overlayColor: WidgetStatePropertyAll(Colors.purple),
               labelStyle: TextStyle(fontWeight: FontWeight.bold),
               unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
               indicator: UnderlineTabIndicator(

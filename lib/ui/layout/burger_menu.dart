@@ -15,7 +15,6 @@ class BurgerMenuState extends State<BurgerMenu> {
   @override
   void initState() {
     initPopupData();
-
     super.initState();
   }
 
@@ -33,40 +32,38 @@ class BurgerMenuState extends State<BurgerMenu> {
     ));
   }
 
-  Widget menuBuilder(List<dynamic> popupData) {
-    return ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        const SizedBox(
-          height: 56.0,
-          child: DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
+  Widget menuBuilder(List<dynamic> popupData) => ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const SizedBox(
+            height: 56.0,
+            child: DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              margin: EdgeInsets.zero,
+              padding: EdgeInsets.zero,
+              child: Center(
+                  child: Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 20.0),
+              )),
             ),
-            margin: EdgeInsets.zero,
-            padding: EdgeInsets.zero,
-            child: Center(
-                child: Text(
-              'Menu',
-              style: TextStyle(color: Colors.white, fontSize: 20.0),
-            )),
           ),
-        ),
-        ...popupData.map((obj) {
-          return ListTile(
-            title: Text(
-              obj.name,
-              style: const TextStyle(fontSize: 16.0),
-            ),
-            onTap: () {
-              widget.onClose(obj.key);
-              Navigator.pop(context);
-            },
-          );
-        })
-      ],
-    );
-  }
+          ...popupData.map((obj) {
+            return ListTile(
+              title: Text(
+                obj.name,
+                style: const TextStyle(fontSize: 16.0),
+              ),
+              onTap: () {
+                widget.onClose(obj.key);
+                Navigator.pop(context);
+              },
+            );
+          })
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {

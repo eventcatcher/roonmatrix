@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,10 +26,10 @@ class _SettingsPageState extends State<SettingsPage> {
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
-  String title = '';
-  bool translationsLoaded = false;
   TextEditingController ipStart = TextEditingController();
   TextEditingController ipEnd = TextEditingController();
+  String title = '';
+  bool translationsLoaded = false;
 
   late TranslationsBloc translationsBloc;
   late SettingsBloc settingsBloc;
@@ -36,10 +37,11 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     title = 'Settings';
-    translationsBloc = BlocProvider.of<TranslationsBloc>(context);
-    settingsBloc = BlocProvider.of<SettingsBloc>(context);
     ipStart.text = '';
     ipEnd.text = '';
+
+    translationsBloc = BlocProvider.of<TranslationsBloc>(context);
+    settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
     super.initState();
   }
@@ -71,7 +73,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     settingsState is! SettingsStateLoaded) {
                   return Container();
                 }
-                debugPrint('uuu state changed => rebuild');
+                if (kDebugMode) {
+                  print('state changed => rebuild');
+                }
 
                 ipStart.text = settingsState.ipStart;
                 ipEnd.text = settingsState.ipEnd;

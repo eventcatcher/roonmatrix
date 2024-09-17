@@ -2,36 +2,23 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class KeyValItems extends StatefulWidget {
-  final String? aligned;
   final String? label;
   final Color? labelColor;
-  final String? placeholder;
-  final ConfigDefinitionItem? fieldDefinition;
   final Map<String, dynamic> fieldValues;
   final bool? noVerticalSpace;
-  final bool? readOnly;
-  final bool? readOnlyColoredGrey;
-  final bool? optionsWithVerticalSpace;
   final void Function(String value) onChanged;
 
   const KeyValItems({
     super.key,
-    this.aligned,
     this.label,
     this.labelColor = Colors.black,
-    this.placeholder,
-    required this.fieldDefinition,
     required this.fieldValues,
     this.noVerticalSpace,
-    this.readOnly,
-    this.readOnlyColoredGrey = false,
-    this.optionsWithVerticalSpace,
     required this.onChanged,
   });
 
@@ -43,45 +30,14 @@ class KeyValItemsState extends State<KeyValItems> {
   Map<String, dynamic> get fieldValues => widget.fieldValues;
 
   Map<String, dynamic> translations = {};
+  TextEditingController textController = TextEditingController();
   bool translationsLoaded = false;
 
   late TranslationsBloc translationsBloc;
-  late TextEditingController textController;
-  late EdgeInsetsGeometry margin;
 
   @override
   void initState() {
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
-
-    switch (widget.aligned) {
-      case "left":
-        margin = const EdgeInsets.only(
-            left: 16.0, right: 8.0, top: 16.0, bottom: 5.0);
-        break;
-      case "right":
-        margin = const EdgeInsets.only(
-            left: 8.0, right: 16.0, top: 16.0, bottom: 5.0);
-        break;
-      case "leftSmallBottom":
-        margin = const EdgeInsets.only(left: 16.0, right: 8.0, bottom: 5.0);
-        break;
-      case "rightSmallBottom":
-        margin = const EdgeInsets.only(left: 8.0, right: 16.0, bottom: 5.0);
-        break;
-      case "horizontal":
-        margin = const EdgeInsets.only(left: 16.0, right: 16.0);
-        break;
-      case "horizontalSmallBottom":
-        margin = const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 5.0);
-        break;
-      case "inline":
-        margin = const EdgeInsets.all(0);
-        break;
-      default:
-        margin = const EdgeInsets.only(
-            left: 16.0, right: 16.0, top: 16.0, bottom: 5.0);
-    }
-    textController = TextEditingController();
     super.initState();
   }
 
@@ -141,7 +97,8 @@ class KeyValItemsState extends State<KeyValItems> {
           }
 
           return Container(
-            margin: margin,
+            margin: const EdgeInsets.only(
+                left: 16.0, right: 16.0, top: 16.0, bottom: 5.0),
             alignment: Alignment.topLeft,
             child: Container(
               margin: EdgeInsets.only(

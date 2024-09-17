@@ -41,6 +41,7 @@ class InfoPageState extends State<InfoPage> {
   @override
   void initState() {
     title = '$name : Info';
+
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getInfo(ip: ip);
