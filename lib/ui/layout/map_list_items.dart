@@ -89,22 +89,8 @@ class MapListItemsState extends State<MapListItems> {
           borderColor: Colors.red.shade300,
           text: fieldValues[idx][key].toString(),
           errorMessageHandler: (String newValue) {
-            if (fieldType.startsWith('int')) {
-              if (newValue == '') {
-                return translations['configNumberFieldEmptyError'] ??
-                    'Number field cannot be empty';
-              }
-              return translations['configNumberFieldRangeError'] ??
-                  'Number field is out of valid range';
-            }
-            if (fieldType.startsWith('url') &&
-                !mainBloc.validateUrl(text: newValue, type: fieldType)) {
-              return translations['configTextFieldUrlInvalidError'] ??
-                  'Url is invalid';
-            }
-
-            return translations['configTextFieldEmptyError'] ??
-                'Text field cannot be empty';
+            return mainBloc.getFieldErrorMessage(
+                value: newValue, type: fieldType, translations: translations);
           },
           validation: (String text) {
             if (fieldType.startsWith('int')) {

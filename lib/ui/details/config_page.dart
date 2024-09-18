@@ -107,33 +107,10 @@ class ConfigPageState extends State<ConfigPage> {
                   return text;
                 },
                 errorMessageHandler: (String newValue) {
-                  if (newValue == '') {
-                    return translations['configTextFieldEmptyError'] ??
-                        'Text field cannot be empty';
-                  }
-
-                  if (fieldDefinition.type.type.startsWith('url') &&
-                      !mainBloc.validateUrl(
-                          text: newValue, type: fieldDefinition.type.type)) {
-                    return translations['configTextFieldUrlInvalidError'] ??
-                        'Url is invalid';
-                  }
-
-                  if (fieldDefinition.type.type.startsWith('string(')) {
-                    List<String> minMax = fieldDefinition.type.type
-                        .substring(7, fieldDefinition.type.type.length - 1)
-                        .split(',');
-                    int? min = int.tryParse(minMax[0]);
-                    int? max = int.tryParse(minMax[1]);
-                    if (min != null &&
-                        max != null &&
-                        (newValue.length < min || newValue.length > max)) {}
-                    return translations['configTextFieldRangeError'] ??
-                        'Text field is out of valid range';
-                  }
-
-                  return translations['configTextFieldJsonError'] ??
-                      'Text field has no valid Json';
+                  return mainBloc.getFieldErrorMessage(
+                      value: newValue,
+                      type: fieldDefinition.type.type,
+                      translations: translations);
                 },
                 validation: (String text) => mainBloc.validateText(
                     text: text,
@@ -171,12 +148,10 @@ class ConfigPageState extends State<ConfigPage> {
                   return text;
                 },
                 errorMessageHandler: (String newValue) {
-                  if (newValue == '') {
-                    return translations['configNumberFieldEmptyError'] ??
-                        'Number field cannot be empty';
-                  }
-                  return translations['configNumberFieldRangeError'] ??
-                      'Number field is out of valid range';
+                  return mainBloc.getFieldErrorMessage(
+                      value: newValue,
+                      type: fieldType,
+                      translations: translations);
                 },
                 validation: (String text) {
                   int? num = int.tryParse(text);

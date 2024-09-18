@@ -62,8 +62,7 @@ class RoonMatrixState extends State<RoonMatrix> {
 
     translationsBloc = TranslationsBloc();
     settingsBloc = SettingsBloc();
-    mainBloc = MainBloc(
-        translationsBloc: translationsBloc, fileRepository: fileRepository);
+    mainBloc = MainBloc(fileRepository: fileRepository);
 
     super.initState();
   }

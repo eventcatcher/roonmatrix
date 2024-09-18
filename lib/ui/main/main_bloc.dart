@@ -20,12 +20,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 //ignore:depend_on_referenced_packages
 import 'package:http/http.dart' as http;
-import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:validators/validators.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
-  final TranslationsBloc translationsBloc;
   final FileRepository fileRepository;
 
   final Map<String, TextEditingController> conrollerSearch = {
@@ -47,8 +45,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   bool isScanning = false;
   Timer? timer;
 
-  MainBloc({required this.translationsBloc, required this.fileRepository})
-      : super(const MainStateInitial()) {
+  MainBloc({required this.fileRepository}) : super(const MainStateInitial()) {
     // ====================== //
     // event to state handler //
     // ====================== //
@@ -1160,6 +1157,49 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           //
         },
       ).show();
+
+  String getNumberFieldErrorMessage(
+      {required String value, required Map<String, dynamic> translations}) {
+    if (value == '') {
+      return translations['configNumberFieldEmptyError'] ??
+          'Number field cannot be empty';
+    }
+    return translations['configNumberFieldRangeError'] ??
+        'Number field is out of valid range';
+  }
+
+  String getFieldErrorMessage(
+      {required String value,
+      required String type,
+      required Map<String, dynamic> translations}) {
+    if (type.startsWith('int')) {
+      return getNumberFieldErrorMessage(
+          value: value, translations: translations);
+    }
+
+    if (value == '') {
+      return translations['configTextFieldEmptyError'] ??
+          'Text field cannot be empty';
+    }
+
+    if (type.startsWith('url') && !validateUrl(text: value, type: type)) {
+      return translations['configTextFieldUrlInvalidError'] ?? 'Url is invalid';
+    }
+
+    if (type.startsWith('string(')) {
+      List<String> minMax = type.substring(7, type.length - 1).split(',');
+      int? min = int.tryParse(minMax[0]);
+      int? max = int.tryParse(minMax[1]);
+      if (min != null &&
+          max != null &&
+          (value.length < min || value.length > max)) {}
+      return translations['configTextFieldRangeError'] ??
+          'Text field is out of valid range';
+    }
+
+    return translations['configTextFieldJsonError'] ??
+        'Text field has no valid Json';
+  }
 
   // ==================== //
   // public event methods //

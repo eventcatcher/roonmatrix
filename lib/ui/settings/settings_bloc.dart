@@ -35,14 +35,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   Future<void> init() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    //await prefs.remove("ipStart");  // enable temporarily to delete pref
-    //await prefs.remove("ipEnd");  // enable temporarily to delete pref
-
     String? ipStart = prefs.getString('ipStart');
     String? ipEnd = prefs.getString('ipEnd');
     if (validateIp(ip: ipStart) && validateIp(ip: ipEnd)) {
       setIpRange(ipStart: ipStart!, ipEnd: ipEnd!);
     }
+  }
+
+  Future<void> deletePrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove("ipStart");
+    await prefs.remove("ipEnd");
   }
 
   bool validateIp({required String? ip}) =>
@@ -65,6 +68,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     }
 
     return false;
+  }
+
+  getIpFieldErrorMessage(
+      {required String value, required Map<String, dynamic> translations}) {
+    if (value.isEmpty) {
+      return translations['settingsIpFieldEmptyError'] ??
+          'IP field cannot be empty';
+    }
+
+    if (!validateIp(ip: value)) {
+      return translations['settingsIpFieldInvalidError'] ?? 'IP is invalid';
+    }
+
+    return translations['settingsIpRangeInvalidError'] ?? 'IP-Range is invalid';
   }
 
   // ==================== //

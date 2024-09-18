@@ -138,23 +138,11 @@ class _SettingsPageState extends State<SettingsPage> {
                                                   text: ipStart.text,
                                                   errorMessageHandler:
                                                       (String newValue) {
-                                                    if (newValue.isEmpty) {
-                                                      return translations[
-                                                              'settingsIpFieldEmptyError'] ??
-                                                          'IP field cannot be empty';
-                                                    }
-
-                                                    if (!settingsBloc
-                                                        .validateIp(
-                                                            ip: newValue)) {
-                                                      return translations[
-                                                              'settingsIpFieldInvalidError'] ??
-                                                          'IP is invalid';
-                                                    }
-
-                                                    return translations[
-                                                            'settingsIpRangeInvalidError'] ??
-                                                        'IP-Range is invalid';
+                                                    return settingsBloc
+                                                        .getIpFieldErrorMessage(
+                                                            value: newValue,
+                                                            translations:
+                                                                translations);
                                                   },
                                                   validation: (String text) =>
                                                       settingsBloc.validateIp(
@@ -194,23 +182,11 @@ class _SettingsPageState extends State<SettingsPage> {
                                                   text: ipEnd.text,
                                                   errorMessageHandler:
                                                       (String newValue) {
-                                                    if (newValue.isEmpty) {
-                                                      return translations[
-                                                              'settingsIpFieldEmptyError'] ??
-                                                          'IP field cannot be empty';
-                                                    }
-
-                                                    if (!settingsBloc
-                                                        .validateIp(
-                                                            ip: newValue)) {
-                                                      return translations[
-                                                              'settingsIpFieldInvalidError'] ??
-                                                          'IP is invalid';
-                                                    }
-
-                                                    return translations[
-                                                            'settingsIpRangeInvalidError'] ??
-                                                        'IP-Range is invalid';
+                                                    return settingsBloc
+                                                        .getIpFieldErrorMessage(
+                                                            value: newValue,
+                                                            translations:
+                                                                translations);
                                                   },
                                                   validation: (String text) =>
                                                       settingsBloc.validateIp(
