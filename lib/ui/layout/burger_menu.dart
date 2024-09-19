@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 class BurgerMenu extends StatefulWidget {
+  final Map<String, dynamic> translations;
   final Function(String? key) onClose;
 
-  const BurgerMenu({super.key, required this.onClose});
+  const BurgerMenu(
+      {super.key, required this.translations, required this.onClose});
 
   @override
   BurgerMenuState createState() => BurgerMenuState();
@@ -23,12 +25,12 @@ class BurgerMenuState extends State<BurgerMenu> {
 
     popupData.add(BurgerMenuItemData(
       key: "about",
-      name: "About",
+      name: widget.translations['menuEntryAbout'] ?? "About",
     ));
 
     popupData.add(BurgerMenuItemData(
       key: "settings",
-      name: "Settings",
+      name: widget.translations['menuEntrySettings'] ?? "Settings",
     ));
   }
 

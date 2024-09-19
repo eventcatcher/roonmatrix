@@ -97,7 +97,9 @@ class RoonMatrixState extends State<RoonMatrix> {
     }
   }
 
-  List<BarButton> menuBarButtons(BuildContext context) {
+  List<BarButton> menuBarButtons(
+      {required BuildContext context,
+      required Map<String, dynamic> translations}) {
     return [
       BarButton(
         text: const Text(
@@ -109,8 +111,8 @@ class RoonMatrixState extends State<RoonMatrix> {
             MenuButton(
               onTap: () async => await exportDeviceList(context),
               shortcutText: 'Ctrl+E',
-              shortcut: const SingleActivator(LogicalKeyboardKey.comma,
-                  control: true),
+              shortcut:
+                  const SingleActivator(LogicalKeyboardKey.keyE, control: true),
               text: Text(translations['menuEntryExportDeviceList'] ??
                   'Export Device List'),
               icon: const Icon(Icons.settings),
@@ -473,7 +475,8 @@ class RoonMatrixState extends State<RoonMatrix> {
                 return MenuBarWidget(
                   // Add a list of [BarButton]. The buttons in this List are
                   // displayed as the buttons on the bar itself
-                  barButtons: menuBarButtons(context),
+                  barButtons: menuBarButtons(
+                      context: context, translations: translations),
 
                   // Style the menu bar itself. Hover over [MenuStyle] for all the options
                   barStyle: const MenuStyle(

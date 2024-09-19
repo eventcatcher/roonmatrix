@@ -108,17 +108,20 @@ class StartPageState extends State<StartPage> {
                   return const SizedBox();
                 }
 
-                return Drawer(child: BurgerMenu(onClose: (String? key) {
-                  if (key == 'about') {
-                    openAboutModal(
-                        context: context,
-                        aboutAppMessage: aboutAppMessage,
-                        translations: translations);
-                  }
-                  if (key == 'settings') {
-                    openSettingsPage();
-                  }
-                }));
+                return Drawer(
+                    child: BurgerMenu(
+                        translations: translations,
+                        onClose: (String? key) {
+                          if (key == 'about') {
+                            openAboutModal(
+                                context: context,
+                                aboutAppMessage: aboutAppMessage,
+                                translations: translations);
+                          }
+                          if (key == 'settings') {
+                            openSettingsPage();
+                          }
+                        }));
               })
           : null,
       body: BlocBuilder(
