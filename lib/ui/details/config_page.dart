@@ -85,16 +85,24 @@ class ConfigPageState extends State<ConfigPage> {
           }
 
           Widget? widgetField;
+
+          String label = (translations['config'][fieldDefinition.name] ??
+              fieldDefinition.label);
+          if (!fieldType.startsWith('list') &&
+              fieldType != 'list' &&
+              fieldType != 'keyValItems') {
+            label += (fieldDefinition.unit != ''
+                ? ' (${translations['config'][fieldDefinition.unit] ?? fieldDefinition.unit})'
+                : '');
+          }
+
           if (fieldType == 'text') {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: EditableSinglelineText(
                 inputType: TextInputType.text,
                 noCounter: true,
-                label: fieldDefinition.label +
-                    (fieldDefinition.unit != ''
-                        ? ' (${fieldDefinition.unit})'
-                        : ''),
+                label: label,
                 labelColor: Colors.red,
                 borderColor: Colors.red.shade300,
                 text: fieldValues[area.name][fieldDefinition.name],
@@ -132,10 +140,7 @@ class ConfigPageState extends State<ConfigPage> {
                 inputType: TextInputType.number,
                 formatters: [FilteringTextInputFormatter.digitsOnly],
                 noCounter: true,
-                label: fieldDefinition.label +
-                    (fieldDefinition.unit != ''
-                        ? ' (${fieldDefinition.unit})'
-                        : ''),
+                label: label,
                 labelColor: Colors.red,
                 borderColor: Colors.red.shade300,
                 text: fieldValues[area.name][fieldDefinition.name].toString(),
@@ -180,10 +185,7 @@ class ConfigPageState extends State<ConfigPage> {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: SwitchButton(
-                label: fieldDefinition.label +
-                    (fieldDefinition.unit != ''
-                        ? ' (${fieldDefinition.unit})'
-                        : ''),
+                label: label,
                 labelColor: Colors.red,
                 enabled: fieldValues[area.name][fieldDefinition.name],
                 onChanged: (value) {
@@ -200,7 +202,7 @@ class ConfigPageState extends State<ConfigPage> {
                 (fieldValues[area.name][fieldDefinition.name] as String)
                     .replaceAll("'", '"'));
             widgetField = ListItems(
-              label: fieldDefinition.label,
+              label: label,
               labelColor: Colors.red,
               fieldValues: json,
               predefinedLength: fieldType.endsWith('PredefinedLength'),
@@ -215,7 +217,7 @@ class ConfigPageState extends State<ConfigPage> {
                 (fieldValues[area.name][fieldDefinition.name] as String)
                     .replaceAll("'", '"'));
             widgetField = KeyValItems(
-              label: fieldDefinition.label,
+              label: label,
               labelColor: Colors.red,
               fieldValues: json,
               onChanged: (String value) {
@@ -229,7 +231,7 @@ class ConfigPageState extends State<ConfigPage> {
                 (fieldValues[area.name][fieldDefinition.name] as String)
                     .replaceAll("'", '"'));
             widgetField = MapListItems(
-              label: fieldDefinition.label,
+              label: label,
               labelColor: Colors.red,
               fieldDefinition: fieldDefinition,
               fieldValues: json,
