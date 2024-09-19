@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
@@ -27,6 +28,7 @@ class KeyValItems extends StatefulWidget {
 }
 
 class KeyValItemsState extends State<KeyValItems> {
+  String? get label => widget.label;
   Map<String, dynamic> get fieldValues => widget.fieldValues;
 
   Map<String, dynamic> translations = {};
@@ -58,15 +60,27 @@ class KeyValItemsState extends State<KeyValItems> {
 
     for (String key in fieldValues.keys) {
       Widget widget = EditableSinglelineText(
+        key: UniqueKey(),
         inputType: TextInputType.text,
         noCounter: true,
         label: key == ': ' ? '[: ]' : key,
         labelColor: Colors.red,
         borderColor: Colors.red.shade300,
         suffixIcon: IconButton(
-          onPressed: () {
-            setState(() => fieldValues.remove(key));
-            returnJson(fieldValues);
+          onPressed: () async {
+            bool valid = await showDialog(
+              context: context,
+              builder: (context) {
+                return SharedWidgets.removeItemDialog(
+                  context: context,
+                  translations: translations,
+                );
+              },
+            );
+            if (valid == true) {
+              setState(() => fieldValues.remove(key));
+              returnJson(fieldValues);
+            }
           },
           icon: const Icon(Icons.clear),
         ),
@@ -102,25 +116,8 @@ class KeyValItemsState extends State<KeyValItems> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (widget.label != null) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4.0),
-                    child: Text(
-                      widget.label!,
-                      overflow: TextOverflow
-                          .ellipsis, // fade is maybe the better alternative, because you see more of the text
-                      maxLines: 1,
-                      softWrap: false,
-                      style: TextStyle(
-                        color: widget.labelColor,
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 4.0,
-                  ),
-                ],
+                ...SharedWidgets.labelWidget(
+                    label: widget.label, labelColor: widget.labelColor),
                 Container(
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
@@ -135,68 +132,19 @@ class KeyValItemsState extends State<KeyValItems> {
                           child: Padding(
                             padding: const EdgeInsets.only(right: 16.0),
                             child: translationsLoaded
-                                ? ElevatedButton.icon(
-                                    icon: const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 20.0,
-                                      ),
-                                    ),
-                                    label: Text(
-                                        translations['addButtonText'] ?? 'add'),
-                                    onPressed: () async {
-                                      String? newKey = await showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            title: Text(translations[
-                                                    'dialogAddItemTitle'] ??
-                                                'Add a new item'),
-                                            content: TextField(
-                                              controller: textController,
-                                              autofocus: true,
-                                              decoration: InputDecoration(
-                                                  hintText: translations[
-                                                          'dialogAddItemHintText'] ??
-                                                      "Enter here the name of the new item"),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                child: Text(translations[
-                                                        'dialogAddItemCancelButtonText'] ??
-                                                    'Cancel'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                              TextButton(
-                                                child: Text(translations[
-                                                        'dialogAddItemAddButtonText'] ??
-                                                    'Add'),
-                                                onPressed: () {
-                                                  if (textController
-                                                      .text.isNotEmpty) {
-                                                    Navigator.pop(context,
-                                                        textController.text);
-                                                  }
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                      if (newKey != null) {
+                                ? SharedWidgets.addButton(
+                                    context: context,
+                                    textController: textController,
+                                    translations: translations,
+                                    onAccepted: (dynamic newKey) {
+                                      if (newKey is String && newKey != '') {
                                         setState(() {
                                           fieldValues.putIfAbsent(
                                               newKey, () => '');
                                           returnJson(fieldValues);
                                         });
                                       }
-                                    },
-                                  )
+                                    })
                                 : const SizedBox(),
                           ),
                         ),

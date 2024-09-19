@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
@@ -36,6 +37,7 @@ class MapListItems extends StatefulWidget {
 }
 
 class MapListItemsState extends State<MapListItems> {
+  String? get label => widget.label;
   ConfigDefinitionItem get fieldDefinition => widget.fieldDefinition;
   List<dynamic> get fieldValues => widget.fieldValues;
 
@@ -75,7 +77,9 @@ class MapListItemsState extends State<MapListItems> {
         String fieldType = fieldDefinition.type.structure
             .firstWhere((ItemTypeStructure el) => el.name == key)
             .type;
+
         Widget widget = EditableSinglelineText(
+          key: UniqueKey(),
           inputType: fieldType.startsWith('int')
               ? TextInputType.number
               : TextInputType.text,
@@ -167,9 +171,20 @@ class MapListItemsState extends State<MapListItems> {
             ),
             height: 38.0,
             child: IconButton(
-              onPressed: () {
-                setState(() => fieldValues.removeAt(idx));
-                returnJson(fieldValues);
+              onPressed: () async {
+                bool valid = await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return SharedWidgets.removeItemDialog(
+                      context: context,
+                      translations: translations,
+                    );
+                  },
+                );
+                if (valid == true) {
+                  setState(() => fieldValues.removeAt(idx));
+                  returnJson(fieldValues);
+                }
               },
               icon: const Icon(Icons.clear),
             ),
@@ -191,20 +206,9 @@ class MapListItemsState extends State<MapListItems> {
           colWidgets.add(Padding(
             padding:
                 const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
-            child: ElevatedButton.icon(
-              style: ButtonStyle(
-                minimumSize: WidgetStateProperty.all<Size>(
-                    const Size(double.infinity, 20)),
-              ),
-              icon: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Icon(
-                  Icons.link,
-                  color: Colors.white,
-                  size: 20.0,
-                ),
-              ),
-              label: Text(translations['openLinkButtonText'] ?? 'open link'),
+            child: SharedWidgets.linkButton(
+              link: link,
+              translations: translations,
               onPressed: () async {
                 final Uri url = Uri.parse(link);
                 if (!await launchUrl(
@@ -222,21 +226,10 @@ class MapListItemsState extends State<MapListItems> {
 
         colWidgets.add(Padding(
           padding: const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
-          child: ElevatedButton.icon(
-            style: ButtonStyle(
-              minimumSize: WidgetStateProperty.all<Size>(
-                  const Size(double.infinity, 20)),
-            ),
-            icon: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Icon(
-                Icons.remove,
-                color: Colors.white,
-                size: 20.0,
-              ),
-            ),
-            label: Text(translations['removeButtonText'] ?? 'remove'),
-            onPressed: () async {
+          child: SharedWidgets.removeButton(
+            context: context,
+            translations: translations,
+            onAccepted: () {
               setState(() => fieldValues.removeAt(idx));
               returnJson(fieldValues);
             },
@@ -251,26 +244,21 @@ class MapListItemsState extends State<MapListItems> {
       alignment: Alignment.topRight,
       child: Padding(
         padding: const EdgeInsets.only(right: 16.0),
-        child: ElevatedButton.icon(
-          icon: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 20.0,
-            ),
-          ),
-          label: Text(translations['addButtonText'] ?? 'add'),
-          onPressed: () async {
-            Map<String, dynamic> props = {};
-            for (ItemTypeStructure typeStruct
-                in fieldDefinition.type.structure.toList()) {
-              props.putIfAbsent(typeStruct.name, () => '');
-            }
-            setState(() => fieldValues.add(props));
-            returnJson(fieldValues);
-          },
-        ),
+        child: SharedWidgets.addButton(
+            context: context,
+            textController: null,
+            translations: translations,
+            onAccepted: (dynamic value) {
+              if (value is bool && value == true) {
+                Map<String, dynamic> props = {};
+                for (ItemTypeStructure typeStruct
+                    in fieldDefinition.type.structure.toList()) {
+                  props.putIfAbsent(typeStruct.name, () => '');
+                }
+                setState(() => fieldValues.add(props));
+                returnJson(fieldValues);
+              }
+            }),
       ),
     ));
     colWidgets.add(const SizedBox(height: 6.0));
@@ -294,24 +282,8 @@ class MapListItemsState extends State<MapListItems> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (widget.label != null) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4.0),
-                    child: Text(
-                      widget.label!,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      softWrap: false,
-                      style: TextStyle(
-                        color: widget.labelColor,
-                        fontSize: 12.0,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 4.0,
-                  ),
-                ],
+                ...SharedWidgets.labelWidget(
+                    label: widget.label, labelColor: widget.labelColor),
                 Container(
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
