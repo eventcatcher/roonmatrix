@@ -98,105 +98,114 @@ class KeyValItemsState extends State<KeyValItems> {
 
           return Container(
             margin: const EdgeInsets.only(
-                left: 16.0, right: 16.0, top: 16.0, bottom: 5.0),
-            alignment: Alignment.topLeft,
-            child: Container(
-              margin: EdgeInsets.only(
-                  bottom: widget.noVerticalSpace == true ? 0 : 10),
-              child: Card(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (widget.label != null) ...[
-                      Text(
-                        widget.label!,
-                        overflow: TextOverflow
-                            .ellipsis, // fade is maybe the better alternative, because you see more of the text
-                        maxLines: 1,
-                        softWrap: false,
-                        style: TextStyle(
-                          color: widget.labelColor,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 4.0,
-                      ),
-                    ],
-                    Column(children: widgets),
-                    const SizedBox(height: 6.0),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 16.0),
-                        child: translationsLoaded
-                            ? ElevatedButton.icon(
-                                icon: const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                                  child: Icon(
-                                    Icons.add,
-                                    color: Colors.white,
-                                    size: 20.0,
-                                  ),
-                                ),
-                                label: Text(
-                                    translations['addButtonText'] ?? 'add'),
-                                onPressed: () async {
-                                  String? newKey = await showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AlertDialog(
-                                        title: Text(translations[
-                                                'dialogAddItemTitle'] ??
-                                            'Add a new item'),
-                                        content: TextField(
-                                          controller: textController,
-                                          autofocus: true,
-                                          decoration: InputDecoration(
-                                              hintText: translations[
-                                                      'dialogAddItemHintText'] ??
-                                                  "Enter here the name of the new item"),
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            child: Text(translations[
-                                                    'dialogAddItemCancelButtonText'] ??
-                                                'Cancel'),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                          TextButton(
-                                            child: Text(translations[
-                                                    'dialogAddItemAddButtonText'] ??
-                                                'Add'),
-                                            onPressed: () {
-                                              if (textController
-                                                  .text.isNotEmpty) {
-                                                Navigator.pop(context,
-                                                    textController.text);
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                  if (newKey != null) {
-                                    setState(() {
-                                      fieldValues.putIfAbsent(newKey, () => '');
-                                      returnJson(fieldValues);
-                                    });
-                                  }
-                                },
-                              )
-                            : const SizedBox(),
+                left: 12.0, right: 12.0, top: 16.0, bottom: 5.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (widget.label != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4.0),
+                    child: Text(
+                      widget.label!,
+                      overflow: TextOverflow
+                          .ellipsis, // fade is maybe the better alternative, because you see more of the text
+                      maxLines: 1,
+                      softWrap: false,
+                      style: TextStyle(
+                        color: widget.labelColor,
+                        fontSize: 12.0,
                       ),
                     ),
-                    const SizedBox(height: 12.0),
-                  ],
+                  ),
+                  const SizedBox(
+                    height: 4.0,
+                  ),
+                ],
+                Container(
+                  margin: EdgeInsets.only(
+                      bottom: widget.noVerticalSpace == true ? 0 : 10),
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...widgets,
+                        const SizedBox(height: 6.0),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: translationsLoaded
+                                ? ElevatedButton.icon(
+                                    icon: const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 8.0),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 20.0,
+                                      ),
+                                    ),
+                                    label: Text(
+                                        translations['addButtonText'] ?? 'add'),
+                                    onPressed: () async {
+                                      String? newKey = await showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: Text(translations[
+                                                    'dialogAddItemTitle'] ??
+                                                'Add a new item'),
+                                            content: TextField(
+                                              controller: textController,
+                                              autofocus: true,
+                                              decoration: InputDecoration(
+                                                  hintText: translations[
+                                                          'dialogAddItemHintText'] ??
+                                                      "Enter here the name of the new item"),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                child: Text(translations[
+                                                        'dialogAddItemCancelButtonText'] ??
+                                                    'Cancel'),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: Text(translations[
+                                                        'dialogAddItemAddButtonText'] ??
+                                                    'Add'),
+                                                onPressed: () {
+                                                  if (textController
+                                                      .text.isNotEmpty) {
+                                                    Navigator.pop(context,
+                                                        textController.text);
+                                                  }
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                      if (newKey != null) {
+                                        setState(() {
+                                          fieldValues.putIfAbsent(
+                                              newKey, () => '');
+                                          returnJson(fieldValues);
+                                        });
+                                      }
+                                    },
+                                  )
+                                : const SizedBox(),
+                          ),
+                        ),
+                        const SizedBox(height: 12.0),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           );
         });

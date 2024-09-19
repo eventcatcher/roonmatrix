@@ -290,35 +290,42 @@ class MapListItemsState extends State<MapListItems> {
 
           return Container(
             margin: const EdgeInsets.only(
-                left: 16.0, right: 16.0, top: 16.0, bottom: 5.0),
-            alignment: Alignment.topLeft,
-            child: Container(
-              margin: EdgeInsets.only(
-                  bottom: widget.noVerticalSpace == true ? 0 : 10),
-              child: Card(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (widget.label != null) ...[
-                      Text(
-                        widget.label!,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        softWrap: false,
-                        style: TextStyle(
-                          color: widget.labelColor,
-                          fontSize: 12.0,
-                        ),
+                left: 12.0, right: 12.0, top: 16.0, bottom: 5.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (widget.label != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4.0),
+                    child: Text(
+                      widget.label!,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: TextStyle(
+                        color: widget.labelColor,
+                        fontSize: 12.0,
                       ),
-                      const SizedBox(
-                        height: 4.0,
-                      ),
-                    ],
-                    Column(children: translationsLoaded ? getWidgets() : []),
-                    const SizedBox(height: 6.0),
-                  ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 4.0,
+                  ),
+                ],
+                Container(
+                  margin: EdgeInsets.only(
+                      bottom: widget.noVerticalSpace == true ? 0 : 10),
+                  child: Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ...(translationsLoaded ? getWidgets() : []),
+                        const SizedBox(height: 6.0),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           );
         });
