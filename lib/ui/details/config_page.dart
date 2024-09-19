@@ -280,7 +280,10 @@ class ConfigPageState extends State<ConfigPage> {
       }
       Widget widgetArea = Card(
         child: Column(
-          children: [Headline(text: area.name), ...fields],
+          children: [
+            Headline(text: translations['config'][area.name] ?? area.name),
+            ...fields
+          ],
         ),
       );
       widgets.add(widgetArea);

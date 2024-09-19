@@ -135,6 +135,11 @@
         "json list": "Json Liste",
         "name": "Name",
         "url": "Url",
-        "count": "Anzahl"
+        "count": "Anzahl",
+        "SYSTEM": "SYSTEM",
+        "LANGUAGE": "SPRACHE",
+        "WEBSERVERS": "WEBSERVER",
+        "WEATHER": "WETTER",
+        "CLOCK": "UHR"
     }
 }
