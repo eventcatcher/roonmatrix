@@ -60,7 +60,7 @@ class KeyValItemsState extends State<KeyValItems> {
 
     for (String key in fieldValues.keys) {
       Widget widget = EditableSinglelineText(
-        key: UniqueKey(),
+        key: ValueKey('$label-$key'),
         inputType: TextInputType.text,
         noCounter: true,
         label: key == ': ' ? '[: ]' : key,

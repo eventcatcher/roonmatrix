@@ -39,17 +39,18 @@ class MapListItems extends StatefulWidget {
 class MapListItemsState extends State<MapListItems> {
   String? get label => widget.label;
   ConfigDefinitionItem get fieldDefinition => widget.fieldDefinition;
-  List<dynamic> get fieldValues => widget.fieldValues;
 
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
 
+  late List<dynamic> fieldValues;
   late TranslationsBloc translationsBloc;
   late EdgeInsetsGeometry margin;
   late MainBloc mainBloc;
 
   @override
   void initState() {
+    fieldValues = widget.fieldValues;
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     super.initState();
@@ -79,7 +80,7 @@ class MapListItemsState extends State<MapListItems> {
             .type;
 
         Widget widget = EditableSinglelineText(
-          key: UniqueKey(),
+          key: ValueKey('$label-${fieldValues.length}-$idx-$key'),
           inputType: fieldType.startsWith('int')
               ? TextInputType.number
               : TextInputType.text,
