@@ -69,7 +69,7 @@ dependencies:
   menu_bar: ^0.5.3
   package_info_plus: ^8.0.2
   flutter_window_close: ^1.1.0
-  language_code: ^0.5.3+2
+  language_code: ^0.5.4
 
 dependency_overrides:
   analyzer: ^6.4.1
