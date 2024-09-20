@@ -88,7 +88,7 @@ class MapListItemsState extends State<MapListItems> {
               ? [FilteringTextInputFormatter.digitsOnly]
               : null,
           noCounter: true,
-          label: (translations['config'][key] ?? key) +
+          label: (translations['config']?[key] ?? key) +
               mainBloc.getListFieldUnit(fieldType),
           labelColor: Colors.red,
           borderColor: Colors.red.shade300,

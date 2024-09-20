@@ -86,13 +86,13 @@ class ConfigPageState extends State<ConfigPage> {
 
           Widget? widgetField;
 
-          String label = (translations['config'][fieldDefinition.name] ??
+          String label = (translations['config']?[fieldDefinition.name] ??
               fieldDefinition.label);
           if (!fieldType.startsWith('list') &&
               fieldType != 'list' &&
               fieldType != 'keyValItems') {
             label += (fieldDefinition.unit != ''
-                ? ' (${translations['config'][fieldDefinition.unit] ?? fieldDefinition.unit})'
+                ? ' (${translations['config']?[fieldDefinition.unit] ?? fieldDefinition.unit})'
                 : '');
           }
 
@@ -281,7 +281,7 @@ class ConfigPageState extends State<ConfigPage> {
       Widget widgetArea = Card(
         child: Column(
           children: [
-            Headline(text: translations['config'][area.name] ?? area.name),
+            Headline(text: translations['config']?[area.name] ?? area.name),
             ...fields
           ],
         ),
