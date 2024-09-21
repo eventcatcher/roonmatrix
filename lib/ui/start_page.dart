@@ -94,7 +94,7 @@ class StartPageState extends State<StartPage> {
   getFormattedDateString(
       {required String date,
       String languageCode = 'de',
-      String format = 'dd.MM.yyyy'}) {
+      String format = 'dd.MM.yyyy hh:mm:ss'}) {
     String formattedDate =
         DateFormat(format, languageCode).format(DateTime.parse(date));
 
@@ -105,51 +105,47 @@ class StartPageState extends State<StartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(
-                  left: MediaQuery.of(context).size.width / 2 - 72.0),
-              child: Text(title),
-            ),
-          ],
-        ),
+        title: Text(title),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: IconButton(
-              iconSize: 16.0,
-              padding: EdgeInsets.zero,
-              onPressed: () async {
-                await windowManager.setPosition(Offset.zero);
-                windowManager.setSize(
-                    Size(mainBloc.getScreenSize()?.width ?? 1280, 276),
-                    animate: true);
-              },
-              icon: const Icon(FontAwesomeIcons.arrowsLeftRight),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: IconButton(
-              iconSize: 16.0,
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                windowManager.setSize(const Size(1280, 768), animate: true);
-              },
-              icon: const Icon(FontAwesomeIcons.minimize),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 6.0),
-            child: IconButton(
-              iconSize: 16.0,
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                windowManager.maximize();
-              },
-              icon: const Icon(FontAwesomeIcons.maximize),
-            ),
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: IconButton(
+                  iconSize: 16.0,
+                  padding: EdgeInsets.zero,
+                  onPressed: () async {
+                    await windowManager.setPosition(Offset.zero);
+                    windowManager.setSize(
+                        Size(mainBloc.getScreenSize()?.width ?? 1280, 276),
+                        animate: true);
+                  },
+                  icon: const Icon(FontAwesomeIcons.arrowsLeftRight),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: IconButton(
+                  iconSize: 16.0,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    windowManager.setSize(const Size(1280, 768), animate: true);
+                  },
+                  icon: const Icon(FontAwesomeIcons.minimize),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 6.0),
+                child: IconButton(
+                  iconSize: 16.0,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    windowManager.maximize();
+                  },
+                  icon: const Icon(FontAwesomeIcons.maximize),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -411,6 +407,8 @@ class StartPageState extends State<StartPage> {
                                                               return ScrollMatrixPage(
                                                                 index: index,
                                                                 name: i['name'],
+                                                                translations:
+                                                                    translations,
                                                                 close: () {
                                                                   Navigator.pop(
                                                                       context);
