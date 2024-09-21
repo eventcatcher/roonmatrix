@@ -23,18 +23,24 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:window_manager/window_manager.dart';
 
 class StartPage extends StatefulWidget {
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
+  final String title;
+
   const StartPage({
     super.key,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.title,
   });
-
-  final String title;
 
   @override
   State<StartPage> createState() => StartPageState();
 }
 
 class StartPageState extends State<StartPage> {
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   String get title => widget.title;
 
   final double treeFontSize = 12;
@@ -43,6 +49,8 @@ class StartPageState extends State<StartPage> {
   Map<String, dynamic> translations = {};
   List<String> devices = [];
   String aboutAppMessage = '';
+  double width = 1280;
+  double height = 768;
   bool translationsLoaded = false;
   bool idle = false;
   bool saveIdle = false;
@@ -101,52 +109,67 @@ class StartPageState extends State<StartPage> {
     return formattedDate;
   }
 
+  updateSizes(String caller) {
+    width = MediaQuery.of(context).size.height;
+    height = MediaQuery.of(context).size.height;
+    // if (kDebugMode) {
+    //   print(
+    //       'StartPage => updateSizes, caller: $caller, width: $width, height: $height');
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
+    updateSizes('build');
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
         actions: [
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: IconButton(
-                  iconSize: 16.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () async {
-                    await windowManager.setPosition(Offset.zero);
-                    windowManager.setSize(
-                        Size(mainBloc.getScreenSize()?.width ?? 1280, 276),
-                        animate: true);
-                  },
-                  icon: const Icon(FontAwesomeIcons.arrowsLeftRight),
+          if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: IconButton(
+                    iconSize: 16.0,
+                    padding: EdgeInsets.zero,
+                    onPressed: () async {
+                      await windowManager.setPosition(Offset.zero);
+                      windowManager.setSize(
+                          Size(
+                              mainBloc.getScreenSize()?.width ??
+                                  minDesktopSize.width,
+                              minDesktopSize.height),
+                          animate: true);
+                    },
+                    icon: const Icon(FontAwesomeIcons.arrowsLeftRight),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: IconButton(
-                  iconSize: 16.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    windowManager.setSize(const Size(1280, 768), animate: true);
-                  },
-                  icon: const Icon(FontAwesomeIcons.minimize),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: IconButton(
+                    iconSize: 16.0,
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      windowManager.setSize(standardDesktopSize, animate: true);
+                    },
+                    icon: const Icon(FontAwesomeIcons.minimize),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 6.0),
-                child: IconButton(
-                  iconSize: 16.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () {
-                    windowManager.maximize();
-                  },
-                  icon: const Icon(FontAwesomeIcons.maximize),
+                Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: IconButton(
+                    iconSize: 16.0,
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      windowManager.maximize();
+                    },
+                    icon: const Icon(FontAwesomeIcons.maximize),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
       drawer: Platform.isIOS || Platform.isAndroid || Platform.isFuchsia
@@ -884,14 +907,47 @@ class StartPageState extends State<StartPage> {
                                                                 .symmetric(
                                                                 horizontal:
                                                                     16.0),
-                                                        child: SizedBox(
-                                                            width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width -
-                                                                30,
-                                                            child: TextScroll(
-                                                                '${i['displaystr']}    ////    ')),
+                                                        child: OrientationBuilder(
+                                                            builder: (BuildContext
+                                                                    context,
+                                                                Orientation
+                                                                    orientation) {
+                                                          updateSizes(
+                                                              'OrientationBuilder');
+
+                                                          // if (kDebugMode) {
+                                                          //   print('height: $height, fontSize: $fontSize');
+                                                          // }
+
+                                                          return NotificationListener<
+                                                              SizeChangedLayoutNotification>(
+                                                            onNotification:
+                                                                (notification) {
+                                                              updateSizes(
+                                                                  'NotificationListener');
+                                                              build(context);
+                                                              return false;
+                                                            },
+                                                            child:
+                                                                SizeChangedLayoutNotifier(
+                                                              child: SizedBox(
+                                                                width: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width -
+                                                                    30,
+                                                                key: ValueKey(
+                                                                    'TextScrollWrapper${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                child:
+                                                                    TextScroll(
+                                                                  '${i['displaystr']}    ////    ',
+                                                                  key: ValueKey(
+                                                                      'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          );
+                                                        }),
                                                       ))
                                                 ],
                                               ),

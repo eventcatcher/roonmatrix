@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:text_scroll/text_scroll.dart';
@@ -33,6 +34,13 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   VoidCallback get close => widget.close;
 
   String displaystr = '';
+  double mobileFontSizeSmall = 24.0;
+  double mobileFontSizeMedium = 48.0;
+  double mobileFontSizeBig = 96.0;
+  double mobileFontSize = 48.0;
+  double width = 1280;
+  double height = 768;
+  double fontSize = 48.0;
 
   late MainBloc mainBloc;
 
@@ -66,16 +74,21 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
     return strMasked;
   }
 
+  updateSizes(String caller) {
+    width = MediaQuery.of(context).size.height;
+    height = MediaQuery.of(context).size.height;
+    fontSize = Platform.isMacOS || Platform.isWindows || Platform.isLinux
+        ? height - 60 - height / 6
+        : mobileFontSize;
+    // if (kDebugMode) {
+    //   print(
+    //       'ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
+    // }
+  }
+
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    double fontSize = Platform.isMacOS || Platform.isWindows || Platform.isLinux
-        ? height - 60 - height / 6
-        : 24;
-
-    // if (kDebugMode) {
-    //   print('height: $height, fontSize: $fontSize');
-    // }
+    updateSizes('build');
 
     return Scaffold(
       appBar: AppBar(
@@ -83,26 +96,63 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
         actions: [
           Row(
             children: [
-              BlocBuilder(
-                  bloc: mainBloc,
-                  builder: (context, MainState mainState) {
-                    String zoneName = '';
-                    dynamic info = mainState.info[mainState.devices[index]];
-                    if (info['control_id'] != null) {
-                      String controlId = info['control_id'];
-                      if (info['channels'] != null &&
-                          info['channels'][controlId] != null) {
-                        if (info['channels'][controlId] == 'webserver') {
-                          zoneName = controlId;
-                        } else {
-                          zoneName = info['channels'][controlId];
+              if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+                BlocBuilder(
+                    bloc: mainBloc,
+                    builder: (context, MainState mainState) {
+                      String zoneName = '';
+                      dynamic info = mainState.info[mainState.devices[index]];
+                      if (info['control_id'] != null) {
+                        String controlId = info['control_id'];
+                        if (info['channels'] != null &&
+                            info['channels'][controlId] != null) {
+                          if (info['channels'][controlId] == 'webserver') {
+                            zoneName = controlId;
+                          } else {
+                            zoneName = info['channels'][controlId];
+                          }
                         }
                       }
-                    }
 
-                    return Text(
-                        'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
-                  })
+                      return Text(
+                          'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
+                    }),
+              if (Platform.isIOS ||
+                  Platform.isAndroid ||
+                  Platform.isFuchsia) ...[
+                const Text('  |  '),
+                IconButton(
+                  iconSize: 12.0,
+                  padding: EdgeInsets.zero,
+                  onPressed: () async {
+                    setState(() {
+                      mobileFontSize = mobileFontSizeSmall;
+                    });
+                  },
+                  icon: const Icon(FontAwesomeIcons.font),
+                ),
+                IconButton(
+                  iconSize: 16.0,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    setState(() {
+                      mobileFontSize = mobileFontSizeMedium;
+                    });
+                  },
+                  icon: const Icon(FontAwesomeIcons.font),
+                ),
+                IconButton(
+                  iconSize: 20.0,
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    setState(() {
+                      mobileFontSize = mobileFontSizeBig;
+                    });
+                  },
+                  icon: const Icon(FontAwesomeIcons.font),
+                ),
+              ],
+              const SizedBox(width: 4.0),
             ],
           )
         ],
@@ -137,19 +187,41 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
           Stack(
             clipBehavior: Clip.none,
             children: <Widget>[
-              SizedBox(
-                height: fontSize * 1.15,
-                child: TextScroll(
-                  '$displaystr    ////    ',
-                  style: TextStyle(
-                    fontFamily: 'Arial',
-                    fontSize: fontSize,
+              OrientationBuilder(
+                  builder: (BuildContext context, Orientation orientation) {
+                updateSizes('OrientationBuilder');
+
+                // if (kDebugMode) {
+                //   print('height: $height, fontSize: $fontSize');
+                // }
+
+                return NotificationListener<SizeChangedLayoutNotification>(
+                  onNotification: (notification) {
+                    updateSizes('NotificationListener');
+                    build(context);
+                    return false;
+                  },
+                  child: SizeChangedLayoutNotifier(
+                    child: SizedBox(
+                      key: ValueKey(
+                          'TextScrollWrapper${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                      height: fontSize * 1.15,
+                      child: TextScroll(
+                        '$displaystr    ////    ',
+                        key: ValueKey(
+                            'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                        style: TextStyle(
+                          fontFamily: 'Arial',
+                          fontSize: fontSize,
+                        ),
+                        mode: TextScrollMode.endless,
+                        velocity: Velocity(
+                            pixelsPerSecond: Offset(200 + fontSize / 2.25, 0)),
+                      ),
+                    ),
                   ),
-                  mode: TextScrollMode.endless,
-                  velocity: Velocity(
-                      pixelsPerSecond: Offset(200 + fontSize / 2.25, 0)),
-                ),
-              ),
+                );
+              }),
             ],
           ),
         ],

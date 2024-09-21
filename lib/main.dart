@@ -19,17 +19,23 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Size minDesktopSize = const Size(1280, 276);
+  Size standardDesktopSize = const Size(1280, 768);
+
   //await _configureMacosWindowUtils();
 
-  runApp(const RoonMatrix());
+  runApp(RoonMatrix(
+    minDesktopSize: minDesktopSize,
+    standardDesktopSize: standardDesktopSize,
+  ));
 
   Bloc.transformer = sequential<
       dynamic>(); // all bloc events strictly sequential (like mapEventToState in bloc prior v8)
 
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     doWhenWindowReady(() {
-      appWindow.minSize = const Size(1280, 276);
-      appWindow.size = const Size(1280, 768);
+      appWindow.minSize = minDesktopSize;
+      appWindow.size = standardDesktopSize;
 
       appWindow.show();
     });
@@ -38,13 +44,23 @@ void main() async {
 }
 
 class RoonMatrix extends StatefulWidget {
-  const RoonMatrix({super.key});
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
+
+  const RoonMatrix({
+    super.key,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
+  });
 
   @override
   State<RoonMatrix> createState() => RoonMatrixState();
 }
 
 class RoonMatrixState extends State<RoonMatrix> {
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
+
   final FileRepository fileRepository = FileRepository();
   final String title = 'RoonMatrix';
 
@@ -473,7 +489,11 @@ class RoonMatrixState extends State<RoonMatrix> {
                       ],
                     ),
                   ],
-                  child: StartPage(title: title),
+                  child: StartPage(
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
+                    title: title,
+                  ),
                 );
               }
               if (Platform.isWindows || Platform.isLinux) {
@@ -509,11 +529,19 @@ class RoonMatrixState extends State<RoonMatrix> {
                   enabled: true,
 
                   // Set the child, i.e. the application under the menu bar
-                  child: StartPage(title: title),
+                  child: StartPage(
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
+                    title: title,
+                  ),
                 );
               }
 
-              return StartPage(title: title);
+              return StartPage(
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
+                title: title,
+              );
             }),
       ),
     );
