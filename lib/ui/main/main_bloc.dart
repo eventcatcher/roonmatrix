@@ -44,6 +44,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   String? ipEnd;
   bool isScanning = false;
   Timer? timer;
+  Size? screenSize;
 
   MainBloc({required this.fileRepository}) : super(const MainStateInitial()) {
     // ====================== //
@@ -1200,6 +1201,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return translations['configTextFieldJsonError'] ??
         'Text field has no valid Json';
   }
+
+  Size? getScreenSize() => screenSize ??=
+      WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
 
   // ==================== //
   // public event methods //

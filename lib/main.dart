@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
+import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,12 +28,12 @@ void main() async {
 
   if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
     doWhenWindowReady(() {
-      const initialSize = Size(1280, 768);
-      appWindow.minSize = initialSize;
-      appWindow.size = initialSize;
-      //appWindow.alignment = Alignment.center;
+      appWindow.minSize = const Size(1280, 276);
+      appWindow.size = const Size(1280, 768);
+
       appWindow.show();
     });
+    await windowManager.ensureInitialized();
   }
 }
 
@@ -59,6 +61,8 @@ class RoonMatrixState extends State<RoonMatrix> {
   @override
   void initState() {
     fileRepository.init();
+
+    initializeDateFormatting('de_DE', null);
 
     translationsBloc = TranslationsBloc();
     settingsBloc = SettingsBloc();
@@ -236,6 +240,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                 return Scaffold(
                     appBar: AppBar(
                       title: Text(title),
+                      actions: const [],
                     ),
                     body: const SizedBox());
               }

@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/control_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
+import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
@@ -17,6 +20,7 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:text_scroll/text_scroll.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:window_manager/window_manager.dart';
 
 class StartPage extends StatefulWidget {
   const StartPage({
@@ -87,11 +91,67 @@ class StartPageState extends State<StartPage> {
         }
       });
 
+  getFormattedDateString(
+      {required String date,
+      String languageCode = 'de',
+      String format = 'dd.MM.yyyy'}) {
+    String formattedDate =
+        DateFormat(format, languageCode).format(DateTime.parse(date));
+
+    return formattedDate;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width / 2 - 72.0),
+              child: Text(title),
+            ),
+          ],
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton(
+              iconSize: 16.0,
+              padding: EdgeInsets.zero,
+              onPressed: () async {
+                await windowManager.setPosition(Offset.zero);
+                windowManager.setSize(
+                    Size(mainBloc.getScreenSize()?.width ?? 1280, 276),
+                    animate: true);
+              },
+              icon: const Icon(FontAwesomeIcons.arrowsLeftRight),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton(
+              iconSize: 16.0,
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                windowManager.setSize(const Size(1280, 768), animate: true);
+              },
+              icon: const Icon(FontAwesomeIcons.minimize),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 6.0),
+            child: IconButton(
+              iconSize: 16.0,
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                windowManager.maximize();
+              },
+              icon: const Icon(FontAwesomeIcons.maximize),
+            ),
+          ),
+        ],
       ),
       drawer: Platform.isIOS || Platform.isAndroid || Platform.isFuchsia
           ? BlocBuilder(
@@ -328,13 +388,45 @@ class StartPageState extends State<StartPage> {
                                                     leading: SizedBox(
                                                       width: 32,
                                                       height: 32,
-                                                      child: SvgPicture.asset(
-                                                        'assets/svg/8-8-led-matrix-display-unit.svg',
-                                                        allowDrawingOutsideViewBox:
-                                                            false,
-                                                        fit: BoxFit.cover,
-                                                        clipBehavior:
-                                                            Clip.hardEdge,
+                                                      child: IconButton(
+                                                        padding:
+                                                            EdgeInsets.zero,
+                                                        onPressed: () {
+                                                          showGeneralDialog(
+                                                            context: context,
+                                                            barrierColor: Colors
+                                                                .black12
+                                                                .withOpacity(
+                                                                    0.6), // Background color
+                                                            barrierDismissible:
+                                                                false,
+                                                            barrierLabel:
+                                                                'Dialog',
+                                                            transitionDuration:
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        400),
+                                                            pageBuilder:
+                                                                (_, __, ___) {
+                                                              return ScrollMatrixPage(
+                                                                index: index,
+                                                                name: i['name'],
+                                                                close: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                              );
+                                                            },
+                                                          );
+                                                        },
+                                                        icon: SvgPicture.asset(
+                                                          'assets/svg/8-8-led-matrix-display-unit.svg',
+                                                          allowDrawingOutsideViewBox:
+                                                              false,
+                                                          fit: BoxFit.cover,
+                                                          clipBehavior:
+                                                              Clip.hardEdge,
+                                                        ),
                                                       ),
                                                     ),
                                                     title: Text(
@@ -378,7 +470,7 @@ class StartPageState extends State<StartPage> {
                                                                         .min,
                                                                 children: [
                                                                   Text(
-                                                                    '${translations['deviceListTime'] ?? 'time'}: ${i['time']}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
+                                                                    '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
                                                                     softWrap:
                                                                         true,
                                                                     maxLines: 2,
@@ -583,7 +675,7 @@ class StartPageState extends State<StartPage> {
                                                                       Orientation
                                                                           .landscape)
                                                                     Text(
-                                                                      '${translations['deviceListTime'] ?? 'time'}: ${i['time']}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${i['playcount']}  ',
+                                                                      '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${i['playcount']}  ',
                                                                       softWrap:
                                                                           true,
                                                                       maxLines:
