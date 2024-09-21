@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animated_gradient/animated_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -157,74 +158,82 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
           )
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          BlocBuilder(
-              bloc: mainBloc,
-              builder: (context, MainState mainState) {
-                if (mainState is MainStateLoaded) {
-                  String displaystrNew =
-                      mainState.info[mainState.devices[index]]['displaystr'];
+      body: SizedBox(
+        width: double.infinity,
+        child: AnimatedGradient(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              BlocBuilder(
+                  bloc: mainBloc,
+                  builder: (context, MainState mainState) {
+                    if (mainState is MainStateLoaded) {
+                      String displaystrNew = mainState
+                          .info[mainState.devices[index]]['displaystr'];
 
-                  String displaystrNewMasked = getMaskedString(displaystrNew);
-                  String displaystrMasked = getMaskedString(displaystr);
+                      String displaystrNewMasked =
+                          getMaskedString(displaystrNew);
+                      String displaystrMasked = getMaskedString(displaystr);
 
-                  if (displaystrNewMasked != displaystrMasked) {
-                    SchedulerBinding.instance.addPostFrameCallback((_) async {
-                      if (mounted) {
-                        setState(() {
-                          displaystr = displaystrNew;
+                      if (displaystrNewMasked != displaystrMasked) {
+                        SchedulerBinding.instance
+                            .addPostFrameCallback((_) async {
+                          if (mounted) {
+                            setState(() {
+                              displaystr = displaystrNew;
+                            });
+                          }
                         });
                       }
-                    });
-                  }
-                }
+                    }
 
-                return const SizedBox(height: 0.0);
-              }),
-          Stack(
-            clipBehavior: Clip.none,
-            children: <Widget>[
-              OrientationBuilder(
-                  builder: (BuildContext context, Orientation orientation) {
-                updateSizes('OrientationBuilder');
+                    return const SizedBox(height: 0.0);
+                  }),
+              Stack(
+                clipBehavior: Clip.none,
+                children: <Widget>[
+                  OrientationBuilder(
+                      builder: (BuildContext context, Orientation orientation) {
+                    updateSizes('OrientationBuilder');
 
-                // if (kDebugMode) {
-                //   print('height: $height, fontSize: $fontSize');
-                // }
+                    // if (kDebugMode) {
+                    //   print('height: $height, fontSize: $fontSize');
+                    // }
 
-                return NotificationListener<SizeChangedLayoutNotification>(
-                  onNotification: (notification) {
-                    updateSizes('NotificationListener');
-                    build(context);
-                    return false;
-                  },
-                  child: SizeChangedLayoutNotifier(
-                    child: SizedBox(
-                      key: ValueKey(
-                          'TextScrollWrapper${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                      height: fontSize * 1.15,
-                      child: TextScroll(
-                        '$displaystr    ////    ',
-                        key: ValueKey(
-                            'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                        style: TextStyle(
-                          fontFamily: 'Arial',
-                          fontSize: fontSize,
+                    return NotificationListener<SizeChangedLayoutNotification>(
+                      onNotification: (notification) {
+                        updateSizes('NotificationListener');
+                        build(context);
+                        return false;
+                      },
+                      child: SizeChangedLayoutNotifier(
+                        child: SizedBox(
+                          key: ValueKey(
+                              'TextScrollWrapper${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                          height: fontSize * 1.15,
+                          child: TextScroll(
+                            '$displaystr    ////    ',
+                            key: ValueKey(
+                                'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                            style: TextStyle(
+                              fontFamily: 'Arial',
+                              fontSize: fontSize,
+                            ),
+                            mode: TextScrollMode.endless,
+                            velocity: Velocity(
+                                pixelsPerSecond:
+                                    Offset(200 + fontSize / 2.25, 0)),
+                          ),
                         ),
-                        mode: TextScrollMode.endless,
-                        velocity: Velocity(
-                            pixelsPerSecond: Offset(200 + fontSize / 2.25, 0)),
                       ),
-                    ),
-                  ),
-                );
-              }),
+                    );
+                  }),
+                ],
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
