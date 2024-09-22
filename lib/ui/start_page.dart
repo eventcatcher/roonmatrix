@@ -432,6 +432,8 @@ class StartPageState extends State<StartPage> {
                                                                 name: i['name'],
                                                                 translations:
                                                                     translations,
+                                                                minDesktopSize:
+                                                                    minDesktopSize,
                                                                 close: () {
                                                                   Navigator.pop(
                                                                       context);

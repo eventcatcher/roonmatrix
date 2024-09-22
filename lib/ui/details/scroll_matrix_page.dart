@@ -14,6 +14,7 @@ class ScrollMatrixPage extends StatefulWidget {
   final int index;
   final String name;
   final Map<String, dynamic> translations;
+  final Size minDesktopSize;
   final VoidCallback close;
 
   const ScrollMatrixPage({
@@ -21,6 +22,7 @@ class ScrollMatrixPage extends StatefulWidget {
     required this.index,
     required this.name,
     required this.translations,
+    required this.minDesktopSize,
     required this.close,
   });
 
@@ -32,6 +34,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   int get index => widget.index;
   String get name => widget.name;
   Map<String, dynamic> get translations => widget.translations;
+  Size get minDesktopSize => widget.minDesktopSize;
   VoidCallback get close => widget.close;
 
   String displaystr = '';
@@ -47,6 +50,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
 
   @override
   void initState() {
+    width = minDesktopSize.width;
+    height = minDesktopSize.height;
     mainBloc = BlocProvider.of<MainBloc>(context);
 
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
@@ -58,7 +63,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
 
   windowResize() async {
     Size? screenSize = mainBloc.getScreenSize();
-    Size newSize = Size(screenSize?.width ?? 1280, 276);
+    Size newSize = Size(screenSize?.width ?? width, height);
 
     await windowManager.setPosition(Offset.zero);
     windowManager.setSize(newSize, animate: true);

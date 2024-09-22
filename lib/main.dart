@@ -19,7 +19,8 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Size minDesktopSize = const Size(1280, 276);
+  double minHeight = Platform.isWindows || Platform.isLinux ? 308 : 276;
+  Size minDesktopSize = Size(1280, minHeight);
   Size standardDesktopSize = const Size(1280, 768);
 
   //await _configureMacosWindowUtils();
