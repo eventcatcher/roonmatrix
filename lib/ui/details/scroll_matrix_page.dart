@@ -37,14 +37,21 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   Size get minDesktopSize => widget.minDesktopSize;
   VoidCallback get close => widget.close;
 
+  final double mobileFontSizeSmall = 32.0;
+  final double mobileFontSizeMedium = 64.0;
+  final double mobileFontSizeBig = 128.0;
+  final double sliderTextDesktopMin = 1800;
+  final double sliderTextMobileMin = 800;
+  final double sliderDesktopMin = 1480;
+  final double sliderMobileMin = 550;
+
   String displaystr = '';
-  double mobileFontSizeSmall = 32.0;
-  double mobileFontSizeMedium = 64.0;
-  double mobileFontSizeBig = 128.0;
-  double mobileFontSize = 48.0;
   double width = 1280;
   double height = 768;
   double fontSize = 64.0;
+  double mobileFontSize = 48.0;
+  double sliderTextMin = 800;
+  double sliderMin = 550;
   double pixelsPerSecond = 200 + 64.0 / 2.25;
   double sliderValue = 1.0;
 
@@ -57,7 +64,12 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
     mainBloc = BlocProvider.of<MainBloc>(context);
 
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      sliderTextMin = sliderTextDesktopMin;
+      sliderMin = sliderDesktopMin;
       windowResize();
+    } else {
+      sliderTextMin = sliderTextMobileMin;
+      sliderMin = sliderMobileMin;
     }
 
     super.initState();
@@ -105,42 +117,36 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
         actions: [
           Row(
             children: [
-              if ((Platform.isMacOS ||
-                  Platform.isWindows ||
-                  Platform.isLinux)) ...[
-                Row(
-                  children: [
-                    if (width > 1800)
-                      Text('${translations['speed'] ?? 'speed:'}:'),
-                    InkWell(
-                      onDoubleTap: () {
+              if (width > sliderTextMin)
+                Text('${translations['speed'] ?? 'speed:'}:'),
+              InkWell(
+                onDoubleTap: () {
+                  setState(() {
+                    sliderValue = 1.0;
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: SizedBox(
+                    width: width > sliderMin ? 200 : 120,
+                    child: Slider(
+                      value: sliderValue,
+                      min: 0.1,
+                      max: 5,
+                      divisions: 100,
+                      thumbColor: Colors.red.shade700,
+                      activeColor: Colors.green.shade200,
+                      inactiveColor: Colors.grey.shade700,
+                      onChanged: (double value) {
                         setState(() {
-                          sliderValue = 1.0;
+                          sliderValue = value;
                         });
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: SizedBox(
-                          width: width > 1480 ? 200 : 120,
-                          child: Slider(
-                            value: sliderValue,
-                            min: 0.1,
-                            max: 5,
-                            divisions: 100,
-                            thumbColor: Colors.red.shade700,
-                            activeColor: Colors.green.shade200,
-                            inactiveColor: Colors.grey.shade700,
-                            onChanged: (double value) {
-                              setState(() {
-                                sliderValue = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
                     ),
-                  ],
+                  ),
                 ),
+              ),
+              if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
                 BlocBuilder(
                     bloc: mainBloc,
                     builder: (context, MainState mainState) {
@@ -161,7 +167,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                       return Text(
                           'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
                     }),
-              ],
               if (Platform.isIOS ||
                   Platform.isAndroid ||
                   Platform.isFuchsia) ...[
