@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:text_scroll/text_scroll.dart';
@@ -165,7 +166,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
       ),
       body: SizedBox(
         width: double.infinity,
-        child: AnimatedGradient(
+        child: RoonmatrixAnimatedGradient(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
