@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:animated_gradient/animated_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,6 +45,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   double width = 1280;
   double height = 768;
   double fontSize = 64.0;
+  double pixelsPerSecond = 200 + 64.0 / 2.25;
+  double sliderValue = 1.0;
 
   late MainBloc mainBloc;
 
@@ -82,11 +83,12 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   }
 
   updateSizes(String caller) {
-    width = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     fontSize = Platform.isMacOS || Platform.isWindows || Platform.isLinux
         ? height - 60 - height / 6
         : mobileFontSize;
+    pixelsPerSecond = 200 + fontSize / 2.25;
     // if (kDebugMode) {
     //   print(
     //       'ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
@@ -103,7 +105,42 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
         actions: [
           Row(
             children: [
-              if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+              if ((Platform.isMacOS ||
+                  Platform.isWindows ||
+                  Platform.isLinux)) ...[
+                Row(
+                  children: [
+                    if (width > 1800)
+                      Text('${translations['speed'] ?? 'speed:'}:'),
+                    InkWell(
+                      onDoubleTap: () {
+                        setState(() {
+                          sliderValue = 1.0;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: SizedBox(
+                          width: width > 1480 ? 200 : 120,
+                          child: Slider(
+                            value: sliderValue,
+                            min: 0.1,
+                            max: 5,
+                            divisions: 100,
+                            thumbColor: Colors.red.shade700,
+                            activeColor: Colors.green.shade200,
+                            inactiveColor: Colors.grey.shade700,
+                            onChanged: (double value) {
+                              setState(() {
+                                sliderValue = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 BlocBuilder(
                     bloc: mainBloc,
                     builder: (context, MainState mainState) {
@@ -124,6 +161,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                       return Text(
                           'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
                     }),
+              ],
               if (Platform.isIOS ||
                   Platform.isAndroid ||
                   Platform.isFuchsia) ...[
@@ -229,7 +267,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                             mode: TextScrollMode.endless,
                             velocity: Velocity(
                                 pixelsPerSecond:
-                                    Offset(200 + fontSize / 2.25, 0)),
+                                    Offset(pixelsPerSecond * sliderValue, 0)),
                           ),
                         ),
                       ),

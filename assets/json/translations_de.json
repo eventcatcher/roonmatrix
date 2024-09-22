@@ -74,6 +74,7 @@
     "settingsIpFieldInvalidError": "IP hat ein ungültiges Format",
     "settingsIpRangeInvalidError" : "IP-Bereich ist ungültig",
     "okButtonText": "OK",
+    "speed": "Geschwindigkeit",
     "config": {
         "hostname": "Hostname [Wichtig]",
         "password": "Passwort [Wichtig]",
