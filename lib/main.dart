@@ -19,7 +19,7 @@ import 'package:window_manager/window_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  double minHeight = Platform.isWindows || Platform.isLinux ? 308 : 276;
+  double minHeight = Platform.isWindows || Platform.isLinux ? 352 : 320;
   Size minDesktopSize = Size(1280, minHeight);
   Size standardDesktopSize = const Size(1280, 768);
 

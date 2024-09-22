@@ -956,72 +956,74 @@ class StartPageState extends State<StartPage> {
                                             );
                                           }),
                             ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: Platform.isMacOS ||
-                                          Platform.isWindows ||
-                                          Platform.isLinux
-                                      ? 16.0
-                                      : 0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ElevatedButton.icon(
-                                    icon: const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 8.0),
-                                      child: Icon(
-                                        Icons.download,
-                                        color: Colors.white,
-                                        size: 20.0,
+                            if (height > minDesktopSize.height + 75)
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: Platform.isMacOS ||
+                                            Platform.isWindows ||
+                                            Platform.isLinux
+                                        ? 16.0
+                                        : 0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      icon: const Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 8.0),
+                                        child: Icon(
+                                          Icons.download,
+                                          color: Colors.white,
+                                          size: 20.0,
+                                        ),
                                       ),
+                                      label: Text(
+                                          translations['exportButtonText'] ??
+                                              'export'),
+                                      onPressed: saveIdle == true ||
+                                              idle == true ||
+                                              devices.isEmpty
+                                          ? null
+                                          : () async {
+                                              setState(() {
+                                                saveIdle = true;
+                                              });
+                                              bool? valid = await mainBloc
+                                                  .exportDevicesData();
+                                              setState(() {
+                                                saveIdle = false;
+                                              });
+                                              if (valid == null) {
+                                                return;
+                                              }
+                                              if (valid == true) {
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                    content: Text(translations[
+                                                            'exportDoneMessage'] ??
+                                                        'export successfully done'),
+                                                    backgroundColor:
+                                                        Colors.green,
+                                                  ));
+                                                }
+                                              } else {
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                    content: Text(translations[
+                                                            'exportFailedMessage'] ??
+                                                        'export failed!'),
+                                                    backgroundColor: Colors.red,
+                                                  ));
+                                                }
+                                              }
+                                            },
                                     ),
-                                    label: Text(
-                                        translations['exportButtonText'] ??
-                                            'export'),
-                                    onPressed: saveIdle == true ||
-                                            idle == true ||
-                                            devices.isEmpty
-                                        ? null
-                                        : () async {
-                                            setState(() {
-                                              saveIdle = true;
-                                            });
-                                            bool? valid = await mainBloc
-                                                .exportDevicesData();
-                                            setState(() {
-                                              saveIdle = false;
-                                            });
-                                            if (valid == null) {
-                                              return;
-                                            }
-                                            if (valid == true) {
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                  content: Text(translations[
-                                                          'exportDoneMessage'] ??
-                                                      'export successfully done'),
-                                                  backgroundColor: Colors.green,
-                                                ));
-                                              }
-                                            } else {
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                  content: Text(translations[
-                                                          'exportFailedMessage'] ??
-                                                      'export failed!'),
-                                                  backgroundColor: Colors.red,
-                                                ));
-                                              }
-                                            }
-                                          },
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
                             if (Platform.isIOS) const SizedBox(height: 14.0),
                           ],
                         ),

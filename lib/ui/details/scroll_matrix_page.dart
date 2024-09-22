@@ -38,13 +38,13 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   VoidCallback get close => widget.close;
 
   String displaystr = '';
-  double mobileFontSizeSmall = 24.0;
-  double mobileFontSizeMedium = 48.0;
-  double mobileFontSizeBig = 96.0;
+  double mobileFontSizeSmall = 32.0;
+  double mobileFontSizeMedium = 64.0;
+  double mobileFontSizeBig = 128.0;
   double mobileFontSize = 48.0;
   double width = 1280;
   double height = 768;
-  double fontSize = 48.0;
+  double fontSize = 64.0;
 
   late MainBloc mainBloc;
 
