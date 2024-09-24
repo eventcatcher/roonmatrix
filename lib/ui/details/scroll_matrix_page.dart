@@ -166,31 +166,22 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                 IconButton(
                   iconSize: 12.0,
                   padding: EdgeInsets.zero,
-                  onPressed: () async {
-                    setState(() {
-                      mobileFontSize = mobileFontSizeSmall;
-                    });
-                  },
+                  onPressed: () =>
+                      setState(() => mobileFontSize = mobileFontSizeSmall),
                   icon: const Icon(FontAwesomeIcons.font),
                 ),
                 IconButton(
                   iconSize: 16.0,
                   padding: EdgeInsets.zero,
-                  onPressed: () {
-                    setState(() {
-                      mobileFontSize = mobileFontSizeMedium;
-                    });
-                  },
+                  onPressed: () =>
+                      setState(() => mobileFontSize = mobileFontSizeMedium),
                   icon: const Icon(FontAwesomeIcons.font),
                 ),
                 IconButton(
                   iconSize: 20.0,
                   padding: EdgeInsets.zero,
-                  onPressed: () {
-                    setState(() {
-                      mobileFontSize = mobileFontSizeBig;
-                    });
-                  },
+                  onPressed: () =>
+                      setState(() => mobileFontSize = mobileFontSizeBig),
                   icon: const Icon(FontAwesomeIcons.font),
                 ),
               ],

@@ -147,24 +147,22 @@ class StartPageState extends State<StartPage> {
                   child: IconButton(
                     iconSize: 16.0,
                     padding: EdgeInsets.zero,
-                    onPressed: () {
-                      windowManager.setSize(standardDesktopSize, animate: true);
-                    },
+                    onPressed: () => windowManager.setSize(standardDesktopSize,
+                        animate: true),
                     icon: const Icon(FontAwesomeIcons.minimize),
                   ),
                 ),
                 if (Platform.isMacOS)
                   Padding(
-                    padding: const EdgeInsets.only(right: 4.0),
+                    padding: EdgeInsets.zero,
                     child: IconButton(
                       iconSize: 16.0,
                       padding: EdgeInsets.zero,
-                      onPressed: () {
-                        windowManager.maximize();
-                      },
+                      onPressed: () => windowManager.maximize(),
                       icon: const Icon(FontAwesomeIcons.maximize),
                     ),
                   ),
+                const SizedBox(width: 4.0)
               ],
             ),
         ],
@@ -407,38 +405,37 @@ class StartPageState extends State<StartPage> {
                                                       child: IconButton(
                                                         padding:
                                                             EdgeInsets.zero,
-                                                        onPressed: () {
-                                                          showGeneralDialog(
-                                                            context: context,
-                                                            barrierColor: Colors
-                                                                .black12
-                                                                .withOpacity(
-                                                                    0.6), // Background color
-                                                            barrierDismissible:
-                                                                false,
-                                                            barrierLabel:
-                                                                'Dialog',
-                                                            transitionDuration:
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        400),
-                                                            pageBuilder:
-                                                                (_, __, ___) {
-                                                              return ScrollMatrixPage(
-                                                                index: index,
-                                                                name: i['name'],
-                                                                translations:
-                                                                    translations,
-                                                                minDesktopSize:
-                                                                    minDesktopSize,
-                                                                close: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              );
-                                                            },
-                                                          );
-                                                        },
+                                                        onPressed: () =>
+                                                            showGeneralDialog(
+                                                          context: context,
+                                                          barrierColor: Colors
+                                                              .black12
+                                                              .withOpacity(
+                                                                  0.6), // Background color
+                                                          barrierDismissible:
+                                                              false,
+                                                          barrierLabel:
+                                                              'Dialog',
+                                                          transitionDuration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      400),
+                                                          pageBuilder:
+                                                              (_, __, ___) {
+                                                            return ScrollMatrixPage(
+                                                              index: index,
+                                                              name: i['name'],
+                                                              translations:
+                                                                  translations,
+                                                              minDesktopSize:
+                                                                  minDesktopSize,
+                                                              close: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
                                                         icon: SvgPicture.asset(
                                                           'assets/svg/8-8-led-matrix-display-unit.svg',
                                                           allowDrawingOutsideViewBox:
@@ -507,32 +504,33 @@ class StartPageState extends State<StartPage> {
                                                                         ElevatedButton
                                                                             .icon(
                                                                       onPressed:
-                                                                          () {
-                                                                        showGeneralDialog(
-                                                                          context:
-                                                                              context,
-                                                                          barrierColor: Colors
-                                                                              .black12
-                                                                              .withOpacity(0.6), // Background color
-                                                                          barrierDismissible:
-                                                                              false,
-                                                                          barrierLabel:
-                                                                              'Dialog',
-                                                                          transitionDuration:
-                                                                              const Duration(milliseconds: 400),
-                                                                          pageBuilder: (_,
-                                                                              __,
-                                                                              ___) {
-                                                                            return InfoPage(
-                                                                              name: i['name'],
-                                                                              ip: devices[index],
-                                                                              close: () {
-                                                                                Navigator.pop(context);
-                                                                              },
-                                                                            );
-                                                                          },
-                                                                        );
-                                                                      },
+                                                                          () =>
+                                                                              showGeneralDialog(
+                                                                        context:
+                                                                            context,
+                                                                        barrierColor: Colors
+                                                                            .black12
+                                                                            .withOpacity(0.6), // Background color
+                                                                        barrierDismissible:
+                                                                            false,
+                                                                        barrierLabel:
+                                                                            'Dialog',
+                                                                        transitionDuration:
+                                                                            const Duration(milliseconds: 400),
+                                                                        pageBuilder: (_,
+                                                                            __,
+                                                                            ___) {
+                                                                          return InfoPage(
+                                                                            name:
+                                                                                i['name'],
+                                                                            ip: devices[index],
+                                                                            close:
+                                                                                () {
+                                                                              Navigator.pop(context);
+                                                                            },
+                                                                          );
+                                                                        },
+                                                                      ),
                                                                       icon: const Icon(
                                                                           Icons
                                                                               .info),
@@ -550,32 +548,33 @@ class StartPageState extends State<StartPage> {
                                                                         ElevatedButton
                                                                             .icon(
                                                                       onPressed:
-                                                                          () {
-                                                                        showGeneralDialog(
-                                                                          context:
-                                                                              context,
-                                                                          barrierColor: Colors
-                                                                              .black12
-                                                                              .withOpacity(0.6), // Background color
-                                                                          barrierDismissible:
-                                                                              false,
-                                                                          barrierLabel:
-                                                                              'Dialog',
-                                                                          transitionDuration:
-                                                                              const Duration(milliseconds: 400),
-                                                                          pageBuilder: (_,
-                                                                              __,
-                                                                              ___) {
-                                                                            return ConfigPage(
-                                                                              name: i['name'],
-                                                                              ip: devices[index],
-                                                                              close: () {
-                                                                                Navigator.pop(context);
-                                                                              },
-                                                                            );
-                                                                          },
-                                                                        );
-                                                                      },
+                                                                          () =>
+                                                                              showGeneralDialog(
+                                                                        context:
+                                                                            context,
+                                                                        barrierColor: Colors
+                                                                            .black12
+                                                                            .withOpacity(0.6), // Background color
+                                                                        barrierDismissible:
+                                                                            false,
+                                                                        barrierLabel:
+                                                                            'Dialog',
+                                                                        transitionDuration:
+                                                                            const Duration(milliseconds: 400),
+                                                                        pageBuilder: (_,
+                                                                            __,
+                                                                            ___) {
+                                                                          return ConfigPage(
+                                                                            name:
+                                                                                i['name'],
+                                                                            ip: devices[index],
+                                                                            close:
+                                                                                () {
+                                                                              Navigator.pop(context);
+                                                                            },
+                                                                          );
+                                                                        },
+                                                                      ),
                                                                       icon: const Icon(
                                                                           Icons
                                                                               .settings),
@@ -593,32 +592,33 @@ class StartPageState extends State<StartPage> {
                                                                         ElevatedButton
                                                                             .icon(
                                                                       onPressed:
-                                                                          () {
-                                                                        showGeneralDialog(
-                                                                          context:
-                                                                              context,
-                                                                          barrierColor: Colors
-                                                                              .black12
-                                                                              .withOpacity(0.6), // Background color
-                                                                          barrierDismissible:
-                                                                              false,
-                                                                          barrierLabel:
-                                                                              'Dialog',
-                                                                          transitionDuration:
-                                                                              const Duration(milliseconds: 400),
-                                                                          pageBuilder: (_,
-                                                                              __,
-                                                                              ___) {
-                                                                            return LogPage(
-                                                                              name: i['name'],
-                                                                              ip: devices[index],
-                                                                              close: () {
-                                                                                Navigator.pop(context);
-                                                                              },
-                                                                            );
-                                                                          },
-                                                                        );
-                                                                      },
+                                                                          () =>
+                                                                              showGeneralDialog(
+                                                                        context:
+                                                                            context,
+                                                                        barrierColor: Colors
+                                                                            .black12
+                                                                            .withOpacity(0.6), // Background color
+                                                                        barrierDismissible:
+                                                                            false,
+                                                                        barrierLabel:
+                                                                            'Dialog',
+                                                                        transitionDuration:
+                                                                            const Duration(milliseconds: 400),
+                                                                        pageBuilder: (_,
+                                                                            __,
+                                                                            ___) {
+                                                                          return LogPage(
+                                                                            name:
+                                                                                i['name'],
+                                                                            ip: devices[index],
+                                                                            close:
+                                                                                () {
+                                                                              Navigator.pop(context);
+                                                                            },
+                                                                          );
+                                                                        },
+                                                                      ),
                                                                       icon: const Icon(
                                                                           Icons
                                                                               .remove_red_eye),
@@ -636,32 +636,33 @@ class StartPageState extends State<StartPage> {
                                                                         ElevatedButton
                                                                             .icon(
                                                                       onPressed:
-                                                                          () {
-                                                                        showGeneralDialog(
-                                                                          context:
-                                                                              context,
-                                                                          barrierColor: Colors
-                                                                              .black12
-                                                                              .withOpacity(0.6), // Background color
-                                                                          barrierDismissible:
-                                                                              false,
-                                                                          barrierLabel:
-                                                                              'Dialog',
-                                                                          transitionDuration:
-                                                                              const Duration(milliseconds: 400),
-                                                                          pageBuilder: (_,
-                                                                              __,
-                                                                              ___) {
-                                                                            return ControlPage(
-                                                                              ip: devices[index],
-                                                                              name: i['name'],
-                                                                              close: () {
-                                                                                Navigator.pop(context);
-                                                                              },
-                                                                            );
-                                                                          },
-                                                                        );
-                                                                      },
+                                                                          () =>
+                                                                              showGeneralDialog(
+                                                                        context:
+                                                                            context,
+                                                                        barrierColor: Colors
+                                                                            .black12
+                                                                            .withOpacity(0.6), // Background color
+                                                                        barrierDismissible:
+                                                                            false,
+                                                                        barrierLabel:
+                                                                            'Dialog',
+                                                                        transitionDuration:
+                                                                            const Duration(milliseconds: 400),
+                                                                        pageBuilder: (_,
+                                                                            __,
+                                                                            ___) {
+                                                                          return ControlPage(
+                                                                            ip: devices[index],
+                                                                            name:
+                                                                                i['name'],
+                                                                            close:
+                                                                                () {
+                                                                              Navigator.pop(context);
+                                                                            },
+                                                                          );
+                                                                        },
+                                                                      ),
                                                                       icon: const Icon(
                                                                           Icons
                                                                               .play_circle),
@@ -724,31 +725,31 @@ class StartPageState extends State<StartPage> {
                                                                         padding:
                                                                             EdgeInsets.zero,
                                                                         onPressed:
-                                                                            () {
-                                                                          showGeneralDialog(
-                                                                            context:
-                                                                                context,
-                                                                            barrierColor:
-                                                                                Colors.black12.withOpacity(0.6), // Background color
-                                                                            barrierDismissible:
-                                                                                false,
-                                                                            barrierLabel:
-                                                                                'Dialog',
-                                                                            transitionDuration:
-                                                                                const Duration(milliseconds: 400),
-                                                                            pageBuilder: (_,
-                                                                                __,
-                                                                                ___) {
-                                                                              return InfoPage(
-                                                                                name: i['name'],
-                                                                                ip: devices[index],
-                                                                                close: () {
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                              );
-                                                                            },
-                                                                          );
-                                                                        },
+                                                                            () =>
+                                                                                showGeneralDialog(
+                                                                          context:
+                                                                              context,
+                                                                          barrierColor: Colors
+                                                                              .black12
+                                                                              .withOpacity(0.6), // Background color
+                                                                          barrierDismissible:
+                                                                              false,
+                                                                          barrierLabel:
+                                                                              'Dialog',
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 400),
+                                                                          pageBuilder: (_,
+                                                                              __,
+                                                                              ___) {
+                                                                            return InfoPage(
+                                                                              name: i['name'],
+                                                                              ip: devices[index],
+                                                                              close: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
                                                                         icon: const Icon(
                                                                             Icons.info),
                                                                       ),
@@ -771,31 +772,31 @@ class StartPageState extends State<StartPage> {
                                                                         padding:
                                                                             EdgeInsets.zero,
                                                                         onPressed:
-                                                                            () {
-                                                                          showGeneralDialog(
-                                                                            context:
-                                                                                context,
-                                                                            barrierColor:
-                                                                                Colors.black12.withOpacity(0.6), // Background color
-                                                                            barrierDismissible:
-                                                                                false,
-                                                                            barrierLabel:
-                                                                                'Dialog',
-                                                                            transitionDuration:
-                                                                                const Duration(milliseconds: 400),
-                                                                            pageBuilder: (_,
-                                                                                __,
-                                                                                ___) {
-                                                                              return ConfigPage(
-                                                                                name: i['name'],
-                                                                                ip: devices[index],
-                                                                                close: () {
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                              );
-                                                                            },
-                                                                          );
-                                                                        },
+                                                                            () =>
+                                                                                showGeneralDialog(
+                                                                          context:
+                                                                              context,
+                                                                          barrierColor: Colors
+                                                                              .black12
+                                                                              .withOpacity(0.6), // Background color
+                                                                          barrierDismissible:
+                                                                              false,
+                                                                          barrierLabel:
+                                                                              'Dialog',
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 400),
+                                                                          pageBuilder: (_,
+                                                                              __,
+                                                                              ___) {
+                                                                            return ConfigPage(
+                                                                              name: i['name'],
+                                                                              ip: devices[index],
+                                                                              close: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
                                                                         icon: const Icon(
                                                                             Icons.settings),
                                                                       ),
@@ -818,31 +819,31 @@ class StartPageState extends State<StartPage> {
                                                                         padding:
                                                                             EdgeInsets.zero,
                                                                         onPressed:
-                                                                            () {
-                                                                          showGeneralDialog(
-                                                                            context:
-                                                                                context,
-                                                                            barrierColor:
-                                                                                Colors.black12.withOpacity(0.6), // Background color
-                                                                            barrierDismissible:
-                                                                                false,
-                                                                            barrierLabel:
-                                                                                'Dialog',
-                                                                            transitionDuration:
-                                                                                const Duration(milliseconds: 400),
-                                                                            pageBuilder: (_,
-                                                                                __,
-                                                                                ___) {
-                                                                              return LogPage(
-                                                                                name: i['name'],
-                                                                                ip: devices[index],
-                                                                                close: () {
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                              );
-                                                                            },
-                                                                          );
-                                                                        },
+                                                                            () =>
+                                                                                showGeneralDialog(
+                                                                          context:
+                                                                              context,
+                                                                          barrierColor: Colors
+                                                                              .black12
+                                                                              .withOpacity(0.6), // Background color
+                                                                          barrierDismissible:
+                                                                              false,
+                                                                          barrierLabel:
+                                                                              'Dialog',
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 400),
+                                                                          pageBuilder: (_,
+                                                                              __,
+                                                                              ___) {
+                                                                            return LogPage(
+                                                                              name: i['name'],
+                                                                              ip: devices[index],
+                                                                              close: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
                                                                         icon: const Icon(
                                                                             Icons.remove_red_eye),
                                                                       ),
@@ -865,31 +866,31 @@ class StartPageState extends State<StartPage> {
                                                                         padding:
                                                                             EdgeInsets.zero,
                                                                         onPressed:
-                                                                            () {
-                                                                          showGeneralDialog(
-                                                                            context:
-                                                                                context,
-                                                                            barrierColor:
-                                                                                Colors.black12.withOpacity(0.6), // Background color
-                                                                            barrierDismissible:
-                                                                                false,
-                                                                            barrierLabel:
-                                                                                'Dialog',
-                                                                            transitionDuration:
-                                                                                const Duration(milliseconds: 400),
-                                                                            pageBuilder: (_,
-                                                                                __,
-                                                                                ___) {
-                                                                              return ControlPage(
-                                                                                ip: devices[index],
-                                                                                name: i['name'],
-                                                                                close: () {
-                                                                                  Navigator.pop(context);
-                                                                                },
-                                                                              );
-                                                                            },
-                                                                          );
-                                                                        },
+                                                                            () =>
+                                                                                showGeneralDialog(
+                                                                          context:
+                                                                              context,
+                                                                          barrierColor: Colors
+                                                                              .black12
+                                                                              .withOpacity(0.6), // Background color
+                                                                          barrierDismissible:
+                                                                              false,
+                                                                          barrierLabel:
+                                                                              'Dialog',
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 400),
+                                                                          pageBuilder: (_,
+                                                                              __,
+                                                                              ___) {
+                                                                            return ControlPage(
+                                                                              ip: devices[index],
+                                                                              name: i['name'],
+                                                                              close: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
                                                                         icon: const Icon(
                                                                             Icons.play_circle),
                                                                       ),
