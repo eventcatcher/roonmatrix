@@ -144,7 +144,7 @@ class StartPageState extends State<StartPage> {
                 ),
                 Padding(
                   padding:
-                      EdgeInsets.only(right: Platform.isMacOS ? 4.0 : 16.0),
+                      EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
                   child: IconButton(
                     iconSize: 16.0,
                     padding: EdgeInsets.zero,
