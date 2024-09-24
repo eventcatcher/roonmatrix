@@ -18,6 +18,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
+import 'package:screen_retriever/screen_retriever.dart';
 import 'package:text_scroll/text_scroll.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:window_manager/window_manager.dart';
@@ -54,6 +55,7 @@ class StartPageState extends State<StartPage> {
   bool translationsLoaded = false;
   bool idle = false;
   bool saveIdle = false;
+  Display? primaryDisplay;
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -134,15 +136,9 @@ class StartPageState extends State<StartPage> {
                   child: IconButton(
                     iconSize: 16.0,
                     padding: EdgeInsets.zero,
-                    onPressed: () async {
-                      await windowManager.setPosition(Offset.zero);
-                      windowManager.setSize(
-                          Size(
-                              mainBloc.getScreenSize()?.width ??
-                                  minDesktopSize.width,
-                              minDesktopSize.height),
-                          animate: true);
-                    },
+                    onPressed: () =>
+                        mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                            minDesktopSize: minDesktopSize),
                     icon: const Icon(FontAwesomeIcons.arrowsLeftRight),
                   ),
                 ),
@@ -157,17 +153,18 @@ class StartPageState extends State<StartPage> {
                     icon: const Icon(FontAwesomeIcons.minimize),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
-                  child: IconButton(
-                    iconSize: 16.0,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      windowManager.maximize();
-                    },
-                    icon: const Icon(FontAwesomeIcons.maximize),
+                if (Platform.isMacOS)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4.0),
+                    child: IconButton(
+                      iconSize: 16.0,
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        windowManager.maximize();
+                      },
+                      icon: const Icon(FontAwesomeIcons.maximize),
+                    ),
                   ),
-                ),
               ],
             ),
         ],

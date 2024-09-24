@@ -20,8 +20,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 //ignore:depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:screen_retriever/screen_retriever.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:validators/validators.dart';
+import 'package:window_manager/window_manager.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
   final FileRepository fileRepository;
@@ -44,7 +46,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   String? ipEnd;
   bool isScanning = false;
   Timer? timer;
-  Size? screenSize;
+  Display? primaryDisplay;
 
   MainBloc({required this.fileRepository}) : super(const MainStateInitial()) {
     // ====================== //
@@ -1202,8 +1204,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         'Text field has no valid Json';
   }
 
-  Size? getScreenSize() => screenSize ??=
-      WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
+  Future<Display> getPrimaryDisplay() async =>
+      primaryDisplay ??= await screenRetriever.getPrimaryDisplay();
+
+  Future<void> windowResizeToFullWidthAndMinimumHeight(
+      {required Size minDesktopSize}) async {
+    Display primaryDisplay = await getPrimaryDisplay();
+    Size newSize = Size(primaryDisplay.size.width, minDesktopSize.height);
+
+    await windowManager.setPosition(Offset.zero);
+    windowManager.setSize(newSize, animate: true);
+  }
 
   // ==================== //
   // public event methods //

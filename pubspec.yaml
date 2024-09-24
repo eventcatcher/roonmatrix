@@ -73,6 +73,7 @@ dependencies:
   window_manager: ^0.4.2
   font_awesome_flutter: ^10.7.0
   animated_gradient: ^0.0.3
+  screen_retriever: ^0.1.9
 
 dependency_overrides:
   analyzer: ^6.4.1

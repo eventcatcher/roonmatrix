@@ -8,7 +8,6 @@ import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:text_scroll/text_scroll.dart';
-import 'package:window_manager/window_manager.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
   final int index;
@@ -66,21 +65,14 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       sliderTextMin = sliderTextDesktopMin;
       sliderMin = sliderDesktopMin;
-      windowResize();
+      mainBloc.windowResizeToFullWidthAndMinimumHeight(
+          minDesktopSize: minDesktopSize);
     } else {
       sliderTextMin = sliderTextMobileMin;
       sliderMin = sliderMobileMin;
     }
 
     super.initState();
-  }
-
-  windowResize() async {
-    Size? screenSize = mainBloc.getScreenSize();
-    Size newSize = Size(screenSize?.width ?? width, height);
-
-    await windowManager.setPosition(Offset.zero);
-    windowManager.setSize(newSize, animate: true);
   }
 
   getMaskedString(String str) {
