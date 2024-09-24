@@ -143,7 +143,8 @@ class StartPageState extends State<StartPage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
+                  padding:
+                      EdgeInsets.only(right: Platform.isMacOS ? 4.0 : 16.0),
                   child: IconButton(
                     iconSize: 16.0,
                     padding: EdgeInsets.zero,
@@ -154,7 +155,7 @@ class StartPageState extends State<StartPage> {
                 ),
                 if (Platform.isMacOS)
                   Padding(
-                    padding: EdgeInsets.zero,
+                    padding: const EdgeInsets.only(right: 4.0),
                     child: IconButton(
                       iconSize: 16.0,
                       padding: EdgeInsets.zero,
@@ -162,7 +163,6 @@ class StartPageState extends State<StartPage> {
                       icon: const Icon(FontAwesomeIcons.maximize),
                     ),
                   ),
-                const SizedBox(width: 4.0)
               ],
             ),
         ],
