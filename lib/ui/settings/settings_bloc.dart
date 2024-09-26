@@ -70,7 +70,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     return false;
   }
 
-  getIpFieldErrorMessage(
+  String getIpFieldErrorMessage(
       {required String value, required Map<String, dynamic> translations}) {
     if (value.isEmpty) {
       return translations['settingsIpFieldEmptyError'] ??

@@ -30,6 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
   TextEditingController ipEnd = TextEditingController();
   String title = '';
   bool translationsLoaded = false;
+  bool rangeValid = false;
 
   late TranslationsBloc translationsBloc;
   late SettingsBloc settingsBloc;
@@ -117,6 +118,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                               Flexible(
                                                 flex: 1,
                                                 child: EditableSinglelineText(
+                                                  key: ValueKey(
+                                                      'Start-$rangeValid'),
                                                   inputType: TextInputType.text,
                                                   placeholder:
                                                       '###.###.###.###',
@@ -144,14 +147,16 @@ class _SettingsPageState extends State<SettingsPage> {
                                                             translations:
                                                                 translations);
                                                   },
-                                                  validation: (String text) =>
-                                                      settingsBloc.validateIp(
-                                                          ip: text) &&
-                                                      settingsBloc
-                                                          .validateIpRange(
-                                                              ipStart: text,
-                                                              ipEnd:
-                                                                  ipEnd.text),
+                                                  validation: (String text) {
+                                                    rangeValid = settingsBloc
+                                                        .validateIpRange(
+                                                            ipStart: text,
+                                                            ipEnd: ipEnd.text);
+                                                    return settingsBloc
+                                                            .validateIp(
+                                                                ip: text) &&
+                                                        rangeValid;
+                                                  },
                                                   onChanged: (String value) =>
                                                       settingsBloc.setIpRange(
                                                           ipStart: value,
@@ -161,6 +166,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                               Flexible(
                                                 flex: 1,
                                                 child: EditableSinglelineText(
+                                                  key: ValueKey(
+                                                      'End-$rangeValid'),
                                                   inputType: TextInputType.text,
                                                   placeholder:
                                                       '###.###.###.###',
@@ -188,14 +195,17 @@ class _SettingsPageState extends State<SettingsPage> {
                                                             translations:
                                                                 translations);
                                                   },
-                                                  validation: (String text) =>
-                                                      settingsBloc.validateIp(
-                                                          ip: text) &&
-                                                      settingsBloc
-                                                          .validateIpRange(
-                                                              ipStart:
-                                                                  ipStart.text,
-                                                              ipEnd: text),
+                                                  validation: (String text) {
+                                                    rangeValid = settingsBloc
+                                                        .validateIpRange(
+                                                            ipStart:
+                                                                ipStart.text,
+                                                            ipEnd: text);
+                                                    return settingsBloc
+                                                            .validateIp(
+                                                                ip: text) &&
+                                                        rangeValid;
+                                                  },
                                                   onChanged: (String value) =>
                                                       settingsBloc.setIpRange(
                                                           ipStart: ipStart.text,
