@@ -323,10 +323,13 @@ class ControlPageState extends State<ControlPage> {
                                           });
                                         }),
                                     controlButtons(orientation),
-                                    MessageWriter(
-                                      name: name,
-                                      ip: ip,
-                                      translations: translations,
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 16.0),
+                                      child: MessageWriter(
+                                        name: name,
+                                        ip: ip,
+                                        translations: translations,
+                                      ),
                                     ),
                                   ],
                                 )

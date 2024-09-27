@@ -137,6 +137,7 @@ class SharedWidgets {
     bool disabled = false,
     required Map<String, dynamic> translations,
     required void Function(dynamic value) onAccepted,
+    VoidCallback? onExit,
   }) =>
       IconButton(
         icon: const Icon(
@@ -162,7 +163,11 @@ class SharedWidgets {
                           );
                   },
                 );
-                if (value != null) {
+                if (value == null) {
+                  if (onExit != null) {
+                    onExit();
+                  }
+                } else {
                   onAccepted(value);
                 }
               },

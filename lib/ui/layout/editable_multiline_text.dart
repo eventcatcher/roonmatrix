@@ -3,12 +3,16 @@ import 'package:flutter/material.dart';
 
 class EditableMultilineText extends StatefulWidget {
   final String? label;
+  final int maxLines;
+  final double? height;
   final TextEditingController textController;
   final void Function(String value)? onChanged;
 
   const EditableMultilineText({
     super.key,
     this.label,
+    this.maxLines = 5,
+    this.height,
     required this.textController,
     this.onChanged,
   });
@@ -19,7 +23,7 @@ class EditableMultilineText extends StatefulWidget {
 
 class EditableMultilineTextState extends State<EditableMultilineText> {
   late EdgeInsetsGeometry margin;
-  int debounceTime = 1500; // textfield debounce time in milliseconds
+  int debounceTime = 2500; // textfield debounce time in milliseconds
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +49,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
             children: [
               Expanded(
                 child: Container(
+                  height: widget.height,
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   decoration: BoxDecoration(
                       boxShadow: const [
@@ -65,10 +70,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                       color: Colors.black,
                       fontSize: 12.0,
                     ),
-                    // decoration: RoonmatrixStyles.inputDecoration(
-                    //   borderColor: Colors.transparent,
-                    // ),
-                    maxLines: 5,
+                    maxLines: widget.maxLines,
                     maxLength: null,
                     keyboardType: TextInputType.multiline,
                     onChanged: (String value) => widget.onChanged != null

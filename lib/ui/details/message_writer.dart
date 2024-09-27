@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -76,155 +79,176 @@ class MessageWriterState extends State<MessageWriter> {
     return 'playout';
   }
 
+  Widget selectbox() => Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: SelectBox(
+            aligned: 'horizontal',
+            label: '${translations['messageSelectionLabel'] ?? 'Message'}:',
+            placeholder:
+                '${translations['messageSelectionPlaceholder'] ?? 'Select Message'}...',
+            noVerticalSpace: true,
+            selected: selectedMessageId,
+            options: options,
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedMessageId = newValue;
+                messageTextController.text = options[selectedMessageId]!;
+              });
+            }),
+      );
+
+  Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
+        padding: const EdgeInsets.only(top: 19.0, right: 16.0),
+        child: ElevatedButton.icon(
+          icon: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 7.5),
+            child: Icon(
+              FontAwesomeIcons.circleStop,
+              color: Colors.white,
+              size: 20.0,
+            ),
+          ),
+          label: desktopLandscapeWide
+              ? Text(translations['breakMessageButtonLabel'] ?? 'stop message')
+              : Text(translations['breakMessageShortButtonLabel'] ?? 'stop'),
+          onPressed: messageTextController.text.isNotEmpty
+              ? () async {
+                  mainBloc.setCustomMessage(
+                      ip: ip, message: '', option: 'stop');
+                  nameTextController.text = '';
+                  messageTextController.text = '';
+                  selectedMessageId = null;
+                }
+              : null,
+        ),
+      );
+
+  Widget sendMessageButton() => Padding(
+        padding: const EdgeInsets.only(top: 19.0, right: 16.0),
+        child: ElevatedButton.icon(
+          icon: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 7.5),
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 20.0,
+            ),
+          ),
+          label: Text(translations['sendButtonLabel'] ?? 'send'),
+          onPressed: messageTextController.text.isNotEmpty
+              ? () async {
+                  selectedOption = '';
+                  dynamic value = await showDialog(
+                      context: context,
+                      builder: (context) {
+                        return StatefulBuilder(builder: (context, setState) {
+                          return AlertDialog(
+                              title: Text(translations['dialogSendQuestion'] ??
+                                  'Do you really want to send this message to the device?'),
+                              content: VerticalRadioSelector(
+                                options: [
+                                  translations['sendOptionForce'] ??
+                                      'Force Playout',
+                                  translations['sendOptionNextPlayout'] ??
+                                      'On next Playout',
+                                  translations['sendOptionExclusive'] ??
+                                      'Exclusive Playout'
+                                ],
+                                selectedOption: null,
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    selectedOption = value!;
+                                  });
+                                },
+                              ),
+                              actions: [
+                                ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStateProperty
+                                          .resolveWith<Color>(
+                                        (Set<WidgetState> states) {
+                                          return Colors.blueGrey;
+                                        },
+                                      ),
+                                    ),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                        translations['dialogQuitNo'] ?? 'No')),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: ElevatedButton(
+                                      key:
+                                          ValueKey('SendOption$selectedOption'),
+                                      onPressed: selectedOption.isNotEmpty
+                                          ? () =>
+                                              Navigator.of(context).pop(true)
+                                          : null,
+                                      child: Text(
+                                          translations['dialogQuitYes'] ??
+                                              'Yes')),
+                                ),
+                              ]);
+                        });
+                      });
+                  if (value == true) {
+                    mainBloc.setCustomMessage(
+                        ip: ip,
+                        message: messageTextController.text,
+                        option: getSelectedOptionKey(selectedOption));
+                    nameTextController.text = '';
+                    selectedMessageId = null;
+                  }
+                }
+              : null,
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    bool desktopLandscapeWide =
+        (Platform.isMacOS || Platform.isWindows || Platform.isLinux) &&
+            width >= 800;
+
     return optionsLoaded == true
         ? Column(
             children: [
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: SelectBox(
-                        aligned: 'horizontal',
-                        label:
-                            '${translations['messageSelectionLabel'] ?? 'Message'}:',
-                        placeholder:
-                            '${translations['messageSelectionPlaceholder'] ?? 'Select Message'}...',
-                        noVerticalSpace: true,
-                        selected: selectedMessageId,
-                        options: options,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedMessageId = newValue;
-                            messageTextController.text =
-                                options[selectedMessageId]!;
-                          });
-                        }),
-                  ),
+              if (desktopLandscapeWide == true)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: selectbox()),
+                    stopMessageButton(
+                        desktopLandscapeWide: desktopLandscapeWide),
+                    sendMessageButton(),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 19.0, right: 16.0),
-                  child: ElevatedButton.icon(
-                    icon: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 7.5),
-                      child: Icon(
-                        FontAwesomeIcons.circleStop,
-                        color: Colors.white,
-                        size: 20.0,
-                      ),
+              if (!desktopLandscapeWide) ...[
+                selectbox(),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: stopMessageButton(
+                          desktopLandscapeWide: desktopLandscapeWide),
                     ),
-                    label: Text(translations['breakMessageButtonLabel'] ??
-                        'stop message'),
-                    onPressed: messageTextController.text.isNotEmpty
-                        ? () async {
-                            mainBloc.setCustomMessage(
-                                ip: ip, message: '', option: 'stop');
-                            nameTextController.text = '';
-                            messageTextController.text = '';
-                            selectedMessageId = null;
-                          }
-                        : null,
-                  ),
+                    sendMessageButton(),
+                  ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 19.0, right: 16.0),
-                  child: ElevatedButton.icon(
-                    icon: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 7.5),
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 20.0,
-                      ),
-                    ),
-                    label: Text(translations['sendButtonLabel'] ?? 'send'),
-                    onPressed: messageTextController.text.isNotEmpty
-                        ? () async {
-                            selectedOption = '';
-                            dynamic value = await showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return StatefulBuilder(
-                                      builder: (context, setState) {
-                                    return AlertDialog(
-                                        title: Text(translations[
-                                                'dialogSendQuestion'] ??
-                                            'Do you really want to send this message to the device?'),
-                                        content: VerticalRadioSelector(
-                                          options: [
-                                            translations['sendOptionForce'] ??
-                                                'Force Playout',
-                                            translations[
-                                                    'sendOptionNextPlayout'] ??
-                                                'On next Playout',
-                                            translations[
-                                                    'sendOptionExclusive'] ??
-                                                'Exclusive Playout'
-                                          ],
-                                          selectedOption: null,
-                                          onChanged: (String? value) {
-                                            setState(() {
-                                              selectedOption = value!;
-                                            });
-                                          },
-                                        ),
-                                        actions: [
-                                          ElevatedButton(
-                                              style: ButtonStyle(
-                                                backgroundColor:
-                                                    WidgetStateProperty
-                                                        .resolveWith<Color>(
-                                                  (Set<WidgetState> states) {
-                                                    return Colors.blueGrey;
-                                                  },
-                                                ),
-                                              ),
-                                              onPressed: () =>
-                                                  Navigator.of(context)
-                                                      .pop(false),
-                                              child: Text(translations[
-                                                      'dialogQuitNo'] ??
-                                                  'No')),
-                                          Padding(
-                                            padding: const EdgeInsets.only(
-                                                left: 16.0),
-                                            child: ElevatedButton(
-                                                key: ValueKey(
-                                                    'SendOption$selectedOption'),
-                                                onPressed: selectedOption
-                                                        .isNotEmpty
-                                                    ? () =>
-                                                        Navigator.of(context)
-                                                            .pop(true)
-                                                    : null,
-                                                child: Text(translations[
-                                                        'dialogQuitYes'] ??
-                                                    'Yes')),
-                                          ),
-                                        ]);
-                                  });
-                                });
-                            if (value == true) {
-                              mainBloc.setCustomMessage(
-                                  ip: ip,
-                                  message: messageTextController.text,
-                                  option: getSelectedOptionKey(selectedOption));
-                              nameTextController.text = '';
-                              selectedMessageId = null;
-                            }
-                          }
-                        : null,
-                  ),
-                )
-              ]),
+                const SizedBox(height: 16.0),
+              ],
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
                     child: EditableMultilineText(
                       label:
-                          '${translations['messageNewLabel'] ?? 'New Message'}:',
+                          '${translations['messageNewLabel'] ?? 'New message'}:',
+                      maxLines: 5,
+                      height: 86.0,
                       textController: messageTextController,
                       onChanged: (String value) {
                         if (mounted) {
@@ -253,18 +277,39 @@ class MessageWriterState extends State<MessageWriter> {
                               textController: nameTextController,
                               disabled: messageTextController.text.isEmpty,
                               translations: translations,
-                              onAccepted: (dynamic newKey) {
-                                if (newKey is String &&
-                                    newKey.isNotEmpty &&
-                                    !options.containsKey(newKey)) {
-                                  setState(() {
-                                    options.putIfAbsent(newKey,
-                                        () => messageTextController.text);
+                              onExit: () => setState(() {
                                     nameTextController.text = '';
-                                    messageTextController.text = '';
-                                    mainBloc.setCustomMessages(
-                                        messages: options);
-                                  });
+                                  }),
+                              onAccepted: (dynamic newKey) {
+                                if (newKey is String && newKey.isNotEmpty) {
+                                  if (options.containsKey(newKey)) {
+                                    ApproveModal(
+                                      context: context,
+                                      title: translations[
+                                              'removeMessageNameExistTitle'] ??
+                                          "Remove message",
+                                      question:
+                                          '${translations['removeMessageNameExistQuestion'] ?? 'This message name is in use'}!',
+                                      okText:
+                                          translations['okButtonText'] ?? 'OK',
+                                      cancelText: '',
+                                      onApproved: () => setState(() {
+                                        nameTextController.text = '';
+                                      }),
+                                      onCanceled: () => setState(() {
+                                        nameTextController.text = '';
+                                      }),
+                                    ).show();
+                                  } else {
+                                    setState(() {
+                                      options.putIfAbsent(newKey,
+                                          () => messageTextController.text);
+                                      nameTextController.text = '';
+                                      messageTextController.text = '';
+                                      mainBloc.setCustomMessages(
+                                          messages: options);
+                                    });
+                                  }
                                 }
                               }),
                         ),
@@ -285,10 +330,58 @@ class MessageWriterState extends State<MessageWriter> {
                             onPressed: () async {
                               if (selectedMessageId != null &&
                                   options.containsKey(selectedMessageId)) {
-                                setState(() {
-                                  options.remove(selectedMessageId);
-                                  mainBloc.setCustomMessages(messages: options);
-                                });
+                                bool value = await showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return StatefulBuilder(
+                                          builder: (context, setState) {
+                                        return AlertDialog(
+                                            title: Text(translations[
+                                                    'dialogRemoveMessageQuestion'] ??
+                                                'Do you really want to delete this message?'),
+                                            actions: [
+                                              ElevatedButton(
+                                                  style: ButtonStyle(
+                                                    backgroundColor:
+                                                        WidgetStateProperty
+                                                            .resolveWith<Color>(
+                                                      (Set<WidgetState>
+                                                          states) {
+                                                        return Colors.blueGrey;
+                                                      },
+                                                    ),
+                                                  ),
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(false),
+                                                  child: Text(translations[
+                                                          'dialogQuitNo'] ??
+                                                      'No')),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 16.0),
+                                                child: ElevatedButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(true),
+                                                    child: Text(translations[
+                                                            'dialogQuitYes'] ??
+                                                        'Yes')),
+                                              ),
+                                            ]);
+                                      });
+                                    });
+                                if (value == true) {
+                                  setState(() {
+                                    String key = selectedMessageId!;
+                                    nameTextController.text = '';
+                                    messageTextController.text = '';
+                                    selectedMessageId = null;
+                                    options.remove(key);
+                                    mainBloc.setCustomMessages(
+                                        messages: options);
+                                  });
+                                }
                               }
                             },
                             icon: const Icon(
