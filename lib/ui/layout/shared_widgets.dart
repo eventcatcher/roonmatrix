@@ -131,6 +131,43 @@ class SharedWidgets {
         },
       );
 
+  static IconButton addIconButton({
+    required BuildContext context,
+    required TextEditingController? textController,
+    bool disabled = false,
+    required Map<String, dynamic> translations,
+    required void Function(dynamic value) onAccepted,
+  }) =>
+      IconButton(
+        icon: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 20.0,
+        ),
+        onPressed: disabled == true
+            ? null
+            : () async {
+                dynamic value = await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return textController != null
+                        ? addItemWithNameDialog(
+                            context: context,
+                            textController: textController,
+                            translations: translations,
+                          )
+                        : addItemDialog(
+                            context: context,
+                            translations: translations,
+                          );
+                  },
+                );
+                if (value != null) {
+                  onAccepted(value);
+                }
+              },
+      );
+
   static ElevatedButton removeButton({
     required BuildContext context,
     required Map<String, dynamic> translations,

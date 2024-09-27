@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/ui/layout/roonmatrix_styles.dart';
 
 class SelectBox extends StatefulWidget {
   final Map<String, String>? options;
@@ -73,7 +74,7 @@ class SelectBoxState extends State<SelectBox> {
   Widget dropdown({required bool expanded}) => Container(
         height: 36.0,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-        //decoration: VermacoStyles.boxDecoration,
+        decoration: RoonmatrixStyles.boxDecoration,
         child: widget.readOnly == true
             ? Container(
                 width: double.infinity,

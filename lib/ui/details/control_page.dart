@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/ui/details/message_writer.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -288,7 +289,7 @@ class ControlPageState extends State<ControlPage> {
                         actions: const [],
                       ),
                       body: SingleChildScrollView(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(8),
                         child: Center(
                           child: orientation == Orientation.portrait ||
                                   Platform.isMacOS ||
@@ -322,6 +323,11 @@ class ControlPageState extends State<ControlPage> {
                                           });
                                         }),
                                     controlButtons(orientation),
+                                    MessageWriter(
+                                      name: name,
+                                      ip: ip,
+                                      translations: translations,
+                                    ),
                                   ],
                                 )
                               : Row(
@@ -331,29 +337,41 @@ class ControlPageState extends State<ControlPage> {
                                   children: [
                                     Flexible(
                                       fit: FlexFit.loose,
-                                      child: SelectBox(
-                                          aligned: 'horizontal',
-                                          label:
-                                              '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
-                                          placeholder:
-                                              '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                                          inRow: false,
-                                          noVerticalSpace: false,
-                                          readOnly: false,
-                                          selected: selectedZoneId,
-                                          options: options,
-                                          onChanged: (String? newValue) {
-                                            setState(() {
-                                              if (options[newValue] != null &&
-                                                  options[newValue] ==
-                                                      'webserver') {
-                                                controlId = newValue ?? '';
-                                              } else {
-                                                controlId = options[newValue];
-                                              }
-                                              selectedZoneId = newValue;
-                                            });
-                                          }),
+                                      child: Column(
+                                        children: [
+                                          SelectBox(
+                                              aligned: 'horizontal',
+                                              label:
+                                                  '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+                                              placeholder:
+                                                  '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                                              inRow: false,
+                                              noVerticalSpace: false,
+                                              readOnly: false,
+                                              selected: selectedZoneId,
+                                              options: options,
+                                              onChanged: (String? newValue) {
+                                                setState(() {
+                                                  if (options[newValue] !=
+                                                          null &&
+                                                      options[newValue] ==
+                                                          'webserver') {
+                                                    controlId = newValue ?? '';
+                                                  } else {
+                                                    controlId =
+                                                        options[newValue];
+                                                  }
+                                                  selectedZoneId = newValue;
+                                                });
+                                              }),
+                                          const SizedBox(height: 184.0),
+                                          MessageWriter(
+                                            name: name,
+                                            ip: ip,
+                                            translations: translations,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     SizedBox(
                                       width: 200 + 3 * buttonSize,
