@@ -4,6 +4,7 @@ class SwitchButton extends StatefulWidget {
   final String? aligned;
   final String? label;
   final Color? labelColor;
+  final bool reverse;
   final bool enabled;
   final void Function(bool value) onChanged;
 
@@ -12,6 +13,7 @@ class SwitchButton extends StatefulWidget {
     this.aligned,
     this.label,
     this.labelColor = Colors.black,
+    this.reverse = false,
     this.enabled = false,
     required this.onChanged,
   });
@@ -41,37 +43,43 @@ class SwitchButtonState extends State<SwitchButton> {
     super.initState();
   }
 
+  Widget labelWidget() => Expanded(
+        child: widget.label != null
+            ? Text(
+                widget.label!,
+                style: TextStyle(
+                  color: widget.labelColor,
+                  fontSize: 12.0,
+                ),
+              )
+            : Container(),
+      );
+
+  Widget switchWidget({bool noSpace = true}) => Container(
+        transform: noSpace ? Matrix4.translationValues(10.0, -0.0, 0.0) : null,
+        child: Switch(
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          value: widget.enabled,
+          onChanged: (bool value) {
+            widget.onChanged(value);
+          },
+          activeTrackColor: const Color.fromARGB(255, 13, 71, 161),
+          activeColor: Colors.white,
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
       alignment: Alignment.topLeft,
+      transform:
+          widget.reverse ? Matrix4.translationValues(-9.0, -0.0, 0.0) : null,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
-            child: widget.label != null
-                ? Text(
-                    widget.label!,
-                    style: TextStyle(
-                      color: widget.labelColor,
-                      fontSize: 12.0,
-                    ),
-                  )
-                : Container(),
-          ),
-          Container(
-            transform: Matrix4.translationValues(10.0, -0.0, 0.0),
-            child: Switch(
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              value: widget.enabled,
-              onChanged: (bool value) {
-                widget.onChanged(value);
-              },
-              activeTrackColor: Colors.blue.shade900,
-              activeColor: Colors.white,
-            ),
-          ),
+          widget.reverse ? switchWidget(noSpace: false) : labelWidget(),
+          widget.reverse ? labelWidget() : switchWidget(),
         ],
       ),
     );

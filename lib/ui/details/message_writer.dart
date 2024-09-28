@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/layout/vertical_radio_selector.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
@@ -37,6 +39,8 @@ class MessageWriterState extends State<MessageWriter> {
   Map<String, String> options = {};
   String selectedOption = '';
   bool optionsLoaded = false;
+  bool setMessage = false;
+  bool allDevices = false;
 
   late MainBloc mainBloc;
 
@@ -113,15 +117,151 @@ class MessageWriterState extends State<MessageWriter> {
               : Text(translations['breakMessageShortButtonLabel'] ?? 'stop'),
           onPressed: messageTextController.text.isNotEmpty
               ? () async {
-                  mainBloc.setCustomMessage(
-                      ip: ip, message: '', option: 'stop');
-                  nameTextController.text = '';
-                  messageTextController.text = '';
-                  selectedMessageId = null;
+                  selectedOption = '';
+                  bool value = await showDialog(
+                      context: context,
+                      builder: (context) {
+                        return StatefulBuilder(builder: (context, setState) {
+                          return AlertDialog(
+                              title: Text(translations[
+                                      'dialogResetMessageQuestion'] ??
+                                  'Do you really want to remove this message from the device?'),
+                              content: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 48.0),
+                                  SwitchButton(
+                                    label: translations[
+                                            'allDevicesRemoveSwitchLabel'] ??
+                                        'remove from all devices',
+                                    labelColor: Colors.black,
+                                    reverse: true,
+                                    aligned: 'inline',
+                                    enabled: allDevices,
+                                    onChanged: (bool value) {
+                                      if (mounted) {
+                                        setState(() => allDevices = value);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                ElevatedButton(
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStateProperty
+                                          .resolveWith<Color>(
+                                        (Set<WidgetState> states) {
+                                          return Colors.blueGrey;
+                                        },
+                                      ),
+                                    ),
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                        translations['dialogQuitNo'] ?? 'No')),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 16.0),
+                                  child: ElevatedButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(true),
+                                      child: Text(
+                                          translations['dialogQuitYes'] ??
+                                              'Yes')),
+                                ),
+                              ]);
+                        });
+                      });
+
+                  if (value == true) {
+                    bool valid = false;
+                    Map<String, dynamic> info = mainBloc.state.info;
+
+                    if (allDevices == true) {
+                      List<String> devices = mainBloc.state.devices;
+                      for (String device in devices) {
+                        valid = await mainBloc.setCustomMessage(
+                            ip: device, message: '', option: 'stop');
+
+                        String name = info[device]?['name'] ?? device;
+                        String doneMessage =
+                            translations['messageRemoveDoneMessage'] != null
+                                ? (translations['messageRemoveDoneMessage']
+                                        as String)
+                                    .replaceFirst('#', name)
+                                : "remove message from $name successfully done";
+                        String failMessage =
+                            translations['messageRemoveFailedMessage'] != null
+                                ? (translations['messageRemoveFailedMessage']
+                                        as String)
+                                    .replaceFirst('#', name)
+                                : "remove message from $name is failed!";
+
+                        showSnackBar(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            doneMessage: doneMessage,
+                            failMessage: failMessage,
+                            valid: valid);
+                      }
+                    } else {
+                      valid = await mainBloc.setCustomMessage(
+                          ip: ip, message: '', option: 'stop');
+                      nameTextController.text = '';
+                      messageTextController.text = '';
+                      selectedMessageId = null;
+
+                      String name = info[ip]?['name'] ?? ip;
+                      String doneMessage =
+                          translations['messageRemoveDoneMessage'] != null
+                              ? (translations['messageRemoveDoneMessage']
+                                      as String)
+                                  .replaceFirst('#', name)
+                              : "remove message from $name successfully done";
+                      String failMessage =
+                          translations['messageRemoveFailedMessage'] != null
+                              ? (translations['messageRemoveFailedMessage']
+                                      as String)
+                                  .replaceFirst('#', name)
+                              : "remove message from $name is failed!";
+
+                      showSnackBar(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          doneMessage: doneMessage,
+                          failMessage: failMessage,
+                          valid: valid);
+                    }
+                  }
                 }
               : null,
         ),
       );
+
+  showSnackBar({
+    required BuildContext context,
+    required String doneMessage,
+    required String failMessage,
+    required bool valid,
+  }) {
+    if (valid == true) {
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(doneMessage),
+          backgroundColor: Colors.green,
+        ));
+      }
+    } else {
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(failMessage),
+          backgroundColor: Colors.red,
+        ));
+      }
+    }
+  }
 
   Widget sendMessageButton() => Padding(
         padding: const EdgeInsets.only(top: 19.0, right: 16.0),
@@ -138,28 +278,48 @@ class MessageWriterState extends State<MessageWriter> {
           onPressed: messageTextController.text.isNotEmpty
               ? () async {
                   selectedOption = '';
-                  dynamic value = await showDialog(
+                  bool value = await showDialog(
                       context: context,
                       builder: (context) {
                         return StatefulBuilder(builder: (context, setState) {
                           return AlertDialog(
                               title: Text(translations['dialogSendQuestion'] ??
                                   'Do you really want to send this message to the device?'),
-                              content: VerticalRadioSelector(
-                                options: [
-                                  translations['sendOptionForce'] ??
-                                      'Force Playout',
-                                  translations['sendOptionNextPlayout'] ??
-                                      'On next Playout',
-                                  translations['sendOptionExclusive'] ??
-                                      'Exclusive Playout'
+                              content: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  VerticalRadioSelector(
+                                    options: [
+                                      translations['sendOptionForce'] ??
+                                          'Force Playout',
+                                      translations['sendOptionNextPlayout'] ??
+                                          'On next Playout',
+                                      translations['sendOptionExclusive'] ??
+                                          'Exclusive Playout'
+                                    ],
+                                    selectedOption: null,
+                                    onChanged: (String? value) {
+                                      setState(() {
+                                        selectedOption = value!;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 48.0),
+                                  SwitchButton(
+                                    label:
+                                        translations['allDevicesSwitchLabel'] ??
+                                            'send to all devices',
+                                    labelColor: Colors.black,
+                                    reverse: true,
+                                    aligned: 'inline',
+                                    enabled: allDevices,
+                                    onChanged: (bool value) {
+                                      if (mounted) {
+                                        setState(() => allDevices = value);
+                                      }
+                                    },
+                                  ),
                                 ],
-                                selectedOption: null,
-                                onChanged: (String? value) {
-                                  setState(() {
-                                    selectedOption = value!;
-                                  });
-                                },
                               ),
                               actions: [
                                 ElevatedButton(
@@ -192,12 +352,72 @@ class MessageWriterState extends State<MessageWriter> {
                         });
                       });
                   if (value == true) {
-                    mainBloc.setCustomMessage(
-                        ip: ip,
-                        message: messageTextController.text,
-                        option: getSelectedOptionKey(selectedOption));
-                    nameTextController.text = '';
-                    selectedMessageId = null;
+                    setState(() {
+                      setMessage = true;
+                    });
+
+                    bool valid = false;
+                    Map<String, dynamic> info = mainBloc.state.info;
+
+                    if (allDevices == true) {
+                      List<String> devices = mainBloc.state.devices;
+                      for (String device in devices) {
+                        valid = await mainBloc.setCustomMessage(
+                            ip: device,
+                            message: messageTextController.text,
+                            option: getSelectedOptionKey(selectedOption));
+
+                        String name = info[device]?['name'] ?? device;
+                        String doneMessage =
+                            translations['messageDoneMessage'] != null
+                                ? (translations['messageDoneMessage'] as String)
+                                    .replaceFirst('#', name)
+                                : "send message to $name successfully done";
+                        String failMessage =
+                            translations['messageFailedMessage'] != null
+                                ? (translations['messageFailedMessage']
+                                        as String)
+                                    .replaceFirst('#', name)
+                                : "send message to $name failed!";
+
+                        showSnackBar(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            doneMessage: doneMessage,
+                            failMessage: failMessage,
+                            valid: valid);
+                      }
+                    } else {
+                      valid = await mainBloc.setCustomMessage(
+                          ip: ip,
+                          message: messageTextController.text,
+                          option: getSelectedOptionKey(selectedOption));
+
+                      String name = info[ip]?['name'] ?? ip;
+                      String doneMessage =
+                          translations['messageDoneMessage'] != null
+                              ? (translations['messageDoneMessage'] as String)
+                                  .replaceFirst('#', name)
+                              : "send message to $name successfully done";
+                      String failMessage =
+                          translations['messageFailedMessage'] != null
+                              ? (translations['messageFailedMessage'] as String)
+                                  .replaceFirst('#', name)
+                              : "send message to $name failed!";
+
+                      showSnackBar(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          doneMessage: doneMessage,
+                          failMessage: failMessage,
+                          valid: valid);
+                    }
+
+                    setState(() {
+                      setMessage = false;
+                      nameTextController.text = '';
+                      selectedMessageId = null;
+                    });
                   }
                 }
               : null,

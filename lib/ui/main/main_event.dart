@@ -70,18 +70,6 @@ class GetLog extends MainEvent {
   List<Object> get props => [ip, hours];
 }
 
-class SetCustomMessage extends MainEvent {
-  final String ip;
-  final String message;
-  final String option;
-
-  const SetCustomMessage(
-      {required this.ip, required this.message, required this.option});
-
-  @override
-  List<Object> get props => [ip, message, option];
-}
-
 class ZoneControl extends MainEvent {
   final String ip;
   final String controlId;

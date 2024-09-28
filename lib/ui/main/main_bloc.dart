@@ -442,102 +442,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
-      if (event is SetCustomMessage) {
-        String ip = event.ip;
-        String customMessage = event.message;
-        String option = event.option;
-
-        emit(MainStateLoaded(
-          update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
-          subPageIdle: true,
-          logMessage: state.logMessage,
-        ));
-
-        Map<String, String> headers = {
-          "Content-Type": 'application/json',
-          "Accept": 'application/json',
-        };
-
-        Map<String, dynamic> payload = {
-          "message": customMessage,
-          "option": option,
-        };
-
-        try {
-          String url = 'http://$ip:$port/message/';
-          Uri uri = Uri.parse(url);
-          try {
-            var response = await client.post(uri,
-                headers: headers, body: json.encode(payload));
-            if (response.statusCode == 200) {
-              emit(MainStateLoaded(
-                update: DateTime.now(),
-                ipStart: state.ipStart,
-                ipEnd: state.ipEnd,
-                searchFilter: state.searchFilter,
-                devices: state.devices,
-                info: state.info,
-                config: state.config,
-                definitions: state.definitions,
-                fieldValues: state.fieldValues,
-                log: state.log,
-                idle: state.idle,
-                subPageIdle: false,
-                logMessage: state.logMessage,
-              ));
-            }
-          } catch (e) {
-            if (kDebugMode) {
-              print('error by access to $url: $e');
-            }
-            emit(MainStateLoaded(
-              update: DateTime.now(),
-              ipStart: state.ipStart,
-              ipEnd: state.ipEnd,
-              searchFilter: state.searchFilter,
-              devices: state.devices,
-              info: state.info,
-              config: state.config,
-              definitions: state.definitions,
-              fieldValues: state.fieldValues,
-              log: state.log,
-              idle: state.idle,
-              subPageIdle: false,
-              logMessage: state.logMessage,
-            ));
-          }
-        } catch (e) {
-          if (kDebugMode) {
-            print(e);
-          }
-          emit(MainStateLoaded(
-            update: DateTime.now(),
-            ipStart: state.ipStart,
-            ipEnd: state.ipEnd,
-            searchFilter: state.searchFilter,
-            devices: state.devices,
-            info: state.info,
-            config: state.config,
-            definitions: state.definitions,
-            fieldValues: state.fieldValues,
-            log: state.log,
-            idle: state.idle,
-            subPageIdle: false,
-            logMessage: state.logMessage,
-          ));
-        }
-      }
-
       if (event is ZoneControl) {
         String ip = event.ip;
         String controlId = event.controlId;
@@ -977,6 +881,48 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return unit;
   }
 
+  Future<bool> setCustomMessage(
+      {required String ip,
+      required String message,
+      required String option}) async {
+    Map<String, String> headers = {
+      "Content-Type": 'application/json',
+      "Accept": 'application/json',
+    };
+
+    Map<String, dynamic> payload = {
+      "message": message,
+      "option": option,
+    };
+
+    try {
+      String url = 'http://$ip:$port/message/';
+      Uri uri = Uri.parse(url);
+      try {
+        var response = await client.post(uri,
+            headers: headers, body: json.encode(payload));
+        if (response.statusCode == 200) {
+          if (kDebugMode) {
+            print('message => ip: $ip, payload: $payload');
+          }
+
+          return Future.value(true);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Message error by access to $url: $e');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Message error: $e');
+      }
+      return Future.value(false);
+    }
+
+    return Future.value(false);
+  }
+
   Future<bool> saveConfig(
       {required String name, required String ip, required dynamic data}) async {
     if (state.devices.isNotEmpty) {
@@ -1355,11 +1301,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   void getLog({required String ip, required int hours}) {
     add(GetLog(ip: ip, hours: hours));
-  }
-
-  void setCustomMessage(
-      {required String ip, required String message, required String option}) {
-    add(SetCustomMessage(ip: ip, message: message, option: option));
   }
 
   void zoneControl(
