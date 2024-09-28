@@ -147,21 +147,26 @@ class MessageWriterState extends State<MessageWriter> {
                                 ],
                               ),
                               actions: [
-                                ElevatedButton(
-                                    style: ButtonStyle(
-                                      backgroundColor: WidgetStateProperty
-                                          .resolveWith<Color>(
-                                        (Set<WidgetState> states) {
-                                          return Colors.blueGrey;
-                                        },
-                                      ),
-                                    ),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(false),
-                                    child: Text(
-                                        translations['dialogQuitNo'] ?? 'No')),
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 16.0),
+                                  padding: const EdgeInsets.only(bottom: 16.0),
+                                  child: ElevatedButton(
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStateProperty
+                                            .resolveWith<Color>(
+                                          (Set<WidgetState> states) {
+                                            return Colors.blueGrey;
+                                          },
+                                        ),
+                                      ),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                      child: Text(
+                                          translations['dialogQuitNo'] ??
+                                              'No')),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 16.0, left: 16.0, right: 16.0),
                                   child: ElevatedButton(
                                       onPressed: () =>
                                           Navigator.of(context).pop(true),
@@ -285,58 +290,66 @@ class MessageWriterState extends State<MessageWriter> {
                           return AlertDialog(
                               title: Text(translations['dialogSendQuestion'] ??
                                   'Do you really want to send this message to the device?'),
-                              content: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  VerticalRadioSelector(
-                                    options: [
-                                      translations['sendOptionForce'] ??
-                                          'Force Playout',
-                                      translations['sendOptionNextPlayout'] ??
-                                          'On next Playout',
-                                      translations['sendOptionExclusive'] ??
-                                          'Exclusive Playout'
-                                    ],
-                                    selectedOption: null,
-                                    onChanged: (String? value) {
-                                      setState(() {
-                                        selectedOption = value!;
-                                      });
-                                    },
-                                  ),
-                                  const SizedBox(height: 48.0),
-                                  SwitchButton(
-                                    label:
-                                        translations['allDevicesSwitchLabel'] ??
-                                            'send to all devices',
-                                    labelColor: Colors.black,
-                                    reverse: true,
-                                    aligned: 'inline',
-                                    enabled: allDevices,
-                                    onChanged: (bool value) {
-                                      if (mounted) {
-                                        setState(() => allDevices = value);
-                                      }
-                                    },
-                                  ),
-                                ],
+                              content: SingleChildScrollView(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    VerticalRadioSelector(
+                                      options: [
+                                        translations['sendOptionForce'] ??
+                                            'Force Playout',
+                                        translations['sendOptionNextPlayout'] ??
+                                            'On next Playout',
+                                        translations['sendOptionExclusive'] ??
+                                            'Exclusive Playout'
+                                      ],
+                                      selectedOption: null,
+                                      onChanged: (String? value) {
+                                        setState(() {
+                                          selectedOption = value!;
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(height: 48.0),
+                                    SwitchButton(
+                                      label: translations[
+                                              'allDevicesSwitchLabel'] ??
+                                          'send to all devices',
+                                      labelColor: Colors.black,
+                                      reverse: true,
+                                      aligned: 'inline',
+                                      enabled: allDevices,
+                                      onChanged: (bool value) {
+                                        if (mounted) {
+                                          setState(() => allDevices = value);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                               actions: [
-                                ElevatedButton(
-                                    style: ButtonStyle(
-                                      backgroundColor: WidgetStateProperty
-                                          .resolveWith<Color>(
-                                        (Set<WidgetState> states) {
-                                          return Colors.blueGrey;
-                                        },
-                                      ),
-                                    ),
-                                    onPressed: () =>
-                                        Navigator.of(context).pop(false),
-                                    child: Text(
-                                        translations['dialogQuitNo'] ?? 'No')),
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 16.0),
+                                  padding: const EdgeInsets.only(bottom: 16.0),
+                                  child: ElevatedButton(
+                                      style: ButtonStyle(
+                                        backgroundColor: WidgetStateProperty
+                                            .resolveWith<Color>(
+                                          (Set<WidgetState> states) {
+                                            return Colors.blueGrey;
+                                          },
+                                        ),
+                                      ),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
+                                      child: Text(
+                                          translations['dialogQuitNo'] ??
+                                              'No')),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 16.0, left: 16.0, right: 16.0),
                                   child: ElevatedButton(
                                       key:
                                           ValueKey('SendOption$selectedOption'),
@@ -560,26 +573,34 @@ class MessageWriterState extends State<MessageWriter> {
                                                     'dialogRemoveMessageQuestion'] ??
                                                 'Do you really want to delete this message?'),
                                             actions: [
-                                              ElevatedButton(
-                                                  style: ButtonStyle(
-                                                    backgroundColor:
-                                                        WidgetStateProperty
-                                                            .resolveWith<Color>(
-                                                      (Set<WidgetState>
-                                                          states) {
-                                                        return Colors.blueGrey;
-                                                      },
-                                                    ),
-                                                  ),
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(false),
-                                                  child: Text(translations[
-                                                          'dialogQuitNo'] ??
-                                                      'No')),
                                               Padding(
                                                 padding: const EdgeInsets.only(
-                                                    left: 16.0),
+                                                    bottom: 16.0),
+                                                child: ElevatedButton(
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          WidgetStateProperty
+                                                              .resolveWith<
+                                                                  Color>(
+                                                        (Set<WidgetState>
+                                                            states) {
+                                                          return Colors
+                                                              .blueGrey;
+                                                        },
+                                                      ),
+                                                    ),
+                                                    onPressed: () =>
+                                                        Navigator.of(context)
+                                                            .pop(false),
+                                                    child: Text(translations[
+                                                            'dialogQuitNo'] ??
+                                                        'No')),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 16.0,
+                                                    left: 16.0,
+                                                    right: 16.0),
                                                 child: ElevatedButton(
                                                     onPressed: () =>
                                                         Navigator.of(context)
