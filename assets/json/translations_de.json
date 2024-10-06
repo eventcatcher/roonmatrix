@@ -118,6 +118,7 @@
         "zone_control_timeout": "Zonensteuerung Timeout",
         "map_zone_control": "Zonensteuerung: Namen der Zonen kürzen",
         "exclusive_audio_mode": "Exklusiver Audio-Modus",
+        "exclusive_vertical": "Exklusiver vertikaler Scrolling-Modus (nur Trackdaten)",
         "music_required": "Aktive Musik-Zone für Ausgabe erforderlich",
         "datetime_show": "Zeige Datum und Zeit",
         "datetime_only_time": "Zeige nur die Zeit",
