@@ -168,6 +168,7 @@
         "rss_show": "Zeige RSS feeds",
         "feeds": "Feeds",
         "clock_show": "Zeige Uhrzeit",
+        "clock_without_idle_time": "Zeige Uhrzeit immer solange Audio inaktiv ist (Modus Aktive Musik-Zone erforderlich)",
         "clock_refresh_per_second": "Wiederholungsrate pro Sekunde",
         "max_idle_time": "Max. Zeit von inaktiver Ausgabe bis zur nächsten Uhranzeige",
         "max_show_time": "Max. Anzeigezeit der Uhr [autom. Abbruch durch Zonendaten]",
