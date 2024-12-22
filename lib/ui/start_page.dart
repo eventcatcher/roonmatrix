@@ -1020,7 +1020,7 @@ class StartPageState extends State<StartPage> {
                   icon: Icon(
                     FontAwesomeIcons.arrowsLeftRight,
                     size: 16.0,
-                    color: SharedWidgets.iconColor(
+                    color: SharedWidgets.toolbarResizeButtonColor(
                         showMacStyle: widget.showMacStyle, context: context),
                   ),
                   onPressed: () =>
@@ -1033,7 +1033,7 @@ class StartPageState extends State<StartPage> {
                   icon: Icon(
                     FontAwesomeIcons.minimize,
                     size: 16.0,
-                    color: SharedWidgets.iconColor(
+                    color: SharedWidgets.toolbarResizeButtonColor(
                         showMacStyle: widget.showMacStyle, context: context),
                   ),
                   onPressed: () =>
@@ -1045,7 +1045,7 @@ class StartPageState extends State<StartPage> {
                   icon: Icon(
                     FontAwesomeIcons.maximize,
                     size: 16.0,
-                    color: SharedWidgets.iconColor(
+                    color: SharedWidgets.toolbarResizeButtonColor(
                         showMacStyle: widget.showMacStyle, context: context),
                   ),
                   onPressed: () => windowManager.maximize(),
@@ -1081,7 +1081,12 @@ class StartPageState extends State<StartPage> {
                           onPressed: () =>
                               mainBloc.windowResizeToFullWidthAndMinimumHeight(
                                   minDesktopSize: minDesktopSize),
-                          icon: const Icon(FontAwesomeIcons.arrowsLeftRight),
+                          icon: Icon(
+                            FontAwesomeIcons.arrowsLeftRight,
+                            color: SharedWidgets.toolbarResizeButtonColor(
+                                showMacStyle: widget.showMacStyle,
+                                context: context),
+                          ),
                         ),
                       ),
                       Padding(
@@ -1092,7 +1097,12 @@ class StartPageState extends State<StartPage> {
                           padding: EdgeInsets.zero,
                           onPressed: () => windowManager
                               .setSize(standardDesktopSize, animate: true),
-                          icon: const Icon(FontAwesomeIcons.minimize),
+                          icon: Icon(
+                            FontAwesomeIcons.minimize,
+                            color: SharedWidgets.toolbarResizeButtonColor(
+                                showMacStyle: widget.showMacStyle,
+                                context: context),
+                          ),
                         ),
                       ),
                       if (Platform.isMacOS)
@@ -1102,7 +1112,12 @@ class StartPageState extends State<StartPage> {
                             iconSize: 16.0,
                             padding: EdgeInsets.zero,
                             onPressed: () => windowManager.maximize(),
-                            icon: const Icon(FontAwesomeIcons.maximize),
+                            icon: Icon(
+                              FontAwesomeIcons.maximize,
+                              color: SharedWidgets.toolbarResizeButtonColor(
+                                  showMacStyle: widget.showMacStyle,
+                                  context: context),
+                            ),
                           ),
                         ),
                     ],

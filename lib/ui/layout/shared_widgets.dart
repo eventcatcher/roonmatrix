@@ -138,6 +138,18 @@ class SharedWidgets {
     return Colors.grey.shade100;
   }
 
+  static toolbarResizeButtonColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (showMacStyle && Platform.isMacOS) {
+      return MacosColors.systemGrayColor;
+    }
+    return SharedWidgets.brightness() == Brightness.dark
+        ? Colors.grey.shade300
+        : Colors.white;
+  }
+
   static AlertElement addItemWithNameDialog({
     required bool showMacStyle,
     required BuildContext context,
