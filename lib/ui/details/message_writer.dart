@@ -474,10 +474,20 @@ class MessageWriterState extends State<MessageWriter> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(child: selectbox()),
-                    stopMessageButton(
-                        desktopLandscapeWide: desktopLandscapeWide),
-                    sendMessageButton(),
+                    widget.showMacStyle && Platform.isMacOS
+                        ? selectbox()
+                        : Expanded(child: selectbox()),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: showMacStyle && Platform.isMacOS ? 6.0 : 0.0),
+                      child: stopMessageButton(
+                          desktopLandscapeWide: desktopLandscapeWide),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: showMacStyle && Platform.isMacOS ? 6.0 : 0.0),
+                      child: sendMessageButton(),
+                    ),
                   ],
                 ),
               if (!desktopLandscapeWide) ...[
