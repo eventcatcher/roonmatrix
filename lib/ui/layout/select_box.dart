@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/roonmatrix_styles.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class SelectBox extends StatefulWidget {
+  final bool showMacStyle;
   final Map<String, String>? options;
   final String? aligned;
   final String? label;
@@ -17,10 +22,11 @@ class SelectBox extends StatefulWidget {
 
   const SelectBox({
     super.key,
+    required this.showMacStyle,
     required this.options,
     this.aligned,
     this.label,
-    this.labelColor = Colors.black,
+    this.labelColor,
     this.placeholder,
     this.selected,
     this.inRow,
@@ -73,8 +79,14 @@ class SelectBoxState extends State<SelectBox> {
 
   Widget dropdown({required bool expanded}) => Container(
         height: 36.0,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-        decoration: RoonmatrixStyles.boxDecoration,
+        padding: widget.showMacStyle && Platform.isMacOS
+            ? null
+            : const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+        decoration: widget.showMacStyle && Platform.isMacOS
+            ? null
+            : RoonmatrixStyles.boxDecoration(
+                fillColor: SharedWidgets.elementBackgroundColor(
+                    showMacStyle: widget.showMacStyle, context: context)),
         child: widget.readOnly == true
             ? Container(
                 width: double.infinity,
@@ -88,55 +100,94 @@ class SelectBoxState extends State<SelectBox> {
                   style: TextStyle(
                     color: widget.readOnlyColoredGrey == true
                         ? Colors.grey
-                        : Colors.black,
+                        : SharedWidgets.textColor(
+                            showMacStyle: widget.showMacStyle,
+                            context: context),
                     fontSize: 13.0,
                   ),
                 ),
               )
-            : DropdownButton<String>(
-                value: widget.selected,
-                isExpanded: expanded,
-                hint: widget.placeholder != null
-                    ? Text(
-                        widget.placeholder!,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 12.0,
-                        ),
-                      )
-                    : null,
-                dropdownColor: Colors.white,
-                icon: const Icon(Icons.arrow_drop_down),
-                iconSize: 32,
-                elevation: 16,
-                style: TextStyle(color: Colors.grey.shade700),
-                underline: Container(
-                  height: 0,
-                  color: Colors.blue,
-                ),
-                onChanged: (String? value) {
-                  widget.onChanged(value);
-                },
-                items: (widget.options != null && widget.options!.isNotEmpty)
-                    ? widget.options!.keys
-                        .map<DropdownMenuItem<String>>((String key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                vertical:
-                                    widget.optionsWithVerticalSpace == true
-                                        ? 8.0
-                                        : 0.0),
-                            child: Text(
-                              key,
-                              overflow: TextOverflow.fade,
+            : widget.showMacStyle == true && Platform.isMacOS
+                ? MacosPopupButton<String>(
+                    value: widget.selected,
+                    onChanged: (String? value) {
+                      widget.onChanged(value);
+                    },
+                    items: (widget.options != null &&
+                            widget.options!.isNotEmpty)
+                        ? widget.options!.keys
+                            .map<MacosPopupMenuItem<String>>((String key) {
+                            return MacosPopupMenuItem<String>(
+                              value: key,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical:
+                                        widget.optionsWithVerticalSpace == true
+                                            ? 8.0
+                                            : 0.0),
+                                child: Text(
+                                  key,
+                                  overflow: TextOverflow.fade,
+                                ),
+                              ),
+                            );
+                          }).toList()
+                        : [],
+                  )
+                : DropdownButton<String>(
+                    value: widget.selected,
+                    isExpanded: expanded,
+                    hint: widget.placeholder != null
+                        ? Text(
+                            widget.placeholder!,
+                            style: TextStyle(
+                              color: SharedWidgets.textColor(
+                                  showMacStyle: widget.showMacStyle,
+                                  context: context),
+                              fontSize: 12.0,
                             ),
-                          ),
-                        );
-                      }).toList()
-                    : [],
-              ),
+                          )
+                        : null,
+                    //dropdownColor: Colors.white,
+                    icon: Icon(
+                      Icons.arrow_drop_down,
+                      color: SharedWidgets.iconColor(
+                          showMacStyle: widget.showMacStyle, context: context),
+                    ),
+                    iconSize: 32,
+                    elevation: 16,
+                    style: TextStyle(
+                      color: SharedWidgets.textColor(
+                          showMacStyle: widget.showMacStyle, context: context),
+                    ),
+                    underline: Container(
+                      height: 0,
+                      color: Colors.blue,
+                    ),
+                    onChanged: (String? value) {
+                      widget.onChanged(value);
+                    },
+                    items: (widget.options != null &&
+                            widget.options!.isNotEmpty)
+                        ? (widget.options!.keys
+                            .map<DropdownMenuItem<String>>((String key) {
+                            return DropdownMenuItem<String>(
+                              value: key,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical:
+                                        widget.optionsWithVerticalSpace == true
+                                            ? 8.0
+                                            : 0.0),
+                                child: Text(
+                                  key,
+                                  overflow: TextOverflow.fade,
+                                ),
+                              ),
+                            );
+                          }).toList())
+                        : [],
+                  ),
       );
 
   @override
@@ -154,8 +205,10 @@ class SelectBoxState extends State<SelectBox> {
                   if (widget.label != null)
                     Text(
                       widget.label!,
-                      style: const TextStyle(
-                        color: Colors.black,
+                      style: TextStyle(
+                        color: SharedWidgets.textColor(
+                            showMacStyle: widget.showMacStyle,
+                            context: context),
                         fontSize: 12.0,
                       ),
                     ),
@@ -169,7 +222,10 @@ class SelectBoxState extends State<SelectBox> {
                     Text(
                       widget.label!,
                       style: TextStyle(
-                        color: widget.labelColor,
+                        color: widget.labelColor ??
+                            SharedWidgets.textColor(
+                                showMacStyle: widget.showMacStyle,
+                                context: context),
                         fontSize: 12.0,
                       ),
                     ),

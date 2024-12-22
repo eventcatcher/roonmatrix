@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:text_scroll/text_scroll.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
+  final bool showMacStyle;
   final int index;
   final String name;
   final Map<String, dynamic> translations;
@@ -18,6 +21,7 @@ class ScrollMatrixPage extends StatefulWidget {
 
   const ScrollMatrixPage({
     super.key,
+    required this.showMacStyle,
     required this.index,
     required this.name,
     required this.translations,
@@ -30,6 +34,7 @@ class ScrollMatrixPage extends StatefulWidget {
 }
 
 class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
+  bool get showMacStyle => widget.showMacStyle;
   int get index => widget.index;
   String get name => widget.name;
   Map<String, dynamic> get translations => widget.translations;
@@ -99,98 +104,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
     // }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    updateSizes('build');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(name),
-        actions: [
-          Row(
-            children: [
-              if (width > sliderTextMin)
-                Text('${translations['speed'] ?? 'speed:'}:'),
-              InkWell(
-                onDoubleTap: () {
-                  setState(() {
-                    sliderValue = 1.0;
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: SizedBox(
-                    width: width > sliderMin ? 200 : 120,
-                    child: Slider(
-                      value: sliderValue,
-                      min: 0.1,
-                      max: 5,
-                      divisions: 100,
-                      thumbColor: Colors.red.shade700,
-                      activeColor: Colors.green.shade200,
-                      inactiveColor: Colors.grey.shade700,
-                      onChanged: (double value) {
-                        setState(() {
-                          sliderValue = value;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
-                BlocBuilder(
-                    bloc: mainBloc,
-                    builder: (context, MainState mainState) {
-                      String zoneName = '';
-                      dynamic info = mainState.info[mainState.devices[index]];
-                      if (info['control_id'] != null) {
-                        String controlId = info['control_id'];
-                        if (info['channels'] != null &&
-                            info['channels'][controlId] != null) {
-                          if (info['channels'][controlId] == 'webserver') {
-                            zoneName = controlId;
-                          } else {
-                            zoneName = info['channels'][controlId];
-                          }
-                        }
-                      }
-
-                      return Text(
-                          'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
-                    }),
-              if (Platform.isIOS ||
-                  Platform.isAndroid ||
-                  Platform.isFuchsia) ...[
-                const Text('  |  '),
-                IconButton(
-                  iconSize: 12.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () =>
-                      setState(() => mobileFontSize = mobileFontSizeSmall),
-                  icon: const Icon(FontAwesomeIcons.font),
-                ),
-                IconButton(
-                  iconSize: 16.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () =>
-                      setState(() => mobileFontSize = mobileFontSizeMedium),
-                  icon: const Icon(FontAwesomeIcons.font),
-                ),
-                IconButton(
-                  iconSize: 20.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () =>
-                      setState(() => mobileFontSize = mobileFontSizeBig),
-                  icon: const Icon(FontAwesomeIcons.font),
-                ),
-              ],
-              const SizedBox(width: 4.0),
-            ],
-          )
-        ],
-      ),
-      body: SizedBox(
+  Widget body() => SizedBox(
         width: double.infinity,
         child: RoonmatrixAnimatedGradient(
           child: Column(
@@ -251,6 +165,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                             style: TextStyle(
                               fontFamily: 'Arial',
                               fontSize: fontSize,
+                              color: SharedWidgets.textColor(
+                                  showMacStyle: showMacStyle, context: context),
                             ),
                             mode: TextScrollMode.endless,
                             velocity: Velocity(
@@ -266,7 +182,215 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
             ],
           ),
         ),
-      ),
-    );
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    updateSizes('build');
+
+    return showMacStyle == true && Platform.isMacOS
+        ? Material(
+            child: MacosScaffold(
+              toolBar: ToolBar(
+                title: Text(name),
+                titleWidth: 540.0,
+                actions: [
+                  if (width > sliderTextMin)
+                    CustomToolbarItem(
+                      inToolbarBuilder: (context) => Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8.0, right: 8.0, bottom: 8.0),
+                        child: Text(
+                          '${translations['speed'] ?? 'speed:'}:',
+                          style: TextStyle(
+                            color: SharedWidgets.textColor(
+                                showMacStyle: showMacStyle, context: context),
+                          ),
+                        ),
+                      ),
+                      inOverflowedBuilder: (context) =>
+                          Container(color: Colors.grey, width: 30, height: 1),
+                    ),
+                  CustomToolbarItem(
+                    inToolbarBuilder: (context) => Padding(
+                      padding: const EdgeInsets.only(
+                          left: 8.0, right: 8.0, bottom: 0.0),
+                      child: InkWell(
+                        onDoubleTap: () {
+                          setState(() {
+                            sliderValue = 1.0;
+                          });
+                        },
+                        child: SizedBox(
+                          width: width > sliderMin ? 200 : 120,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 6.0),
+                            child: Slider(
+                              value: sliderValue,
+                              min: 0.1,
+                              max: 5,
+                              divisions: 100,
+                              thumbColor: Colors.red.shade700,
+                              activeColor: Colors.green.shade200,
+                              inactiveColor: Colors.grey.shade700,
+                              onChanged: (double value) {
+                                setState(() {
+                                  sliderValue = value;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    inOverflowedBuilder: (context) =>
+                        Container(color: Colors.grey, width: 30, height: 1),
+                  ),
+                  const ToolBarSpacer(),
+                  CustomToolbarItem(
+                    inToolbarBuilder: (context) => Padding(
+                      padding: const EdgeInsets.only(
+                          left: 8.0, right: 8.0, bottom: 8.0),
+                      child: BlocBuilder(
+                          bloc: mainBloc,
+                          builder: (context, MainState mainState) {
+                            String zoneName = '';
+                            dynamic info =
+                                mainState.info[mainState.devices[index]];
+                            if (info['control_id'] != null) {
+                              String controlId = info['control_id'];
+                              if (info['channels'] != null &&
+                                  info['channels'][controlId] != null) {
+                                if (info['channels'][controlId] ==
+                                    'webserver') {
+                                  zoneName = controlId;
+                                } else {
+                                  zoneName = info['channels'][controlId];
+                                }
+                              }
+                            }
+
+                            return Text(
+                              'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
+                              style: TextStyle(
+                                color: SharedWidgets.textColor(
+                                    showMacStyle: showMacStyle,
+                                    context: context),
+                              ),
+                            );
+                          }),
+                    ),
+                    inOverflowedBuilder: (context) =>
+                        Container(color: Colors.grey, width: 30, height: 1),
+                  ),
+                  const ToolBarSpacer(),
+                ],
+              ),
+              children: [
+                ContentArea(
+                  builder: ((context, scrollController) {
+                    return Material(
+                      child: MacosWindow(
+                        child: body(),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          )
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(name),
+              actions: [
+                Row(
+                  children: [
+                    if (width > sliderTextMin)
+                      Text('${translations['speed'] ?? 'speed:'}:'),
+                    InkWell(
+                      onDoubleTap: () {
+                        setState(() {
+                          sliderValue = 1.0;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 4.0),
+                        child: SizedBox(
+                          width: width > sliderMin ? 200 : 120,
+                          child: Slider(
+                            value: sliderValue,
+                            min: 0.1,
+                            max: 5,
+                            divisions: 100,
+                            thumbColor: Colors.red.shade700,
+                            activeColor: Colors.green.shade200,
+                            inactiveColor: Colors.grey.shade700,
+                            onChanged: (double value) {
+                              setState(() {
+                                sliderValue = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (Platform.isMacOS ||
+                        Platform.isWindows ||
+                        Platform.isLinux)
+                      BlocBuilder(
+                          bloc: mainBloc,
+                          builder: (context, MainState mainState) {
+                            String zoneName = '';
+                            dynamic info =
+                                mainState.info[mainState.devices[index]];
+                            if (info['control_id'] != null) {
+                              String controlId = info['control_id'];
+                              if (info['channels'] != null &&
+                                  info['channels'][controlId] != null) {
+                                if (info['channels'][controlId] ==
+                                    'webserver') {
+                                  zoneName = controlId;
+                                } else {
+                                  zoneName = info['channels'][controlId];
+                                }
+                              }
+                            }
+
+                            return Text(
+                                'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
+                          }),
+                    if (Platform.isIOS ||
+                        Platform.isAndroid ||
+                        Platform.isFuchsia) ...[
+                      const Text('  |  '),
+                      IconButton(
+                        iconSize: 12.0,
+                        padding: EdgeInsets.zero,
+                        onPressed: () => setState(
+                            () => mobileFontSize = mobileFontSizeSmall),
+                        icon: const Icon(FontAwesomeIcons.font),
+                      ),
+                      IconButton(
+                        iconSize: 16.0,
+                        padding: EdgeInsets.zero,
+                        onPressed: () => setState(
+                            () => mobileFontSize = mobileFontSizeMedium),
+                        icon: const Icon(FontAwesomeIcons.font),
+                      ),
+                      IconButton(
+                        iconSize: 20.0,
+                        padding: EdgeInsets.zero,
+                        onPressed: () =>
+                            setState(() => mobileFontSize = mobileFontSizeBig),
+                        icon: const Icon(FontAwesomeIcons.font),
+                      ),
+                    ],
+                    const SizedBox(width: 4.0),
+                  ],
+                )
+              ],
+            ),
+            body: body(),
+          );
   }
 }

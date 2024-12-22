@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:validators/validators.dart';
 
 class MapListItems extends StatefulWidget {
+  final bool showMacStyle;
   final String? label;
   final Color? labelColor;
   final ConfigDefinitionItem fieldDefinition;
@@ -24,6 +25,7 @@ class MapListItems extends StatefulWidget {
 
   const MapListItems({
     super.key,
+    required this.showMacStyle,
     this.label,
     this.labelColor = Colors.black,
     required this.fieldDefinition,
@@ -37,6 +39,7 @@ class MapListItems extends StatefulWidget {
 }
 
 class MapListItemsState extends State<MapListItems> {
+  bool get showMacStyle => widget.showMacStyle;
   String? get label => widget.label;
   ConfigDefinitionItem get fieldDefinition => widget.fieldDefinition;
 
@@ -80,6 +83,7 @@ class MapListItemsState extends State<MapListItems> {
             .type;
 
         Widget widget = EditableSinglelineText(
+          showMacStyle: showMacStyle,
           key: ValueKey('$label-${fieldValues.length}-$idx-$key'),
           inputType: fieldType.startsWith('int')
               ? TextInputType.number
@@ -90,8 +94,6 @@ class MapListItemsState extends State<MapListItems> {
           noCounter: true,
           label: (translations['config']?[key] ?? key) +
               mainBloc.getListFieldUnit(fieldType),
-          labelColor: Colors.red,
-          borderColor: Colors.red.shade300,
           text: fieldValues[idx][key].toString(),
           errorMessageHandler: (String newValue) {
             return mainBloc.getFieldErrorMessage(
@@ -247,6 +249,7 @@ class MapListItemsState extends State<MapListItems> {
         padding: const EdgeInsets.only(right: 16.0),
         child: SharedWidgets.addButton(
             context: context,
+            showMacStyle: showMacStyle,
             textController: null,
             translations: translations,
             onAccepted: (dynamic value) {
@@ -284,11 +287,21 @@ class MapListItemsState extends State<MapListItems> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ...SharedWidgets.labelWidget(
-                    label: widget.label, labelColor: widget.labelColor),
+                  label: widget.label,
+                  labelColor: SharedWidgets.brightness() == Brightness.dark
+                      ? SharedWidgets.textColor(
+                          showMacStyle: widget.showMacStyle, context: context)
+                      : widget.labelColor ??
+                          SharedWidgets.textColor(
+                              showMacStyle: widget.showMacStyle,
+                              context: context),
+                ),
                 Container(
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
                   child: Card(
+                    color: SharedWidgets.areaBackgroundColor(
+                        showMacStyle: showMacStyle, context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

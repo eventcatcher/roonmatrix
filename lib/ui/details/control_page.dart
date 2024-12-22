@@ -3,20 +3,24 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/message_writer.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class ControlPage extends StatefulWidget {
+  final bool showMacStyle;
   final String name;
   final String ip;
   final VoidCallback close;
 
   const ControlPage({
     super.key,
+    required this.showMacStyle,
     required this.name,
     required this.ip,
     required this.close,
@@ -27,6 +31,7 @@ class ControlPage extends StatefulWidget {
 }
 
 class ControlPageState extends State<ControlPage> {
+  bool get showMacStyle => widget.showMacStyle;
   String get name => widget.name;
   String get ip => widget.ip;
   VoidCallback get close => widget.close;
@@ -65,14 +70,25 @@ class ControlPageState extends State<ControlPage> {
             Platform.isLinux)
           Container(
             margin: const EdgeInsets.only(bottom: 6.0),
-            child:
-                Text(translations['controlButtonPreviousText'] ?? 'previous'),
+            child: Text(
+              translations['controlButtonPreviousText'] ?? 'previous',
+              style: TextStyle(
+                color: SharedWidgets.textColor(
+                    showMacStyle: widget.showMacStyle, context: context),
+              ),
+            ),
           ),
         Column(
           children: [
-            Text(showButtonUp == true
-                ? translations['controlButtonUpText'] ?? 'up'
-                : ''),
+            Text(
+              showButtonUp == true
+                  ? translations['controlButtonUpText'] ?? 'up'
+                  : '',
+              style: TextStyle(
+                color: SharedWidgets.textColor(
+                    showMacStyle: widget.showMacStyle, context: context),
+              ),
+            ),
             SizedBox(
               width: 3 * buttonSize,
               height: 3 * buttonSize,
@@ -194,7 +210,13 @@ class ControlPageState extends State<ControlPage> {
                 ],
               ),
             ),
-            Text(translations['controlButtonShuffleText'] ?? 'shuffle'),
+            Text(
+              translations['controlButtonShuffleText'] ?? 'shuffle',
+              style: TextStyle(
+                color: SharedWidgets.textColor(
+                    showMacStyle: widget.showMacStyle, context: context),
+              ),
+            ),
           ],
         ),
         if (orientation == Orientation.landscape ||
@@ -203,7 +225,13 @@ class ControlPageState extends State<ControlPage> {
             Platform.isLinux)
           Container(
             margin: const EdgeInsets.only(bottom: 6.0),
-            child: Text(translations['controlButtonNextText'] ?? 'next'),
+            child: Text(
+              translations['controlButtonNextText'] ?? 'next',
+              style: TextStyle(
+                color: SharedWidgets.textColor(
+                    showMacStyle: widget.showMacStyle, context: context),
+              ),
+            ),
           ),
       ],
     );
@@ -248,6 +276,107 @@ class ControlPageState extends State<ControlPage> {
     return options;
   }
 
+  Widget body({
+    required Orientation orientation,
+    required Map<String, String> options,
+  }) =>
+      SingleChildScrollView(
+        padding: const EdgeInsets.all(8),
+        child: Center(
+          child: orientation == Orientation.portrait ||
+                  Platform.isMacOS ||
+                  Platform.isWindows ||
+                  Platform.isLinux
+              ? Column(
+                  // portrait view
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SelectBox(
+                        showMacStyle: showMacStyle,
+                        aligned: 'horizontal',
+                        label:
+                            '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+                        placeholder:
+                            '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                        inRow: false,
+                        noVerticalSpace: false,
+                        readOnly: false,
+                        selected: selectedZoneId,
+                        options: options,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            if (options[newValue] != null &&
+                                options[newValue] == 'webserver') {
+                              controlId = newValue ?? '';
+                            } else {
+                              controlId = options[newValue];
+                            }
+                            selectedZoneId = newValue;
+                          });
+                        }),
+                    controlButtons(orientation),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: MessageWriter(
+                        showMacStyle: showMacStyle,
+                        name: name,
+                        ip: ip,
+                        translations: translations,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  // landscape view
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: Column(
+                        children: [
+                          SelectBox(
+                              showMacStyle: showMacStyle,
+                              aligned: 'horizontal',
+                              label:
+                                  '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+                              placeholder:
+                                  '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                              inRow: false,
+                              noVerticalSpace: false,
+                              readOnly: false,
+                              selected: selectedZoneId,
+                              options: options,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  if (options[newValue] != null &&
+                                      options[newValue] == 'webserver') {
+                                    controlId = newValue ?? '';
+                                  } else {
+                                    controlId = options[newValue];
+                                  }
+                                  selectedZoneId = newValue;
+                                });
+                              }),
+                          const SizedBox(height: 184.0),
+                          MessageWriter(
+                            showMacStyle: showMacStyle,
+                            name: name,
+                            ip: ip,
+                            translations: translations,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 200 + 3 * buttonSize,
+                      child: controlButtons(orientation),
+                    ),
+                  ],
+                ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
@@ -262,11 +391,41 @@ class ControlPageState extends State<ControlPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            return Scaffold(
-                appBar: AppBar(
-                  title: Text(title),
-                ),
-                body: const SizedBox());
+            return showMacStyle == true && Platform.isMacOS
+                ? MacosScaffold(
+                    toolBar: ToolBar(
+                      title: Text(
+                        title,
+                        style: TextStyle(
+                          color: SharedWidgets.textColor(
+                              showMacStyle: widget.showMacStyle,
+                              context: context),
+                        ),
+                      ),
+                      titleWidth: 1000.0,
+                      leading: MacosBackButton(
+                        onPressed: () => Navigator.pop(context),
+                        fillColor: Colors.transparent,
+                      ),
+                      actions: [],
+                    ),
+                    children: [
+                      ContentArea(
+                        builder: ((context, scrollController) {
+                          return MacosWindow(
+                            child: Material(
+                              child: SizedBox(),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  )
+                : Scaffold(
+                    appBar: AppBar(
+                      title: Text(title),
+                    ),
+                    body: const SizedBox());
           }
 
           return BlocBuilder(
@@ -283,108 +442,39 @@ class ControlPageState extends State<ControlPage> {
                     builder: (BuildContext context, Orientation orientation) {
                   return DefaultTabController(
                     length: 2,
-                    child: Scaffold(
-                      appBar: AppBar(
-                        title: Text(title),
-                        actions: const [],
-                      ),
-                      body: SingleChildScrollView(
-                        padding: const EdgeInsets.all(8),
-                        child: Center(
-                          child: orientation == Orientation.portrait ||
-                                  Platform.isMacOS ||
-                                  Platform.isWindows ||
-                                  Platform.isLinux
-                              ? Column(
-                                  // portrait view
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    SelectBox(
-                                        aligned: 'horizontal',
-                                        label:
-                                            '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
-                                        placeholder:
-                                            '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                                        inRow: false,
-                                        noVerticalSpace: false,
-                                        readOnly: false,
-                                        selected: selectedZoneId,
-                                        options: options,
-                                        onChanged: (String? newValue) {
-                                          setState(() {
-                                            if (options[newValue] != null &&
-                                                options[newValue] ==
-                                                    'webserver') {
-                                              controlId = newValue ?? '';
-                                            } else {
-                                              controlId = options[newValue];
-                                            }
-                                            selectedZoneId = newValue;
-                                          });
-                                        }),
-                                    controlButtons(orientation),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 16.0),
-                                      child: MessageWriter(
-                                        name: name,
-                                        ip: ip,
-                                        translations: translations,
-                                      ),
+                    child: showMacStyle == true && Platform.isMacOS
+                        ? MacosScaffold(
+                            toolBar: ToolBar(
+                              title: Text(title),
+                              titleWidth: 200.0,
+                              leading: MacosBackButton(
+                                onPressed: () => Navigator.pop(context),
+                                fillColor: Colors.transparent,
+                              ),
+                              actions: [],
+                            ),
+                            children: [
+                              ContentArea(
+                                builder: ((context, scrollController) {
+                                  return Material(
+                                    child: MacosWindow(
+                                      child: body(
+                                          orientation: orientation,
+                                          options: options),
                                     ),
-                                  ],
-                                )
-                              : Row(
-                                  // landscape view
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Flexible(
-                                      fit: FlexFit.loose,
-                                      child: Column(
-                                        children: [
-                                          SelectBox(
-                                              aligned: 'horizontal',
-                                              label:
-                                                  '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
-                                              placeholder:
-                                                  '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                                              inRow: false,
-                                              noVerticalSpace: false,
-                                              readOnly: false,
-                                              selected: selectedZoneId,
-                                              options: options,
-                                              onChanged: (String? newValue) {
-                                                setState(() {
-                                                  if (options[newValue] !=
-                                                          null &&
-                                                      options[newValue] ==
-                                                          'webserver') {
-                                                    controlId = newValue ?? '';
-                                                  } else {
-                                                    controlId =
-                                                        options[newValue];
-                                                  }
-                                                  selectedZoneId = newValue;
-                                                });
-                                              }),
-                                          const SizedBox(height: 184.0),
-                                          MessageWriter(
-                                            name: name,
-                                            ip: ip,
-                                            translations: translations,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 200 + 3 * buttonSize,
-                                      child: controlButtons(orientation),
-                                    ),
-                                  ],
-                                ),
-                        ),
-                      ),
-                    ),
+                                  );
+                                }),
+                              ),
+                            ],
+                          )
+                        : Scaffold(
+                            appBar: AppBar(
+                              title: Text(title),
+                              actions: const [],
+                            ),
+                            body: body(
+                                orientation: orientation, options: options),
+                          ),
                   );
                 });
               });

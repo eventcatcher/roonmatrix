@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
+import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
@@ -13,12 +15,14 @@ import 'package:roonmatrix/ui/layout/vertical_radio_selector.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class MessageWriter extends StatefulWidget {
+  final bool showMacStyle;
   final String name;
   final String ip;
   final Map<String, dynamic> translations;
 
   const MessageWriter({
     super.key,
+    required this.showMacStyle,
     required this.name,
     required this.ip,
     required this.translations,
@@ -29,6 +33,7 @@ class MessageWriter extends StatefulWidget {
 }
 
 class MessageWriterState extends State<MessageWriter> {
+  bool get showMacStyle => widget.showMacStyle;
   String get name => widget.name;
   String get ip => widget.ip;
   Map<String, dynamic> get translations => widget.translations;
@@ -86,6 +91,7 @@ class MessageWriterState extends State<MessageWriter> {
   Widget selectbox() => Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: SelectBox(
+            showMacStyle: showMacStyle,
             aligned: 'horizontal',
             label: '${translations['messageSelectionLabel'] ?? 'Message'}:',
             placeholder:
@@ -103,7 +109,8 @@ class MessageWriterState extends State<MessageWriter> {
 
   Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
         padding: const EdgeInsets.only(top: 19.0, right: 16.0),
-        child: ElevatedButton.icon(
+        child: IconTextButtonElement(
+          showMacStyle: showMacStyle,
           icon: const Padding(
             padding: EdgeInsets.symmetric(vertical: 7.5),
             child: Icon(
@@ -113,8 +120,8 @@ class MessageWriterState extends State<MessageWriter> {
             ),
           ),
           label: desktopLandscapeWide
-              ? Text(translations['breakMessageButtonLabel'] ?? 'stop message')
-              : Text(translations['breakMessageShortButtonLabel'] ?? 'stop'),
+              ? translations['breakMessageButtonLabel'] ?? 'stop message'
+              : translations['breakMessageShortButtonLabel'] ?? 'stop',
           onPressed: messageTextController.text.isNotEmpty
               ? () async {
                   selectedOption = '';
@@ -122,59 +129,66 @@ class MessageWriterState extends State<MessageWriter> {
                       context: context,
                       builder: (context) {
                         return StatefulBuilder(builder: (context, setState) {
-                          return AlertDialog(
-                              title: Text(translations[
-                                      'dialogResetMessageQuestion'] ??
-                                  'Do you really want to remove this message from the device?'),
-                              content: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 48.0),
-                                  SwitchButton(
-                                    label: translations[
-                                            'allDevicesRemoveSwitchLabel'] ??
-                                        'remove from all devices',
-                                    labelColor: Colors.black,
-                                    reverse: true,
-                                    aligned: 'inline',
-                                    enabled: allDevices,
-                                    onChanged: (bool value) {
-                                      if (mounted) {
-                                        setState(() => allDevices = value);
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                              actions: [
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 16.0),
-                                  child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor: WidgetStateProperty
-                                            .resolveWith<Color>(
-                                          (Set<WidgetState> states) {
-                                            return Colors.blueGrey;
-                                          },
-                                        ),
-                                      ),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(false),
-                                      child: Text(
-                                          translations['dialogQuitNo'] ??
-                                              'No')),
+                          return AlertElement(
+                            showMacStyle: showMacStyle,
+                            title: translations['dialogResetMessageQuestion'] ??
+                                'Do you really want to remove this message from the device?',
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 48.0),
+                                SwitchButton(
+                                  showMacStyle: showMacStyle,
+                                  label: translations[
+                                          'allDevicesRemoveSwitchLabel'] ??
+                                      'remove from all devices',
+                                  labelColor: Colors.black,
+                                  reverse: true,
+                                  aligned: 'inline',
+                                  enabled: allDevices,
+                                  onChanged: (bool value) {
+                                    if (mounted) {
+                                      setState(() => allDevices = value);
+                                    }
+                                  },
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 16.0, left: 16.0, right: 16.0),
-                                  child: ElevatedButton(
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(true),
-                                      child: Text(
-                                          translations['dialogQuitYes'] ??
-                                              'Yes')),
-                                ),
-                              ]);
+                              ],
+                            ),
+                            button1Label: translations['dialogQuitNo'] ?? 'No',
+                            onPressed1: () => Navigator.of(context).pop(false),
+                            button2Label:
+                                translations['dialogQuitYes'] ?? 'Yes',
+                            onPressed2: () => Navigator.of(context).pop(true),
+                            // actions: [
+                            //   Padding(
+                            //     padding: const EdgeInsets.only(bottom: 16.0),
+                            //     child: ElevatedButton(
+                            //         style: ButtonStyle(
+                            //           backgroundColor: WidgetStateProperty
+                            //               .resolveWith<Color>(
+                            //             (Set<WidgetState> states) {
+                            //               return Colors.blueGrey;
+                            //             },
+                            //           ),
+                            //         ),
+                            //         onPressed: () =>
+                            //             Navigator.of(context).pop(false),
+                            //         child: Text(
+                            //             translations['dialogQuitNo'] ??
+                            //                 'No')),
+                            //   ),
+                            //   Padding(
+                            //     padding: const EdgeInsets.only(
+                            //         bottom: 16.0, left: 16.0, right: 16.0),
+                            //     child: ElevatedButton(
+                            //         onPressed: () =>
+                            //             Navigator.of(context).pop(true),
+                            //         child: Text(
+                            //             translations['dialogQuitYes'] ??
+                            //                 'Yes')),
+                            //   ),
+                            // ],
+                          );
                         });
                       });
 
@@ -270,7 +284,8 @@ class MessageWriterState extends State<MessageWriter> {
 
   Widget sendMessageButton() => Padding(
         padding: const EdgeInsets.only(top: 19.0, right: 16.0),
-        child: ElevatedButton.icon(
+        child: IconTextButtonElement(
+          showMacStyle: showMacStyle,
           icon: const Padding(
             padding: EdgeInsets.symmetric(vertical: 7.5),
             child: Icon(
@@ -279,7 +294,7 @@ class MessageWriterState extends State<MessageWriter> {
               size: 20.0,
             ),
           ),
-          label: Text(translations['sendButtonLabel'] ?? 'send'),
+          label: translations['sendButtonLabel'] ?? 'send',
           onPressed: messageTextController.text.isNotEmpty
               ? () async {
                   selectedOption = '';
@@ -287,10 +302,12 @@ class MessageWriterState extends State<MessageWriter> {
                       context: context,
                       builder: (context) {
                         return StatefulBuilder(builder: (context, setState) {
-                          return AlertDialog(
-                              title: Text(translations['dialogSendQuestion'] ??
-                                  'Do you really want to send this message to the device?'),
-                              content: SingleChildScrollView(
+                          return AlertElement(
+                            showMacStyle: showMacStyle,
+                            title: translations['dialogSendQuestion'] ??
+                                'Do you really want to send this message to the device?',
+                            content: Material(
+                              child: SingleChildScrollView(
                                 padding: const EdgeInsets.all(8),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,6 +330,7 @@ class MessageWriterState extends State<MessageWriter> {
                                     ),
                                     const SizedBox(height: 48.0),
                                     SwitchButton(
+                                      showMacStyle: showMacStyle,
                                       label: translations[
                                               'allDevicesSwitchLabel'] ??
                                           'send to all devices',
@@ -329,39 +347,44 @@ class MessageWriterState extends State<MessageWriter> {
                                   ],
                                 ),
                               ),
-                              actions: [
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 16.0),
-                                  child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor: WidgetStateProperty
-                                            .resolveWith<Color>(
-                                          (Set<WidgetState> states) {
-                                            return Colors.blueGrey;
-                                          },
-                                        ),
-                                      ),
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(false),
-                                      child: Text(
-                                          translations['dialogQuitNo'] ??
-                                              'No')),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 16.0, left: 16.0, right: 16.0),
-                                  child: ElevatedButton(
-                                      key:
-                                          ValueKey('SendOption$selectedOption'),
-                                      onPressed: selectedOption.isNotEmpty
-                                          ? () =>
-                                              Navigator.of(context).pop(true)
-                                          : null,
-                                      child: Text(
-                                          translations['dialogQuitYes'] ??
-                                              'Yes')),
-                                ),
-                              ]);
+                            ),
+                            button1Label: translations['dialogQuitNo'] ?? 'No',
+                            onPressed1: () => Navigator.of(context).pop(false),
+                            button2Label:
+                                translations['dialogQuitYes'] ?? 'Yes',
+                            onPressed2: selectedOption.isNotEmpty
+                                ? () => Navigator.of(context).pop(true)
+                                : null,
+                            // actions: [
+                            //   Padding(
+                            //     padding: const EdgeInsets.only(bottom: 16.0),
+                            //     child: ElevatedButton(
+                            //         style: ButtonStyle(
+                            //           backgroundColor: WidgetStateProperty
+                            //               .resolveWith<Color>(
+                            //             (Set<WidgetState> states) {
+                            //               return Colors.blueGrey;
+                            //             },
+                            //           ),
+                            //         ),
+                            //         onPressed: () =>
+                            //             Navigator.of(context).pop(false),
+                            //         child: Text(
+                            //             translations['dialogQuitNo'] ?? 'No')),
+                            //   ),
+                            //   Padding(
+                            //     padding: const EdgeInsets.only(
+                            //         bottom: 16.0, left: 16.0, right: 16.0),
+                            //     child: ElevatedButton(
+                            //         key: ValueKey('SendOption$selectedOption'),
+                            //         onPressed: selectedOption.isNotEmpty
+                            //             ? () => Navigator.of(context).pop(true)
+                            //             : null,
+                            //         child: Text(translations['dialogQuitYes'] ??
+                            //             'Yes')),
+                            //   ),
+                            // ],
+                          );
                         });
                       });
                   if (value == true) {
@@ -478,6 +501,7 @@ class MessageWriterState extends State<MessageWriter> {
                 children: [
                   Expanded(
                     child: EditableMultilineText(
+                      showMacStyle: showMacStyle,
                       label:
                           '${translations['messageNewLabel'] ?? 'New message'}:',
                       maxLines: 5,
@@ -498,7 +522,9 @@ class MessageWriterState extends State<MessageWriter> {
                         Ink(
                           decoration: ShapeDecoration(
                             color: messageTextController.text.isNotEmpty
-                                ? Colors.blue
+                                ? SharedWidgets.brightness() == Brightness.dark
+                                    ? Colors.blue.shade800
+                                    : Colors.blue.shade600
                                 : Colors.grey,
                             shape: const RoundedRectangleBorder(
                               borderRadius:
@@ -507,6 +533,7 @@ class MessageWriterState extends State<MessageWriter> {
                           ),
                           child: SharedWidgets.addIconButton(
                               context: context,
+                              showMacStyle: showMacStyle,
                               textController: nameTextController,
                               disabled: messageTextController.text.isEmpty,
                               translations: translations,
@@ -551,7 +578,9 @@ class MessageWriterState extends State<MessageWriter> {
                           decoration: ShapeDecoration(
                             color: selectedMessageId != null &&
                                     options.containsKey(selectedMessageId)
-                                ? Colors.blue
+                                ? SharedWidgets.brightness() == Brightness.dark
+                                    ? Colors.blue.shade800
+                                    : Colors.blue.shade600
                                 : Colors.grey,
                             shape: const RoundedRectangleBorder(
                               borderRadius:
@@ -568,48 +597,58 @@ class MessageWriterState extends State<MessageWriter> {
                                     builder: (context) {
                                       return StatefulBuilder(
                                           builder: (context, setState) {
-                                        return AlertDialog(
-                                            title: Text(translations[
-                                                    'dialogRemoveMessageQuestion'] ??
-                                                'Do you really want to delete this message?'),
-                                            actions: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 16.0),
-                                                child: ElevatedButton(
-                                                    style: ButtonStyle(
-                                                      backgroundColor:
-                                                          WidgetStateProperty
-                                                              .resolveWith<
-                                                                  Color>(
-                                                        (Set<WidgetState>
-                                                            states) {
-                                                          return Colors
-                                                              .blueGrey;
-                                                        },
-                                                      ),
-                                                    ),
-                                                    onPressed: () =>
-                                                        Navigator.of(context)
-                                                            .pop(false),
-                                                    child: Text(translations[
-                                                            'dialogQuitNo'] ??
-                                                        'No')),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 16.0,
-                                                    left: 16.0,
-                                                    right: 16.0),
-                                                child: ElevatedButton(
-                                                    onPressed: () =>
-                                                        Navigator.of(context)
-                                                            .pop(true),
-                                                    child: Text(translations[
-                                                            'dialogQuitYes'] ??
-                                                        'Yes')),
-                                              ),
-                                            ]);
+                                        return AlertElement(
+                                          showMacStyle: showMacStyle,
+                                          title: translations[
+                                                  'dialogRemoveMessageQuestion'] ??
+                                              'Do you really want to delete this message?',
+                                          button1Label:
+                                              translations['dialogQuitNo'] ??
+                                                  'No',
+                                          onPressed1: () =>
+                                              Navigator.of(context).pop(false),
+                                          button2Label:
+                                              translations['dialogQuitYes'] ??
+                                                  'Yes',
+                                          onPressed2: () =>
+                                              Navigator.of(context).pop(true),
+                                          // actions: [
+                                          //   Padding(
+                                          //     padding: const EdgeInsets.only(
+                                          //         bottom: 16.0),
+                                          //     child: ElevatedButton(
+                                          //         style: ButtonStyle(
+                                          //           backgroundColor:
+                                          //               WidgetStateProperty
+                                          //                   .resolveWith<Color>(
+                                          //             (Set<WidgetState>
+                                          //                 states) {
+                                          //               return Colors.blueGrey;
+                                          //             },
+                                          //           ),
+                                          //         ),
+                                          //         onPressed: () =>
+                                          //             Navigator.of(context)
+                                          //                 .pop(false),
+                                          //         child: Text(translations[
+                                          //                 'dialogQuitNo'] ??
+                                          //             'No')),
+                                          //   ),
+                                          //   Padding(
+                                          //     padding: const EdgeInsets.only(
+                                          //         bottom: 16.0,
+                                          //         left: 16.0,
+                                          //         right: 16.0),
+                                          //     child: ElevatedButton(
+                                          //         onPressed: () =>
+                                          //             Navigator.of(context)
+                                          //                 .pop(true),
+                                          //         child: Text(translations[
+                                          //                 'dialogQuitYes'] ??
+                                          //             'Yes')),
+                                          //   ),
+                                          // ],
+                                        );
                                       });
                                     });
                                 if (value == true) {

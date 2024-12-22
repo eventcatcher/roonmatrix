@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class LoadingIndicatorBig extends StatelessWidget {
+  final bool showMacStyle;
   final String? message;
 
-  const LoadingIndicatorBig({super.key, this.message});
+  const LoadingIndicatorBig({
+    super.key,
+    required this.showMacStyle,
+    this.message,
+  });
 
   @override
   Widget build(BuildContext context) => Center(
@@ -22,9 +28,18 @@ class LoadingIndicatorBig extends StatelessWidget {
               )),
             ),
             SizedBox(
-                height: 200.0,
-                width: 200.0,
-                child: Center(child: Text(message!)))
+              height: 200.0,
+              width: 200.0,
+              child: Center(
+                child: Text(
+                  message!,
+                  style: TextStyle(
+                    color: SharedWidgets.textColor(
+                        showMacStyle: showMacStyle, context: context),
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       );

@@ -1,16 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:roonmatrix/main.dart';
 import 'package:roonmatrix/ui/layout/roonmatrix_styles.dart';
 import 'package:easy_debounce/easy_debounce.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/text_field_element.dart';
 import 'package:uuid/uuid.dart';
 
 class EditableSinglelineText extends StatefulWidget {
+  final bool showMacStyle;
   final TextInputType inputType;
   final List<TextInputFormatter>? formatters;
   final String? aligned;
   final String? label;
   final Color? labelColor;
-  final Color? borderColor;
   final String? placeholder;
   final String text;
   final dynamic prefixIcon;
@@ -29,12 +34,12 @@ class EditableSinglelineText extends StatefulWidget {
 
   const EditableSinglelineText({
     super.key,
+    required this.showMacStyle,
     this.inputType = TextInputType.text,
     this.formatters,
     this.aligned,
     this.label,
     this.labelColor = Colors.black,
-    this.borderColor,
     this.placeholder,
     required this.text,
     this.errorMessageHandler,
@@ -152,7 +157,13 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
               maxLines: 1,
               softWrap: false,
               style: TextStyle(
-                color: widget.labelColor,
+                color: SharedWidgets.brightness() == Brightness.dark
+                    ? SharedWidgets.textColor(
+                        showMacStyle: widget.showMacStyle, context: context)
+                    : widget.labelColor ??
+                        SharedWidgets.textColor(
+                            showMacStyle: widget.showMacStyle,
+                            context: context),
                 fontSize: 12.0,
               ),
             ),
@@ -163,24 +174,28 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
           ConstrainedBox(
             constraints: const BoxConstraints.tightFor(height: 36),
             child: Container(
-              decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.grey,
-                      offset: Offset(0.1, 0.5),
-                      blurRadius: 0.1,
-                      blurStyle: BlurStyle.normal,
-                    )
-                  ],
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: const BorderRadius.all(Radius.circular(4))),
+              decoration: showMacStyle == true && Platform.isMacOS
+                  ? null
+                  : BoxDecoration(
+                      boxShadow: const [
+                          BoxShadow(
+                            color: Colors.grey,
+                            offset: Offset(0.1, 0.5),
+                            blurRadius: 0.1,
+                            blurStyle: BlurStyle.normal,
+                          )
+                        ],
+                      color: SharedWidgets.elementBackgroundColor(
+                          showMacStyle: showMacStyle, context: context),
+                      borderRadius: const BorderRadius.all(Radius.circular(4))),
               padding: EdgeInsets.only(
                   top: widget.maxLength != null && widget.placeholder == null
                       ? widget.noCounter
                           ? 4.0
                           : 12.0
                       : 0.0),
-              child: TextField(
+              child: TextFieldElement(
+                showMacStyle: showMacStyle,
                 readOnly: widget.readOnly,
                 maxLength: widget.maxLength,
                 buildCounter: widget.maxLength != null
@@ -207,12 +222,18 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                   fillColor:
                       (widget.fillColorForValidationError != null && !valid)
                           ? widget.fillColorForValidationError
-                          : null,
+                          : SharedWidgets.brightness() == Brightness.dark
+                              ? SharedWidgets.elementBackgroundColorLighter(
+                                  showMacStyle: showMacStyle, context: context)
+                              : Colors.white,
                   borderColor: Colors.transparent,
                 ),
                 style: TextStyle(
-                  color: widget.readOnly ? readOnlyColor : Colors.black,
-                  fontSize: 12.0,
+                  color: widget.readOnly
+                      ? readOnlyColor
+                      : SharedWidgets.textColor(
+                          showMacStyle: showMacStyle, context: context),
+                  fontSize: 16.0,
                 ),
                 controller: _userTextController,
                 onChanged: (String value) {
@@ -277,8 +298,10 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
                 softWrap: false,
-                style: const TextStyle(
-                  color: Colors.red,
+                style: TextStyle(
+                  color: SharedWidgets.brightness() == Brightness.dark
+                      ? Colors.red.shade200
+                      : Colors.red,
                   fontSize: 10.0,
                 ),
               ),

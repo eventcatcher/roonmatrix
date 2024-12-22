@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class Headline extends StatelessWidget {
+  final bool showMacStyle;
   final String text;
 
-  const Headline({super.key, required this.text});
+  const Headline({super.key, required this.showMacStyle, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +15,11 @@ class Headline extends StatelessWidget {
       alignment: Alignment.topLeft,
       child: Text(
         text,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 24.0,
           fontWeight: FontWeight.w600,
-          color: Colors.black,
+          color: SharedWidgets.textColor(
+              showMacStyle: showMacStyle, context: context),
         ),
       ),
     );

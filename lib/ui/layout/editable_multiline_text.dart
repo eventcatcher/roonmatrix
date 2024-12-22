@@ -1,7 +1,9 @@
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class EditableMultilineText extends StatefulWidget {
+  final bool showMacStyle;
   final String? label;
   final int maxLines;
   final double? height;
@@ -10,6 +12,7 @@ class EditableMultilineText extends StatefulWidget {
 
   const EditableMultilineText({
     super.key,
+    required this.showMacStyle,
     this.label,
     this.maxLines = 5,
     this.height,
@@ -39,8 +42,9 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
               child: Text(
                 widget.label!,
                 textAlign: TextAlign.start,
-                style: const TextStyle(
-                  color: Colors.black,
+                style: TextStyle(
+                  color: SharedWidgets.textColor(
+                      showMacStyle: widget.showMacStyle, context: context),
                   fontSize: 12.0,
                 ),
               ),
@@ -60,15 +64,17 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           blurStyle: BlurStyle.normal,
                         )
                       ],
-                      color: Theme.of(context).colorScheme.surface,
+                      color: SharedWidgets.elementBackgroundColor(
+                          showMacStyle: widget.showMacStyle, context: context),
                       borderRadius: const BorderRadius.all(Radius.circular(4))),
                   child: TextFormField(
                     controller: widget.textController,
                     textAlign: TextAlign.start,
                     textAlignVertical: TextAlignVertical.top,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 12.0,
+                    style: TextStyle(
+                      color: SharedWidgets.textColor(
+                          showMacStyle: widget.showMacStyle, context: context),
+                      fontSize: 16.0,
                     ),
                     maxLines: widget.maxLines,
                     maxLength: null,

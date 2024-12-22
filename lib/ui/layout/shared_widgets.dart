@@ -1,5 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/main.dart';
+import 'package:roonmatrix/ui/layout/alert_element.dart';
+import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
+import 'package:roonmatrix/ui/layout/text_field_element.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SharedWidgets {
@@ -27,79 +34,171 @@ class SharedWidgets {
             ]
           : [];
 
-  static AlertDialog addItemWithNameDialog({
+  static brightness() {
+    return WidgetsBinding.instance.platformDispatcher.platformBrightness;
+  }
+
+  static textColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (showMacStyle && Platform.isMacOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.white
+          : MacosColors.black;
+    }
+    return Theme.of(context).colorScheme.inverseSurface;
+  }
+
+  static iconColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    return textColor(showMacStyle: showMacStyle, context: context);
+  }
+
+  static hintColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (showMacStyle && Platform.isMacOS) {
+      return MacosColors.systemGrayColor;
+    }
+    return Theme.of(context).hintColor;
+  }
+
+  static windowBackgroundColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (showMacStyle && Platform.isMacOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.underPageBackgroundColor
+          : MacosColors.white;
+    }
+    return Theme.of(context).colorScheme.surface;
+  }
+
+  static elementBackgroundColorLighter({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (showMacStyle && Platform.isMacOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? Theme.of(context).primaryColorLight
+          : Colors.white;
+    }
+    return Theme.of(context).colorScheme.surface;
+  }
+
+  static elementBackgroundColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    return windowBackgroundColor(showMacStyle: showMacStyle, context: context);
+  }
+
+  static areaBackgroundColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (showMacStyle && Platform.isMacOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : Colors.grey.shade100;
+    }
+    return SharedWidgets.brightness() == Brightness.dark
+        ? Colors.grey.shade700
+        : Colors.grey.shade100;
+  }
+
+  static tileBackgroundColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (showMacStyle && Platform.isMacOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : Colors.blue.shade100; // MacosColors.systemTealColor;
+    }
+    return SharedWidgets.brightness() == Brightness.dark
+        ? Colors.grey.shade700
+        : Colors.blue.shade100;
+  }
+
+  static textFieldBackgroundColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (showMacStyle && Platform.isMacOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.controlColor
+          : Color(0xffefefef);
+    }
+    return Colors.grey.shade100;
+  }
+
+  static AlertElement addItemWithNameDialog({
+    required bool showMacStyle,
     required BuildContext context,
     required TextEditingController textController,
     required Map<String, dynamic> translations,
   }) =>
-      AlertDialog(
-        title: Text(translations['dialogAddItemTitle'] ?? 'Add a new item'),
-        content: TextField(
+      AlertElement(
+        showMacStyle: showMacStyle,
+        title: translations['dialogAddItemTitle'] ?? 'Add a new item',
+        content: TextFieldElement(
+          showMacStyle: showMacStyle,
           controller: textController,
           autofocus: true,
-          decoration: InputDecoration(
-              hintText: translations['dialogAddItemHintText'] ??
-                  "Enter here the name of the new item"),
+          placeholder: translations['dialogAddItemHintText'] ??
+              "Enter here the name of the new item",
         ),
-        actions: [
-          TextButton(
-            child: Text(translations['dialogCancelButtonText'] ?? 'Cancel'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          TextButton(
-            child: Text(translations['dialogAddItemButtonText'] ?? 'Add'),
-            onPressed: () {
-              if (textController.text.isNotEmpty) {
-                Navigator.pop(context, textController.text);
-              }
-            },
-          ),
-        ],
+        button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
+        onPressed1: () => Navigator.pop(context),
+        button2Label: translations['dialogAddItemButtonText'] ?? 'Add',
+        onPressed2: () {
+          if (textController.text.isNotEmpty) {
+            Navigator.pop(context, textController.text);
+          }
+        },
       );
 
-  static AlertDialog addItemDialog({
+  static AlertElement addItemDialog({
     required BuildContext context,
     required Map<String, dynamic> translations,
   }) =>
-      AlertDialog(
-        title: Text(translations['dialogAddItemTitle'] ?? 'Add a new item?'),
-        actions: [
-          TextButton(
-            child: Text(translations['dialogCancelButtonText'] ?? 'Cancel'),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          TextButton(
-            child: Text(translations['dialogAddItemButtonText'] ?? 'Add'),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-        ],
+      AlertElement(
+        showMacStyle: showMacStyle,
+        title: translations['dialogAddItemTitle'] ?? 'Add a new item?',
+        button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
+        onPressed1: () => Navigator.pop(context, false),
+        button2Label: translations['dialogAddItemButtonText'] ?? 'Add',
+        onPressed2: () => Navigator.pop(context, true),
       );
 
-  static AlertDialog removeItemDialog({
+  static AlertElement removeItemDialog({
     required BuildContext context,
     required Map<String, dynamic> translations,
   }) =>
-      AlertDialog(
-        title: Text(translations['dialogRemoveItemTitle'] ?? 'Remove item?'),
-        actions: [
-          TextButton(
-            child: Text(translations['dialogCancelButtonText'] ?? 'Cancel'),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-          TextButton(
-            child: Text(translations['dialogRemoveButtonText'] ?? 'Remove'),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-        ],
+      AlertElement(
+        showMacStyle: showMacStyle,
+        title: translations['dialogRemoveItemTitle'] ?? 'Remove item?',
+        button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
+        onPressed1: () => Navigator.pop(context, false),
+        button2Label: translations['dialogRemoveButtonText'] ?? 'Remove',
+        onPressed2: () => Navigator.pop(context, true),
       );
 
-  static ElevatedButton addButton({
+  static IconTextButtonElement addButton({
     required BuildContext context,
+    required bool showMacStyle,
     required TextEditingController? textController,
     required Map<String, dynamic> translations,
     required void Function(dynamic value) onAccepted,
   }) =>
-      ElevatedButton.icon(
+      IconTextButtonElement(
+        showMacStyle: showMacStyle,
         icon: const Padding(
           padding: EdgeInsets.symmetric(vertical: 8.0),
           child: Icon(
@@ -108,7 +207,7 @@ class SharedWidgets {
             size: 20.0,
           ),
         ),
-        label: Text(translations['addButtonText'] ?? 'add'),
+        label: translations['addButtonText'] ?? 'add',
         onPressed: () async {
           dynamic value = await showDialog(
             context: context,
@@ -116,6 +215,7 @@ class SharedWidgets {
               return textController != null
                   ? addItemWithNameDialog(
                       context: context,
+                      showMacStyle: showMacStyle,
                       textController: textController,
                       translations: translations,
                     )
@@ -133,6 +233,7 @@ class SharedWidgets {
 
   static IconButton addIconButton({
     required BuildContext context,
+    required bool showMacStyle,
     required TextEditingController? textController,
     bool disabled = false,
     required Map<String, dynamic> translations,
@@ -154,6 +255,7 @@ class SharedWidgets {
                     return textController != null
                         ? addItemWithNameDialog(
                             context: context,
+                            showMacStyle: showMacStyle,
                             textController: textController,
                             translations: translations,
                           )
@@ -173,12 +275,13 @@ class SharedWidgets {
               },
       );
 
-  static ElevatedButton removeButton({
+  static IconTextButtonElement removeButton({
     required BuildContext context,
     required Map<String, dynamic> translations,
     required VoidCallback onAccepted,
   }) =>
-      ElevatedButton.icon(
+      IconTextButtonElement(
+        showMacStyle: showMacStyle,
         style: ButtonStyle(
           minimumSize:
               WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),
@@ -191,7 +294,7 @@ class SharedWidgets {
             size: 20.0,
           ),
         ),
-        label: Text(translations['removeButtonText'] ?? 'remove'),
+        label: translations['removeButtonText'] ?? 'remove',
         onPressed: () async {
           bool valid = await showDialog(
             context: context,
@@ -208,12 +311,13 @@ class SharedWidgets {
         },
       );
 
-  static ElevatedButton linkButton({
+  static IconTextButtonElement linkButton({
     required String link,
     required Map<String, dynamic> translations,
     required VoidCallback onPressed,
   }) {
-    return ElevatedButton.icon(
+    return IconTextButtonElement(
+      showMacStyle: showMacStyle,
       style: ButtonStyle(
         minimumSize:
             WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),
@@ -226,7 +330,7 @@ class SharedWidgets {
           size: 20.0,
         ),
       ),
-      label: Text(translations['openLinkButtonText'] ?? 'open link'),
+      label: translations['openLinkButtonText'] ?? 'open link',
       onPressed: () async {
         final Uri url = Uri.parse(link);
         if (!await launchUrl(

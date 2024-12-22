@@ -8,6 +8,7 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class KeyValItems extends StatefulWidget {
+  final bool showMacStyle;
   final String? label;
   final Color? labelColor;
   final Map<String, dynamic> fieldValues;
@@ -16,6 +17,7 @@ class KeyValItems extends StatefulWidget {
 
   const KeyValItems({
     super.key,
+    required this.showMacStyle,
     this.label,
     this.labelColor = Colors.black,
     required this.fieldValues,
@@ -28,6 +30,7 @@ class KeyValItems extends StatefulWidget {
 }
 
 class KeyValItemsState extends State<KeyValItems> {
+  bool get showMacStyle => widget.showMacStyle;
   String? get label => widget.label;
   Map<String, dynamic> get fieldValues => widget.fieldValues;
 
@@ -60,12 +63,11 @@ class KeyValItemsState extends State<KeyValItems> {
 
     for (String key in fieldValues.keys) {
       Widget widget = EditableSinglelineText(
+        showMacStyle: showMacStyle,
         key: ValueKey('$label-$key'),
         inputType: TextInputType.text,
         noCounter: true,
         label: key == ': ' ? '[: ]' : key,
-        labelColor: Colors.red,
-        borderColor: Colors.red.shade300,
         suffixIcon: IconButton(
           onPressed: () async {
             bool valid = await showDialog(
@@ -117,11 +119,21 @@ class KeyValItemsState extends State<KeyValItems> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ...SharedWidgets.labelWidget(
-                    label: widget.label, labelColor: widget.labelColor),
+                  label: widget.label,
+                  labelColor: SharedWidgets.brightness() == Brightness.dark
+                      ? SharedWidgets.textColor(
+                          showMacStyle: widget.showMacStyle, context: context)
+                      : widget.labelColor ??
+                          SharedWidgets.textColor(
+                              showMacStyle: widget.showMacStyle,
+                              context: context),
+                ),
                 Container(
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
                   child: Card(
+                    color: SharedWidgets.areaBackgroundColor(
+                        showMacStyle: showMacStyle, context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -133,6 +145,7 @@ class KeyValItemsState extends State<KeyValItems> {
                             padding: const EdgeInsets.only(right: 16.0),
                             child: translationsLoaded
                                 ? SharedWidgets.addButton(
+                                    showMacStyle: showMacStyle,
                                     context: context,
                                     textController: textController,
                                     translations: translations,

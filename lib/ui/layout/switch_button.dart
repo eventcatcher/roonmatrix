@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/main.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/switch_element.dart';
 
 class SwitchButton extends StatefulWidget {
+  final bool showMacStyle;
   final String? aligned;
   final String? label;
   final Color? labelColor;
@@ -10,6 +14,7 @@ class SwitchButton extends StatefulWidget {
 
   const SwitchButton({
     super.key,
+    required this.showMacStyle,
     this.aligned,
     this.label,
     this.labelColor = Colors.black,
@@ -48,7 +53,13 @@ class SwitchButtonState extends State<SwitchButton> {
             ? Text(
                 widget.label!,
                 style: TextStyle(
-                  color: widget.labelColor,
+                  color: SharedWidgets.brightness() == Brightness.dark
+                      ? SharedWidgets.textColor(
+                          showMacStyle: widget.showMacStyle, context: context)
+                      : widget.labelColor ??
+                          SharedWidgets.textColor(
+                              showMacStyle: widget.showMacStyle,
+                              context: context),
                   fontSize: 12.0,
                 ),
               )
@@ -57,13 +68,14 @@ class SwitchButtonState extends State<SwitchButton> {
 
   Widget switchWidget({bool noSpace = true}) => Container(
         transform: noSpace ? Matrix4.translationValues(10.0, -0.0, 0.0) : null,
-        child: Switch(
+        child: SwitchElement(
+          showMacStyle: showMacStyle,
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           value: widget.enabled,
           onChanged: (bool value) {
             widget.onChanged(value);
           },
-          activeTrackColor: const Color.fromARGB(255, 13, 71, 161),
+          activeTrackColor: const Color.fromARGB(255, 20, 106, 237),
           activeColor: Colors.white,
         ),
       );

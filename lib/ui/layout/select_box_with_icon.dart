@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class SelectBoxWithIcon extends StatefulWidget {
+  final bool showMacStyle;
   final Map<String, dynamic>? options;
   final String? aligned;
   final String? label;
@@ -15,10 +17,11 @@ class SelectBoxWithIcon extends StatefulWidget {
 
   const SelectBoxWithIcon({
     super.key,
+    required this.showMacStyle,
     required this.options,
     this.aligned,
     this.label,
-    this.labelColor = Colors.black,
+    this.labelColor,
     this.placeholder,
     this.selected,
     this.inRow,
@@ -79,7 +82,8 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                 blurStyle: BlurStyle.normal,
               )
             ],
-            color: Theme.of(context).colorScheme.surface,
+            color: SharedWidgets.elementBackgroundColor(
+                showMacStyle: widget.showMacStyle, context: context),
             borderRadius: const BorderRadius.all(Radius.circular(4))),
         child: widget.readOnly == true
             ? Container(
@@ -91,22 +95,28 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                           widget.options![widget.selected!] != null)
                       ? widget.options![widget.selected]['name']!
                       : "",
-                  style: const TextStyle(
-                    color: Colors.black,
+                  style: TextStyle(
+                    color: SharedWidgets.textColor(
+                        showMacStyle: widget.showMacStyle, context: context),
                     fontSize: 19.0,
                   ),
                 ),
               )
             : DropdownButtonFormField<String>(
                 value: widget.selected,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   prefixIconConstraints: BoxConstraints(
                     minWidth: 16.0,
                     minHeight: 36.0,
                   ),
                   prefixIcon: Padding(
                     padding: EdgeInsetsDirectional.only(end: 16.0),
-                    child: Icon(CupertinoIcons.time, size: 16.0),
+                    child: Icon(
+                      CupertinoIcons.time,
+                      size: 16.0,
+                      color: SharedWidgets.iconColor(
+                          showMacStyle: widget.showMacStyle, context: context),
+                    ),
                   ),
                   contentPadding: EdgeInsets.zero,
                   enabledBorder: InputBorder.none,
@@ -116,18 +126,26 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                 hint: widget.placeholder != null
                     ? Text(
                         widget.placeholder!,
-                        style: const TextStyle(
-                          color: Colors.black,
+                        style: TextStyle(
+                          color: SharedWidgets.textColor(
+                              showMacStyle: widget.showMacStyle,
+                              context: context),
                           fontSize: 19.0,
                         ),
                       )
                     : null,
-                dropdownColor: Colors.white,
-                icon: const Icon(Icons.arrow_drop_down),
+                //dropdownColor: Colors.white,
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: SharedWidgets.iconColor(
+                      showMacStyle: widget.showMacStyle, context: context),
+                ),
                 iconSize: 32,
                 elevation: 16,
                 style: TextStyle(
-                  color: Colors.grey.shade700,
+                  color: SharedWidgets.textColor(
+                      showMacStyle: widget.showMacStyle,
+                      context: context), // option text color
                 ),
                 onChanged: (String? value) {
                   widget.onChanged(value);
@@ -177,8 +195,10 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                   if (widget.label != null)
                     Text(
                       widget.label!,
-                      style: const TextStyle(
-                        color: Colors.black,
+                      style: TextStyle(
+                        color: SharedWidgets.textColor(
+                            showMacStyle: widget.showMacStyle,
+                            context: context),
                         fontSize: 19.0,
                       ),
                     ),
@@ -192,7 +212,10 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                     Text(
                       widget.label!,
                       style: TextStyle(
-                        color: widget.labelColor,
+                        color: widget.labelColor ??
+                            SharedWidgets.textColor(
+                                showMacStyle: widget.showMacStyle,
+                                context: context),
                         fontSize: 19.0,
                       ),
                     ),

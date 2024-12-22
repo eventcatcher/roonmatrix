@@ -8,6 +8,7 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class ListItems extends StatefulWidget {
+  final bool showMacStyle;
   final String? label;
   final Color? labelColor;
   final List<dynamic> fieldValues;
@@ -17,6 +18,7 @@ class ListItems extends StatefulWidget {
 
   const ListItems({
     super.key,
+    required this.showMacStyle,
     this.label,
     this.labelColor = Colors.black,
     required this.fieldValues,
@@ -30,6 +32,7 @@ class ListItems extends StatefulWidget {
 }
 
 class ListItemsState extends State<ListItems> {
+  bool get showMacStyle => widget.showMacStyle;
   List<dynamic> get fieldValues => widget.fieldValues;
   String? get label => widget.label;
   bool get predefinedLength => widget.predefinedLength;
@@ -64,11 +67,10 @@ class ListItemsState extends State<ListItems> {
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
       Widget widget = EditableSinglelineText(
+        showMacStyle: showMacStyle,
         key: ValueKey('$label-${fieldValues.length}-$idx'),
         inputType: TextInputType.text,
         noCounter: true,
-        labelColor: Colors.red,
-        borderColor: Colors.red.shade300,
         suffixIcon: predefinedLength
             ? null
             : IconButton(
@@ -122,11 +124,21 @@ class ListItemsState extends State<ListItems> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ...SharedWidgets.labelWidget(
-                    label: label, labelColor: widget.labelColor),
+                  label: label,
+                  labelColor: SharedWidgets.brightness() == Brightness.dark
+                      ? SharedWidgets.textColor(
+                          showMacStyle: widget.showMacStyle, context: context)
+                      : widget.labelColor ??
+                          SharedWidgets.textColor(
+                              showMacStyle: widget.showMacStyle,
+                              context: context),
+                ),
                 Container(
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
                   child: Card(
+                    color: SharedWidgets.areaBackgroundColor(
+                        showMacStyle: showMacStyle, context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -139,6 +151,7 @@ class ListItemsState extends State<ListItems> {
                               padding: const EdgeInsets.only(right: 16.0),
                               child: translationsLoaded
                                   ? SharedWidgets.addButton(
+                                      showMacStyle: showMacStyle,
                                       context: context,
                                       textController: textController,
                                       translations: translations,

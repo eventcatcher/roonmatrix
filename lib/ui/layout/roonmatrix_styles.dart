@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 abstract class RoonmatrixStyles {
-  static BoxDecoration boxDecoration = BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(4),
-    border: Border.all(
-        color: Colors.grey.shade300, width: 0, style: BorderStyle.solid),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.2),
-        spreadRadius: 1,
-        blurRadius: 8,
-        offset: const Offset(3, 3), // changes position of shadow
-      ),
-    ],
-  );
+  static dynamic boxDecoration = ({Color? fillColor}) => BoxDecoration(
+        color: fillColor ?? Colors.white,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+            color: Colors.grey.shade300, width: 0, style: BorderStyle.solid),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 8,
+            offset: const Offset(3, 3), // changes position of shadow
+          ),
+        ],
+      );
 
   static dynamic inputDecoration = ({
     String? placeholder,
