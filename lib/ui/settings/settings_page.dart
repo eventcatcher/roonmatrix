@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/helper/ip_address_input_formatter.dart';
 import 'package:roonmatrix/ui/helper/ip_input_formatter.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
+import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
@@ -38,6 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
   String title = '';
   bool translationsLoaded = false;
   bool rangeValid = false;
+  bool loaded = false;
 
   late TranslationsBloc translationsBloc;
   late SettingsBloc settingsBloc;
@@ -54,7 +57,25 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
   }
 
-  Widget body() => SingleChildScrollView(
+  Stream<String> ipChangeListener(TextEditingController controller) async* {
+    while (true) {
+      await Future.delayed(Duration(milliseconds: 100));
+      yield controller.value.text;
+    }
+  }
+
+  @override
+  void dispose() {
+    ipStart.dispose();
+    ipEnd.dispose();
+    super.dispose();
+  }
+
+  Widget body({
+    required TextEditingController ipStart,
+    required TextEditingController ipEnd,
+  }) =>
+      SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -87,7 +108,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   flex: 1,
                                   child: EditableSinglelineText(
                                     showMacStyle: showMacStyle,
-                                    key: ValueKey('Start-$rangeValid'),
+                                    key: ValueKey('Start-$loaded}'),
                                     inputType: TextInputType.text,
                                     placeholder: '###.###.###.###',
                                     formatters: [
@@ -101,6 +122,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                             'settingsPageIpScanRangeLabelFrom'] ??
                                         'from',
                                     text: ipStart.text,
+                                    controller: ipStart,
                                     errorMessageHandler: (String newValue) {
                                       return settingsBloc
                                           .getIpFieldErrorMessage(
@@ -115,15 +137,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                           rangeValid;
                                     },
                                     onChanged: (String value) =>
-                                        settingsBloc.setIpRange(
-                                            ipStart: value, ipEnd: ipEnd.text),
+                                        ipStart.text = value,
                                   ),
                                 ),
                                 Flexible(
                                   flex: 1,
                                   child: EditableSinglelineText(
                                     showMacStyle: showMacStyle,
-                                    key: ValueKey('End-$rangeValid'),
+                                    key: ValueKey('End-$loaded'),
                                     inputType: TextInputType.text,
                                     placeholder: '###.###.###.###',
                                     formatters: [
@@ -137,6 +158,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                             'settingsPageIpScanRangeLabelTo'] ??
                                         'to',
                                     text: ipEnd.text,
+                                    controller: ipEnd,
                                     errorMessageHandler: (String newValue) {
                                       return settingsBloc
                                           .getIpFieldErrorMessage(
@@ -151,13 +173,77 @@ class _SettingsPageState extends State<SettingsPage> {
                                           rangeValid;
                                     },
                                     onChanged: (String value) =>
-                                        settingsBloc.setIpRange(
-                                            ipStart: ipStart.text,
-                                            ipEnd: value),
+                                        ipEnd.text = value,
                                   ),
                                 ),
                               ],
                             ),
+                            SizedBox(height: 32.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                StreamBuilder<String>(
+                                    stream: ipChangeListener(ipStart),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<String> snapshotStart) {
+                                      if (snapshotStart.hasError) {
+                                        return const Text('Error');
+                                      } else {
+                                        return StreamBuilder<String>(
+                                            stream: ipChangeListener(ipEnd),
+                                            builder: (BuildContext context,
+                                                AsyncSnapshot<String>
+                                                    snapshotEnd) {
+                                              if (snapshotEnd.hasError) {
+                                                return const Text('Error');
+                                              } else {
+                                                return IconTextButtonElement(
+                                                  key: ValueKey(
+                                                      'save-${snapshotStart.data}-${snapshotEnd.data}'),
+                                                  showMacStyle: showMacStyle,
+                                                  icon: const Padding(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 8.0),
+                                                    child: Icon(
+                                                      Icons.save,
+                                                      color: Colors.white,
+                                                      size: 20.0,
+                                                    ),
+                                                  ),
+                                                  label: translations[
+                                                          'saveButtonText'] ??
+                                                      'save',
+                                                  onPressed: ipStart.text
+                                                              .isNotEmpty &&
+                                                          ipEnd.text
+                                                              .isNotEmpty &&
+                                                          settingsBloc.validateIpRange(
+                                                                  ipStart:
+                                                                      ipStart
+                                                                          .text,
+                                                                  ipEnd: ipEnd
+                                                                      .text) ==
+                                                              true
+                                                      ? () async {
+                                                          settingsBloc
+                                                              .setIpRange(
+                                                                  ipStart:
+                                                                      ipStart
+                                                                          .text,
+                                                                  ipEnd: ipEnd
+                                                                      .text);
+                                                          Navigator.pop(
+                                                              context); // close settings page
+                                                        }
+                                                      : null,
+                                                );
+                                              }
+                                            });
+                                      }
+                                    }),
+                              ],
+                            )
                           ],
                         ),
                       )
@@ -224,8 +310,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   print('state changed => rebuild');
                 }
 
-                ipStart.text = settingsState.ipStart;
-                ipEnd.text = settingsState.ipEnd;
+                if (!loaded) {
+                  SchedulerBinding.instance.addPostFrameCallback((_) async {
+                    if (mounted) {
+                      setState(() {
+                        ipStart.text = settingsState.ipStart;
+                        ipEnd.text = settingsState.ipEnd;
+
+                        loaded = true;
+                      });
+                    }
+                  });
+                }
 
                 return showMacStyle == true && Platform.isMacOS
                     ? MacosScaffold(
@@ -243,7 +339,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             builder: ((context, scrollController) {
                               return Material(
                                 child: MacosWindow(
-                                  child: body(),
+                                  child: body(
+                                    ipStart: ipStart,
+                                    ipEnd: ipEnd,
+                                  ),
                                 ),
                               );
                             }),
@@ -257,7 +356,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             title: Text(title),
                             actions: const [],
                           ),
-                          body: body(),
+                          body: body(
+                            ipStart: ipStart,
+                            ipEnd: ipEnd,
+                          ),
                         ),
                       );
               });

@@ -18,6 +18,7 @@ class EditableSinglelineText extends StatefulWidget {
   final Color? labelColor;
   final String? placeholder;
   final String text;
+  final TextEditingController? controller;
   final dynamic prefixIcon;
   final dynamic suffixIcon;
   final int? maxLength;
@@ -42,6 +43,7 @@ class EditableSinglelineText extends StatefulWidget {
     this.labelColor = Colors.black,
     this.placeholder,
     required this.text,
+    this.controller,
     this.errorMessageHandler,
     this.prefixIcon,
     this.suffixIcon,
@@ -272,6 +274,10 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                         errorMessage = widget.errorMessageHandler!(value);
                       }
                     });
+                  }
+
+                  if (widget.controller != null) {
+                    widget.controller!.text = value;
                   }
 
                   if (widget.onChanged != null) {
