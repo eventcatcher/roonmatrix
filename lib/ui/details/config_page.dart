@@ -432,8 +432,12 @@ class ConfigPageState extends State<ConfigPage> {
                             ),
                             tags: {
                               'b': StyledTextTag(
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: SharedWidgets.brightness() ==
+                                            Brightness.dark
+                                        ? Colors.red.shade300
+                                        : Colors.red),
                               ),
                             },
                           ),
