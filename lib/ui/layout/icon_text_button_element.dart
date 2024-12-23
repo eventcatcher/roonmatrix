@@ -47,14 +47,7 @@ class IconTextButtonElement extends StatelessWidget {
                 mouseCursor: SystemMouseCursors.click,
               )
         : ElevatedButton.icon(
-            icon: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Icon(
-                Icons.save,
-                color: Colors.white,
-                size: 20.0,
-              ),
-            ),
+            icon: icon,
             label: Text(label),
             style: style ??
                 ElevatedButton.styleFrom(

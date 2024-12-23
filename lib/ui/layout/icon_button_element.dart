@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class IconButtonElement extends StatelessWidget {
   const IconButtonElement({
@@ -12,18 +14,24 @@ class IconButtonElement extends StatelessWidget {
 
   final bool showMacStyle;
   final Icon icon;
-  final Function() onPressed;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return showMacStyle == true && Platform.isMacOS
         ? MacosIconButton(
-            //backgroundColor: Colors.blue,
+            backgroundColor: CupertinoColors.activeBlue.color,
+            hoverColor: CupertinoColors.activeBlue.darkElevatedColor,
+            disabledColor: CupertinoColors.systemGrey,
             icon: icon,
+            //semanticLabel: label,
             onPressed: onPressed,
+            mouseCursor: SystemMouseCursors.click,
           )
         : IconButton(
-            color: Colors.blue,
+            color: SharedWidgets.brightness() == Brightness.dark
+                ? Colors.blue.shade800
+                : Colors.blue.shade600,
             icon: icon,
             onPressed: onPressed,
           );

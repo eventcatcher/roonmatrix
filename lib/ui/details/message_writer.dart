@@ -515,7 +515,8 @@ class MessageWriterState extends State<MessageWriter> {
                       label:
                           '${translations['messageNewLabel'] ?? 'New message'}:',
                       maxLines: 5,
-                      height: 86.0,
+                      height:
+                          Platform.isIOS || Platform.isAndroid ? 101.0 : 86.0,
                       textController: messageTextController,
                       onChanged: (String value) {
                         if (mounted) {
@@ -585,6 +586,7 @@ class MessageWriterState extends State<MessageWriter> {
                         ),
                         const SizedBox(height: 5.0),
                         Ink(
+                          padding: EdgeInsets.all(0.0),
                           decoration: ShapeDecoration(
                             color: selectedMessageId != null &&
                                     options.containsKey(selectedMessageId)
@@ -597,8 +599,12 @@ class MessageWriterState extends State<MessageWriter> {
                                   BorderRadius.all(Radius.circular(4.0)),
                             ),
                           ),
-                          child: IconButton(
-                            color: Colors.white,
+                          child: SharedWidgets.removeIconButton(
+                            context: context,
+                            showMacStyle: showMacStyle,
+                            textController: nameTextController,
+                            disabled: messageTextController.text.isEmpty,
+                            translations: translations,
                             onPressed: () async {
                               if (selectedMessageId != null &&
                                   options.containsKey(selectedMessageId)) {
@@ -622,42 +628,6 @@ class MessageWriterState extends State<MessageWriter> {
                                                   'Yes',
                                           onPressed2: () =>
                                               Navigator.of(context).pop(true),
-                                          // actions: [
-                                          //   Padding(
-                                          //     padding: const EdgeInsets.only(
-                                          //         bottom: 16.0),
-                                          //     child: ElevatedButton(
-                                          //         style: ButtonStyle(
-                                          //           backgroundColor:
-                                          //               WidgetStateProperty
-                                          //                   .resolveWith<Color>(
-                                          //             (Set<WidgetState>
-                                          //                 states) {
-                                          //               return Colors.blueGrey;
-                                          //             },
-                                          //           ),
-                                          //         ),
-                                          //         onPressed: () =>
-                                          //             Navigator.of(context)
-                                          //                 .pop(false),
-                                          //         child: Text(translations[
-                                          //                 'dialogQuitNo'] ??
-                                          //             'No')),
-                                          //   ),
-                                          //   Padding(
-                                          //     padding: const EdgeInsets.only(
-                                          //         bottom: 16.0,
-                                          //         left: 16.0,
-                                          //         right: 16.0),
-                                          //     child: ElevatedButton(
-                                          //         onPressed: () =>
-                                          //             Navigator.of(context)
-                                          //                 .pop(true),
-                                          //         child: Text(translations[
-                                          //                 'dialogQuitYes'] ??
-                                          //             'Yes')),
-                                          //   ),
-                                          // ],
                                         );
                                       });
                                     });
@@ -674,12 +644,10 @@ class MessageWriterState extends State<MessageWriter> {
                                 }
                               }
                             },
-                            icon: const Icon(
-                              Icons.remove,
-                              size: 20.0,
-                            ),
                           ),
                         ),
+                        if (Platform.isMacOS && showMacStyle == true)
+                          SizedBox(height: 9.0)
                       ],
                     ),
                   )

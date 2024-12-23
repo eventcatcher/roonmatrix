@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/main.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
+import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/text_field_element.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -243,7 +244,7 @@ class SharedWidgets {
         },
       );
 
-  static IconButton addIconButton({
+  static IconButtonElement addIconButton({
     required BuildContext context,
     required bool showMacStyle,
     required TextEditingController? textController,
@@ -252,16 +253,16 @@ class SharedWidgets {
     required void Function(dynamic value) onAccepted,
     VoidCallback? onExit,
   }) =>
-      IconButton(
-        icon: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 20.0,
-        ),
-        onPressed: disabled == true
-            ? null
-            : () async {
-                dynamic value = await showDialog(
+      IconButtonElement(
+          showMacStyle: showMacStyle,
+          icon: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 20.0,
+          ),
+          onPressed: () async {
+            if (!disabled) {
+              dynamic value = await showDialog(
                   context: context,
                   builder: (context) {
                     return textController != null
@@ -275,16 +276,38 @@ class SharedWidgets {
                             context: context,
                             translations: translations,
                           );
-                  },
-                );
-                if (value == null) {
-                  if (onExit != null) {
-                    onExit();
-                  }
-                } else {
-                  onAccepted(value);
+                  });
+
+              if (value == null) {
+                if (onExit != null) {
+                  onExit();
                 }
-              },
+              } else {
+                onAccepted(value);
+              }
+            }
+          });
+
+  static IconButtonElement removeIconButton({
+    required BuildContext context,
+    required bool showMacStyle,
+    required TextEditingController? textController,
+    bool disabled = false,
+    required Map<String, dynamic> translations,
+    required VoidCallback onPressed,
+  }) =>
+      IconButtonElement(
+        showMacStyle: showMacStyle,
+        icon: const Icon(
+          Icons.remove,
+          color: Colors.white,
+          size: 20.0,
+        ),
+        onPressed: () {
+          if (!disabled) {
+            onPressed();
+          }
+        },
       );
 
   static IconTextButtonElement removeButton({
