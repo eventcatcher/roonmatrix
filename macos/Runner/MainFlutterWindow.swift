@@ -1,6 +1,7 @@
 import Cocoa
 import FlutterMacOS
-import bitsdojo_window_macos 
+import macos_window_utils
+import bitsdojo_window_macos
 
 class MainFlutterWindow: BitsdojoWindow {
   // override func bitsdojo_window_configure() -> UInt {
@@ -8,12 +9,22 @@ class MainFlutterWindow: BitsdojoWindow {
   // }
 
   override func awakeFromNib() {
-    let flutterViewController = FlutterViewController.init()
     let windowFrame = self.frame
-    self.contentViewController = flutterViewController
+    let macOSWindowUtilsViewController = MacOSWindowUtilsViewController()
+    self.contentViewController = macOSWindowUtilsViewController
     self.setFrame(windowFrame, display: true)
 
-    RegisterGeneratedPlugins(registry: flutterViewController)
+    /* Initialize the macos_window_utils plugin */
+    MainFlutterWindowManipulator.start(mainFlutterWindow: self)
+
+    RegisterGeneratedPlugins(registry: macOSWindowUtilsViewController.flutterViewController)
+
+//    let flutterViewController = FlutterViewController.init()
+//    let windowFrame = self.frame
+//    self.contentViewController = flutterViewController
+//    self.setFrame(windowFrame, display: true)
+//
+//    RegisterGeneratedPlugins(registry: flutterViewController)
 
     super.awakeFromNib()
   }
