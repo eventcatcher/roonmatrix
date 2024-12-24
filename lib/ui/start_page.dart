@@ -67,6 +67,8 @@ class StartPageState extends State<StartPage> {
   late MainBloc mainBloc;
   late String appVersionAndBuildNumber;
 
+  bool settingsPageLoaded = false;
+
   @override
   void initState() {
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
@@ -147,7 +149,9 @@ class StartPageState extends State<StartPage> {
                 return Container();
               }
 
-              if (mainState.ipStart == null || mainState.ipEnd == null) {
+              if ((mainState.ipStart == null || mainState.ipEnd == null) &&
+                  !settingsPageLoaded) {
+                settingsPageLoaded = true;
                 openSettingsPage();
               }
 

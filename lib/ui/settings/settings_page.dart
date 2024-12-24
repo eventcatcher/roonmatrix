@@ -71,188 +71,190 @@ class _SettingsPageState extends State<SettingsPage> {
     super.dispose();
   }
 
+  EditableSinglelineText fromField() => EditableSinglelineText(
+        showMacStyle: showMacStyle,
+        key: ValueKey('Start-$loaded}'),
+        inputType: TextInputType.text,
+        placeholder: '###.###.###.###',
+        formatters: [
+          IpInputFormatter.ipAddressInputFilter(),
+          LengthLimitingTextInputFormatter(15),
+          IpAddressInputFormatter()
+        ],
+        noCounter: true,
+        maxLength: 15,
+        label: translations['settingsPageIpScanRangeLabelFrom'] ?? 'from',
+        text: ipStart.text,
+        controller: ipStart,
+        errorMessageHandler: (String newValue) {
+          return settingsBloc.getIpFieldErrorMessage(
+              value: newValue, translations: translations);
+        },
+        validation: (String text) {
+          rangeValid =
+              settingsBloc.validateIpRange(ipStart: text, ipEnd: ipEnd.text);
+          return settingsBloc.validateIp(ip: text) && rangeValid;
+        },
+        onChanged: (String value) => ipStart.text = value,
+      );
+
+  EditableSinglelineText toField() => EditableSinglelineText(
+        showMacStyle: showMacStyle,
+        key: ValueKey('End-$loaded'),
+        inputType: TextInputType.text,
+        placeholder: '###.###.###.###',
+        formatters: [
+          IpInputFormatter.ipAddressInputFilter(),
+          LengthLimitingTextInputFormatter(15),
+          IpAddressInputFormatter()
+        ],
+        noCounter: true,
+        maxLength: 15,
+        label: translations['settingsPageIpScanRangeLabelTo'] ?? 'to',
+        text: ipEnd.text,
+        controller: ipEnd,
+        errorMessageHandler: (String newValue) {
+          return settingsBloc.getIpFieldErrorMessage(
+              value: newValue, translations: translations);
+        },
+        validation: (String text) {
+          rangeValid =
+              settingsBloc.validateIpRange(ipStart: ipStart.text, ipEnd: text);
+          return settingsBloc.validateIp(ip: text) && rangeValid;
+        },
+        onChanged: (String value) => ipEnd.text = value,
+      );
+
   Widget body({
     required TextEditingController ipStart,
     required TextEditingController ipEnd,
   }) =>
       SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Column(
-              children: [
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        translations['settingsPageIpScanRangeHeadline'] ??
-                            'IP range to scan for devices',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          color: SharedWidgets.textColor(
-                              showMacStyle: showMacStyle, context: context),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Flexible(
-                                  flex: 1,
-                                  child: EditableSinglelineText(
-                                    showMacStyle: showMacStyle,
-                                    key: ValueKey('Start-$loaded}'),
-                                    inputType: TextInputType.text,
-                                    placeholder: '###.###.###.###',
-                                    formatters: [
-                                      IpInputFormatter.ipAddressInputFilter(),
-                                      LengthLimitingTextInputFormatter(15),
-                                      IpAddressInputFormatter()
-                                    ],
-                                    noCounter: true,
-                                    maxLength: 15,
-                                    label: translations[
-                                            'settingsPageIpScanRangeLabelFrom'] ??
-                                        'from',
-                                    text: ipStart.text,
-                                    controller: ipStart,
-                                    errorMessageHandler: (String newValue) {
-                                      return settingsBloc
-                                          .getIpFieldErrorMessage(
-                                              value: newValue,
-                                              translations: translations);
-                                    },
-                                    validation: (String text) {
-                                      rangeValid = settingsBloc.validateIpRange(
-                                          ipStart: text, ipEnd: ipEnd.text);
-                                      return settingsBloc.validateIp(
-                                              ip: text) &&
-                                          rangeValid;
-                                    },
-                                    onChanged: (String value) =>
-                                        ipStart.text = value,
-                                  ),
-                                ),
-                                Flexible(
-                                  flex: 1,
-                                  child: EditableSinglelineText(
-                                    showMacStyle: showMacStyle,
-                                    key: ValueKey('End-$loaded'),
-                                    inputType: TextInputType.text,
-                                    placeholder: '###.###.###.###',
-                                    formatters: [
-                                      IpInputFormatter.ipAddressInputFilter(),
-                                      LengthLimitingTextInputFormatter(15),
-                                      IpAddressInputFormatter()
-                                    ],
-                                    noCounter: true,
-                                    maxLength: 15,
-                                    label: translations[
-                                            'settingsPageIpScanRangeLabelTo'] ??
-                                        'to',
-                                    text: ipEnd.text,
-                                    controller: ipEnd,
-                                    errorMessageHandler: (String newValue) {
-                                      return settingsBloc
-                                          .getIpFieldErrorMessage(
-                                              value: newValue,
-                                              translations: translations);
-                                    },
-                                    validation: (String text) {
-                                      rangeValid = settingsBloc.validateIpRange(
-                                          ipStart: ipStart.text, ipEnd: text);
-                                      return settingsBloc.validateIp(
-                                              ip: text) &&
-                                          rangeValid;
-                                    },
-                                    onChanged: (String value) =>
-                                        ipEnd.text = value,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 32.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                StreamBuilder<String>(
-                                    stream: ipChangeListener(ipStart),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<String> snapshotStart) {
-                                      if (snapshotStart.hasError) {
-                                        return const Text('Error');
-                                      } else {
-                                        return StreamBuilder<String>(
-                                            stream: ipChangeListener(ipEnd),
-                                            builder: (BuildContext context,
-                                                AsyncSnapshot<String>
-                                                    snapshotEnd) {
-                                              if (snapshotEnd.hasError) {
-                                                return const Text('Error');
-                                              } else {
-                                                return IconTextButtonElement(
-                                                  key: ValueKey(
-                                                      'save-${snapshotStart.data}-${snapshotEnd.data}'),
-                                                  showMacStyle: showMacStyle,
-                                                  icon: const Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 8.0),
-                                                    child: Icon(
-                                                      Icons.save,
-                                                      color: Colors.white,
-                                                      size: 20.0,
-                                                    ),
-                                                  ),
-                                                  label: translations[
-                                                          'saveButtonText'] ??
-                                                      'save',
-                                                  onPressed: ipStart.text
-                                                              .isNotEmpty &&
-                                                          ipEnd.text
-                                                              .isNotEmpty &&
-                                                          settingsBloc.validateIpRange(
-                                                                  ipStart:
-                                                                      ipStart
-                                                                          .text,
-                                                                  ipEnd: ipEnd
-                                                                      .text) ==
-                                                              true
-                                                      ? () async {
-                                                          settingsBloc
-                                                              .setIpRange(
-                                                                  ipStart:
-                                                                      ipStart
-                                                                          .text,
-                                                                  ipEnd: ipEnd
-                                                                      .text);
-                                                          Navigator.pop(
-                                                              context); // close settings page
-                                                        }
-                                                      : null,
-                                                );
-                                              }
-                                            });
-                                      }
-                                    }),
-                              ],
-                            )
-                          ],
-                        ),
-                      )
-                    ],
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Text(
+                  translations['settingsPageIpScanRangeHeadline'] ??
+                      'IP range to scan for devices',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    color: SharedWidgets.textColor(
+                        showMacStyle: showMacStyle, context: context),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+              MediaQuery.of(context).size.width > 400
+                  ? Row(
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: fromField(),
+                        ),
+                        Flexible(
+                          flex: 1,
+                          child: toField(),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      children: [fromField(), toField()],
+                    ),
+              SizedBox(height: 32.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  StreamBuilder<String>(
+                      stream: ipChangeListener(ipStart),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<String> snapshotStart) {
+                        if (snapshotStart.hasError) {
+                          return const Text('Error');
+                        } else {
+                          return StreamBuilder<String>(
+                              stream: ipChangeListener(ipEnd),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<String> snapshotEnd) {
+                                if (snapshotEnd.hasError) {
+                                  return const Text('Error');
+                                } else {
+                                  return Row(
+                                    children: [
+                                      if (ipStart.text.isNotEmpty &&
+                                          ipEnd.text.isNotEmpty &&
+                                          settingsBloc.validateIp(
+                                                  ip: ipStart.text) ==
+                                              true &&
+                                          settingsBloc.validateIp(
+                                                  ip: ipEnd.text) ==
+                                              true &&
+                                          !settingsBloc.validateIpRange(
+                                              ipStart: ipStart.text,
+                                              ipEnd: ipEnd.text))
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(right: 4.0),
+                                          child: Text(
+                                            translations[
+                                                    'settingsIpRangeInvalidError'] ??
+                                                'IP-Range is invalid',
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                            softWrap: false,
+                                            style: TextStyle(
+                                              color:
+                                                  SharedWidgets.brightness() ==
+                                                          Brightness.dark
+                                                      ? Colors.red.shade200
+                                                      : Colors.red,
+                                              fontSize: 10.0,
+                                            ),
+                                          ),
+                                        ),
+                                      IconTextButtonElement(
+                                        key: ValueKey(
+                                            'save-${snapshotStart.data}-${snapshotEnd.data}'),
+                                        showMacStyle: showMacStyle,
+                                        icon: const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          child: Icon(
+                                            Icons.save,
+                                            color: Colors.white,
+                                            size: 20.0,
+                                          ),
+                                        ),
+                                        label: translations['saveButtonText'] ??
+                                            'save',
+                                        onPressed: ipStart.text.isNotEmpty &&
+                                                ipEnd.text.isNotEmpty &&
+                                                settingsBloc.validateIpRange(
+                                                        ipStart: ipStart.text,
+                                                        ipEnd: ipEnd.text) ==
+                                                    true
+                                            ? () async {
+                                                settingsBloc.setIpRange(
+                                                    ipStart: ipStart.text,
+                                                    ipEnd: ipEnd.text);
+                                                Navigator.pop(
+                                                    context); // close settings page
+                                              }
+                                            : null,
+                                      ),
+                                    ],
+                                  );
+                                }
+                              });
+                        }
+                      }),
+                ],
+              )
+            ],
+          ),
         ),
       );
 

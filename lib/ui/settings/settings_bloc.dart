@@ -81,7 +81,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       return translations['settingsIpFieldInvalidError'] ?? 'IP is invalid';
     }
 
-    return translations['settingsIpRangeInvalidError'] ?? 'IP-Range is invalid';
+    return '';
   }
 
   // ==================== //
