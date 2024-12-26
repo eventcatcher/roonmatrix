@@ -1,11 +1,18 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BurgerMenu extends StatefulWidget {
   final Map<String, dynamic> translations;
+  final bool noPop;
   final Function(String? key) onClose;
 
   const BurgerMenu(
-      {super.key, required this.translations, required this.onClose});
+      {super.key,
+      required this.translations,
+      this.noPop = false,
+      required this.onClose});
 
   @override
   BurgerMenuState createState() => BurgerMenuState();
@@ -37,11 +44,12 @@ class BurgerMenuState extends State<BurgerMenu> {
   Widget menuBuilder(List<dynamic> popupData) => ListView(
         padding: EdgeInsets.zero,
         children: [
-          const SizedBox(
+          SizedBox(
             height: 56.0,
             child: DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color:
+                    Platform.isIOS ? CupertinoColors.systemGrey : Colors.blue,
               ),
               margin: EdgeInsets.zero,
               padding: EdgeInsets.zero,
@@ -60,7 +68,9 @@ class BurgerMenuState extends State<BurgerMenu> {
               ),
               onTap: () {
                 widget.onClose(obj.key);
-                Navigator.pop(context);
+                if (!widget.noPop) {
+                  Navigator.pop(context);
+                }
               },
             );
           })

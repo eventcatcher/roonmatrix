@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart' as cup;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -9,6 +10,7 @@ class TextFieldElement extends StatelessWidget {
     super.key,
     required this.showMacStyle,
     this.placeholder,
+    this.prefixIcon,
     this.readOnly = false,
     this.maxLength,
     this.buildCounter,
@@ -26,6 +28,7 @@ class TextFieldElement extends StatelessWidget {
 
   final bool showMacStyle;
   final String? placeholder;
+  final Widget? prefixIcon;
   final bool readOnly;
   final int? maxLength;
   final InputCounterWidgetBuilder? buildCounter;
@@ -42,10 +45,38 @@ class TextFieldElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return cup.CupertinoTextField(
+        placeholder: placeholder,
+        prefix: prefixIcon != null
+            ? cup.Padding(
+                padding: const EdgeInsets.only(left: 6.0),
+                child: prefixIcon,
+              )
+            : null,
+        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+        clearButtonMode: cup.OverlayVisibilityMode.always,
+        readOnly: readOnly,
+        maxLength: maxLength,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        suffix: suffixIcon,
+        style: style,
+        controller: controller,
+        decoration: BoxDecoration(
+          color: SharedWidgets.textFieldBackgroundColor(
+              showMacStyle: showMacStyle, context: context),
+        ),
+        onChanged: onChanged,
+      );
+    }
+
     return showMacStyle == true && Platform.isMacOS
         ? MacosTextField(
             placeholder: placeholder,
-            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+            prefix: prefixIcon,
+            padding: EdgeInsets.symmetric(
+                horizontal: prefixIcon != null ? 0.0 : 8.0, vertical: 6.0),
             clearButtonMode: OverlayVisibilityMode.always,
             readOnly: readOnly,
             maxLength: maxLength,

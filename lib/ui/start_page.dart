@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -68,6 +69,7 @@ class StartPageState extends State<StartPage> {
   late String appVersionAndBuildNumber;
 
   bool settingsPageLoaded = false;
+  bool _isDrawerOpen = false;
 
   @override
   void initState() {
@@ -128,6 +130,48 @@ class StartPageState extends State<StartPage> {
     //       'StartPage => updateSizes, caller: $caller, width: $width, height: $height');
     // }
   }
+
+  openBurgerMenuItem(String? key) {
+    if (key == 'about') {
+      openAboutModal(
+          context: context,
+          aboutAppMessage: aboutAppMessage,
+          translations: translations);
+    }
+    if (key == 'settings') {
+      openSettingsPage();
+    }
+  }
+
+  burgerMenuRaw(bool noPop) => BurgerMenu(
+        translations: translations,
+        noPop: noPop,
+        onClose: (String? key) {
+          setState(() => _isDrawerOpen = false);
+          return openBurgerMenuItem(key);
+        },
+      );
+
+  burgerMenu() => BlocBuilder(
+      bloc: translationsBloc,
+      builder: (context, TranslationsState translationsState) {
+        if (translationsState is TranslationsStateLoaded) {
+          translations = translationsState.translations;
+          aboutAppMessage = translationsState.aboutAppMessage;
+          translationsLoaded = translationsState.translationsLoaded;
+        }
+
+        if (translationsState is! TranslationsStateLoaded ||
+            !translationsLoaded) {
+          return const SizedBox();
+        }
+
+        return Platform.isIOS
+            ? burgerMenuRaw(true)
+            : Drawer(
+                child: burgerMenuRaw(false),
+              );
+      });
 
   body() => BlocBuilder(
       bloc: translationsBloc,
@@ -1008,14 +1052,93 @@ class StartPageState extends State<StartPage> {
             });
       });
 
+  stack(BuildContext context) => Stack(
+        children: <Widget>[
+          body(),
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeIn,
+            top: 0.0,
+            bottom: 0.0,
+            left: _isDrawerOpen
+                ? 0.0
+                : -(MediaQuery.of(context).size.width / 3) * 2,
+            child: Container(
+              width: (MediaQuery.of(context).size.width / 3) * 2,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 5.0,
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: <Widget>[
+                  Container(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height -
+                        (MediaQuery.of(context).size.height / 1.8 - 90.0) -
+                        120.0,
+                    color:
+                        Colors.transparent, // background color of burger menu
+                    child: Stack(
+                      children: <Widget>[
+                        burgerMenu(),
+                        Positioned(
+                          top: 14.0,
+                          left: 10.0,
+                          child: GestureDetector(
+                            onTap: () => setState(() => _isDrawerOpen = false),
+                            child: Icon(
+                              CupertinoIcons.clear,
+                              color: Colors.white,
+                              size: 30.0,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
     updateSizes('build');
 
+    if (Platform.isIOS) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text(title),
+          leading: CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: Icon(Icons.menu, color: _isDrawerOpen ? Colors.grey : null),
+            onPressed: () =>
+                _isDrawerOpen ? null : setState(() => _isDrawerOpen = true),
+          ),
+        ),
+        child: ContentArea(
+          builder: ((context, scrollController) {
+            return Material(
+              child: MacosWindow(
+                child: stack(context),
+              ),
+            );
+          }),
+        ),
+      );
+    }
     return showMacStyle == true && Platform.isMacOS
         ? MacosScaffold(
             toolBar: ToolBar(
-              title: Text(title),
+              title: Center(child: Text(title)),
               titleWidth: 1000.0,
               actions: [
                 const ToolBarSpacer(),
@@ -1129,37 +1252,44 @@ class StartPageState extends State<StartPage> {
               ],
             ),
             drawer: Platform.isIOS || Platform.isAndroid || Platform.isFuchsia
-                ? BlocBuilder(
-                    bloc: translationsBloc,
-                    builder: (context, TranslationsState translationsState) {
-                      if (translationsState is TranslationsStateLoaded) {
-                        translations = translationsState.translations;
-                        aboutAppMessage = translationsState.aboutAppMessage;
-                        translationsLoaded =
-                            translationsState.translationsLoaded;
-                      }
-
-                      if (translationsState is! TranslationsStateLoaded ||
-                          !translationsLoaded) {
-                        return const SizedBox();
-                      }
-
-                      return Drawer(
-                          child: BurgerMenu(
-                              translations: translations,
-                              onClose: (String? key) {
-                                if (key == 'about') {
-                                  openAboutModal(
-                                      context: context,
-                                      aboutAppMessage: aboutAppMessage,
-                                      translations: translations);
-                                }
-                                if (key == 'settings') {
-                                  openSettingsPage();
-                                }
-                              }));
-                    })
+                ? burgerMenu()
                 : null,
             body: body());
+  }
+}
+
+class MenuItem extends StatelessWidget {
+  final Icon icon;
+  final String label;
+
+  const MenuItem({
+    super.key,
+    required this.icon,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 42.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Icon(
+            icon.icon,
+            color: Color(0xFFB42827),
+          ),
+          SizedBox(
+            width: 8.0,
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

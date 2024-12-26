@@ -67,7 +67,7 @@
     "addButtonText": "hinzufügen",
     "dialogAddItemTitle": "Ein neues Element hinzufügen?",
     "dialogRemoveItemTitle": "Element entfernen?",
-    "dialogAddItemHintText": "Gebe hier den Namen für das neue Element ein",
+    "dialogAddItemHintText": "Gebe hier den Namen ein",
     "dialogCancelButtonText": "Abbrechen",
     "dialogAddItemButtonText": "Hinzufügen",
     "dialogRemoveButtonText": "Entfernen",
@@ -95,6 +95,8 @@
     "sendOptionExclusive": "Exklusives Playout",
     "allDevicesSwitchLabel": "an alle Geräte senden",
     "allDevicesRemoveSwitchLabel": "von allen Geräten entfernen",
+    "zonePickerOptionsEmpty": "keine",
+    "zonePickerSelectionEmpty": "Auswahl",
     "config": {
         "hostname": "Hostname [Wichtig]",
         "password": "Passwort [Wichtig]",

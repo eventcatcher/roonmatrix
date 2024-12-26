@@ -293,6 +293,7 @@ class ControlPageState extends State<ControlPage> {
                   children: [
                     SelectBox(
                         showMacStyle: showMacStyle,
+                        translations: translations,
                         aligned: 'horizontal',
                         label:
                             '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
@@ -337,6 +338,7 @@ class ControlPageState extends State<ControlPage> {
                         children: [
                           SelectBox(
                               showMacStyle: showMacStyle,
+                              translations: translations,
                               aligned: 'horizontal',
                               label:
                                   '${translations['zoneSelectionLabel'] ?? 'Zone'}:',

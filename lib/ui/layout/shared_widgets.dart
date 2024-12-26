@@ -164,8 +164,8 @@ class SharedWidgets {
           showMacStyle: showMacStyle,
           controller: textController,
           autofocus: true,
-          placeholder: translations['dialogAddItemHintText'] ??
-              "Enter here the name of the new item",
+          placeholder:
+              translations['dialogAddItemHintText'] ?? "Enter here the name",
         ),
         button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
         onPressed1: () => Navigator.pop(context),

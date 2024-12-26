@@ -75,21 +75,19 @@ class LogPageState extends State<LogPage> {
               controller: mainBloc.getSearchController(type: 'log'),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 0.0),
-            child: SelectBoxWithIcon(
-              showMacStyle: showMacStyle,
-              options: translationsBloc.state.logHoursOptions,
-              placeholder:
-                  translations['pleaseSelectPlaceholder'] ?? 'Please Select',
-              selected: hours.toString(),
-              onChanged: (String? value) {
-                if (mounted && value != null) {
-                  setState(() => hours = int.parse(value));
-                  mainBloc.getLog(ip: ip, hours: hours);
-                }
-              },
-            ),
+          SelectBoxWithIcon(
+            showMacStyle: showMacStyle,
+            translations: translations,
+            options: translationsBloc.state.logHoursOptions,
+            placeholder:
+                translations['pleaseSelectPlaceholder'] ?? 'Please Select',
+            selected: hours.toString(),
+            onChanged: (String? value) {
+              if (mounted && value != null) {
+                setState(() => hours = int.parse(value));
+                mainBloc.getLog(ip: ip, hours: hours);
+              }
+            },
           ),
           Expanded(
             child: mainState.subPageIdle == true
@@ -251,43 +249,40 @@ class LogPageState extends State<LogPage> {
                   }
                 }
 
-                return DefaultTabController(
-                  length: 2,
-                  child: showMacStyle == true && Platform.isMacOS
-                      ? MacosScaffold(
-                          toolBar: ToolBar(
-                            title: Text(title),
-                            titleWidth: 1000.0,
-                            leading: MacosBackButton(
-                              onPressed: () => Navigator.pop(context),
-                              fillColor: Colors.transparent,
-                            ),
-                            actions: [],
+                return showMacStyle == true && Platform.isMacOS
+                    ? MacosScaffold(
+                        toolBar: ToolBar(
+                          title: Text(title),
+                          titleWidth: 1000.0,
+                          leading: MacosBackButton(
+                            onPressed: () => Navigator.pop(context),
+                            fillColor: Colors.transparent,
                           ),
-                          children: [
-                            ContentArea(
-                              builder: ((context, scrollController) {
-                                return Material(
-                                  child: MacosWindow(
-                                    child: body(
-                                        context: context,
-                                        mainState: mainState,
-                                        log: log),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ],
-                        )
-                      : Scaffold(
-                          appBar: AppBar(
-                            title: Text(title),
-                            actions: const [],
-                          ),
-                          body: body(
-                              context: context, mainState: mainState, log: log),
+                          actions: [],
                         ),
-                );
+                        children: [
+                          ContentArea(
+                            builder: ((context, scrollController) {
+                              return Material(
+                                child: MacosWindow(
+                                  child: body(
+                                      context: context,
+                                      mainState: mainState,
+                                      log: log),
+                                ),
+                              );
+                            }),
+                          ),
+                        ],
+                      )
+                    : Scaffold(
+                        appBar: AppBar(
+                          title: Text(title),
+                          actions: const [],
+                        ),
+                        body: body(
+                            context: context, mainState: mainState, log: log),
+                      );
               });
         });
   }

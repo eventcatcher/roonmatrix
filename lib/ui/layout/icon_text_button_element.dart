@@ -24,6 +24,24 @@ class IconTextButtonElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return CupertinoButton.filled(
+        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+        minSize: 8,
+        onPressed: onPressed,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 4.0),
+              child: icon,
+            ),
+            Text(label)
+          ],
+        ),
+      );
+    }
+
     return showMacStyle == true && Platform.isMacOS
         ? onMacAsText
             ? PushButton(

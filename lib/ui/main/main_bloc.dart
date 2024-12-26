@@ -1194,7 +1194,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             ),
           ),
         ),
-        title: "roonmatrix",
+        title: "RoonMatrix",
         question: aboutAppMessage,
         okText: translations['okButtonText'] ?? 'OK',
         cancelText: '',

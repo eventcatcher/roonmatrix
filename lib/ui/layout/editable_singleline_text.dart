@@ -26,6 +26,7 @@ class EditableSinglelineText extends StatefulWidget {
   final bool noCounter;
   final bool decoupled;
   final bool debounce;
+  final bool noDecoration;
   final Color? fillColorForValidationError;
   final String Function(String text)? filter;
   final void Function(String text)? onChanged;
@@ -52,6 +53,7 @@ class EditableSinglelineText extends StatefulWidget {
     this.noCounter = false,
     this.decoupled = true,
     this.debounce = true,
+    this.noDecoration = false,
     this.fillColorForValidationError,
     this.filter,
     this.onChanged,
@@ -176,7 +178,8 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
           ConstrainedBox(
             constraints: const BoxConstraints.tightFor(height: 36),
             child: Container(
-              decoration: showMacStyle == true && Platform.isMacOS
+              decoration: widget.noDecoration == true ||
+                      (showMacStyle == true && Platform.isMacOS)
                   ? null
                   : BoxDecoration(
                       boxShadow: const [
@@ -199,7 +202,9 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
               child: TextFieldElement(
                 showMacStyle: showMacStyle,
                 readOnly: widget.readOnly,
+                placeholder: widget.placeholder,
                 maxLength: widget.maxLength,
+                prefixIcon: widget.prefixIcon,
                 buildCounter: widget.maxLength != null
                     ? (context,
                         {required currentLength,

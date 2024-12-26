@@ -26,7 +26,7 @@ class AlertElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return showMacStyle == true && Platform.isMacOS
+    return (showMacStyle == true && Platform.isMacOS) || Platform.isIOS
         ? cup.CupertinoAlertDialog(
             title: icon != null
                 ? Column(children: [icon!, Text(title)])
@@ -35,12 +35,14 @@ class AlertElement extends StatelessWidget {
             actions: [
               if (button1Label.isNotEmpty)
                 cup.CupertinoDialogAction(
+                    isDestructiveAction: true,
                     onPressed: () {
                       onPressed1();
                     },
                     child: Text(button1Label)),
               if (button2Label.isNotEmpty)
                 cup.CupertinoDialogAction(
+                    isDefaultAction: true,
                     onPressed: onPressed2 != null ? () => onPressed2!() : null,
                     child: Text(button2Label)),
             ],

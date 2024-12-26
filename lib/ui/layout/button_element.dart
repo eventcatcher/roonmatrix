@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
 
@@ -18,6 +19,15 @@ class ButtonElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return CupertinoButton.filled(
+        padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+        minSize: 8,
+        onPressed: onPressed,
+        child: Text(label),
+      );
+    }
+
     return showMacStyle == true && Platform.isMacOS
         ? PushButton(
             controlSize: ControlSize.regular,

@@ -18,6 +18,15 @@ class IconButtonElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return CupertinoButton.filled(
+        padding: EdgeInsets.all(8),
+        minSize: 10,
+        onPressed: onPressed,
+        child: icon,
+      );
+    }
+
     return showMacStyle == true && Platform.isMacOS
         ? MacosIconButton(
             backgroundColor: CupertinoColors.activeBlue.color,

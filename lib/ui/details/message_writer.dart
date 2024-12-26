@@ -92,6 +92,7 @@ class MessageWriterState extends State<MessageWriter> {
         padding: const EdgeInsets.only(bottom: 8.0),
         child: SelectBox(
             showMacStyle: showMacStyle,
+            translations: translations,
             aligned: 'horizontal',
             label: '${translations['messageSelectionLabel'] ?? 'Message'}:',
             placeholder:
@@ -159,35 +160,6 @@ class MessageWriterState extends State<MessageWriter> {
                             button2Label:
                                 translations['dialogQuitYes'] ?? 'Yes',
                             onPressed2: () => Navigator.of(context).pop(true),
-                            // actions: [
-                            //   Padding(
-                            //     padding: const EdgeInsets.only(bottom: 16.0),
-                            //     child: ElevatedButton(
-                            //         style: ButtonStyle(
-                            //           backgroundColor: WidgetStateProperty
-                            //               .resolveWith<Color>(
-                            //             (Set<WidgetState> states) {
-                            //               return Colors.blueGrey;
-                            //             },
-                            //           ),
-                            //         ),
-                            //         onPressed: () =>
-                            //             Navigator.of(context).pop(false),
-                            //         child: Text(
-                            //             translations['dialogQuitNo'] ??
-                            //                 'No')),
-                            //   ),
-                            //   Padding(
-                            //     padding: const EdgeInsets.only(
-                            //         bottom: 16.0, left: 16.0, right: 16.0),
-                            //     child: ElevatedButton(
-                            //         onPressed: () =>
-                            //             Navigator.of(context).pop(true),
-                            //         child: Text(
-                            //             translations['dialogQuitYes'] ??
-                            //                 'Yes')),
-                            //   ),
-                            // ],
                           );
                         });
                       });
@@ -479,13 +451,21 @@ class MessageWriterState extends State<MessageWriter> {
                         : Expanded(child: selectbox()),
                     Padding(
                       padding: EdgeInsets.only(
-                          top: showMacStyle && Platform.isMacOS ? 6.0 : 0.0),
+                          top: showMacStyle && Platform.isMacOS
+                              ? 6.0
+                              : Platform.isIOS
+                                  ? 12.0
+                                  : 0.0),
                       child: stopMessageButton(
                           desktopLandscapeWide: desktopLandscapeWide),
                     ),
                     Padding(
                       padding: EdgeInsets.only(
-                          top: showMacStyle && Platform.isMacOS ? 6.0 : 0.0),
+                          top: showMacStyle && Platform.isMacOS
+                              ? 6.0
+                              : Platform.isIOS
+                                  ? 12.0
+                                  : 0.0),
                       child: sendMessageButton(),
                     ),
                   ],

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
 
@@ -22,6 +23,13 @@ class SwitchElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (Platform.isIOS) {
+      return CupertinoSwitch(
+        value: value,
+        onChanged: onChanged,
+      );
+    }
+
     return showMacStyle == true && Platform.isMacOS
         ? MacosSwitch(
             value: value,

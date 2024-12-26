@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
@@ -77,35 +80,22 @@ class SearchFieldState extends State<SearchField> {
                   children: [
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 4.0, bottom: 1.0, top: 9.0),
-                        child: TextFormField(
-                          decoration: InputDecoration(
-                            iconColor: SharedWidgets.iconColor(
-                                showMacStyle: showMacStyle, context: context),
-                            hintText: translationsLoaded
-                                ? translations['searchfieldHint'] ?? 'search'
-                                : 'search',
-                            hintStyle: TextStyle(
-                              color: SharedWidgets.hintColor(
-                                  showMacStyle: showMacStyle, context: context),
-                            ),
-                            counter: const Offstage(),
-                            icon: const Padding(
-                              padding: EdgeInsets.only(left: 4.0),
-                              child: Icon(CupertinoIcons.search, size: 18.0),
-                            ),
-                            border: InputBorder.none,
-                            isDense: true,
-                            contentPadding: const EdgeInsets.all(0),
-                          ),
-                          maxLines: 1,
-                          style: TextStyle(
-                              color: SharedWidgets.textColor(
-                                  showMacStyle: showMacStyle, context: context),
-                              fontSize: 19.0,
-                              decorationStyle: TextDecorationStyle.double),
-                          enableSuggestions: false,
+                        padding: EdgeInsets.only(
+                          left: Platform.isIOS ||
+                                  (showMacStyle == true && Platform.isMacOS)
+                              ? 0.0
+                              : 4.0,
+                        ),
+                        child: EditableSinglelineText(
+                          showMacStyle: showMacStyle,
+                          text: controller.text,
+                          aligned: 'inline',
+                          decoupled: false,
+                          noDecoration: true,
+                          prefixIcon: Icon(CupertinoIcons.search,
+                              size: 18.0, color: Colors.black),
+                          placeholder:
+                              translations['searchfieldHint'] ?? 'search',
                           controller: controller,
                           onChanged: (String value) {
                             EasyDebounce.debounce('searchfield-debouncer',
@@ -117,21 +107,22 @@ class SearchFieldState extends State<SearchField> {
                         ),
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.close,
-                          color: SharedWidgets.iconColor(
-                              showMacStyle: widget.showMacStyle,
-                              context: context)),
-                      padding: const EdgeInsets.all(4.0),
-                      constraints: const BoxConstraints(),
-                      splashRadius: 1,
-                      onPressed: () {
-                        setState(() {
-                          controller.text = '';
-                          mainBloc.setSearchFilter(type: type, filter: '');
-                        });
-                      },
-                    )
+                    if (!Platform.isIOS && (!showMacStyle || !Platform.isMacOS))
+                      IconButton(
+                        icon: Icon(Icons.close,
+                            color: SharedWidgets.iconColor(
+                                showMacStyle: widget.showMacStyle,
+                                context: context)),
+                        padding: const EdgeInsets.all(4.0),
+                        constraints: const BoxConstraints(),
+                        splashRadius: 1,
+                        onPressed: () {
+                          setState(() {
+                            controller.text = '';
+                            mainBloc.setSearchFilter(type: type, filter: '');
+                          });
+                        },
+                      )
                   ],
                 ),
               ),
