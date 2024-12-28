@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -270,17 +271,20 @@ class MessageWriterState extends State<MessageWriter> {
 
   Widget labelWidget(String? label, Color? labelColor) => Expanded(
         child: label != null
-            ? Text(
-                label,
-                style: TextStyle(
-                  color: SharedWidgets.brightness() == Brightness.dark
-                      ? SharedWidgets.textColor(
-                          showMacStyle: widget.showMacStyle, context: context)
-                      : labelColor ??
-                          SharedWidgets.textColor(
-                              showMacStyle: widget.showMacStyle,
-                              context: context),
-                  fontSize: 12.0,
+            ? Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: SharedWidgets.brightness() == Brightness.dark
+                        ? SharedWidgets.textColor(
+                            showMacStyle: widget.showMacStyle, context: context)
+                        : labelColor ??
+                            SharedWidgets.textColor(
+                                showMacStyle: widget.showMacStyle,
+                                context: context),
+                    fontSize: 12.0,
+                  ),
                 ),
               )
             : Container(),
@@ -306,10 +310,7 @@ class MessageWriterState extends State<MessageWriter> {
                 onChanged: onChanged,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: labelWidget(label, null),
-            )
+            labelWidget(label, null)
           ],
         ),
       );
@@ -338,67 +339,61 @@ class MessageWriterState extends State<MessageWriter> {
                         showMacStyle: showMacStyle,
                         title: translations['dialogSendQuestion'] ??
                             'Do you really want to send this message to the device?',
-                        content: Material(
-                          child: Container(
-                            color: SharedWidgets.windowBackgroundColor(
-                                showMacStyle: showMacStyle, context: context),
-                            child: SingleChildScrollView(
-                              padding: const EdgeInsets.all(8),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  VerticalRadioSelector(
-                                    showMacStyle: showMacStyle,
-                                    options: [
-                                      translations['sendOptionForce'] ??
-                                          'Force Playout',
-                                      translations['sendOptionNextPlayout'] ??
-                                          'On next Playout',
-                                      translations['sendOptionExclusive'] ??
-                                          'Exclusive Playout'
-                                    ],
-                                    selectedOption: null,
-                                    onChanged: (String? value) {
-                                      setState(() {
-                                        selectedOption = value!;
-                                      });
+                        content: SingleChildScrollView(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              VerticalRadioSelector(
+                                showMacStyle: showMacStyle,
+                                options: [
+                                  translations['sendOptionForce'] ??
+                                      'Force Playout',
+                                  translations['sendOptionNextPlayout'] ??
+                                      'On next Playout',
+                                  translations['sendOptionExclusive'] ??
+                                      'Exclusive Playout'
+                                ],
+                                selectedOption: null,
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    selectedOption = value!;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 48.0),
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 0.0),
+                                  child: switchButton(
+                                    value: allDevices,
+                                    label:
+                                        translations['allDevicesSwitchLabel'] ??
+                                            'send to all devices',
+                                    onChanged: (bool value) {
+                                      if (mounted) {
+                                        setState(() => allDevices = value);
+                                      }
                                     },
                                   ),
-                                  const SizedBox(height: 48.0),
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 0.0),
-                                      child: switchButton(
-                                        value: allDevices,
-                                        label: translations[
-                                                'allDevicesSwitchLabel'] ??
-                                            'send to all devices',
-                                        onChanged: (bool value) {
-                                          if (mounted) {
-                                            setState(() => allDevices = value);
-                                          }
-                                        },
-                                      ),
 
-                                      //     SwitchButton(
-                                      //   showMacStyle: showMacStyle,
-                                      //   label: translations[
-                                      //           'allDevicesSwitchLabel'] ??
-                                      //       'send to all devices',
-                                      //   reverse: true,
-                                      //   enabled: allDevices,
-                                      //   onChanged: (bool value) {
-                                      //     if (mounted) {
-                                      //       setState(() => allDevices = value);
-                                      //     }
-                                      //   },
-                                      // ),
-                                    ),
-                                  ),
-                                ],
+                                  //     SwitchButton(
+                                  //   showMacStyle: showMacStyle,
+                                  //   label: translations[
+                                  //           'allDevicesSwitchLabel'] ??
+                                  //       'send to all devices',
+                                  //   reverse: true,
+                                  //   enabled: allDevices,
+                                  //   onChanged: (bool value) {
+                                  //     if (mounted) {
+                                  //       setState(() => allDevices = value);
+                                  //     }
+                                  //   },
+                                  // ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                         button1Label: translations['dialogQuitNo'] ?? 'No',

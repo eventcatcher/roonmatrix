@@ -445,12 +445,39 @@ class RoonMatrixState extends State<RoonMatrix> {
       indicator: UnderlineTabIndicator(
           borderSide: BorderSide(width: 2, color: Colors.red)));
 
-  Scaffold translationsLoadingWindow({required String title}) => Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: const [],
-      ),
-      body: const SizedBox());
+  translationsLoadingWindow({required String title}) {
+    if (Platform.isIOS) {
+      return CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          brightness: SharedWidgets.brightness(),
+          middle: Text(title),
+        ),
+        child: SizedBox(),
+      );
+    }
+
+    return showMacStyle == true && Platform.isMacOS
+        ? MacosScaffold(
+            children: [
+              ContentArea(
+                builder: ((context, scrollController) {
+                  return Material(
+                    child: MacosWindow(
+                      child: SizedBox(),
+                    ),
+                  );
+                }),
+              ),
+            ],
+          )
+        : Scaffold(
+            appBar: AppBar(
+              title: Text(title),
+              actions: const [],
+            ),
+            body: const SizedBox(),
+          );
+  }
 
   ThemeData materialThemeData({required TabBarTheme tabBarTheme}) => ThemeData(
         useMaterial3: false,

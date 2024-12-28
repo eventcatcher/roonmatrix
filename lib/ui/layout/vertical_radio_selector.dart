@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/main.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class VerticalRadioSelector extends StatefulWidget {
@@ -31,41 +35,59 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgets = widget.options
-        .map((String el) => ListTile(
-            contentPadding: const EdgeInsets.all(0),
-            horizontalTitleGap: 0,
-            title: Padding(
-              padding: const EdgeInsets.only(left: 4.0),
-              child: Text(
-                el,
-                style: TextStyle(
-                  fontSize: 12.0,
-                  color: SharedWidgets.textColor(
-                      showMacStyle: widget.showMacStyle, context: context),
+        .map((String el) => Row(
+              children: [
+                SizedBox(
+                  width: 20.0,
+                  child: Center(
+                    child: (showMacStyle == true && Platform.isMacOS) ||
+                            Platform.isIOS
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: CupertinoRadio(
+                              value: el,
+                              groupValue: selectedOption,
+                              onChanged: (String? value) {
+                                setState(() {
+                                  selectedOption = value ?? '';
+                                });
+                                if (value != null) {
+                                  widget.onChanged(el);
+                                }
+                              },
+                            ),
+                          )
+                        : Radio<String>(
+                            value: el,
+                            groupValue: selectedOption,
+                            onChanged: (String? value) {
+                              setState(() {
+                                selectedOption = value ?? '';
+                              });
+                              if (value != null) {
+                                widget.onChanged(el);
+                              }
+                            },
+                          ),
+                  ),
                 ),
-              ),
-            ),
-            leading: SizedBox(
-              width: 20.0,
-              child: Radio<String>(
-                value: el,
-                groupValue: selectedOption,
-                onChanged: (String? value) {
-                  setState(() {
-                    selectedOption = value ?? '';
-                  });
-                  if (value != null) {
-                    widget.onChanged(el);
-                  }
-                },
-              ),
-            ),
-            onTap: () {
-              setState(() {
-                selectedOption = el;
-              });
-              widget.onChanged(el);
-            }) as Widget)
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4.0),
+                    child: Text(
+                      el,
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        color: SharedWidgets.textColor(
+                            showMacStyle: widget.showMacStyle,
+                            context: context),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ) as Widget)
         .toList();
 
     return Column(

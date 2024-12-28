@@ -272,6 +272,15 @@ class _SettingsPageState extends State<SettingsPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
+            if (Platform.isIOS) {
+              return CupertinoPageScaffold(
+                navigationBar: CupertinoNavigationBar(
+                  brightness: SharedWidgets.brightness(),
+                  middle: Text(title),
+                ),
+                child: SizedBox(),
+              );
+            }
             return showMacStyle == true && Platform.isMacOS
                 ? MacosScaffold(
                     toolBar: ToolBar(
