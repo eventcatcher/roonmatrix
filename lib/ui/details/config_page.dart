@@ -403,116 +403,117 @@ class ConfigPageState extends State<ConfigPage> {
     required ColorScheme defaultColorScheme,
     required MainState mainState,
     required String jsonStr,
-  }) =>
-      Container(
-        padding: EdgeInsets.only(
-            top: Platform.isIOS || Platform.isMacOS ? 20.0 : 0.0),
-        color: SharedWidgets.windowBackgroundColor(
-            showMacStyle: showMacStyle, context: context),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: SearchField(
-                showMacStyle: showMacStyle,
-                type: 'config',
-                controller: mainBloc.getSearchController(type: 'config'),
-              ),
+  }) {
+    return Container(
+      padding:
+          EdgeInsets.only(top: Platform.isIOS || Platform.isMacOS ? 20.0 : 0.0),
+      color: SharedWidgets.windowBackgroundColor(
+          showMacStyle: showMacStyle, context: context),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: SearchField(
+              showMacStyle: showMacStyle,
+              type: 'config',
+              controller: mainBloc.getSearchController(type: 'config'),
             ),
-            Expanded(
-              child: mainState.subPageIdle == true
-                  ? const LoadingIndicatorSmall()
-                  : ListView(
-                      shrinkWrap: true,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: StyledText(
-                            text: jsonStr,
-                            style: TextStyle(
-                              color: SharedWidgets.textColor(
-                                  showMacStyle: showMacStyle, context: context),
-                            ),
-                            tags: {
-                              'b': StyledTextTag(
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: SharedWidgets.brightness() ==
-                                            Brightness.dark
-                                        ? Colors.red.shade300
-                                        : Colors.red),
-                              ),
-                            },
+          ),
+          Expanded(
+            child: mainState.subPageIdle == true
+                ? const LoadingIndicatorSmall()
+                : ListView(
+                    shrinkWrap: true,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: StyledText(
+                          text: jsonStr,
+                          style: TextStyle(
+                            color: SharedWidgets.textColor(
+                                showMacStyle: showMacStyle, context: context),
                           ),
-                        ),
-                      ],
-                    ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                  vertical:
-                      Platform.isMacOS || Platform.isWindows || Platform.isLinux
-                          ? 16.0
-                          : 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconTextButtonElement(
-                    showMacStyle: showMacStyle,
-                    icon: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Icon(
-                        Icons.download,
-                        color: Colors.white,
-                        size: 20.0,
-                      ),
-                    ),
-                    label: translations['exportButtonText'] ?? 'export',
-                    onPressed: saveIdle == true || mainState.subPageIdle == true
-                        ? null
-                        : () async {
-                            setState(() {
-                              saveIdle = true;
-                            });
-                            bool? valid = await mainBloc.exportData(
-                                name: name, ip: ip, type: 'config');
-                            setState(() {
-                              saveIdle = false;
-                            });
-                            if (valid == null) {
-                              return;
-                            }
-                            if (valid == true) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text(
-                                      translations['exportDoneMessage'] ??
-                                          'export successfully done'),
-                                  backgroundColor: Colors.green,
-                                ));
-                              }
-                            } else {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text(
-                                      translations['exportFailedMessage'] ??
-                                          'export failed!'),
-                                  backgroundColor: Colors.red,
-                                ));
-                              }
-                            }
+                          tags: {
+                            'b': StyledTextTag(
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: SharedWidgets.brightness() ==
+                                          Brightness.dark
+                                      ? Colors.red.shade300
+                                      : Colors.red),
+                            ),
                           },
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+                vertical:
+                    Platform.isMacOS || Platform.isWindows || Platform.isLinux
+                        ? 16.0
+                        : 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconTextButtonElement(
+                  showMacStyle: showMacStyle,
+                  icon: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Icon(
+                      Icons.download,
+                      color: Colors.white,
+                      size: 20.0,
+                    ),
+                  ),
+                  label: translations['exportButtonText'] ?? 'export',
+                  onPressed: saveIdle == true || mainState.subPageIdle == true
+                      ? null
+                      : () async {
+                          setState(() {
+                            saveIdle = true;
+                          });
+                          bool? valid = await mainBloc.exportData(
+                              name: name, ip: ip, type: 'config');
+                          setState(() {
+                            saveIdle = false;
+                          });
+                          if (valid == null) {
+                            return;
+                          }
+                          if (valid == true) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                    translations['exportDoneMessage'] ??
+                                        'export successfully done'),
+                                backgroundColor: Colors.green,
+                              ));
+                            }
+                          } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                    translations['exportFailedMessage'] ??
+                                        'export failed!'),
+                                backgroundColor: Colors.red,
+                              ));
+                            }
+                          }
+                        },
+                ),
+              ],
             ),
-            if (Platform.isIOS) const SizedBox(height: 14.0),
-          ],
-        ),
-      );
+          ),
+          if (Platform.isIOS) const SizedBox(height: 14.0),
+        ],
+      ),
+    );
+  }
 
   Widget body({
     required BuildContext context,
@@ -533,6 +534,8 @@ class ConfigPageState extends State<ConfigPage> {
               jsonStr: jsonStr),
         ],
       );
+
+  String jsonStr = '';
 
   @override
   Widget build(BuildContext context) {
@@ -597,7 +600,8 @@ class ConfigPageState extends State<ConfigPage> {
                 }
 
                 String search = mainState.searchFilter['config']!;
-                String jsonStr = mainBloc.getPrettyJSONString(mainState.config);
+                jsonStr = mainBloc.getPrettyJSONString(mainState.config);
+
                 if (search.isNotEmpty) {
                   jsonStr = jsonStr.replaceAll(
                       RegExp(search, caseSensitive: false), '<b>$search</b>');
@@ -656,7 +660,7 @@ class ConfigPageState extends State<ConfigPage> {
                               });
                             case 1:
                               return CupertinoTabView(
-                                builder: (context) {
+                                builder: (xcontext) {
                                   return SafeArea(
                                     child: CupertinoPageScaffold(
                                       child: Center(
