@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -104,6 +106,97 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
     // }
   }
 
+  String replaceCodes(String str) {
+    if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
+      str = jsonDecode(str.replaceAll("'", '"')).join(' ');
+      str = str.replaceAll('< ', ', ');
+      str = str.replaceAll(' >', ': ');
+    }
+
+    return str;
+  }
+
+  controls() => Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (width > sliderTextMin)
+            Text('${translations['speed'] ?? 'speed:'}:'),
+          InkWell(
+            onDoubleTap: () {
+              setState(() {
+                sliderValue = 1.0;
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: SizedBox(
+                width: width > sliderMin ? 200 : 120,
+                child: Slider(
+                  value: sliderValue,
+                  min: 0.1,
+                  max: 5,
+                  divisions: 100,
+                  thumbColor: Colors.red.shade700,
+                  activeColor: Colors.green.shade200,
+                  inactiveColor: Colors.grey.shade700,
+                  onChanged: (double value) {
+                    setState(() {
+                      sliderValue = value;
+                    });
+                  },
+                ),
+              ),
+            ),
+          ),
+          if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+            BlocBuilder(
+                bloc: mainBloc,
+                builder: (context, MainState mainState) {
+                  String zoneName = '';
+                  dynamic info = mainState.info[mainState.devices[index]];
+                  if (info['control_id'] != null) {
+                    String controlId = info['control_id'];
+                    if (info['channels'] != null &&
+                        info['channels'][controlId] != null) {
+                      if (info['channels'][controlId] == 'webserver') {
+                        zoneName = controlId;
+                      } else {
+                        zoneName = info['channels'][controlId];
+                      }
+                    }
+                  }
+
+                  return Text(
+                      'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
+                }),
+          if (Platform.isIOS || Platform.isAndroid || Platform.isFuchsia) ...[
+            const Text('  |  '),
+            IconButton(
+              iconSize: 12.0,
+              padding: EdgeInsets.zero,
+              onPressed: () =>
+                  setState(() => mobileFontSize = mobileFontSizeSmall),
+              icon: const Icon(FontAwesomeIcons.font),
+            ),
+            IconButton(
+              iconSize: 16.0,
+              padding: EdgeInsets.zero,
+              onPressed: () =>
+                  setState(() => mobileFontSize = mobileFontSizeMedium),
+              icon: const Icon(FontAwesomeIcons.font),
+            ),
+            IconButton(
+              iconSize: 20.0,
+              padding: EdgeInsets.zero,
+              onPressed: () =>
+                  setState(() => mobileFontSize = mobileFontSizeBig),
+              icon: const Icon(FontAwesomeIcons.font),
+            ),
+          ],
+          const SizedBox(width: 4.0),
+        ],
+      );
+
   Widget body() => SizedBox(
         width: double.infinity,
         child: RoonmatrixAnimatedGradient(
@@ -159,7 +252,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                               'TextScrollWrapper${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
                           height: fontSize * 1.15,
                           child: TextScroll(
-                            '$displaystr    ////    ',
+                            '${replaceCodes(displaystr)}    ////    ',
                             key: ValueKey(
                                 'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
                             style: TextStyle(
@@ -187,6 +280,31 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   @override
   Widget build(BuildContext context) {
     updateSizes('build');
+
+    if (Platform.isIOS) {
+      return Material(
+        child: CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            brightness: SharedWidgets.brightness(),
+            middle: Platform.isIOS ? null : Text(name),
+            leading: CupertinoButton(
+              padding: EdgeInsets.zero,
+              child: CupertinoNavigationBarBackButton(),
+              onPressed: () => Navigator.pop(context),
+            ),
+            trailing: SizedBox(
+              width: Platform.isIOS
+                  ? MediaQuery.of(context).size.width - 100
+                  : 900.0,
+              child: controls(),
+            ),
+          ),
+          child: SafeArea(
+            child: body(),
+          ),
+        ),
+      );
+    }
 
     return showMacStyle == true && Platform.isMacOS
         ? Material(
@@ -302,93 +420,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
         : Scaffold(
             appBar: AppBar(
               title: Text(name),
-              actions: [
-                Row(
-                  children: [
-                    if (width > sliderTextMin)
-                      Text('${translations['speed'] ?? 'speed:'}:'),
-                    InkWell(
-                      onDoubleTap: () {
-                        setState(() {
-                          sliderValue = 1.0;
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: SizedBox(
-                          width: width > sliderMin ? 200 : 120,
-                          child: Slider(
-                            value: sliderValue,
-                            min: 0.1,
-                            max: 5,
-                            divisions: 100,
-                            thumbColor: Colors.red.shade700,
-                            activeColor: Colors.green.shade200,
-                            inactiveColor: Colors.grey.shade700,
-                            onChanged: (double value) {
-                              setState(() {
-                                sliderValue = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (Platform.isMacOS ||
-                        Platform.isWindows ||
-                        Platform.isLinux)
-                      BlocBuilder(
-                          bloc: mainBloc,
-                          builder: (context, MainState mainState) {
-                            String zoneName = '';
-                            dynamic info =
-                                mainState.info[mainState.devices[index]];
-                            if (info['control_id'] != null) {
-                              String controlId = info['control_id'];
-                              if (info['channels'] != null &&
-                                  info['channels'][controlId] != null) {
-                                if (info['channels'][controlId] ==
-                                    'webserver') {
-                                  zoneName = controlId;
-                                } else {
-                                  zoneName = info['channels'][controlId];
-                                }
-                              }
-                            }
-
-                            return Text(
-                                'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
-                          }),
-                    if (Platform.isIOS ||
-                        Platform.isAndroid ||
-                        Platform.isFuchsia) ...[
-                      const Text('  |  '),
-                      IconButton(
-                        iconSize: 12.0,
-                        padding: EdgeInsets.zero,
-                        onPressed: () => setState(
-                            () => mobileFontSize = mobileFontSizeSmall),
-                        icon: const Icon(FontAwesomeIcons.font),
-                      ),
-                      IconButton(
-                        iconSize: 16.0,
-                        padding: EdgeInsets.zero,
-                        onPressed: () => setState(
-                            () => mobileFontSize = mobileFontSizeMedium),
-                        icon: const Icon(FontAwesomeIcons.font),
-                      ),
-                      IconButton(
-                        iconSize: 20.0,
-                        padding: EdgeInsets.zero,
-                        onPressed: () =>
-                            setState(() => mobileFontSize = mobileFontSizeBig),
-                        icon: const Icon(FontAwesomeIcons.font),
-                      ),
-                    ],
-                    const SizedBox(width: 4.0),
-                  ],
-                )
-              ],
+              actions: [controls()],
             ),
             body: body(),
           );

@@ -45,7 +45,7 @@ class TextFieldElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
+    if (Platform.isIOS || (showMacStyle == true && Platform.isMacOS)) {
       return cup.CupertinoTextField(
         placeholder: placeholder,
         prefix: prefixIcon != null
@@ -54,19 +54,17 @@ class TextFieldElement extends StatelessWidget {
                 child: prefixIcon,
               )
             : null,
+        suffix: suffixIcon,
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
         clearButtonMode: cup.OverlayVisibilityMode.always,
         readOnly: readOnly,
         maxLength: maxLength,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
-        suffix: suffixIcon,
-        style: style,
+        style: (showMacStyle == true && Platform.isMacOS) || Platform.isIOS
+            ? null
+            : style,
         controller: controller,
-        decoration: BoxDecoration(
-          color: SharedWidgets.textFieldBackgroundColor(
-              showMacStyle: showMacStyle, context: context),
-        ),
         onChanged: onChanged,
       );
     }

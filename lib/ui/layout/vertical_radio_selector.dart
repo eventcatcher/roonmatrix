@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class VerticalRadioSelector extends StatefulWidget {
+  final bool showMacStyle;
   final List<String> options;
   final String? selectedOption;
   final void Function(String value) onChanged;
 
   const VerticalRadioSelector({
     super.key,
+    required this.showMacStyle,
     required this.options,
     required this.selectedOption,
     required this.onChanged,
@@ -31,9 +34,16 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
         .map((String el) => ListTile(
             contentPadding: const EdgeInsets.all(0),
             horizontalTitleGap: 0,
-            title: Text(
-              el,
-              style: const TextStyle(fontSize: 12.0),
+            title: Padding(
+              padding: const EdgeInsets.only(left: 4.0),
+              child: Text(
+                el,
+                style: TextStyle(
+                  fontSize: 12.0,
+                  color: SharedWidgets.textColor(
+                      showMacStyle: widget.showMacStyle, context: context),
+                ),
+              ),
             ),
             leading: SizedBox(
               width: 20.0,

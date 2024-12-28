@@ -11,6 +11,7 @@ import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
+import 'package:roonmatrix/ui/layout/switch_element.dart';
 import 'package:roonmatrix/ui/layout/vertical_radio_selector.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
@@ -126,43 +127,56 @@ class MessageWriterState extends State<MessageWriter> {
           onPressed: messageTextController.text.isNotEmpty
               ? () async {
                   selectedOption = '';
-                  bool value = await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return StatefulBuilder(builder: (context, setState) {
-                          return AlertElement(
-                            showMacStyle: showMacStyle,
-                            title: translations['dialogResetMessageQuestion'] ??
-                                'Do you really want to remove this message from the device?',
-                            content: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 48.0),
-                                SwitchButton(
-                                  showMacStyle: showMacStyle,
-                                  label: translations[
-                                          'allDevicesRemoveSwitchLabel'] ??
-                                      'remove from all devices',
-                                  labelColor: Colors.black,
-                                  reverse: true,
-                                  aligned: 'inline',
-                                  enabled: allDevices,
-                                  onChanged: (bool value) {
-                                    if (mounted) {
-                                      setState(() => allDevices = value);
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                            button1Label: translations['dialogQuitNo'] ?? 'No',
-                            onPressed1: () => Navigator.of(context).pop(false),
-                            button2Label:
-                                translations['dialogQuitYes'] ?? 'Yes',
-                            onPressed2: () => Navigator.of(context).pop(true),
-                          );
-                        });
-                      });
+                  bool value = await SharedWidgets.showPlatformSpecificDialog(
+                    context: context,
+                    child: (BuildContext context) =>
+                        StatefulBuilder(builder: (context, setState) {
+                      return AlertElement(
+                        showMacStyle: showMacStyle,
+                        title: translations['dialogResetMessageQuestion'] ??
+                            'Do you really want to remove this message from the device?',
+                        content: SizedBox(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(height: 48.0),
+                              switchButton(
+                                value: allDevices,
+                                label: translations[
+                                        'allDevicesRemoveSwitchLabel'] ??
+                                    'remove from all devices',
+                                onChanged: (bool value) {
+                                  if (mounted) {
+                                    setState(() => allDevices = value);
+                                  }
+                                },
+                              ),
+
+                              // SwitchButton(
+                              //   showMacStyle: showMacStyle,
+                              //   label: translations[
+                              //           'allDevicesRemoveSwitchLabel'] ??
+                              //       'remove from all devices',
+                              //   labelColor: Colors.black,
+                              //   reverse: true,
+                              //   enabled: allDevices,
+                              //   onChanged: (bool value) {
+                              //     if (mounted) {
+                              //       setState(() => allDevices = value);
+                              //     }
+                              //   },
+                              // ),
+                            ],
+                          ),
+                        ),
+                        button1Label: translations['dialogQuitNo'] ?? 'No',
+                        onPressed1: () => Navigator.of(context).pop(false),
+                        button2Label: translations['dialogQuitYes'] ?? 'Yes',
+                        onPressed2: () => Navigator.of(context).pop(true),
+                      );
+                    }),
+                  );
 
                   if (value == true) {
                     bool valid = false;
@@ -254,6 +268,52 @@ class MessageWriterState extends State<MessageWriter> {
     }
   }
 
+  Widget labelWidget(String? label, Color? labelColor) => Expanded(
+        child: label != null
+            ? Text(
+                label,
+                style: TextStyle(
+                  color: SharedWidgets.brightness() == Brightness.dark
+                      ? SharedWidgets.textColor(
+                          showMacStyle: widget.showMacStyle, context: context)
+                      : labelColor ??
+                          SharedWidgets.textColor(
+                              showMacStyle: widget.showMacStyle,
+                              context: context),
+                  fontSize: 12.0,
+                ),
+              )
+            : Container(),
+      );
+
+  Widget switchButton({
+    required bool value,
+    required String label,
+    required Function(bool value) onChanged,
+  }) =>
+      Container(
+        margin: const EdgeInsets.all(0),
+        alignment: Alignment.topLeft,
+        transform: Matrix4.translationValues(-9.0, -0.0, 0.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              transform: Matrix4.translationValues(10.0, -0.0, 0.0),
+              child: SwitchElement(
+                showMacStyle: showMacStyle,
+                value: value,
+                onChanged: onChanged,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: labelWidget(label, null),
+            )
+          ],
+        ),
+      );
+
   Widget sendMessageButton() => Padding(
         padding: const EdgeInsets.only(top: 19.0, right: 16.0),
         child: IconTextButtonElement(
@@ -270,95 +330,115 @@ class MessageWriterState extends State<MessageWriter> {
           onPressed: messageTextController.text.isNotEmpty
               ? () async {
                   selectedOption = '';
-                  bool value = await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return StatefulBuilder(builder: (context, setState) {
-                          return AlertElement(
-                            showMacStyle: showMacStyle,
-                            title: translations['dialogSendQuestion'] ??
-                                'Do you really want to send this message to the device?',
-                            content: Material(
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    VerticalRadioSelector(
-                                      options: [
-                                        translations['sendOptionForce'] ??
-                                            'Force Playout',
-                                        translations['sendOptionNextPlayout'] ??
-                                            'On next Playout',
-                                        translations['sendOptionExclusive'] ??
-                                            'Exclusive Playout'
-                                      ],
-                                      selectedOption: null,
-                                      onChanged: (String? value) {
-                                        setState(() {
-                                          selectedOption = value!;
-                                        });
-                                      },
+                  bool value = await SharedWidgets.showPlatformSpecificDialog(
+                    context: context,
+                    child: (BuildContext context) =>
+                        StatefulBuilder(builder: (context, setState) {
+                      return AlertElement(
+                        showMacStyle: showMacStyle,
+                        title: translations['dialogSendQuestion'] ??
+                            'Do you really want to send this message to the device?',
+                        content: Material(
+                          child: Container(
+                            color: SharedWidgets.windowBackgroundColor(
+                                showMacStyle: showMacStyle, context: context),
+                            child: SingleChildScrollView(
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  VerticalRadioSelector(
+                                    showMacStyle: showMacStyle,
+                                    options: [
+                                      translations['sendOptionForce'] ??
+                                          'Force Playout',
+                                      translations['sendOptionNextPlayout'] ??
+                                          'On next Playout',
+                                      translations['sendOptionExclusive'] ??
+                                          'Exclusive Playout'
+                                    ],
+                                    selectedOption: null,
+                                    onChanged: (String? value) {
+                                      setState(() {
+                                        selectedOption = value!;
+                                      });
+                                    },
+                                  ),
+                                  const SizedBox(height: 48.0),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 0.0),
+                                      child: switchButton(
+                                        value: allDevices,
+                                        label: translations[
+                                                'allDevicesSwitchLabel'] ??
+                                            'send to all devices',
+                                        onChanged: (bool value) {
+                                          if (mounted) {
+                                            setState(() => allDevices = value);
+                                          }
+                                        },
+                                      ),
+
+                                      //     SwitchButton(
+                                      //   showMacStyle: showMacStyle,
+                                      //   label: translations[
+                                      //           'allDevicesSwitchLabel'] ??
+                                      //       'send to all devices',
+                                      //   reverse: true,
+                                      //   enabled: allDevices,
+                                      //   onChanged: (bool value) {
+                                      //     if (mounted) {
+                                      //       setState(() => allDevices = value);
+                                      //     }
+                                      //   },
+                                      // ),
                                     ),
-                                    const SizedBox(height: 48.0),
-                                    SwitchButton(
-                                      showMacStyle: showMacStyle,
-                                      label: translations[
-                                              'allDevicesSwitchLabel'] ??
-                                          'send to all devices',
-                                      labelColor: Colors.black,
-                                      reverse: true,
-                                      aligned: 'inline',
-                                      enabled: allDevices,
-                                      onChanged: (bool value) {
-                                        if (mounted) {
-                                          setState(() => allDevices = value);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                            button1Label: translations['dialogQuitNo'] ?? 'No',
-                            onPressed1: () => Navigator.of(context).pop(false),
-                            button2Label:
-                                translations['dialogQuitYes'] ?? 'Yes',
-                            onPressed2: selectedOption.isNotEmpty
-                                ? () => Navigator.of(context).pop(true)
-                                : null,
-                            // actions: [
-                            //   Padding(
-                            //     padding: const EdgeInsets.only(bottom: 16.0),
-                            //     child: ElevatedButton(
-                            //         style: ButtonStyle(
-                            //           backgroundColor: WidgetStateProperty
-                            //               .resolveWith<Color>(
-                            //             (Set<WidgetState> states) {
-                            //               return Colors.blueGrey;
-                            //             },
-                            //           ),
-                            //         ),
-                            //         onPressed: () =>
-                            //             Navigator.of(context).pop(false),
-                            //         child: Text(
-                            //             translations['dialogQuitNo'] ?? 'No')),
-                            //   ),
-                            //   Padding(
-                            //     padding: const EdgeInsets.only(
-                            //         bottom: 16.0, left: 16.0, right: 16.0),
-                            //     child: ElevatedButton(
-                            //         key: ValueKey('SendOption$selectedOption'),
-                            //         onPressed: selectedOption.isNotEmpty
-                            //             ? () => Navigator.of(context).pop(true)
-                            //             : null,
-                            //         child: Text(translations['dialogQuitYes'] ??
-                            //             'Yes')),
-                            //   ),
-                            // ],
-                          );
-                        });
-                      });
+                          ),
+                        ),
+                        button1Label: translations['dialogQuitNo'] ?? 'No',
+                        onPressed1: () => Navigator.of(context).pop(false),
+                        button2Label: translations['dialogQuitYes'] ?? 'Yes',
+                        onPressed2: selectedOption.isNotEmpty
+                            ? () => Navigator.of(context).pop(true)
+                            : null,
+                        // actions: [
+                        //   Padding(
+                        //     padding: const EdgeInsets.only(bottom: 16.0),
+                        //     child: ElevatedButton(
+                        //         style: ButtonStyle(
+                        //           backgroundColor: WidgetStateProperty
+                        //               .resolveWith<Color>(
+                        //             (Set<WidgetState> states) {
+                        //               return Colors.blueGrey;
+                        //             },
+                        //           ),
+                        //         ),
+                        //         onPressed: () =>
+                        //             Navigator.of(context).pop(false),
+                        //         child: Text(
+                        //             translations['dialogQuitNo'] ?? 'No')),
+                        //   ),
+                        //   Padding(
+                        //     padding: const EdgeInsets.only(
+                        //         bottom: 16.0, left: 16.0, right: 16.0),
+                        //     child: ElevatedButton(
+                        //         key: ValueKey('SendOption$selectedOption'),
+                        //         onPressed: selectedOption.isNotEmpty
+                        //             ? () => Navigator.of(context).pop(true)
+                        //             : null,
+                        //         child: Text(translations['dialogQuitYes'] ??
+                        //             'Yes')),
+                        //   ),
+                        // ],
+                      );
+                    }),
+                  );
                   if (value == true) {
                     setState(() {
                       setMessage = true;
@@ -588,29 +668,29 @@ class MessageWriterState extends State<MessageWriter> {
                             onPressed: () async {
                               if (selectedMessageId != null &&
                                   options.containsKey(selectedMessageId)) {
-                                bool value = await showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return StatefulBuilder(
+                                bool value = await SharedWidgets
+                                    .showPlatformSpecificDialog(
+                                  context: context,
+                                  child: (BuildContext context) =>
+                                      StatefulBuilder(
                                           builder: (context, setState) {
-                                        return AlertElement(
-                                          showMacStyle: showMacStyle,
-                                          title: translations[
-                                                  'dialogRemoveMessageQuestion'] ??
-                                              'Do you really want to delete this message?',
-                                          button1Label:
-                                              translations['dialogQuitNo'] ??
-                                                  'No',
-                                          onPressed1: () =>
-                                              Navigator.of(context).pop(false),
-                                          button2Label:
-                                              translations['dialogQuitYes'] ??
-                                                  'Yes',
-                                          onPressed2: () =>
-                                              Navigator.of(context).pop(true),
-                                        );
-                                      });
-                                    });
+                                    return AlertElement(
+                                      showMacStyle: showMacStyle,
+                                      title: translations[
+                                              'dialogRemoveMessageQuestion'] ??
+                                          'Do you really want to delete this message?',
+                                      button1Label:
+                                          translations['dialogQuitNo'] ?? 'No',
+                                      onPressed1: () =>
+                                          Navigator.of(context).pop(false),
+                                      button2Label:
+                                          translations['dialogQuitYes'] ??
+                                              'Yes',
+                                      onPressed2: () =>
+                                          Navigator.of(context).pop(true),
+                                    );
+                                  }),
+                                );
                                 if (value == true) {
                                   setState(() {
                                     String key = selectedMessageId!;

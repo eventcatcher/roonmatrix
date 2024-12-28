@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -144,6 +145,7 @@ class StartPageState extends State<StartPage> {
   }
 
   burgerMenuRaw(bool noPop) => BurgerMenu(
+        showMacStyle: showMacStyle,
         translations: translations,
         noPop: noPop,
         onClose: (String? key) {
@@ -172,6 +174,16 @@ class StartPageState extends State<StartPage> {
                 child: burgerMenuRaw(false),
               );
       });
+
+  String replaceCodes(String str) {
+    if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
+      str = jsonDecode(str.replaceAll("'", '"')).join(' ');
+      str = str.replaceAll('< ', ', ');
+      str = str.replaceAll(' >', ': ');
+    }
+
+    return str;
+  }
 
   body() => BlocBuilder(
       bloc: translationsBloc,
@@ -955,7 +967,7 @@ class StartPageState extends State<StartPage> {
                                                             key: ValueKey(
                                                                 'TextScrollWrapper${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                                                             child: TextScroll(
-                                                              '${i['displaystr']}    ////    ',
+                                                              '${replaceCodes(i['displaystr'])}    ////    ',
                                                               key: ValueKey(
                                                                   'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                                                               style: TextStyle(
@@ -1067,7 +1079,8 @@ class StartPageState extends State<StartPage> {
               width: (MediaQuery.of(context).size.width / 3) * 2,
               height: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: SharedWidgets.windowBackgroundColor(
+                    showMacStyle: showMacStyle, context: context),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
@@ -1114,24 +1127,22 @@ class StartPageState extends State<StartPage> {
     updateSizes('build');
 
     if (Platform.isIOS) {
-      return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text(title),
-          leading: CupertinoButton(
-            padding: EdgeInsets.zero,
-            child: Icon(Icons.menu, color: _isDrawerOpen ? Colors.grey : null),
-            onPressed: () =>
-                _isDrawerOpen ? null : setState(() => _isDrawerOpen = true),
+      return Material(
+        child: CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            brightness: SharedWidgets.brightness(),
+            middle: Text(title),
+            leading: CupertinoButton(
+              padding: EdgeInsets.zero,
+              child:
+                  Icon(Icons.menu, color: _isDrawerOpen ? Colors.grey : null),
+              onPressed: () =>
+                  _isDrawerOpen ? null : setState(() => _isDrawerOpen = true),
+            ),
           ),
-        ),
-        child: ContentArea(
-          builder: ((context, scrollController) {
-            return Material(
-              child: MacosWindow(
-                child: stack(context),
-              ),
-            );
-          }),
+          child: SafeArea(
+            child: stack(context),
+          ),
         ),
       );
     }

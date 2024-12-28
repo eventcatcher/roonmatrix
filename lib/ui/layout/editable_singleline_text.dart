@@ -205,6 +205,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 placeholder: widget.placeholder,
                 maxLength: widget.maxLength,
                 prefixIcon: widget.prefixIcon,
+                suffixIcon: widget.suffixIcon,
                 buildCounter: widget.maxLength != null
                     ? (context,
                         {required currentLength,

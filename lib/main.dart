@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_page.dart';
@@ -393,19 +395,17 @@ class RoonMatrixState extends State<RoonMatrix> {
             const MenuDivider(),
             MenuButton(
               onTap: () {
-                showDialog(
+                SharedWidgets.showPlatformSpecificDialog(
                     context: context,
-                    builder: (context) {
-                      return AlertElement(
-                        showMacStyle: showMacStyle,
-                        title: translations['dialogQuitQuestion'] ??
-                            'Do you really want to quit?',
-                        button1Label: translations['dialogQuitYes'] ?? 'Yes',
-                        onPressed1: () => FlutterWindowClose.closeWindow(),
-                        button2Label: translations['dialogQuitNo'] ?? 'No',
-                        onPressed2: () => Navigator.of(context).pop(false),
-                      );
-                    });
+                    child: (BuildContext context) => AlertElement(
+                          showMacStyle: showMacStyle,
+                          title: translations['dialogQuitQuestion'] ??
+                              'Do you really want to quit?',
+                          button1Label: translations['dialogQuitYes'] ?? 'Yes',
+                          onPressed1: () => FlutterWindowClose.closeWindow(),
+                          button2Label: translations['dialogQuitNo'] ?? 'No',
+                          onPressed2: () => Navigator.of(context).pop(false),
+                        ));
               },
               shortcut:
                   const SingleActivator(LogicalKeyboardKey.keyQ, control: true),
@@ -547,19 +547,28 @@ class RoonMatrixState extends State<RoonMatrix> {
       ],
       child: showMacStyle == true && Platform.isMacOS
           ? MacosApp(
-              title: 'RoonMatrix',
+              title: title,
               theme: MacosThemeData.light(isMainWindow: true),
               darkTheme: MacosThemeData.dark(isMainWindow: true),
               themeMode: ThemeMode.system,
               home: home(translationsBloc: translationsBloc),
             )
-          : MaterialApp(
-              title: title,
-              theme: materialThemeData(tabBarTheme: tabBarTheme),
-              darkTheme: ThemeData.dark(useMaterial3: false),
-              themeMode: ThemeMode.system, // system
-              home: home(translationsBloc: translationsBloc),
-            ),
+          : Platform.isIOS
+              ? CupertinoApp(
+                  title: title,
+                  theme: CupertinoThemeData(
+                    brightness: SharedWidgets.brightness(),
+                    //primaryColor: CupertinoColors.systemBlue,
+                  ),
+                  home: home(translationsBloc: translationsBloc),
+                )
+              : MaterialApp(
+                  title: title,
+                  theme: materialThemeData(tabBarTheme: tabBarTheme),
+                  darkTheme: ThemeData.dark(useMaterial3: false),
+                  themeMode: ThemeMode.system,
+                  home: home(translationsBloc: translationsBloc),
+                ),
     );
   }
 }

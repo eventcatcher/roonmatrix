@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/main.dart';
+import 'package:roonmatrix/ui/layout/alert_element.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class ApproveModal {
   final BuildContext context;
@@ -25,46 +28,41 @@ class ApproveModal {
         onApproved = onApproved ?? (() {});
 
   Future<dynamic> show() {
-    return showDialog(
+    return SharedWidgets.showPlatformSpecificDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return OrientationBuilder(
-          builder: (context, orientation) {
-            return RotatedBox(
-              quarterTurns:
-                  (landscape && orientation == Orientation.portrait) ? 1 : 0,
-              child: AlertDialog(
-                title: Column(
-                  children: [
-                    if (icon != null) icon!,
-                    Text(title),
-                  ],
+      child: (BuildContext context) => OrientationBuilder(
+        builder: (context, orientation) {
+          return RotatedBox(
+            quarterTurns:
+                (landscape && orientation == Orientation.portrait) ? 1 : 0,
+            child: AlertElement(
+              showMacStyle: showMacStyle,
+              icon: icon,
+              title: title,
+              content: Text(
+                question,
+                softWrap: true,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: SharedWidgets.textColor(
+                      showMacStyle: showMacStyle, context: context),
                 ),
-                content:
-                    Text(question, softWrap: true, textAlign: TextAlign.center),
-                actions: [
-                  if (cancelText != '')
-                    TextButton(
-                      child: Text(cancelText),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        onCanceled!();
-                      },
-                    ),
-                  TextButton(
-                    child: Text(okText),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      onApproved!();
-                    },
-                  ),
-                ],
               ),
-            );
-          },
-        );
-      },
+              button1Label: cancelText,
+              onPressed1: () {
+                Navigator.of(context).pop();
+                onCanceled!();
+              },
+              button2Label: okText,
+              onPressed2: () {
+                Navigator.of(context).pop();
+                onApproved!();
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -404,6 +405,8 @@ class ConfigPageState extends State<ConfigPage> {
     required String jsonStr,
   }) =>
       Container(
+        padding: EdgeInsets.only(
+            top: Platform.isIOS || Platform.isMacOS ? 20.0 : 0.0),
         color: SharedWidgets.windowBackgroundColor(
             showMacStyle: showMacStyle, context: context),
         child: Column(
@@ -600,6 +603,73 @@ class ConfigPageState extends State<ConfigPage> {
                 validData = mainBloc.validateAll(
                     definitions: defs, fieldValues: fieldValues);
                 formFields = getFormFields(defs: defs);
+
+                if (Platform.isIOS) {
+                  return CupertinoPageScaffold(
+                    navigationBar: CupertinoNavigationBar(
+                      brightness: SharedWidgets.brightness(),
+                      middle: Text(title),
+                      leading: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: CupertinoNavigationBarBackButton(),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    child: SafeArea(
+                      child: CupertinoTabScaffold(
+                        tabBar: CupertinoTabBar(
+                          items: <BottomNavigationBarItem>[
+                            BottomNavigationBarItem(
+                                icon: Icon(CupertinoIcons.pencil),
+                                label: translations['configPageTabEditLabel'] ??
+                                    'Edit'),
+                            BottomNavigationBarItem(
+                                icon: Icon(CupertinoIcons.eye),
+                                label: translations['configPageTabReadLabel'] ??
+                                    'View'),
+                          ],
+                        ),
+                        tabBuilder: (context, index) {
+                          switch (index) {
+                            case 0:
+                              return CupertinoTabView(builder: (context) {
+                                return SafeArea(
+                                  child: CupertinoPageScaffold(
+                                    child: Center(
+                                      child: tabEdit(
+                                          context: context,
+                                          defaultColorScheme:
+                                              defaultColorScheme,
+                                          mainState: mainState),
+                                    ),
+                                  ),
+                                );
+                              });
+                            case 1:
+                              return CupertinoTabView(
+                                builder: (context) {
+                                  return SafeArea(
+                                    child: CupertinoPageScaffold(
+                                      child: Center(
+                                        child: tabView(
+                                            context: context,
+                                            defaultColorScheme:
+                                                defaultColorScheme,
+                                            mainState: mainState,
+                                            jsonStr: jsonStr),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            default:
+                              return SizedBox();
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                }
 
                 return showMacStyle == true && Platform.isMacOS
                     ? MacosScaffold(

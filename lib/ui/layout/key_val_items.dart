@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
@@ -70,21 +72,26 @@ class KeyValItemsState extends State<KeyValItems> {
         label: key == ': ' ? '[: ]' : key,
         suffixIcon: IconButton(
           onPressed: () async {
-            bool valid = await showDialog(
+            bool valid = await SharedWidgets.showPlatformSpecificDialog(
               context: context,
-              builder: (context) {
-                return SharedWidgets.removeItemDialog(
-                  context: context,
-                  translations: translations,
-                );
-              },
+              child: (BuildContext context) => SharedWidgets.removeItemDialog(
+                context: context,
+                translations: translations,
+              ),
             );
             if (valid == true) {
               setState(() => fieldValues.remove(key));
               returnJson(fieldValues);
             }
           },
-          icon: const Icon(Icons.clear),
+          icon: Platform.isIOS || Platform.isMacOS
+              ? Icon(
+                  CupertinoIcons.clear_circled_solid,
+                  color: SharedWidgets.resetIconColor(
+                      showMacStyle: showMacStyle, context: context),
+                  size: 18.0,
+                )
+              : const Icon(Icons.clear),
         ),
         text: fieldValues[key].toString(),
         onChanged: (value) {

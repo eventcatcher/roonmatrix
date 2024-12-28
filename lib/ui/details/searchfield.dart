@@ -93,7 +93,10 @@ class SearchFieldState extends State<SearchField> {
                           decoupled: false,
                           noDecoration: true,
                           prefixIcon: Icon(CupertinoIcons.search,
-                              size: 18.0, color: Colors.black),
+                              size: 18.0,
+                              color: SharedWidgets.iconColor(
+                                  showMacStyle: widget.showMacStyle,
+                                  context: context)),
                           placeholder:
                               translations['searchfieldHint'] ?? 'search',
                           controller: controller,

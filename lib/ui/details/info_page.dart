@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -219,6 +220,26 @@ class InfoPageState extends State<InfoPage> {
                     .values
                     .toList()
                     .join('\n');
+
+                if (Platform.isIOS) {
+                  return CupertinoPageScaffold(
+                    navigationBar: CupertinoNavigationBar(
+                      brightness: SharedWidgets.brightness(),
+                      middle: Text(title),
+                      leading: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: CupertinoNavigationBarBackButton(),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    child: SafeArea(
+                      child: body(
+                          context: context,
+                          mainState: mainState,
+                          infoStr: infoStr),
+                    ),
+                  );
+                }
 
                 return showMacStyle == true && Platform.isMacOS
                     ? MacosScaffold(

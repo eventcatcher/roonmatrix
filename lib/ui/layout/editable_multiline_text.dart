@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:easy_debounce/easy_debounce.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
@@ -54,38 +57,72 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
               Expanded(
                 child: Container(
                   height: widget.height,
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  decoration: BoxDecoration(
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.grey,
-                          offset: Offset(0.1, 0.5),
-                          blurRadius: 0.1,
-                          blurStyle: BlurStyle.normal,
+                  decoration: Platform.isIOS || Platform.isMacOS
+                      ? null
+                      : BoxDecoration(
+                          boxShadow: const [
+                              BoxShadow(
+                                color: Colors.grey,
+                                offset: Offset(0.1, 0.5),
+                                blurRadius: 0.1,
+                                blurStyle: BlurStyle.normal,
+                              )
+                            ],
+                          color: SharedWidgets.elementBackgroundColor(
+                              showMacStyle: widget.showMacStyle,
+                              context: context),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(4))),
+                  child: Platform.isIOS || Platform.isMacOS
+                      ? CupertinoTextField(
+                          controller: widget.textController,
+                          textAlign: TextAlign.start,
+                          textAlignVertical: TextAlignVertical.top,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: SharedWidgets.borderColor(
+                                  showMacStyle: widget.showMacStyle,
+                                  context: context),
+                            ),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(4)),
+                          ),
+                          style: TextStyle(
+                            color: SharedWidgets.textColor(
+                                showMacStyle: widget.showMacStyle,
+                                context: context),
+                            fontSize: 16.0,
+                          ),
+                          maxLines: widget.maxLines,
+                          maxLength: null,
+                          keyboardType: TextInputType.multiline,
+                          onChanged: (String value) => widget.onChanged != null
+                              ? EasyDebounce.debounce(
+                                  '${widget.label}-debouncer',
+                                  Duration(milliseconds: debounceTime),
+                                  () => widget.onChanged!(value))
+                              : null,
                         )
-                      ],
-                      color: SharedWidgets.elementBackgroundColor(
-                          showMacStyle: widget.showMacStyle, context: context),
-                      borderRadius: const BorderRadius.all(Radius.circular(4))),
-                  child: TextFormField(
-                    controller: widget.textController,
-                    textAlign: TextAlign.start,
-                    textAlignVertical: TextAlignVertical.top,
-                    style: TextStyle(
-                      color: SharedWidgets.textColor(
-                          showMacStyle: widget.showMacStyle, context: context),
-                      fontSize: 16.0,
-                    ),
-                    maxLines: widget.maxLines,
-                    maxLength: null,
-                    keyboardType: TextInputType.multiline,
-                    onChanged: (String value) => widget.onChanged != null
-                        ? EasyDebounce.debounce(
-                            '${widget.label}-debouncer',
-                            Duration(milliseconds: debounceTime),
-                            () => widget.onChanged!(value))
-                        : null,
-                  ),
+                      : TextField(
+                          controller: widget.textController,
+                          textAlign: TextAlign.start,
+                          textAlignVertical: TextAlignVertical.top,
+                          style: TextStyle(
+                            color: SharedWidgets.textColor(
+                                showMacStyle: widget.showMacStyle,
+                                context: context),
+                            fontSize: 16.0,
+                          ),
+                          maxLines: widget.maxLines,
+                          maxLength: null,
+                          keyboardType: TextInputType.multiline,
+                          onChanged: (String value) => widget.onChanged != null
+                              ? EasyDebounce.debounce(
+                                  '${widget.label}-debouncer',
+                                  Duration(milliseconds: debounceTime),
+                                  () => widget.onChanged!(value))
+                              : null,
+                        ),
                 ),
               ),
             ],

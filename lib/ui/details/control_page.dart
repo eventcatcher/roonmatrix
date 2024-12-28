@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -442,42 +443,59 @@ class ControlPageState extends State<ControlPage> {
 
                 return OrientationBuilder(
                     builder: (BuildContext context, Orientation orientation) {
-                  return DefaultTabController(
-                    length: 2,
-                    child: showMacStyle == true && Platform.isMacOS
-                        ? MacosScaffold(
-                            toolBar: ToolBar(
-                              title: Text(title),
-                              titleWidth: 200.0,
-                              leading: MacosBackButton(
-                                onPressed: () => Navigator.pop(context),
-                                fillColor: Colors.transparent,
-                              ),
-                              actions: [],
-                            ),
-                            children: [
-                              ContentArea(
-                                builder: ((context, scrollController) {
-                                  return Material(
-                                    child: MacosWindow(
-                                      child: body(
-                                          orientation: orientation,
-                                          options: options),
-                                    ),
-                                  );
-                                }),
-                              ),
-                            ],
-                          )
-                        : Scaffold(
-                            appBar: AppBar(
-                              title: Text(title),
-                              actions: const [],
-                            ),
-                            body: body(
-                                orientation: orientation, options: options),
+                  if (Platform.isIOS) {
+                    return Material(
+                      child: CupertinoPageScaffold(
+                        navigationBar: CupertinoNavigationBar(
+                          brightness: SharedWidgets.brightness(),
+                          middle: Text(title),
+                          leading: CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            child: CupertinoNavigationBarBackButton(),
+                            onPressed: () => Navigator.pop(context),
                           ),
-                  );
+                        ),
+                        child: SafeArea(
+                          child:
+                              body(orientation: orientation, options: options),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return showMacStyle == true && Platform.isMacOS
+                      ? MacosScaffold(
+                          toolBar: ToolBar(
+                            title: Text(title),
+                            titleWidth: 200.0,
+                            leading: MacosBackButton(
+                              onPressed: () => Navigator.pop(context),
+                              fillColor: Colors.transparent,
+                            ),
+                            actions: [],
+                          ),
+                          children: [
+                            ContentArea(
+                              builder: ((context, scrollController) {
+                                return Material(
+                                  child: MacosWindow(
+                                    child: body(
+                                        orientation: orientation,
+                                        options: options),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
+                        )
+                      : Scaffold(
+                          appBar: AppBar(
+                            title: Text(title),
+                            actions: const [],
+                          ),
+                          body:
+                              body(orientation: orientation, options: options),
+                        );
                 });
               });
         });

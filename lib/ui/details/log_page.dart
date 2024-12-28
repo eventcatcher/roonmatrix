@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
@@ -247,6 +248,23 @@ class LogPageState extends State<LogPage> {
                     log = log.replaceAll(
                         RegExp(search, caseSensitive: false), '<b>$search</b>');
                   }
+                }
+
+                if (Platform.isIOS) {
+                  return CupertinoPageScaffold(
+                    navigationBar: CupertinoNavigationBar(
+                      brightness: SharedWidgets.brightness(),
+                      middle: Text(title),
+                      leading: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: CupertinoNavigationBarBackButton(),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    child: SafeArea(
+                        child: body(
+                            context: context, mainState: mainState, log: log)),
+                  );
                 }
 
                 return showMacStyle == true && Platform.isMacOS

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -35,14 +36,19 @@ class SharedWidgets {
             ]
           : [];
 
-  static brightness() {
+  static Brightness brightness() {
     return WidgetsBinding.instance.platformDispatcher.platformBrightness;
   }
 
-  static textColor({
+  static Color textColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
+    if (Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? CupertinoColors.white
+          : CupertinoColors.black;
+    }
     if (showMacStyle && Platform.isMacOS) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.white
@@ -51,27 +57,35 @@ class SharedWidgets {
     return Theme.of(context).colorScheme.inverseSurface;
   }
 
-  static iconColor({
+  static Color iconColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
     return textColor(showMacStyle: showMacStyle, context: context);
   }
 
-  static hintColor({
+  static Color hintColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
+    if (Platform.isIOS) {
+      return CupertinoColors.systemGrey;
+    }
     if (showMacStyle && Platform.isMacOS) {
       return MacosColors.systemGrayColor;
     }
     return Theme.of(context).hintColor;
   }
 
-  static windowBackgroundColor({
+  static Color windowBackgroundColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
+    if (Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.underPageBackgroundColor
+          : CupertinoColors.white;
+    }
     if (showMacStyle && Platform.isMacOS) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.underPageBackgroundColor
@@ -80,10 +94,32 @@ class SharedWidgets {
     return Theme.of(context).colorScheme.surface;
   }
 
-  static elementBackgroundColorLighter({
+  static Color borderColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
+    if (Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? const Color.fromARGB(255, 60, 60, 60)
+          : MacosColors.tickBackgroundColor;
+    }
+    if ((showMacStyle && Platform.isMacOS) || Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.systemGrayColor
+          : MacosColors.tickBackgroundColor;
+    }
+    return Theme.of(context).colorScheme.surface;
+  }
+
+  static Color elementBackgroundColorLighter({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? Theme.of(context).primaryColorLight
+          : CupertinoColors.white;
+    }
     if (showMacStyle && Platform.isMacOS) {
       return SharedWidgets.brightness() == Brightness.dark
           ? Theme.of(context).primaryColorLight
@@ -92,17 +128,22 @@ class SharedWidgets {
     return Theme.of(context).colorScheme.surface;
   }
 
-  static elementBackgroundColor({
+  static Color elementBackgroundColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
     return windowBackgroundColor(showMacStyle: showMacStyle, context: context);
   }
 
-  static areaBackgroundColor({
+  static Color areaBackgroundColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
+    if (Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : Colors.grey.shade100;
+    }
     if (showMacStyle && Platform.isMacOS) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.gridColor
@@ -113,10 +154,34 @@ class SharedWidgets {
         : Colors.grey.shade100;
   }
 
-  static tileBackgroundColor({
+  static Color resetIconColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
+    if (Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : Color(0xFFCCCCCC);
+    }
+    if ((showMacStyle && Platform.isMacOS) || Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : Color(0xFFCCCCCC);
+    }
+    return SharedWidgets.brightness() == Brightness.dark
+        ? Colors.grey.shade700
+        : Colors.grey.shade100;
+  }
+
+  static Color tileBackgroundColor({
+    required bool showMacStyle,
+    required BuildContext context,
+  }) {
+    if (Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : Colors.blue.shade100;
+    }
     if (showMacStyle && Platform.isMacOS) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.gridColor
@@ -127,10 +192,15 @@ class SharedWidgets {
         : Colors.blue.shade100;
   }
 
-  static textFieldBackgroundColor({
+  static Color textFieldBackgroundColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
+    if (Platform.isIOS) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.controlColor
+          : Color(0xffefefef);
+    }
     if (showMacStyle && Platform.isMacOS) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.controlColor
@@ -139,10 +209,13 @@ class SharedWidgets {
     return Colors.grey.shade100;
   }
 
-  static toolbarResizeButtonColor({
+  static Color toolbarResizeButtonColor({
     required bool showMacStyle,
     required BuildContext context,
   }) {
+    if (Platform.isIOS) {
+      return CupertinoColors.systemGrey;
+    }
     if (showMacStyle && Platform.isMacOS) {
       return MacosColors.systemGrayColor;
     }
@@ -203,6 +276,26 @@ class SharedWidgets {
         onPressed2: () => Navigator.pop(context, true),
       );
 
+  static showPlatformSpecificDialog({
+    required BuildContext context,
+    required Function(BuildContext context) child,
+    bool barrierDismissible = true,
+  }) async {
+    return Platform.isIOS
+        ? await showCupertinoDialog(
+            context: context,
+            barrierDismissible: barrierDismissible,
+            builder: (context) {
+              return child(context);
+            })
+        : await showDialog(
+            context: context,
+            barrierDismissible: barrierDismissible,
+            builder: (context) {
+              return child(context);
+            });
+  }
+
   static IconTextButtonElement addButton({
     required BuildContext context,
     required bool showMacStyle,
@@ -222,22 +315,21 @@ class SharedWidgets {
         ),
         label: translations['addButtonText'] ?? 'add',
         onPressed: () async {
-          dynamic value = await showDialog(
+          dynamic value = await showPlatformSpecificDialog(
             context: context,
-            builder: (context) {
-              return textController != null
-                  ? addItemWithNameDialog(
-                      context: context,
-                      showMacStyle: showMacStyle,
-                      textController: textController,
-                      translations: translations,
-                    )
-                  : addItemDialog(
-                      context: context,
-                      translations: translations,
-                    );
-            },
+            child: (BuildContext context) => textController != null
+                ? addItemWithNameDialog(
+                    context: context,
+                    showMacStyle: showMacStyle,
+                    textController: textController,
+                    translations: translations,
+                  )
+                : addItemDialog(
+                    context: context,
+                    translations: translations,
+                  ),
           );
+
           if (value != null) {
             onAccepted(value);
           }
@@ -262,21 +354,20 @@ class SharedWidgets {
           ),
           onPressed: () async {
             if (!disabled) {
-              dynamic value = await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return textController != null
-                        ? addItemWithNameDialog(
-                            context: context,
-                            showMacStyle: showMacStyle,
-                            textController: textController,
-                            translations: translations,
-                          )
-                        : addItemDialog(
-                            context: context,
-                            translations: translations,
-                          );
-                  });
+              dynamic value = await SharedWidgets.showPlatformSpecificDialog(
+                context: context,
+                child: (BuildContext context) => textController != null
+                    ? addItemWithNameDialog(
+                        context: context,
+                        showMacStyle: showMacStyle,
+                        textController: textController,
+                        translations: translations,
+                      )
+                    : addItemDialog(
+                        context: context,
+                        translations: translations,
+                      ),
+              );
 
               if (value == null) {
                 if (onExit != null) {
@@ -331,14 +422,12 @@ class SharedWidgets {
         ),
         label: translations['removeButtonText'] ?? 'remove',
         onPressed: () async {
-          bool valid = await showDialog(
+          bool valid = await SharedWidgets.showPlatformSpecificDialog(
             context: context,
-            builder: (context) {
-              return removeItemDialog(
-                context: context,
-                translations: translations,
-              );
-            },
+            child: (BuildContext context) => removeItemDialog(
+              context: context,
+              translations: translations,
+            ),
           );
           if (valid == true) {
             onAccepted();

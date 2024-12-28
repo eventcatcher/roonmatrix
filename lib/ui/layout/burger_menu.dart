@@ -2,14 +2,17 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class BurgerMenu extends StatefulWidget {
+  final bool showMacStyle;
   final Map<String, dynamic> translations;
   final bool noPop;
   final Function(String? key) onClose;
 
   const BurgerMenu(
       {super.key,
+      required this.showMacStyle,
       required this.translations,
       this.noPop = false,
       required this.onClose});
@@ -41,8 +44,8 @@ class BurgerMenuState extends State<BurgerMenu> {
     ));
   }
 
-  Widget menuBuilder(List<dynamic> popupData) => ListView(
-        padding: EdgeInsets.zero,
+  Widget menuBuilder(List<dynamic> popupData) => Column(
+        mainAxisSize: MainAxisSize.max,
         children: [
           SizedBox(
             height: 56.0,
@@ -60,20 +63,35 @@ class BurgerMenuState extends State<BurgerMenu> {
               )),
             ),
           ),
-          ...popupData.map((obj) {
-            return ListTile(
-              title: Text(
-                obj.name,
-                style: const TextStyle(fontSize: 16.0),
+          Expanded(
+            child: ListView.separated(
+              itemCount: popupData.length,
+              separatorBuilder: (context, index) => const Divider(
+                height: 0.0,
+                color: Colors.grey,
               ),
-              onTap: () {
-                widget.onClose(obj.key);
-                if (!widget.noPop) {
-                  Navigator.pop(context);
-                }
+              padding: EdgeInsets.zero,
+              physics: NeverScrollableScrollPhysics(),
+              itemBuilder: (BuildContext context, int index) {
+                return ListTile(
+                  title: Text(
+                    popupData[index].name,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: SharedWidgets.textColor(
+                          showMacStyle: widget.showMacStyle, context: context),
+                    ),
+                  ),
+                  onTap: () {
+                    widget.onClose(popupData[index].key);
+                    if (!widget.noPop) {
+                      Navigator.pop(context);
+                    }
+                  },
+                );
               },
-            );
-          })
+            ),
+          ),
         ],
       );
 

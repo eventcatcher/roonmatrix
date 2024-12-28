@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -325,6 +326,26 @@ class _SettingsPageState extends State<SettingsPage> {
                   });
                 }
 
+                if (Platform.isIOS) {
+                  return CupertinoPageScaffold(
+                    navigationBar: CupertinoNavigationBar(
+                      brightness: SharedWidgets.brightness(),
+                      middle: Text(title),
+                      leading: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: CupertinoNavigationBarBackButton(),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    child: SafeArea(
+                      child: body(
+                        ipStart: ipStart,
+                        ipEnd: ipEnd,
+                      ),
+                    ),
+                  );
+                }
+
                 return showMacStyle == true && Platform.isMacOS
                     ? MacosScaffold(
                         toolBar: ToolBar(
@@ -351,17 +372,14 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ],
                       )
-                    : DefaultTabController(
-                        length: 2,
-                        child: Scaffold(
-                          appBar: AppBar(
-                            title: Text(title),
-                            actions: const [],
-                          ),
-                          body: body(
-                            ipStart: ipStart,
-                            ipEnd: ipEnd,
-                          ),
+                    : Scaffold(
+                        appBar: AppBar(
+                          title: Text(title),
+                          actions: const [],
+                        ),
+                        body: body(
+                          ipStart: ipStart,
+                          ipEnd: ipEnd,
                         ),
                       );
               });
