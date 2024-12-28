@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -560,6 +561,10 @@ class RoonMatrixState extends State<RoonMatrix> {
   // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode == true) {
+      debugPrint('build app');
+    }
+
     return MultiBlocProvider(
       providers: [
         BlocProvider<TranslationsBloc>(
@@ -583,6 +588,21 @@ class RoonMatrixState extends State<RoonMatrix> {
           : Platform.isIOS
               ? CupertinoApp(
                   title: title,
+                  // builder: (BuildContext context, Widget? child) {
+                  //   Brightness brightnessValue =
+                  //       MediaQuery.of(context).platformBrightness;
+                  //   bool isDark = brightnessValue == Brightness.dark;
+                  //   print('isDark: $isDark');
+                  //   return home(translationsBloc: translationsBloc);
+                  //   // return Theme(
+                  //   //   data: ThemeData(brightness: SharedWidgets.brightness()),
+                  //   //   child: CupertinoApp(
+                  //   //     theme: CupertinoThemeData(
+                  //   //       brightness: SharedWidgets.brightness(),
+                  //   //     ),
+                  //   //   ),
+                  //   // );
+                  // },
                   theme: CupertinoThemeData(
                     brightness: SharedWidgets.brightness(),
                     //primaryColor: CupertinoColors.systemBlue,

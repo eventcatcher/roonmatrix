@@ -26,6 +26,7 @@ class IconTextButtonElement extends StatelessWidget {
   Widget build(BuildContext context) {
     if (Platform.isIOS) {
       return CupertinoButton.filled(
+        disabledColor: CupertinoColors.inactiveGray,
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
         minSize: 8,
         onPressed: onPressed,
@@ -36,7 +37,10 @@ class IconTextButtonElement extends StatelessWidget {
               padding: const EdgeInsets.only(right: 4.0),
               child: icon,
             ),
-            Text(label)
+            Text(
+              label,
+              style: TextStyle(color: CupertinoColors.white),
+            )
           ],
         ),
       );
