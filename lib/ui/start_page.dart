@@ -951,6 +951,10 @@ class StartPageState extends State<StartPage> {
                                                                         context:
                                                                             context),
                                                               ),
+                                                              fadedBorder: true,
+                                                              fadeBorderSide:
+                                                                  FadeBorderSide
+                                                                      .right,
                                                             ),
                                                           ),
                                                         ),

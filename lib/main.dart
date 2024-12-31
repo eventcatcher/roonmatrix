@@ -88,6 +88,8 @@ class RoonMatrixState extends State<RoonMatrix> {
   bool translationsLoaded = false;
   bool saveIdle = false;
 
+  Brightness? brightnessValue;
+
   late TranslationsBloc translationsBloc;
   late SettingsBloc settingsBloc;
   late MainBloc mainBloc;
@@ -577,29 +579,22 @@ class RoonMatrixState extends State<RoonMatrix> {
               home: home(translationsBloc: translationsBloc),
             )
           : SharedWidgets.inIosStyle()
-              ? CupertinoApp(
-                  title: title,
-                  // builder: (BuildContext context, Widget? child) {
-                  //   Brightness brightnessValue =
-                  //       MediaQuery.of(context).platformBrightness;
-                  //   bool isDark = brightnessValue == Brightness.dark;
-                  //   print('isDark: $isDark');
-                  //   return home(translationsBloc: translationsBloc);
-                  //   // return Theme(
-                  //   //   data: ThemeData(brightness: SharedWidgets.brightness()),
-                  //   //   child: CupertinoApp(
-                  //   //     theme: CupertinoThemeData(
-                  //   //       brightness: SharedWidgets.brightness(),
-                  //   //     ),
-                  //   //   ),
-                  //   // );
-                  // },
-                  theme: CupertinoThemeData(
-                    brightness: SharedWidgets.brightness(),
-                    //primaryColor: CupertinoColors.systemBlue,
-                  ),
-                  home: home(translationsBloc: translationsBloc),
-                )
+              ? Builder(builder: (context) {
+                  brightnessValue = MediaQuery.of(context).platformBrightness;
+
+                  if (kDebugMode) {
+                    debugPrint('brightness: $brightnessValue');
+                  }
+
+                  return CupertinoApp(
+                    title: title,
+                    theme: CupertinoThemeData(
+                      brightness: SharedWidgets.brightness(),
+                      //primaryColor: CupertinoColors.systemBlue,
+                    ),
+                    home: home(translationsBloc: translationsBloc),
+                  );
+                })
               : MaterialApp(
                   title: title,
                   theme: materialThemeData(tabBarTheme: tabBarTheme),

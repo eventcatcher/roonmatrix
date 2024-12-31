@@ -261,8 +261,11 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                             ),
                             mode: TextScrollMode.endless,
                             velocity: Velocity(
-                                pixelsPerSecond:
-                                    Offset(pixelsPerSecond * sliderValue, 0)),
+                              pixelsPerSecond:
+                                  Offset(pixelsPerSecond * sliderValue, 0),
+                            ),
+                            fadedBorder: true,
+                            fadeBorderSide: FadeBorderSide.right,
                           ),
                         ),
                       ),
