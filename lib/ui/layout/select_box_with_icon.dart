@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -273,7 +275,7 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
             decoration: InputDecoration(
               prefixIconConstraints: BoxConstraints(
                 minWidth: 16.0,
-                minHeight: 36.0,
+                minHeight: 32.0,
               ),
               prefixIcon: Padding(
                 padding: EdgeInsetsDirectional.only(end: 6.0),
@@ -283,7 +285,7 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                   color: SharedWidgets.iconColor(context: context),
                 ),
               ),
-              contentPadding: EdgeInsets.zero,
+              contentPadding: EdgeInsets.only(bottom: 11.0),
               enabledBorder: InputBorder.none,
               focusedBorder: InputBorder.none,
             ),
@@ -298,9 +300,17 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                   )
                 : null,
             //dropdownColor: Colors.white,
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: SharedWidgets.iconColor(context: context),
+            icon: Container(
+              padding: EdgeInsets.only(bottom: 11.0),
+              transform: Platform.isAndroid
+                  ? Matrix4.translationValues(0, -2.0, 0.0)
+                  : null,
+              child: Icon(
+                Icons.arrow_drop_down,
+                color: SharedWidgets.iconColor(context: context),
+                size: 32,
+                opticalSize: 32,
+              ),
             ),
             iconSize: 32,
             elevation: 16,
