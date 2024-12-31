@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/main.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
@@ -37,7 +36,6 @@ class ApproveModal {
             quarterTurns:
                 (landscape && orientation == Orientation.portrait) ? 1 : 0,
             child: AlertElement(
-              showMacStyle: showMacStyle,
               icon: icon,
               title: title,
               content: Text(
@@ -45,8 +43,7 @@ class ApproveModal {
                 softWrap: true,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: SharedWidgets.textColor(
-                      showMacStyle: showMacStyle, context: context),
+                  color: SharedWidgets.textColor(context: context),
                 ),
               ),
               button1Label: cancelText,

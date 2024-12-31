@@ -4,14 +4,35 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/main.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/text_field_element.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// ============================ style config============================
+
+final bool showMacStyle = true; // show app in macos ui style (running on macos)
+final bool showIosStyle =
+    true; // show app in iOS ui style (running on macos or iOS)
+final bool showSelectBoxInMacStyle = true;
+
+// =====================================================================
+
 class SharedWidgets {
+  static bool inIosStyle() {
+    return (showIosStyle == true && Platform.isIOS) ||
+        (!showMacStyle && showIosStyle == true && Platform.isMacOS);
+  }
+
+  static bool inMacosStyle() {
+    return showMacStyle == true && Platform.isMacOS;
+  }
+
+  static bool selectBoxInMacStyle() {
+    return showSelectBoxInMacStyle == true && inMacosStyle();
+  }
+
   static List<Widget> labelWidget(
           {required String? label, Color? labelColor}) =>
       label != null
@@ -41,15 +62,14 @@ class SharedWidgets {
   }
 
   static Color textColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? CupertinoColors.white
           : CupertinoColors.black;
     }
-    if (showMacStyle && Platform.isMacOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.white
           : MacosColors.black;
@@ -58,35 +78,32 @@ class SharedWidgets {
   }
 
   static Color iconColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    return textColor(showMacStyle: showMacStyle, context: context);
+    return textColor(context: context);
   }
 
   static Color hintColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return CupertinoColors.systemGrey;
     }
-    if (showMacStyle && Platform.isMacOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return MacosColors.systemGrayColor;
     }
     return Theme.of(context).hintColor;
   }
 
   static Color windowBackgroundColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.underPageBackgroundColor
           : CupertinoColors.white;
     }
-    if (showMacStyle && Platform.isMacOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.underPageBackgroundColor
           : MacosColors.white;
@@ -95,15 +112,14 @@ class SharedWidgets {
   }
 
   static Color borderColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? const Color.fromARGB(255, 60, 60, 60)
           : MacosColors.tickBackgroundColor;
     }
-    if ((showMacStyle && Platform.isMacOS) || Platform.isIOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.systemGrayColor
           : MacosColors.tickBackgroundColor;
@@ -112,15 +128,14 @@ class SharedWidgets {
   }
 
   static Color elementBackgroundColorLighter({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? Theme.of(context).primaryColorLight
           : CupertinoColors.white;
     }
-    if (showMacStyle && Platform.isMacOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? Theme.of(context).primaryColorLight
           : Colors.white;
@@ -129,22 +144,20 @@ class SharedWidgets {
   }
 
   static Color elementBackgroundColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    return windowBackgroundColor(showMacStyle: showMacStyle, context: context);
+    return windowBackgroundColor(context: context);
   }
 
   static Color areaBackgroundColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.gridColor
           : Colors.grey.shade100;
     }
-    if (showMacStyle && Platform.isMacOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.gridColor
           : Colors.grey.shade100;
@@ -155,15 +168,14 @@ class SharedWidgets {
   }
 
   static Color resetIconColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.gridColor
           : Color(0xFFCCCCCC);
     }
-    if ((showMacStyle && Platform.isMacOS) || Platform.isIOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.gridColor
           : Color(0xFFCCCCCC);
@@ -174,15 +186,14 @@ class SharedWidgets {
   }
 
   static Color tileBackgroundColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.gridColor
           : Colors.blue.shade100;
     }
-    if (showMacStyle && Platform.isMacOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.gridColor
           : Colors.blue.shade100; // MacosColors.systemTealColor;
@@ -193,15 +204,14 @@ class SharedWidgets {
   }
 
   static Color textFieldBackgroundColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.controlColor
           : Color(0xffefefef);
     }
-    if (showMacStyle && Platform.isMacOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
           ? MacosColors.controlColor
           : Color(0xffefefef);
@@ -210,13 +220,12 @@ class SharedWidgets {
   }
 
   static Color toolbarResizeButtonColor({
-    required bool showMacStyle,
     required BuildContext context,
   }) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return CupertinoColors.systemGrey;
     }
-    if (showMacStyle && Platform.isMacOS) {
+    if (SharedWidgets.inMacosStyle()) {
       return MacosColors.systemGrayColor;
     }
     return SharedWidgets.brightness() == Brightness.dark
@@ -225,16 +234,13 @@ class SharedWidgets {
   }
 
   static AlertElement addItemWithNameDialog({
-    required bool showMacStyle,
     required BuildContext context,
     required TextEditingController textController,
     required Map<String, dynamic> translations,
   }) =>
       AlertElement(
-        showMacStyle: showMacStyle,
         title: translations['dialogAddItemTitle'] ?? 'Add a new item',
         content: TextFieldElement(
-          showMacStyle: showMacStyle,
           controller: textController,
           autofocus: true,
           placeholder:
@@ -255,7 +261,6 @@ class SharedWidgets {
     required Map<String, dynamic> translations,
   }) =>
       AlertElement(
-        showMacStyle: showMacStyle,
         title: translations['dialogAddItemTitle'] ?? 'Add a new item?',
         button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
         onPressed1: () => Navigator.pop(context, false),
@@ -268,7 +273,6 @@ class SharedWidgets {
     required Map<String, dynamic> translations,
   }) =>
       AlertElement(
-        showMacStyle: showMacStyle,
         title: translations['dialogRemoveItemTitle'] ?? 'Remove item?',
         button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
         onPressed1: () => Navigator.pop(context, false),
@@ -281,7 +285,7 @@ class SharedWidgets {
     required Function(BuildContext context) child,
     bool barrierDismissible = true,
   }) async {
-    return Platform.isIOS
+    return SharedWidgets.inIosStyle()
         ? await showCupertinoDialog(
             context: context,
             barrierDismissible: barrierDismissible,
@@ -298,13 +302,11 @@ class SharedWidgets {
 
   static IconTextButtonElement addButton({
     required BuildContext context,
-    required bool showMacStyle,
     required TextEditingController? textController,
     required Map<String, dynamic> translations,
     required void Function(dynamic value) onAccepted,
   }) =>
       IconTextButtonElement(
-        showMacStyle: showMacStyle,
         icon: const Padding(
           padding: EdgeInsets.symmetric(vertical: 8.0),
           child: Icon(
@@ -320,7 +322,6 @@ class SharedWidgets {
             child: (BuildContext context) => textController != null
                 ? addItemWithNameDialog(
                     context: context,
-                    showMacStyle: showMacStyle,
                     textController: textController,
                     translations: translations,
                   )
@@ -338,7 +339,6 @@ class SharedWidgets {
 
   static IconButtonElement addIconButton({
     required BuildContext context,
-    required bool showMacStyle,
     required TextEditingController? textController,
     bool disabled = false,
     required Map<String, dynamic> translations,
@@ -346,7 +346,6 @@ class SharedWidgets {
     VoidCallback? onExit,
   }) =>
       IconButtonElement(
-          showMacStyle: showMacStyle,
           icon: const Icon(
             Icons.add,
             color: Colors.white,
@@ -359,7 +358,6 @@ class SharedWidgets {
                 child: (BuildContext context) => textController != null
                     ? addItemWithNameDialog(
                         context: context,
-                        showMacStyle: showMacStyle,
                         textController: textController,
                         translations: translations,
                       )
@@ -381,14 +379,12 @@ class SharedWidgets {
 
   static IconButtonElement removeIconButton({
     required BuildContext context,
-    required bool showMacStyle,
     required TextEditingController? textController,
     bool disabled = false,
     required Map<String, dynamic> translations,
     required VoidCallback onPressed,
   }) =>
       IconButtonElement(
-        showMacStyle: showMacStyle,
         icon: const Icon(
           Icons.remove,
           color: Colors.white,
@@ -407,7 +403,6 @@ class SharedWidgets {
     required VoidCallback onAccepted,
   }) =>
       IconTextButtonElement(
-        showMacStyle: showMacStyle,
         style: ButtonStyle(
           minimumSize:
               WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),
@@ -441,7 +436,6 @@ class SharedWidgets {
     required VoidCallback onPressed,
   }) {
     return IconTextButtonElement(
-      showMacStyle: showMacStyle,
       style: ButtonStyle(
         minimumSize:
             WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),

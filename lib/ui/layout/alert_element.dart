@@ -1,11 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' as cup;
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class AlertElement extends StatelessWidget {
   const AlertElement({
     super.key,
-    required this.showMacStyle,
     required this.title,
     this.icon,
     this.content,
@@ -15,7 +14,6 @@ class AlertElement extends StatelessWidget {
     this.onPressed2,
   });
 
-  final bool showMacStyle;
   final String title;
   final Widget? icon;
   final Widget? content;
@@ -26,7 +24,7 @@ class AlertElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return (showMacStyle == true && Platform.isMacOS) || Platform.isIOS
+    return SharedWidgets.inMacosStyle() || SharedWidgets.inIosStyle()
         ? cup.CupertinoAlertDialog(
             title: icon != null
                 ? Column(children: [icon!, Text(title)])

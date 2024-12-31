@@ -1,18 +1,14 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class BurgerMenu extends StatefulWidget {
-  final bool showMacStyle;
   final Map<String, dynamic> translations;
   final bool noPop;
   final Function(String? key) onClose;
 
   const BurgerMenu(
       {super.key,
-      required this.showMacStyle,
       required this.translations,
       this.noPop = false,
       required this.onClose});
@@ -51,8 +47,9 @@ class BurgerMenuState extends State<BurgerMenu> {
             height: 56.0,
             child: DrawerHeader(
               decoration: BoxDecoration(
-                color:
-                    Platform.isIOS ? CupertinoColors.systemGrey : Colors.blue,
+                color: SharedWidgets.inIosStyle()
+                    ? CupertinoColors.systemGrey
+                    : Colors.blue,
               ),
               margin: EdgeInsets.zero,
               padding: EdgeInsets.zero,
@@ -78,8 +75,7 @@ class BurgerMenuState extends State<BurgerMenu> {
                     popupData[index].name,
                     style: TextStyle(
                       fontSize: 16.0,
-                      color: SharedWidgets.textColor(
-                          showMacStyle: widget.showMacStyle, context: context),
+                      color: SharedWidgets.textColor(context: context),
                     ),
                   ),
                   onTap: () {

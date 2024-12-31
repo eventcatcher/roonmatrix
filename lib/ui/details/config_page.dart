@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/main.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
@@ -32,14 +31,12 @@ import 'package:styled_text/widgets/styled_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ConfigPage extends StatefulWidget {
-  final bool showMacStyle;
   final String name;
   final String ip;
   final VoidCallback close;
 
   const ConfigPage({
     super.key,
-    required this.showMacStyle,
     required this.name,
     required this.ip,
     required this.close,
@@ -112,7 +109,6 @@ class ConfigPageState extends State<ConfigPage> {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: EditableSinglelineText(
-                showMacStyle: showMacStyle,
                 inputType: TextInputType.text,
                 noCounter: true,
                 label: label,
@@ -148,7 +144,6 @@ class ConfigPageState extends State<ConfigPage> {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: EditableSinglelineText(
-                showMacStyle: showMacStyle,
                 inputType: TextInputType.number,
                 formatters: [FilteringTextInputFormatter.digitsOnly],
                 noCounter: true,
@@ -195,7 +190,6 @@ class ConfigPageState extends State<ConfigPage> {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: SwitchButton(
-                showMacStyle: showMacStyle,
                 label: label,
                 enabled: fieldValues[area.name][fieldDefinition.name],
                 onChanged: (value) {
@@ -212,7 +206,6 @@ class ConfigPageState extends State<ConfigPage> {
                 (fieldValues[area.name][fieldDefinition.name] as String)
                     .replaceAll("'", '"'));
             widgetField = ListItems(
-              showMacStyle: showMacStyle,
               label: label,
               fieldValues: json,
               predefinedLength: fieldType.endsWith('PredefinedLength'),
@@ -227,7 +220,6 @@ class ConfigPageState extends State<ConfigPage> {
                 (fieldValues[area.name][fieldDefinition.name] as String)
                     .replaceAll("'", '"'));
             widgetField = KeyValItems(
-              showMacStyle: showMacStyle,
               label: label,
               fieldValues: json,
               onChanged: (String value) {
@@ -241,7 +233,6 @@ class ConfigPageState extends State<ConfigPage> {
                 (fieldValues[area.name][fieldDefinition.name] as String)
                     .replaceAll("'", '"'));
             widgetField = MapListItems(
-              showMacStyle: showMacStyle,
               label: label,
               fieldDefinition: fieldDefinition,
               fieldValues: json,
@@ -289,12 +280,10 @@ class ConfigPageState extends State<ConfigPage> {
         }
       }
       Widget widgetArea = Card(
-        color: SharedWidgets.windowBackgroundColor(
-            showMacStyle: showMacStyle, context: context),
+        color: SharedWidgets.windowBackgroundColor(context: context),
         child: Column(
           children: [
             Headline(
-              showMacStyle: showMacStyle,
               text: translations['config']?[area.name] ?? area.name,
             ),
             ...fields
@@ -313,8 +302,7 @@ class ConfigPageState extends State<ConfigPage> {
     required MainState mainState,
   }) =>
       Container(
-        color: SharedWidgets.windowBackgroundColor(
-            showMacStyle: showMacStyle, context: context),
+        color: SharedWidgets.windowBackgroundColor(context: context),
         child: Column(
           children: [
             Expanded(
@@ -336,7 +324,6 @@ class ConfigPageState extends State<ConfigPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconTextButtonElement(
-                    showMacStyle: showMacStyle,
                     icon: const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8.0),
                       child: Icon(
@@ -393,7 +380,7 @@ class ConfigPageState extends State<ConfigPage> {
                 ],
               ),
             ),
-            if (Platform.isIOS) const SizedBox(height: 14.0),
+            if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
           ],
         ),
       );
@@ -405,16 +392,16 @@ class ConfigPageState extends State<ConfigPage> {
     required String jsonStr,
   }) {
     return Container(
-      padding:
-          EdgeInsets.only(top: Platform.isIOS || Platform.isMacOS ? 20.0 : 0.0),
-      color: SharedWidgets.windowBackgroundColor(
-          showMacStyle: showMacStyle, context: context),
+      padding: EdgeInsets.only(
+          top: SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
+              ? 20.0
+              : 0.0),
+      color: SharedWidgets.windowBackgroundColor(context: context),
       child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: SearchField(
-              showMacStyle: showMacStyle,
               type: 'config',
               controller: mainBloc.getSearchController(type: 'config'),
             ),
@@ -430,8 +417,7 @@ class ConfigPageState extends State<ConfigPage> {
                         child: StyledText(
                           text: jsonStr,
                           style: TextStyle(
-                            color: SharedWidgets.textColor(
-                                showMacStyle: showMacStyle, context: context),
+                            color: SharedWidgets.textColor(context: context),
                           ),
                           tags: {
                             'b': StyledTextTag(
@@ -459,7 +445,6 @@ class ConfigPageState extends State<ConfigPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconTextButtonElement(
-                  showMacStyle: showMacStyle,
                   icon: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Icon(
@@ -509,7 +494,7 @@ class ConfigPageState extends State<ConfigPage> {
               ],
             ),
           ),
-          if (Platform.isIOS) const SizedBox(height: 14.0),
+          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
         ],
       ),
     );
@@ -553,7 +538,7 @@ class ConfigPageState extends State<ConfigPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (Platform.isIOS) {
+            if (SharedWidgets.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
                   brightness: SharedWidgets.brightness(),
@@ -562,7 +547,7 @@ class ConfigPageState extends State<ConfigPage> {
                 child: SizedBox(),
               );
             }
-            return showMacStyle == true && Platform.isMacOS
+            return SharedWidgets.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
@@ -617,7 +602,7 @@ class ConfigPageState extends State<ConfigPage> {
                     definitions: defs, fieldValues: fieldValues);
                 formFields = getFormFields(defs: defs);
 
-                if (Platform.isIOS) {
+                if (SharedWidgets.inIosStyle()) {
                   return CupertinoPageScaffold(
                     navigationBar: CupertinoNavigationBar(
                       brightness: SharedWidgets.brightness(),
@@ -684,7 +669,7 @@ class ConfigPageState extends State<ConfigPage> {
                   );
                 }
 
-                return showMacStyle == true && Platform.isMacOS
+                return SharedWidgets.inMacosStyle()
                     ? MacosScaffold(
                         toolBar: ToolBar(
                           title: Text(title),

@@ -1,25 +1,23 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class ButtonElement extends StatelessWidget {
   const ButtonElement({
     super.key,
-    required this.showMacStyle,
     required this.label,
     this.icon,
     required this.onPressed,
   });
 
-  final bool showMacStyle;
   final String label;
   final Icon? icon;
   final Function() onPressed;
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return CupertinoButton.filled(
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
         minSize: 8,
@@ -28,7 +26,7 @@ class ButtonElement extends StatelessWidget {
       );
     }
 
-    return showMacStyle == true && Platform.isMacOS
+    return SharedWidgets.inMacosStyle()
         ? PushButton(
             controlSize: ControlSize.regular,
             onPressed: onPressed,

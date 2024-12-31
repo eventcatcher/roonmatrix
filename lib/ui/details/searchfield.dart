@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,13 +9,11 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class SearchField extends StatefulWidget {
-  final bool showMacStyle;
   final TextEditingController controller;
   final String type;
 
   const SearchField({
     super.key,
-    required this.showMacStyle,
     required this.controller,
     required this.type,
   });
@@ -27,7 +23,6 @@ class SearchField extends StatefulWidget {
 }
 
 class SearchFieldState extends State<SearchField> {
-  bool get showMacStyle => widget.showMacStyle;
   TextEditingController get controller => widget.controller;
   String get type => widget.type;
 
@@ -69,8 +64,7 @@ class SearchFieldState extends State<SearchField> {
                       blurStyle: BlurStyle.normal,
                     )
                   ],
-                  color: SharedWidgets.elementBackgroundColor(
-                      showMacStyle: showMacStyle, context: context),
+                  color: SharedWidgets.elementBackgroundColor(context: context),
                   borderRadius: const BorderRadius.all(
                     Radius.circular(4),
                   ),
@@ -81,22 +75,19 @@ class SearchFieldState extends State<SearchField> {
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.only(
-                          left: Platform.isIOS ||
-                                  (showMacStyle == true && Platform.isMacOS)
+                          left: SharedWidgets.inIosStyle() ||
+                                  SharedWidgets.inMacosStyle()
                               ? 0.0
                               : 4.0,
                         ),
                         child: EditableSinglelineText(
-                          showMacStyle: showMacStyle,
                           text: controller.text,
                           aligned: 'inline',
                           decoupled: false,
                           noDecoration: true,
                           prefixIcon: Icon(CupertinoIcons.search,
                               size: 18.0,
-                              color: SharedWidgets.iconColor(
-                                  showMacStyle: widget.showMacStyle,
-                                  context: context)),
+                              color: SharedWidgets.iconColor(context: context)),
                           placeholder:
                               translations['searchfieldHint'] ?? 'search',
                           controller: controller,
@@ -110,12 +101,11 @@ class SearchFieldState extends State<SearchField> {
                         ),
                       ),
                     ),
-                    if (!Platform.isIOS && (!showMacStyle || !Platform.isMacOS))
+                    if (!SharedWidgets.inIosStyle() &&
+                        !SharedWidgets.inMacosStyle())
                       IconButton(
                         icon: Icon(Icons.close,
-                            color: SharedWidgets.iconColor(
-                                showMacStyle: widget.showMacStyle,
-                                context: context)),
+                            color: SharedWidgets.iconColor(context: context)),
                         padding: const EdgeInsets.all(4.0),
                         constraints: const BoxConstraints(),
                         splashRadius: 1,

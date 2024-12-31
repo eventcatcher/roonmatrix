@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class LoadingIndicatorBig extends StatelessWidget {
-  final bool showMacStyle;
   final String? message;
 
   const LoadingIndicatorBig({
     super.key,
-    required this.showMacStyle,
     this.message,
   });
 
@@ -34,8 +32,7 @@ class LoadingIndicatorBig extends StatelessWidget {
                 child: Text(
                   message!,
                   style: TextStyle(
-                    color: SharedWidgets.textColor(
-                        showMacStyle: showMacStyle, context: context),
+                    color: SharedWidgets.textColor(context: context),
                   ),
                 ),
               ),

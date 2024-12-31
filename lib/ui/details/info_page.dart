@@ -14,14 +14,12 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class InfoPage extends StatefulWidget {
-  final bool showMacStyle;
   final String name;
   final String ip;
   final VoidCallback close;
 
   const InfoPage({
     super.key,
-    required this.showMacStyle,
     required this.name,
     required this.ip,
     required this.close,
@@ -32,7 +30,6 @@ class InfoPage extends StatefulWidget {
 }
 
 class InfoPageState extends State<InfoPage> {
-  bool get showMacStyle => widget.showMacStyle;
   String get name => widget.name;
   String get ip => widget.ip;
   VoidCallback get close => widget.close;
@@ -66,7 +63,6 @@ class InfoPageState extends State<InfoPage> {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: SearchField(
-              showMacStyle: showMacStyle,
               type: 'info',
               controller: mainBloc.getSearchController(type: 'info'),
             ),
@@ -82,8 +78,7 @@ class InfoPageState extends State<InfoPage> {
                         child: Text(
                           infoStr,
                           style: TextStyle(
-                            color: SharedWidgets.textColor(
-                                showMacStyle: showMacStyle, context: context),
+                            color: SharedWidgets.textColor(context: context),
                           ),
                         ),
                       ),
@@ -101,7 +96,6 @@ class InfoPageState extends State<InfoPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconTextButtonElement(
-                  showMacStyle: showMacStyle,
                   icon: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Icon(
@@ -151,7 +145,7 @@ class InfoPageState extends State<InfoPage> {
               ],
             ),
           ),
-          if (Platform.isIOS) const SizedBox(height: 14.0),
+          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
         ],
       );
 
@@ -168,7 +162,7 @@ class InfoPageState extends State<InfoPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (Platform.isIOS) {
+            if (SharedWidgets.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
                   brightness: SharedWidgets.brightness(),
@@ -177,7 +171,7 @@ class InfoPageState extends State<InfoPage> {
                 child: SizedBox(),
               );
             }
-            return showMacStyle == true && Platform.isMacOS
+            return SharedWidgets.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
@@ -230,7 +224,7 @@ class InfoPageState extends State<InfoPage> {
                     .toList()
                     .join('\n');
 
-                if (Platform.isIOS) {
+                if (SharedWidgets.inIosStyle()) {
                   return CupertinoPageScaffold(
                     navigationBar: CupertinoNavigationBar(
                       brightness: SharedWidgets.brightness(),
@@ -250,7 +244,7 @@ class InfoPageState extends State<InfoPage> {
                   );
                 }
 
-                return showMacStyle == true && Platform.isMacOS
+                return SharedWidgets.inMacosStyle()
                     ? MacosScaffold(
                         toolBar: ToolBar(
                           title: Text(title),

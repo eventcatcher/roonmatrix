@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +16,10 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class SettingsPage extends StatefulWidget {
-  final bool showMacStyle;
   final VoidCallback close;
 
   const SettingsPage({
     super.key,
-    required this.showMacStyle,
     required this.close,
   });
 
@@ -32,7 +28,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool get showMacStyle => widget.showMacStyle;
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
@@ -73,7 +68,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   EditableSinglelineText fromField() => EditableSinglelineText(
-        showMacStyle: showMacStyle,
         key: ValueKey('Start-$loaded}'),
         inputType: TextInputType.text,
         placeholder: '###.###.###.###',
@@ -100,7 +94,6 @@ class _SettingsPageState extends State<SettingsPage> {
       );
 
   EditableSinglelineText toField() => EditableSinglelineText(
-        showMacStyle: showMacStyle,
         key: ValueKey('End-$loaded'),
         inputType: TextInputType.text,
         placeholder: '###.###.###.###',
@@ -144,8 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       'IP range to scan for devices',
                   style: TextStyle(
                     fontSize: 18.0,
-                    color: SharedWidgets.textColor(
-                        showMacStyle: showMacStyle, context: context),
+                    color: SharedWidgets.textColor(context: context),
                   ),
                 ),
               ),
@@ -219,7 +211,6 @@ class _SettingsPageState extends State<SettingsPage> {
                                       IconTextButtonElement(
                                         key: ValueKey(
                                             'save-${snapshotStart.data}-${snapshotEnd.data}'),
-                                        showMacStyle: showMacStyle,
                                         icon: const Padding(
                                           padding: EdgeInsets.symmetric(
                                               vertical: 8.0),
@@ -272,7 +263,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (Platform.isIOS) {
+            if (SharedWidgets.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
                   brightness: SharedWidgets.brightness(),
@@ -281,7 +272,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: SizedBox(),
               );
             }
-            return showMacStyle == true && Platform.isMacOS
+            return SharedWidgets.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
@@ -335,7 +326,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   });
                 }
 
-                if (Platform.isIOS) {
+                if (SharedWidgets.inIosStyle()) {
                   return CupertinoPageScaffold(
                     navigationBar: CupertinoNavigationBar(
                       brightness: SharedWidgets.brightness(),
@@ -355,7 +346,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   );
                 }
 
-                return showMacStyle == true && Platform.isMacOS
+                return SharedWidgets.inMacosStyle()
                     ? MacosScaffold(
                         toolBar: ToolBar(
                           title: Text(title),

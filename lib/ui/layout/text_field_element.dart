@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart' as cup;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +7,6 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 class TextFieldElement extends StatelessWidget {
   const TextFieldElement({
     super.key,
-    required this.showMacStyle,
     this.placeholder,
     this.prefixIcon,
     this.readOnly = false,
@@ -26,7 +24,6 @@ class TextFieldElement extends StatelessWidget {
     this.onChanged,
   });
 
-  final bool showMacStyle;
   final String? placeholder;
   final Widget? prefixIcon;
   final bool readOnly;
@@ -45,7 +42,7 @@ class TextFieldElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS || (showMacStyle == true && Platform.isMacOS)) {
+    if (SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()) {
       return cup.CupertinoTextField(
         placeholder: placeholder,
         prefix: prefixIcon != null
@@ -61,7 +58,7 @@ class TextFieldElement extends StatelessWidget {
         maxLength: maxLength,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
-        style: (showMacStyle == true && Platform.isMacOS) || Platform.isIOS
+        style: SharedWidgets.inMacosStyle() || SharedWidgets.inIosStyle()
             ? null
             : style,
         controller: controller,
@@ -69,7 +66,7 @@ class TextFieldElement extends StatelessWidget {
       );
     }
 
-    return showMacStyle == true && Platform.isMacOS
+    return SharedWidgets.inMacosStyle()
         ? MacosTextField(
             placeholder: placeholder,
             prefix: prefixIcon,
@@ -84,8 +81,7 @@ class TextFieldElement extends StatelessWidget {
             style: style,
             controller: controller,
             decoration: BoxDecoration(
-              color: SharedWidgets.textFieldBackgroundColor(
-                  showMacStyle: showMacStyle, context: context),
+              color: SharedWidgets.textFieldBackgroundColor(context: context),
             ),
             onChanged: onChanged,
           )

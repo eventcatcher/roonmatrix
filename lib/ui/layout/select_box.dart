@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -7,7 +5,6 @@ import 'package:roonmatrix/ui/layout/roonmatrix_styles.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class SelectBox extends StatefulWidget {
-  final bool showMacStyle;
   final Map<String, dynamic> translations;
   final Map<String, String>? options;
   final String? aligned;
@@ -24,7 +21,6 @@ class SelectBox extends StatefulWidget {
 
   const SelectBox({
     super.key,
-    required this.showMacStyle,
     required this.translations,
     required this.options,
     this.aligned,
@@ -104,7 +100,7 @@ class SelectBoxState extends State<SelectBox> {
   }
 
   Widget dropdownElement({required bool expanded}) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return widget.options!.keys.toList().isEmpty
           ? Text(widget.translations['zonePickerOptionsEmpty'] ?? 'none')
           : CupertinoButton(
@@ -177,7 +173,7 @@ class SelectBoxState extends State<SelectBox> {
             );
     }
 
-    return widget.showMacStyle == true && Platform.isMacOS
+    return SharedWidgets.inMacosStyle()
         ? MacosPopupButton<String>(
             value: widget.selected,
             onChanged: (String? value) {
@@ -209,8 +205,7 @@ class SelectBoxState extends State<SelectBox> {
                 ? Text(
                     widget.placeholder!,
                     style: TextStyle(
-                      color: SharedWidgets.textColor(
-                          showMacStyle: widget.showMacStyle, context: context),
+                      color: SharedWidgets.textColor(context: context),
                       fontSize: 12.0,
                     ),
                   )
@@ -218,14 +213,12 @@ class SelectBoxState extends State<SelectBox> {
             //dropdownColor: Colors.white,
             icon: Icon(
               Icons.arrow_drop_down,
-              color: SharedWidgets.iconColor(
-                  showMacStyle: widget.showMacStyle, context: context),
+              color: SharedWidgets.iconColor(context: context),
             ),
             iconSize: 32,
             elevation: 16,
             style: TextStyle(
-              color: SharedWidgets.textColor(
-                  showMacStyle: widget.showMacStyle, context: context),
+              color: SharedWidgets.textColor(context: context),
             ),
             underline: Container(
               height: 0,
@@ -268,8 +261,7 @@ class SelectBoxState extends State<SelectBox> {
         style: TextStyle(
           color: widget.readOnlyColoredGrey == true
               ? Colors.grey
-              : SharedWidgets.textColor(
-                  showMacStyle: widget.showMacStyle, context: context),
+              : SharedWidgets.textColor(context: context),
           fontSize: 13.0,
         ),
       ),
@@ -277,15 +269,15 @@ class SelectBoxState extends State<SelectBox> {
   }
 
   Widget dropdown({required bool expanded}) => Container(
-        height: Platform.isIOS ? 56.0 : 36.0,
-        padding: widget.showMacStyle && Platform.isMacOS
+        height: SharedWidgets.inIosStyle() ? 56.0 : 36.0,
+        padding: SharedWidgets.inMacosStyle()
             ? null
             : const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-        decoration: widget.showMacStyle && Platform.isMacOS
+        decoration: SharedWidgets.inMacosStyle()
             ? null
             : RoonmatrixStyles.boxDecoration(
-                fillColor: SharedWidgets.elementBackgroundColor(
-                    showMacStyle: widget.showMacStyle, context: context)),
+                fillColor:
+                    SharedWidgets.elementBackgroundColor(context: context)),
         child: widget.readOnly == true
             ? dropdownReadonlyElement()
             : dropdownElement(expanded: expanded),
@@ -307,9 +299,7 @@ class SelectBoxState extends State<SelectBox> {
                     Text(
                       widget.label!,
                       style: TextStyle(
-                        color: SharedWidgets.textColor(
-                            showMacStyle: widget.showMacStyle,
-                            context: context),
+                        color: SharedWidgets.textColor(context: context),
                         fontSize: 12.0,
                       ),
                     ),
@@ -324,9 +314,7 @@ class SelectBoxState extends State<SelectBox> {
                       widget.label!,
                       style: TextStyle(
                         color: widget.labelColor ??
-                            SharedWidgets.textColor(
-                                showMacStyle: widget.showMacStyle,
-                                context: context),
+                            SharedWidgets.textColor(context: context),
                         fontSize: 12.0,
                       ),
                     ),

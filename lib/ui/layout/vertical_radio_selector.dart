@@ -1,19 +1,14 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/main.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class VerticalRadioSelector extends StatefulWidget {
-  final bool showMacStyle;
   final List<String> options;
   final String? selectedOption;
   final void Function(String value) onChanged;
 
   const VerticalRadioSelector({
     super.key,
-    required this.showMacStyle,
     required this.options,
     required this.selectedOption,
     required this.onChanged,
@@ -40,8 +35,8 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
                 SizedBox(
                   width: 20.0,
                   child: Center(
-                    child: (showMacStyle == true && Platform.isMacOS) ||
-                            Platform.isIOS
+                    child: SharedWidgets.inMacosStyle() ||
+                            SharedWidgets.inIosStyle()
                         ? Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
                             child: CupertinoRadio(
@@ -79,9 +74,7 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
                       softWrap: true,
                       style: TextStyle(
                         fontSize: 12.0,
-                        color: SharedWidgets.textColor(
-                            showMacStyle: widget.showMacStyle,
-                            context: context),
+                        color: SharedWidgets.textColor(context: context),
                       ),
                     ),
                   ),

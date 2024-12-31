@@ -14,7 +14,6 @@ import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:text_scroll/text_scroll.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
-  final bool showMacStyle;
   final int index;
   final String name;
   final Map<String, dynamic> translations;
@@ -23,7 +22,6 @@ class ScrollMatrixPage extends StatefulWidget {
 
   const ScrollMatrixPage({
     super.key,
-    required this.showMacStyle,
     required this.index,
     required this.name,
     required this.translations,
@@ -36,7 +34,6 @@ class ScrollMatrixPage extends StatefulWidget {
 }
 
 class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
-  bool get showMacStyle => widget.showMacStyle;
   int get index => widget.index;
   String get name => widget.name;
   Map<String, dynamic> get translations => widget.translations;
@@ -169,7 +166,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   return Text(
                       'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
                 }),
-          if (Platform.isIOS || Platform.isAndroid || Platform.isFuchsia) ...[
+          if (SharedWidgets.inIosStyle() ||
+              Platform.isAndroid ||
+              Platform.isFuchsia) ...[
             const Text('  |  '),
             IconButton(
               iconSize: 12.0,
@@ -258,8 +257,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                             style: TextStyle(
                               fontFamily: 'Arial',
                               fontSize: fontSize,
-                              color: SharedWidgets.textColor(
-                                  showMacStyle: showMacStyle, context: context),
+                              color: SharedWidgets.textColor(context: context),
                             ),
                             mode: TextScrollMode.endless,
                             velocity: Velocity(
@@ -281,19 +279,19 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   Widget build(BuildContext context) {
     updateSizes('build');
 
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return Material(
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
             brightness: SharedWidgets.brightness(),
-            middle: Platform.isIOS ? null : Text(name),
+            middle: SharedWidgets.inIosStyle() ? null : Text(name),
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               child: CupertinoNavigationBarBackButton(),
               onPressed: () => Navigator.pop(context),
             ),
             trailing: SizedBox(
-              width: Platform.isIOS
+              width: SharedWidgets.inIosStyle()
                   ? MediaQuery.of(context).size.width - 100
                   : 900.0,
               child: controls(),
@@ -306,7 +304,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
       );
     }
 
-    return showMacStyle == true && Platform.isMacOS
+    return SharedWidgets.inMacosStyle()
         ? Material(
             child: MacosScaffold(
               toolBar: ToolBar(
@@ -321,8 +319,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                         child: Text(
                           '${translations['speed'] ?? 'speed:'}:',
                           style: TextStyle(
-                            color: SharedWidgets.textColor(
-                                showMacStyle: showMacStyle, context: context),
+                            color: SharedWidgets.textColor(context: context),
                           ),
                         ),
                       ),
@@ -391,9 +388,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                             return Text(
                               'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
                               style: TextStyle(
-                                color: SharedWidgets.textColor(
-                                    showMacStyle: showMacStyle,
-                                    context: context),
+                                color:
+                                    SharedWidgets.textColor(context: context),
                               ),
                             );
                           }),

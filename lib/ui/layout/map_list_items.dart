@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +15,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:validators/validators.dart';
 
 class MapListItems extends StatefulWidget {
-  final bool showMacStyle;
   final String? label;
   final Color? labelColor;
   final ConfigDefinitionItem fieldDefinition;
@@ -27,7 +24,6 @@ class MapListItems extends StatefulWidget {
 
   const MapListItems({
     super.key,
-    required this.showMacStyle,
     this.label,
     this.labelColor = Colors.black,
     required this.fieldDefinition,
@@ -41,7 +37,6 @@ class MapListItems extends StatefulWidget {
 }
 
 class MapListItemsState extends State<MapListItems> {
-  bool get showMacStyle => widget.showMacStyle;
   String? get label => widget.label;
   ConfigDefinitionItem get fieldDefinition => widget.fieldDefinition;
 
@@ -85,7 +80,6 @@ class MapListItemsState extends State<MapListItems> {
             .type;
 
         Widget widget = EditableSinglelineText(
-          showMacStyle: showMacStyle,
           key: ValueKey('$label-${fieldValues.length}-$idx-$key'),
           inputType: fieldType.startsWith('int')
               ? TextInputType.number
@@ -190,11 +184,10 @@ class MapListItemsState extends State<MapListItems> {
                   returnJson(fieldValues);
                 }
               },
-              icon: Platform.isIOS || Platform.isMacOS
+              icon: SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
                   ? Icon(
                       CupertinoIcons.clear_circled_solid,
-                      color: SharedWidgets.resetIconColor(
-                          showMacStyle: showMacStyle, context: context),
+                      color: SharedWidgets.resetIconColor(context: context),
                       size: 18.0,
                     )
                   : const Icon(Icons.clear),
@@ -257,7 +250,6 @@ class MapListItemsState extends State<MapListItems> {
         padding: const EdgeInsets.only(right: 16.0),
         child: SharedWidgets.addButton(
             context: context,
-            showMacStyle: showMacStyle,
             textController: null,
             translations: translations,
             onAccepted: (dynamic value) {
@@ -297,19 +289,15 @@ class MapListItemsState extends State<MapListItems> {
                 ...SharedWidgets.labelWidget(
                   label: widget.label,
                   labelColor: SharedWidgets.brightness() == Brightness.dark
-                      ? SharedWidgets.textColor(
-                          showMacStyle: widget.showMacStyle, context: context)
+                      ? SharedWidgets.textColor(context: context)
                       : widget.labelColor ??
-                          SharedWidgets.textColor(
-                              showMacStyle: widget.showMacStyle,
-                              context: context),
+                          SharedWidgets.textColor(context: context),
                 ),
                 Container(
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
                   child: Card(
-                    color: SharedWidgets.areaBackgroundColor(
-                        showMacStyle: showMacStyle, context: context),
+                    color: SharedWidgets.areaBackgroundColor(context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

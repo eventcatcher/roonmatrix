@@ -18,14 +18,12 @@ import 'package:styled_text/tags/styled_text_tag.dart';
 import 'package:styled_text/widgets/styled_text.dart';
 
 class LogPage extends StatefulWidget {
-  final bool showMacStyle;
   final String name;
   final String ip;
   final VoidCallback close;
 
   const LogPage({
     super.key,
-    required this.showMacStyle,
     required this.name,
     required this.ip,
     required this.close,
@@ -36,7 +34,6 @@ class LogPage extends StatefulWidget {
 }
 
 class LogPageState extends State<LogPage> {
-  bool get showMacStyle => widget.showMacStyle;
   String get name => widget.name;
   String get ip => widget.ip;
   VoidCallback get close => widget.close;
@@ -71,13 +68,11 @@ class LogPageState extends State<LogPage> {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: SearchField(
-              showMacStyle: showMacStyle,
               type: 'log',
               controller: mainBloc.getSearchController(type: 'log'),
             ),
           ),
           SelectBoxWithIcon(
-            showMacStyle: showMacStyle,
             translations: translations,
             options: translationsBloc.state.logHoursOptions,
             placeholder:
@@ -101,8 +96,7 @@ class LogPageState extends State<LogPage> {
                         child: StyledText(
                           text: log,
                           style: TextStyle(
-                            color: SharedWidgets.textColor(
-                                showMacStyle: showMacStyle, context: context),
+                            color: SharedWidgets.textColor(context: context),
                           ),
                           tags: {
                             'b': StyledTextTag(
@@ -130,7 +124,6 @@ class LogPageState extends State<LogPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconTextButtonElement(
-                  showMacStyle: showMacStyle,
                   icon: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Icon(
@@ -180,7 +173,7 @@ class LogPageState extends State<LogPage> {
               ],
             ),
           ),
-          if (Platform.isIOS) const SizedBox(height: 14.0),
+          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
         ],
       );
 
@@ -197,7 +190,7 @@ class LogPageState extends State<LogPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (Platform.isIOS) {
+            if (SharedWidgets.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
                   brightness: SharedWidgets.brightness(),
@@ -206,7 +199,7 @@ class LogPageState extends State<LogPage> {
                 child: SizedBox(),
               );
             }
-            return showMacStyle == true && Platform.isMacOS
+            return SharedWidgets.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
@@ -259,7 +252,7 @@ class LogPageState extends State<LogPage> {
                   }
                 }
 
-                if (Platform.isIOS) {
+                if (SharedWidgets.inIosStyle()) {
                   return CupertinoPageScaffold(
                     navigationBar: CupertinoNavigationBar(
                       brightness: SharedWidgets.brightness(),
@@ -276,7 +269,7 @@ class LogPageState extends State<LogPage> {
                   );
                 }
 
-                return showMacStyle == true && Platform.isMacOS
+                return SharedWidgets.inMacosStyle()
                     ? MacosScaffold(
                         toolBar: ToolBar(
                           title: Text(title),

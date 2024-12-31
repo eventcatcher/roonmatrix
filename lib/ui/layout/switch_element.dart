@@ -1,12 +1,11 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class SwitchElement extends StatelessWidget {
   const SwitchElement({
     super.key,
-    required this.showMacStyle,
     this.materialTapTargetSize,
     this.activeTrackColor,
     this.activeColor,
@@ -14,7 +13,6 @@ class SwitchElement extends StatelessWidget {
     required this.onChanged,
   });
 
-  final bool showMacStyle;
   final MaterialTapTargetSize? materialTapTargetSize;
   final Color? activeTrackColor;
   final Color? activeColor;
@@ -23,14 +21,14 @@ class SwitchElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return CupertinoSwitch(
         value: value,
         onChanged: onChanged,
       );
     }
 
-    return showMacStyle == true && Platform.isMacOS
+    return SharedWidgets.inMacosStyle()
         ? MacosSwitch(
             value: value,
             onChanged: onChanged,

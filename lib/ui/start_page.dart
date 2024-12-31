@@ -29,14 +29,12 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:window_manager/window_manager.dart';
 
 class StartPage extends StatefulWidget {
-  final bool showMacStyle;
   final Size minDesktopSize;
   final Size standardDesktopSize;
   final String title;
 
   const StartPage({
     super.key,
-    required this.showMacStyle,
     required this.minDesktopSize,
     required this.standardDesktopSize,
     required this.title,
@@ -47,7 +45,6 @@ class StartPage extends StatefulWidget {
 }
 
 class StartPageState extends State<StartPage> {
-  bool get showMacStyle => widget.showMacStyle;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   String get title => widget.title;
@@ -103,7 +100,6 @@ class StartPageState extends State<StartPage> {
             transitionDuration: const Duration(milliseconds: 0),
             pageBuilder: (_, __, ___) {
               return SettingsPage(
-                showMacStyle: showMacStyle,
                 close: () {
                   Navigator.pop(context);
                 },
@@ -145,7 +141,6 @@ class StartPageState extends State<StartPage> {
   }
 
   burgerMenuRaw(bool noPop) => BurgerMenu(
-        showMacStyle: showMacStyle,
         translations: translations,
         noPop: noPop,
         onClose: (String? key) {
@@ -168,7 +163,7 @@ class StartPageState extends State<StartPage> {
           return const SizedBox();
         }
 
-        return Platform.isIOS
+        return SharedWidgets.inIosStyle()
             ? burgerMenuRaw(true)
             : Drawer(
                 child: burgerMenuRaw(false),
@@ -246,8 +241,7 @@ class StartPageState extends State<StartPage> {
               return OrientationBuilder(
                   builder: (BuildContext context, Orientation orientation) {
                 return Container(
-                  color: SharedWidgets.windowBackgroundColor(
-                      showMacStyle: widget.showMacStyle, context: context),
+                  color: SharedWidgets.windowBackgroundColor(context: context),
                   child: Center(
                     child: Column(
                       children: <Widget>[
@@ -263,7 +257,6 @@ class StartPageState extends State<StartPage> {
                                 direction: Axis.horizontal,
                                 children: [
                                   SearchField(
-                                    showMacStyle: showMacStyle,
                                     type: 'main',
                                     controller: mainBloc.getSearchController(
                                         type: 'main'),
@@ -314,7 +307,6 @@ class StartPageState extends State<StartPage> {
                         Expanded(
                           child: idle == true
                               ? LoadingIndicatorBig(
-                                  showMacStyle: showMacStyle,
                                   message: translations['scanMessage'] ??
                                       'scan for devices')
                               : devices.isEmpty
@@ -350,7 +342,6 @@ class StartPageState extends State<StartPage> {
                                                   'no devices found',
                                               style: TextStyle(
                                                 color: SharedWidgets.textColor(
-                                                    showMacStyle: showMacStyle,
                                                     context: context),
                                               ),
                                             ),
@@ -390,7 +381,6 @@ class StartPageState extends State<StartPage> {
                                         return Container(
                                           color:
                                               SharedWidgets.tileBackgroundColor(
-                                                  showMacStyle: showMacStyle,
                                                   context: context),
                                           height: 84.0,
                                           child: Stack(
@@ -402,8 +392,6 @@ class StartPageState extends State<StartPage> {
                                                 iconColor: Colors.black,
                                                 textColor:
                                                     SharedWidgets.textColor(
-                                                        showMacStyle:
-                                                            showMacStyle,
                                                         context: context),
                                                 leading: SizedBox(
                                                   width: 32,
@@ -425,8 +413,6 @@ class StartPageState extends State<StartPage> {
                                                       pageBuilder:
                                                           (_, __, ___) {
                                                         return ScrollMatrixPage(
-                                                          showMacStyle:
-                                                              showMacStyle,
                                                           index: index,
                                                           name: i['name'],
                                                           translations:
@@ -498,8 +484,6 @@ class StartPageState extends State<StartPage> {
                                                                     left: 8.0),
                                                             child:
                                                                 IconTextButtonElement(
-                                                              showMacStyle:
-                                                                  showMacStyle,
                                                               onMacAsText: true,
                                                               onPressed: () =>
                                                                   showGeneralDialog(
@@ -519,8 +503,6 @@ class StartPageState extends State<StartPage> {
                                                                 pageBuilder: (_,
                                                                     __, ___) {
                                                                   return InfoPage(
-                                                                    showMacStyle:
-                                                                        showMacStyle,
                                                                     name: i[
                                                                         'name'],
                                                                     ip: devices[
@@ -532,8 +514,11 @@ class StartPageState extends State<StartPage> {
                                                                   );
                                                                 },
                                                               ),
-                                                              icon: const Icon(
-                                                                  Icons.info),
+                                                              icon: Icon(
+                                                                Icons.info,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
                                                               label: translations[
                                                                       'infoButtonText'] ??
                                                                   'Info',
@@ -546,8 +531,6 @@ class StartPageState extends State<StartPage> {
                                                                     left: 8.0),
                                                             child:
                                                                 IconTextButtonElement(
-                                                              showMacStyle:
-                                                                  showMacStyle,
                                                               onMacAsText: true,
                                                               onPressed: () =>
                                                                   showGeneralDialog(
@@ -567,8 +550,6 @@ class StartPageState extends State<StartPage> {
                                                                 pageBuilder: (_,
                                                                     __, ___) {
                                                                   return ConfigPage(
-                                                                    showMacStyle:
-                                                                        showMacStyle,
                                                                     name: i[
                                                                         'name'],
                                                                     ip: devices[
@@ -580,9 +561,11 @@ class StartPageState extends State<StartPage> {
                                                                   );
                                                                 },
                                                               ),
-                                                              icon: const Icon(
-                                                                  Icons
-                                                                      .settings),
+                                                              icon: Icon(
+                                                                Icons.settings,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
                                                               label: translations[
                                                                       'configButtonText'] ??
                                                                   'Config',
@@ -595,8 +578,6 @@ class StartPageState extends State<StartPage> {
                                                                     left: 8.0),
                                                             child:
                                                                 IconTextButtonElement(
-                                                              showMacStyle:
-                                                                  showMacStyle,
                                                               onMacAsText: true,
                                                               onPressed: () =>
                                                                   showGeneralDialog(
@@ -616,8 +597,6 @@ class StartPageState extends State<StartPage> {
                                                                 pageBuilder: (_,
                                                                     __, ___) {
                                                                   return LogPage(
-                                                                    showMacStyle:
-                                                                        showMacStyle,
                                                                     name: i[
                                                                         'name'],
                                                                     ip: devices[
@@ -629,8 +608,12 @@ class StartPageState extends State<StartPage> {
                                                                   );
                                                                 },
                                                               ),
-                                                              icon: const Icon(Icons
-                                                                  .remove_red_eye),
+                                                              icon: Icon(
+                                                                Icons
+                                                                    .remove_red_eye,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
                                                               label: translations[
                                                                       'logButtonText'] ??
                                                                   'Log',
@@ -643,8 +626,6 @@ class StartPageState extends State<StartPage> {
                                                                     left: 8.0),
                                                             child:
                                                                 IconTextButtonElement(
-                                                              showMacStyle:
-                                                                  showMacStyle,
                                                               onMacAsText: true,
                                                               onPressed: () =>
                                                                   showGeneralDialog(
@@ -664,8 +645,6 @@ class StartPageState extends State<StartPage> {
                                                                 pageBuilder: (_,
                                                                     __, ___) {
                                                                   return ControlPage(
-                                                                    showMacStyle:
-                                                                        showMacStyle,
                                                                     ip: devices[
                                                                         index],
                                                                     name: i[
@@ -677,8 +656,12 @@ class StartPageState extends State<StartPage> {
                                                                   );
                                                                 },
                                                               ),
-                                                              icon: const Icon(Icons
-                                                                  .play_circle),
+                                                              icon: Icon(
+                                                                Icons
+                                                                    .play_circle,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
                                                               label: translations[
                                                                       'controlButtonText'] ??
                                                                   'Control',
@@ -751,8 +734,6 @@ class StartPageState extends State<StartPage> {
                                                                       (_, __,
                                                                           ___) {
                                                                     return InfoPage(
-                                                                      showMacStyle:
-                                                                          showMacStyle,
                                                                       name: i[
                                                                           'name'],
                                                                       ip: devices[
@@ -802,8 +783,6 @@ class StartPageState extends State<StartPage> {
                                                                       (_, __,
                                                                           ___) {
                                                                     return ConfigPage(
-                                                                      showMacStyle:
-                                                                          showMacStyle,
                                                                       name: i[
                                                                           'name'],
                                                                       ip: devices[
@@ -854,8 +833,6 @@ class StartPageState extends State<StartPage> {
                                                                       (_, __,
                                                                           ___) {
                                                                     return LogPage(
-                                                                      showMacStyle:
-                                                                          showMacStyle,
                                                                       name: i[
                                                                           'name'],
                                                                       ip: devices[
@@ -906,8 +883,6 @@ class StartPageState extends State<StartPage> {
                                                                       (_, __,
                                                                           ___) {
                                                                     return ControlPage(
-                                                                      showMacStyle:
-                                                                          showMacStyle,
                                                                       ip: devices[
                                                                           index],
                                                                       name: i[
@@ -971,11 +946,10 @@ class StartPageState extends State<StartPage> {
                                                               key: ValueKey(
                                                                   'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                                                               style: TextStyle(
-                                                                color: SharedWidgets.textColor(
-                                                                    showMacStyle:
-                                                                        showMacStyle,
-                                                                    context:
-                                                                        context),
+                                                                color: SharedWidgets
+                                                                    .textColor(
+                                                                        context:
+                                                                            context),
                                                               ),
                                                             ),
                                                           ),
@@ -1001,7 +975,6 @@ class StartPageState extends State<StartPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconTextButtonElement(
-                                  showMacStyle: showMacStyle,
                                   icon: const Padding(
                                     padding:
                                         EdgeInsets.symmetric(vertical: 8.0),
@@ -1055,7 +1028,8 @@ class StartPageState extends State<StartPage> {
                               ],
                             ),
                           ),
-                        if (Platform.isIOS) const SizedBox(height: 14.0),
+                        if (SharedWidgets.inIosStyle())
+                          const SizedBox(height: 14.0),
                       ],
                     ),
                   ),
@@ -1079,8 +1053,7 @@ class StartPageState extends State<StartPage> {
               width: (MediaQuery.of(context).size.width / 3) * 2,
               height: double.infinity,
               decoration: BoxDecoration(
-                color: SharedWidgets.windowBackgroundColor(
-                    showMacStyle: showMacStyle, context: context),
+                color: SharedWidgets.windowBackgroundColor(context: context),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
@@ -1126,7 +1099,7 @@ class StartPageState extends State<StartPage> {
   Widget build(BuildContext context) {
     updateSizes('build');
 
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return Material(
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
@@ -1146,7 +1119,7 @@ class StartPageState extends State<StartPage> {
         ),
       );
     }
-    return showMacStyle == true && Platform.isMacOS
+    return SharedWidgets.inMacosStyle()
         ? MacosScaffold(
             toolBar: ToolBar(
               title: Center(child: Text(title)),
@@ -1159,7 +1132,7 @@ class StartPageState extends State<StartPage> {
                     FontAwesomeIcons.arrowsLeftRight,
                     size: 16.0,
                     color: SharedWidgets.toolbarResizeButtonColor(
-                        showMacStyle: widget.showMacStyle, context: context),
+                        context: context),
                   ),
                   onPressed: () =>
                       mainBloc.windowResizeToFullWidthAndMinimumHeight(
@@ -1172,7 +1145,7 @@ class StartPageState extends State<StartPage> {
                     FontAwesomeIcons.minimize,
                     size: 16.0,
                     color: SharedWidgets.toolbarResizeButtonColor(
-                        showMacStyle: widget.showMacStyle, context: context),
+                        context: context),
                   ),
                   onPressed: () =>
                       windowManager.setSize(standardDesktopSize, animate: true),
@@ -1184,7 +1157,7 @@ class StartPageState extends State<StartPage> {
                     FontAwesomeIcons.maximize,
                     size: 16.0,
                     color: SharedWidgets.toolbarResizeButtonColor(
-                        showMacStyle: widget.showMacStyle, context: context),
+                        context: context),
                   ),
                   onPressed: () => windowManager.maximize(),
                   showLabel: false,
@@ -1222,7 +1195,6 @@ class StartPageState extends State<StartPage> {
                           icon: Icon(
                             FontAwesomeIcons.arrowsLeftRight,
                             color: SharedWidgets.toolbarResizeButtonColor(
-                                showMacStyle: widget.showMacStyle,
                                 context: context),
                           ),
                         ),
@@ -1238,7 +1210,6 @@ class StartPageState extends State<StartPage> {
                           icon: Icon(
                             FontAwesomeIcons.minimize,
                             color: SharedWidgets.toolbarResizeButtonColor(
-                                showMacStyle: widget.showMacStyle,
                                 context: context),
                           ),
                         ),
@@ -1253,7 +1224,6 @@ class StartPageState extends State<StartPage> {
                             icon: Icon(
                               FontAwesomeIcons.maximize,
                               color: SharedWidgets.toolbarResizeButtonColor(
-                                  showMacStyle: widget.showMacStyle,
                                   context: context),
                             ),
                           ),
@@ -1262,7 +1232,9 @@ class StartPageState extends State<StartPage> {
                   ),
               ],
             ),
-            drawer: Platform.isIOS || Platform.isAndroid || Platform.isFuchsia
+            drawer: SharedWidgets.inIosStyle() ||
+                    Platform.isAndroid ||
+                    Platform.isFuchsia
                 ? burgerMenu()
                 : null,
             body: body());

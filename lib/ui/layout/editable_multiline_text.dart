@@ -1,12 +1,9 @@
-import 'dart:io';
-
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class EditableMultilineText extends StatefulWidget {
-  final bool showMacStyle;
   final String? label;
   final int maxLines;
   final double? height;
@@ -15,7 +12,6 @@ class EditableMultilineText extends StatefulWidget {
 
   const EditableMultilineText({
     super.key,
-    required this.showMacStyle,
     this.label,
     this.maxLines = 5,
     this.height,
@@ -46,8 +42,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                 widget.label!,
                 textAlign: TextAlign.start,
                 style: TextStyle(
-                  color: SharedWidgets.textColor(
-                      showMacStyle: widget.showMacStyle, context: context),
+                  color: SharedWidgets.textColor(context: context),
                   fontSize: 12.0,
                 ),
               ),
@@ -57,40 +52,38 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
               Expanded(
                 child: Container(
                   height: widget.height,
-                  decoration: Platform.isIOS || Platform.isMacOS
-                      ? null
-                      : BoxDecoration(
-                          boxShadow: const [
-                              BoxShadow(
-                                color: Colors.grey,
-                                offset: Offset(0.1, 0.5),
-                                blurRadius: 0.1,
-                                blurStyle: BlurStyle.normal,
-                              )
-                            ],
-                          color: SharedWidgets.elementBackgroundColor(
-                              showMacStyle: widget.showMacStyle,
-                              context: context),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(4))),
-                  child: Platform.isIOS || Platform.isMacOS
+                  decoration:
+                      SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
+                          ? null
+                          : BoxDecoration(
+                              boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    offset: Offset(0.1, 0.5),
+                                    blurRadius: 0.1,
+                                    blurStyle: BlurStyle.normal,
+                                  )
+                                ],
+                              color: SharedWidgets.elementBackgroundColor(
+                                  context: context),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(4))),
+                  child: SharedWidgets.inIosStyle() ||
+                          SharedWidgets.inMacosStyle()
                       ? CupertinoTextField(
                           controller: widget.textController,
                           textAlign: TextAlign.start,
                           textAlignVertical: TextAlignVertical.top,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color: SharedWidgets.borderColor(
-                                  showMacStyle: widget.showMacStyle,
-                                  context: context),
+                              color:
+                                  SharedWidgets.borderColor(context: context),
                             ),
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(4)),
                           ),
                           style: TextStyle(
-                            color: SharedWidgets.textColor(
-                                showMacStyle: widget.showMacStyle,
-                                context: context),
+                            color: SharedWidgets.textColor(context: context),
                             fontSize: 16.0,
                           ),
                           maxLines: widget.maxLines,
@@ -108,9 +101,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           textAlign: TextAlign.start,
                           textAlignVertical: TextAlignVertical.top,
                           style: TextStyle(
-                            color: SharedWidgets.textColor(
-                                showMacStyle: widget.showMacStyle,
-                                context: context),
+                            color: SharedWidgets.textColor(context: context),
                             fontSize: 16.0,
                           ),
                           maxLines: widget.maxLines,

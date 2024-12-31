@@ -30,9 +30,6 @@ Future<void> _configureMacosWindowUtils() async {
   await config.apply();
 }
 
-bool showMacStyle =
-    true; // show app in macos ui style (only usable on newer macos, on older like macos 10.15 Catalina not working)
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   double minHeight = Platform.isWindows ? 352 : 320;
@@ -42,7 +39,7 @@ void main() async {
   Size minDesktopSize = Size(1280, minHeight);
   Size standardDesktopSize = const Size(1280, 768);
 
-  if (showMacStyle == true && Platform.isMacOS) {
+  if (SharedWidgets.inMacosStyle()) {
     await _configureMacosWindowUtils();
   }
 
@@ -125,7 +122,6 @@ class RoonMatrixState extends State<RoonMatrix> {
                         transitionDuration: const Duration(milliseconds: 0),
                         pageBuilder: (_, __, ___) {
                           return SettingsPage(
-                            showMacStyle: showMacStyle,
                             close: () {
                               Navigator.pop(context);
                             },
@@ -299,7 +295,6 @@ class RoonMatrixState extends State<RoonMatrix> {
           ),
         ],
         child: StartPage(
-          showMacStyle: showMacStyle,
           minDesktopSize: minDesktopSize,
           standardDesktopSize: standardDesktopSize,
           title: title,
@@ -380,7 +375,6 @@ class RoonMatrixState extends State<RoonMatrix> {
                 transitionDuration: const Duration(milliseconds: 0),
                 pageBuilder: (_, __, ___) {
                   return SettingsPage(
-                    showMacStyle: showMacStyle,
                     close: () {
                       Navigator.pop(context);
                     },
@@ -399,7 +393,6 @@ class RoonMatrixState extends State<RoonMatrix> {
                 SharedWidgets.showPlatformSpecificDialog(
                     context: context,
                     child: (BuildContext context) => AlertElement(
-                          showMacStyle: showMacStyle,
                           title: translations['dialogQuitQuestion'] ??
                               'Do you really want to quit?',
                           button1Label: translations['dialogQuitYes'] ?? 'Yes',
@@ -447,7 +440,7 @@ class RoonMatrixState extends State<RoonMatrix> {
           borderSide: BorderSide(width: 2, color: Colors.red)));
 
   translationsLoadingWindow({required String title}) {
-    if (Platform.isIOS) {
+    if (SharedWidgets.inIosStyle()) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
           brightness: SharedWidgets.brightness(),
@@ -457,7 +450,7 @@ class RoonMatrixState extends State<RoonMatrix> {
       );
     }
 
-    return showMacStyle == true && Platform.isMacOS
+    return SharedWidgets.inMacosStyle()
         ? MacosScaffold(
             children: [
               ContentArea(
@@ -520,7 +513,6 @@ class RoonMatrixState extends State<RoonMatrix> {
 
         // Set the child, i.e. the application under the menu bar
         child: StartPage(
-          showMacStyle: showMacStyle,
           minDesktopSize: minDesktopSize,
           standardDesktopSize: standardDesktopSize,
           title: title,
@@ -551,7 +543,6 @@ class RoonMatrixState extends State<RoonMatrix> {
         }
 
         return StartPage(
-          showMacStyle: showMacStyle,
           minDesktopSize: minDesktopSize,
           standardDesktopSize: standardDesktopSize,
           title: title,
@@ -577,7 +568,7 @@ class RoonMatrixState extends State<RoonMatrix> {
           create: (BuildContext context) => mainBloc,
         ),
       ],
-      child: showMacStyle == true && Platform.isMacOS
+      child: SharedWidgets.inMacosStyle()
           ? MacosApp(
               title: title,
               theme: MacosThemeData.light(isMainWindow: true),
@@ -585,7 +576,7 @@ class RoonMatrixState extends State<RoonMatrix> {
               themeMode: ThemeMode.system,
               home: home(translationsBloc: translationsBloc),
             )
-          : Platform.isIOS
+          : SharedWidgets.inIosStyle()
               ? CupertinoApp(
                   title: title,
                   // builder: (BuildContext context, Widget? child) {

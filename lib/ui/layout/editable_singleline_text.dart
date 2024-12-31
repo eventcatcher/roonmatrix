@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:roonmatrix/main.dart';
 import 'package:roonmatrix/ui/layout/roonmatrix_styles.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -10,7 +7,6 @@ import 'package:roonmatrix/ui/layout/text_field_element.dart';
 import 'package:uuid/uuid.dart';
 
 class EditableSinglelineText extends StatefulWidget {
-  final bool showMacStyle;
   final TextInputType inputType;
   final List<TextInputFormatter>? formatters;
   final String? aligned;
@@ -36,7 +32,6 @@ class EditableSinglelineText extends StatefulWidget {
 
   const EditableSinglelineText({
     super.key,
-    required this.showMacStyle,
     this.inputType = TextInputType.text,
     this.formatters,
     this.aligned,
@@ -162,12 +157,9 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
               softWrap: false,
               style: TextStyle(
                 color: SharedWidgets.brightness() == Brightness.dark
-                    ? SharedWidgets.textColor(
-                        showMacStyle: widget.showMacStyle, context: context)
+                    ? SharedWidgets.textColor(context: context)
                     : widget.labelColor ??
-                        SharedWidgets.textColor(
-                            showMacStyle: widget.showMacStyle,
-                            context: context),
+                        SharedWidgets.textColor(context: context),
                 fontSize: 12.0,
               ),
             ),
@@ -179,7 +171,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
             constraints: const BoxConstraints.tightFor(height: 36),
             child: Container(
               decoration: widget.noDecoration == true ||
-                      (showMacStyle == true && Platform.isMacOS)
+                      SharedWidgets.inMacosStyle()
                   ? null
                   : BoxDecoration(
                       boxShadow: const [
@@ -191,7 +183,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                           )
                         ],
                       color: SharedWidgets.elementBackgroundColor(
-                          showMacStyle: showMacStyle, context: context),
+                          context: context),
                       borderRadius: const BorderRadius.all(Radius.circular(4))),
               padding: EdgeInsets.only(
                   top: widget.maxLength != null && widget.placeholder == null
@@ -200,7 +192,6 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                           : 12.0
                       : 0.0),
               child: TextFieldElement(
-                showMacStyle: showMacStyle,
                 readOnly: widget.readOnly,
                 placeholder: widget.placeholder,
                 maxLength: widget.maxLength,
@@ -232,15 +223,14 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                           ? widget.fillColorForValidationError
                           : SharedWidgets.brightness() == Brightness.dark
                               ? SharedWidgets.elementBackgroundColorLighter(
-                                  showMacStyle: showMacStyle, context: context)
+                                  context: context)
                               : Colors.white,
                   borderColor: Colors.transparent,
                 ),
                 style: TextStyle(
                   color: widget.readOnly
                       ? readOnlyColor
-                      : SharedWidgets.textColor(
-                          showMacStyle: showMacStyle, context: context),
+                      : SharedWidgets.textColor(context: context),
                   fontSize: 16.0,
                 ),
                 controller: _userTextController,

@@ -14,14 +14,12 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class ControlPage extends StatefulWidget {
-  final bool showMacStyle;
   final String name;
   final String ip;
   final VoidCallback close;
 
   const ControlPage({
     super.key,
-    required this.showMacStyle,
     required this.name,
     required this.ip,
     required this.close,
@@ -32,7 +30,6 @@ class ControlPage extends StatefulWidget {
 }
 
 class ControlPageState extends State<ControlPage> {
-  bool get showMacStyle => widget.showMacStyle;
   String get name => widget.name;
   String get ip => widget.ip;
   VoidCallback get close => widget.close;
@@ -74,8 +71,7 @@ class ControlPageState extends State<ControlPage> {
             child: Text(
               translations['controlButtonPreviousText'] ?? 'previous',
               style: TextStyle(
-                color: SharedWidgets.textColor(
-                    showMacStyle: widget.showMacStyle, context: context),
+                color: SharedWidgets.textColor(context: context),
               ),
             ),
           ),
@@ -86,8 +82,7 @@ class ControlPageState extends State<ControlPage> {
                   ? translations['controlButtonUpText'] ?? 'up'
                   : '',
               style: TextStyle(
-                color: SharedWidgets.textColor(
-                    showMacStyle: widget.showMacStyle, context: context),
+                color: SharedWidgets.textColor(context: context),
               ),
             ),
             SizedBox(
@@ -214,8 +209,7 @@ class ControlPageState extends State<ControlPage> {
             Text(
               translations['controlButtonShuffleText'] ?? 'shuffle',
               style: TextStyle(
-                color: SharedWidgets.textColor(
-                    showMacStyle: widget.showMacStyle, context: context),
+                color: SharedWidgets.textColor(context: context),
               ),
             ),
           ],
@@ -229,8 +223,7 @@ class ControlPageState extends State<ControlPage> {
             child: Text(
               translations['controlButtonNextText'] ?? 'next',
               style: TextStyle(
-                color: SharedWidgets.textColor(
-                    showMacStyle: widget.showMacStyle, context: context),
+                color: SharedWidgets.textColor(context: context),
               ),
             ),
           ),
@@ -293,7 +286,6 @@ class ControlPageState extends State<ControlPage> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     SelectBox(
-                        showMacStyle: showMacStyle,
                         translations: translations,
                         aligned: 'horizontal',
                         label:
@@ -320,7 +312,6 @@ class ControlPageState extends State<ControlPage> {
                     Padding(
                       padding: const EdgeInsets.only(top: 16.0),
                       child: MessageWriter(
-                        showMacStyle: showMacStyle,
                         name: name,
                         ip: ip,
                         translations: translations,
@@ -338,7 +329,6 @@ class ControlPageState extends State<ControlPage> {
                       child: Column(
                         children: [
                           SelectBox(
-                              showMacStyle: showMacStyle,
                               translations: translations,
                               aligned: 'horizontal',
                               label:
@@ -363,7 +353,6 @@ class ControlPageState extends State<ControlPage> {
                               }),
                           const SizedBox(height: 184.0),
                           MessageWriter(
-                            showMacStyle: showMacStyle,
                             name: name,
                             ip: ip,
                             translations: translations,
@@ -394,7 +383,7 @@ class ControlPageState extends State<ControlPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (Platform.isIOS) {
+            if (SharedWidgets.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
                   brightness: SharedWidgets.brightness(),
@@ -403,24 +392,13 @@ class ControlPageState extends State<ControlPage> {
                 child: SizedBox(),
               );
             }
-            if (Platform.isIOS) {
-              return CupertinoPageScaffold(
-                navigationBar: CupertinoNavigationBar(
-                  brightness: SharedWidgets.brightness(),
-                  middle: Text(title),
-                ),
-                child: SizedBox(),
-              );
-            }
-            return showMacStyle == true && Platform.isMacOS
+            return SharedWidgets.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(
                         title,
                         style: TextStyle(
-                          color: SharedWidgets.textColor(
-                              showMacStyle: widget.showMacStyle,
-                              context: context),
+                          color: SharedWidgets.textColor(context: context),
                         ),
                       ),
                       titleWidth: 1000.0,
@@ -461,7 +439,7 @@ class ControlPageState extends State<ControlPage> {
 
                 return OrientationBuilder(
                     builder: (BuildContext context, Orientation orientation) {
-                  if (Platform.isIOS) {
+                  if (SharedWidgets.inIosStyle()) {
                     return Material(
                       child: CupertinoPageScaffold(
                         navigationBar: CupertinoNavigationBar(
@@ -481,7 +459,7 @@ class ControlPageState extends State<ControlPage> {
                     );
                   }
 
-                  return showMacStyle == true && Platform.isMacOS
+                  return SharedWidgets.inMacosStyle()
                       ? MacosScaffold(
                           toolBar: ToolBar(
                             title: Text(title),

@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_element.dart';
 
 class SwitchButton extends StatelessWidget {
-  final bool showMacStyle;
   final String? label;
   final String? aligned;
   final Color? labelColor;
@@ -15,7 +12,6 @@ class SwitchButton extends StatelessWidget {
 
   const SwitchButton({
     super.key,
-    required this.showMacStyle,
     this.label,
     this.aligned,
     this.labelColor = Colors.black,
@@ -30,11 +26,8 @@ class SwitchButton extends StatelessWidget {
                 label!,
                 style: TextStyle(
                   color: SharedWidgets.brightness() == Brightness.dark
-                      ? SharedWidgets.textColor(
-                          showMacStyle: showMacStyle, context: context)
-                      : labelColor ??
-                          SharedWidgets.textColor(
-                              showMacStyle: showMacStyle, context: context),
+                      ? SharedWidgets.textColor(context: context)
+                      : labelColor ?? SharedWidgets.textColor(context: context),
                   fontSize: 12.0,
                 ),
               )
@@ -44,16 +37,17 @@ class SwitchButton extends StatelessWidget {
   Widget switchWidget({bool noSpace = true}) => Container(
         transform: noSpace ? Matrix4.translationValues(10.0, -0.0, 0.0) : null,
         child: SwitchElement(
-          showMacStyle: showMacStyle,
-          materialTapTargetSize:
-              Platform.isIOS ? null : MaterialTapTargetSize.shrinkWrap,
+          materialTapTargetSize: SharedWidgets.inIosStyle()
+              ? null
+              : MaterialTapTargetSize.shrinkWrap,
           value: enabled,
           onChanged: (bool value) {
             onChanged(value);
           },
-          activeTrackColor:
-              Platform.isIOS ? null : const Color.fromARGB(255, 20, 106, 237),
-          activeColor: Platform.isIOS ? null : Colors.white,
+          activeTrackColor: SharedWidgets.inIosStyle()
+              ? null
+              : const Color.fromARGB(255, 20, 106, 237),
+          activeColor: SharedWidgets.inIosStyle() ? null : Colors.white,
         ),
       );
 

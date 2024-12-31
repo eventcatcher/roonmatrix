@@ -10,20 +10,17 @@ import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/layout/switch_element.dart';
 import 'package:roonmatrix/ui/layout/vertical_radio_selector.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class MessageWriter extends StatefulWidget {
-  final bool showMacStyle;
   final String name;
   final String ip;
   final Map<String, dynamic> translations;
 
   const MessageWriter({
     super.key,
-    required this.showMacStyle,
     required this.name,
     required this.ip,
     required this.translations,
@@ -34,7 +31,6 @@ class MessageWriter extends StatefulWidget {
 }
 
 class MessageWriterState extends State<MessageWriter> {
-  bool get showMacStyle => widget.showMacStyle;
   String get name => widget.name;
   String get ip => widget.ip;
   Map<String, dynamic> get translations => widget.translations;
@@ -92,7 +88,6 @@ class MessageWriterState extends State<MessageWriter> {
   Widget selectbox() => Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: SelectBox(
-            showMacStyle: showMacStyle,
             translations: translations,
             aligned: 'horizontal',
             label: '${translations['messageSelectionLabel'] ?? 'Message'}:',
@@ -112,7 +107,6 @@ class MessageWriterState extends State<MessageWriter> {
   Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
         padding: const EdgeInsets.only(top: 19.0, right: 16.0),
         child: IconTextButtonElement(
-          showMacStyle: showMacStyle,
           icon: const Padding(
             padding: EdgeInsets.symmetric(vertical: 7.5),
             child: Icon(
@@ -132,7 +126,6 @@ class MessageWriterState extends State<MessageWriter> {
                     child: (BuildContext context) =>
                         StatefulBuilder(builder: (context, setState) {
                       return AlertElement(
-                        showMacStyle: showMacStyle,
                         title: translations['dialogResetMessageQuestion'] ??
                             'Do you really want to remove this message from the device?',
                         content: SizedBox(
@@ -154,7 +147,6 @@ class MessageWriterState extends State<MessageWriter> {
                               ),
 
                               // SwitchButton(
-                              //   showMacStyle: showMacStyle,
                               //   label: translations[
                               //           'allDevicesRemoveSwitchLabel'] ??
                               //       'remove from all devices',
@@ -276,12 +268,9 @@ class MessageWriterState extends State<MessageWriter> {
                   label,
                   style: TextStyle(
                     color: SharedWidgets.brightness() == Brightness.dark
-                        ? SharedWidgets.textColor(
-                            showMacStyle: widget.showMacStyle, context: context)
+                        ? SharedWidgets.textColor(context: context)
                         : labelColor ??
-                            SharedWidgets.textColor(
-                                showMacStyle: widget.showMacStyle,
-                                context: context),
+                            SharedWidgets.textColor(context: context),
                     fontSize: 12.0,
                   ),
                 ),
@@ -304,7 +293,6 @@ class MessageWriterState extends State<MessageWriter> {
             Container(
               transform: Matrix4.translationValues(10.0, -0.0, 0.0),
               child: SwitchElement(
-                showMacStyle: showMacStyle,
                 value: value,
                 onChanged: onChanged,
               ),
@@ -317,7 +305,6 @@ class MessageWriterState extends State<MessageWriter> {
   Widget sendMessageButton() => Padding(
         padding: const EdgeInsets.only(top: 19.0, right: 16.0),
         child: IconTextButtonElement(
-          showMacStyle: showMacStyle,
           icon: const Padding(
             padding: EdgeInsets.symmetric(vertical: 7.5),
             child: Icon(
@@ -335,7 +322,6 @@ class MessageWriterState extends State<MessageWriter> {
                     child: (BuildContext context) =>
                         StatefulBuilder(builder: (context, setState) {
                       return AlertElement(
-                        showMacStyle: showMacStyle,
                         title: translations['dialogSendQuestion'] ??
                             'Do you really want to send this message to the device?',
                         content: SingleChildScrollView(
@@ -345,7 +331,6 @@ class MessageWriterState extends State<MessageWriter> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               VerticalRadioSelector(
-                                showMacStyle: showMacStyle,
                                 options: [
                                   translations['sendOptionForce'] ??
                                       'Force Playout',
@@ -378,7 +363,6 @@ class MessageWriterState extends State<MessageWriter> {
                                   ),
 
                                   //     SwitchButton(
-                                  //   showMacStyle: showMacStyle,
                                   //   label: translations[
                                   //           'allDevicesSwitchLabel'] ??
                                   //       'send to all devices',
@@ -520,14 +504,14 @@ class MessageWriterState extends State<MessageWriter> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    widget.showMacStyle && Platform.isMacOS
+                    SharedWidgets.inMacosStyle()
                         ? selectbox()
                         : Expanded(child: selectbox()),
                     Padding(
                       padding: EdgeInsets.only(
-                          top: showMacStyle && Platform.isMacOS
+                          top: SharedWidgets.inMacosStyle()
                               ? 6.0
-                              : Platform.isIOS
+                              : SharedWidgets.inIosStyle()
                                   ? 12.0
                                   : 0.0),
                       child: stopMessageButton(
@@ -535,9 +519,9 @@ class MessageWriterState extends State<MessageWriter> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(
-                          top: showMacStyle && Platform.isMacOS
+                          top: SharedWidgets.inMacosStyle()
                               ? 6.0
-                              : Platform.isIOS
+                              : SharedWidgets.inIosStyle()
                                   ? 12.0
                                   : 0.0),
                       child: sendMessageButton(),
@@ -565,12 +549,12 @@ class MessageWriterState extends State<MessageWriter> {
                 children: [
                   Expanded(
                     child: EditableMultilineText(
-                      showMacStyle: showMacStyle,
                       label:
                           '${translations['messageNewLabel'] ?? 'New message'}:',
                       maxLines: 5,
-                      height:
-                          Platform.isIOS || Platform.isAndroid ? 101.0 : 86.0,
+                      height: SharedWidgets.inIosStyle() || Platform.isAndroid
+                          ? 101.0
+                          : 86.0,
                       textController: messageTextController,
                       onChanged: (String value) {
                         if (mounted) {
@@ -598,7 +582,6 @@ class MessageWriterState extends State<MessageWriter> {
                           ),
                           child: SharedWidgets.addIconButton(
                               context: context,
-                              showMacStyle: showMacStyle,
                               textController: nameTextController,
                               disabled: messageTextController.text.isEmpty,
                               translations: translations,
@@ -655,7 +638,6 @@ class MessageWriterState extends State<MessageWriter> {
                           ),
                           child: SharedWidgets.removeIconButton(
                             context: context,
-                            showMacStyle: showMacStyle,
                             textController: nameTextController,
                             disabled: messageTextController.text.isEmpty,
                             translations: translations,
@@ -669,7 +651,6 @@ class MessageWriterState extends State<MessageWriter> {
                                       StatefulBuilder(
                                           builder: (context, setState) {
                                     return AlertElement(
-                                      showMacStyle: showMacStyle,
                                       title: translations[
                                               'dialogRemoveMessageQuestion'] ??
                                           'Do you really want to delete this message?',
@@ -700,8 +681,7 @@ class MessageWriterState extends State<MessageWriter> {
                             },
                           ),
                         ),
-                        if (Platform.isMacOS && showMacStyle == true)
-                          SizedBox(height: 9.0)
+                        if (SharedWidgets.inMacosStyle()) SizedBox(height: 9.0)
                       ],
                     ),
                   )
