@@ -162,9 +162,9 @@ class MessageWriterState extends State<MessageWriter> {
                             ],
                           ),
                         ),
-                        button1Label: translations['dialogQuitNo'] ?? 'No',
+                        button1Label: translations['dialogNo'] ?? 'No',
                         onPressed1: () => Navigator.of(context).pop(false),
-                        button2Label: translations['dialogQuitYes'] ?? 'Yes',
+                        button2Label: translations['dialogYes'] ?? 'Yes',
                         onPressed2: () => Navigator.of(context).pop(true),
                       );
                     }),
@@ -379,9 +379,9 @@ class MessageWriterState extends State<MessageWriter> {
                             ],
                           ),
                         ),
-                        button1Label: translations['dialogQuitNo'] ?? 'No',
+                        button1Label: translations['dialogNo'] ?? 'No',
                         onPressed1: () => Navigator.of(context).pop(false),
-                        button2Label: translations['dialogQuitYes'] ?? 'Yes',
+                        button2Label: translations['dialogYes'] ?? 'Yes',
                         onPressed2: selectedOption.isNotEmpty
                             ? () => Navigator.of(context).pop(true)
                             : null,
@@ -400,7 +400,7 @@ class MessageWriterState extends State<MessageWriter> {
                         //         onPressed: () =>
                         //             Navigator.of(context).pop(false),
                         //         child: Text(
-                        //             translations['dialogQuitNo'] ?? 'No')),
+                        //             translations['dialogNo'] ?? 'No')),
                         //   ),
                         //   Padding(
                         //     padding: const EdgeInsets.only(
@@ -410,7 +410,7 @@ class MessageWriterState extends State<MessageWriter> {
                         //         onPressed: selectedOption.isNotEmpty
                         //             ? () => Navigator.of(context).pop(true)
                         //             : null,
-                        //         child: Text(translations['dialogQuitYes'] ??
+                        //         child: Text(translations['dialogYes'] ??
                         //             'Yes')),
                         //   ),
                         // ],
@@ -655,12 +655,11 @@ class MessageWriterState extends State<MessageWriter> {
                                               'dialogRemoveMessageQuestion'] ??
                                           'Do you really want to delete this message?',
                                       button1Label:
-                                          translations['dialogQuitNo'] ?? 'No',
+                                          translations['dialogNo'] ?? 'No',
                                       onPressed1: () =>
                                           Navigator.of(context).pop(false),
                                       button2Label:
-                                          translations['dialogQuitYes'] ??
-                                              'Yes',
+                                          translations['dialogYes'] ?? 'Yes',
                                       onPressed2: () =>
                                           Navigator.of(context).pop(true),
                                     );

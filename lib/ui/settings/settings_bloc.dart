@@ -24,6 +24,20 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         emit(SettingsStateLoaded(
           ipStart: ipStart,
           ipEnd: ipEnd,
+          moreInfo: state.moreInfo,
+        ));
+      }
+
+      if (event is SetMoreInfoMode) {
+        bool enabled = event.enabled;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('moreInfo', enabled);
+
+        emit(SettingsStateLoaded(
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          moreInfo: enabled,
         ));
       }
     });
@@ -40,12 +54,15 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     if (validateIp(ip: ipStart) && validateIp(ip: ipEnd)) {
       setIpRange(ipStart: ipStart!, ipEnd: ipEnd!);
     }
+    bool enabled = prefs.getBool('moreInfo') ?? false;
+    setMoreInfoMode(enabled: enabled);
   }
 
   Future<void> deletePrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove("ipStart");
     await prefs.remove("ipEnd");
+    await prefs.remove("moreInfo");
   }
 
   bool validateIp({required String? ip}) =>
@@ -90,5 +107,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   void setIpRange({required String ipStart, required String ipEnd}) {
     add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
+  }
+
+  void setMoreInfoMode({required bool enabled}) {
+    add(SetMoreInfoMode(enabled: enabled));
   }
 }

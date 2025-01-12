@@ -3,10 +3,12 @@ import 'package:equatable/equatable.dart';
 abstract class SettingsState extends Equatable {
   final String ipStart;
   final String ipEnd;
+  final bool moreInfo;
 
   const SettingsState({
     this.ipStart = '',
     this.ipEnd = '',
+    this.moreInfo = false,
   });
 
   @override
@@ -14,6 +16,7 @@ abstract class SettingsState extends Equatable {
     List<Object> props = [
       ipStart,
       ipEnd,
+      moreInfo,
     ];
 
     return props;
@@ -34,6 +37,7 @@ class SettingsStateLoaded extends SettingsState {
   const SettingsStateLoaded({
     required super.ipStart,
     required super.ipEnd,
+    required super.moreInfo,
   });
 
   @override

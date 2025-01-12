@@ -10,6 +10,7 @@ import 'package:roonmatrix/ui/helper/ip_input_formatter.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
@@ -34,6 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
   TextEditingController ipStart = TextEditingController();
   TextEditingController ipEnd = TextEditingController();
   String title = '';
+  bool moreInfo = false;
   bool translationsLoaded = false;
   bool rangeValid = false;
   bool loaded = false;
@@ -175,76 +177,99 @@ class _SettingsPageState extends State<SettingsPage> {
                                 if (snapshotEnd.hasError) {
                                   return const Text('Error');
                                 } else {
-                                  return Row(
-                                    children: [
-                                      if (ipStart.text.isNotEmpty &&
-                                          ipEnd.text.isNotEmpty &&
-                                          settingsBloc.validateIp(
-                                                  ip: ipStart.text) ==
-                                              true &&
-                                          settingsBloc.validateIp(
-                                                  ip: ipEnd.text) ==
-                                              true &&
-                                          !settingsBloc.validateIpRange(
-                                              ipStart: ipStart.text,
-                                              ipEnd: ipEnd.text))
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(right: 4.0),
-                                          child: Text(
-                                            translations[
-                                                    'settingsIpRangeInvalidError'] ??
-                                                'IP-Range is invalid',
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            softWrap: false,
-                                            style: TextStyle(
-                                              color:
-                                                  SharedWidgets.brightness() ==
-                                                          Brightness.dark
-                                                      ? Colors.red.shade200
-                                                      : Colors.red,
-                                              fontSize: 10.0,
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 16.0),
+                                    child: Row(
+                                      children: [
+                                        if (ipStart.text.isNotEmpty &&
+                                            ipEnd.text.isNotEmpty &&
+                                            settingsBloc.validateIp(
+                                                    ip: ipStart.text) ==
+                                                true &&
+                                            settingsBloc.validateIp(
+                                                    ip: ipEnd.text) ==
+                                                true &&
+                                            !settingsBloc.validateIpRange(
+                                                ipStart: ipStart.text,
+                                                ipEnd: ipEnd.text))
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 4.0),
+                                            child: Text(
+                                              translations[
+                                                      'settingsIpRangeInvalidError'] ??
+                                                  'IP-Range is invalid',
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              softWrap: false,
+                                              style: TextStyle(
+                                                color: SharedWidgets
+                                                            .brightness() ==
+                                                        Brightness.dark
+                                                    ? Colors.red.shade200
+                                                    : Colors.red,
+                                                fontSize: 10.0,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      IconTextButtonElement(
-                                        key: ValueKey(
-                                            'save-${snapshotStart.data}-${snapshotEnd.data}'),
-                                        icon: const Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 8.0),
-                                          child: Icon(
-                                            Icons.save,
-                                            color: Colors.white,
-                                            size: 20.0,
+                                        IconTextButtonElement(
+                                          key: ValueKey(
+                                              'save-${snapshotStart.data}-${snapshotEnd.data}'),
+                                          icon: const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 8.0),
+                                            child: Icon(
+                                              Icons.save,
+                                              color: Colors.white,
+                                              size: 20.0,
+                                            ),
                                           ),
+                                          label:
+                                              translations['saveButtonText'] ??
+                                                  'save',
+                                          onPressed: ipStart.text.isNotEmpty &&
+                                                  ipEnd.text.isNotEmpty &&
+                                                  settingsBloc.validateIpRange(
+                                                          ipStart: ipStart.text,
+                                                          ipEnd: ipEnd.text) ==
+                                                      true
+                                              ? () async {
+                                                  settingsBloc.setIpRange(
+                                                      ipStart: ipStart.text,
+                                                      ipEnd: ipEnd.text);
+                                                  Navigator.pop(
+                                                      context); // close settings page
+                                                }
+                                              : null,
                                         ),
-                                        label: translations['saveButtonText'] ??
-                                            'save',
-                                        onPressed: ipStart.text.isNotEmpty &&
-                                                ipEnd.text.isNotEmpty &&
-                                                settingsBloc.validateIpRange(
-                                                        ipStart: ipStart.text,
-                                                        ipEnd: ipEnd.text) ==
-                                                    true
-                                            ? () async {
-                                                settingsBloc.setIpRange(
-                                                    ipStart: ipStart.text,
-                                                    ipEnd: ipEnd.text);
-                                                Navigator.pop(
-                                                    context); // close settings page
-                                              }
-                                            : null,
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   );
                                 }
                               });
                         }
                       }),
                 ],
-              )
+              ),
+              SizedBox(height: 8.0),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Text(
+                  translations['settingsPageExtended'] ?? 'Extended Settings',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    color: SharedWidgets.textColor(context: context),
+                  ),
+                ),
+              ),
+              SwitchButton(
+                label: translations['moreInfoSelectorLabel'] ??
+                    'Show buttons to display Monitoring (internal variables) and Log details',
+                enabled: moreInfo,
+                onChanged: (value) {
+                  settingsBloc.setMoreInfoMode(enabled: value);
+                },
+              ),
             ],
           ),
         ),
@@ -312,6 +337,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 if (kDebugMode) {
                   print('state changed => rebuild');
                 }
+
+                moreInfo = settingsState.moreInfo;
 
                 if (!loaded) {
                   SchedulerBinding.instance.addPostFrameCallback((_) async {

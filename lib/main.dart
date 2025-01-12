@@ -397,9 +397,9 @@ class RoonMatrixState extends State<RoonMatrix> {
                     child: (BuildContext context) => AlertElement(
                           title: translations['dialogQuitQuestion'] ??
                               'Do you really want to quit?',
-                          button1Label: translations['dialogQuitYes'] ?? 'Yes',
+                          button1Label: translations['dialogYes'] ?? 'Yes',
                           onPressed1: () => FlutterWindowClose.closeWindow(),
-                          button2Label: translations['dialogQuitNo'] ?? 'No',
+                          button2Label: translations['dialogNo'] ?? 'No',
                           onPressed2: () => Navigator.of(context).pop(false),
                         ));
               },

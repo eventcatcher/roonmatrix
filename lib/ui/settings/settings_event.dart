@@ -13,3 +13,12 @@ class SetIpRange extends SettingsEvent {
   @override
   List<Object> get props => [ipStart, ipEnd];
 }
+
+class SetMoreInfoMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetMoreInfoMode({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
+}
