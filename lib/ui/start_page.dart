@@ -293,6 +293,13 @@ class StartPageState extends State<StartPage> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 4.0),
                                     child: Card(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(
+                                                SharedWidgets.inIosStyle()
+                                                    ? 8
+                                                    : 5)),
+                                      ),
                                       color: Colors.lightBlueAccent,
                                       child: Padding(
                                         padding: const EdgeInsets.all(4.0),
@@ -343,9 +350,12 @@ class StartPageState extends State<StartPage> {
                                                     color: Colors.deepOrange,
                                                     width: 5.0,
                                                   ),
-                                                  borderRadius:
-                                                      const BorderRadius.all(
-                                                          Radius.circular(8.0)),
+                                                  borderRadius: BorderRadius
+                                                      .all(Radius.circular(
+                                                          SharedWidgets
+                                                                  .inIosStyle()
+                                                              ? 8
+                                                              : 5)),
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.deepOrange

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 abstract class RoonmatrixStyles {
   static dynamic boxDecoration = ({Color? fillColor}) => BoxDecoration(
         color: fillColor ?? Colors.white,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(SharedWidgets.inIosStyle() ? 8 : 5),
         border: Border.all(
             color: Colors.grey.shade300, width: 0, style: BorderStyle.solid),
         boxShadow: [
@@ -24,12 +25,13 @@ abstract class RoonmatrixStyles {
     Color? fillColor,
     Color? borderColor,
     bool? noCounter,
+    bool? filled,
   }) {
     return InputDecoration(
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
       border: InputBorder.none,
       fillColor: fillColor ?? Colors.white,
-      filled: true,
+      filled: filled ?? true,
       hintText: placeholder,
       labelText: label,
       labelStyle: TextStyle(color: Colors.grey.shade600),

@@ -159,7 +159,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   : Column(
                       children: [fromField(), toField()],
                     ),
-              SizedBox(height: 32.0),
+              SizedBox(height: 8.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -251,7 +251,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       }),
                 ],
               ),
-              SizedBox(height: 8.0),
+              SizedBox(height: 48.0),
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: Text(
@@ -262,13 +262,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
-              SwitchButton(
-                label: translations['moreInfoSelectorLabel'] ??
-                    'Show buttons to display Monitoring (internal variables) and Log details',
-                enabled: moreInfo,
-                onChanged: (value) {
-                  settingsBloc.setMoreInfoMode(enabled: value);
-                },
+              Padding(
+                padding: const EdgeInsets.only(right: 10.0),
+                child: SwitchButton(
+                  label: translations['moreInfoSelectorLabel'] ??
+                      'Show buttons to display Monitoring (internal variables) and Log details',
+                  enabled: moreInfo,
+                  onChanged: (value) {
+                    settingsBloc.setMoreInfoMode(enabled: value);
+                  },
+                ),
               ),
             ],
           ),

@@ -23,6 +23,7 @@ class EditableSinglelineText extends StatefulWidget {
   final bool decoupled;
   final bool debounce;
   final bool noDecoration;
+  final bool filled;
   final Color? fillColorForValidationError;
   final String Function(String text)? filter;
   final void Function(String text)? onChanged;
@@ -49,6 +50,7 @@ class EditableSinglelineText extends StatefulWidget {
     this.decoupled = true,
     this.debounce = true,
     this.noDecoration = false,
+    this.filled = true,
     this.fillColorForValidationError,
     this.filter,
     this.onChanged,
@@ -170,8 +172,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
           ConstrainedBox(
             constraints: const BoxConstraints.tightFor(height: 36),
             child: Container(
-              decoration: widget.noDecoration == true ||
-                      SharedWidgets.inMacosStyle()
+              decoration: widget.noDecoration == true
                   ? null
                   : BoxDecoration(
                       boxShadow: const [
@@ -182,9 +183,10 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                             blurStyle: BlurStyle.normal,
                           )
                         ],
-                      color: SharedWidgets.elementBackgroundColor(
+                      color: SharedWidgets.textFieldBackgroundColor(
                           context: context),
-                      borderRadius: const BorderRadius.all(Radius.circular(4))),
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5))),
               padding: EdgeInsets.only(
                   top: widget.maxLength != null && widget.placeholder == null
                       ? widget.noCounter
@@ -226,6 +228,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                                   context: context)
                               : Colors.white,
                   borderColor: Colors.transparent,
+                  filled: widget.filled,
                 ),
                 style: TextStyle(
                   color: widget.readOnly

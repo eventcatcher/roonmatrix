@@ -122,16 +122,18 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
           ? Text(widget.translations['zonePickerOptionsEmpty'] ?? 'none')
           : Container(
               decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.grey,
-                      offset: Offset(0.1, 0.5),
-                      blurRadius: 0.1,
-                      blurStyle: BlurStyle.normal,
-                    )
-                  ],
-                  color: SharedWidgets.elementBackgroundColor(context: context),
-                  borderRadius: const BorderRadius.all(Radius.circular(4))),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.grey,
+                    offset: Offset(0.1, 0.5),
+                    blurRadius: 0.1,
+                    blurStyle: BlurStyle.normal,
+                  )
+                ],
+                color: SharedWidgets.elementBackgroundColor(context: context),
+                borderRadius: BorderRadius.all(
+                    Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+              ),
               child: CupertinoButton(
                 padding: EdgeInsets.only(
                   left: 8.0,
@@ -370,7 +372,8 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                     )
                   ],
                 color: SharedWidgets.elementBackgroundColor(context: context),
-                borderRadius: const BorderRadius.all(Radius.circular(4))),
+                borderRadius: BorderRadius.all(
+                    Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5))),
         child: widget.readOnly == true
             ? dropdownReadonlyElement()
             : dropdownElement(expanded: expanded),

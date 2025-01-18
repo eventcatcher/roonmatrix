@@ -66,8 +66,8 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                                 ],
                               color: SharedWidgets.elementBackgroundColor(
                                   context: context),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(4))),
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  SharedWidgets.inIosStyle() ? 8 : 5))),
                   child: SharedWidgets.inIosStyle() ||
                           SharedWidgets.inMacosStyle()
                       ? CupertinoTextField(
@@ -79,8 +79,8 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                               color:
                                   SharedWidgets.borderColor(context: context),
                             ),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(4)),
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                SharedWidgets.inIosStyle() ? 8 : 5)),
                           ),
                           style: TextStyle(
                             color: SharedWidgets.textColor(context: context),

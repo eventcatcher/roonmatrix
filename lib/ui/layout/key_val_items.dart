@@ -65,27 +65,24 @@ class KeyValItemsState extends State<KeyValItems> {
         noCounter: true,
         label: key == ': ' ? '[: ]' : key,
         suffixIcon: IconButton(
-          onPressed: () async {
-            bool valid = await SharedWidgets.showPlatformSpecificDialog(
-              context: context,
-              child: (BuildContext context) => SharedWidgets.removeItemDialog(
+            onPressed: () async {
+              bool valid = await SharedWidgets.showPlatformSpecificDialog(
                 context: context,
-                translations: translations,
-              ),
-            );
-            if (valid == true) {
-              setState(() => fieldValues.remove(key));
-              returnJson(fieldValues);
-            }
-          },
-          icon: SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
-              ? Icon(
-                  CupertinoIcons.clear_circled_solid,
-                  color: SharedWidgets.resetIconColor(context: context),
-                  size: 18.0,
-                )
-              : const Icon(Icons.clear),
-        ),
+                child: (BuildContext context) => SharedWidgets.removeItemDialog(
+                  context: context,
+                  translations: translations,
+                ),
+              );
+              if (valid == true) {
+                setState(() => fieldValues.remove(key));
+                returnJson(fieldValues);
+              }
+            },
+            icon: Icon(
+              CupertinoIcons.minus,
+              color: SharedWidgets.resetIconColor(context: context),
+              size: 16.0,
+            )),
         text: fieldValues[key].toString(),
         onChanged: (value) {
           if (mounted) {
@@ -129,6 +126,10 @@ class KeyValItemsState extends State<KeyValItems> {
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
                   child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+                    ),
                     color: SharedWidgets.areaBackgroundColor(context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

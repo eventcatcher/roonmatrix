@@ -64,9 +64,10 @@ class SearchFieldState extends State<SearchField> {
                       blurStyle: BlurStyle.normal,
                     )
                   ],
-                  color: SharedWidgets.elementBackgroundColor(context: context),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(4),
+                  color:
+                      SharedWidgets.textFieldBackgroundColor(context: context),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5),
                   ),
                 ),
                 child: Row(
@@ -83,6 +84,10 @@ class SearchFieldState extends State<SearchField> {
                         child: EditableSinglelineText(
                           text: controller.text,
                           aligned: 'inline',
+                          filled: SharedWidgets.inIosStyle() ||
+                                  SharedWidgets.inMacosStyle()
+                              ? true
+                              : false,
                           decoupled: false,
                           noDecoration: true,
                           prefixIcon: Icon(CupertinoIcons.search,

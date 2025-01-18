@@ -136,6 +136,10 @@ class ListItemsState extends State<ListItems> {
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
                   child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+                    ),
                     color: SharedWidgets.areaBackgroundColor(context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

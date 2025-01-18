@@ -42,7 +42,7 @@ class TextFieldElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()) {
+    if (SharedWidgets.inIosStyle()) {
       return cup.CupertinoTextField(
         placeholder: placeholder,
         prefix: prefixIcon != null
@@ -61,6 +61,11 @@ class TextFieldElement extends StatelessWidget {
         style: SharedWidgets.inMacosStyle() || SharedWidgets.inIosStyle()
             ? null
             : style,
+        decoration: SharedWidgets.inIosStyle()
+            ? null
+            : BoxDecoration(
+                color: SharedWidgets.textFieldBackgroundColor(context: context),
+              ),
         controller: controller,
         onChanged: onChanged,
       );
@@ -82,6 +87,11 @@ class TextFieldElement extends StatelessWidget {
             controller: controller,
             decoration: BoxDecoration(
               color: SharedWidgets.textFieldBackgroundColor(context: context),
+            ),
+            focusedDecoration: BoxDecoration(
+              borderRadius: BorderRadius.all(
+                Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5),
+              ),
             ),
             onChanged: onChanged,
           )

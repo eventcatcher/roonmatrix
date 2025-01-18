@@ -188,7 +188,8 @@ class ConfigPageState extends State<ConfigPage> {
           }
           if (fieldType == 'bool') {
             widgetField = Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              padding:
+                  const EdgeInsets.only(top: 6.0, bottom: 6.0, right: 10.0),
               child: SwitchButton(
                 label: label,
                 enabled: fieldValues[area.name][fieldDefinition.name],
@@ -280,6 +281,10 @@ class ConfigPageState extends State<ConfigPage> {
         }
       }
       Widget widgetArea = Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+              Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+        ),
         color: SharedWidgets.windowBackgroundColor(context: context),
         child: Column(
           children: [
@@ -301,8 +306,7 @@ class ConfigPageState extends State<ConfigPage> {
     required ColorScheme defaultColorScheme,
     required MainState mainState,
   }) =>
-      Container(
-        color: SharedWidgets.windowBackgroundColor(context: context),
+      SizedBox(
         child: Column(
           children: [
             Expanded(
@@ -396,7 +400,6 @@ class ConfigPageState extends State<ConfigPage> {
           top: SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
               ? 20.0
               : 0.0),
-      color: SharedWidgets.windowBackgroundColor(context: context),
       child: Column(
         children: [
           Padding(

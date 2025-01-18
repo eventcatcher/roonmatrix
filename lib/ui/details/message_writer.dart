@@ -575,9 +575,9 @@ class MessageWriterState extends State<MessageWriter> {
                                     ? Colors.blue.shade800
                                     : Colors.blue.shade600
                                 : Colors.grey,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(4.0)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  SharedWidgets.inIosStyle() ? 8 : 5)),
                             ),
                           ),
                           child: SharedWidgets.addIconButton(
@@ -631,9 +631,9 @@ class MessageWriterState extends State<MessageWriter> {
                                     ? Colors.blue.shade800
                                     : Colors.blue.shade600
                                 : Colors.grey,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(4.0)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  SharedWidgets.inIosStyle() ? 8 : 5)),
                             ),
                           ),
                           child: SharedWidgets.removeIconButton(

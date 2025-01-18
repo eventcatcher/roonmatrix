@@ -277,7 +277,8 @@ class SelectBoxState extends State<SelectBox> {
             ? null
             : RoonmatrixStyles.boxDecoration(
                 fillColor:
-                    SharedWidgets.elementBackgroundColor(context: context)),
+                    SharedWidgets.elementBackgroundColor(context: context),
+              ),
         child: widget.readOnly == true
             ? dropdownReadonlyElement()
             : dropdownElement(expanded: expanded),

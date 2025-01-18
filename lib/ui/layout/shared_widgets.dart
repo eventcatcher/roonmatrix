@@ -172,17 +172,17 @@ class SharedWidgets {
   }) {
     if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : Color(0xFFCCCCCC);
+          ? CupertinoColors.systemRed
+          : CupertinoColors.systemRed;
     }
     if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : Color(0xFFCCCCCC);
+          ? MacosColors.appleRed
+          : MacosColors.appleRed;
     }
     return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.grey.shade700
-        : Colors.grey.shade100;
+        ? Colors.red.shade400
+        : Colors.red.shade700;
   }
 
   static Color tileBackgroundColor({
@@ -207,16 +207,18 @@ class SharedWidgets {
     required BuildContext context,
   }) {
     if (SharedWidgets.inIosStyle()) {
+      //return windowBackgroundColor(context: context);
       return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.controlColor
-          : Color(0xffefefef);
+          ? CupertinoColors.darkBackgroundGray
+          : CupertinoColors.systemBackground;
     }
+    //alternatingContentBackgroundColor, underPageBackgroundColor
     if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.controlColor
+          ? MacosColors.alternatingContentBackgroundColor
           : Color(0xffefefef);
     }
-    return Colors.grey.shade100;
+    return windowBackgroundColor(context: context);
   }
 
   static Color toolbarResizeButtonColor({

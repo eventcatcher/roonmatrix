@@ -166,7 +166,7 @@ class MapListItemsState extends State<MapListItems> {
           Container(
             margin: const EdgeInsets.only(
               top: 18.0,
-              right: 8.0,
+              right: 12.0,
             ),
             height: 38.0,
             child: IconButton(
@@ -184,13 +184,11 @@ class MapListItemsState extends State<MapListItems> {
                   returnJson(fieldValues);
                 }
               },
-              icon: SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
-                  ? Icon(
-                      CupertinoIcons.clear_circled_solid,
-                      color: SharedWidgets.resetIconColor(context: context),
-                      size: 18.0,
-                    )
-                  : const Icon(Icons.clear),
+              icon: Icon(
+                CupertinoIcons.minus,
+                color: SharedWidgets.resetIconColor(context: context),
+                size: 16.0,
+              ),
             ),
           ),
         );
@@ -297,6 +295,10 @@ class MapListItemsState extends State<MapListItems> {
                   margin: EdgeInsets.only(
                       bottom: widget.noVerticalSpace == true ? 0 : 10),
                   child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+                    ),
                     color: SharedWidgets.areaBackgroundColor(context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
