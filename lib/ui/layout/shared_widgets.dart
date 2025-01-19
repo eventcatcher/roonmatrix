@@ -149,6 +149,14 @@ class SharedWidgets {
     return windowBackgroundColor(context: context);
   }
 
+  static Color selectboxBackgroundColor({
+    required BuildContext context,
+  }) {
+    return SharedWidgets.brightness() == Brightness.dark
+        ? Colors.grey.shade800
+        : MacosColors.white;
+  }
+
   static Color areaBackgroundColor({
     required BuildContext context,
   }) {
@@ -172,16 +180,16 @@ class SharedWidgets {
   }) {
     if (SharedWidgets.inIosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
-          ? CupertinoColors.systemRed
+          ? const Color.fromARGB(255, 171, 39, 32)
           : CupertinoColors.systemRed;
     }
     if (SharedWidgets.inMacosStyle()) {
       return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.appleRed
+          ? const Color.fromARGB(255, 171, 39, 32)
           : MacosColors.appleRed;
     }
     return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.red.shade400
+        ? const Color.fromARGB(255, 171, 39, 32)
         : Colors.red.shade700;
   }
 

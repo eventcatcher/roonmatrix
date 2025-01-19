@@ -7,6 +7,7 @@ import 'package:roonmatrix/ui/layout/text_field_element.dart';
 import 'package:uuid/uuid.dart';
 
 class EditableSinglelineText extends StatefulWidget {
+  final Map<String, dynamic> translations;
   final TextInputType inputType;
   final List<TextInputFormatter>? formatters;
   final String? aligned;
@@ -33,6 +34,7 @@ class EditableSinglelineText extends StatefulWidget {
 
   const EditableSinglelineText({
     super.key,
+    required this.translations,
     this.inputType = TextInputType.text,
     this.formatters,
     this.aligned,
@@ -195,7 +197,9 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                       : 0.0),
               child: TextFieldElement(
                 readOnly: widget.readOnly,
-                placeholder: widget.placeholder,
+                placeholder: widget.placeholder ??
+                    widget.translations['pleaseTypeSettingPlaceholder'] ??
+                    'Please write message here',
                 maxLength: widget.maxLength,
                 prefixIcon: widget.prefixIcon,
                 suffixIcon: widget.suffixIcon,
@@ -218,7 +222,19 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 decoration: RoonmatrixStyles.inputDecoration(
                   placeholder: widget.placeholder,
                   prefixIcon: widget.prefixIcon,
-                  suffixIcon: widget.suffixIcon,
+                  suffixIcon: widget.suffixIcon ??
+                      InkWell(
+                        onTap: () {
+                          _userTextController.clear();
+                          if (widget.onChanged != null) {
+                            widget.onChanged!('');
+                          }
+                        },
+                        child: Icon(
+                          Icons.clear,
+                          size: 24,
+                        ),
+                      ),
                   noCounter: widget.noCounter,
                   fillColor:
                       (widget.fillColorForValidationError != null && !valid)

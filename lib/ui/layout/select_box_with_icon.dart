@@ -233,42 +233,54 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
               onChanged: (String? value) {
                 widget.onChanged(value);
               },
-              items: (widget.options != null && widget.options!.isNotEmpty)
-                  ? widget.options!.keys
-                      .map<MacosPopupMenuItem<String>>((String key) {
-                      return MacosPopupMenuItem<String>(
-                        value: key,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: widget.optionsWithVerticalSpace == true
-                                  ? 8.0
-                                  : 0.0),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsetsDirectional.only(end: 6.0),
-                                child: Icon(
-                                  CupertinoIcons.time,
-                                  size: 16.0,
-                                  color:
-                                      SharedWidgets.iconColor(context: context),
-                                ),
-                              ),
-                              Text(
-                                widget.options![key]['name'],
-                                overflow: TextOverflow.fade,
-                                style: TextStyle(
-                                    color: SharedWidgets.textColor(
-                                        context: context),
-                                    fontSize: 16.0,
-                                    decorationStyle:
-                                        TextDecorationStyle.double),
-                              ),
-                            ],
+              selectedItemBuilder: (context) => widget.options!.keys
+                  .map(
+                    (String key) => Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsetsDirectional.only(end: 6.0),
+                          child: Icon(
+                            CupertinoIcons.time,
+                            size: 16.0,
+                            color: SharedWidgets.iconColor(context: context),
                           ),
                         ),
-                      );
-                    }).toList()
+                        Text(
+                          widget.options![key]['name'],
+                          overflow: TextOverflow.fade,
+                          style: TextStyle(
+                              color: SharedWidgets.textColor(context: context),
+                              fontSize: 16.0,
+                              decorationStyle: TextDecorationStyle.double),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList(),
+              items: (widget.options != null && widget.options!.isNotEmpty)
+                  ? widget.options!.keys
+                      .map<MacosPopupMenuItem<String>>(
+                        (String key) => MacosPopupMenuItem<String>(
+                          value: key,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical:
+                                    widget.optionsWithVerticalSpace == true
+                                        ? 8.0
+                                        : 0.0),
+                            child: Text(
+                              widget.options![key]['name'],
+                              overflow: TextOverflow.fade,
+                              style: TextStyle(
+                                  color:
+                                      SharedWidgets.textColor(context: context),
+                                  fontSize: 16.0,
+                                  decorationStyle: TextDecorationStyle.double),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList()
                   : [],
             ),
           )
@@ -301,7 +313,8 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                     ),
                   )
                 : null,
-            //dropdownColor: Colors.white,
+            dropdownColor:
+                SharedWidgets.selectboxBackgroundColor(context: context),
             icon: Container(
               padding: EdgeInsets.only(bottom: 11.0),
               transform: Platform.isAndroid
@@ -340,6 +353,8 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                             widget.options![key]['name'],
                             overflow: TextOverflow.fade,
                             style: (TextStyle(
+                                color:
+                                    SharedWidgets.textColor(context: context),
                                 fontSize: 16.0,
                                 fontWeight: widget.options![key]
                                         ['fontWeight'] ??
@@ -354,7 +369,12 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
   }
 
   Widget dropdown({required bool expanded}) => Container(
-        height: SharedWidgets.inIosStyle() ? 56.0 : 36.0,
+        height: SharedWidgets.inIosStyle()
+            ? 56.0
+            : SharedWidgets.selectBoxInMacStyle()
+                ? null
+                : 36.0,
+        margin: EdgeInsets.only(top: 4),
         padding:
             SharedWidgets.inIosStyle() || (SharedWidgets.selectBoxInMacStyle())
                 ? null

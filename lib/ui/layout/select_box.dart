@@ -269,7 +269,11 @@ class SelectBoxState extends State<SelectBox> {
   }
 
   Widget dropdown({required bool expanded}) => Container(
-        height: SharedWidgets.inIosStyle() ? 56.0 : 36.0,
+        height: SharedWidgets.inIosStyle()
+            ? 56.0
+            : SharedWidgets.selectBoxInMacStyle()
+                ? null
+                : 36.0,
         padding: SharedWidgets.inMacosStyle()
             ? null
             : const EdgeInsets.symmetric(horizontal: 10, vertical: 0),

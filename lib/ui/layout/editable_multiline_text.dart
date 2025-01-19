@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class EditableMultilineText extends StatefulWidget {
+  final Map<String, dynamic> translations;
   final String? label;
   final int maxLines;
   final double? height;
@@ -12,6 +13,7 @@ class EditableMultilineText extends StatefulWidget {
 
   const EditableMultilineText({
     super.key,
+    required this.translations,
     this.label,
     this.maxLines = 5,
     this.height,
@@ -72,6 +74,9 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           SharedWidgets.inMacosStyle()
                       ? CupertinoTextField(
                           controller: widget.textController,
+                          placeholder: widget.translations[
+                                  'pleaseTypeMessagePlaceholder'] ??
+                              'Please write message here',
                           textAlign: TextAlign.start,
                           textAlignVertical: TextAlignVertical.top,
                           decoration: BoxDecoration(
@@ -102,7 +107,13 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           textAlignVertical: TextAlignVertical.top,
                           style: TextStyle(
                             color: SharedWidgets.textColor(context: context),
-                            fontSize: 16.0,
+                            fontSize: 14.0,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: widget.translations[
+                                    'pleaseTypeMessagePlaceholder'] ??
+                                'Please write message here',
+                            contentPadding: EdgeInsets.all(9.0),
                           ),
                           maxLines: widget.maxLines,
                           maxLength: null,

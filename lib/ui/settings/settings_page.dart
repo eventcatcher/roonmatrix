@@ -71,6 +71,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   EditableSinglelineText fromField() => EditableSinglelineText(
         key: ValueKey('Start-$loaded}'),
+        translations: translations,
         inputType: TextInputType.text,
         placeholder: '###.###.###.###',
         formatters: [
@@ -97,6 +98,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   EditableSinglelineText toField() => EditableSinglelineText(
         key: ValueKey('End-$loaded'),
+        translations: translations,
         inputType: TextInputType.text,
         placeholder: '###.###.###.###',
         formatters: [

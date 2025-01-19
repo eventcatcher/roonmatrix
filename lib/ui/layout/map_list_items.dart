@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -81,6 +80,7 @@ class MapListItemsState extends State<MapListItems> {
 
         Widget widget = EditableSinglelineText(
           key: ValueKey('$label-${fieldValues.length}-$idx-$key'),
+          translations: translations,
           inputType: fieldType.startsWith('int')
               ? TextInputType.number
               : TextInputType.text,
@@ -143,8 +143,9 @@ class MapListItemsState extends State<MapListItems> {
             right: 16.0,
           ),
           height: 38.0,
-          child: IconButton(
-            onPressed: link != '' &&
+          child: InkWell(
+            borderRadius: BorderRadius.all(Radius.circular(45)),
+            onTap: link != '' &&
                     isURL(link, requireTld: true, requireProtocol: true)
                 ? () async {
                     final Uri url = Uri.parse(link);
@@ -158,38 +159,55 @@ class MapListItemsState extends State<MapListItems> {
                     }
                   }
                 : null,
-            icon: const Icon(Icons.link),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              child: const Icon(Icons.link),
+            ),
           ),
         ));
 
         rowWidgets.add(
           Container(
             margin: const EdgeInsets.only(
-              top: 18.0,
-              right: 12.0,
+              top: 21.0,
+              right: 11.0,
             ),
             height: 38.0,
-            child: IconButton(
-              onPressed: () async {
-                bool valid = await SharedWidgets.showPlatformSpecificDialog(
-                  context: context,
-                  child: (BuildContext context) =>
-                      SharedWidgets.removeItemDialog(
+            child: InkWell(
+                borderRadius: BorderRadius.all(Radius.circular(45)),
+                onTap: () async {
+                  bool valid = await SharedWidgets.showPlatformSpecificDialog(
                     context: context,
-                    translations: translations,
+                    child: (BuildContext context) =>
+                        SharedWidgets.removeItemDialog(
+                      context: context,
+                      translations: translations,
+                    ),
+                  );
+                  if (valid == true) {
+                    setState(() => fieldValues.removeAt(idx));
+                    returnJson(fieldValues);
+                  }
+                },
+                child: Padding(
+                  padding: !SharedWidgets.inIosStyle() &&
+                          !SharedWidgets.inMacosStyle()
+                      ? EdgeInsets.all(8)
+                      : EdgeInsets.symmetric(
+                          horizontal: SharedWidgets.inIosStyle() ? 10.0 : 12),
+                  child: Icon(
+                    !SharedWidgets.inIosStyle() && !SharedWidgets.inMacosStyle()
+                        ? Icons.close
+                        : Icons.dangerous,
+                    color: SharedWidgets.resetIconColor(context: context),
+                    size: SharedWidgets.inIosStyle()
+                        ? 19.0
+                        : SharedWidgets.inMacosStyle()
+                            ? 17.0
+                            : 24.0,
                   ),
-                );
-                if (valid == true) {
-                  setState(() => fieldValues.removeAt(idx));
-                  returnJson(fieldValues);
-                }
-              },
-              icon: Icon(
-                CupertinoIcons.minus,
-                color: SharedWidgets.resetIconColor(context: context),
-                size: 16.0,
-              ),
-            ),
+                )),
           ),
         );
       }

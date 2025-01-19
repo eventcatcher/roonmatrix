@@ -104,9 +104,78 @@ class MessageWriterState extends State<MessageWriter> {
             }),
       );
 
+  showSnackBar({
+    required BuildContext context,
+    required String doneMessage,
+    required String failMessage,
+    required bool valid,
+  }) {
+    if (valid == true) {
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(doneMessage),
+          backgroundColor: Colors.green,
+        ));
+      }
+    } else {
+      if (context.mounted) {
+        // ignore: use_build_context_synchronously
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(failMessage),
+          backgroundColor: Colors.red,
+        ));
+      }
+    }
+  }
+
+  Widget labelWidget(String? label, Color? labelColor) => Expanded(
+        child: label != null
+            ? Padding(
+                padding: const EdgeInsets.only(left: 16.0),
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: SharedWidgets.brightness() == Brightness.dark
+                        ? SharedWidgets.textColor(context: context)
+                        : labelColor ??
+                            SharedWidgets.textColor(context: context),
+                    fontSize: 12.0,
+                  ),
+                ),
+              )
+            : Container(),
+      );
+
+  Widget switchButton({
+    required bool value,
+    required String label,
+    required Function(bool value) onChanged,
+  }) =>
+      Container(
+        margin: const EdgeInsets.all(0),
+        alignment: Alignment.topLeft,
+        transform: Matrix4.translationValues(-9.0, -0.0, 0.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              transform: Matrix4.translationValues(10.0, -0.0, 0.0),
+              child: SwitchElement(
+                value: value,
+                onChanged: onChanged,
+              ),
+            ),
+            labelWidget(label, null)
+          ],
+        ),
+      );
+
   Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
-        padding: const EdgeInsets.only(top: 19.0, right: 16.0),
+        padding: EdgeInsets.only(
+            top: SharedWidgets.inMacosStyle() ? 15.0 : 19.0, right: 16.0),
         child: IconTextButtonElement(
+          onMacAsText: true,
           icon: const Padding(
             padding: EdgeInsets.symmetric(vertical: 7.5),
             child: Icon(
@@ -235,76 +304,11 @@ class MessageWriterState extends State<MessageWriter> {
         ),
       );
 
-  showSnackBar({
-    required BuildContext context,
-    required String doneMessage,
-    required String failMessage,
-    required bool valid,
-  }) {
-    if (valid == true) {
-      if (context.mounted) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(doneMessage),
-          backgroundColor: Colors.green,
-        ));
-      }
-    } else {
-      if (context.mounted) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(failMessage),
-          backgroundColor: Colors.red,
-        ));
-      }
-    }
-  }
-
-  Widget labelWidget(String? label, Color? labelColor) => Expanded(
-        child: label != null
-            ? Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: SharedWidgets.brightness() == Brightness.dark
-                        ? SharedWidgets.textColor(context: context)
-                        : labelColor ??
-                            SharedWidgets.textColor(context: context),
-                    fontSize: 12.0,
-                  ),
-                ),
-              )
-            : Container(),
-      );
-
-  Widget switchButton({
-    required bool value,
-    required String label,
-    required Function(bool value) onChanged,
-  }) =>
-      Container(
-        margin: const EdgeInsets.all(0),
-        alignment: Alignment.topLeft,
-        transform: Matrix4.translationValues(-9.0, -0.0, 0.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              transform: Matrix4.translationValues(10.0, -0.0, 0.0),
-              child: SwitchElement(
-                value: value,
-                onChanged: onChanged,
-              ),
-            ),
-            labelWidget(label, null)
-          ],
-        ),
-      );
-
   Widget sendMessageButton() => Padding(
-        padding: const EdgeInsets.only(top: 19.0, right: 16.0),
+        padding: EdgeInsets.only(
+            top: SharedWidgets.inMacosStyle() ? 15.0 : 19.0, right: 16.0),
         child: IconTextButtonElement(
+          onMacAsText: true,
           icon: const Padding(
             padding: EdgeInsets.symmetric(vertical: 7.5),
             child: Icon(
@@ -545,10 +549,11 @@ class MessageWriterState extends State<MessageWriter> {
                 const SizedBox(height: 16.0),
               ],
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: EditableMultilineText(
+                      translations: translations,
                       label:
                           '${translations['messageNewLabel'] ?? 'New message'}:',
                       maxLines: 5,
@@ -564,8 +569,12 @@ class MessageWriterState extends State<MessageWriter> {
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.only(top: 3.0, right: 16.0, left: 4.0),
+                    margin: EdgeInsets.only(
+                        top: SharedWidgets.inIosStyle() ||
+                                SharedWidgets.inMacosStyle()
+                            ? 22.0
+                            : 18.0),
+                    padding: const EdgeInsets.only(right: 16.0, left: 4.0),
                     child: Column(
                       children: [
                         Ink(
@@ -680,7 +689,6 @@ class MessageWriterState extends State<MessageWriter> {
                             },
                           ),
                         ),
-                        if (SharedWidgets.inMacosStyle()) SizedBox(height: 9.0)
                       ],
                     ),
                   )

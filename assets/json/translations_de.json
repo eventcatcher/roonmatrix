@@ -40,6 +40,8 @@
     "saveButtonText": "speichern",
     "logPageHeaderText": "Log",
     "pleaseSelectPlaceholder": "Bitte auswählen",
+    "pleaseTypeMessagePlaceholder": "Bitte hier eine Nachricht schreiben",
+    "pleaseTypeSettingPlaceholder": "Bitte hier eintragen",
     "infoPageHeaderText": "Monitoring",
     "controlPageHeaderText": "Steuerung",
     "controlButtonPreviousText": "vorheriger Titel",

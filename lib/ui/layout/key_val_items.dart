@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
@@ -60,12 +59,13 @@ class KeyValItemsState extends State<KeyValItems> {
 
     for (String key in fieldValues.keys) {
       Widget widget = EditableSinglelineText(
+        translations: translations,
         key: ValueKey('$label-$key'),
         inputType: TextInputType.text,
         noCounter: true,
         label: key == ': ' ? '[: ]' : key,
-        suffixIcon: IconButton(
-            onPressed: () async {
+        suffixIcon: InkWell(
+            onTap: () async {
               bool valid = await SharedWidgets.showPlatformSpecificDialog(
                 context: context,
                 child: (BuildContext context) => SharedWidgets.removeItemDialog(
@@ -78,10 +78,23 @@ class KeyValItemsState extends State<KeyValItems> {
                 returnJson(fieldValues);
               }
             },
-            icon: Icon(
-              CupertinoIcons.minus,
-              color: SharedWidgets.resetIconColor(context: context),
-              size: 16.0,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  right:
+                      SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
+                          ? 6.0
+                          : 0),
+              child: Icon(
+                !SharedWidgets.inIosStyle() && !SharedWidgets.inMacosStyle()
+                    ? Icons.close
+                    : Icons.dangerous,
+                color: SharedWidgets.resetIconColor(context: context),
+                size: SharedWidgets.inIosStyle()
+                    ? 19.0
+                    : SharedWidgets.inMacosStyle()
+                        ? 17.0
+                        : 24.0,
+              ),
             )),
         text: fieldValues[key].toString(),
         onChanged: (value) {

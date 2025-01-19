@@ -109,6 +109,7 @@ class ConfigPageState extends State<ConfigPage> {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: EditableSinglelineText(
+                translations: translations,
                 inputType: TextInputType.text,
                 noCounter: true,
                 label: label,
@@ -144,6 +145,7 @@ class ConfigPageState extends State<ConfigPage> {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: EditableSinglelineText(
+                translations: translations,
                 inputType: TextInputType.number,
                 formatters: [FilteringTextInputFormatter.digitsOnly],
                 noCounter: true,

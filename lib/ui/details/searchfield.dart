@@ -82,6 +82,7 @@ class SearchFieldState extends State<SearchField> {
                               : 4.0,
                         ),
                         child: EditableSinglelineText(
+                          translations: translations,
                           text: controller.text,
                           aligned: 'inline',
                           filled: SharedWidgets.inIosStyle() ||
@@ -97,30 +98,26 @@ class SearchFieldState extends State<SearchField> {
                               translations['searchfieldHint'] ?? 'search',
                           controller: controller,
                           onChanged: (String value) {
-                            EasyDebounce.debounce('searchfield-debouncer',
-                                const Duration(milliseconds: 500), () {
-                              mainBloc.setSearchFilter(
-                                  type: type, filter: value);
-                            });
+                            if (value == '') {
+                              setState(() {
+                                controller.text = '';
+                                mainBloc.setSearchFilter(
+                                    type: type, filter: '');
+                              });
+                            } else {
+                              EasyDebounce.debounce(
+                                'searchfield-debouncer',
+                                const Duration(milliseconds: 500),
+                                () {
+                                  mainBloc.setSearchFilter(
+                                      type: type, filter: value);
+                                },
+                              );
+                            }
                           },
                         ),
                       ),
                     ),
-                    if (!SharedWidgets.inIosStyle() &&
-                        !SharedWidgets.inMacosStyle())
-                      IconButton(
-                        icon: Icon(Icons.close,
-                            color: SharedWidgets.iconColor(context: context)),
-                        padding: const EdgeInsets.all(4.0),
-                        constraints: const BoxConstraints(),
-                        splashRadius: 1,
-                        onPressed: () {
-                          setState(() {
-                            controller.text = '';
-                            mainBloc.setSearchFilter(type: type, filter: '');
-                          });
-                        },
-                      )
                   ],
                 ),
               ),
