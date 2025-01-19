@@ -76,7 +76,7 @@ class TextFieldElement extends StatelessWidget {
             placeholder: placeholder,
             prefix: prefixIcon,
             padding: EdgeInsets.symmetric(
-                horizontal: prefixIcon != null ? 0.0 : 8.0, vertical: 6.0),
+                horizontal: prefixIcon != null ? 0.0 : 8.0, vertical: 4.0),
             clearButtonMode: OverlayVisibilityMode.always,
             readOnly: readOnly,
             maxLength: maxLength,
