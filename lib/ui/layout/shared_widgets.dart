@@ -413,6 +413,7 @@ class SharedWidgets {
     required VoidCallback onAccepted,
   }) =>
       IconTextButtonElement(
+        onMacAsText: true,
         style: ButtonStyle(
           minimumSize:
               WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),
@@ -446,6 +447,7 @@ class SharedWidgets {
     required VoidCallback onPressed,
   }) {
     return IconTextButtonElement(
+      onMacAsText: true,
       style: ButtonStyle(
         minimumSize:
             WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),

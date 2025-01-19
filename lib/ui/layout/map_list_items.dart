@@ -223,38 +223,65 @@ class MapListItemsState extends State<MapListItems> {
 
         if (link != '' &&
             isURL(link, requireTld: true, requireProtocol: true)) {
+          List<Widget> buttonRow = [];
+
+          buttonRow.add(Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Padding(
+              padding:
+                  const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+              child: SharedWidgets.linkButton(
+                link: link,
+                translations: translations,
+                onPressed: () async {
+                  final Uri url = Uri.parse(link);
+                  if (!await launchUrl(
+                    url,
+                    mode: LaunchMode.externalApplication,
+                  )) {
+                    if (kDebugMode) {
+                      print('Could not launch url: $url');
+                    }
+                  }
+                },
+              ),
+            ),
+          ));
+
+          buttonRow.add(Flexible(
+            flex: 1,
+            fit: FlexFit.tight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
+              child: SharedWidgets.removeButton(
+                context: context,
+                translations: translations,
+                onAccepted: () {
+                  setState(() => fieldValues.removeAt(idx));
+                  returnJson(fieldValues);
+                },
+              ),
+            ),
+          ));
+
+          colWidgets
+              .add(Row(mainAxisSize: MainAxisSize.max, children: buttonRow));
+        } else {
           colWidgets.add(Padding(
             padding:
                 const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
-            child: SharedWidgets.linkButton(
-              link: link,
+            child: SharedWidgets.removeButton(
+              context: context,
               translations: translations,
-              onPressed: () async {
-                final Uri url = Uri.parse(link);
-                if (!await launchUrl(
-                  url,
-                  mode: LaunchMode.externalApplication,
-                )) {
-                  if (kDebugMode) {
-                    print('Could not launch url: $url');
-                  }
-                }
+              onAccepted: () {
+                setState(() => fieldValues.removeAt(idx));
+                returnJson(fieldValues);
               },
             ),
           ));
         }
 
-        colWidgets.add(Padding(
-          padding: const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
-          child: SharedWidgets.removeButton(
-            context: context,
-            translations: translations,
-            onAccepted: () {
-              setState(() => fieldValues.removeAt(idx));
-              returnJson(fieldValues);
-            },
-          ),
-        ));
         colWidgets.add(const SizedBox(height: 3.0));
       }
     }
