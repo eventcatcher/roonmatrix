@@ -319,6 +319,7 @@ class ConfigPageState extends State<ConfigPage> {
                       children: [...formFields],
                     ),
             ),
+            if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
             Padding(
               padding: EdgeInsets.symmetric(
                   vertical:
@@ -439,6 +440,7 @@ class ConfigPageState extends State<ConfigPage> {
                     ],
                   ),
           ),
+          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
                 vertical:

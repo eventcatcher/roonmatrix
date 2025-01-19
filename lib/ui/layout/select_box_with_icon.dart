@@ -316,7 +316,8 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
             dropdownColor:
                 SharedWidgets.selectboxBackgroundColor(context: context),
             icon: Container(
-              padding: EdgeInsets.only(bottom: 11.0),
+              padding: EdgeInsets.only(
+                  bottom: 11.0, right: Platform.isAndroid ? 8 : 4),
               transform: Platform.isAndroid
                   ? Matrix4.translationValues(0, -2.0, 0.0)
                   : null,

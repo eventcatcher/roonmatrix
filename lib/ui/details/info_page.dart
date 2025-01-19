@@ -85,6 +85,7 @@ class InfoPageState extends State<InfoPage> {
                     ],
                   ),
           ),
+          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
                 vertical:

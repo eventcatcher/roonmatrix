@@ -993,6 +993,8 @@ class StartPageState extends State<StartPage> {
                                               );
                                             }),
                               ),
+                              if (SharedWidgets.inIosStyle())
+                                const SizedBox(height: 14.0),
                               if (height > minDesktopSize.height + 75)
                                 Padding(
                                   padding: EdgeInsets.symmetric(
