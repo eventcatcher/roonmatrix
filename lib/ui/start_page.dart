@@ -620,7 +620,13 @@ class StartPageState extends State<StartPage> {
                                                 color: SharedWidgets
                                                     .tileBackgroundColor(
                                                         context: context),
-                                                height: 83.0,
+                                                height: Platform.isAndroid &&
+                                                        orientation ==
+                                                            Orientation
+                                                                .portrait &&
+                                                        moreInfo == true
+                                                    ? 100
+                                                    : 83.0,
                                                 child: Stack(
                                                   children: [
                                                     ListTile(
@@ -1294,9 +1300,9 @@ class StartPageState extends State<StartPage> {
             bottom: 0.0,
             left: _isDrawerOpen
                 ? 0.0
-                : -(MediaQuery.of(context).size.width / 3) * 2,
+                : -(MediaQuery.of(context).size.width / 3 * 2 + 100),
             child: Container(
-              width: (MediaQuery.of(context).size.width / 3) * 2,
+              width: MediaQuery.of(context).size.width / 3 * 2,
               height: double.infinity,
               decoration: BoxDecoration(
                 color: SharedWidgets.windowBackgroundColor(context: context),
@@ -1311,9 +1317,7 @@ class StartPageState extends State<StartPage> {
                 children: <Widget>[
                   Container(
                     width: double.infinity,
-                    height: MediaQuery.of(context).size.height -
-                        (MediaQuery.of(context).size.height / 1.8 - 90.0) -
-                        120.0,
+                    height: height,
                     color:
                         Colors.transparent, // background color of burger menu
                     child: Stack(

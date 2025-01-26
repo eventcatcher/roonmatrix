@@ -1,4 +1,5 @@
 {
+    "mainMenuHeader": "Hauptmenü",
     "exportDoneMessage": "Export erfolgreich abgeschlossen",
     "exportFailedMessage": "Fehler beim Export!",
     "menuEntryExportDeviceList": "Export Geräteliste",

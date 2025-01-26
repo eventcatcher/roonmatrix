@@ -55,7 +55,7 @@ class BurgerMenuState extends State<BurgerMenu> {
               padding: EdgeInsets.zero,
               child: Center(
                   child: Text(
-                'Menu',
+                widget.translations['mainMenuHeader'] ?? 'Main menu',
                 style: TextStyle(color: Colors.white, fontSize: 20.0),
               )),
             ),
