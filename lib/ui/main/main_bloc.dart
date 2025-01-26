@@ -974,6 +974,48 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return Future.value(false);
   }
 
+  Future<bool> saveLiveControl(
+      {required String ip,
+      required String control,
+      required String value}) async {
+    Map<String, String> headers = {
+      "Content-Type": 'application/json',
+      "Accept": 'application/json',
+    };
+
+    Map<String, dynamic> payload = {
+      "control": control,
+      "value": value,
+    };
+
+    try {
+      String url = 'http://$ip:$port/livecontrol/';
+      Uri uri = Uri.parse(url);
+      try {
+        var response = await client.post(uri,
+            headers: headers, body: json.encode(payload));
+        if (response.statusCode == 200) {
+          if (kDebugMode) {
+            print('LiveControl => ip: $ip, payload: $payload');
+          }
+
+          return Future.value(true);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('LiveControl error by access to $url: $e');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('LiveControl error: $e');
+      }
+      return Future.value(false);
+    }
+
+    return Future.value(false);
+  }
+
   Future<bool?> exportDevicesData() async {
     if (state.devices.isNotEmpty) {
       String search = state.searchFilter['main'] as String;

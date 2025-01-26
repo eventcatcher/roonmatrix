@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/details/message_writer.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -309,14 +308,6 @@ class ControlPageState extends State<ControlPage> {
                           });
                         }),
                     controlButtons(orientation),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: MessageWriter(
-                        name: name,
-                        ip: ip,
-                        translations: translations,
-                      ),
-                    ),
                   ],
                 )
               : Row(
@@ -351,12 +342,6 @@ class ControlPageState extends State<ControlPage> {
                                   selectedZoneId = newValue;
                                 });
                               }),
-                          const SizedBox(height: 184.0),
-                          MessageWriter(
-                            name: name,
-                            ip: ip,
-                            translations: translations,
-                          ),
                         ],
                       ),
                     ),

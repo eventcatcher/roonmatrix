@@ -18,12 +18,14 @@ class MessageWriter extends StatefulWidget {
   final String name;
   final String ip;
   final Map<String, dynamic> translations;
+  final Widget? firstRowChild;
 
   const MessageWriter({
     super.key,
     required this.name,
     required this.ip,
     required this.translations,
+    this.firstRowChild,
   });
 
   @override
@@ -533,7 +535,12 @@ class MessageWriterState extends State<MessageWriter> {
                   ],
                 ),
               if (!desktopLandscapeWide) ...[
-                selectbox(),
+                Row(mainAxisSize: MainAxisSize.max, children: [
+                  if (widget.firstRowChild != null)
+                    Expanded(child: widget.firstRowChild!),
+                  selectbox(),
+                ]),
+                if (widget.firstRowChild != null) const SizedBox(height: 16.0),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
