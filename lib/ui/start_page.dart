@@ -206,7 +206,7 @@ class StartPageState extends State<StartPage> {
           padding: const EdgeInsets.only(left: 8.0),
           child: CircleAvatar(
             radius: 15,
-            backgroundColor: Colors.white,
+            backgroundColor: CupertinoColors.activeBlue.color,
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: () => showGeneralDialog(
@@ -227,7 +227,10 @@ class StartPageState extends State<StartPage> {
                   );
                 },
               ),
-              icon: const Icon(Icons.settings_outlined),
+              icon: const Icon(
+                Icons.settings_outlined,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
@@ -235,7 +238,7 @@ class StartPageState extends State<StartPage> {
           padding: const EdgeInsets.only(left: 8.0),
           child: CircleAvatar(
             radius: 15,
-            backgroundColor: Colors.white,
+            backgroundColor: CupertinoColors.activeBlue.color,
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: () => showGeneralDialog(
@@ -258,6 +261,7 @@ class StartPageState extends State<StartPage> {
               ),
               icon: const Icon(
                 Icons.control_camera,
+                color: Colors.white,
               ),
             ),
           ),
@@ -266,7 +270,7 @@ class StartPageState extends State<StartPage> {
           padding: const EdgeInsets.only(left: 8.0),
           child: CircleAvatar(
             radius: 15,
-            backgroundColor: Colors.white,
+            backgroundColor: CupertinoColors.activeBlue.color,
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: () => showGeneralDialog(
@@ -289,6 +293,7 @@ class StartPageState extends State<StartPage> {
               ),
               icon: const Icon(
                 Icons.message_outlined,
+                color: Colors.white,
                 size: 19.0,
               ),
             ),
@@ -298,7 +303,7 @@ class StartPageState extends State<StartPage> {
           padding: const EdgeInsets.only(left: 8.0),
           child: CircleAvatar(
             radius: 15,
-            backgroundColor: Colors.white,
+            backgroundColor: CupertinoColors.activeBlue.color,
             child: IconButton(
               padding: EdgeInsets.zero,
               onPressed: () => showGeneralDialog(
@@ -319,7 +324,10 @@ class StartPageState extends State<StartPage> {
                   );
                 },
               ),
-              icon: const Icon(Icons.visibility_outlined),
+              icon: const Icon(
+                Icons.visibility_outlined,
+                color: Colors.white,
+              ),
             ),
           ),
         ),
@@ -331,7 +339,7 @@ class StartPageState extends State<StartPage> {
             padding: const EdgeInsets.only(left: 8.0),
             child: CircleAvatar(
               radius: 15,
-              backgroundColor: Colors.white,
+              backgroundColor: CupertinoColors.activeOrange.color,
               child: IconButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => showGeneralDialog(
@@ -352,7 +360,10 @@ class StartPageState extends State<StartPage> {
                     );
                   },
                 ),
-                icon: const Icon(Icons.info_outline),
+                icon: const Icon(
+                  Icons.info_outline,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -361,7 +372,7 @@ class StartPageState extends State<StartPage> {
             padding: const EdgeInsets.only(left: 8.0),
             child: CircleAvatar(
               radius: 15,
-              backgroundColor: Colors.white,
+              backgroundColor: CupertinoColors.activeOrange.color,
               child: IconButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => showGeneralDialog(
@@ -382,7 +393,10 @@ class StartPageState extends State<StartPage> {
                     );
                   },
                 ),
-                icon: const Icon(Icons.terminal),
+                icon: const Icon(
+                  Icons.terminal,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
