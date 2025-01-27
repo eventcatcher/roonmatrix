@@ -222,6 +222,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                             ),
                                           ),
                                         IconTextButtonElement(
+                                          onMacAsText: true,
                                           key: ValueKey(
                                               'save-${snapshotStart.data}-${snapshotEnd.data}'),
                                           icon: const Padding(

@@ -97,6 +97,7 @@ class InfoPageState extends State<InfoPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconTextButtonElement(
+                  onMacAsText: true,
                   icon: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 8.0),
                     child: Icon(

@@ -15,6 +15,7 @@ import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
+import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -742,9 +743,20 @@ class StartPageState extends State<StartPage> {
                                                                           left:
                                                                               8.0),
                                                                   child:
-                                                                      IconTextButtonElement(
-                                                                    onMacAsText:
+                                                                      IconButtonElement(
+                                                                    label: translations[
+                                                                            'configButtonText'] ??
+                                                                        'Config',
+                                                                    noBackground:
                                                                         true,
+                                                                    withCircle:
+                                                                        true,
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .settings,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
                                                                     onPressed: () =>
                                                                         showGeneralDialog(
                                                                       context:
@@ -774,23 +786,6 @@ class StartPageState extends State<StartPage> {
                                                                         );
                                                                       },
                                                                     ),
-                                                                    icon:
-                                                                        Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                          vertical:
-                                                                              2.0),
-                                                                      child: Icon(
-                                                                          Icons
-                                                                              .settings,
-                                                                          color: Colors
-                                                                              .white,
-                                                                          size:
-                                                                              20.0),
-                                                                    ),
-                                                                    label: translations[
-                                                                            'configButtonText'] ??
-                                                                        'Config',
                                                                   ),
                                                                 ),
                                                                 Padding(
@@ -800,9 +795,20 @@ class StartPageState extends State<StartPage> {
                                                                           left:
                                                                               8.0),
                                                                   child:
-                                                                      IconTextButtonElement(
-                                                                    onMacAsText:
+                                                                      IconButtonElement(
+                                                                    label: translations[
+                                                                            'controlButtonText'] ??
+                                                                        'Control',
+                                                                    noBackground:
                                                                         true,
+                                                                    withCircle:
+                                                                        true,
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .control_camera,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
                                                                     onPressed: () =>
                                                                         showGeneralDialog(
                                                                       context:
@@ -832,25 +838,6 @@ class StartPageState extends State<StartPage> {
                                                                         );
                                                                       },
                                                                     ),
-                                                                    icon:
-                                                                        Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                          vertical:
-                                                                              2.0),
-                                                                      child:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .control_camera,
-                                                                        size:
-                                                                            20,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                    ),
-                                                                    label: translations[
-                                                                            'controlButtonText'] ??
-                                                                        'Control',
                                                                   ),
                                                                 ),
                                                                 Padding(
@@ -860,9 +847,21 @@ class StartPageState extends State<StartPage> {
                                                                           left:
                                                                               8.0),
                                                                   child:
-                                                                      IconTextButtonElement(
-                                                                    onMacAsText:
+                                                                      IconButtonElement(
+                                                                    label: translations[
+                                                                            'messageButtonText'] ??
+                                                                        'Message',
+                                                                    noBackground:
                                                                         true,
+                                                                    withCircle:
+                                                                        true,
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .message_outlined,
+                                                                      size: 18,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
                                                                     onPressed: () =>
                                                                         showGeneralDialog(
                                                                       context:
@@ -892,25 +891,6 @@ class StartPageState extends State<StartPage> {
                                                                         );
                                                                       },
                                                                     ),
-                                                                    icon:
-                                                                        Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .symmetric(
-                                                                          vertical:
-                                                                              3.0),
-                                                                      child:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .message_outlined,
-                                                                        size:
-                                                                            18.0,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                    ),
-                                                                    label: translations[
-                                                                            'messageButtonText'] ??
-                                                                        'Message',
                                                                   ),
                                                                 ),
                                                                 Padding(
@@ -920,9 +900,20 @@ class StartPageState extends State<StartPage> {
                                                                           left:
                                                                               8.0),
                                                                   child:
-                                                                      IconTextButtonElement(
-                                                                    onMacAsText:
+                                                                      IconButtonElement(
+                                                                    label: translations[
+                                                                            'liveControlButtonText'] ??
+                                                                        'Live Control',
+                                                                    noBackground:
                                                                         true,
+                                                                    withCircle:
+                                                                        true,
+                                                                    icon: Icon(
+                                                                      Icons
+                                                                          .visibility_outlined,
+                                                                      color: Colors
+                                                                          .white,
+                                                                    ),
                                                                     onPressed: () =>
                                                                         showGeneralDialog(
                                                                       context:
@@ -952,15 +943,6 @@ class StartPageState extends State<StartPage> {
                                                                         );
                                                                       },
                                                                     ),
-                                                                    icon: Icon(
-                                                                      Icons
-                                                                          .visibility_outlined,
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                    label: translations[
-                                                                            'liveControlButtonText'] ??
-                                                                        'Live Control',
                                                                   ),
                                                                 ),
                                                                 if (moreInfo ==
@@ -971,9 +953,21 @@ class StartPageState extends State<StartPage> {
                                                                         left:
                                                                             8.0),
                                                                     child:
-                                                                        IconTextButtonElement(
-                                                                      onMacAsText:
+                                                                        IconButtonElement(
+                                                                      label: translations[
+                                                                              'infoButtonText'] ??
+                                                                          'Monitoring',
+                                                                      noBackground:
                                                                           true,
+                                                                      withCircle:
+                                                                          true,
+                                                                      icon:
+                                                                          Icon(
+                                                                        Icons
+                                                                            .info_outline,
+                                                                        color: Colors
+                                                                            .white,
+                                                                      ),
                                                                       moreInfo:
                                                                           true,
                                                                       onPressed:
@@ -1004,25 +998,6 @@ class StartPageState extends State<StartPage> {
                                                                           );
                                                                         },
                                                                       ),
-                                                                      icon:
-                                                                          Padding(
-                                                                        padding: const EdgeInsets
-                                                                            .symmetric(
-                                                                            vertical:
-                                                                                2.0),
-                                                                        child:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .info_outline,
-                                                                          size:
-                                                                              20.0,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
-                                                                      label: translations[
-                                                                              'infoButtonText'] ??
-                                                                          'Monitoring',
                                                                     ),
                                                                   ),
                                                                 if (moreInfo ==
@@ -1033,9 +1008,19 @@ class StartPageState extends State<StartPage> {
                                                                         left:
                                                                             8.0),
                                                                     child:
-                                                                        IconTextButtonElement(
-                                                                      onMacAsText:
+                                                                        IconButtonElement(
+                                                                      label: translations[
+                                                                              'logButtonText'] ??
+                                                                          'Log',
+                                                                      noBackground:
                                                                           true,
+                                                                      withCircle:
+                                                                          true,
+                                                                      icon: Icon(
+                                                                          Icons
+                                                                              .terminal,
+                                                                          color:
+                                                                              Colors.white),
                                                                       moreInfo:
                                                                           true,
                                                                       onPressed:
@@ -1066,25 +1051,6 @@ class StartPageState extends State<StartPage> {
                                                                           );
                                                                         },
                                                                       ),
-                                                                      icon:
-                                                                          Padding(
-                                                                        padding: const EdgeInsets
-                                                                            .symmetric(
-                                                                            vertical:
-                                                                                2.0),
-                                                                        child:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .terminal,
-                                                                          size:
-                                                                              20,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
-                                                                      label: translations[
-                                                                              'logButtonText'] ??
-                                                                          'Log',
                                                                     ),
                                                                   ),
                                                               ],
@@ -1221,6 +1187,7 @@ class StartPageState extends State<StartPage> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconTextButtonElement(
+                                        onMacAsText: true,
                                         icon: const Padding(
                                           padding: EdgeInsets.symmetric(
                                               vertical: 8.0),
