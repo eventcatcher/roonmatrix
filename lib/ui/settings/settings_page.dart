@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -126,6 +128,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget body({
     required TextEditingController ipStart,
     required TextEditingController ipEnd,
+    required Orientation orientation,
   }) =>
       SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -135,7 +138,11 @@ class _SettingsPageState extends State<SettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
+                padding: EdgeInsets.only(
+                    bottom: (Platform.isIOS || Platform.isAndroid) &&
+                            orientation == Orientation.landscape
+                        ? 4.0
+                        : 16.0),
                 child: Text(
                   translations['settingsPageIpScanRangeHeadline'] ??
                       'IP range to scan for devices',
@@ -253,9 +260,17 @@ class _SettingsPageState extends State<SettingsPage> {
                       }),
                 ],
               ),
-              SizedBox(height: 48.0),
+              SizedBox(
+                  height: (Platform.isIOS || Platform.isAndroid) &&
+                          orientation == Orientation.landscape
+                      ? 24.0
+                      : 48.0),
               Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
+                padding: EdgeInsets.only(
+                    bottom: (Platform.isIOS || Platform.isAndroid) &&
+                            orientation == Orientation.landscape
+                        ? 4.0
+                        : 16.0),
                 child: Text(
                   translations['settingsPageExtended'] ?? 'Extended Settings',
                   style: TextStyle(
@@ -332,89 +347,95 @@ class _SettingsPageState extends State<SettingsPage> {
                     body: const SizedBox());
           }
 
-          return BlocBuilder(
-              bloc: settingsBloc,
-              builder: (context, SettingsState settingsState) {
-                if (settingsState is! SettingsStateInitial &&
-                    settingsState is! SettingsStateLoaded) {
-                  return Container();
-                }
-                if (kDebugMode) {
-                  print('state changed => rebuild');
-                }
+          return OrientationBuilder(
+              builder: (BuildContext context, Orientation orientation) {
+            return BlocBuilder(
+                bloc: settingsBloc,
+                builder: (context, SettingsState settingsState) {
+                  if (settingsState is! SettingsStateInitial &&
+                      settingsState is! SettingsStateLoaded) {
+                    return Container();
+                  }
+                  if (kDebugMode) {
+                    print('state changed => rebuild');
+                  }
 
-                moreInfo = settingsState.moreInfo;
+                  moreInfo = settingsState.moreInfo;
 
-                if (!loaded) {
-                  SchedulerBinding.instance.addPostFrameCallback((_) async {
-                    if (mounted) {
-                      setState(() {
-                        ipStart.text = settingsState.ipStart;
-                        ipEnd.text = settingsState.ipEnd;
+                  if (!loaded) {
+                    SchedulerBinding.instance.addPostFrameCallback((_) async {
+                      if (mounted) {
+                        setState(() {
+                          ipStart.text = settingsState.ipStart;
+                          ipEnd.text = settingsState.ipEnd;
 
-                        loaded = true;
-                      });
-                    }
-                  });
-                }
+                          loaded = true;
+                        });
+                      }
+                    });
+                  }
 
-                if (SharedWidgets.inIosStyle()) {
-                  return CupertinoPageScaffold(
-                    navigationBar: CupertinoNavigationBar(
-                      brightness: SharedWidgets.brightness(),
-                      middle: Text(title),
-                      leading: CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        child: CupertinoNavigationBarBackButton(),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                    child: SafeArea(
-                      child: body(
-                        ipStart: ipStart,
-                        ipEnd: ipEnd,
-                      ),
-                    ),
-                  );
-                }
-
-                return SharedWidgets.inMacosStyle()
-                    ? MacosScaffold(
-                        toolBar: ToolBar(
-                          title: Text(title),
-                          titleWidth: 200.0,
-                          leading: MacosBackButton(
-                            onPressed: () => Navigator.pop(context),
-                            fillColor: Colors.transparent,
-                          ),
-                          actions: [],
+                  if (SharedWidgets.inIosStyle()) {
+                    return CupertinoPageScaffold(
+                      navigationBar: CupertinoNavigationBar(
+                        brightness: SharedWidgets.brightness(),
+                        middle: Text(title),
+                        leading: CupertinoButton(
+                          padding: EdgeInsets.zero,
+                          child: CupertinoNavigationBarBackButton(),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                        children: [
-                          ContentArea(
-                            builder: ((context, scrollController) {
-                              return Material(
-                                child: MacosWindow(
-                                  child: body(
-                                    ipStart: ipStart,
-                                    ipEnd: ipEnd,
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
-                        ],
-                      )
-                    : Scaffold(
-                        appBar: AppBar(
-                          title: Text(title),
-                          actions: const [],
-                        ),
-                        body: body(
+                      ),
+                      child: SafeArea(
+                        child: body(
                           ipStart: ipStart,
                           ipEnd: ipEnd,
+                          orientation: orientation,
                         ),
-                      );
-              });
+                      ),
+                    );
+                  }
+
+                  return SharedWidgets.inMacosStyle()
+                      ? MacosScaffold(
+                          toolBar: ToolBar(
+                            title: Text(title),
+                            titleWidth: 200.0,
+                            leading: MacosBackButton(
+                              onPressed: () => Navigator.pop(context),
+                              fillColor: Colors.transparent,
+                            ),
+                            actions: [],
+                          ),
+                          children: [
+                            ContentArea(
+                              builder: ((context, scrollController) {
+                                return Material(
+                                  child: MacosWindow(
+                                    child: body(
+                                      ipStart: ipStart,
+                                      ipEnd: ipEnd,
+                                      orientation: orientation,
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
+                        )
+                      : Scaffold(
+                          appBar: AppBar(
+                            title: Text(title),
+                            actions: const [],
+                          ),
+                          body: body(
+                            ipStart: ipStart,
+                            ipEnd: ipEnd,
+                            orientation: orientation,
+                          ),
+                        );
+                });
+          });
         });
   }
 }

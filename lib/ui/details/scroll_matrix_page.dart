@@ -246,17 +246,17 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                         return false;
                       },
                       child: SizeChangedLayoutNotifier(
-                        child: SizedBox(
+                        child: Container(
+                          padding: EdgeInsets.only(bottom: 20.0),
                           key: ValueKey(
                               'TextScrollWrapper${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                          height: fontSize * 1.15,
                           child: TextScroll(
                             '${replaceCodes(displaystr)}    ////    ',
                             key: ValueKey(
                                 'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
                             style: TextStyle(
                               fontFamily: 'Arial',
-                              fontSize: fontSize,
+                              fontSize: fontSize / 1.2,
                               color: SharedWidgets.textColor(context: context),
                             ),
                             mode: TextScrollMode.endless,

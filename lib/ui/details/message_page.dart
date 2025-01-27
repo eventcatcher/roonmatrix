@@ -126,7 +126,6 @@ class MessagePageState extends State<MessagePage> {
                       fit: FlexFit.loose,
                       child: Column(
                         children: [
-                          const SizedBox(height: 8.0),
                           MessageWriter(
                             name: name,
                             ip: selectedDeviceIp,

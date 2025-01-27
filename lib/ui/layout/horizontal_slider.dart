@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
@@ -9,6 +11,7 @@ class HorizontalSlider extends StatefulWidget {
   final int divisions;
   final double sliderValue;
   final String valueType;
+  final Orientation orientation;
 
   final Function(double value) onChanged;
 
@@ -21,6 +24,7 @@ class HorizontalSlider extends StatefulWidget {
     required this.sliderValue,
     required this.valueType,
     this.labelWidth,
+    required this.orientation,
     required this.onChanged,
   });
 
@@ -43,8 +47,17 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Container(
-        margin: EdgeInsets.only(bottom: 8.0),
-        padding: EdgeInsets.all(8.0),
+        margin: EdgeInsets.only(
+            bottom: (Platform.isIOS || Platform.isAndroid) &&
+                    widget.orientation == Orientation.landscape
+                ? 4.0
+                : 8.0),
+        padding: EdgeInsets.symmetric(
+            horizontal: 8.0,
+            vertical: (Platform.isIOS || Platform.isAndroid) &&
+                    widget.orientation == Orientation.landscape
+                ? 0.0
+                : 8.0),
         decoration: BoxDecoration(
           color: SharedWidgets.brightness() == Brightness.dark
               ? Colors.grey.shade900

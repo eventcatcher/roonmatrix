@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -94,7 +96,8 @@ class LiveControlPageState extends State<LiveControlPage> {
     return options;
   }
 
-  buildSliders({required String selectedDeviceIp}) {
+  buildSliders(
+      {required String selectedDeviceIp, required Orientation orientation}) {
     return [
       if (verticalOutput == true)
         HorizontalSlider(
@@ -110,6 +113,7 @@ class LiveControlPageState extends State<LiveControlPage> {
               verticalScrollDelayUnit ??
               translations['config']['seconds'] ??
               'seconds',
+          orientation: orientation,
           onChanged: (double value) {
             setState(() {
               verticalScrollDelay = value;
@@ -143,6 +147,7 @@ class LiveControlPageState extends State<LiveControlPage> {
             ledScrollDelayUnit ??
             translations['config']['ms'] ??
             'ms',
+        orientation: orientation,
         onChanged: (double value) {
           setState(() {
             scrollSpeed = value;
@@ -169,6 +174,7 @@ class LiveControlPageState extends State<LiveControlPage> {
         max: contrastMax,
         divisions: contrastDivisions,
         valueType: '%',
+        orientation: orientation,
         onChanged: (double value) {
           setState(() {
             contrast = value;
@@ -190,6 +196,7 @@ class LiveControlPageState extends State<LiveControlPage> {
     required ConfigDefinition? definitions,
     required Map<String, String> options,
     required List<Widget> sliders,
+    required Orientation orientation,
   }) =>
       SingleChildScrollView(
         padding: const EdgeInsets.all(8),
@@ -219,7 +226,11 @@ class LiveControlPageState extends State<LiveControlPage> {
                 }
               },
             ),
-            SizedBox(height: 48.0),
+            SizedBox(
+                height: (Platform.isIOS || Platform.isAndroid) &&
+                        orientation == Orientation.landscape
+                    ? 0
+                    : 48.0),
             ...sliders,
           ],
         )),
@@ -348,74 +359,83 @@ class LiveControlPageState extends State<LiveControlPage> {
                   definitions: definitions,
                   selectedDeviceIp: selectedDeviceIp,
                 );
-                sliders = buildSliders(selectedDeviceIp: selectedDeviceIp);
 
-                if (SharedWidgets.inIosStyle()) {
-                  return Material(
-                    child: CupertinoPageScaffold(
-                      navigationBar: CupertinoNavigationBar(
-                        brightness: SharedWidgets.brightness(),
-                        middle: Text(title),
-                        leading: CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          child: CupertinoNavigationBarBackButton(),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                      child: SafeArea(
-                        child: body(
-                          devices: devices,
-                          infos: infos,
-                          definitions: definitions,
-                          options: options,
-                          sliders: sliders,
-                        ),
-                      ),
-                    ),
-                  );
-                }
+                return OrientationBuilder(
+                    builder: (BuildContext context, Orientation orientation) {
+                  sliders = buildSliders(
+                      selectedDeviceIp: selectedDeviceIp,
+                      orientation: orientation);
 
-                return SharedWidgets.inMacosStyle()
-                    ? MacosScaffold(
-                        toolBar: ToolBar(
-                          title: Text(title),
-                          titleWidth: 600.0,
-                          leading: MacosBackButton(
+                  if (SharedWidgets.inIosStyle()) {
+                    return Material(
+                      child: CupertinoPageScaffold(
+                        navigationBar: CupertinoNavigationBar(
+                          brightness: SharedWidgets.brightness(),
+                          middle: Text(title),
+                          leading: CupertinoButton(
+                            padding: EdgeInsets.zero,
+                            child: CupertinoNavigationBarBackButton(),
                             onPressed: () => Navigator.pop(context),
-                            fillColor: Colors.transparent,
                           ),
-                          actions: [],
                         ),
-                        children: [
-                          ContentArea(
-                            builder: ((context, scrollController) {
-                              return Material(
-                                child: MacosWindow(
-                                    child: body(
-                                  devices: devices,
-                                  infos: infos,
-                                  definitions: definitions,
-                                  options: options,
-                                  sliders: sliders,
-                                )),
-                              );
-                            }),
+                        child: SafeArea(
+                          child: body(
+                            devices: devices,
+                            infos: infos,
+                            definitions: definitions,
+                            options: options,
+                            sliders: sliders,
+                            orientation: orientation,
                           ),
-                        ],
-                      )
-                    : Scaffold(
-                        appBar: AppBar(
-                          title: Text(title),
-                          actions: const [],
                         ),
-                        body: body(
-                          devices: devices,
-                          infos: infos,
-                          definitions: definitions,
-                          options: options,
-                          sliders: sliders,
-                        ),
-                      );
+                      ),
+                    );
+                  }
+
+                  return SharedWidgets.inMacosStyle()
+                      ? MacosScaffold(
+                          toolBar: ToolBar(
+                            title: Text(title),
+                            titleWidth: 600.0,
+                            leading: MacosBackButton(
+                              onPressed: () => Navigator.pop(context),
+                              fillColor: Colors.transparent,
+                            ),
+                            actions: [],
+                          ),
+                          children: [
+                            ContentArea(
+                              builder: ((context, scrollController) {
+                                return Material(
+                                  child: MacosWindow(
+                                      child: body(
+                                    devices: devices,
+                                    infos: infos,
+                                    definitions: definitions,
+                                    options: options,
+                                    sliders: sliders,
+                                    orientation: orientation,
+                                  )),
+                                );
+                              }),
+                            ),
+                          ],
+                        )
+                      : Scaffold(
+                          appBar: AppBar(
+                            title: Text(title),
+                            actions: const [],
+                          ),
+                          body: body(
+                            devices: devices,
+                            infos: infos,
+                            definitions: definitions,
+                            options: options,
+                            sliders: sliders,
+                            orientation: orientation,
+                          ),
+                        );
+                });
               });
         });
   }

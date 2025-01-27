@@ -175,7 +175,12 @@ class MessageWriterState extends State<MessageWriter> {
 
   Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
         padding: EdgeInsets.only(
-            top: SharedWidgets.inMacosStyle() ? 15.0 : 19.0, right: 16.0),
+            top: SharedWidgets.inMacosStyle()
+                ? 15.0
+                : widget.firstRowChild == null
+                    ? 19.0
+                    : 0,
+            right: 16.0),
         child: IconTextButtonElement(
           onMacAsText: true,
           icon: const Padding(
@@ -308,7 +313,12 @@ class MessageWriterState extends State<MessageWriter> {
 
   Widget sendMessageButton() => Padding(
         padding: EdgeInsets.only(
-            top: SharedWidgets.inMacosStyle() ? 15.0 : 19.0, right: 16.0),
+            top: SharedWidgets.inMacosStyle()
+                ? 15.0
+                : widget.firstRowChild == null
+                    ? 19.0
+                    : 0,
+            right: 16.0),
         child: IconTextButtonElement(
           onMacAsText: true,
           icon: const Padding(
