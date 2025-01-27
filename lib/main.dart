@@ -328,7 +328,9 @@ class RoonMatrixState extends State<RoonMatrix> {
       return;
     }
     if (valid == true) {
-      if (context.mounted) {
+      if (context.mounted &&
+          !SharedWidgets.inMacosStyle() &&
+          !SharedWidgets.inIosStyle()) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
               translations['exportDoneMessage'] ?? 'export successfully done'),
@@ -336,7 +338,9 @@ class RoonMatrixState extends State<RoonMatrix> {
         ));
       }
     } else {
-      if (context.mounted) {
+      if (context.mounted &&
+          !SharedWidgets.inMacosStyle() &&
+          !SharedWidgets.inIosStyle()) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content:
               Text(translations['exportFailedMessage'] ?? 'export failed!'),

@@ -12,6 +12,7 @@ class IconButtonElement extends StatelessWidget {
     this.noBackground = false,
     this.withCircle = false,
     this.moreInfo = false,
+    this.size = 48,
   });
 
   final Icon icon;
@@ -19,6 +20,7 @@ class IconButtonElement extends StatelessWidget {
   final bool withCircle;
   final bool moreInfo;
   final String? label;
+  final double size;
   final VoidCallback onPressed;
 
   @override
@@ -45,8 +47,8 @@ class IconButtonElement extends StatelessWidget {
           borderRadius: withCircle ? BorderRadius.circular(45.0) : null,
           icon: icon,
           pressedOpacity: 1,
-          boxConstraints: const BoxConstraints(
-              minHeight: 48, minWidth: 48, maxWidth: 48, maxHeight: 48),
+          boxConstraints: BoxConstraints(
+              minHeight: size, minWidth: size, maxWidth: size, maxHeight: size),
           semanticLabel: label,
           onPressed: onPressed,
           mouseCursor: SystemMouseCursors.click,

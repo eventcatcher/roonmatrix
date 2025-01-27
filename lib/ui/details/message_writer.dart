@@ -17,6 +17,7 @@ import 'package:roonmatrix/ui/main/main_bloc.dart';
 class MessageWriter extends StatefulWidget {
   final String name;
   final String ip;
+  final String customMessage;
   final Map<String, dynamic> translations;
   final Widget? firstRowChild;
 
@@ -24,6 +25,7 @@ class MessageWriter extends StatefulWidget {
     super.key,
     required this.name,
     required this.ip,
+    required this.customMessage,
     required this.translations,
     this.firstRowChild,
   });
@@ -194,8 +196,9 @@ class MessageWriterState extends State<MessageWriter> {
           label: desktopLandscapeWide
               ? translations['breakMessageButtonLabel'] ?? 'stop message'
               : translations['breakMessageShortButtonLabel'] ?? 'stop',
-          onPressed: messageTextController.text.isNotEmpty
-              ? () async {
+          onPressed: widget.customMessage.isEmpty
+              ? null
+              : () async {
                   selectedOption = '';
                   bool value = await SharedWidgets.showPlatformSpecificDialog(
                     context: context,
@@ -255,6 +258,7 @@ class MessageWriterState extends State<MessageWriter> {
                       for (String device in devices) {
                         valid = await mainBloc.setCustomMessage(
                             ip: device, message: '', option: 'stop');
+                        mainBloc.getInfo(ip: ip);
 
                         String name = info[device]?['name'] ?? device;
                         String doneMessage =
@@ -270,16 +274,20 @@ class MessageWriterState extends State<MessageWriter> {
                                     .replaceFirst('#', name)
                                 : "remove message from $name is failed!";
 
-                        showSnackBar(
-                            // ignore: use_build_context_synchronously
-                            context: context,
-                            doneMessage: doneMessage,
-                            failMessage: failMessage,
-                            valid: valid);
+                        if (!SharedWidgets.inMacosStyle() &&
+                            !SharedWidgets.inIosStyle()) {
+                          showSnackBar(
+                              // ignore: use_build_context_synchronously
+                              context: context,
+                              doneMessage: doneMessage,
+                              failMessage: failMessage,
+                              valid: valid);
+                        }
                       }
                     } else {
                       valid = await mainBloc.setCustomMessage(
                           ip: ip, message: '', option: 'stop');
+                      mainBloc.getInfo(ip: ip);
                       nameTextController.text = '';
                       messageTextController.text = '';
                       selectedMessageId = null;
@@ -298,16 +306,18 @@ class MessageWriterState extends State<MessageWriter> {
                                   .replaceFirst('#', name)
                               : "remove message from $name is failed!";
 
-                      showSnackBar(
-                          // ignore: use_build_context_synchronously
-                          context: context,
-                          doneMessage: doneMessage,
-                          failMessage: failMessage,
-                          valid: valid);
+                      if (!SharedWidgets.inMacosStyle() &&
+                          !SharedWidgets.inIosStyle()) {
+                        showSnackBar(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            doneMessage: doneMessage,
+                            failMessage: failMessage,
+                            valid: valid);
+                      }
                     }
                   }
-                }
-              : null,
+                },
         ),
       );
 
@@ -330,8 +340,11 @@ class MessageWriterState extends State<MessageWriter> {
             ),
           ),
           label: translations['sendButtonLabel'] ?? 'send',
-          onPressed: messageTextController.text.isNotEmpty
-              ? () async {
+          onPressed: messageTextController.text.isEmpty ||
+                  (widget.customMessage.isNotEmpty &&
+                      widget.customMessage == messageTextController.text)
+              ? null
+              : () async {
                   selectedOption = '';
                   bool value = await SharedWidgets.showPlatformSpecificDialog(
                     context: context,
@@ -448,6 +461,7 @@ class MessageWriterState extends State<MessageWriter> {
                             ip: device,
                             message: messageTextController.text,
                             option: getSelectedOptionKey(selectedOption));
+                        mainBloc.getInfo(ip: ip);
 
                         String name = info[device]?['name'] ?? device;
                         String doneMessage =
@@ -462,18 +476,22 @@ class MessageWriterState extends State<MessageWriter> {
                                     .replaceFirst('#', name)
                                 : "send message to $name failed!";
 
-                        showSnackBar(
-                            // ignore: use_build_context_synchronously
-                            context: context,
-                            doneMessage: doneMessage,
-                            failMessage: failMessage,
-                            valid: valid);
+                        if (!SharedWidgets.inMacosStyle() &&
+                            !SharedWidgets.inIosStyle()) {
+                          showSnackBar(
+                              // ignore: use_build_context_synchronously
+                              context: context,
+                              doneMessage: doneMessage,
+                              failMessage: failMessage,
+                              valid: valid);
+                        }
                       }
                     } else {
                       valid = await mainBloc.setCustomMessage(
                           ip: ip,
                           message: messageTextController.text,
                           option: getSelectedOptionKey(selectedOption));
+                      mainBloc.getInfo(ip: ip);
 
                       String name = info[ip]?['name'] ?? ip;
                       String doneMessage =
@@ -487,12 +505,15 @@ class MessageWriterState extends State<MessageWriter> {
                                   .replaceFirst('#', name)
                               : "send message to $name failed!";
 
-                      showSnackBar(
-                          // ignore: use_build_context_synchronously
-                          context: context,
-                          doneMessage: doneMessage,
-                          failMessage: failMessage,
-                          valid: valid);
+                      if (!SharedWidgets.inMacosStyle() &&
+                          !SharedWidgets.inIosStyle()) {
+                        showSnackBar(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            doneMessage: doneMessage,
+                            failMessage: failMessage,
+                            valid: valid);
+                      }
                     }
 
                     setState(() {
@@ -501,8 +522,7 @@ class MessageWriterState extends State<MessageWriter> {
                       selectedMessageId = null;
                     });
                   }
-                }
-              : null,
+                },
         ),
       );
 
@@ -642,6 +662,7 @@ class MessageWriterState extends State<MessageWriter> {
                                       messageTextController.text = '';
                                       mainBloc.setCustomMessages(
                                           messages: options);
+                                      mainBloc.getInfo(ip: ip);
                                     });
                                   }
                                 }
@@ -700,6 +721,7 @@ class MessageWriterState extends State<MessageWriter> {
                                     options.remove(key);
                                     mainBloc.setCustomMessages(
                                         messages: options);
+                                    mainBloc.getInfo(ip: ip);
                                   });
                                 }
                               }

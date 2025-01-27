@@ -42,6 +42,7 @@ class MessagePageState extends State<MessagePage> {
   bool translationsLoaded = false;
 
   String selectedDeviceName = '';
+  String customMessage = '';
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -112,6 +113,7 @@ class MessagePageState extends State<MessagePage> {
                       child: MessageWriter(
                         name: name,
                         ip: selectedDeviceIp,
+                        customMessage: customMessage,
                         translations: translations,
                       ),
                     ),
@@ -129,6 +131,7 @@ class MessagePageState extends State<MessagePage> {
                           MessageWriter(
                             name: name,
                             ip: selectedDeviceIp,
+                            customMessage: customMessage,
                             translations: translations,
                             firstRowChild: Platform.isIOS ||
                                     Platform.isAndroid ||
@@ -213,6 +216,7 @@ class MessagePageState extends State<MessagePage> {
                 Map<String, dynamic> infos = mainState.info;
                 Map<String, dynamic> info = infos[selectedDeviceIp] ?? {};
                 selectedDeviceName = info['name'];
+                customMessage = info['custom_message'];
                 Map<String, String> options =
                     generateOptionsAndPreselect(devices: devices, infos: infos);
 

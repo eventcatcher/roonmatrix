@@ -122,7 +122,9 @@ class InfoPageState extends State<InfoPage> {
                             return;
                           }
                           if (valid == true) {
-                            if (context.mounted) {
+                            if (context.mounted &&
+                                !SharedWidgets.inMacosStyle() &&
+                                !SharedWidgets.inIosStyle()) {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(
@@ -132,7 +134,9 @@ class InfoPageState extends State<InfoPage> {
                               ));
                             }
                           } else {
-                            if (context.mounted) {
+                            if (context.mounted &&
+                                !SharedWidgets.inMacosStyle() &&
+                                !SharedWidgets.inIosStyle()) {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(

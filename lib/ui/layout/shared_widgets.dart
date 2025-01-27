@@ -356,6 +356,7 @@ class SharedWidgets {
     VoidCallback? onExit,
   }) =>
       IconButtonElement(
+          size: 40,
           icon: const Icon(
             Icons.add,
             color: Colors.white,
@@ -395,6 +396,7 @@ class SharedWidgets {
     required VoidCallback onPressed,
   }) =>
       IconButtonElement(
+        size: 40,
         icon: const Icon(
           Icons.remove,
           color: Colors.white,

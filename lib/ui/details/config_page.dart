@@ -356,13 +356,16 @@ class ConfigPageState extends State<ConfigPage> {
                             });
                             if (valid == true) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text(
-                                      translations['saveDoneMessage'] ??
-                                          "save config successfully done"),
-                                  backgroundColor: Colors.green,
-                                ));
+                                if (!SharedWidgets.inMacosStyle() &&
+                                    !SharedWidgets.inIosStyle()) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text(
+                                        translations['saveDoneMessage'] ??
+                                            "save config successfully done"),
+                                    backgroundColor: Colors.green,
+                                  ));
+                                }
 
                                 Timer.periodic(const Duration(seconds: 3),
                                     (Timer timer) {
@@ -373,7 +376,9 @@ class ConfigPageState extends State<ConfigPage> {
                                 });
                               }
                             } else {
-                              if (context.mounted) {
+                              if (context.mounted &&
+                                  !SharedWidgets.inMacosStyle() &&
+                                  !SharedWidgets.inIosStyle()) {
                                 ScaffoldMessenger.of(context)
                                     .showSnackBar(SnackBar(
                                   content: Text(
@@ -478,7 +483,9 @@ class ConfigPageState extends State<ConfigPage> {
                             return;
                           }
                           if (valid == true) {
-                            if (context.mounted) {
+                            if (context.mounted &&
+                                !SharedWidgets.inMacosStyle() &&
+                                !SharedWidgets.inIosStyle()) {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(
@@ -488,7 +495,9 @@ class ConfigPageState extends State<ConfigPage> {
                               ));
                             }
                           } else {
-                            if (context.mounted) {
+                            if (context.mounted &&
+                                !SharedWidgets.inMacosStyle() &&
+                                !SharedWidgets.inIosStyle()) {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(

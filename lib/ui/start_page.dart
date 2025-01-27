@@ -1231,7 +1231,11 @@ class StartPageState extends State<StartPage> {
                                                   return;
                                                 }
                                                 if (valid == true) {
-                                                  if (context.mounted) {
+                                                  if (context.mounted &&
+                                                      !SharedWidgets
+                                                          .inMacosStyle() &&
+                                                      !SharedWidgets
+                                                          .inIosStyle()) {
                                                     ScaffoldMessenger.of(
                                                             context)
                                                         .showSnackBar(SnackBar(
@@ -1243,7 +1247,11 @@ class StartPageState extends State<StartPage> {
                                                     ));
                                                   }
                                                 } else {
-                                                  if (context.mounted) {
+                                                  if (context.mounted &&
+                                                      !SharedWidgets
+                                                          .inMacosStyle() &&
+                                                      !SharedWidgets
+                                                          .inIosStyle()) {
                                                     ScaffoldMessenger.of(
                                                             context)
                                                         .showSnackBar(SnackBar(

@@ -150,7 +150,9 @@ class LogPageState extends State<LogPage> {
                             return;
                           }
                           if (valid == true) {
-                            if (context.mounted) {
+                            if (context.mounted &&
+                                !SharedWidgets.inMacosStyle() &&
+                                !SharedWidgets.inIosStyle()) {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(
@@ -160,7 +162,9 @@ class LogPageState extends State<LogPage> {
                               ));
                             }
                           } else {
-                            if (context.mounted) {
+                            if (context.mounted &&
+                                !SharedWidgets.inMacosStyle() &&
+                                !SharedWidgets.inIosStyle()) {
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(
