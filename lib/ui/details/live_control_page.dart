@@ -102,16 +102,16 @@ class LiveControlPageState extends State<LiveControlPage> {
       if (verticalOutput == true)
         HorizontalSlider(
           key: ValueKey('SliderVerticalScrollDelay_$selectedDeviceIp'),
-          label: translations['config']['vertical_scroll_delay'] ??
+          label: translations['config']?['vertical_scroll_delay'] ??
               'Vertical scroll delay',
           sliderValue: verticalScrollDelay,
           labelWidth: 300,
           min: verticalScrollMin,
           max: verticalScrollMax,
           divisions: verticalScrollDivisions,
-          valueType: translations['config'][verticalScrollDelayUnit] ??
+          valueType: translations['config']?[verticalScrollDelayUnit] ??
               verticalScrollDelayUnit ??
-              translations['config']['seconds'] ??
+              translations['config']?['seconds'] ??
               'seconds',
           orientation: orientation,
           onChanged: (double value) {
@@ -129,12 +129,14 @@ class LiveControlPageState extends State<LiveControlPage> {
       HorizontalSlider(
         key: ValueKey('SliderScrollSpeed_$selectedDeviceIp'),
         label: verticalOutput == true
-            ? translations['config']['led_vertical_scroll_delay'] != null
+            ? translations['config'] != null &&
+                    translations['config']['led_vertical_scroll_delay'] != null
                 ? (translations['config']['led_vertical_scroll_delay']
                         as String)
                     .replaceAll('LED ', '')
                 : 'Vertical scroll delay (line by line)'
-            : translations['config']['led_scroll_delay'] != null
+            : translations['config'] != null &&
+                    translations['config']['led_scroll_delay'] != null
                 ? (translations['config']['led_scroll_delay'] as String)
                     .replaceAll('LED ', '')
                 : 'Horizontal scroll delay (line by line)',
@@ -143,9 +145,9 @@ class LiveControlPageState extends State<LiveControlPage> {
         min: scrollMin,
         max: scrollMax,
         divisions: scrollDivisions,
-        valueType: translations['config'][ledScrollDelayUnit] ??
+        valueType: translations['config']?[ledScrollDelayUnit] ??
             ledScrollDelayUnit ??
-            translations['config']['ms'] ??
+            translations['config']?['ms'] ??
             'ms',
         orientation: orientation,
         onChanged: (double value) {
@@ -164,8 +166,8 @@ class LiveControlPageState extends State<LiveControlPage> {
       ),
       HorizontalSlider(
         key: ValueKey('SliderContrast_$selectedDeviceIp'),
-        label: translations['config']['led_contrast'] != null
-            ? (translations['config']['led_contrast'] as String)
+        label: translations['config']?['led_contrast'] != null
+            ? (translations['config']?['led_contrast'] as String)
                 .replaceAll('LED ', '')
             : 'contrast',
         sliderValue: contrast,
