@@ -82,6 +82,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   build_runner: ^2.4.13 # 2.4.14 needs flutter 3.6
   flutter_launcher_icons: ^0.14.2
+  msix: ^3.16.8
 
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -158,3 +159,16 @@ flutter:
       fonts:
         - asset: assets/fonts/ARIAL.TTF
  
+  msix_config:
+    display_name: RoonMatrix
+    publisher_display_name: Stephan Wilhelm
+    identity_name: de.eventcatcher
+    msix_version: 1.0.0.0
+    logo_path: C:\Users\swilhelm\dev\gits\roonmatrix\assets\icon\icon.png
+    trim_logo: false
+    capabilities: internetClient, privateNetworkClientServer
+    languages: en-us, de-de
+    output_path: C:\build\msix
+    output_name: roonmatrix
+    store: true
+    
