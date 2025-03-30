@@ -21,7 +21,7 @@ version: 1.0.0+1
 
 environment:
   sdk: ">=3.5.0 <4.0.0"
-  flutter: ">=3.24.0" # build with flutter 3.24.5, Dart 3.5.4
+  flutter: ">=3.24.0" # build with flutter 3.29.2, Dart 3.7.2 on macos
  
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -159,16 +159,15 @@ flutter:
       fonts:
         - asset: assets/fonts/ARIAL.TTF
  
-  msix_config:
-    display_name: RoonMatrix
-    publisher_display_name: Stephan Wilhelm
-    identity_name: de.eventcatcher
-    msix_version: 1.0.0.0
-    logo_path: C:\Users\swilhelm\dev\gits\roonmatrix\assets\icon\icon.png
-    trim_logo: false
-    capabilities: internetClient, privateNetworkClientServer
-    languages: en-us, de-de
-    output_path: C:\build\msix
-    output_name: roonmatrix
-    store: true
-    
+msix_config:
+  display_name: RoonMatrix
+  publisher_display_name: Stephan Wilhelm
+  identity_name: de.eventcatcher
+  msix_version: 1.0.0.0
+  logo_path: C:\Users\swilhelm\dev\gits\roonmatrix\assets\icon\icon.png
+  trim_logo: false
+  capabilities: internetClient, privateNetworkClientServer
+  languages: en-us, de-de
+  output_path: C:\build\msix
+  output_name: roonmatrix
+  store: true
