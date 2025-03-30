@@ -162,7 +162,7 @@ flutter:
 msix_config:
   display_name: RoonMatrix
   publisher_display_name: Stephan Wilhelm
-  identity_name: de.eventcatcher
+  identity_name: StephanWilhelm.Roonmatrix
   msix_version: 1.0.0.0
   logo_path: C:\Users\swilhelm\dev\gits\roonmatrix\assets\icon\icon.png
   trim_logo: false
