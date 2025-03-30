@@ -164,10 +164,13 @@ msix_config:
   publisher_display_name: Stephan Wilhelm
   identity_name: StephanWilhelm.Roonmatrix
   msix_version: 1.0.0.0
-  logo_path: C:\Users\swilhelm\dev\gits\roonmatrix\assets\icon\icon.png
+  logo_path: assets/icon/icon.png
   trim_logo: false
   capabilities: internetClient, privateNetworkClientServer
   languages: en-us, de-de
   output_path: C:\build\msix
   output_name: roonmatrix
   store: true
+  install_certificate: false
+  signtool_options: "/v"
+
