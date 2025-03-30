@@ -576,7 +576,8 @@ class StartPageState extends State<StartPage> {
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.deepOrange
-                                                          .withOpacity(0.15),
+                                                          .withValues(
+                                                              alpha: 0.15),
                                                       spreadRadius: 0,
                                                       blurRadius: 0,
                                                     ),
@@ -1297,7 +1298,7 @@ class StartPageState extends State<StartPage> {
                 color: SharedWidgets.windowBackgroundColor(context: context),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 5.0,
                   ),
                 ],

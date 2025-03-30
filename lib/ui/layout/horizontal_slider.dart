@@ -72,7 +72,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
               Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
           boxShadow: [
             BoxShadow(
-              color: Colors.deepOrange.withOpacity(0.15),
+              color: Colors.deepOrange.withValues(alpha: 0.15),
               spreadRadius: 0,
               blurRadius: 0,
             ),
