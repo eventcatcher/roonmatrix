@@ -8,6 +8,8 @@ import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/text_field_element.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // ============================ style config============================
@@ -356,6 +358,7 @@ class SharedWidgets {
     VoidCallback? onExit,
   }) =>
       IconButtonElement(
+          readOnly: disabled,
           size: 40,
           icon: const Icon(
             Icons.add,
@@ -396,6 +399,7 @@ class SharedWidgets {
     required VoidCallback onPressed,
   }) =>
       IconButtonElement(
+        readOnly: disabled,
         size: 40,
         icon: const Icon(
           Icons.remove,
@@ -475,5 +479,34 @@ class SharedWidgets {
         }
       },
     );
+  }
+
+  static showSnackBar({
+    required BuildContext context,
+    required String doneMessage,
+    required String failMessage,
+    required bool valid,
+  }) {
+    if (valid == true) {
+      if (context.mounted) {
+        showTopSnackBar(
+          Overlay.of(context),
+          snackBarPosition: SnackBarPosition.bottom,
+          CustomSnackBar.success(
+            message: doneMessage,
+          ),
+        );
+      }
+    } else {
+      if (context.mounted) {
+        showTopSnackBar(
+          Overlay.of(context),
+          snackBarPosition: SnackBarPosition.bottom,
+          CustomSnackBar.error(
+            message: failMessage,
+          ),
+        );
+      }
+    }
   }
 }

@@ -327,27 +327,14 @@ class RoonMatrixState extends State<RoonMatrix> {
     if (valid == null) {
       return;
     }
-    if (valid == true) {
-      if (context.mounted &&
-          !SharedWidgets.inMacosStyle() &&
-          !SharedWidgets.inIosStyle()) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              translations['exportDoneMessage'] ?? 'export successfully done'),
-          backgroundColor: Colors.green,
-        ));
-      }
-    } else {
-      if (context.mounted &&
-          !SharedWidgets.inMacosStyle() &&
-          !SharedWidgets.inIosStyle()) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content:
-              Text(translations['exportFailedMessage'] ?? 'export failed!'),
-          backgroundColor: Colors.red,
-        ));
-      }
-    }
+
+    SharedWidgets.showSnackBar(
+        // ignore: use_build_context_synchronously
+        context: context,
+        doneMessage:
+            translations['exportDoneMessage'] ?? 'export successfully done',
+        failMessage: translations['exportFailedMessage'] ?? 'export failed!',
+        valid: valid);
   }
 
   List<BarButton> menuBarButtons(

@@ -13,12 +13,14 @@ class IconButtonElement extends StatelessWidget {
     this.withCircle = false,
     this.moreInfo = false,
     this.size = 48,
+    this.readOnly = false,
   });
 
   final Icon icon;
   final bool noBackground;
   final bool withCircle;
   final bool moreInfo;
+  final bool readOnly;
   final String? label;
   final double size;
   final VoidCallback onPressed;
@@ -27,9 +29,10 @@ class IconButtonElement extends StatelessWidget {
   Widget build(BuildContext context) {
     if (SharedWidgets.inIosStyle()) {
       return CupertinoButton.filled(
-        padding: EdgeInsets.all(8),
+        disabledColor: CupertinoColors.systemGrey,
+        padding: EdgeInsets.all(10),
         minSize: 10,
-        onPressed: onPressed,
+        onPressed: readOnly ? null : onPressed,
         child: icon,
       );
     }
@@ -37,12 +40,18 @@ class IconButtonElement extends StatelessWidget {
     macButton() => MacosIconButton(
           backgroundColor: noBackground
               ? null
-              : moreInfo
-                  ? CupertinoColors.activeOrange.color
-                  : CupertinoColors.activeBlue.color,
-          hoverColor: moreInfo
-              ? CupertinoColors.activeOrange.darkElevatedColor
-              : CupertinoColors.activeBlue.darkElevatedColor,
+              : readOnly
+                  ? CupertinoColors.inactiveGray.color
+                  : moreInfo
+                      ? CupertinoColors.activeOrange.color
+                      : CupertinoColors.activeBlue.color,
+          hoverColor: noBackground
+              ? null
+              : readOnly
+                  ? CupertinoColors.inactiveGray.color
+                  : moreInfo
+                      ? CupertinoColors.activeOrange.darkElevatedColor
+                      : CupertinoColors.activeBlue.darkElevatedColor,
           disabledColor: CupertinoColors.systemGrey,
           borderRadius: withCircle ? BorderRadius.circular(45.0) : null,
           icon: icon,
@@ -58,9 +67,13 @@ class IconButtonElement extends StatelessWidget {
         ? withCircle
             ? CircleAvatar(
                 radius: 20,
-                backgroundColor: moreInfo
-                    ? CupertinoColors.activeOrange.color
-                    : CupertinoColors.activeBlue.color,
+                backgroundColor: noBackground
+                    ? null
+                    : readOnly
+                        ? CupertinoColors.inactiveGray.color
+                        : moreInfo
+                            ? CupertinoColors.activeOrange.color
+                            : CupertinoColors.activeBlue.color,
                 child: label != null
                     ? MacosTooltip(
                         message: label!,
@@ -77,9 +90,13 @@ class IconButtonElement extends StatelessWidget {
         : withCircle
             ? CircleAvatar(
                 radius: 18,
-                backgroundColor: moreInfo
-                    ? CupertinoColors.activeOrange.color
-                    : CupertinoColors.activeBlue.color,
+                backgroundColor: noBackground
+                    ? null
+                    : readOnly
+                        ? CupertinoColors.inactiveGray.color
+                        : moreInfo
+                            ? CupertinoColors.activeOrange.color
+                            : CupertinoColors.activeBlue.color,
                 child: IconButton(
                   color: SharedWidgets.brightness() == Brightness.dark
                       ? moreInfo
@@ -94,17 +111,32 @@ class IconButtonElement extends StatelessWidget {
                   onPressed: onPressed,
                 ),
               )
-            : IconButton(
-                color: SharedWidgets.brightness() == Brightness.dark
-                    ? moreInfo
-                        ? Colors.orange.shade800
-                        : Colors.blue.shade800
-                    : moreInfo
-                        ? Colors.orange.shade600
-                        : Colors.blue.shade600,
-                icon: icon,
-                tooltip: label,
-                onPressed: onPressed,
+            : Ink(
+                width: 30.0,
+                height: 30.0,
+                decoration: ShapeDecoration(
+                    color: noBackground
+                        ? null
+                        : readOnly
+                            ? Colors.grey
+                            : SharedWidgets.brightness() == Brightness.dark
+                                ? moreInfo
+                                    ? Colors.orange.shade800
+                                    : Colors.blue.shade800
+                                : moreInfo
+                                    ? Colors.orange.shade600
+                                    : Colors.blue.shade600,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+                    )),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  color: Colors.white,
+                  icon: icon,
+                  tooltip: label,
+                  onPressed: onPressed,
+                ),
               );
   }
 }

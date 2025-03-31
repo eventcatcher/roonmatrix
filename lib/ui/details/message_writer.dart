@@ -13,6 +13,9 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_element.dart';
 import 'package:roonmatrix/ui/layout/vertical_radio_selector.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart' show CustomSnackBar;
+import 'package:top_snackbar_flutter/top_snack_bar.dart'
+    show SnackBarPosition, showTopSnackBar;
 
 class MessageWriter extends StatefulWidget {
   final String name;
@@ -107,31 +110,6 @@ class MessageWriterState extends State<MessageWriter> {
               });
             }),
       );
-
-  showSnackBar({
-    required BuildContext context,
-    required String doneMessage,
-    required String failMessage,
-    required bool valid,
-  }) {
-    if (valid == true) {
-      if (context.mounted) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(doneMessage),
-          backgroundColor: Colors.green,
-        ));
-      }
-    } else {
-      if (context.mounted) {
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(failMessage),
-          backgroundColor: Colors.red,
-        ));
-      }
-    }
-  }
 
   Widget labelWidget(String? label, Color? labelColor) => Expanded(
         child: label != null
@@ -274,15 +252,12 @@ class MessageWriterState extends State<MessageWriter> {
                                     .replaceFirst('#', name)
                                 : "remove message from $name is failed!";
 
-                        if (!SharedWidgets.inMacosStyle() &&
-                            !SharedWidgets.inIosStyle()) {
-                          showSnackBar(
-                              // ignore: use_build_context_synchronously
-                              context: context,
-                              doneMessage: doneMessage,
-                              failMessage: failMessage,
-                              valid: valid);
-                        }
+                        SharedWidgets.showSnackBar(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            doneMessage: doneMessage,
+                            failMessage: failMessage,
+                            valid: valid);
                       }
                     } else {
                       valid = await mainBloc.setCustomMessage(
@@ -306,15 +281,12 @@ class MessageWriterState extends State<MessageWriter> {
                                   .replaceFirst('#', name)
                               : "remove message from $name is failed!";
 
-                      if (!SharedWidgets.inMacosStyle() &&
-                          !SharedWidgets.inIosStyle()) {
-                        showSnackBar(
-                            // ignore: use_build_context_synchronously
-                            context: context,
-                            doneMessage: doneMessage,
-                            failMessage: failMessage,
-                            valid: valid);
-                      }
+                      SharedWidgets.showSnackBar(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          doneMessage: doneMessage,
+                          failMessage: failMessage,
+                          valid: valid);
                     }
                   }
                 },
@@ -476,15 +448,12 @@ class MessageWriterState extends State<MessageWriter> {
                                     .replaceFirst('#', name)
                                 : "send message to $name failed!";
 
-                        if (!SharedWidgets.inMacosStyle() &&
-                            !SharedWidgets.inIosStyle()) {
-                          showSnackBar(
-                              // ignore: use_build_context_synchronously
-                              context: context,
-                              doneMessage: doneMessage,
-                              failMessage: failMessage,
-                              valid: valid);
-                        }
+                        SharedWidgets.showSnackBar(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            doneMessage: doneMessage,
+                            failMessage: failMessage,
+                            valid: valid);
                       }
                     } else {
                       valid = await mainBloc.setCustomMessage(
@@ -505,15 +474,12 @@ class MessageWriterState extends State<MessageWriter> {
                                   .replaceFirst('#', name)
                               : "send message to $name failed!";
 
-                      if (!SharedWidgets.inMacosStyle() &&
-                          !SharedWidgets.inIosStyle()) {
-                        showSnackBar(
-                            // ignore: use_build_context_synchronously
-                            context: context,
-                            doneMessage: doneMessage,
-                            failMessage: failMessage,
-                            valid: valid);
-                      }
+                      SharedWidgets.showSnackBar(
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          doneMessage: doneMessage,
+                          failMessage: failMessage,
+                          valid: valid);
                     }
 
                     setState(() {
@@ -686,7 +652,7 @@ class MessageWriterState extends State<MessageWriter> {
                           child: SharedWidgets.removeIconButton(
                             context: context,
                             textController: nameTextController,
-                            disabled: messageTextController.text.isEmpty,
+                            disabled: selectedMessageId == null,
                             translations: translations,
                             onPressed: () async {
                               if (selectedMessageId != null &&

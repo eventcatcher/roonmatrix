@@ -53,7 +53,9 @@ class TextFieldElement extends StatelessWidget {
             : null,
         suffix: suffixIcon,
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-        clearButtonMode: cup.OverlayVisibilityMode.always,
+        clearButtonMode: readOnly
+            ? cup.OverlayVisibilityMode.never
+            : cup.OverlayVisibilityMode.always,
         readOnly: readOnly,
         maxLength: maxLength,
         keyboardType: keyboardType,
@@ -77,12 +79,15 @@ class TextFieldElement extends StatelessWidget {
             prefix: prefixIcon,
             padding: EdgeInsets.symmetric(
                 horizontal: prefixIcon != null ? 0.0 : 8.0, vertical: 4.0),
-            clearButtonMode: OverlayVisibilityMode.always,
+            clearButtonMode: readOnly
+                ? OverlayVisibilityMode.never
+                : OverlayVisibilityMode.always,
             readOnly: readOnly,
             maxLength: maxLength,
             keyboardType: keyboardType,
             inputFormatters: inputFormatters,
             suffix: suffixIcon,
+            suffixMode: OverlayVisibilityMode.always,
             style: style,
             controller: controller,
             decoration: BoxDecoration(

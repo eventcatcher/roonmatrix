@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
+import 'package:roonmatrix/ui/layout/icon_button_element.dart'
+    show IconButtonElement;
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
@@ -137,46 +139,51 @@ class MapListItemsState extends State<MapListItems> {
       }
 
       if (deviceType == 'desktop') {
-        rowWidgets.add(Container(
-          margin: const EdgeInsets.only(
-            top: 18.0,
-            right: 16.0,
-          ),
-          height: 38.0,
-          child: InkWell(
-            borderRadius: BorderRadius.all(Radius.circular(45)),
-            onTap: link != '' &&
-                    isURL(link, requireTld: true, requireProtocol: true)
-                ? () async {
-                    final Uri url = Uri.parse(link);
-                    if (!await launchUrl(
-                      url,
-                      mode: LaunchMode.externalApplication,
-                    )) {
-                      if (kDebugMode) {
-                        print('Could not launch url: $url');
+        rowWidgets.add(
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 31.0,
+              right: 16.0,
+            ),
+            child: IconButtonElement(
+              label: translations['openLinkButtonText'] ?? 'open link',
+              noBackground: false,
+              withCircle: false,
+              readOnly: link.isEmpty ||
+                  !isURL(link, requireTld: true, requireProtocol: true),
+              size: 30,
+              icon: Icon(Icons.link, color: Colors.white, size: 12),
+              onPressed: link.isNotEmpty &&
+                      isURL(link, requireTld: true, requireProtocol: true)
+                  ? () async {
+                      final Uri url = Uri.parse(link);
+                      if (!await launchUrl(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      )) {
+                        if (kDebugMode) {
+                          print('Could not launch url: $url');
+                        }
                       }
                     }
-                  }
-                : null,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-              child: const Icon(Icons.link),
+                  : () {},
             ),
           ),
-        ));
+        );
 
         rowWidgets.add(
-          Container(
-            margin: const EdgeInsets.only(
-              top: 21.0,
-              right: 11.0,
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 31.0,
+              right: 16.0,
             ),
-            height: 38.0,
-            child: InkWell(
-                borderRadius: BorderRadius.all(Radius.circular(45)),
-                onTap: () async {
+            child: IconButtonElement(
+                label: translations['removeButtonText'] ?? 'remove',
+                noBackground: false,
+                withCircle: false,
+                size: 30,
+                icon: Icon(Icons.remove, color: Colors.white, size: 12),
+                onPressed: () async {
                   bool valid = await SharedWidgets.showPlatformSpecificDialog(
                     context: context,
                     child: (BuildContext context) =>
@@ -189,33 +196,18 @@ class MapListItemsState extends State<MapListItems> {
                     setState(() => fieldValues.removeAt(idx));
                     returnJson(fieldValues);
                   }
-                },
-                child: Padding(
-                  padding: !SharedWidgets.inIosStyle() &&
-                          !SharedWidgets.inMacosStyle()
-                      ? EdgeInsets.all(8)
-                      : EdgeInsets.symmetric(
-                          horizontal: SharedWidgets.inIosStyle() ? 10.0 : 12),
-                  child: Icon(
-                    !SharedWidgets.inIosStyle() && !SharedWidgets.inMacosStyle()
-                        ? Icons.close
-                        : Icons.dangerous,
-                    color: SharedWidgets.resetIconColor(context: context),
-                    size: SharedWidgets.inIosStyle()
-                        ? 19.0
-                        : SharedWidgets.inMacosStyle()
-                            ? 17.0
-                            : 24.0,
-                  ),
-                )),
+                }),
           ),
         );
       }
       if (deviceType == 'mobile') {
         colWidgets.addAll(rowWidgets);
       } else {
-        colWidgets
-            .add(Row(mainAxisSize: MainAxisSize.max, children: rowWidgets));
+        colWidgets.add(Row(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: rowWidgets,
+        ));
       }
 
       if (deviceType == 'mobile') {

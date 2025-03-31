@@ -12,6 +12,7 @@ import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/headline.dart';
+import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/key_val_items.dart';
 import 'package:roonmatrix/ui/layout/list_items.dart';
@@ -29,6 +30,7 @@ import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:styled_text/tags/styled_text_tag.dart';
 import 'package:styled_text/widgets/styled_text.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:validators/validators.dart' show isURL;
 
 class ConfigPage extends StatefulWidget {
   final String name;
@@ -249,29 +251,53 @@ class ConfigPageState extends State<ConfigPage> {
             if (fieldDefinition.link != '') {
               fields.add(Row(
                 mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(child: widgetField),
-                  Container(
-                    margin: const EdgeInsets.only(
-                      top: 18.0,
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: SharedWidgets.inMacosStyle()
+                          ? 37.0
+                          : SharedWidgets.inIosStyle()
+                              ? 36
+                              : 34.0,
                       right: 16.0,
                     ),
-                    height: 38.0,
-                    child: IconButton(
-                      onPressed: () async {
-                        final Uri url = Uri.parse(fieldDefinition.link == '*'
-                            ? fieldDefinition.value.toString()
-                            : fieldDefinition.link.toString());
-                        if (!await launchUrl(
-                          url,
-                          mode: LaunchMode.externalApplication,
-                        )) {
-                          if (kDebugMode) {
-                            print('Could not launch url: $url');
-                          }
-                        }
-                      },
-                      icon: const Icon(Icons.link),
+                    child: IconButtonElement(
+                      label: translations['openLinkButtonText'] ?? 'open link',
+                      noBackground: false,
+                      withCircle: false,
+                      readOnly: ((fieldDefinition.link == '*'
+                                  ? fieldValues[area.name][fieldDefinition.name]
+                                  : fieldDefinition.link.toString()) as String)
+                              .isEmpty ||
+                          !isURL(
+                              (fieldDefinition.link == '*'
+                                  ? fieldValues[area.name][fieldDefinition.name]
+                                  : fieldDefinition.link.toString()) as String,
+                              requireTld: true,
+                              requireProtocol: true),
+                      size: 30,
+                      icon: Icon(Icons.link, color: Colors.white, size: 12),
+                      onPressed: ((fieldDefinition.link == '*'
+                                  ? fieldValues[area.name][fieldDefinition.name]
+                                  : fieldDefinition.link.toString()) as String)
+                              .isNotEmpty
+                          ? () async {
+                              final Uri url = Uri.parse(fieldDefinition.link ==
+                                      '*'
+                                  ? fieldValues[area.name][fieldDefinition.name]
+                                  : fieldDefinition.link.toString());
+                              if (!await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              )) {
+                                if (kDebugMode) {
+                                  print('Could not launch url: $url');
+                                }
+                              }
+                            }
+                          : () {},
                     ),
                   ),
                 ],
@@ -354,19 +380,19 @@ class ConfigPageState extends State<ConfigPage> {
                             setState(() {
                               saveIdle = false;
                             });
+
+                            SharedWidgets.showSnackBar(
+                                // ignore: use_build_context_synchronously
+                                context: context,
+                                doneMessage: translations['saveDoneMessage'] ??
+                                    'save config successfully done',
+                                failMessage:
+                                    translations['saveFailedMessage'] ??
+                                        'save config failed!',
+                                valid: valid);
+
                             if (valid == true) {
                               if (context.mounted) {
-                                if (!SharedWidgets.inMacosStyle() &&
-                                    !SharedWidgets.inIosStyle()) {
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(
-                                    content: Text(
-                                        translations['saveDoneMessage'] ??
-                                            "save config successfully done"),
-                                    backgroundColor: Colors.green,
-                                  ));
-                                }
-
                                 Timer.periodic(const Duration(seconds: 3),
                                     (Timer timer) {
                                   timer.cancel();
@@ -374,18 +400,6 @@ class ConfigPageState extends State<ConfigPage> {
                                     Navigator.of(context).pop();
                                   }
                                 });
-                              }
-                            } else {
-                              if (context.mounted &&
-                                  !SharedWidgets.inMacosStyle() &&
-                                  !SharedWidgets.inIosStyle()) {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text(
-                                      translations['saveFailedMessage'] ??
-                                          "save config failed!"),
-                                  backgroundColor: Colors.red,
-                                ));
                               }
                             }
                           },
@@ -482,31 +496,16 @@ class ConfigPageState extends State<ConfigPage> {
                           if (valid == null) {
                             return;
                           }
-                          if (valid == true) {
-                            if (context.mounted &&
-                                !SharedWidgets.inMacosStyle() &&
-                                !SharedWidgets.inIosStyle()) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text(
-                                    translations['exportDoneMessage'] ??
-                                        'export successfully done'),
-                                backgroundColor: Colors.green,
-                              ));
-                            }
-                          } else {
-                            if (context.mounted &&
-                                !SharedWidgets.inMacosStyle() &&
-                                !SharedWidgets.inIosStyle()) {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text(
-                                    translations['exportFailedMessage'] ??
-                                        'export failed!'),
-                                backgroundColor: Colors.red,
-                              ));
-                            }
-                          }
+
+                          SharedWidgets.showSnackBar(
+                              // ignore: use_build_context_synchronously
+                              context: context,
+                              doneMessage: translations['exportDoneMessage'] ??
+                                  'export successfully done',
+                              failMessage:
+                                  translations['exportFailedMessage'] ??
+                                      'export failed!',
+                              valid: valid);
                         },
                 ),
               ],

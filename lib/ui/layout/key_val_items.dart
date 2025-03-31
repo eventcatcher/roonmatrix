@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
+import 'package:roonmatrix/ui/layout/icon_button_element.dart'
+    show IconButtonElement;
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
@@ -58,58 +60,57 @@ class KeyValItemsState extends State<KeyValItems> {
     List<Widget> widgets = [];
 
     for (String key in fieldValues.keys) {
-      Widget widget = EditableSinglelineText(
-        translations: translations,
-        key: ValueKey('$label-$key'),
-        inputType: TextInputType.text,
-        noCounter: true,
-        label: key == ': ' ? '[: ]' : key,
-        suffixIcon: InkWell(
-            onTap: () async {
-              bool valid = await SharedWidgets.showPlatformSpecificDialog(
-                context: context,
-                child: (BuildContext context) => SharedWidgets.removeItemDialog(
-                  context: context,
-                  translations: translations,
-                ),
-              );
-              if (valid == true) {
-                setState(() => fieldValues.remove(key));
-                returnJson(fieldValues);
-              }
-            },
-            child: Padding(
-              padding: EdgeInsets.only(
-                  right:
-                      SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
-                          ? 6.0
-                          : 0),
-              child: Icon(
-                !SharedWidgets.inIosStyle() && !SharedWidgets.inMacosStyle()
-                    ? Icons.close
-                    : Icons.dangerous,
-                color: SharedWidgets.resetIconColor(context: context),
-                size: SharedWidgets.inIosStyle()
-                    ? 19.0
-                    : SharedWidgets.inMacosStyle()
-                        ? 17.0
-                        : 24.0,
-              ),
-            )),
-        text: fieldValues[key].toString(),
-        onChanged: (value) {
-          if (mounted) {
-            try {
-              setState(() => fieldValues[key] = value);
-              returnJson(fieldValues);
-            } catch (e) {
-              setState(() {
-                fieldValues[key] = '';
-                returnJson(fieldValues);
-              });
-            }
-          }
-        },
+      Widget widget = Row(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: EditableSinglelineText(
+              translations: translations,
+              key: ValueKey('$label-$key'),
+              inputType: TextInputType.text,
+              noCounter: true,
+              label: key == ': ' ? '[: ]' : key,
+              text: fieldValues[key].toString(),
+              onChanged: (value) {
+                if (mounted) {
+                  try {
+                    setState(() => fieldValues[key] = value);
+                    returnJson(fieldValues);
+                  } catch (e) {
+                    setState(() {
+                      fieldValues[key] = '';
+                      returnJson(fieldValues);
+                    });
+                  }
+                }
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 16.0),
+            child: IconButtonElement(
+                label: translations['removeButtonText'] ?? 'remove',
+                noBackground: false,
+                withCircle: false,
+                size: 30,
+                icon: Icon(Icons.remove, color: Colors.white, size: 12),
+                onPressed: () async {
+                  bool valid = await SharedWidgets.showPlatformSpecificDialog(
+                    context: context,
+                    child: (BuildContext context) =>
+                        SharedWidgets.removeItemDialog(
+                      context: context,
+                      translations: translations,
+                    ),
+                  );
+                  if (valid == true) {
+                    setState(() => fieldValues.remove(key));
+                    returnJson(fieldValues);
+                  }
+                }),
+          ),
+        ],
       );
       widgets.add(widget);
     }

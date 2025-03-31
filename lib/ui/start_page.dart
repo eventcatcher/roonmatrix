@@ -763,7 +763,7 @@ class StartPageState extends State<StartPage> {
                                                                             'configButtonText'] ??
                                                                         'Config',
                                                                     noBackground:
-                                                                        true,
+                                                                        false,
                                                                     withCircle:
                                                                         true,
                                                                     icon: Icon(
@@ -815,7 +815,7 @@ class StartPageState extends State<StartPage> {
                                                                             'controlButtonText'] ??
                                                                         'Control',
                                                                     noBackground:
-                                                                        true,
+                                                                        false,
                                                                     withCircle:
                                                                         true,
                                                                     icon: Icon(
@@ -867,7 +867,7 @@ class StartPageState extends State<StartPage> {
                                                                             'messageButtonText'] ??
                                                                         'Message',
                                                                     noBackground:
-                                                                        true,
+                                                                        false,
                                                                     withCircle:
                                                                         true,
                                                                     icon: Icon(
@@ -920,7 +920,7 @@ class StartPageState extends State<StartPage> {
                                                                             'liveControlButtonText'] ??
                                                                         'Live Control',
                                                                     noBackground:
-                                                                        true,
+                                                                        false,
                                                                     withCircle:
                                                                         true,
                                                                     icon: Icon(
@@ -973,7 +973,7 @@ class StartPageState extends State<StartPage> {
                                                                               'infoButtonText'] ??
                                                                           'Monitoring',
                                                                       noBackground:
-                                                                          true,
+                                                                          false,
                                                                       withCircle:
                                                                           true,
                                                                       icon:
@@ -1028,7 +1028,7 @@ class StartPageState extends State<StartPage> {
                                                                               'logButtonText'] ??
                                                                           'Log',
                                                                       noBackground:
-                                                                          true,
+                                                                          false,
                                                                       withCircle:
                                                                           true,
                                                                       icon: Icon(
@@ -1231,39 +1231,17 @@ class StartPageState extends State<StartPage> {
                                                 if (valid == null) {
                                                   return;
                                                 }
-                                                if (valid == true) {
-                                                  if (context.mounted &&
-                                                      !SharedWidgets
-                                                          .inMacosStyle() &&
-                                                      !SharedWidgets
-                                                          .inIosStyle()) {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(SnackBar(
-                                                      content: Text(translations[
-                                                              'exportDoneMessage'] ??
-                                                          'export successfully done'),
-                                                      backgroundColor:
-                                                          Colors.green,
-                                                    ));
-                                                  }
-                                                } else {
-                                                  if (context.mounted &&
-                                                      !SharedWidgets
-                                                          .inMacosStyle() &&
-                                                      !SharedWidgets
-                                                          .inIosStyle()) {
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(SnackBar(
-                                                      content: Text(translations[
-                                                              'exportFailedMessage'] ??
-                                                          'export failed!'),
-                                                      backgroundColor:
-                                                          Colors.red,
-                                                    ));
-                                                  }
-                                                }
+
+                                                SharedWidgets.showSnackBar(
+                                                    // ignore: use_build_context_synchronously
+                                                    context: context,
+                                                    doneMessage: translations[
+                                                            'exportDoneMessage'] ??
+                                                        'export successfully done',
+                                                    failMessage: translations[
+                                                            'exportFailedMessage'] ??
+                                                        'export failed!',
+                                                    valid: valid);
                                               },
                                       ),
                                     ],
