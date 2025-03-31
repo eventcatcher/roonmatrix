@@ -258,7 +258,9 @@ class ConfigPageState extends State<ConfigPage> {
                     padding: EdgeInsets.only(
                       top: SharedWidgets.inMacosStyle()
                           ? 37.0
-                          : SharedWidgets.inIosStyle()
+                          : SharedWidgets.inIosStyle() ||
+                                  Platform.isWindows ||
+                                  Platform.isLinux
                               ? 36
                               : 34.0,
                       right: 16.0,

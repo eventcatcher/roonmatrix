@@ -105,13 +105,6 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
       widget.getTextCallback!(getText);
     }
 
-    if (widget.validation != null) {
-      valid = widget.validation!(widget.text);
-    }
-    if (widget.errorMessageHandler != null) {
-      errorMessage = widget.errorMessageHandler!(widget.text);
-    }
-
     super.initState();
   }
 
@@ -122,6 +115,13 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
           .text; // fix: delete a dokument -> results in update with another text
       _userTextController.selection = TextSelection.fromPosition(
           TextPosition(offset: _userTextController.text.length));
+    }
+
+    if (widget.validation != null) {
+      valid = widget.validation!(_userTextController.text);
+    }
+    if (widget.errorMessageHandler != null) {
+      errorMessage = widget.errorMessageHandler!(_userTextController.text);
     }
 
     super.didUpdateWidget(oldWidget);
