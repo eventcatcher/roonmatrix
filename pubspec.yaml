@@ -165,7 +165,6 @@ msix_config:
   publisher_display_name: Stephan Wilhelm
   publisher: "CN=FBB63578-BCA1-45A6-8B91-36157AAE0E70"
   identity_name: StephanWilhelm.Roonmatrix
-  msix_version: 1.0.0.0
   logo_path: assets/icon/icon.png
   trim_logo: false
   capabilities: privateNetworkClientServer
