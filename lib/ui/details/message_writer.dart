@@ -314,6 +314,10 @@ class MessageWriterState extends State<MessageWriter> {
                       widget.customMessage == messageTextController.text)
               ? null
               : () async {
+                  if (Platform.isIOS || Platform.isAndroid) {
+                    FocusManager.instance.primaryFocus
+                        ?.unfocus(); // hide onscreen keyboard to see the response message (snackbar)
+                  }
                   selectedOption = '';
                   bool value = await SharedWidgets.showPlatformSpecificDialog(
                     context: context,

@@ -180,7 +180,8 @@ class StartPageState extends State<StartPage> {
 
   String replaceCodes(String str) {
     if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
-      str = jsonDecode(str.replaceAll("'", '"')).join(' ');
+      str = jsonDecode(str.replaceAll("'", '"')).join(
+          ' '); // TODO: troublemaker (must be replaced in python part on device)
       str = str.replaceAll('< ', ', ');
       str = str.replaceAll(' >', ': ');
     }
