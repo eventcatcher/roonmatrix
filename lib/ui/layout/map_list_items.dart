@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -141,8 +142,8 @@ class MapListItemsState extends State<MapListItems> {
       if (deviceType == 'desktop') {
         rowWidgets.add(
           Padding(
-            padding: const EdgeInsets.only(
-              top: 31.0,
+            padding: EdgeInsets.only(
+              top: Platform.isLinux ? 28.0 : 31.0,
               right: 16.0,
             ),
             child: IconButtonElement(
@@ -173,8 +174,8 @@ class MapListItemsState extends State<MapListItems> {
 
         rowWidgets.add(
           Padding(
-            padding: const EdgeInsets.only(
-              top: 31.0,
+            padding: EdgeInsets.only(
+              top: Platform.isLinux ? 28.0 : 31.0,
               right: 16.0,
             ),
             child: IconButtonElement(
