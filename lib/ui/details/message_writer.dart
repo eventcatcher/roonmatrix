@@ -13,9 +13,6 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_element.dart';
 import 'package:roonmatrix/ui/layout/vertical_radio_selector.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
-import 'package:top_snackbar_flutter/custom_snack_bar.dart' show CustomSnackBar;
-import 'package:top_snackbar_flutter/top_snack_bar.dart'
-    show SnackBarPosition, showTopSnackBar;
 
 class MessageWriter extends StatefulWidget {
   final String name;

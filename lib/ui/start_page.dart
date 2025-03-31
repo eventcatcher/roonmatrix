@@ -559,41 +559,54 @@ class StartPageState extends State<StartPage> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                              Container(
-                                                width: 184,
-                                                height: 184,
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                    color: Colors.deepOrange,
-                                                    width: 5.0,
-                                                  ),
-                                                  borderRadius: BorderRadius
-                                                      .all(Radius.circular(
-                                                          SharedWidgets
-                                                                  .inIosStyle()
-                                                              ? 8
-                                                              : 5)),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.deepOrange
-                                                          .withValues(
-                                                              alpha: 0.15),
-                                                      spreadRadius: 0,
-                                                      blurRadius: 0,
+                                              InkWell(
+                                                onTap: () {
+                                                  mainBloc
+                                                      .getSearchController(
+                                                          type: 'main')
+                                                      .clear();
+                                                  mainBloc.setSearchFilter(
+                                                      type: 'main', filter: '');
+                                                  mainBloc.searching(
+                                                      idle: true);
+                                                },
+                                                child: Container(
+                                                  width: 184,
+                                                  height: 184,
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color: Colors.deepOrange,
+                                                      width: 5.0,
                                                     ),
-                                                  ],
-                                                ),
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Center(
-                                                  child: Text(
-                                                    translations[
-                                                            'scanNoFoundMessage'] ??
-                                                        'no devices found',
-                                                    style: TextStyle(
-                                                      color: SharedWidgets
-                                                          .textColor(
-                                                              context: context),
+                                                    borderRadius: BorderRadius
+                                                        .all(Radius.circular(
+                                                            SharedWidgets
+                                                                    .inIosStyle()
+                                                                ? 8
+                                                                : 5)),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.deepOrange
+                                                            .withValues(
+                                                                alpha: 0.15),
+                                                        spreadRadius: 0,
+                                                        blurRadius: 0,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Center(
+                                                    child: Text(
+                                                      translations[
+                                                              'scanNoFoundMessage'] ??
+                                                          'no devices found',
+                                                      style: TextStyle(
+                                                        color: SharedWidgets
+                                                            .textColor(
+                                                                context:
+                                                                    context),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),

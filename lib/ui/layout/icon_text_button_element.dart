@@ -7,7 +7,7 @@ class IconTextButtonElement extends StatelessWidget {
   const IconTextButtonElement({
     super.key,
     this.onMacAsText = false,
-    this.moreInfo = false,
+    this.secondaryStyle = false,
     required this.icon,
     required this.label,
     this.style,
@@ -16,7 +16,7 @@ class IconTextButtonElement extends StatelessWidget {
 
   final Widget icon;
   final bool onMacAsText;
-  final bool moreInfo;
+  final bool secondaryStyle;
   final String label;
   final ButtonStyle? style;
   final VoidCallback? onPressed;
@@ -49,8 +49,8 @@ class IconTextButtonElement extends StatelessWidget {
         ? onMacAsText
             ? PushButton(
                 controlSize: ControlSize.regular,
-                secondary: moreInfo,
-                color: moreInfo == true
+                secondary: secondaryStyle,
+                color: secondaryStyle == true
                     ? CupertinoColors.activeOrange.color
                     : CupertinoColors.activeBlue.color,
                 disabledColor: CupertinoColors.systemGrey,
@@ -58,18 +58,18 @@ class IconTextButtonElement extends StatelessWidget {
                 onPressed: onPressed,
                 child: Text(
                   label,
-                  style: moreInfo == true
+                  style: secondaryStyle == true
                       ? TextStyle(color: CupertinoColors.black)
-                      : null,
+                      : TextStyle(color: CupertinoColors.white),
                 ),
               )
             : MacosIconButton(
                 boxConstraints: const BoxConstraints(
                     minHeight: 30, minWidth: 30, maxWidth: 30, maxHeight: 30),
-                backgroundColor: moreInfo == true
+                backgroundColor: secondaryStyle == true
                     ? CupertinoColors.activeOrange.color
                     : CupertinoColors.activeBlue.color,
-                hoverColor: moreInfo == true
+                hoverColor: secondaryStyle == true
                     ? CupertinoColors.activeOrange.darkElevatedColor
                     : CupertinoColors.activeBlue.darkElevatedColor,
                 disabledColor: CupertinoColors.systemGrey,
@@ -84,7 +84,7 @@ class IconTextButtonElement extends StatelessWidget {
             label: Text(label),
             style: style ??
                 ElevatedButton.styleFrom(
-                    backgroundColor: moreInfo == true
+                    backgroundColor: secondaryStyle == true
                         ? SharedWidgets.brightness() == Brightness.dark
                             ? Colors.orange.shade800
                             : Colors.orange.shade600
