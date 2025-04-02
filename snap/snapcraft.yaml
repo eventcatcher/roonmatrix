@@ -12,6 +12,9 @@ apps:
   roonmatrix:
     command: roonmatrix
     extensions: [gnome]
+    plugs:
+      - home
+      - network
 
 parts:
   roonmatrix:
