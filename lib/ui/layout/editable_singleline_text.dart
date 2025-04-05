@@ -199,7 +199,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 readOnly: widget.readOnly,
                 placeholder: widget.placeholder ??
                     widget.translations['pleaseTypeSettingPlaceholder'] ??
-                    'Please write message here',
+                    'Please enter here',
                 maxLength: widget.maxLength,
                 prefixIcon: widget.prefixIcon,
                 suffixIcon: widget.suffixIcon,
@@ -222,7 +222,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 decoration: RoonmatrixStyles.inputDecoration(
                   placeholder: widget.placeholder ??
                       widget.translations['pleaseTypeSettingPlaceholder'] ??
-                      'Please write message here',
+                      'Please enter here',
                   prefixIcon: widget.prefixIcon,
                   suffixIcon: widget.suffixIcon ??
                       InkWell(
