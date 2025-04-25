@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/control_page.dart';
+import 'package:roonmatrix/ui/details/cover_page.dart' show CoverPage;
 import 'package:roonmatrix/ui/details/info_page.dart';
 import 'package:roonmatrix/ui/details/live_control_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
@@ -646,6 +647,20 @@ class StartPageState extends State<StartPage> {
                                                 }
                                               }
 
+                                              String coverUrl = i[
+                                                              'selected_zone'] !=
+                                                          null &&
+                                                      i['selected_zone']
+                                                              ['image_url'] !=
+                                                          null &&
+                                                      (i['selected_zone']
+                                                                  ['image_url']
+                                                              as String)
+                                                          .isNotEmpty
+                                                  ? i['selected_zone']
+                                                      ['image_url']
+                                                  : '';
+
                                               return Container(
                                                 color: SharedWidgets
                                                     .tileBackgroundColor(
@@ -690,29 +705,30 @@ class StartPageState extends State<StartPage> {
                                                                         0),
                                                             pageBuilder:
                                                                 (_, __, ___) {
-                                                              return ScrollMatrixPage(
+                                                              return CoverPage(
                                                                 index: index,
                                                                 name: i['name'],
+                                                                selectedZone: i[
+                                                                    'selected_zone'],
                                                                 translations:
                                                                     translations,
-                                                                minDesktopSize:
-                                                                    minDesktopSize,
-                                                                close: () {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
                                                               );
                                                             },
                                                           ),
-                                                          icon:
-                                                              SvgPicture.asset(
-                                                            'assets/svg/8-8-led-matrix-display-unit.svg',
-                                                            allowDrawingOutsideViewBox:
-                                                                false,
-                                                            fit: BoxFit.cover,
-                                                            clipBehavior:
-                                                                Clip.hardEdge,
-                                                          ),
+                                                          icon: coverUrl
+                                                                  .isNotEmpty
+                                                              ? Image.network(
+                                                                  coverUrl)
+                                                              : SvgPicture
+                                                                  .asset(
+                                                                  'assets/svg/8-8-led-matrix-display-unit.svg',
+                                                                  allowDrawingOutsideViewBox:
+                                                                      false,
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                  clipBehavior:
+                                                                      Clip.hardEdge,
+                                                                ),
                                                         ),
                                                       ),
                                                       title: Text(
@@ -1146,51 +1162,83 @@ class StartPageState extends State<StartPage> {
                                                     ),
                                                     Positioned(
                                                         top: 60,
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  horizontal:
-                                                                      16.0),
-                                                          child: NotificationListener<
-                                                              SizeChangedLayoutNotification>(
-                                                            onNotification:
-                                                                (notification) {
-                                                              updateSizes(
-                                                                  'NotificationListener');
-                                                              build(context);
-                                                              return false;
+                                                        child: InkWell(
+                                                          onTap: () =>
+                                                              showGeneralDialog(
+                                                            context: context,
+                                                            // barrierColor: Colors
+                                                            //     .black12
+                                                            //     .withOpacity(
+                                                            //         0.6), // Background color
+                                                            barrierDismissible:
+                                                                false,
+                                                            barrierLabel:
+                                                                'Dialog',
+                                                            transitionDuration:
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        0),
+                                                            pageBuilder:
+                                                                (_, __, ___) {
+                                                              return ScrollMatrixPage(
+                                                                index: index,
+                                                                name: i['name'],
+                                                                translations:
+                                                                    translations,
+                                                                minDesktopSize:
+                                                                    minDesktopSize,
+                                                                close: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                              );
                                                             },
-                                                            child:
-                                                                SizeChangedLayoutNotifier(
-                                                              child: SizedBox(
-                                                                width: MediaQuery.of(
-                                                                            context)
-                                                                        .size
-                                                                        .width -
-                                                                    (orientation == Orientation.portrait &&
-                                                                            moreInfo ==
-                                                                                true
-                                                                        ? 130
-                                                                        : 30),
-                                                                key: ValueKey(
-                                                                    'TextScrollWrapper-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                                                child:
-                                                                    TextScroll(
-                                                                  '${replaceCodes(i['displaystr'])}    ////    ',
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        16.0),
+                                                            child: NotificationListener<
+                                                                SizeChangedLayoutNotification>(
+                                                              onNotification:
+                                                                  (notification) {
+                                                                updateSizes(
+                                                                    'NotificationListener');
+                                                                build(context);
+                                                                return false;
+                                                              },
+                                                              child:
+                                                                  SizeChangedLayoutNotifier(
+                                                                child: SizedBox(
+                                                                  width: MediaQuery.of(
+                                                                              context)
+                                                                          .size
+                                                                          .width -
+                                                                      (orientation == Orientation.portrait &&
+                                                                              moreInfo == true
+                                                                          ? 130
+                                                                          : 30),
                                                                   key: ValueKey(
-                                                                      'TextScroll-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: SharedWidgets.textColor(
-                                                                        context:
-                                                                            context),
+                                                                      'TextScrollWrapper-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                  child:
+                                                                      TextScroll(
+                                                                    '${replaceCodes(i['displaystr'] ?? '')}    ////    ',
+                                                                    key: ValueKey(
+                                                                        'TextScroll-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: SharedWidgets.textColor(
+                                                                          context:
+                                                                              context),
+                                                                    ),
+                                                                    fadedBorder:
+                                                                        true,
+                                                                    fadeBorderSide:
+                                                                        FadeBorderSide
+                                                                            .right,
                                                                   ),
-                                                                  fadedBorder:
-                                                                      true,
-                                                                  fadeBorderSide:
-                                                                      FadeBorderSide
-                                                                          .right,
                                                                 ),
                                                               ),
                                                             ),

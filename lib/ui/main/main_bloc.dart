@@ -187,9 +187,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             var response = await client.get(uri);
             if (response.statusCode == 200) {
               if (response.body.substring(0, 1) == '{') {
-                Map<String, dynamic> json =
-                    jsonDecode(utf8.decode(response.bodyBytes))
-                        as Map<String, dynamic>;
+                Map<String, dynamic> json = jsonDecode(filterIllegalChars(
+                        text: utf8.decode(response.bodyBytes),
+                        messageHeader: 'GetInfo/info (raw)'))
+                    as Map<String, dynamic>;
 
                 Map<String, dynamic> info = state.info;
                 info[ip] = json;
@@ -820,6 +821,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return valid;
   }
 
+  String filterIllegalChars(
+      {required String text, String messageHeader = '*'}) {
+    if (kDebugMode == true) {
+      debugPrint('$messageHeader: $text');
+    }
+
+    String filtered = text;
+    //filtered = filtered.replaceAll(r'\\\"', "'");
+
+    return filtered;
+  }
+
   bool validateAll(
       {required ConfigDefinition definitions, required Map fieldValues}) {
     bool validData = false;
@@ -1135,9 +1148,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 var response = await client.get(uri);
                 if (response.statusCode == 200) {
                   if (response.body.substring(0, 1) == '{') {
-                    Map<String, dynamic> json =
-                        jsonDecode(utf8.decode(response.bodyBytes))
-                            as Map<String, dynamic>;
+                    Map<String, dynamic> json = jsonDecode(filterIllegalChars(
+                            text: utf8.decode(response.bodyBytes),
+                            messageHeader: 'searchDevices/info (raw)'))
+                        as Map<String, dynamic>;
                     if (json['name'] != null && json['time'] != null) {
                       addToLogMessage(
                           msg:
@@ -1295,6 +1309,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       {required Size minDesktopSize}) async {
     Display primaryDisplay = await getPrimaryDisplay();
     Size newSize = Size(primaryDisplay.size.width, minDesktopSize.height);
+
+    await windowManager.setPosition(Offset.zero);
+    windowManager.setSize(newSize, animate: true);
+  }
+
+  Future<void> windowResize({required Size minDesktopSize}) async {
+    Size newSize = Size(minDesktopSize.width, minDesktopSize.height);
 
     await windowManager.setPosition(Offset.zero);
     windowManager.setSize(newSize, animate: true);

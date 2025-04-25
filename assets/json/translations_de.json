@@ -108,6 +108,10 @@
     "zonePickerSelectionEmpty": "Auswahl",
     "deviceName": "Gerätename",
     "deviceSelectionPlaceholder": "Bitte Gerät auswählen",
+    "coverArtistZone": "Zone",
+    "coverArtistHeader": "Künstler",
+    "coverAlbumHeader": "Album",
+    "coverTrackHeader": "Titel",
     "config": {
         "hostname": "Hostname [Wichtig]",
         "password": "Passwort [Wichtig]",
