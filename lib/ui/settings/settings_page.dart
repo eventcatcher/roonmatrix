@@ -38,6 +38,9 @@ class _SettingsPageState extends State<SettingsPage> {
   TextEditingController ipEnd = TextEditingController();
   String title = '';
   bool moreInfo = false;
+  bool coverRowActiv = false;
+  bool coverRowTrack = false;
+  bool coverRowDynamicSize = false;
   bool translationsLoaded = false;
   bool rangeValid = false;
   bool loaded = false;
@@ -281,13 +284,75 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(right: 10.0),
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
                 child: SwitchButton(
                   label: translations['moreInfoSelectorLabel'] ??
                       'Show buttons to display Monitoring (internal variables) and Log details',
                   enabled: moreInfo,
                   onChanged: (value) {
                     settingsBloc.setMoreInfoMode(enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  left: 16.0,
+                  top: 16.0,
+                  bottom: 16.0,
+                ),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text('Covers of active zones',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w400,
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label: translations['activeZonesCoverSelectorLabel'] ??
+                      'Show covers of active zones',
+                  enabled: coverRowActiv,
+                  onChanged: (value) {
+                    settingsBloc.setCoverRowActiveMode(enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label:
+                      '${translations['activeZonesTrackSelectorLabel'] ?? 'Show title information in the cover too'}',
+                  enabled: coverRowTrack,
+                  onChanged: (value) {
+                    settingsBloc.setCoverRowTrackeMode(enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label:
+                      '${translations['activeZonesCoverSizeSelectorLabel'] ?? 'Size of the covers dynamically in relation to the window size'}',
+                  enabled: coverRowDynamicSize,
+                  onChanged: (value) {
+                    settingsBloc.setCoverRowDynamicSizeMode(enabled: value);
                   },
                 ),
               ),
@@ -362,6 +427,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   }
 
                   moreInfo = settingsState.moreInfo;
+                  coverRowActiv = settingsState.coverRowActiv;
+                  coverRowTrack = settingsState.coverRowTrack;
+                  coverRowDynamicSize = settingsState.coverRowDynamicSize;
 
                   if (!loaded) {
                     SchedulerBinding.instance.addPostFrameCallback((_) async {

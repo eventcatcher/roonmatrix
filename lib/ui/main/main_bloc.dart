@@ -466,6 +466,26 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 headers: headers, body: json.encode(payload));
 
             if (response.statusCode == 200) {
+              if (cmd == 'switch' && state.info.containsKey(ip)) {
+                Map<String, dynamic> info = state.info;
+                info[ip]['control_id'] = controlId;
+
+                emit(MainStateLoaded(
+                  update: DateTime.now(),
+                  ipStart: state.ipStart,
+                  ipEnd: state.ipEnd,
+                  searchFilter: state.searchFilter,
+                  devices: state.devices,
+                  info: info,
+                  config: state.config,
+                  definitions: state.definitions,
+                  fieldValues: state.fieldValues,
+                  log: state.log,
+                  idle: state.idle,
+                  subPageIdle: state.subPageIdle,
+                  logMessage: state.logMessage,
+                ));
+              }
               if (kDebugMode) {
                 print(
                     'zoneControl => ip: $ip, controlId: $controlId, cmd: $cmd');
@@ -824,7 +844,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   String filterIllegalChars(
       {required String text, String messageHeader = '*'}) {
     if (kDebugMode == true) {
-      debugPrint('$messageHeader: $text');
+      //debugPrint('$messageHeader: $text');
     }
 
     String filtered = text;
@@ -1308,7 +1328,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Future<void> windowResizeToFullWidthAndMinimumHeight(
       {required Size minDesktopSize}) async {
     Display primaryDisplay = await getPrimaryDisplay();
-    Size newSize = Size(primaryDisplay.size.width, minDesktopSize.height);
+    Size newSize = Size(primaryDisplay.size.width, minDesktopSize.height + 10);
 
     await windowManager.setPosition(Offset.zero);
     windowManager.setSize(newSize, animate: true);

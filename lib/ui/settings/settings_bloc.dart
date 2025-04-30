@@ -5,12 +5,31 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc() : super(const SettingsStateInitial()) {
-    init();
-
     // ====================== //
     // event to state handler //
     // ====================== //
     on<SettingsEvent>((event, emit) async {
+      if (event is SettingsStateLoadDefaults) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? ipStart = prefs.getString('ipStart');
+        String? ipEnd = prefs.getString('ipEnd');
+        bool validIp = validateIp(ip: ipStart) && validateIp(ip: ipEnd);
+        bool moreInfo = prefs.getBool('moreInfo') ?? false;
+        bool coverRowActiv = prefs.getBool('coverRowActiv') ?? false;
+        bool coverRowTrack = prefs.getBool('coverRowTrack') ?? false;
+        bool coverRowDynamicSize =
+            prefs.getBool('coverRowDynamicSize') ?? false;
+
+        emit(SettingsStateLoaded(
+          ipStart: validIp ? ipStart! : state.ipStart,
+          ipEnd: validIp ? ipEnd! : state.ipEnd,
+          moreInfo: moreInfo,
+          coverRowActiv: coverRowActiv,
+          coverRowTrack: coverRowTrack,
+          coverRowDynamicSize: coverRowDynamicSize,
+        ));
+      }
+
       if (event is SetIpRange) {
         String ipStart = event.ipStart;
         String ipEnd = event.ipEnd;
@@ -25,6 +44,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ipStart: ipStart,
           ipEnd: ipEnd,
           moreInfo: state.moreInfo,
+          coverRowActiv: state.coverRowActiv,
+          coverRowTrack: state.coverRowTrack,
+          coverRowDynamicSize: state.coverRowDynamicSize,
         ));
       }
 
@@ -38,31 +60,76 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ipStart: state.ipStart,
           ipEnd: state.ipEnd,
           moreInfo: enabled,
+          coverRowActiv: state.coverRowActiv,
+          coverRowTrack: state.coverRowTrack,
+          coverRowDynamicSize: state.coverRowDynamicSize,
+        ));
+      }
+
+      if (event is SetCoverRowActiveMode) {
+        bool enabled = event.enabled;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('coverRowActiv', enabled);
+
+        emit(SettingsStateLoaded(
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          moreInfo: state.moreInfo,
+          coverRowActiv: enabled,
+          coverRowTrack: state.coverRowTrack,
+          coverRowDynamicSize: state.coverRowDynamicSize,
+        ));
+      }
+
+      if (event is SetCoverRowTrackeMode) {
+        bool enabled = event.enabled;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('coverRowTrack', enabled);
+
+        emit(SettingsStateLoaded(
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          moreInfo: state.moreInfo,
+          coverRowActiv: state.coverRowActiv,
+          coverRowTrack: enabled,
+          coverRowDynamicSize: state.coverRowDynamicSize,
+        ));
+      }
+
+      if (event is SetCoverRowDynamicSizeMode) {
+        bool enabled = event.enabled;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('coverRowDynamicSize', enabled);
+
+        emit(SettingsStateLoaded(
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          moreInfo: state.moreInfo,
+          coverRowActiv: state.coverRowActiv,
+          coverRowTrack: state.coverRowTrack,
+          coverRowDynamicSize: enabled,
         ));
       }
     });
+
+    loadDefaults();
   }
 
   // ============== //
   // public methods //
   // ============== //
 
-  Future<void> init() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? ipStart = prefs.getString('ipStart');
-    String? ipEnd = prefs.getString('ipEnd');
-    if (validateIp(ip: ipStart) && validateIp(ip: ipEnd)) {
-      setIpRange(ipStart: ipStart!, ipEnd: ipEnd!);
-    }
-    bool enabled = prefs.getBool('moreInfo') ?? false;
-    setMoreInfoMode(enabled: enabled);
-  }
-
   Future<void> deletePrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove("ipStart");
     await prefs.remove("ipEnd");
     await prefs.remove("moreInfo");
+    await prefs.remove("coverRowActiv");
+    await prefs.remove("coverRowTrack");
+    await prefs.remove("coverRowDynamicSize");
   }
 
   bool validateIp({required String? ip}) =>
@@ -105,11 +172,27 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   // public event methods //
   // ==================== //
 
+  void loadDefaults() {
+    add(SettingsStateLoadDefaults());
+  }
+
   void setIpRange({required String ipStart, required String ipEnd}) {
     add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
   }
 
   void setMoreInfoMode({required bool enabled}) {
     add(SetMoreInfoMode(enabled: enabled));
+  }
+
+  void setCoverRowActiveMode({required bool enabled}) {
+    add(SetCoverRowActiveMode(enabled: enabled));
+  }
+
+  void setCoverRowTrackeMode({required bool enabled}) {
+    add(SetCoverRowTrackeMode(enabled: enabled));
+  }
+
+  void setCoverRowDynamicSizeMode({required bool enabled}) {
+    add(SetCoverRowDynamicSizeMode(enabled: enabled));
   }
 }

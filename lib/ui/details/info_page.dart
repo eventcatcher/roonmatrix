@@ -200,8 +200,8 @@ class InfoPageState extends State<InfoPage> {
                 }
 
                 String search = mainState.searchFilter['info']!;
-                Map<String, dynamic> info = Map.from(
-                    (mainState.info[ip] ?? {}) as Map<String, dynamic>);
+                Map<String, dynamic> info =
+                    Map<String, dynamic>.from(mainState.info[ip] ?? {});
                 if (search.isNotEmpty) {
                   info.removeWhere((key, value) =>
                       !key.toLowerCase().contains(search.toLowerCase()));

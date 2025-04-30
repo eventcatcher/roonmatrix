@@ -4,11 +4,17 @@ abstract class SettingsState extends Equatable {
   final String ipStart;
   final String ipEnd;
   final bool moreInfo;
+  final bool coverRowActiv;
+  final bool coverRowTrack;
+  final bool coverRowDynamicSize;
 
   const SettingsState({
     this.ipStart = '',
     this.ipEnd = '',
     this.moreInfo = false,
+    this.coverRowActiv = true,
+    this.coverRowTrack = true,
+    this.coverRowDynamicSize = true,
   });
 
   @override
@@ -17,6 +23,9 @@ abstract class SettingsState extends Equatable {
       ipStart,
       ipEnd,
       moreInfo,
+      coverRowActiv,
+      coverRowTrack,
+      coverRowDynamicSize,
     ];
 
     return props;
@@ -38,6 +47,9 @@ class SettingsStateLoaded extends SettingsState {
     required super.ipStart,
     required super.ipEnd,
     required super.moreInfo,
+    required super.coverRowActiv,
+    required super.coverRowTrack,
+    required super.coverRowDynamicSize,
   });
 
   @override

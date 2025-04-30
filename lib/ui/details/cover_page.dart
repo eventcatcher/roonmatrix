@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, BlocProvider;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
+import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart'
@@ -15,14 +17,14 @@ import 'package:roonmatrix/ui/main/main_state.dart'
 class CoverPage extends StatefulWidget {
   final int index;
   final String name;
-  final Map<String, dynamic> selectedZone;
+  final String ip;
   final Map<String, dynamic> translations;
 
   const CoverPage({
     super.key,
     required this.index,
     required this.name,
-    required this.selectedZone,
+    required this.ip,
     required this.translations,
   });
 
@@ -33,20 +35,119 @@ class CoverPage extends StatefulWidget {
 class _CoverPageState extends State<CoverPage> {
   int get index => widget.index;
   String get name => widget.name;
+  String get ip => widget.ip;
   Map<String, dynamic> get translations => widget.translations;
 
-  double fontSize =
+  final double fontSize =
       Platform.isMacOS || Platform.isWindows || Platform.isLinux ? 20.0 : 16.0;
 
+  Map<String, dynamic> info = {};
+  Map<String, dynamic> channels = {};
+  Map<String, String> options = {};
+  Map<String, dynamic> webPlayoutsRaw = {};
+  Map<String, dynamic> roonPlayoutsRaw = {};
+  Map<String, dynamic>? selectedZone;
+
+  String? selectedZoneId;
+  String? controlId;
+
   late MainBloc mainBloc;
-  late Map<String, dynamic> selectedZone;
 
   @override
   void initState() {
-    selectedZone = widget.selectedZone;
     mainBloc = BlocProvider.of<MainBloc>(context);
+    mainBloc.getInfo(ip: ip);
 
     super.initState();
+  }
+
+  Map<String, String> generateOptionsAndPreselect() {
+    Map<String, String> options = {};
+
+    if (info == {}) {
+      return {};
+    }
+
+    Map<String, dynamic> channels = info['channels'];
+
+    if (info['control_id'] != null) {
+      if (controlId == null && info['control_id'] != null) {
+        controlId = info['control_id'];
+      }
+
+      if (controlId != null && channels.containsKey(controlId)) {
+        if (channels[controlId] == 'webserver') {
+          selectedZoneId = controlId;
+        } else {
+          selectedZoneId = channels[controlId]!;
+        }
+      }
+    }
+
+    for (String key in channels.keys) {
+      if (channels[key] != 'webserver') {
+        String zoneName = channels[key]!;
+        if ((info['roon_playouts'] as Map).containsKey(zoneName)) {
+          options.putIfAbsent(zoneName, () => key);
+        }
+      }
+    }
+    for (String key in channels.keys) {
+      if (channels[key] == 'webserver') {
+        List<String> controlIdParts = key.split('-');
+        String serverName = controlIdParts[0];
+        String zoneName = controlIdParts[1];
+        if (info['web_playouts'][serverName] != null) {
+          List<dynamic> zones = info['web_playouts'][serverName];
+          Map<String, dynamic>? zone = zones.firstWhereOrNull(
+              (dynamic el) => (el['zone'] as String) == zoneName);
+          if (zone != null) {
+            options.putIfAbsent(key, () => channels[key]);
+          }
+        }
+      }
+    }
+
+    return options;
+  }
+
+  Map<String, dynamic>? getZoneDataForControlId(String? controlId) {
+    Map<String, dynamic>? zone;
+
+    if (info == {}) {
+      return {};
+    }
+
+    Map<String, dynamic> channels = info['channels'];
+
+    if (controlId != null &&
+        controlId.isNotEmpty &&
+        channels.keys.contains(controlId)) {
+      if (channels[controlId] == 'webserver') {
+        List<String> controlIdParts = controlId.split('-');
+        String serverName = controlIdParts[0];
+        String zoneName = controlIdParts[1];
+        if (info['web_playouts'][serverName] != null) {
+          List<dynamic> zones = info['web_playouts'][serverName];
+          zone = zones.firstWhereOrNull(
+              (dynamic el) => (el['zone'] as String) == zoneName);
+          if (zone != null) {
+            zone['server'] = serverName;
+          }
+        }
+      } else {
+        String zoneName = channels[controlId];
+        if (info['roon_playouts'][zoneName] != null) {
+          zone = info['roon_playouts'][zoneName];
+          if (zone != null) {
+            zone['zone'] = zoneName;
+            zone['server'] = 'roon';
+          }
+        }
+      }
+    }
+
+    return zone;
   }
 
   Widget body() => SizedBox(
@@ -59,15 +160,53 @@ class _CoverPageState extends State<CoverPage> {
                   bloc: mainBloc,
                   builder: (context, MainState mainState) {
                     if (mainState is MainStateLoaded) {
-                      Map<String, dynamic> selectedZoneUpdated = mainState
-                          .info[mainState.devices[index]]?['selected_zone'];
+                      info = mainState.info[ip] ?? {};
+                      channels = (info['channels'] ?? {});
+                      Map<String, String> optionsUpdated =
+                          generateOptionsAndPreselect();
 
-                      if (selectedZoneUpdated != selectedZone) {
+                      if (options.keys.join(',') !=
+                              optionsUpdated.keys.join(',') ||
+                          options.values.join(',') !=
+                              optionsUpdated.values.join(',')) {
                         SchedulerBinding.instance
                             .addPostFrameCallback((_) async {
                           if (mounted) {
                             setState(() {
-                              selectedZone = selectedZoneUpdated;
+                              options = optionsUpdated;
+                            });
+                          }
+                        });
+                      }
+
+                      String? controlIdUpdated = mainState
+                          .info[mainState.devices[index]]?['control_id'];
+
+                      if (info['web_playouts_raw'] != webPlayoutsRaw ||
+                          info['roon_playouts_raw'] != roonPlayoutsRaw ||
+                          controlId == null ||
+                          controlIdUpdated != controlId) {
+                        Map<String, dynamic>? zone =
+                            getZoneDataForControlId(controlIdUpdated);
+                        if (zone != null) {
+                          selectedZone = zone;
+                        }
+
+                        SchedulerBinding.instance
+                            .addPostFrameCallback((_) async {
+                          if (mounted) {
+                            setState(() {
+                              webPlayoutsRaw = info['web_playouts_raw'];
+                              roonPlayoutsRaw = info['roon_playouts_raw'];
+                              if (controlIdUpdated != controlId) {
+                                controlId = controlIdUpdated;
+                              }
+                              if (zone != null) {
+                                selectedZone = zone;
+                                selectedZoneId = zone['server'] == 'roon'
+                                    ? zone['zone']
+                                    : '${zone['server']}-${zone['zone']}';
+                              }
                             });
                           }
                         });
@@ -75,6 +214,46 @@ class _CoverPageState extends State<CoverPage> {
                     }
 
                     return const SizedBox(height: 0.0);
+                  }),
+              SelectBox(
+                  key: ValueKey('ZoneSelectBox$selectedZoneId'),
+                  translations: translations,
+                  aligned: 'horizontal',
+                  label: '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+                  placeholder:
+                      '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                  inRow: false,
+                  noVerticalSpace: false,
+                  readOnly: false,
+                  selected: selectedZoneId,
+                  options: options,
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      String? selectedControlId;
+                      if (options[newValue] != null &&
+                          options[newValue] == 'webserver') {
+                        selectedControlId = newValue;
+                      } else {
+                        selectedControlId = options[newValue];
+                      }
+
+                      if (selectedControlId != null) {
+                        mainBloc.zoneControl(
+                            ip: ip,
+                            controlId: selectedControlId,
+                            cmd: 'switch');
+
+                        Map<String, dynamic>? zone =
+                            getZoneDataForControlId(selectedControlId);
+                        if (zone != null) {
+                          setState(() {
+                            controlId = selectedControlId;
+                            selectedZone = zone;
+                            selectedZoneId = newValue;
+                          });
+                        }
+                      }
+                    }
                   }),
               Expanded(
                 child: OrientationBuilder(
@@ -87,22 +266,53 @@ class _CoverPageState extends State<CoverPage> {
                     child: SizeChangedLayoutNotifier(
                       child: Container(
                         padding: EdgeInsets.all(24.0),
-                        child: selectedZone['image_url'] != null &&
-                                (selectedZone['image_url'] as String).isNotEmpty
-                            ? Image.network(selectedZone['image_url'],
-                                fit: BoxFit.contain)
-                            : SvgPicture.asset(
-                                'assets/svg/8-8-led-matrix-display-unit.svg',
-                                allowDrawingOutsideViewBox: false,
-                                width: double.infinity,
-                                height: double.infinity,
-                              ),
+                        child: AnimatedSwitcher(
+                          duration: Duration(milliseconds: 2000),
+                          // transitionBuilder: (Widget child,
+                          //     Animation<double> animation) {
+                          //   return ScaleTransition(
+                          //       scale: animation, child: child);
+                          // },
+                          child: selectedZone != null &&
+                                  selectedZone!['cover'] != null &&
+                                  (selectedZone!['cover'] as String).isNotEmpty
+                              ? Image.network(selectedZone!['cover'],
+                                  key: ValueKey(
+                                      'BigCover${selectedZone!['cover']}'),
+                                  fit: BoxFit.contain)
+                              : SvgPicture.asset(
+                                  'assets/svg/8-8-led-matrix-display-unit.svg',
+                                  allowDrawingOutsideViewBox: false,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                ),
+                        ),
                       ),
                     ),
                   );
                 }),
               ),
-              if (selectedZone.isNotEmpty && selectedZone['artist'] != null)
+              if (selectedZone == null ||
+                  selectedZone!.isEmpty ||
+                  selectedZone!['cover'] == null)
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 16.0, right: 16.0, bottom: 104.0),
+                      child: Text(
+                        '${translations['inactive'] ?? 'inactive zone'}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: fontSize,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              if (selectedZone != null &&
+                  selectedZone!.isNotEmpty &&
+                  selectedZone!['artist'] != null)
                 Row(
                   children: [
                     Padding(
@@ -131,7 +341,7 @@ class _CoverPageState extends State<CoverPage> {
                               Container(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  selectedZone['zone'],
+                                  selectedZone!['zone'] ?? '',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: fontSize,
@@ -157,7 +367,7 @@ class _CoverPageState extends State<CoverPage> {
                               Container(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  selectedZone['artist'],
+                                  selectedZone!['artist'],
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: fontSize,
@@ -183,7 +393,7 @@ class _CoverPageState extends State<CoverPage> {
                               Container(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  selectedZone['album'],
+                                  selectedZone!['album'],
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: fontSize,
@@ -209,7 +419,7 @@ class _CoverPageState extends State<CoverPage> {
                               Container(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  selectedZone['track'],
+                                  selectedZone!['track'],
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: fontSize,

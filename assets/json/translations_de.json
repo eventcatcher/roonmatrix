@@ -91,6 +91,9 @@
     "settingsIpRangeInvalidError" : "IP-Bereich ist ungültig",
     "settingsPageExtended": "Erweiterte Einstellungen",
     "moreInfoSelectorLabel": "Zeige Buttons für Monitoring (interne Variablen) und Log",
+    "activeZonesCoverSelectorLabel": "Zeige Cover aller aktiven Zonen an",
+    "activeZonesTrackSelectorLabel": "Zeige zusätzlich die Titelinformation im Cover an",
+    "activeZonesCoverSizeSelectorLabel" : "Grösse der Covers dynamisch in Relation zur Fenstergrösse",
     "okButtonText": "OK",
     "speed": "Geschwindigkeit",
     "messageSelectionLabel": "Nachricht",
@@ -112,6 +115,8 @@
     "coverArtistHeader": "Künstler",
     "coverAlbumHeader": "Album",
     "coverTrackHeader": "Titel",
+    "inactive": "inaktive Zone",
+    "activeZonesHeadline": "Aktive Zonen",
     "config": {
         "hostname": "Hostname [Wichtig]",
         "password": "Passwort [Wichtig]",

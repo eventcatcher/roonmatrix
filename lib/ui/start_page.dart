@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
@@ -8,13 +9,14 @@ import 'package:intl/intl.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/control_page.dart';
-import 'package:roonmatrix/ui/details/cover_page.dart' show CoverPage;
+import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
 import 'package:roonmatrix/ui/details/live_control_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
+import 'package:roonmatrix/ui/helper/animated_list_helper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
@@ -50,38 +52,55 @@ class StartPage extends StatefulWidget {
   State<StartPage> createState() => StartPageState();
 }
 
-class StartPageState extends State<StartPage> {
+class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   String get title => widget.title;
 
+  final double smallCoverSize = 150;
+  final double bigCoverSize = 250;
+  double maxCoverSize = 150; // set to 0: cover is half of height of the window
+  final double zoneTitleAreaMinHeight = 17;
+  final double zoneTitleAreaHeight = 34;
   final double treeFontSize = 12;
+  final double noDevicesFoundRectSize = 184;
+  final int flexDevice = 1;
+  final int flexCoverRow = 1;
+  final Color coverRowBackgroundColor = Colors.grey.shade200;
 
+  GlobalKey windowKey = GlobalKey();
+  GlobalKey<AnimatedListState> coverListKey = GlobalKey<AnimatedListState>();
   Map<String, dynamic> info = {};
   Map<String, dynamic> translations = {};
   List<String> devices = [];
+
+  Display? primaryDisplay;
+  List<CoverModel> coverList = [];
   String aboutAppMessage = '';
   double width = 1280;
   double height = 768;
+
   bool translationsLoaded = false;
   bool idle = false;
   bool saveIdle = false;
-  Display? primaryDisplay;
+  bool settingsPageLoaded = false;
+  bool _isDrawerOpen = false;
+  bool moreInfo = false;
+  bool coverRowActiv = false;
+  bool coverRowTrack = false;
+  bool coverRowDynamicSize = false;
 
   late SettingsBloc settingsBloc;
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
   late String appVersionAndBuildNumber;
 
-  bool settingsPageLoaded = false;
-  bool _isDrawerOpen = false;
-  bool moreInfo = false;
-
   @override
   void initState() {
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
+
     super.initState();
   }
 
@@ -137,6 +156,348 @@ class StartPageState extends State<StartPage> {
     // }
   }
 
+  Map<String, dynamic>? getZoneDataForControlId(Map<String, dynamic>? info) {
+    Map<String, dynamic>? zone;
+
+    if (info != null && info != {} && info.keys.contains('channels')) {
+      String? controlId = info['control_id'];
+      Map<String, dynamic> channels = info['channels'];
+
+      if (controlId != null &&
+          controlId.isNotEmpty &&
+          channels.keys.contains(controlId)) {
+        if (channels[controlId] == 'webserver') {
+          List<String> controlIdParts = info['control_id'].split('-');
+          String serverName = controlIdParts[0];
+          String zoneName = controlIdParts[1];
+          if (info['web_playouts'][serverName] != null) {
+            List<dynamic> zones = info['web_playouts'][serverName];
+            zone = zones.firstWhereOrNull(
+                (dynamic el) => (el['zone'] as String) == zoneName);
+          }
+        } else {
+          String zoneName = channels[controlId];
+          if (info['roon_playouts'][zoneName] != null) {
+            zone = info['roon_playouts'][zoneName];
+          }
+        }
+      }
+    }
+
+    return zone;
+  }
+
+  List<CoverModel> getCovers(Map<String, dynamic>? info) {
+    List<CoverModel> covers = [];
+
+    if (info != null && info != {}) {
+      if (info.keys.isNotEmpty) {
+        Map<String, dynamic> roonPlayouts =
+            info[info.keys.first]['roon_playouts'];
+        Map<String, dynamic> channels = info[info.keys.first]['channels'];
+
+        for (String zoneName in roonPlayouts.keys) {
+          dynamic zone = roonPlayouts[zoneName];
+          String? coverUrl = zone['cover'];
+
+          if (coverUrl != null &&
+              coverUrl.isNotEmpty &&
+              channels.values.contains(zoneName)) {
+            CoverModel coverModel = CoverModel(
+              zoneName: zoneName,
+              coverUrl: coverUrl,
+              track: zone['track'],
+            );
+
+            covers.add(coverModel);
+          }
+        }
+
+        Map<String, dynamic> webPlayouts =
+            info[info.keys.first]['web_playouts'];
+        for (String serverName in webPlayouts.keys) {
+          List<dynamic> zones = webPlayouts[serverName];
+          for (dynamic zone in zones) {
+            String zoneName = '$serverName-${zone['zone']}';
+            String? coverUrl = zone['cover'];
+            if (coverUrl != null &&
+                coverUrl.isNotEmpty &&
+                channels.keys.contains(zoneName)) {
+              CoverModel coverModel = CoverModel(
+                zoneName: zoneName,
+                coverUrl: coverUrl,
+                track: zone['track'],
+              );
+
+              covers.add(coverModel);
+            }
+          }
+        }
+      }
+    }
+
+    return covers;
+  }
+
+  Widget getCoverWidget({
+    required CoverModel coverModel,
+  }) {
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Container(
+        constraints: coverRowDynamicSize
+            ? null
+            : BoxConstraints(
+                maxWidth: maxCoverSize,
+                maxHeight: maxCoverSize,
+              ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // constraints.maxHeight gets the height of the AnimatedList
+            double coverHeight = constraints.maxHeight;
+            if (kDebugMode) {
+              debugPrint('constraints.maxHeight: ${constraints.maxHeight}');
+            }
+            double coverWidth = coverHeight;
+
+            return Stack(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(left: 1.0),
+                  // decoration: BoxDecoration(
+                  //   border: Border.all(
+                  //     color: Colors.white,
+                  //     width: 1.0,
+                  //   ),
+                  // ),
+                  width: coverWidth,
+                  height: coverHeight,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(0),
+                    child: AnimatedSwitcher(
+                      duration: Duration(milliseconds: 2000),
+                      switchInCurve: Curves.easeIn,
+                      switchOutCurve: Curves.easeOut,
+                      // transitionBuilder: (Widget child, Animation<double> animation) {
+                      //   return ScaleTransition(scale: animation, child: child);
+                      // },
+                      child: Image.network(
+                        coverModel
+                            .coverUrl, // if imageUrl changed, the transition will be animated
+                        key: ValueKey('CoverRow${coverModel.coverUrl}'),
+                        fit: BoxFit.cover,
+                        width: coverRowDynamicSize ? double.infinity : null,
+                        height: coverRowDynamicSize ? double.infinity : null,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.all(8.0),
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Container(
+                      constraints: BoxConstraints(
+                        maxWidth: coverWidth - 14,
+                      ),
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                        color: Color.fromARGB(200, 0, 0, 0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4.0, vertical: 2.0),
+                        child: Text(
+                          '${translations['zoneSelectionLabel'] ?? 'Zone'}: ${coverModel.zoneName}${coverRowTrack == true && constraints.maxHeight > 169 ? ', ${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
+                          style: TextStyle(
+                            fontSize: constraints.maxHeight > 250 ? 12.0 : 9.0,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget getCoverRow(info) {
+    if (kDebugMode) {
+      debugPrint('getCoverRow => covers to display: ${coverList.length}');
+    }
+
+    Widget coverRowList = AnimatedList(
+      key: coverListKey,
+      scrollDirection: Axis.horizontal,
+      physics: const PageScrollPhysics(), // <-- pagewide scrolling
+      initialItemCount: coverList.length,
+      itemBuilder: (context, index, animation) {
+        return FadeTransition(
+          opacity: animation,
+          child: SizeTransition(
+            sizeFactor: animation,
+            axis: Axis.horizontal,
+            child: getCoverWidget(coverModel: coverList[index]),
+          ),
+        );
+      },
+    );
+
+    final keyContext = windowKey.currentContext;
+    if (keyContext != null && !coverRowDynamicSize) {
+      final box = keyContext.findRenderObject() as RenderBox;
+      maxCoverSize = box.size.height > 500 ? bigCoverSize : smallCoverSize;
+    }
+
+    return coverRowDynamicSize == true
+        ? Expanded(
+            flex: flexCoverRow,
+            child: Container(
+              color: coverRowBackgroundColor,
+              child: coverRowList,
+            ))
+        : ConstrainedBox(
+            constraints: BoxConstraints(
+              // minHeight: 80, // <-- darf nie kleiner als 80 Pixel werden
+              maxHeight: maxCoverSize, // optional: maximal 150 Pixel hoch
+            ),
+            child: Align(
+              // <-- Flexibles Kind, das sich anpasst!
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  // Expanded(
+                  //   child: Container(),
+                  // ),
+
+                  //  Container(
+                  //     constraints: BoxConstraints(
+                  //       maxHeight: maxCoverSize + zoneTitleAreaHeight,
+                  //     ),
+                  //     child: Container(color: Colors.orange, child: coverRowList),
+                  //   ),
+
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: Container(
+                      color: coverRowBackgroundColor,
+                      child: coverRowList,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+  }
+
+  void itemsToRemove({required List<CoverModel> newList}) {
+    List<int> indexesToRemove = [];
+    coverList.asMap().forEach((index, item) {
+      CoverModel? obj = newList.firstWhereOrNull((CoverModel el) =>
+          el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
+      if (obj == null) {
+        indexesToRemove.add(index);
+      }
+    });
+
+    if (indexesToRemove.isNotEmpty) {
+      AnimatedListHelper.removeMultipleAnimatedItems(
+        listKey: coverListKey,
+        itemList: coverList,
+        indexesToRemove: indexesToRemove,
+        buildItem: (item, animation) => SizeTransition(
+          axis: Axis.horizontal,
+          sizeFactor: animation,
+          child: getCoverWidget(coverModel: item),
+        ),
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+  void itemsToAdd({required List<CoverModel> newList}) {
+    List<CoverModel> newItems = [];
+    newList.asMap().forEach((index, item) {
+      CoverModel? obj = coverList.firstWhereOrNull((CoverModel el) =>
+          el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
+      if (obj == null) {
+        newItems.add(item);
+      }
+    });
+
+    if (newItems.isNotEmpty) {
+      AnimatedListHelper.insertMultipleAnimatedItems(
+        listKey: coverListKey,
+        itemList: coverList,
+        startIndex: coverList.length,
+        newItems: newItems,
+        duration: const Duration(milliseconds: 500),
+      );
+    }
+  }
+
+  void updateInCoverlist({required List<CoverModel> newList}) {
+    final bool replace =
+        false; // true: remove inactive and add new content, false: replace content
+
+    List<int> indexesToUpdate = [];
+    List<int> indexesToAdd = [];
+    newList.asMap().forEach((index, item) {
+      int coverlistIndex =
+          coverList.indexWhere((CoverModel el) => el.zoneName == item.zoneName);
+      if (coverlistIndex == -1) {
+        indexesToAdd.add(index);
+      } else {
+        coverList[coverlistIndex] = item;
+      }
+    });
+
+    if (!replace) {
+      AnimatedListHelper.insertMultipleAnimatedItems(
+        listKey: coverListKey,
+        itemList: coverList,
+        startIndex: coverList.length,
+        newItems: indexesToAdd.map((int idx) => newList[idx]).toList(),
+        duration: const Duration(milliseconds: 500),
+      );
+    }
+
+    if (indexesToAdd.isNotEmpty) {
+      coverList.asMap().forEach((index, item) {
+        int newlistIndex =
+            newList.indexWhere((CoverModel el) => el.zoneName == item.zoneName);
+        if (newlistIndex == -1) {
+          indexesToUpdate.add(index);
+        }
+      });
+
+      for (int newListIndex in indexesToAdd) {
+        int updateIndex = indexesToUpdate.removeLast();
+        if (replace == true) {
+          coverList[updateIndex] = newList[newListIndex];
+        } else {
+          AnimatedListHelper.removeMultipleAnimatedItems(
+            listKey: coverListKey,
+            itemList: coverList,
+            indexesToRemove: indexesToUpdate,
+            buildItem: (item, animation) => SizeTransition(
+              axis: Axis.horizontal,
+              sizeFactor: animation,
+              child: getCoverWidget(coverModel: item),
+            ),
+            duration: const Duration(seconds: 2),
+          );
+        }
+      }
+    }
+  }
+
   openBurgerMenuItem(String? key) {
     if (key == 'about') {
       openAboutModal(
@@ -182,7 +543,7 @@ class StartPageState extends State<StartPage> {
   String replaceCodes(String str) {
     if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
       str = jsonDecode(str.replaceAll("'", '"')).join(
-          ' '); // TODO: troublemaker (must be replaced in python part on device)
+          ' '); // maybe troublemaker (should be replaced in python part on device)
       str = str.replaceAll('< ', ', ');
       str = str.replaceAll(' >', ': ');
     }
@@ -425,6 +786,9 @@ class StartPageState extends State<StartPage> {
               }
 
               moreInfo = settingsState.moreInfo;
+              coverRowActiv = settingsState.coverRowActiv;
+              coverRowTrack = settingsState.coverRowTrack;
+              coverRowDynamicSize = settingsState.coverRowDynamicSize;
 
               return BlocBuilder(
                   bloc: mainBloc,
@@ -470,6 +834,14 @@ class StartPageState extends State<StartPage> {
                     //   ...devices
                     // ];
 
+                    List<CoverModel> coverListNew = getCovers(info);
+                    if (coverListNew.length != coverList.length) {
+                      itemsToRemove(newList: coverListNew);
+                      itemsToAdd(newList: coverListNew);
+                    } else {
+                      updateInCoverlist(newList: coverListNew);
+                    }
+
                     if (kDebugMode) {
                       print(
                           'state changed => rebuild, devices: ${devices.length}, idle: $idle');
@@ -477,6 +849,7 @@ class StartPageState extends State<StartPage> {
                     return OrientationBuilder(builder:
                         (BuildContext context, Orientation orientation) {
                       return Container(
+                        key: windowKey,
                         color: SharedWidgets.windowBackgroundColor(
                             context: context),
                         child: Center(
@@ -552,6 +925,7 @@ class StartPageState extends State<StartPage> {
                                   ),
                                 ),
                               Expanded(
+                                flex: flexDevice,
                                 child: idle == true
                                     ? LoadingIndicatorBig(
                                         message: translations['scanMessage'] ??
@@ -573,8 +947,9 @@ class StartPageState extends State<StartPage> {
                                                       idle: true);
                                                 },
                                                 child: Container(
-                                                  width: 184,
-                                                  height: 184,
+                                                  width: noDevicesFoundRectSize,
+                                                  height:
+                                                      noDevicesFoundRectSize,
                                                   decoration: BoxDecoration(
                                                     border: Border.all(
                                                       color: Colors.deepOrange,
@@ -647,19 +1022,14 @@ class StartPageState extends State<StartPage> {
                                                 }
                                               }
 
-                                              String coverUrl = i[
-                                                              'selected_zone'] !=
-                                                          null &&
-                                                      i['selected_zone']
-                                                              ['image_url'] !=
-                                                          null &&
-                                                      (i['selected_zone']
-                                                                  ['image_url']
-                                                              as String)
+                                              Map<String, dynamic>? zone =
+                                                  getZoneDataForControlId(i);
+                                              String? coverUrl = zone != null &&
+                                                      zone['cover'] != null &&
+                                                      (zone['cover'] as String)
                                                           .isNotEmpty
-                                                  ? i['selected_zone']
-                                                      ['image_url']
-                                                  : '';
+                                                  ? zone['cover']
+                                                  : null;
 
                                               return Container(
                                                 color: SharedWidgets
@@ -708,27 +1078,40 @@ class StartPageState extends State<StartPage> {
                                                               return CoverPage(
                                                                 index: index,
                                                                 name: i['name'],
-                                                                selectedZone: i[
-                                                                    'selected_zone'],
+                                                                ip: devices[
+                                                                    index],
                                                                 translations:
                                                                     translations,
                                                               );
                                                             },
                                                           ),
-                                                          icon: coverUrl
-                                                                  .isNotEmpty
-                                                              ? Image.network(
-                                                                  coverUrl)
-                                                              : SvgPicture
-                                                                  .asset(
-                                                                  'assets/svg/8-8-led-matrix-display-unit.svg',
-                                                                  allowDrawingOutsideViewBox:
-                                                                      false,
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                  clipBehavior:
-                                                                      Clip.hardEdge,
-                                                                ),
+                                                          icon:
+                                                              AnimatedSwitcher(
+                                                            duration: Duration(
+                                                                milliseconds:
+                                                                    2000),
+                                                            switchInCurve:
+                                                                Curves.easeIn,
+                                                            switchOutCurve:
+                                                                Curves.easeOut,
+                                                            child: coverUrl !=
+                                                                    null
+                                                                ? Image.network(
+                                                                    coverUrl,
+                                                                    key: ValueKey(
+                                                                        'DeviceCover$coverUrl'),
+                                                                  )
+                                                                : SvgPicture
+                                                                    .asset(
+                                                                    'assets/svg/8-8-led-matrix-display-unit.svg',
+                                                                    allowDrawingOutsideViewBox:
+                                                                        false,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    clipBehavior:
+                                                                        Clip.hardEdge,
+                                                                  ),
+                                                          ),
                                                         ),
                                                       ),
                                                       title: Text(
@@ -1249,6 +1632,8 @@ class StartPageState extends State<StartPage> {
                                               );
                                             }),
                               ),
+                              if (devices.isNotEmpty && coverRowActiv == true)
+                                getCoverRow(info),
                               if (SharedWidgets.inIosStyle())
                                 const SizedBox(height: 14.0),
                               if (height > minDesktopSize.height + 75)
@@ -1555,4 +1940,16 @@ class MenuItem extends StatelessWidget {
       ),
     );
   }
+}
+
+class CoverModel {
+  String coverUrl;
+  String zoneName;
+  String track;
+
+  CoverModel({
+    required this.coverUrl,
+    required this.zoneName,
+    required this.track,
+  });
 }

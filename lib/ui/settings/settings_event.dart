@@ -4,6 +4,13 @@ abstract class SettingsEvent extends Equatable {
   const SettingsEvent([List props = const []]);
 }
 
+class SettingsStateLoadDefaults extends SettingsEvent {
+  const SettingsStateLoadDefaults();
+
+  @override
+  List<Object> get props => [];
+}
+
 class SetIpRange extends SettingsEvent {
   final String ipStart;
   final String ipEnd;
@@ -18,6 +25,33 @@ class SetMoreInfoMode extends SettingsEvent {
   final bool enabled;
 
   const SetMoreInfoMode({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetCoverRowActiveMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetCoverRowActiveMode({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetCoverRowTrackeMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetCoverRowTrackeMode({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetCoverRowDynamicSizeMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetCoverRowDynamicSizeMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
