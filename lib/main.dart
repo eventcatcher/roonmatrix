@@ -32,9 +32,9 @@ Future<void> _configureMacosWindowUtils() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  double minHeight = Platform.isWindows ? 352 : 320;
+  double minHeight = Platform.isWindows ? 392 : 320;
   if (Platform.isLinux) {
-    minHeight = 416;
+    minHeight = 456;
   }
   Size minDesktopSize = Size(1280, minHeight);
   Size standardDesktopSize = const Size(1280, 768);
