@@ -22,6 +22,14 @@ final bool showSelectBoxInMacStyle = true;
 // =====================================================================
 
 class SharedWidgets {
+  static bool isMobileDevice() {
+    return Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
+  }
+
+  static bool isDesktopDevice() {
+    return Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+  }
+
   static bool inIosStyle() {
     return (showIosStyle == true && Platform.isIOS) ||
         (!showMacStyle && showIosStyle == true && Platform.isMacOS);

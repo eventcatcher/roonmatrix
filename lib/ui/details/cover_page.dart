@@ -150,291 +150,322 @@ class _CoverPageState extends State<CoverPage> {
     return zone;
   }
 
+  Widget getTextArea() {
+    if (selectedZone == null ||
+        selectedZone!.isEmpty ||
+        selectedZone!['cover'] == null) {
+      return Row(
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 104.0),
+            child: Text(
+              '${translations['inactive'] ?? 'inactive zone'}',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (selectedZone != null &&
+        selectedZone!.isNotEmpty &&
+        selectedZone!['artist'] != null) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+        child: Table(
+          columnWidths: {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+          children: [
+            TableRow(children: [
+              TableCell(
+                child: Container(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${translations['coverZoneHeader'] ?? 'Zone'}: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize,
+                    ),
+                  ),
+                ),
+              ),
+              TableCell(
+                child: Text(
+                  selectedZone!['zone'] ?? '',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+              ),
+            ]),
+            TableRow(children: [
+              TableCell(
+                child: Container(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${translations['coverArtistHeader'] ?? 'Artist'}: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize,
+                    ),
+                  ),
+                ),
+              ),
+              TableCell(
+                child: Text(
+                  selectedZone!['artist'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+              ),
+            ]),
+            TableRow(children: [
+              TableCell(
+                child: Container(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${translations['coverAlbumHeader'] ?? 'Album'}: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize,
+                    ),
+                  ),
+                ),
+              ),
+              TableCell(
+                child: Text(
+                  selectedZone!['album'],
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+              ),
+            ]),
+            TableRow(children: [
+              TableCell(
+                child: Container(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '${translations['coverTrackHeader'] ?? 'Track'}: ',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize,
+                    ),
+                  ),
+                ),
+              ),
+              TableCell(
+                child: Text(
+                  selectedZone!['track'],
+                  softWrap: true,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+              ),
+            ]),
+          ],
+        ),
+      );
+    }
+
+    return SizedBox();
+  }
+
+  Widget getSelectBoxArea() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: SelectBox(
+          key: ValueKey('ZoneSelectBox$selectedZoneId'),
+          translations: translations,
+          aligned: 'horizontal',
+          label: '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+          placeholder:
+              '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+          inRow: false,
+          noVerticalSpace: false,
+          readOnly: false,
+          selected: selectedZoneId,
+          options: options,
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              String? selectedControlId;
+              if (options[newValue] != null &&
+                  options[newValue] == 'webserver') {
+                selectedControlId = newValue;
+              } else {
+                selectedControlId = options[newValue];
+              }
+
+              if (selectedControlId != null) {
+                mainBloc.zoneControl(
+                    ip: ip, controlId: selectedControlId, cmd: 'switch');
+
+                Map<String, dynamic>? zone =
+                    getZoneDataForControlId(selectedControlId);
+                if (zone != null) {
+                  setState(() {
+                    controlId = selectedControlId;
+                    selectedZone = zone;
+                    selectedZoneId = newValue;
+                  });
+                }
+              }
+            }
+          }),
+    );
+  }
+
   Widget body() => SizedBox(
-        child: RoonmatrixAnimatedGradient(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              BlocBuilder(
-                  bloc: mainBloc,
-                  builder: (context, MainState mainState) {
-                    if (mainState is MainStateLoaded) {
-                      info = mainState.info[ip] ?? {};
-                      channels = (info['channels'] ?? {});
-                      Map<String, String> optionsUpdated =
-                          generateOptionsAndPreselect();
+        child: Column(
+          children: [
+            BlocBuilder(
+                bloc: mainBloc,
+                builder: (context, MainState mainState) {
+                  if (mainState is MainStateLoaded) {
+                    info = mainState.info[ip] ?? {};
+                    channels = (info['channels'] ?? {});
+                    Map<String, String> optionsUpdated =
+                        generateOptionsAndPreselect();
 
-                      if (options.keys.join(',') !=
-                              optionsUpdated.keys.join(',') ||
-                          options.values.join(',') !=
-                              optionsUpdated.values.join(',')) {
-                        SchedulerBinding.instance
-                            .addPostFrameCallback((_) async {
-                          if (mounted) {
-                            setState(() {
-                              options = optionsUpdated;
-                            });
-                          }
-                        });
-                      }
-
-                      String? controlIdUpdated = mainState
-                          .info[mainState.devices[index]]?['control_id'];
-
-                      if (info['web_playouts_raw'] != webPlayoutsRaw ||
-                          info['roon_playouts_raw'] != roonPlayoutsRaw ||
-                          controlId == null ||
-                          controlIdUpdated != controlId) {
-                        Map<String, dynamic>? zone =
-                            getZoneDataForControlId(controlIdUpdated);
-                        if (zone != null) {
-                          selectedZone = zone;
-                        }
-
-                        SchedulerBinding.instance
-                            .addPostFrameCallback((_) async {
-                          if (mounted) {
-                            setState(() {
-                              webPlayoutsRaw = info['web_playouts_raw'];
-                              roonPlayoutsRaw = info['roon_playouts_raw'];
-                              if (controlIdUpdated != controlId) {
-                                controlId = controlIdUpdated;
-                              }
-                              if (zone != null) {
-                                selectedZone = zone;
-                                selectedZoneId = zone['server'] == 'roon'
-                                    ? zone['zone']
-                                    : '${zone['server']}-${zone['zone']}';
-                              }
-                            });
-                          }
-                        });
-                      }
-                    }
-
-                    return const SizedBox(height: 0.0);
-                  }),
-              SelectBox(
-                  key: ValueKey('ZoneSelectBox$selectedZoneId'),
-                  translations: translations,
-                  aligned: 'horizontal',
-                  label: '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
-                  placeholder:
-                      '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                  inRow: false,
-                  noVerticalSpace: false,
-                  readOnly: false,
-                  selected: selectedZoneId,
-                  options: options,
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      String? selectedControlId;
-                      if (options[newValue] != null &&
-                          options[newValue] == 'webserver') {
-                        selectedControlId = newValue;
-                      } else {
-                        selectedControlId = options[newValue];
-                      }
-
-                      if (selectedControlId != null) {
-                        mainBloc.zoneControl(
-                            ip: ip,
-                            controlId: selectedControlId,
-                            cmd: 'switch');
-
-                        Map<String, dynamic>? zone =
-                            getZoneDataForControlId(selectedControlId);
-                        if (zone != null) {
+                    if (options.keys.join(',') !=
+                            optionsUpdated.keys.join(',') ||
+                        options.values.join(',') !=
+                            optionsUpdated.values.join(',')) {
+                      SchedulerBinding.instance.addPostFrameCallback((_) async {
+                        if (mounted) {
                           setState(() {
-                            controlId = selectedControlId;
-                            selectedZone = zone;
-                            selectedZoneId = newValue;
+                            options = optionsUpdated;
                           });
                         }
-                      }
+                      });
                     }
-                  }),
-              Expanded(
+
+                    String? controlIdUpdated =
+                        mainState.info[mainState.devices[index]]?['control_id'];
+
+                    if (info['web_playouts_raw'] != webPlayoutsRaw ||
+                        info['roon_playouts_raw'] != roonPlayoutsRaw ||
+                        controlId == null ||
+                        controlIdUpdated != controlId) {
+                      Map<String, dynamic>? zone =
+                          getZoneDataForControlId(controlIdUpdated);
+                      if (zone != null) {
+                        selectedZone = zone;
+                      }
+
+                      SchedulerBinding.instance.addPostFrameCallback((_) async {
+                        if (mounted) {
+                          setState(() {
+                            webPlayoutsRaw = info['web_playouts_raw'];
+                            roonPlayoutsRaw = info['roon_playouts_raw'];
+                            if (controlIdUpdated != controlId) {
+                              controlId = controlIdUpdated;
+                            }
+                            if (zone != null) {
+                              selectedZone = zone;
+                              selectedZoneId = zone['server'] == 'roon'
+                                  ? zone['zone']
+                                  : '${zone['server']}-${zone['zone']}';
+                            }
+                          });
+                        }
+                      });
+                    }
+                  }
+
+                  return const SizedBox(height: 0.0);
+                }),
+            Expanded(
+              child: RoonmatrixAnimatedGradient(
                 child: OrientationBuilder(
                     builder: (BuildContext context, Orientation orientation) {
-                  return NotificationListener<SizeChangedLayoutNotification>(
-                    onNotification: (notification) {
-                      build(context);
-                      return false;
-                    },
-                    child: SizeChangedLayoutNotifier(
-                      child: Container(
-                        padding: EdgeInsets.all(24.0),
-                        child: AnimatedSwitcher(
-                          duration: Duration(milliseconds: 2000),
-                          // transitionBuilder: (Widget child,
-                          //     Animation<double> animation) {
-                          //   return ScaleTransition(
-                          //       scale: animation, child: child);
-                          // },
-                          child: selectedZone != null &&
-                                  selectedZone!['cover'] != null &&
-                                  (selectedZone!['cover'] as String).isNotEmpty
-                              ? Image.network(selectedZone!['cover'],
-                                  key: ValueKey(
-                                      'BigCover${selectedZone!['cover']}'),
-                                  fit: BoxFit.contain)
-                              : SvgPicture.asset(
-                                  'assets/svg/8-8-led-matrix-display-unit.svg',
-                                  allowDrawingOutsideViewBox: false,
-                                  width: double.infinity,
-                                  height: double.infinity,
+                  bool portraitMode = (SharedWidgets.isMobileDevice() &&
+                          orientation == Orientation.portrait) ||
+                      (SharedWidgets.isDesktopDevice() &&
+                          MediaQuery.of(context).size.height > 800);
+                  bool dektopMode = !portraitMode;
+
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      if (portraitMode == true) getSelectBoxArea(),
+                      Expanded(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: NotificationListener<
+                                  SizeChangedLayoutNotification>(
+                                onNotification: (notification) {
+                                  build(context);
+                                  return false;
+                                },
+                                child: SizeChangedLayoutNotifier(
+                                  child: Container(
+                                    padding: EdgeInsets.all(24.0),
+                                    child: AnimatedSwitcher(
+                                      duration: Duration(milliseconds: 2000),
+                                      // transitionBuilder: (Widget child,
+                                      //     Animation<double> animation) {
+                                      //   return ScaleTransition(
+                                      //       scale: animation, child: child);
+                                      // },
+                                      child: selectedZone != null &&
+                                              selectedZone!['cover'] != null &&
+                                              (selectedZone!['cover'] as String)
+                                                  .isNotEmpty
+                                          ? Image.network(
+                                              selectedZone!['cover'],
+                                              key: ValueKey(
+                                                  'BigCover${selectedZone!['cover']}'),
+                                              fit: BoxFit.contain)
+                                          : SvgPicture.asset(
+                                              'assets/svg/8-8-led-matrix-display-unit.svg',
+                                              allowDrawingOutsideViewBox: false,
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                            ),
+                                    ),
+                                  ),
                                 ),
+                              ),
+                            ),
+                            if (dektopMode == true)
+                              Flexible(
+                                fit: FlexFit.tight,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    getSelectBoxArea(),
+                                    getTextArea(),
+                                  ],
+                                ),
+                              )
+                          ],
                         ),
                       ),
-                    ),
+                      if (portraitMode == true) getTextArea(),
+                    ],
                   );
                 }),
               ),
-              if (selectedZone == null ||
-                  selectedZone!.isEmpty ||
-                  selectedZone!['cover'] == null)
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16.0, right: 16.0, bottom: 104.0),
-                      child: Text(
-                        '${translations['inactive'] ?? 'inactive zone'}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: fontSize,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              if (selectedZone != null &&
-                  selectedZone!.isNotEmpty &&
-                  selectedZone!['artist'] != null)
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16.0, right: 16.0, bottom: 16.0),
-                      child: Table(
-                        columnWidths: {
-                          0: IntrinsicColumnWidth(),
-                          1: IntrinsicColumnWidth()
-                        },
-                        children: [
-                          TableRow(children: [
-                            Column(children: [
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '${translations['coverZoneHeader'] ?? 'Zone'}:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                              )
-                            ]),
-                            Column(children: [
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  selectedZone!['zone'] ?? '',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                              )
-                            ]),
-                          ]),
-                          TableRow(children: [
-                            Column(children: [
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '${translations['coverArtistHeader'] ?? 'Artist'}:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                              )
-                            ]),
-                            Column(children: [
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  selectedZone!['artist'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                              )
-                            ]),
-                          ]),
-                          TableRow(children: [
-                            Column(children: [
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '${translations['coverAlbumHeader'] ?? 'Album'}:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                              )
-                            ]),
-                            Column(children: [
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  selectedZone!['album'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                              )
-                            ]),
-                          ]),
-                          TableRow(children: [
-                            Column(children: [
-                              Container(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  '${translations['coverTrackHeader'] ?? 'Track'}:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                              )
-                            ]),
-                            Column(children: [
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  selectedZone!['track'],
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: fontSize,
-                                  ),
-                                ),
-                              )
-                            ]),
-                          ]),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
 

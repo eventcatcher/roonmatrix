@@ -59,7 +59,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
   final double smallCoverSize = 150;
   final double bigCoverSize = 250;
-  double maxCoverSize = 150; // set to 0: cover is half of height of the window
   final double zoneTitleAreaMinHeight = 17;
   final double zoneTitleAreaHeight = 34;
   final double treeFontSize = 12;
@@ -70,11 +69,14 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
   GlobalKey windowKey = GlobalKey();
   GlobalKey<AnimatedListState> coverListKey = GlobalKey<AnimatedListState>();
+  GlobalKey itemListKey = GlobalKey();
   Map<String, dynamic> info = {};
   Map<String, dynamic> translations = {};
   List<String> devices = [];
 
   Display? primaryDisplay;
+  double itemListHeight = 83; // 83
+  Orientation orientation = Orientation.portrait;
   List<CoverModel> coverList = [];
   String aboutAppMessage = '';
   double width = 1280;
@@ -242,14 +244,16 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Widget getCoverWidget({
     required CoverModel coverModel,
   }) {
+    double coverSize = getCoverSize();
+
     return Align(
       alignment: Alignment.bottomLeft,
       child: Container(
         constraints: coverRowDynamicSize
             ? null
             : BoxConstraints(
-                maxWidth: maxCoverSize,
-                maxHeight: maxCoverSize,
+                maxWidth: coverSize,
+                maxHeight: coverSize,
               ),
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -284,7 +288,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                       child: Image.network(
                         coverModel
                             .coverUrl, // if imageUrl changed, the transition will be animated
-                        key: ValueKey('CoverRow${coverModel.coverUrl}'),
+                        key: ValueKey(
+                            'CoverRow-${orientation.name}-${coverModel.coverUrl}'),
                         fit: BoxFit.cover,
                         width: coverRowDynamicSize ? double.infinity : null,
                         height: coverRowDynamicSize ? double.infinity : null,
@@ -327,10 +332,69 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     );
   }
 
-  Widget getCoverRow(info) {
-    if (kDebugMode) {
-      debugPrint('getCoverRow => covers to display: ${coverList.length}');
+  double getCoverSize() {
+    double coverSize = smallCoverSize;
+    final keyContext = windowKey.currentContext;
+    RenderBox? box;
+    if (keyContext != null && !coverRowDynamicSize) {
+      box = keyContext.findRenderObject() as RenderBox;
+
+      if (SharedWidgets.isDesktopDevice()) {
+        // double coverSizeMaxPossibleOnDesktop = box.size.height -
+        //     itemListHeight -
+        //     topAreaHeight -
+        //     exportButtonAreaHeight;
+        if (coverRowDynamicSize == true) {
+          if (coverSize > box.size.height / 2) {
+            coverSize = box.size.height / 2;
+          }
+        } else {
+          coverSize = box.size.height > 500 ? bigCoverSize : smallCoverSize;
+        }
+      }
+
+      if (SharedWidgets.isMobileDevice()) {
+        double topAreaHeight = 40;
+        double exportButtonAreaHeight =
+            orientation == Orientation.portrait ? 52 : 0;
+        double coverSizeMaxPossibleOnMobile = box.size.height -
+            2 * itemListHeight -
+            topAreaHeight -
+            exportButtonAreaHeight; // minimum of 2 devices visible in list
+
+        if (coverSize > coverSizeMaxPossibleOnMobile) {
+          coverSize = coverSizeMaxPossibleOnMobile;
+        } else {
+          double listHeightMax = box.size.height -
+              topAreaHeight -
+              exportButtonAreaHeight -
+              smallCoverSize;
+          debugPrint(
+              'listHeightMax: $listHeightMax, itemListHeight: $itemListHeight');
+          int listItemCount = (listHeightMax / itemListHeight).ceil();
+          coverSize = box.size.height -
+              topAreaHeight -
+              exportButtonAreaHeight -
+              (listItemCount * itemListHeight);
+          debugPrint(
+              'listHeightMax: $listHeightMax, listItemCount: $listItemCount, coverSize: $coverSize');
+        }
+      }
+
+      debugPrint(
+          'boxHeight: ${box.size.height}, itemListHeight: $itemListHeight, coverSize:$coverSize, orientation: $orientation');
     }
+
+    return coverSize;
+  }
+
+  Widget getCoverRow({required Map<String, dynamic> info}) {
+    if (kDebugMode) {
+      debugPrint(
+          'getCoverRow => covers to display: ${coverList.length}, orientation: $orientation');
+    }
+
+    double coverSize = getCoverSize();
 
     Widget coverRowList = AnimatedList(
       key: coverListKey,
@@ -349,12 +413,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       },
     );
 
-    final keyContext = windowKey.currentContext;
-    if (keyContext != null && !coverRowDynamicSize) {
-      final box = keyContext.findRenderObject() as RenderBox;
-      maxCoverSize = box.size.height > 500 ? bigCoverSize : smallCoverSize;
-    }
-
     return coverRowDynamicSize == true
         ? Expanded(
             flex: flexCoverRow,
@@ -365,7 +423,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         : ConstrainedBox(
             constraints: BoxConstraints(
               // minHeight: 80, // <-- darf nie kleiner als 80 Pixel werden
-              maxHeight: maxCoverSize, // optional: maximal 150 Pixel hoch
+              maxHeight: coverSize, // optional: maximal 150 Pixel hoch
             ),
             child: Align(
               // <-- Flexibles Kind, das sich anpasst!
@@ -378,7 +436,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
                   //  Container(
                   //     constraints: BoxConstraints(
-                  //       maxHeight: maxCoverSize + zoneTitleAreaHeight,
+                  //       maxHeight: coverSize + zoneTitleAreaHeight,
                   //     ),
                   //     child: Container(color: Colors.orange, child: coverRowList),
                   //   ),
@@ -551,7 +609,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return str;
   }
 
-  List<Widget> mobileButtons1(orientation, i, zoneName, index) => [
+  List<Widget> mobileButtons1(i, zoneName, index) => [
         if (orientation == Orientation.portrait)
           Text('${i['playcount']}',
               softWrap: true,
@@ -696,7 +754,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         ),
       ];
 
-  List<Widget> mobileButtons2(orientation, i, zoneName, index) => [
+  List<Widget> mobileButtons2(i, zoneName, index) => [
         if (moreInfo == true)
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
@@ -819,20 +877,20 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                           .toList();
                     }
 
-                    // devices = [
-                    //   // enable this to test with multiple fake-devices
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices
-                    // ];
+                    devices = [
+                      // enable this to test with multiple fake-devices
+                      ...devices,
+                      ...devices,
+                      ...devices,
+                      ...devices,
+                      ...devices,
+                      ...devices,
+                      ...devices,
+                      ...devices,
+                      ...devices,
+                      ...devices,
+                      ...devices
+                    ];
 
                     List<CoverModel> coverListNew = getCovers(info);
                     if (coverListNew.length != coverList.length) {
@@ -846,8 +904,19 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                       print(
                           'state changed => rebuild, devices: ${devices.length}, idle: $idle');
                     }
-                    return OrientationBuilder(builder:
-                        (BuildContext context, Orientation orientation) {
+                    return OrientationBuilder(
+                        builder: (BuildContext context, Orientation o) {
+                      if (o != orientation) {
+                        SchedulerBinding.instance
+                            .addPostFrameCallback((_) async {
+                          if (mounted) {
+                            setState(() {
+                              orientation = o;
+                            });
+                          }
+                        });
+                      }
+
                       return Container(
                         key: windowKey,
                         color: SharedWidgets.windowBackgroundColor(
@@ -1031,7 +1100,19 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   ? zone['cover']
                                                   : null;
 
+                                              RenderBox? box = itemListKey
+                                                      .currentContext
+                                                      ?.findRenderObject()
+                                                  as RenderBox?;
+                                              if (box != null) {
+                                                itemListHeight =
+                                                    box.size.height;
+                                              }
+
                                               return Container(
+                                                key: index == 0
+                                                    ? itemListKey
+                                                    : null,
                                                 color: SharedWidgets
                                                     .tileBackgroundColor(
                                                         context: context),
@@ -1502,7 +1583,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                               .min,
                                                                       children: [
                                                                         ...mobileButtons1(
-                                                                            orientation,
                                                                             i,
                                                                             zoneName,
                                                                             index)
@@ -1517,7 +1597,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                               .min,
                                                                       children: [
                                                                         ...mobileButtons2(
-                                                                            orientation,
                                                                             i,
                                                                             zoneName,
                                                                             index)
@@ -1531,12 +1610,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                           .min,
                                                                   children: [
                                                                     ...mobileButtons1(
-                                                                        orientation,
                                                                         i,
                                                                         zoneName,
                                                                         index),
                                                                     ...mobileButtons2(
-                                                                        orientation,
                                                                         i,
                                                                         zoneName,
                                                                         index),
@@ -1633,7 +1710,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             }),
                               ),
                               if (devices.isNotEmpty && coverRowActiv == true)
-                                getCoverRow(info),
+                                getCoverRow(info: info),
                               if (SharedWidgets.inIosStyle())
                                 const SizedBox(height: 14.0),
                               if (height > minDesktopSize.height + 75)
