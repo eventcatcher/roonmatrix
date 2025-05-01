@@ -477,6 +477,11 @@ class _CoverPageState extends State<CoverPage> {
     if (SharedWidgets.inIosStyle()) {
       return Material(
         child: CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            brightness: SharedWidgets.brightness(),
+            middle: Text(
+                '$name : ${translations['coverPageHeaderText'] ?? 'Zone / Cover'}'),
+          ),
           child: SafeArea(
             child: body(),
           ),
