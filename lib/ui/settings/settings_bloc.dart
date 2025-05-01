@@ -16,6 +16,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         bool validIp = validateIp(ip: ipStart) && validateIp(ip: ipEnd);
         bool moreInfo = prefs.getBool('moreInfo') ?? false;
         bool coverRowActiv = prefs.getBool('coverRowActiv') ?? false;
+        bool coverRowArtist = prefs.getBool('coverRowArtist') ?? false;
+        bool coverRowAlbum = prefs.getBool('coverRowAlbum') ?? false;
         bool coverRowTrack = prefs.getBool('coverRowTrack') ?? false;
         bool coverRowDynamicSize =
             prefs.getBool('coverRowDynamicSize') ?? false;
@@ -25,6 +27,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ipEnd: validIp ? ipEnd! : state.ipEnd,
           moreInfo: moreInfo,
           coverRowActiv: coverRowActiv,
+          coverRowArtist: coverRowArtist,
+          coverRowAlbum: coverRowAlbum,
           coverRowTrack: coverRowTrack,
           coverRowDynamicSize: coverRowDynamicSize,
         ));
@@ -45,6 +49,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ipEnd: ipEnd,
           moreInfo: state.moreInfo,
           coverRowActiv: state.coverRowActiv,
+          coverRowArtist: state.coverRowArtist,
+          coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: state.coverRowDynamicSize,
         ));
@@ -61,6 +67,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ipEnd: state.ipEnd,
           moreInfo: enabled,
           coverRowActiv: state.coverRowActiv,
+          coverRowArtist: state.coverRowArtist,
+          coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: state.coverRowDynamicSize,
         ));
@@ -77,12 +85,49 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ipEnd: state.ipEnd,
           moreInfo: state.moreInfo,
           coverRowActiv: enabled,
+          coverRowArtist: state.coverRowArtist,
+          coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: state.coverRowDynamicSize,
         ));
       }
 
-      if (event is SetCoverRowTrackeMode) {
+      if (event is SetCoverRowArtistMode) {
+        bool enabled = event.enabled;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('coverRowArtist', enabled);
+
+        emit(SettingsStateLoaded(
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          moreInfo: state.moreInfo,
+          coverRowActiv: state.coverRowActiv,
+          coverRowArtist: enabled,
+          coverRowAlbum: state.coverRowAlbum,
+          coverRowTrack: state.coverRowTrack,
+          coverRowDynamicSize: state.coverRowDynamicSize,
+        ));
+      }
+      if (event is SetCoverRowAlbumMode) {
+        bool enabled = event.enabled;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('coverRowAlbum', enabled);
+
+        emit(SettingsStateLoaded(
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          moreInfo: state.moreInfo,
+          coverRowActiv: state.coverRowActiv,
+          coverRowArtist: state.coverRowArtist,
+          coverRowAlbum: enabled,
+          coverRowTrack: state.coverRowTrack,
+          coverRowDynamicSize: state.coverRowDynamicSize,
+        ));
+      }
+
+      if (event is SetCoverRowTrackMode) {
         bool enabled = event.enabled;
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -93,6 +138,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ipEnd: state.ipEnd,
           moreInfo: state.moreInfo,
           coverRowActiv: state.coverRowActiv,
+          coverRowArtist: state.coverRowArtist,
+          coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: enabled,
           coverRowDynamicSize: state.coverRowDynamicSize,
         ));
@@ -109,6 +156,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ipEnd: state.ipEnd,
           moreInfo: state.moreInfo,
           coverRowActiv: state.coverRowActiv,
+          coverRowArtist: state.coverRowArtist,
+          coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: enabled,
         ));
@@ -128,6 +177,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     await prefs.remove("ipEnd");
     await prefs.remove("moreInfo");
     await prefs.remove("coverRowActiv");
+    await prefs.remove("coverRowArtist");
+    await prefs.remove("coverRowAlbum");
     await prefs.remove("coverRowTrack");
     await prefs.remove("coverRowDynamicSize");
   }
@@ -188,8 +239,16 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     add(SetCoverRowActiveMode(enabled: enabled));
   }
 
-  void setCoverRowTrackeMode({required bool enabled}) {
-    add(SetCoverRowTrackeMode(enabled: enabled));
+  void setCoverRowArtistMode({required bool enabled}) {
+    add(SetCoverRowArtistMode(enabled: enabled));
+  }
+
+  void setCoverRowAlbumMode({required bool enabled}) {
+    add(SetCoverRowAlbumMode(enabled: enabled));
+  }
+
+  void setCoverRowTrackMode({required bool enabled}) {
+    add(SetCoverRowTrackMode(enabled: enabled));
   }
 
   void setCoverRowDynamicSizeMode({required bool enabled}) {

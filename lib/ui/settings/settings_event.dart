@@ -39,10 +39,28 @@ class SetCoverRowActiveMode extends SettingsEvent {
   List<Object> get props => [enabled];
 }
 
-class SetCoverRowTrackeMode extends SettingsEvent {
+class SetCoverRowArtistMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowTrackeMode({required this.enabled});
+  const SetCoverRowArtistMode({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetCoverRowAlbumMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetCoverRowAlbumMode({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetCoverRowTrackMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetCoverRowTrackMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];

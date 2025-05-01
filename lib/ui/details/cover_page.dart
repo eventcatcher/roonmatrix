@@ -431,7 +431,10 @@ class _CoverPageState extends State<CoverPage> {
                                               selectedZone!['cover'],
                                               key: ValueKey(
                                                   'BigCover${selectedZone!['cover']}'),
-                                              fit: BoxFit.contain)
+                                              fit: BoxFit.contain,
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                            )
                                           : SvgPicture.asset(
                                               'assets/svg/8-8-led-matrix-display-unit.svg',
                                               allowDrawingOutsideViewBox: false,

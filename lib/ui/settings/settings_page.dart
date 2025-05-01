@@ -39,6 +39,8 @@ class _SettingsPageState extends State<SettingsPage> {
   String title = '';
   bool moreInfo = false;
   bool coverRowActiv = false;
+  bool coverRowArtist = false;
+  bool coverRowAlbum = false;
   bool coverRowTrack = false;
   bool coverRowDynamicSize = false;
   bool translationsLoaded = false;
@@ -335,10 +337,38 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: SwitchButton(
                   label:
-                      '${translations['activeZonesTrackSelectorLabel'] ?? 'Show title information in the cover too'}',
+                      '${translations['activeZonesArtistSelectorLabel'] ?? 'Show artist information in cover area'}',
+                  enabled: coverRowArtist,
+                  onChanged: (value) {
+                    settingsBloc.setCoverRowArtistMode(enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label:
+                      '${translations['activeZonesAlbumSelectorLabel'] ?? 'Show album information in cover area'}',
+                  enabled: coverRowAlbum,
+                  onChanged: (value) {
+                    settingsBloc.setCoverRowAlbumMode(enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label:
+                      '${translations['activeZonesTrackSelectorLabel'] ?? 'Show title information in cover area'}',
                   enabled: coverRowTrack,
                   onChanged: (value) {
-                    settingsBloc.setCoverRowTrackeMode(enabled: value);
+                    settingsBloc.setCoverRowTrackMode(enabled: value);
                   },
                 ),
               ),
@@ -428,6 +458,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
                   moreInfo = settingsState.moreInfo;
                   coverRowActiv = settingsState.coverRowActiv;
+                  coverRowArtist = settingsState.coverRowArtist;
+                  coverRowAlbum = settingsState.coverRowAlbum;
                   coverRowTrack = settingsState.coverRowTrack;
                   coverRowDynamicSize = settingsState.coverRowDynamicSize;
 

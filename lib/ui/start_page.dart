@@ -89,6 +89,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   bool _isDrawerOpen = false;
   bool moreInfo = false;
   bool coverRowActiv = false;
+  bool coverRowArtist = false;
+  bool coverRowAlbum = false;
   bool coverRowTrack = false;
   bool coverRowDynamicSize = false;
 
@@ -208,6 +210,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             CoverModel coverModel = CoverModel(
               zoneName: zoneName,
               coverUrl: coverUrl,
+              artist: zone['artist'],
+              album: zone['album'],
               track: zone['track'],
             );
 
@@ -228,6 +232,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               CoverModel coverModel = CoverModel(
                 zoneName: zoneName,
                 coverUrl: coverUrl,
+                artist: zone['artist'],
+                album: zone['album'],
                 track: zone['track'],
               );
 
@@ -239,6 +245,120 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     }
 
     return covers;
+  }
+
+  Widget getTextArea(CoverModel coverModel) {
+    final double fontSize = 12.0;
+
+    return Table(
+      columnWidths: {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+      children: [
+        TableRow(children: [
+          TableCell(
+            child: Container(
+              alignment: Alignment.centerRight,
+              child: Text(
+                '${translations['coverZoneHeader'] ?? 'Zone'}: ',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          TableCell(
+            child: Text(
+              coverModel.zoneName,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ]),
+        if (coverRowArtist == true)
+          TableRow(children: [
+            TableCell(
+              child: Container(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '${translations['coverArtistHeader'] ?? 'Artist'}: ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            TableCell(
+              child: Text(
+                coverModel.artist,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ]),
+        if (coverRowAlbum == true)
+          TableRow(children: [
+            TableCell(
+              child: Container(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '${translations['coverAlbumHeader'] ?? 'Album'}: ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            TableCell(
+              child: Text(
+                coverModel.album,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ]),
+        if (coverRowTrack == true)
+          TableRow(children: [
+            TableCell(
+              child: Container(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  '${translations['coverTrackHeader'] ?? 'Track'}: ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            TableCell(
+              child: Text(
+                coverModel.track,
+                softWrap: true,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: fontSize,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ]),
+      ],
+    );
   }
 
   Widget getCoverWidget({
@@ -313,13 +433,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 4.0, vertical: 2.0),
-                        child: Text(
-                          '${translations['zoneSelectionLabel'] ?? 'Zone'}: ${coverModel.zoneName}${coverRowTrack == true && constraints.maxHeight > 169 ? ', ${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
-                          style: TextStyle(
-                            fontSize: constraints.maxHeight > 250 ? 12.0 : 9.0,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: coverHeight > 400 &&
+                                (coverRowArtist == true ||
+                                    coverRowAlbum == true)
+                            ? getTextArea(coverModel)
+                            : Text(
+                                '${translations['zoneSelectionLabel'] ?? 'Zone'}: ${coverModel.zoneName}${coverRowTrack == true && constraints.maxHeight > 169 ? ', ${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
+                                style: TextStyle(
+                                  fontSize:
+                                      constraints.maxHeight > 250 ? 12.0 : 9.0,
+                                  color: Colors.white,
+                                ),
+                              ),
                       ),
                     ),
                   ),
@@ -845,6 +970,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
               moreInfo = settingsState.moreInfo;
               coverRowActiv = settingsState.coverRowActiv;
+              coverRowArtist = settingsState.coverRowArtist;
+              coverRowAlbum = settingsState.coverRowAlbum;
               coverRowTrack = settingsState.coverRowTrack;
               coverRowDynamicSize = settingsState.coverRowDynamicSize;
 
@@ -2022,11 +2149,15 @@ class MenuItem extends StatelessWidget {
 class CoverModel {
   String coverUrl;
   String zoneName;
+  String artist;
+  String album;
   String track;
 
   CoverModel({
     required this.coverUrl,
     required this.zoneName,
+    required this.artist,
+    required this.album,
     required this.track,
   });
 }

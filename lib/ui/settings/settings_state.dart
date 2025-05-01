@@ -5,6 +5,8 @@ abstract class SettingsState extends Equatable {
   final String ipEnd;
   final bool moreInfo;
   final bool coverRowActiv;
+  final bool coverRowArtist;
+  final bool coverRowAlbum;
   final bool coverRowTrack;
   final bool coverRowDynamicSize;
 
@@ -13,6 +15,8 @@ abstract class SettingsState extends Equatable {
     this.ipEnd = '',
     this.moreInfo = false,
     this.coverRowActiv = true,
+    this.coverRowArtist = false,
+    this.coverRowAlbum = false,
     this.coverRowTrack = true,
     this.coverRowDynamicSize = true,
   });
@@ -24,6 +28,8 @@ abstract class SettingsState extends Equatable {
       ipEnd,
       moreInfo,
       coverRowActiv,
+      coverRowArtist,
+      coverRowAlbum,
       coverRowTrack,
       coverRowDynamicSize,
     ];
@@ -48,6 +54,8 @@ class SettingsStateLoaded extends SettingsState {
     required super.ipEnd,
     required super.moreInfo,
     required super.coverRowActiv,
+    required super.coverRowArtist,
+    required super.coverRowAlbum,
     required super.coverRowTrack,
     required super.coverRowDynamicSize,
   });
