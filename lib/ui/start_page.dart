@@ -1059,20 +1059,20 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                           .toList();
                     }
 
-                    devices = [
-                      // enable this to test with multiple fake-devices
-                      ...devices,
-                      ...devices,
-                      ...devices,
-                      ...devices,
-                      ...devices,
-                      ...devices,
-                      ...devices,
-                      ...devices,
-                      ...devices,
-                      ...devices,
-                      ...devices
-                    ];
+                    // devices = [
+                    //   // enable this to test with multiple fake-devices
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices,
+                    //   ...devices
+                    // ];
 
                     List<CoverModel> coverListNew = getCovers(info);
                     if (coverListNew.length != coverList.length) {
