@@ -573,7 +573,7 @@ class RoonMatrixState extends State<RoonMatrix> {
               ? Builder(builder: (context) {
                   brightnessValue = MediaQuery.of(context).platformBrightness;
 
-                  if (kDebugMode) {
+                  if (kDebugMode == true) {
                     debugPrint('brightness: $brightnessValue');
                   }
 

@@ -56,13 +56,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   String get title => widget.title;
+  bool showExportButton = true;
 
+  final double minimumCoverSize = 100;
   final double smallCoverSize = 150;
+  final double midCoverSize = 200;
   final double bigCoverSize = 250;
   final double zoneTitleAreaMinHeight = 17;
   final double zoneTitleAreaHeight = 34;
   final double treeFontSize = 12;
   final double noDevicesFoundRectSize = 184;
+  final double exportButtonPaddingIos = 14.0;
+  final double deviceListCoverSize = 40.0;
   final int flexDevice = 1;
   final int flexCoverRow = 1;
   final Color coverRowBackgroundColor = Colors.grey.shade200;
@@ -74,8 +79,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Map<String, dynamic> translations = {};
   List<String> devices = [];
 
+  double? appBarHeight;
   Display? primaryDisplay;
-  double itemListHeight = 83; // 83
+  double itemListHeight = 84;
   Orientation orientation = Orientation.portrait;
   List<CoverModel> coverList = [];
   String aboutAppMessage = '';
@@ -154,6 +160,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   updateSizes(String caller) {
     width = MediaQuery.of(context).size.height;
     height = MediaQuery.of(context).size.height;
+    showExportButton = (SharedWidgets.isMobileDevice() &&
+            orientation == Orientation.portrait) ||
+        (SharedWidgets.isDesktopDevice() &&
+            height > (minDesktopSize.height + 75));
     // if (kDebugMode) {
     //   print(
     //       'StartPage => updateSizes, caller: $caller, width: $width, height: $height');
@@ -379,7 +389,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           builder: (context, constraints) {
             // constraints.maxHeight gets the height of the AnimatedList
             double coverHeight = constraints.maxHeight;
-            if (kDebugMode) {
+            if (kDebugMode == true) {
               debugPrint('constraints.maxHeight: ${constraints.maxHeight}');
             }
             double coverWidth = coverHeight;
@@ -457,66 +467,113 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     );
   }
 
+  double getSafeHeight() {
+    //Safe area paddings in logical pixels
+    double paddingTop =
+        View.of(context).padding.top / View.of(context).devicePixelRatio;
+    double paddingBottom =
+        View.of(context).padding.bottom / View.of(context).devicePixelRatio;
+
+    //Safe area in logical pixels
+    double pixelRatio = View.of(context).devicePixelRatio;
+    Size logicalScreenSize = View.of(context).physicalSize / pixelRatio;
+    double logicalHeight = logicalScreenSize.height;
+    double safeHeight = logicalHeight - paddingTop - paddingBottom;
+
+    return safeHeight;
+  }
+
   double getCoverSize() {
     double coverSize = smallCoverSize;
-    final keyContext = windowKey.currentContext;
-    RenderBox? box;
-    if (keyContext != null && !coverRowDynamicSize) {
-      box = keyContext.findRenderObject() as RenderBox;
+    int minNumberOfListItems = 1;
+    int minNumberOfCoversInRow = 2;
 
+    if (!coverRowDynamicSize) {
+      double boxSizeWidth = MediaQuery.of(context).size.width;
+      double boxSizeHeight = MediaQuery.of(context).size.height;
+      double preferredCoverSize =
+          boxSizeWidth > minNumberOfCoversInRow * bigCoverSize &&
+                  boxSizeHeight > minNumberOfCoversInRow * bigCoverSize
+              ? bigCoverSize
+              : boxSizeWidth > minNumberOfCoversInRow * midCoverSize &&
+                      boxSizeHeight > minNumberOfCoversInRow * midCoverSize
+                  ? midCoverSize
+                  : smallCoverSize;
       if (SharedWidgets.isDesktopDevice()) {
-        // double coverSizeMaxPossibleOnDesktop = box.size.height -
-        //     itemListHeight -
-        //     topAreaHeight -
-        //     exportButtonAreaHeight;
-        if (coverRowDynamicSize == true) {
-          if (coverSize > box.size.height / 2) {
-            coverSize = box.size.height / 2;
-          }
-        } else {
-          coverSize = box.size.height > 500 ? bigCoverSize : smallCoverSize;
-        }
+        coverSize = preferredCoverSize;
       }
 
       if (SharedWidgets.isMobileDevice()) {
-        double topAreaHeight = 40;
-        double exportButtonAreaHeight =
-            orientation == Orientation.portrait ? 52 : 0;
-        double coverSizeMaxPossibleOnMobile = box.size.height -
-            2 * itemListHeight -
-            topAreaHeight -
-            exportButtonAreaHeight; // minimum of 2 devices visible in list
+        double safeHeight = getSafeHeight();
+        boxSizeHeight = safeHeight;
 
-        if (coverSize > coverSizeMaxPossibleOnMobile) {
-          coverSize = coverSizeMaxPossibleOnMobile;
-        } else {
-          double listHeightMax = box.size.height -
-              topAreaHeight -
-              exportButtonAreaHeight -
-              smallCoverSize;
+        double searchFieldAreaHeight = 44;
+        double paddingTop = MediaQuery.of(context).padding.top;
+        double paddingBottom = MediaQuery.of(context).padding.bottom;
+        double exportButtonHeight =
+            40; // height of export button (ios: CupertinoButton.filled)
+        double exportButtonAreaHeight = showExportButton == true
+            ? Platform.isIOS
+                ? exportButtonHeight + 2 * exportButtonPaddingIos
+                : 48 // height of export button (Android: ElevatedButton.icon)
+            : 0;
+
+        double partsToRemove = (appBarHeight ?? 56) +
+            searchFieldAreaHeight +
+            exportButtonAreaHeight;
+        double coverSizeMaxPossibleOnMobile = boxSizeHeight -
+            partsToRemove -
+            minNumberOfListItems * itemListHeight;
+        double listHeightArea = boxSizeHeight - partsToRemove;
+        int maxListCount = (listHeightArea / itemListHeight).floor();
+
+        double listHeightMax = listHeightArea - preferredCoverSize;
+        int listItemCount = (listHeightMax / itemListHeight).floor();
+        coverSize = listHeightArea - (listItemCount * itemListHeight);
+        if (listItemCount < minNumberOfListItems ||
+            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
+          preferredCoverSize = smallCoverSize;
+          listHeightMax = listHeightArea - preferredCoverSize;
+          listItemCount = (listHeightMax / itemListHeight).floor();
+          coverSize = listHeightArea - (listItemCount * itemListHeight);
+        }
+        if (listItemCount < minNumberOfListItems ||
+            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
+          preferredCoverSize = smallCoverSize;
+          listHeightMax = listHeightArea - preferredCoverSize;
+          listItemCount = (listHeightMax / itemListHeight).ceil();
+          coverSize = listHeightArea - (listItemCount * itemListHeight);
+        }
+
+        if (boxSizeWidth < minNumberOfCoversInRow * coverSize) {
+          if (listItemCount < maxListCount) {
+            listItemCount += 1;
+            double testCoverSize =
+                listHeightArea - (listItemCount * itemListHeight);
+            if (testCoverSize >= minimumCoverSize) {
+              coverSize = testCoverSize;
+            }
+          }
+        }
+        if (coverSize < minimumCoverSize &&
+            listItemCount > minNumberOfListItems) {
+          listItemCount -= 1;
+          coverSize = listHeightArea - (listItemCount * itemListHeight);
+        }
+
+        if (kDebugMode == true) {
           debugPrint(
-              'listHeightMax: $listHeightMax, itemListHeight: $itemListHeight');
-          int listItemCount = (listHeightMax / itemListHeight).ceil();
-          coverSize = box.size.height -
-              topAreaHeight -
-              exportButtonAreaHeight -
-              (listItemCount * itemListHeight);
-          debugPrint(
-              'listHeightMax: $listHeightMax, listItemCount: $listItemCount, coverSize: $coverSize');
+              'getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToRemove: $partsToRemove, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
         }
       }
-
-      debugPrint(
-          'boxHeight: ${box.size.height}, itemListHeight: $itemListHeight, coverSize:$coverSize, orientation: $orientation');
     }
 
     return coverSize;
   }
 
   Widget getCoverRow({required Map<String, dynamic> info}) {
-    if (kDebugMode) {
-      debugPrint(
-          'getCoverRow => covers to display: ${coverList.length}, orientation: $orientation');
+    if (kDebugMode == true) {
+      debugPrint('getCoverRow => covers to display: ${coverList.length}');
     }
 
     double coverSize = getCoverSize();
@@ -547,25 +604,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             ))
         : ConstrainedBox(
             constraints: BoxConstraints(
-              // minHeight: 80, // <-- darf nie kleiner als 80 Pixel werden
-              maxHeight: coverSize, // optional: maximal 150 Pixel hoch
+              maxHeight: coverSize,
             ),
             child: Align(
-              // <-- Flexibles Kind, das sich anpasst!
+              // flexible child
               alignment: Alignment.center,
               child: Column(
                 children: [
-                  // Expanded(
-                  //   child: Container(),
-                  // ),
-
-                  //  Container(
-                  //     constraints: BoxConstraints(
-                  //       maxHeight: coverSize + zoneTitleAreaHeight,
-                  //     ),
-                  //     child: Container(color: Colors.orange, child: coverRowList),
-                  //   ),
-
                   Flexible(
                     fit: FlexFit.loose,
                     child: Container(
@@ -1034,6 +1079,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     return OrientationBuilder(
                         builder: (BuildContext context, Orientation o) {
                       if (o != orientation) {
+                        orientation = o;
                         SchedulerBinding.instance
                             .addPostFrameCallback((_) async {
                           if (mounted) {
@@ -1051,28 +1097,22 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         child: Center(
                           child: Column(
                             children: <Widget>[
-                              Stack(
-                                children: [
-                                  // searchfield area
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        bottom: 8.0, right: 8.0),
-                                    child: Wrap(
-                                      alignment: WrapAlignment.start,
-                                      crossAxisAlignment:
-                                          WrapCrossAlignment.start,
-                                      direction: Axis.horizontal,
-                                      children: [
-                                        SearchField(
-                                          type: 'main',
-                                          controller:
-                                              mainBloc.getSearchController(
-                                                  type: 'main'),
-                                        ),
-                                      ],
+                              // searchfield area
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 8.0, right: 8.0),
+                                child: Wrap(
+                                  alignment: WrapAlignment.start,
+                                  crossAxisAlignment: WrapCrossAlignment.start,
+                                  direction: Axis.horizontal,
+                                  children: [
+                                    SearchField(
+                                      type: 'main',
+                                      controller: mainBloc.getSearchController(
+                                          type: 'main'),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               if (mainState.logMessage.isNotEmpty)
                                 SizedBox(
@@ -1233,7 +1273,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   as RenderBox?;
                                               if (box != null) {
                                                 itemListHeight =
-                                                    box.size.height;
+                                                    1 + box.size.height;
                                               }
 
                                               return Container(
@@ -1243,468 +1283,496 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 color: SharedWidgets
                                                     .tileBackgroundColor(
                                                         context: context),
-                                                height: Platform.isAndroid &&
-                                                        orientation ==
-                                                            Orientation
-                                                                .portrait &&
-                                                        moreInfo == true
-                                                    ? 100
-                                                    : 83.0,
+                                                height: itemListHeight - 1,
+                                                padding: EdgeInsets.only(
+                                                  left: 8.0,
+                                                  right: 8.0,
+                                                ),
                                                 child: Stack(
                                                   children: [
                                                     ListTile(
-                                                      minLeadingWidth: 28,
+                                                      contentPadding:
+                                                          EdgeInsets.all(0),
                                                       tileColor: Colors
                                                           .lightBlueAccent,
                                                       iconColor: Colors.black,
                                                       textColor: SharedWidgets
                                                           .textColor(
                                                               context: context),
-                                                      leading: SizedBox(
-                                                        width: 40,
-                                                        height: 40,
-                                                        child: IconButton(
-                                                          padding:
-                                                              EdgeInsets.zero,
-                                                          onPressed: () =>
-                                                              showGeneralDialog(
-                                                            context: context,
-                                                            // barrierColor: Colors
-                                                            //     .black12
-                                                            //     .withOpacity(
-                                                            //         0.6), // Background color
-                                                            barrierDismissible:
-                                                                false,
-                                                            barrierLabel:
-                                                                'Dialog',
-                                                            transitionDuration:
-                                                                const Duration(
+                                                      title: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.max,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          SizedBox(
+                                                            width:
+                                                                deviceListCoverSize,
+                                                            height:
+                                                                deviceListCoverSize,
+                                                            child: IconButton(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .zero,
+                                                              onPressed: () =>
+                                                                  showGeneralDialog(
+                                                                context:
+                                                                    context,
+                                                                // barrierColor: Colors
+                                                                //     .black12
+                                                                //     .withOpacity(
+                                                                //         0.6), // Background color
+                                                                barrierDismissible:
+                                                                    false,
+                                                                barrierLabel:
+                                                                    'Dialog',
+                                                                transitionDuration:
+                                                                    const Duration(
+                                                                        milliseconds:
+                                                                            0),
+                                                                pageBuilder: (_,
+                                                                    __, ___) {
+                                                                  return CoverPage(
+                                                                    index:
+                                                                        index,
+                                                                    name: i[
+                                                                        'name'],
+                                                                    ip: devices[
+                                                                        index],
+                                                                    translations:
+                                                                        translations,
+                                                                  );
+                                                                },
+                                                              ),
+                                                              icon:
+                                                                  AnimatedSwitcher(
+                                                                duration: Duration(
                                                                     milliseconds:
-                                                                        0),
-                                                            pageBuilder:
-                                                                (_, __, ___) {
-                                                              return CoverPage(
-                                                                index: index,
-                                                                name: i['name'],
-                                                                ip: devices[
-                                                                    index],
-                                                                translations:
-                                                                    translations,
-                                                              );
-                                                            },
+                                                                        2000),
+                                                                switchInCurve:
+                                                                    Curves
+                                                                        .easeIn,
+                                                                switchOutCurve:
+                                                                    Curves
+                                                                        .easeOut,
+                                                                child: coverUrl !=
+                                                                        null
+                                                                    ? Image
+                                                                        .network(
+                                                                        coverUrl,
+                                                                        width:
+                                                                            deviceListCoverSize,
+                                                                        height:
+                                                                            deviceListCoverSize,
+                                                                        key: ValueKey(
+                                                                            'DeviceCover$index$coverUrl'),
+                                                                      )
+                                                                    : SvgPicture
+                                                                        .asset(
+                                                                        'assets/svg/8-8-led-matrix-display-unit.svg',
+                                                                        allowDrawingOutsideViewBox:
+                                                                            false,
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                        clipBehavior:
+                                                                            Clip.hardEdge,
+                                                                      ),
+                                                              ),
+                                                            ),
                                                           ),
-                                                          icon:
-                                                              AnimatedSwitcher(
-                                                            duration: Duration(
-                                                                milliseconds:
-                                                                    2000),
-                                                            switchInCurve:
-                                                                Curves.easeIn,
-                                                            switchOutCurve:
-                                                                Curves.easeOut,
-                                                            child: coverUrl !=
-                                                                    null
-                                                                ? Image.network(
-                                                                    coverUrl,
-                                                                    key: ValueKey(
-                                                                        'DeviceCover$coverUrl'),
-                                                                  )
-                                                                : SvgPicture
-                                                                    .asset(
-                                                                    'assets/svg/8-8-led-matrix-display-unit.svg',
-                                                                    allowDrawingOutsideViewBox:
-                                                                        false,
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    clipBehavior:
-                                                                        Clip.hardEdge,
-                                                                  ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      title: Text(
-                                                        i['name'],
-                                                        softWrap: false,
-                                                        maxLines: 1,
-                                                        style: (Platform
-                                                                    .isMacOS ||
-                                                                Platform
-                                                                    .isWindows ||
-                                                                Platform
-                                                                    .isLinux)
-                                                            ? const TextStyle(
-                                                                fontSize: 16.0)
-                                                            : const TextStyle(
-                                                                fontSize: 14.0),
-                                                      ),
-                                                      subtitle: Text(
-                                                        devices[index],
-                                                        softWrap: false,
-                                                        maxLines: 1,
-                                                        style: (Platform
-                                                                    .isMacOS ||
-                                                                Platform
-                                                                    .isWindows ||
-                                                                Platform
-                                                                    .isLinux)
-                                                            ? const TextStyle(
-                                                                fontSize: 13.0)
-                                                            : const TextStyle(
-                                                                fontSize: 11.0),
-                                                      ),
-                                                      isThreeLine: true,
-                                                      trailing: Platform.isMacOS ||
-                                                              Platform
-                                                                  .isWindows ||
-                                                              Platform.isLinux
-                                                          ? Row(
-                                                              // desktop variant
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
+                                                          SizedBox(width: 8.0),
+                                                          Expanded(
+                                                            child: Row(
                                                               children: [
-                                                                Text(
-                                                                  '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
-                                                                  softWrap:
-                                                                      true,
-                                                                  maxLines: 2,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .fade,
+                                                                Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      i['name'],
+                                                                      softWrap:
+                                                                          false,
+                                                                      maxLines:
+                                                                          1,
+                                                                      style: (Platform.isMacOS ||
+                                                                              Platform.isWindows ||
+                                                                              Platform.isLinux)
+                                                                          ? const TextStyle(fontSize: 16.0)
+                                                                          : const TextStyle(fontSize: 14.0),
+                                                                    ),
+                                                                    Text(
+                                                                      devices[
+                                                                          index],
+                                                                      softWrap:
+                                                                          false,
+                                                                      maxLines:
+                                                                          1,
+                                                                      style: (Platform.isMacOS ||
+                                                                              Platform.isWindows ||
+                                                                              Platform.isLinux)
+                                                                          ? const TextStyle(fontSize: 13.0)
+                                                                          : const TextStyle(fontSize: 11.0),
+                                                                    )
+                                                                  ],
                                                                 ),
-                                                                Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              8.0),
-                                                                  child:
-                                                                      IconButtonElement(
-                                                                    label: translations[
-                                                                            'configButtonText'] ??
-                                                                        'Config',
-                                                                    noBackground:
-                                                                        false,
-                                                                    withCircle:
-                                                                        true,
-                                                                    icon: Icon(
-                                                                      Icons
-                                                                          .settings,
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                    onPressed: () =>
-                                                                        showGeneralDialog(
-                                                                      context:
-                                                                          context,
-                                                                      // barrierColor: Colors
-                                                                      //     .black12
-                                                                      //     .withOpacity(0.6), // Background color
-                                                                      barrierDismissible:
-                                                                          false,
-                                                                      barrierLabel:
-                                                                          'Dialog',
-                                                                      transitionDuration:
-                                                                          const Duration(
-                                                                              milliseconds: 0),
-                                                                      pageBuilder: (_,
-                                                                          __,
-                                                                          ___) {
-                                                                        return ConfigPage(
-                                                                          name:
-                                                                              i['name'],
-                                                                          ip: devices[
-                                                                              index],
-                                                                          close:
-                                                                              () {
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              8.0),
-                                                                  child:
-                                                                      IconButtonElement(
-                                                                    label: translations[
-                                                                            'controlButtonText'] ??
-                                                                        'Control',
-                                                                    noBackground:
-                                                                        false,
-                                                                    withCircle:
-                                                                        true,
-                                                                    icon: Icon(
-                                                                      Icons
-                                                                          .control_camera,
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                    onPressed: () =>
-                                                                        showGeneralDialog(
-                                                                      context:
-                                                                          context,
-                                                                      // barrierColor: Colors
-                                                                      //     .black12
-                                                                      //     .withOpacity(0.6), // Background color
-                                                                      barrierDismissible:
-                                                                          false,
-                                                                      barrierLabel:
-                                                                          'Dialog',
-                                                                      transitionDuration:
-                                                                          const Duration(
-                                                                              milliseconds: 0),
-                                                                      pageBuilder: (_,
-                                                                          __,
-                                                                          ___) {
-                                                                        return ControlPage(
-                                                                          ip: devices[
-                                                                              index],
-                                                                          name:
-                                                                              i['name'],
-                                                                          close:
-                                                                              () {
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              8.0),
-                                                                  child:
-                                                                      IconButtonElement(
-                                                                    label: translations[
-                                                                            'messageButtonText'] ??
-                                                                        'Message',
-                                                                    noBackground:
-                                                                        false,
-                                                                    withCircle:
-                                                                        true,
-                                                                    icon: Icon(
-                                                                      Icons
-                                                                          .message_outlined,
-                                                                      size: 18,
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                    onPressed: () =>
-                                                                        showGeneralDialog(
-                                                                      context:
-                                                                          context,
-                                                                      // barrierColor: Colors
-                                                                      //     .black12
-                                                                      //     .withOpacity(0.6), // Background color
-                                                                      barrierDismissible:
-                                                                          false,
-                                                                      barrierLabel:
-                                                                          'Dialog',
-                                                                      transitionDuration:
-                                                                          const Duration(
-                                                                              milliseconds: 0),
-                                                                      pageBuilder: (_,
-                                                                          __,
-                                                                          ___) {
-                                                                        return MessagePage(
-                                                                          ip: devices[
-                                                                              index],
-                                                                          name:
-                                                                              i['name'],
-                                                                          close:
-                                                                              () {
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              8.0),
-                                                                  child:
-                                                                      IconButtonElement(
-                                                                    label: translations[
-                                                                            'liveControlButtonText'] ??
-                                                                        'Live Control',
-                                                                    noBackground:
-                                                                        false,
-                                                                    withCircle:
-                                                                        true,
-                                                                    icon: Icon(
-                                                                      Icons
-                                                                          .visibility_outlined,
-                                                                      color: Colors
-                                                                          .white,
-                                                                    ),
-                                                                    onPressed: () =>
-                                                                        showGeneralDialog(
-                                                                      context:
-                                                                          context,
-                                                                      // barrierColor: Colors
-                                                                      //     .black12
-                                                                      //     .withOpacity(0.6), // Background color
-                                                                      barrierDismissible:
-                                                                          false,
-                                                                      barrierLabel:
-                                                                          'Dialog',
-                                                                      transitionDuration:
-                                                                          const Duration(
-                                                                              milliseconds: 0),
-                                                                      pageBuilder: (_,
-                                                                          __,
-                                                                          ___) {
-                                                                        return LiveControlPage(
-                                                                          ip: devices[
-                                                                              index],
-                                                                          name:
-                                                                              i['name'],
-                                                                          close:
-                                                                              () {
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                if (moreInfo ==
-                                                                    true)
-                                                                  Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        left:
-                                                                            8.0),
-                                                                    child:
-                                                                        IconButtonElement(
-                                                                      label: translations[
-                                                                              'infoButtonText'] ??
-                                                                          'Monitoring',
-                                                                      noBackground:
-                                                                          false,
-                                                                      withCircle:
-                                                                          true,
-                                                                      icon:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .info_outline,
-                                                                        color: Colors
-                                                                            .white,
-                                                                      ),
-                                                                      moreInfo:
-                                                                          true,
-                                                                      onPressed:
-                                                                          () =>
-                                                                              showGeneralDialog(
-                                                                        context:
-                                                                            context,
-                                                                        // barrierColor: Colors
-                                                                        //     .black12
-                                                                        //     .withOpacity(0.6), // Background color
-                                                                        barrierDismissible:
-                                                                            false,
-                                                                        barrierLabel:
-                                                                            'Dialog',
-                                                                        transitionDuration:
-                                                                            const Duration(milliseconds: 0),
-                                                                        pageBuilder: (_,
-                                                                            __,
-                                                                            ___) {
-                                                                          return InfoPage(
-                                                                            name:
-                                                                                i['name'],
-                                                                            ip: devices[index],
-                                                                            close:
-                                                                                () {
-                                                                              Navigator.pop(context);
-                                                                            },
-                                                                          );
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                if (moreInfo ==
-                                                                    true)
-                                                                  Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        left:
-                                                                            8.0),
-                                                                    child:
-                                                                        IconButtonElement(
-                                                                      label: translations[
-                                                                              'logButtonText'] ??
-                                                                          'Log',
-                                                                      noBackground:
-                                                                          false,
-                                                                      withCircle:
-                                                                          true,
-                                                                      icon: Icon(
-                                                                          Icons
-                                                                              .terminal,
-                                                                          color:
-                                                                              Colors.white),
-                                                                      moreInfo:
-                                                                          true,
-                                                                      onPressed:
-                                                                          () =>
-                                                                              showGeneralDialog(
-                                                                        context:
-                                                                            context,
-                                                                        // barrierColor: Colors
-                                                                        //     .black12
-                                                                        //     .withOpacity(0.6), // Background color
-                                                                        barrierDismissible:
-                                                                            false,
-                                                                        barrierLabel:
-                                                                            'Dialog',
-                                                                        transitionDuration:
-                                                                            const Duration(milliseconds: 0),
-                                                                        pageBuilder: (_,
-                                                                            __,
-                                                                            ___) {
-                                                                          return LogPage(
-                                                                            name:
-                                                                                i['name'],
-                                                                            ip: devices[index],
-                                                                            close:
-                                                                                () {
-                                                                              Navigator.pop(context);
-                                                                            },
-                                                                          );
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  ),
                                                               ],
-                                                            )
-                                                          : orientation ==
-                                                                      Orientation
-                                                                          .portrait &&
-                                                                  moreInfo ==
-                                                                      true
-                                                              ? Column(
+                                                            ),
+                                                          ),
+                                                          Platform.isMacOS ||
+                                                                  Platform
+                                                                      .isWindows ||
+                                                                  Platform
+                                                                      .isLinux
+                                                              ? Row(
+                                                                  // desktop variant
                                                                   mainAxisSize:
                                                                       MainAxisSize
                                                                           .min,
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .end,
                                                                   children: [
-                                                                    Row(
+                                                                    Text(
+                                                                      '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
+                                                                      softWrap:
+                                                                          true,
+                                                                      maxLines:
+                                                                          2,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .fade,
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              8.0),
+                                                                      child:
+                                                                          IconButtonElement(
+                                                                        label: translations['configButtonText'] ??
+                                                                            'Config',
+                                                                        noBackground:
+                                                                            false,
+                                                                        withCircle:
+                                                                            true,
+                                                                        icon:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .settings,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                        onPressed:
+                                                                            () =>
+                                                                                showGeneralDialog(
+                                                                          context:
+                                                                              context,
+                                                                          // barrierColor: Colors
+                                                                          //     .black12
+                                                                          //     .withOpacity(0.6), // Background color
+                                                                          barrierDismissible:
+                                                                              false,
+                                                                          barrierLabel:
+                                                                              'Dialog',
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 0),
+                                                                          pageBuilder: (_,
+                                                                              __,
+                                                                              ___) {
+                                                                            return ConfigPage(
+                                                                              name: i['name'],
+                                                                              ip: devices[index],
+                                                                              close: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              8.0),
+                                                                      child:
+                                                                          IconButtonElement(
+                                                                        label: translations['controlButtonText'] ??
+                                                                            'Control',
+                                                                        noBackground:
+                                                                            false,
+                                                                        withCircle:
+                                                                            true,
+                                                                        icon:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .control_camera,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                        onPressed:
+                                                                            () =>
+                                                                                showGeneralDialog(
+                                                                          context:
+                                                                              context,
+                                                                          // barrierColor: Colors
+                                                                          //     .black12
+                                                                          //     .withOpacity(0.6), // Background color
+                                                                          barrierDismissible:
+                                                                              false,
+                                                                          barrierLabel:
+                                                                              'Dialog',
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 0),
+                                                                          pageBuilder: (_,
+                                                                              __,
+                                                                              ___) {
+                                                                            return ControlPage(
+                                                                              ip: devices[index],
+                                                                              name: i['name'],
+                                                                              close: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              8.0),
+                                                                      child:
+                                                                          IconButtonElement(
+                                                                        label: translations['messageButtonText'] ??
+                                                                            'Message',
+                                                                        noBackground:
+                                                                            false,
+                                                                        withCircle:
+                                                                            true,
+                                                                        icon:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .message_outlined,
+                                                                          size:
+                                                                              18,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                        onPressed:
+                                                                            () =>
+                                                                                showGeneralDialog(
+                                                                          context:
+                                                                              context,
+                                                                          // barrierColor: Colors
+                                                                          //     .black12
+                                                                          //     .withOpacity(0.6), // Background color
+                                                                          barrierDismissible:
+                                                                              false,
+                                                                          barrierLabel:
+                                                                              'Dialog',
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 0),
+                                                                          pageBuilder: (_,
+                                                                              __,
+                                                                              ___) {
+                                                                            return MessagePage(
+                                                                              ip: devices[index],
+                                                                              name: i['name'],
+                                                                              close: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              8.0),
+                                                                      child:
+                                                                          IconButtonElement(
+                                                                        label: translations['liveControlButtonText'] ??
+                                                                            'Live Control',
+                                                                        noBackground:
+                                                                            false,
+                                                                        withCircle:
+                                                                            true,
+                                                                        icon:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .visibility_outlined,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                        onPressed:
+                                                                            () =>
+                                                                                showGeneralDialog(
+                                                                          context:
+                                                                              context,
+                                                                          // barrierColor: Colors
+                                                                          //     .black12
+                                                                          //     .withOpacity(0.6), // Background color
+                                                                          barrierDismissible:
+                                                                              false,
+                                                                          barrierLabel:
+                                                                              'Dialog',
+                                                                          transitionDuration:
+                                                                              const Duration(milliseconds: 0),
+                                                                          pageBuilder: (_,
+                                                                              __,
+                                                                              ___) {
+                                                                            return LiveControlPage(
+                                                                              ip: devices[index],
+                                                                              name: i['name'],
+                                                                              close: () {
+                                                                                Navigator.pop(context);
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    if (moreInfo ==
+                                                                        true)
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            left:
+                                                                                8.0),
+                                                                        child:
+                                                                            IconButtonElement(
+                                                                          label:
+                                                                              translations['infoButtonText'] ?? 'Monitoring',
+                                                                          noBackground:
+                                                                              false,
+                                                                          withCircle:
+                                                                              true,
+                                                                          icon:
+                                                                              Icon(
+                                                                            Icons.info_outline,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                          moreInfo:
+                                                                              true,
+                                                                          onPressed: () =>
+                                                                              showGeneralDialog(
+                                                                            context:
+                                                                                context,
+                                                                            // barrierColor: Colors
+                                                                            //     .black12
+                                                                            //     .withOpacity(0.6), // Background color
+                                                                            barrierDismissible:
+                                                                                false,
+                                                                            barrierLabel:
+                                                                                'Dialog',
+                                                                            transitionDuration:
+                                                                                const Duration(milliseconds: 0),
+                                                                            pageBuilder: (_,
+                                                                                __,
+                                                                                ___) {
+                                                                              return InfoPage(
+                                                                                name: i['name'],
+                                                                                ip: devices[index],
+                                                                                close: () {
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    if (moreInfo ==
+                                                                        true)
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            left:
+                                                                                8.0),
+                                                                        child:
+                                                                            IconButtonElement(
+                                                                          label:
+                                                                              translations['logButtonText'] ?? 'Log',
+                                                                          noBackground:
+                                                                              false,
+                                                                          withCircle:
+                                                                              true,
+                                                                          icon: Icon(
+                                                                              Icons.terminal,
+                                                                              color: Colors.white),
+                                                                          moreInfo:
+                                                                              true,
+                                                                          onPressed: () =>
+                                                                              showGeneralDialog(
+                                                                            context:
+                                                                                context,
+                                                                            // barrierColor: Colors
+                                                                            //     .black12
+                                                                            //     .withOpacity(0.6), // Background color
+                                                                            barrierDismissible:
+                                                                                false,
+                                                                            barrierLabel:
+                                                                                'Dialog',
+                                                                            transitionDuration:
+                                                                                const Duration(milliseconds: 0),
+                                                                            pageBuilder: (_,
+                                                                                __,
+                                                                                ___) {
+                                                                              return LogPage(
+                                                                                name: i['name'],
+                                                                                ip: devices[index],
+                                                                                close: () {
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                  ],
+                                                                )
+                                                              : orientation ==
+                                                                          Orientation
+                                                                              .portrait &&
+                                                                      moreInfo ==
+                                                                          true
+                                                                  ? Column(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .end,
+                                                                      children: [
+                                                                        Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            ...mobileButtons1(
+                                                                                i,
+                                                                                zoneName,
+                                                                                index)
+                                                                          ],
+                                                                        ),
+                                                                        SizedBox(
+                                                                            height:
+                                                                                8.0),
+                                                                        Row(
+                                                                          mainAxisSize:
+                                                                              MainAxisSize.min,
+                                                                          children: [
+                                                                            ...mobileButtons2(
+                                                                                i,
+                                                                                zoneName,
+                                                                                index)
+                                                                          ],
+                                                                        )
+                                                                      ],
+                                                                    )
+                                                                  : Row(
                                                                       mainAxisSize:
                                                                           MainAxisSize
                                                                               .min,
@@ -1712,40 +1780,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         ...mobileButtons1(
                                                                             i,
                                                                             zoneName,
-                                                                            index)
-                                                                      ],
-                                                                    ),
-                                                                    SizedBox(
-                                                                        height:
-                                                                            8.0),
-                                                                    Row(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      children: [
+                                                                            index),
                                                                         ...mobileButtons2(
                                                                             i,
                                                                             zoneName,
-                                                                            index)
+                                                                            index),
                                                                       ],
-                                                                    )
-                                                                  ],
-                                                                )
-                                                              : Row(
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .min,
-                                                                  children: [
-                                                                    ...mobileButtons1(
-                                                                        i,
-                                                                        zoneName,
-                                                                        index),
-                                                                    ...mobileButtons2(
-                                                                        i,
-                                                                        zoneName,
-                                                                        index),
-                                                                  ],
-                                                                ),
+                                                                    ),
+                                                        ],
+                                                      ),
                                                     ),
                                                     Positioned(
                                                         top: 60,
@@ -1781,51 +1824,45 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                               );
                                                             },
                                                           ),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
-                                                                    horizontal:
-                                                                        16.0),
-                                                            child: NotificationListener<
-                                                                SizeChangedLayoutNotification>(
-                                                              onNotification:
-                                                                  (notification) {
-                                                                updateSizes(
-                                                                    'NotificationListener');
-                                                                build(context);
-                                                                return false;
-                                                              },
-                                                              child:
-                                                                  SizeChangedLayoutNotifier(
-                                                                child: SizedBox(
-                                                                  width: MediaQuery.of(
-                                                                              context)
-                                                                          .size
-                                                                          .width -
-                                                                      (orientation == Orientation.portrait &&
-                                                                              moreInfo == true
-                                                                          ? 130
-                                                                          : 30),
+                                                          child: NotificationListener<
+                                                              SizeChangedLayoutNotification>(
+                                                            onNotification:
+                                                                (notification) {
+                                                              updateSizes(
+                                                                  'NotificationListener');
+                                                              build(context);
+                                                              return false;
+                                                            },
+                                                            child:
+                                                                SizeChangedLayoutNotifier(
+                                                              child: SizedBox(
+                                                                key: ValueKey(
+                                                                    'TextScrollWrapper-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                width: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width -
+                                                                    (orientation == Orientation.portrait &&
+                                                                            moreInfo ==
+                                                                                true
+                                                                        ? 90
+                                                                        : 16),
+                                                                child:
+                                                                    TextScroll(
+                                                                  '${replaceCodes(i['displaystr'] ?? '')}    ////    ',
                                                                   key: ValueKey(
-                                                                      'TextScrollWrapper-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                                                  child:
-                                                                      TextScroll(
-                                                                    '${replaceCodes(i['displaystr'] ?? '')}    ////    ',
-                                                                    key: ValueKey(
-                                                                        'TextScroll-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: SharedWidgets.textColor(
-                                                                          context:
-                                                                              context),
-                                                                    ),
-                                                                    fadedBorder:
-                                                                        true,
-                                                                    fadeBorderSide:
-                                                                        FadeBorderSide
-                                                                            .right,
+                                                                      'TextScroll-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: SharedWidgets.textColor(
+                                                                        context:
+                                                                            context),
                                                                   ),
+                                                                  fadedBorder:
+                                                                      true,
+                                                                  fadeBorderSide:
+                                                                      FadeBorderSide
+                                                                          .right,
                                                                 ),
                                                               ),
                                                             ),
@@ -1838,9 +1875,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                               ),
                               if (devices.isNotEmpty && coverRowActiv == true)
                                 getCoverRow(info: info),
-                              if (SharedWidgets.inIosStyle())
-                                const SizedBox(height: 14.0),
-                              if (height > minDesktopSize.height + 75)
+                              if (SharedWidgets.inIosStyle() &&
+                                  orientation == Orientation.portrait)
+                                SizedBox(height: exportButtonPaddingIos),
+                              if (showExportButton == true)
                                 Padding(
                                   padding: EdgeInsets.symmetric(
                                       vertical: Platform.isMacOS ||
@@ -1898,8 +1936,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                     ],
                                   ),
                                 ),
-                              if (SharedWidgets.inIosStyle())
-                                const SizedBox(height: 14.0),
+                              if (SharedWidgets.inIosStyle() &&
+                                  orientation == Orientation.portrait)
+                                SizedBox(height: exportButtonPaddingIos),
                             ],
                           ),
                         ),
@@ -1969,144 +2008,153 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     updateSizes('build');
 
     if (SharedWidgets.inIosStyle()) {
+      ObstructingPreferredSizeWidget navigationBar = CupertinoNavigationBar(
+        brightness: SharedWidgets.brightness(),
+        middle: Text(title),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: Icon(Icons.menu, color: _isDrawerOpen ? Colors.grey : null),
+          onPressed: () =>
+              _isDrawerOpen ? null : setState(() => _isDrawerOpen = true),
+        ),
+      );
+
+      if (Platform.isIOS) {
+        appBarHeight = navigationBar.preferredSize.height;
+      }
+
       return Material(
         child: CupertinoPageScaffold(
-          navigationBar: CupertinoNavigationBar(
-            brightness: SharedWidgets.brightness(),
-            middle: Text(title),
-            leading: CupertinoButton(
-              padding: EdgeInsets.zero,
-              child:
-                  Icon(Icons.menu, color: _isDrawerOpen ? Colors.grey : null),
-              onPressed: () =>
-                  _isDrawerOpen ? null : setState(() => _isDrawerOpen = true),
-            ),
-          ),
+          navigationBar: navigationBar,
           child: SafeArea(
             child: stack(context),
           ),
         ),
       );
     }
-    return SharedWidgets.inMacosStyle()
-        ? MacosScaffold(
-            toolBar: ToolBar(
-              title: Center(child: Text(title)),
-              titleWidth: 1000.0,
-              actions: [
-                const ToolBarSpacer(),
-                ToolBarIconButton(
-                  label: "",
-                  icon: Icon(
-                    FontAwesomeIcons.arrowsLeftRight,
-                    size: 16.0,
-                    color: SharedWidgets.toolbarResizeButtonColor(
-                        context: context),
-                  ),
+
+    if (SharedWidgets.inMacosStyle()) {
+      return MacosScaffold(
+        toolBar: ToolBar(
+          title: Center(child: Text(title)),
+          titleWidth: 1000.0,
+          actions: [
+            const ToolBarSpacer(),
+            ToolBarIconButton(
+              label: "",
+              icon: Icon(
+                FontAwesomeIcons.arrowsLeftRight,
+                size: 16.0,
+                color: SharedWidgets.toolbarResizeButtonColor(context: context),
+              ),
+              onPressed: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                  minDesktopSize: minDesktopSize),
+              showLabel: false,
+            ),
+            ToolBarIconButton(
+              label: "",
+              icon: Icon(
+                FontAwesomeIcons.minimize,
+                size: 16.0,
+                color: SharedWidgets.toolbarResizeButtonColor(context: context),
+              ),
+              onPressed: () =>
+                  windowManager.setSize(standardDesktopSize, animate: true),
+              showLabel: false,
+            ),
+            ToolBarIconButton(
+              label: "",
+              icon: Icon(
+                FontAwesomeIcons.maximize,
+                size: 16.0,
+                color: SharedWidgets.toolbarResizeButtonColor(context: context),
+              ),
+              onPressed: () => windowManager.maximize(),
+              showLabel: false,
+            ),
+            const ToolBarSpacer(),
+          ],
+        ),
+        children: [
+          ContentArea(
+            builder: ((context, scrollController) {
+              return Material(
+                child: MacosWindow(
+                  child: body(),
+                ),
+              );
+            }),
+          ),
+        ],
+      );
+    }
+
+    PreferredSizeWidget appBar = AppBar(
+      title: Text(title),
+      actions: [
+        if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: IconButton(
+                  iconSize: 16.0,
+                  padding: EdgeInsets.zero,
                   onPressed: () =>
                       mainBloc.windowResizeToFullWidthAndMinimumHeight(
                           minDesktopSize: minDesktopSize),
-                  showLabel: false,
-                ),
-                ToolBarIconButton(
-                  label: "",
                   icon: Icon(
-                    FontAwesomeIcons.minimize,
-                    size: 16.0,
+                    FontAwesomeIcons.arrowsLeftRight,
                     color: SharedWidgets.toolbarResizeButtonColor(
                         context: context),
                   ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
+                child: IconButton(
+                  iconSize: 16.0,
+                  padding: EdgeInsets.zero,
                   onPressed: () =>
                       windowManager.setSize(standardDesktopSize, animate: true),
-                  showLabel: false,
-                ),
-                ToolBarIconButton(
-                  label: "",
                   icon: Icon(
-                    FontAwesomeIcons.maximize,
-                    size: 16.0,
+                    FontAwesomeIcons.minimize,
                     color: SharedWidgets.toolbarResizeButtonColor(
                         context: context),
                   ),
-                  onPressed: () => windowManager.maximize(),
-                  showLabel: false,
                 ),
-                const ToolBarSpacer(),
-              ],
-            ),
-            children: [
-              ContentArea(
-                builder: ((context, scrollController) {
-                  return Material(
-                    child: MacosWindow(
-                      child: body(),
-                    ),
-                  );
-                }),
               ),
-            ],
-          )
-        : Scaffold(
-            appBar: AppBar(
-              title: Text(title),
-              actions: [
-                if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16.0),
-                        child: IconButton(
-                          iconSize: 16.0,
-                          padding: EdgeInsets.zero,
-                          onPressed: () =>
-                              mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                                  minDesktopSize: minDesktopSize),
-                          icon: Icon(
-                            FontAwesomeIcons.arrowsLeftRight,
-                            color: SharedWidgets.toolbarResizeButtonColor(
-                                context: context),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            right: Platform.isMacOS ? 16.0 : 4.0),
-                        child: IconButton(
-                          iconSize: 16.0,
-                          padding: EdgeInsets.zero,
-                          onPressed: () => windowManager
-                              .setSize(standardDesktopSize, animate: true),
-                          icon: Icon(
-                            FontAwesomeIcons.minimize,
-                            color: SharedWidgets.toolbarResizeButtonColor(
-                                context: context),
-                          ),
-                        ),
-                      ),
-                      if (Platform.isMacOS)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4.0),
-                          child: IconButton(
-                            iconSize: 16.0,
-                            padding: EdgeInsets.zero,
-                            onPressed: () => windowManager.maximize(),
-                            icon: Icon(
-                              FontAwesomeIcons.maximize,
-                              color: SharedWidgets.toolbarResizeButtonColor(
-                                  context: context),
-                            ),
-                          ),
-                        ),
-                    ],
+              if (Platform.isMacOS)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4.0),
+                  child: IconButton(
+                    iconSize: 16.0,
+                    padding: EdgeInsets.zero,
+                    onPressed: () => windowManager.maximize(),
+                    icon: Icon(
+                      FontAwesomeIcons.maximize,
+                      color: SharedWidgets.toolbarResizeButtonColor(
+                          context: context),
+                    ),
                   ),
-              ],
-            ),
-            drawer: SharedWidgets.inIosStyle() ||
-                    Platform.isAndroid ||
-                    Platform.isFuchsia
-                ? burgerMenu()
-                : null,
-            body: body());
+                ),
+            ],
+          ),
+      ],
+    );
+
+    if (Platform.isAndroid || Platform.isFuchsia) {
+      appBarHeight = appBar.preferredSize.height;
+    }
+
+    return Scaffold(
+        appBar: appBar,
+        drawer: SharedWidgets.inIosStyle() ||
+                Platform.isAndroid ||
+                Platform.isFuchsia
+            ? burgerMenu()
+            : null,
+        body: body());
   }
 }
 
