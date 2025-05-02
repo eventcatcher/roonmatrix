@@ -779,15 +779,21 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return str;
   }
 
-  List<Widget> mobileButtons1(i, zoneName, index) => [
-        if (orientation == Orientation.portrait)
-          Text('${i['playcount']}',
+  List<Widget> mobileButtonsWithPrependedInfo({
+    required String zoneName,
+    required String ip,
+    required Map<String, dynamic> zoneData,
+    required bool showButtonsInTwoColumns,
+  }) =>
+      [
+        if (showButtonsInTwoColumns == true)
+          Text('${zoneData['playcount']}',
               softWrap: true,
               overflow: TextOverflow.fade,
               style: const TextStyle(fontSize: 9)),
-        if (orientation == Orientation.landscape)
+        if (!showButtonsInTwoColumns)
           Text(
-            '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${i['playcount']}  ',
+            '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: zoneData['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${zoneData['playcount']}  ',
             softWrap: true,
             maxLines: 2,
             overflow: TextOverflow.fade,
@@ -810,8 +816,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 transitionDuration: const Duration(milliseconds: 0),
                 pageBuilder: (_, __, ___) {
                   return ConfigPage(
-                    name: i['name'],
-                    ip: devices[index],
+                    name: zoneData['name'],
+                    ip: ip,
                     close: () {
                       Navigator.pop(context);
                     },
@@ -842,8 +848,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 transitionDuration: const Duration(milliseconds: 0),
                 pageBuilder: (_, __, ___) {
                   return ControlPage(
-                    ip: devices[index],
-                    name: i['name'],
+                    ip: ip,
+                    name: zoneData['name'],
                     close: () {
                       Navigator.pop(context);
                     },
@@ -874,8 +880,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 transitionDuration: const Duration(milliseconds: 0),
                 pageBuilder: (_, __, ___) {
                   return MessagePage(
-                    ip: devices[index],
-                    name: i['name'],
+                    ip: ip,
+                    name: zoneData['name'],
                     close: () {
                       Navigator.pop(context);
                     },
@@ -907,8 +913,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 transitionDuration: const Duration(milliseconds: 0),
                 pageBuilder: (_, __, ___) {
                   return LiveControlPage(
-                    ip: devices[index],
-                    name: i['name'],
+                    ip: ip,
+                    name: zoneData['name'],
                     close: () {
                       Navigator.pop(context);
                     },
@@ -924,7 +930,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         ),
       ];
 
-  List<Widget> mobileButtons2(i, zoneName, index) => [
+  List<Widget> mobileButtonsForDebugging(
+          {required String zoneName,
+          required String ip,
+          required Map<String, dynamic> zoneData}) =>
+      [
         if (moreInfo == true)
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
@@ -943,8 +953,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                   transitionDuration: const Duration(milliseconds: 0),
                   pageBuilder: (_, __, ___) {
                     return InfoPage(
-                      name: i['name'],
-                      ip: devices[index],
+                      name: zoneData['name'],
+                      ip: ip,
                       close: () {
                         Navigator.pop(context);
                       },
@@ -976,8 +986,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                   transitionDuration: const Duration(milliseconds: 0),
                   pageBuilder: (_, __, ___) {
                     return LogPage(
-                      name: i['name'],
-                      ip: devices[index],
+                      name: zoneData['name'],
+                      ip: ip,
                       close: () {
                         Navigator.pop(context);
                       },
@@ -1089,6 +1099,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                           }
                         });
                       }
+
+                      bool showButtonsInTwoColumns =
+                          MediaQuery.of(context).size.width < 700;
 
                       return Container(
                         key: windowKey,
@@ -1734,10 +1747,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                       ),
                                                                   ],
                                                                 )
-                                                              : orientation ==
-                                                                          Orientation
-                                                                              .portrait &&
-                                                                      moreInfo ==
+                                                              : moreInfo ==
+                                                                          true &&
+                                                                      showButtonsInTwoColumns ==
                                                                           true
                                                                   ? Column(
                                                                       mainAxisSize:
@@ -1751,10 +1763,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                           mainAxisSize:
                                                                               MainAxisSize.min,
                                                                           children: [
-                                                                            ...mobileButtons1(
-                                                                                i,
-                                                                                zoneName,
-                                                                                index)
+                                                                            ...mobileButtonsWithPrependedInfo(
+                                                                                zoneName: zoneName,
+                                                                                ip: devices[index],
+                                                                                zoneData: i,
+                                                                                showButtonsInTwoColumns: showButtonsInTwoColumns)
                                                                           ],
                                                                         ),
                                                                         SizedBox(
@@ -1764,10 +1777,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                           mainAxisSize:
                                                                               MainAxisSize.min,
                                                                           children: [
-                                                                            ...mobileButtons2(
-                                                                                i,
-                                                                                zoneName,
-                                                                                index)
+                                                                            ...mobileButtonsForDebugging(
+                                                                              zoneName: zoneName,
+                                                                              ip: devices[index],
+                                                                              zoneData: i,
+                                                                            )
                                                                           ],
                                                                         )
                                                                       ],
@@ -1777,14 +1791,23 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                           MainAxisSize
                                                                               .min,
                                                                       children: [
-                                                                        ...mobileButtons1(
-                                                                            i,
-                                                                            zoneName,
-                                                                            index),
-                                                                        ...mobileButtons2(
-                                                                            i,
-                                                                            zoneName,
-                                                                            index),
+                                                                        ...mobileButtonsWithPrependedInfo(
+                                                                            zoneName:
+                                                                                zoneName,
+                                                                            ip: devices[
+                                                                                index],
+                                                                            zoneData:
+                                                                                i,
+                                                                            showButtonsInTwoColumns:
+                                                                                showButtonsInTwoColumns),
+                                                                        ...mobileButtonsForDebugging(
+                                                                          zoneName:
+                                                                              zoneName,
+                                                                          ip: devices[
+                                                                              index],
+                                                                          zoneData:
+                                                                              i,
+                                                                        ),
                                                                       ],
                                                                     ),
                                                         ],
@@ -1842,8 +1865,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                             context)
                                                                         .size
                                                                         .width -
-                                                                    (orientation == Orientation.portrait &&
-                                                                            moreInfo ==
+                                                                    (moreInfo ==
+                                                                                true &&
+                                                                            showButtonsInTwoColumns ==
                                                                                 true
                                                                         ? 90
                                                                         : 16),
