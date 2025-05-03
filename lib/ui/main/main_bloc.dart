@@ -466,25 +466,27 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 headers: headers, body: json.encode(payload));
 
             if (response.statusCode == 200) {
-              if (cmd == 'switch' && state.info.containsKey(ip)) {
+              if (state.info.containsKey(ip)) {
                 Map<String, dynamic> info = state.info;
-                info[ip]['control_id'] = controlId;
+                if (cmd == 'switch') {
+                  info[ip]['control_id'] = controlId;
 
-                emit(MainStateLoaded(
-                  update: DateTime.now(),
-                  ipStart: state.ipStart,
-                  ipEnd: state.ipEnd,
-                  searchFilter: state.searchFilter,
-                  devices: state.devices,
-                  info: info,
-                  config: state.config,
-                  definitions: state.definitions,
-                  fieldValues: state.fieldValues,
-                  log: state.log,
-                  idle: state.idle,
-                  subPageIdle: state.subPageIdle,
-                  logMessage: state.logMessage,
-                ));
+                  emit(MainStateLoaded(
+                    update: DateTime.now(),
+                    ipStart: state.ipStart,
+                    ipEnd: state.ipEnd,
+                    searchFilter: state.searchFilter,
+                    devices: state.devices,
+                    info: info,
+                    config: state.config,
+                    definitions: state.definitions,
+                    fieldValues: state.fieldValues,
+                    log: state.log,
+                    idle: state.idle,
+                    subPageIdle: state.subPageIdle,
+                    logMessage: state.logMessage,
+                  ));
+                }
               }
               if (kDebugMode) {
                 print(
@@ -1242,6 +1244,48 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       setLogMessage(msg: logMessage);
     }
+  }
+
+  Map<String, dynamic>? getZoneDataForControlId({
+    required String? controlId,
+    required Map<String, dynamic> info,
+  }) {
+    Map<String, dynamic>? zone;
+
+    if (info == {}) {
+      return {};
+    }
+
+    Map<String, dynamic> channels = info['channels'];
+
+    if (controlId != null &&
+        controlId.isNotEmpty &&
+        channels.keys.contains(controlId)) {
+      if (channels[controlId] == 'webserver') {
+        List<String> controlIdParts = controlId.split('-');
+        String serverName = controlIdParts[0];
+        String zoneName = controlIdParts[1];
+        if (info['web_playouts'][serverName] != null) {
+          List<dynamic> zones = info['web_playouts'][serverName];
+          zone = zones.firstWhereOrNull(
+              (dynamic el) => (el['zone'] as String) == zoneName);
+          if (zone != null) {
+            zone['server'] = serverName;
+          }
+        }
+      } else {
+        String zoneName = channels[controlId];
+        if (info['roon_playouts'][zoneName] != null) {
+          zone = info['roon_playouts'][zoneName];
+          if (zone != null) {
+            zone['zone'] = zoneName;
+            zone['server'] = 'roon';
+          }
+        }
+      }
+    }
+
+    return zone;
   }
 
   setPollingTimer() {

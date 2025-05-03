@@ -8,7 +8,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
-import 'package:roonmatrix/ui/details/control_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
 import 'package:roonmatrix/ui/details/live_control_page.dart';
@@ -201,7 +200,63 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return zone;
   }
 
-  List<CoverModel> getCovers(Map<String, dynamic>? info) {
+  CoverModel? getRoonCoverModel({
+    required Map<String, dynamic> channels,
+    required String zoneName,
+    required dynamic zone,
+    required bool idle,
+  }) {
+    String? coverUrl = zone['cover'];
+    if (((idle == false && zone['status'] == null) ||
+            (idle == true && zone['status'] != null)) &&
+        channels.values.contains(zoneName)) {
+      String controlId =
+          channels.keys.firstWhere((el) => channels[el] == zoneName);
+      CoverModel coverModel = CoverModel(
+        controlId: controlId,
+        zoneName: zoneName,
+        coverUrl: coverUrl ?? '',
+        artist: zone['artist'] ?? '',
+        album: zone['album'] ?? '',
+        track: coverUrl != null
+            ? zone['track'] ?? ''
+            : '${translations['inactive'] ?? 'inactive zone'}',
+      );
+
+      return coverModel;
+    }
+
+    return null;
+  }
+
+  CoverModel? getWebCoverModel({
+    required Map<String, dynamic> channels,
+    required String zoneName,
+    required dynamic zone,
+    required bool idle,
+  }) {
+    String? coverUrl = zone['cover'];
+    if (((idle == false && zone['status'] == null) ||
+            (idle == true && zone['status'] != null)) &&
+        channels.keys.contains(zoneName)) {
+      CoverModel coverModel = CoverModel(
+        controlId: zoneName,
+        zoneName: zoneName,
+        coverUrl: coverUrl ?? '',
+        artist: zone['artist'] ?? '',
+        album: zone['album'] ?? '',
+        track: coverUrl != null
+            ? zone['track'] ?? ''
+            : '${translations['inactive'] ?? 'inactive zone'}',
+      );
+
+      return coverModel;
+    }
+
+    return null;
+  }
+
+  List<CoverModel> getCoversModel(Map<String, dynamic>? info) {
     List<CoverModel> covers = [];
 
     if (info != null && info != {}) {
@@ -211,20 +266,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         Map<String, dynamic> channels = info[info.keys.first]['channels'];
 
         for (String zoneName in roonPlayouts.keys) {
-          dynamic zone = roonPlayouts[zoneName];
-          String? coverUrl = zone['cover'];
-
-          if (coverUrl != null &&
-              coverUrl.isNotEmpty &&
-              channels.values.contains(zoneName)) {
-            CoverModel coverModel = CoverModel(
-              zoneName: zoneName,
-              coverUrl: coverUrl,
-              artist: zone['artist'],
-              album: zone['album'],
-              track: zone['track'],
-            );
-
+          CoverModel? coverModel = getRoonCoverModel(
+            channels: channels,
+            zoneName: zoneName,
+            zone: roonPlayouts[zoneName],
+            idle: false,
+          );
+          if (coverModel != null) {
             covers.add(coverModel);
           }
         }
@@ -235,18 +283,43 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           List<dynamic> zones = webPlayouts[serverName];
           for (dynamic zone in zones) {
             String zoneName = '$serverName-${zone['zone']}';
-            String? coverUrl = zone['cover'];
-            if (coverUrl != null &&
-                coverUrl.isNotEmpty &&
-                channels.keys.contains(zoneName)) {
-              CoverModel coverModel = CoverModel(
-                zoneName: zoneName,
-                coverUrl: coverUrl,
-                artist: zone['artist'],
-                album: zone['album'],
-                track: zone['track'],
-              );
 
+            CoverModel? coverModel = getWebCoverModel(
+              channels: channels,
+              zoneName: zoneName,
+              zone: zone,
+              idle: false,
+            );
+            if (coverModel != null) {
+              covers.add(coverModel);
+            }
+          }
+        }
+
+        for (String zoneName in roonPlayouts.keys) {
+          CoverModel? coverModel = getRoonCoverModel(
+            channels: channels,
+            zoneName: zoneName,
+            zone: roonPlayouts[zoneName],
+            idle: true,
+          );
+          if (coverModel != null) {
+            covers.add(coverModel);
+          }
+        }
+
+        for (String serverName in webPlayouts.keys) {
+          List<dynamic> zones = webPlayouts[serverName];
+          for (dynamic zone in zones) {
+            String zoneName = '$serverName-${zone['zone']}';
+
+            CoverModel? coverModel = getWebCoverModel(
+              channels: channels,
+              zoneName: zoneName,
+              zone: zone,
+              idle: true,
+            );
+            if (coverModel != null) {
               covers.add(coverModel);
             }
           }
@@ -340,7 +413,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               ),
             ),
           ]),
-        if (coverRowTrack == true)
+        if (coverRowTrack == true && coverModel.track.isNotEmpty)
           TableRow(children: [
             TableCell(
               child: Container(
@@ -396,33 +469,63 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
             return Stack(
               children: [
-                Container(
-                  margin: EdgeInsets.only(left: 1.0),
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(
-                  //     color: Colors.white,
-                  //     width: 1.0,
-                  //   ),
-                  // ),
-                  width: coverWidth,
-                  height: coverHeight,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(0),
-                    child: AnimatedSwitcher(
-                      duration: Duration(milliseconds: 2000),
-                      switchInCurve: Curves.easeIn,
-                      switchOutCurve: Curves.easeOut,
-                      // transitionBuilder: (Widget child, Animation<double> animation) {
-                      //   return ScaleTransition(scale: animation, child: child);
-                      // },
-                      child: Image.network(
-                        coverModel
-                            .coverUrl, // if imageUrl changed, the transition will be animated
-                        key: ValueKey(
-                            'CoverRow-${orientation.name}-${coverModel.coverUrl}'),
-                        fit: BoxFit.cover,
-                        width: coverRowDynamicSize ? double.infinity : null,
-                        height: coverRowDynamicSize ? double.infinity : null,
+                InkWell(
+                  onTap: () {
+                    showGeneralDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      barrierLabel: 'Dialog',
+                      transitionDuration: const Duration(milliseconds: 0),
+                      pageBuilder: (_, __, ___) {
+                        return CoverPage(
+                          index: 0,
+                          name: coverModel.zoneName,
+                          ip: devices[0],
+                          controlId: coverModel.controlId,
+                          translations: translations,
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(left: 1.0),
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //     color: Colors.white,
+                    //     width: 1.0,
+                    //   ),
+                    // ),
+                    width: coverWidth,
+                    height: coverHeight,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(0),
+                      child: AnimatedSwitcher(
+                        duration: Duration(milliseconds: 2000),
+                        switchInCurve: Curves.easeIn,
+                        switchOutCurve: Curves.easeOut,
+                        // transitionBuilder: (Widget child, Animation<double> animation) {
+                        //   return ScaleTransition(scale: animation, child: child);
+                        // },
+                        child: coverModel.coverUrl.isNotEmpty
+                            ? Image.network(
+                                coverModel
+                                    .coverUrl, // if imageUrl changed, the transition will be animated
+                                key: ValueKey(
+                                    'CoverRow-${orientation.name}-${coverModel.coverUrl}'),
+                                fit: BoxFit.cover,
+                                width: coverRowDynamicSize
+                                    ? double.infinity
+                                    : null,
+                                height: coverRowDynamicSize
+                                    ? double.infinity
+                                    : null,
+                              )
+                            : SvgPicture.asset(
+                                'assets/svg/8-8-led-matrix-display-unit.svg',
+                                allowDrawingOutsideViewBox: false,
+                                width: double.infinity,
+                                height: double.infinity,
+                              ),
                       ),
                     ),
                   ),
@@ -448,7 +551,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                     coverRowAlbum == true)
                             ? getTextArea(coverModel)
                             : Text(
-                                '${translations['zoneSelectionLabel'] ?? 'Zone'}: ${coverModel.zoneName}${coverRowTrack == true && constraints.maxHeight > 169 ? ', ${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
+                                '${translations['zoneSelectionLabel'] ?? 'Zone'}: ${coverModel.zoneName}${coverRowTrack == true && coverModel.track.isNotEmpty && constraints.maxHeight > 169 ? ', ${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
                                 style: TextStyle(
                                   fontSize:
                                       constraints.maxHeight > 250 ? 12.0 : 9.0,
@@ -518,13 +621,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 : 48 // height of export button (Android: ElevatedButton.icon)
             : 0;
 
-        double partsToRemove = (appBarHeight ?? 56) +
+        double partsToSubtract = (appBarHeight ?? 56) +
             searchFieldAreaHeight +
             exportButtonAreaHeight;
         double coverSizeMaxPossibleOnMobile = boxSizeHeight -
-            partsToRemove -
+            partsToSubtract -
             minNumberOfListItems * itemListHeight;
-        double listHeightArea = boxSizeHeight - partsToRemove;
+        double listHeightArea = boxSizeHeight - partsToSubtract;
         int maxListCount = (listHeightArea / itemListHeight).floor();
 
         double listHeightMax = listHeightArea - preferredCoverSize;
@@ -563,7 +666,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
         if (kDebugMode == true) {
           debugPrint(
-              'getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToRemove: $partsToRemove, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
+              'getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToSubtract: $partsToSubtract, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
         }
       }
     }
@@ -581,7 +684,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     Widget coverRowList = AnimatedList(
       key: coverListKey,
       scrollDirection: Axis.horizontal,
-      physics: const PageScrollPhysics(), // <-- pagewide scrolling
+      physics:
+          const BouncingScrollPhysics(), // PageScrollPhysics <-- pagewide scrolling
       initialItemCount: coverList.length,
       itemBuilder: (context, index, animation) {
         return FadeTransition(
@@ -840,19 +944,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               padding: EdgeInsets.zero,
               onPressed: () => showGeneralDialog(
                 context: context,
-                // barrierColor: Colors
-                //     .black12
-                //     .withOpacity(0.6), // Background color
                 barrierDismissible: false,
                 barrierLabel: 'Dialog',
                 transitionDuration: const Duration(milliseconds: 0),
                 pageBuilder: (_, __, ___) {
-                  return ControlPage(
-                    ip: ip,
+                  return CoverPage(
+                    index: 0,
                     name: zoneData['name'],
-                    close: () {
-                      Navigator.pop(context);
-                    },
+                    ip: ip,
+                    translations: translations,
                   );
                 },
               ),
@@ -1074,7 +1174,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     //   ...devices
                     // ];
 
-                    List<CoverModel> coverListNew = getCovers(info);
+                    List<CoverModel> coverListNew = getCoversModel(info);
                     if (coverListNew.length != coverList.length) {
                       itemsToRemove(newList: coverListNew);
                       itemsToAdd(newList: coverListNew);
@@ -1527,9 +1627,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                                 showGeneralDialog(
                                                                           context:
                                                                               context,
-                                                                          // barrierColor: Colors
-                                                                          //     .black12
-                                                                          //     .withOpacity(0.6), // Background color
                                                                           barrierDismissible:
                                                                               false,
                                                                           barrierLabel:
@@ -1539,12 +1636,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                           pageBuilder: (_,
                                                                               __,
                                                                               ___) {
-                                                                            return ControlPage(
-                                                                              ip: devices[index],
+                                                                            return CoverPage(
+                                                                              index: 0,
                                                                               name: i['name'],
-                                                                              close: () {
-                                                                                Navigator.pop(context);
-                                                                              },
+                                                                              ip: devices[index],
+                                                                              translations: translations,
                                                                             );
                                                                           },
                                                                         ),
@@ -2219,6 +2315,7 @@ class MenuItem extends StatelessWidget {
 }
 
 class CoverModel {
+  String controlId;
   String coverUrl;
   String zoneName;
   String artist;
@@ -2226,6 +2323,7 @@ class CoverModel {
   String track;
 
   CoverModel({
+    required this.controlId,
     required this.coverUrl,
     required this.zoneName,
     required this.artist,

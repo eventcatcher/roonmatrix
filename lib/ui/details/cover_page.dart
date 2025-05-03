@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, BlocProvider;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/layout/control_buttons.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -18,6 +19,7 @@ class CoverPage extends StatefulWidget {
   final int index;
   final String name;
   final String ip;
+  final String? controlId;
   final Map<String, dynamic> translations;
 
   const CoverPage({
@@ -25,6 +27,7 @@ class CoverPage extends StatefulWidget {
     required this.index,
     required this.name,
     required this.ip,
+    this.controlId,
     required this.translations,
   });
 
@@ -50,6 +53,7 @@ class _CoverPageState extends State<CoverPage> {
 
   String? selectedZoneId;
   String? controlId;
+  bool idle = false;
 
   late MainBloc mainBloc;
 
@@ -332,24 +336,28 @@ class _CoverPageState extends State<CoverPage> {
                 builder: (context, MainState mainState) {
                   if (mainState is MainStateLoaded) {
                     info = mainState.info[ip] ?? {};
-                    channels = (info['channels'] ?? {});
-                    Map<String, String> optionsUpdated =
-                        generateOptionsAndPreselect();
 
-                    if (options.keys.join(',') !=
-                            optionsUpdated.keys.join(',') ||
-                        options.values.join(',') !=
-                            optionsUpdated.values.join(',')) {
-                      SchedulerBinding.instance.addPostFrameCallback((_) async {
-                        if (mounted) {
-                          setState(() {
-                            options = optionsUpdated;
-                          });
-                        }
-                      });
+                    channels = (info['channels'] ?? {});
+                    if (widget.controlId == null) {
+                      Map<String, String> optionsUpdated =
+                          generateOptionsAndPreselect();
+
+                      if (options.keys.join(',') !=
+                              optionsUpdated.keys.join(',') ||
+                          options.values.join(',') !=
+                              optionsUpdated.values.join(',')) {
+                        SchedulerBinding.instance
+                            .addPostFrameCallback((_) async {
+                          if (mounted) {
+                            setState(() {
+                              options = optionsUpdated;
+                            });
+                          }
+                        });
+                      }
                     }
 
-                    String? controlIdUpdated =
+                    String? controlIdUpdated = widget.controlId ??
                         mainState.info[mainState.devices[index]]?['control_id'];
 
                     if (info['web_playouts_raw'] != webPlayoutsRaw ||
@@ -379,6 +387,37 @@ class _CoverPageState extends State<CoverPage> {
                           });
                         }
                       });
+
+                      if (selectedZone != null) {
+                        String? zone = selectedZone!['zone'];
+
+                        if (controlIdUpdated != null &&
+                            channels[controlIdUpdated] == 'webserver') {
+                          List<String> controlIdParts =
+                              controlIdUpdated.split('-');
+                          String serverName = controlIdParts[0];
+                          String zoneName = controlIdParts[1];
+
+                          if (info['web_playouts'][serverName] != null) {
+                            List<dynamic> zones =
+                                info['web_playouts'][serverName];
+                            Map<String, dynamic>? webZone =
+                                zones.firstWhereOrNull((dynamic el) =>
+                                    (el['zone'] as String) == zoneName);
+
+                            idle = webZone != null &&
+                                webZone['status'] != null &&
+                                (webZone['status'] == 'not running' ||
+                                    webZone['status'] == 'idle');
+                          }
+                        } else {
+                          idle = zone != null &&
+                              info['roon_playouts'][zone] != null &&
+                              info['roon_playouts'][zone]['status'] != null &&
+                              info['roon_playouts'][zone]['status'] ==
+                                  'not running';
+                        }
+                      }
                     }
                   }
 
@@ -398,7 +437,8 @@ class _CoverPageState extends State<CoverPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      if (portraitMode == true) getSelectBoxArea(),
+                      if (portraitMode == true && widget.controlId == null)
+                        getSelectBoxArea(),
                       Expanded(
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
@@ -454,7 +494,21 @@ class _CoverPageState extends State<CoverPage> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    getSelectBoxArea(),
+                                    if (widget.controlId == null)
+                                      getSelectBoxArea(),
+                                    ControlButtons(
+                                      key: ValueKey(
+                                          'ControButtonsDesktop-$idle'),
+                                      orientation: orientation,
+                                      translations: translations,
+                                      partsToSubtract: 250,
+                                      ip: ip,
+                                      controlId:
+                                          controlId ?? widget.controlId ?? '',
+                                      idle: idle,
+                                      readOnly: selectedZoneId == null ||
+                                          selectedZoneId!.isEmpty,
+                                    ),
                                     getTextArea(),
                                   ],
                                 ),
@@ -462,7 +516,24 @@ class _CoverPageState extends State<CoverPage> {
                           ],
                         ),
                       ),
-                      if (portraitMode == true) getTextArea(),
+                      if (portraitMode == true)
+                        Row(
+                          children: [
+                            Expanded(child: getTextArea()),
+                            ControlButtons(
+                              key: ValueKey('ControButtonsPortrait-$idle'),
+                              orientation: orientation,
+                              translations: translations,
+                              partsToSubtract:
+                                  MediaQuery.of(context).size.height - 150,
+                              ip: ip,
+                              controlId: controlId!,
+                              idle: idle,
+                              readOnly: selectedZoneId == null ||
+                                  selectedZoneId!.isEmpty,
+                            ),
+                          ],
+                        ),
                     ],
                   );
                 }),

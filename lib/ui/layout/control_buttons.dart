@@ -1,14 +1,13 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class ControlButtons extends StatefulWidget {
   final Orientation orientation;
   final Map<String, dynamic> translations;
+  final double partsToSubtract;
   final String ip;
+  final bool? idle;
   final String controlId;
   final bool readOnly;
 
@@ -16,6 +15,8 @@ class ControlButtons extends StatefulWidget {
     super.key,
     required this.orientation,
     required this.translations,
+    this.partsToSubtract = 0,
+    this.idle,
     required this.ip,
     required this.controlId,
     this.readOnly = false,
@@ -28,190 +29,210 @@ class ControlButtons extends StatefulWidget {
 class ControlButtonsState extends State<ControlButtons> {
   Orientation get orientation => widget.orientation;
   Map<String, dynamic> get translations => widget.translations;
+  double get partsToSubtract => widget.partsToSubtract;
   String get ip => widget.ip;
   String get controlId => widget.controlId;
   bool get readOnly => widget.readOnly;
 
-  final double buttonSize =
-      Platform.isMacOS || Platform.isWindows || Platform.isLinux ? 128.0 : 88.0;
+  double getButtonSize({required double size}) => size / 3;
+
   final bool showButtonUp = false;
+  bool idle = false;
 
   late MainBloc mainBloc;
 
   @override
   void initState() {
     mainBloc = BlocProvider.of<MainBloc>(context);
+    idle = widget.idle ?? false;
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (orientation == Orientation.landscape ||
-            Platform.isMacOS ||
-            Platform.isWindows ||
-            Platform.isLinux)
-          Container(
-            margin: const EdgeInsets.only(bottom: 6.0),
-            child: Text(
-              translations['controlButtonPreviousText'] ?? 'previous',
-              style: TextStyle(
-                color: SharedWidgets.textColor(context: context),
-              ),
-            ),
-          ),
-        Column(
+    return LayoutBuilder(builder: (context, constraints) {
+      double maxWidth = constraints.maxWidth;
+      double maxHeight = constraints.maxHeight == double.infinity
+          ? MediaQuery.of(context).size.height - partsToSubtract
+          : constraints.maxHeight;
+      double size = maxWidth < maxHeight ? maxWidth : maxHeight;
+      double buttonSize = getButtonSize(size: size);
+      double verticalOffset = 60.0;
+
+      return SizedBox(
+        width: size,
+        height: size,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              showButtonUp == true
-                  ? translations['controlButtonUpText'] ?? 'up'
-                  : '',
-              style: TextStyle(
-                color: SharedWidgets.textColor(context: context),
-              ),
-            ),
-            SizedBox(
-              width: 3 * buttonSize,
-              height: 3 * buttonSize,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+            Column(
+              children: [
+                SizedBox(
+                  width: 3 * buttonSize,
+                  height: 3 * buttonSize,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      SizedBox(width: buttonSize),
-                      SizedBox(
-                        width: buttonSize,
-                        height: buttonSize,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          color: Colors.grey,
-                          hoverColor: Colors.blue,
-                          onPressed: () {
-                            //
-                          },
-                          icon: Icon(
-                            Icons.keyboard_arrow_up,
-                            size: buttonSize,
+                      Row(
+                        children: [
+                          SizedBox(width: buttonSize),
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: 1 == 1 || showButtonUp == true
+                                ? Tooltip(
+                                    message:
+                                        translations['controlButtonUpText'] ??
+                                            'up',
+                                    triggerMode: TooltipTriggerMode.manual,
+                                    verticalOffset: verticalOffset,
+                                    child: IconButton(
+                                      padding: EdgeInsets.zero,
+                                      color: Colors.grey,
+                                      hoverColor: Colors.blue,
+                                      onPressed: () async {
+                                        //
+                                      },
+                                      icon: Icon(
+                                        Icons.keyboard_arrow_up,
+                                        size: buttonSize,
+                                      ),
+                                    ),
+                                  )
+                                : null,
                           ),
-                        ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: Tooltip(
+                              message:
+                                  translations['controlButtonPreviousText'] ??
+                                      'previous',
+                              triggerMode: TooltipTriggerMode.manual,
+                              verticalOffset: verticalOffset,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                hoverColor: Colors.blue,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
+                                        ip: ip,
+                                        controlId: controlId,
+                                        cmd: 'previous');
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.keyboard_arrow_left,
+                                  size: buttonSize,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: Tooltip(
+                              message:
+                                  translations['controlButtonPlaymodeText'] ??
+                                      'pause/play',
+                              triggerMode: TooltipTriggerMode.manual,
+                              verticalOffset: verticalOffset,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                hoverColor: Colors.blue,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
+                                        ip: ip,
+                                        controlId: controlId,
+                                        cmd: 'playmode');
+                                    if (mounted) {
+                                      setState(() {
+                                        idle = !idle;
+                                      });
+                                    }
+                                  }
+                                },
+                                icon: Icon(
+                                  idle ? Icons.play_arrow : Icons.pause,
+                                  size: buttonSize / 2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: Tooltip(
+                              message: translations['controlButtonNextText'] ??
+                                  'next',
+                              triggerMode: TooltipTriggerMode.manual,
+                              verticalOffset: verticalOffset,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                hoverColor: Colors.blue,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
+                                        ip: ip,
+                                        controlId: controlId,
+                                        cmd: 'next');
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.keyboard_arrow_right,
+                                  size: buttonSize,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          SizedBox(width: buttonSize),
+                          SizedBox(
+                            width: buttonSize,
+                            height: buttonSize,
+                            child: Tooltip(
+                              message:
+                                  translations['controlButtonShuffleText'] ??
+                                      'shuffle',
+                              triggerMode: TooltipTriggerMode.manual,
+                              verticalOffset: verticalOffset,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                hoverColor: Colors.blue,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
+                                        ip: ip,
+                                        controlId: controlId,
+                                        cmd: 'shufflemode');
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: buttonSize,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: buttonSize,
-                        height: buttonSize,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          hoverColor: Colors.blue,
-                          onPressed: () {
-                            if (!readOnly) {
-                              mainBloc.zoneControl(
-                                  ip: ip,
-                                  controlId: controlId,
-                                  cmd: 'previous');
-                            }
-                          },
-                          icon: Icon(
-                            Icons.keyboard_arrow_left,
-                            size: buttonSize,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: buttonSize,
-                        height: buttonSize,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          hoverColor: Colors.blue,
-                          onPressed: () {
-                            if (!readOnly) {
-                              mainBloc.zoneControl(
-                                  ip: ip,
-                                  controlId: controlId,
-                                  cmd: 'playmode');
-                            }
-                          },
-                          icon: const Icon(
-                            Icons.circle,
-                            size: 32,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: buttonSize,
-                        height: buttonSize,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          hoverColor: Colors.blue,
-                          onPressed: () {
-                            if (!readOnly) {
-                              mainBloc.zoneControl(
-                                  ip: ip, controlId: controlId, cmd: 'next');
-                            }
-                          },
-                          icon: Icon(
-                            Icons.keyboard_arrow_right,
-                            size: buttonSize,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(width: buttonSize),
-                      SizedBox(
-                        width: buttonSize,
-                        height: buttonSize,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          hoverColor: Colors.blue,
-                          onPressed: () {
-                            if (!readOnly) {
-                              mainBloc.zoneControl(
-                                  ip: ip,
-                                  controlId: controlId,
-                                  cmd: 'shufflemode');
-                            }
-                          },
-                          icon: Icon(
-                            Icons.keyboard_arrow_down,
-                            size: buttonSize,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              translations['controlButtonShuffleText'] ?? 'shuffle',
-              style: TextStyle(
-                color: SharedWidgets.textColor(context: context),
-              ),
+                ),
+              ],
             ),
           ],
         ),
-        if (orientation == Orientation.landscape ||
-            Platform.isMacOS ||
-            Platform.isWindows ||
-            Platform.isLinux)
-          Container(
-            margin: const EdgeInsets.only(bottom: 6.0),
-            child: Text(
-              translations['controlButtonNextText'] ?? 'next',
-              style: TextStyle(
-                color: SharedWidgets.textColor(context: context),
-              ),
-            ),
-          ),
-      ],
-    );
+      );
+    });
   }
 }
