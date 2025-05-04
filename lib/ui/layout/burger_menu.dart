@@ -4,12 +4,14 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class BurgerMenu extends StatefulWidget {
   final Map<String, dynamic> translations;
+  final double? navigationTop;
   final bool noPop;
   final Function(String? key) onClose;
 
   const BurgerMenu(
       {super.key,
       required this.translations,
+      required this.navigationTop,
       this.noPop = false,
       required this.onClose});
 
@@ -23,6 +25,7 @@ class BurgerMenuState extends State<BurgerMenu> {
   @override
   void initState() {
     initPopupData();
+
     super.initState();
   }
 
@@ -44,21 +47,37 @@ class BurgerMenuState extends State<BurgerMenu> {
         mainAxisSize: MainAxisSize.max,
         children: [
           SizedBox(
-            height: 56.0,
-            child: DrawerHeader(
-              decoration: BoxDecoration(
-                color: SharedWidgets.inIosStyle()
-                    ? CupertinoColors.systemGrey
-                    : Colors.blue,
-              ),
-              margin: EdgeInsets.zero,
-              padding: EdgeInsets.zero,
-              child: Center(
-                  child: Text(
-                widget.translations['mainMenuHeader'] ?? 'Main menu',
-                style: TextStyle(color: Colors.white, fontSize: 20.0),
-              )),
-            ),
+            height:
+                SharedWidgets.inIosStyle() ? 32 : widget.navigationTop ?? 84.0,
+            child: SharedWidgets.inIosStyle()
+                ? Container(
+                    decoration: BoxDecoration(
+                      color: SharedWidgets.inIosStyle()
+                          ? CupertinoColors.systemGrey
+                          : Colors.blue,
+                    ),
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.zero,
+                    child: Center(
+                        child: Text(
+                      widget.translations['mainMenuHeader'] ?? 'Main menu',
+                      style: TextStyle(color: Colors.white, fontSize: 16.0),
+                    )),
+                  )
+                : DrawerHeader(
+                    decoration: BoxDecoration(
+                      color: SharedWidgets.inIosStyle()
+                          ? CupertinoColors.systemGrey
+                          : Colors.blue,
+                    ),
+                    margin: EdgeInsets.zero,
+                    padding: EdgeInsets.zero,
+                    child: Center(
+                        child: Text(
+                      widget.translations['mainMenuHeader'] ?? 'Main menu',
+                      style: TextStyle(color: Colors.white, fontSize: 16.0),
+                    )),
+                  ),
           ),
           Expanded(
             child: ListView.separated(

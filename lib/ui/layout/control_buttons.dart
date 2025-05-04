@@ -147,15 +147,15 @@ class ControlButtonsState extends State<ControlButtons> {
                                 hoverColor: Colors.blue,
                                 onPressed: () {
                                   if (!readOnly) {
-                                    mainBloc.zoneControl(
-                                        ip: ip,
-                                        controlId: controlId,
-                                        cmd: 'playmode');
                                     if (mounted) {
                                       setState(() {
                                         idle = !idle;
                                       });
                                     }
+                                    mainBloc.zoneControl(
+                                        ip: ip,
+                                        controlId: controlId,
+                                        cmd: 'playmode');
                                   }
                                 },
                                 icon: Icon(
@@ -178,6 +178,11 @@ class ControlButtonsState extends State<ControlButtons> {
                                 hoverColor: Colors.blue,
                                 onPressed: () {
                                   if (!readOnly) {
+                                    if (mounted) {
+                                      setState(() {
+                                        idle = false;
+                                      });
+                                    }
                                     mainBloc.zoneControl(
                                         ip: ip,
                                         controlId: controlId,

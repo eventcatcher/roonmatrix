@@ -545,10 +545,6 @@ class RoonMatrixState extends State<RoonMatrix> {
   // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode == true) {
-      debugPrint('build app');
-    }
-
     return MultiBlocProvider(
       providers: [
         BlocProvider<TranslationsBloc>(
@@ -572,10 +568,6 @@ class RoonMatrixState extends State<RoonMatrix> {
           : SharedWidgets.inIosStyle()
               ? Builder(builder: (context) {
                   brightnessValue = MediaQuery.of(context).platformBrightness;
-
-                  if (kDebugMode == true) {
-                    debugPrint('brightness: $brightnessValue');
-                  }
 
                   return CupertinoApp(
                     title: title,

@@ -496,18 +496,20 @@ class _CoverPageState extends State<CoverPage> {
                                   children: [
                                     if (widget.controlId == null)
                                       getSelectBoxArea(),
-                                    ControlButtons(
-                                      key: ValueKey(
-                                          'ControButtonsDesktop-$idle'),
-                                      orientation: orientation,
-                                      translations: translations,
-                                      partsToSubtract: 250,
-                                      ip: ip,
-                                      controlId:
-                                          controlId ?? widget.controlId ?? '',
-                                      idle: idle,
-                                      readOnly: selectedZoneId == null ||
-                                          selectedZoneId!.isEmpty,
+                                    Expanded(
+                                      child: ControlButtons(
+                                        key: ValueKey(
+                                            'ControButtonsDesktop-$idle'),
+                                        orientation: orientation,
+                                        translations: translations,
+                                        partsToSubtract: 275,
+                                        ip: ip,
+                                        controlId:
+                                            controlId ?? widget.controlId ?? '',
+                                        idle: idle,
+                                        readOnly: selectedZoneId == null ||
+                                            selectedZoneId!.isEmpty,
+                                      ),
                                     ),
                                     getTextArea(),
                                   ],
@@ -527,7 +529,7 @@ class _CoverPageState extends State<CoverPage> {
                               partsToSubtract:
                                   MediaQuery.of(context).size.height - 150,
                               ip: ip,
-                              controlId: controlId!,
+                              controlId: controlId ?? widget.controlId ?? '',
                               idle: idle,
                               readOnly: selectedZoneId == null ||
                                   selectedZoneId!.isEmpty,

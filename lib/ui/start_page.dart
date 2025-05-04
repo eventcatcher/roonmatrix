@@ -72,13 +72,17 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   final Color coverRowBackgroundColor = Colors.grey.shade200;
 
   GlobalKey windowKey = GlobalKey();
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  AnimationController? animationController;
   GlobalKey<AnimatedListState> coverListKey = GlobalKey<AnimatedListState>();
   GlobalKey itemListKey = GlobalKey();
   Map<String, dynamic> info = {};
   Map<String, dynamic> translations = {};
   List<String> devices = [];
 
+  ObstructingPreferredSizeWidget? iosNavigationBar;
   double? appBarHeight;
+  double? navigationTop;
   Display? primaryDisplay;
   double itemListHeight = 84;
   Orientation orientation = Orientation.portrait;
@@ -91,7 +95,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   bool idle = false;
   bool saveIdle = false;
   bool settingsPageLoaded = false;
-  bool _isDrawerOpen = false;
+  bool isDrawerOpen = false;
   bool moreInfo = false;
   bool coverRowActiv = false;
   bool coverRowArtist = false;
@@ -109,9 +113,36 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
+    animationController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
 
     super.initState();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    animationController?.dispose();
+  }
+
+  ObstructingPreferredSizeWidget navigationBar() => CupertinoNavigationBar(
+        key: ValueKey('navigationBar-$isDrawerOpen'),
+        brightness: SharedWidgets.brightness(),
+        middle: Text(title),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          child: AnimatedIcon(
+              icon: AnimatedIcons.menu_close, progress: animationController!),
+          onPressed: () {
+            setState(() {
+              isDrawerOpen = !isDrawerOpen;
+              isDrawerOpen
+                  ? animationController!.forward()
+                  : animationController!.reverse();
+            });
+          },
+        ),
+      );
 
   void openAboutModal(
           {required BuildContext context,
@@ -462,9 +493,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           builder: (context, constraints) {
             // constraints.maxHeight gets the height of the AnimatedList
             double coverHeight = constraints.maxHeight;
-            if (kDebugMode == true) {
-              debugPrint('constraints.maxHeight: ${constraints.maxHeight}');
-            }
             double coverWidth = coverHeight;
 
             return Stack(
@@ -845,8 +873,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   burgerMenuRaw(bool noPop) => BurgerMenu(
         translations: translations,
         noPop: noPop,
+        navigationTop: navigationTop,
         onClose: (String? key) {
-          setState(() => _isDrawerOpen = false);
+          setState(() {
+            isDrawerOpen = false;
+            animationController!.reverse();
+          });
           return openBurgerMenuItem(key);
         },
       );
@@ -868,7 +900,26 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         return SharedWidgets.inIosStyle()
             ? burgerMenuRaw(true)
             : Drawer(
-                child: burgerMenuRaw(false),
+                child: Stack(
+                  children: [
+                    burgerMenuRaw(false),
+                    Positioned(
+                      top: (navigationTop ?? 84.0) - 40,
+                      left: 16.0,
+                      child: InkWell(
+                        onTap: () => setState(() {
+                          isDrawerOpen = false;
+                          scaffoldKey.currentState?.openEndDrawer();
+                        }),
+                        child: Icon(
+                          CupertinoIcons.clear,
+                          color: Colors.white,
+                          size: 24.0,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               );
       });
 
@@ -2069,18 +2120,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       });
 
   stack(BuildContext context) => Stack(
-        children: <Widget>[
-          body(),
+        children: [
+          SafeArea(
+            child: body(),
+          ),
           AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
+            duration: Duration(milliseconds: 200),
             curve: Curves.easeIn,
-            top: 0.0,
+            top: navigationTop,
             bottom: 0.0,
-            left: _isDrawerOpen
-                ? 0.0
-                : -(MediaQuery.of(context).size.width / 3 * 2 + 100),
+            left: isDrawerOpen ? 0 : -240,
             child: Container(
-              width: MediaQuery.of(context).size.width / 3 * 2,
+              width: 230,
               height: double.infinity,
               decoration: BoxDecoration(
                 color: SharedWidgets.windowBackgroundColor(context: context),
@@ -2091,32 +2142,19 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    width: double.infinity,
-                    height: height,
-                    color:
-                        Colors.transparent, // background color of burger menu
-                    child: Stack(
-                      children: <Widget>[
-                        burgerMenu(),
-                        Positioned(
-                          top: 14.0,
-                          left: 10.0,
-                          child: GestureDetector(
-                            onTap: () => setState(() => _isDrawerOpen = false),
-                            child: Icon(
-                              CupertinoIcons.clear,
-                              color: Colors.white,
-                              size: 30.0,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              child: Container(
+                width: double.infinity,
+                height: height,
+                color: Colors.transparent, // background color of burger menu
+                child: TapRegion(
+                  onTapOutside: (tap) {
+                    setState(() {
+                      isDrawerOpen = false;
+                      animationController!.reverse();
+                    });
+                  },
+                  child: burgerMenu(),
+                ),
               ),
             ),
           ),
@@ -2128,27 +2166,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     updateSizes('build');
 
     if (SharedWidgets.inIosStyle()) {
-      ObstructingPreferredSizeWidget navigationBar = CupertinoNavigationBar(
-        brightness: SharedWidgets.brightness(),
-        middle: Text(title),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Icon(Icons.menu, color: _isDrawerOpen ? Colors.grey : null),
-          onPressed: () =>
-              _isDrawerOpen ? null : setState(() => _isDrawerOpen = true),
-        ),
-      );
+      iosNavigationBar = navigationBar();
 
-      if (Platform.isIOS) {
-        appBarHeight = navigationBar.preferredSize.height;
-      }
+      appBarHeight = iosNavigationBar!.preferredSize.height;
+      navigationTop = appBarHeight! + MediaQuery.of(context).padding.top;
 
       return Material(
         child: CupertinoPageScaffold(
-          navigationBar: navigationBar,
-          child: SafeArea(
-            child: stack(context),
-          ),
+          navigationBar: iosNavigationBar,
+          child: stack(context),
         ),
       );
     }
@@ -2265,9 +2291,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
     if (Platform.isAndroid || Platform.isFuchsia) {
       appBarHeight = appBar.preferredSize.height;
+      navigationTop = appBarHeight! + MediaQuery.of(context).padding.top;
     }
 
     return Scaffold(
+        key: scaffoldKey,
         appBar: appBar,
         drawer: SharedWidgets.inIosStyle() ||
                 Platform.isAndroid ||
