@@ -54,6 +54,7 @@ class _CoverPageState extends State<CoverPage> {
   String? selectedZoneId;
   String? controlId;
   bool idle = false;
+  bool shuffle = false;
 
   late MainBloc mainBloc;
 
@@ -409,6 +410,11 @@ class _CoverPageState extends State<CoverPage> {
                                 webZone['status'] != null &&
                                 (webZone['status'] == 'not running' ||
                                     webZone['status'] == 'idle');
+                            print('shuffle: $webZone');
+                            shuffle =
+                                webZone != null && webZone['shuffle'] != null
+                                    ? webZone['shuffle'] == 'true'
+                                    : false;
                           }
                         } else {
                           idle = zone != null &&
@@ -416,6 +422,11 @@ class _CoverPageState extends State<CoverPage> {
                               info['roon_playouts'][zone]['status'] != null &&
                               info['roon_playouts'][zone]['status'] ==
                                   'not running';
+                          shuffle = zone != null &&
+                                  info['roon_playouts'][zone] != null &&
+                                  info['roon_playouts'][zone]['shuffle'] != null
+                              ? info['roon_playouts'][zone]['shuffle']
+                              : false;
                         }
                       }
                     }
@@ -499,7 +510,7 @@ class _CoverPageState extends State<CoverPage> {
                                     Expanded(
                                       child: ControlButtons(
                                         key: ValueKey(
-                                            'ControButtonsDesktop-$idle'),
+                                            'ControButtonsDesktop-$idle-$shuffle'),
                                         orientation: orientation,
                                         translations: translations,
                                         partsToSubtract: 275,
@@ -507,6 +518,7 @@ class _CoverPageState extends State<CoverPage> {
                                         controlId:
                                             controlId ?? widget.controlId ?? '',
                                         idle: idle,
+                                        shuffle: shuffle,
                                         readOnly: selectedZoneId == null ||
                                             selectedZoneId!.isEmpty,
                                       ),
@@ -523,7 +535,8 @@ class _CoverPageState extends State<CoverPage> {
                           children: [
                             Expanded(child: getTextArea()),
                             ControlButtons(
-                              key: ValueKey('ControButtonsPortrait-$idle'),
+                              key: ValueKey(
+                                  'ControButtonsPortrait-$idle-$shuffle'),
                               orientation: orientation,
                               translations: translations,
                               partsToSubtract:
@@ -531,6 +544,7 @@ class _CoverPageState extends State<CoverPage> {
                               ip: ip,
                               controlId: controlId ?? widget.controlId ?? '',
                               idle: idle,
+                              shuffle: shuffle,
                               readOnly: selectedZoneId == null ||
                                   selectedZoneId!.isEmpty,
                             ),

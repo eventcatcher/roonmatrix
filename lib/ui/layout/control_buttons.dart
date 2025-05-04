@@ -8,6 +8,7 @@ class ControlButtons extends StatefulWidget {
   final double partsToSubtract;
   final String ip;
   final bool? idle;
+  final bool? shuffle;
   final String controlId;
   final bool readOnly;
 
@@ -17,6 +18,7 @@ class ControlButtons extends StatefulWidget {
     required this.translations,
     this.partsToSubtract = 0,
     this.idle,
+    this.shuffle,
     required this.ip,
     required this.controlId,
     this.readOnly = false,
@@ -38,6 +40,7 @@ class ControlButtonsState extends State<ControlButtons> {
 
   final bool showButtonUp = false;
   bool idle = false;
+  bool shuffle = false;
 
   late MainBloc mainBloc;
 
@@ -45,6 +48,7 @@ class ControlButtonsState extends State<ControlButtons> {
   void initState() {
     mainBloc = BlocProvider.of<MainBloc>(context);
     idle = widget.idle ?? false;
+    shuffle = widget.shuffle ?? false;
 
     super.initState();
   }
@@ -80,7 +84,7 @@ class ControlButtonsState extends State<ControlButtons> {
                           SizedBox(
                             width: buttonSize,
                             height: buttonSize,
-                            child: 1 == 1 || showButtonUp == true
+                            child: showButtonUp == true
                                 ? Tooltip(
                                     message:
                                         translations['controlButtonUpText'] ??
@@ -215,6 +219,11 @@ class ControlButtonsState extends State<ControlButtons> {
                                 hoverColor: Colors.blue,
                                 onPressed: () {
                                   if (!readOnly) {
+                                    if (mounted) {
+                                      setState(() {
+                                        shuffle = !shuffle;
+                                      });
+                                    }
                                     mainBloc.zoneControl(
                                         ip: ip,
                                         controlId: controlId,
@@ -222,8 +231,9 @@ class ControlButtonsState extends State<ControlButtons> {
                                   }
                                 },
                                 icon: Icon(
-                                  Icons.keyboard_arrow_down,
-                                  size: buttonSize,
+                                  Icons.shuffle,
+                                  size: buttonSize * 0.5,
+                                  color: shuffle ? Colors.green : Colors.grey,
                                 ),
                               ),
                             ),
