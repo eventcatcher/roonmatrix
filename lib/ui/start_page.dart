@@ -21,6 +21,7 @@ import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/smooth_scroll_bar.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
@@ -1014,71 +1015,75 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: CupertinoColors.activeBlue.color,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () => showGeneralDialog(
-                context: context,
-                // barrierColor: Colors
-                //     .black12
-                //     .withOpacity(0.6), // Background color
-                barrierDismissible: false,
-                barrierLabel: 'Dialog',
-                transitionDuration: const Duration(milliseconds: 0),
-                pageBuilder: (_, __, ___) {
-                  return MessagePage(
-                    ip: ip,
-                    name: zoneData['name'],
-                    close: () {
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
-              icon: const Icon(
-                Icons.message_outlined,
-                color: Colors.white,
-                size: 19.0,
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: CupertinoColors.activeBlue.color,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () => showGeneralDialog(
-                context: context,
-                // barrierColor: Colors
-                //     .black12
-                //     .withOpacity(0.6), // Background color
-                barrierDismissible: false,
-                barrierLabel: 'Dialog',
-                transitionDuration: const Duration(milliseconds: 0),
-                pageBuilder: (_, __, ___) {
-                  return LiveControlPage(
-                    ip: ip,
-                    name: zoneData['name'],
-                    close: () {
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
-              icon: const Icon(
-                Icons.visibility_outlined,
-                color: Colors.white,
+        if (!zoneData.containsKey('display_cover') ||
+            zoneData['display_cover'] == false)
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: CircleAvatar(
+              radius: 15,
+              backgroundColor: CupertinoColors.activeBlue.color,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => showGeneralDialog(
+                  context: context,
+                  // barrierColor: Colors
+                  //     .black12
+                  //     .withOpacity(0.6), // Background color
+                  barrierDismissible: false,
+                  barrierLabel: 'Dialog',
+                  transitionDuration: const Duration(milliseconds: 0),
+                  pageBuilder: (_, __, ___) {
+                    return MessagePage(
+                      ip: ip,
+                      name: zoneData['name'],
+                      close: () {
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+                icon: const Icon(
+                  Icons.message_outlined,
+                  color: Colors.white,
+                  size: 19.0,
+                ),
               ),
             ),
           ),
-        ),
+        if (!zoneData.containsKey('display_cover') ||
+            zoneData['display_cover'] == false)
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: CircleAvatar(
+              radius: 15,
+              backgroundColor: CupertinoColors.activeBlue.color,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => showGeneralDialog(
+                  context: context,
+                  // barrierColor: Colors
+                  //     .black12
+                  //     .withOpacity(0.6), // Background color
+                  barrierDismissible: false,
+                  barrierLabel: 'Dialog',
+                  transitionDuration: const Duration(milliseconds: 0),
+                  pageBuilder: (_, __, ___) {
+                    return LiveControlPage(
+                      ip: ip,
+                      name: zoneData['name'],
+                      close: () {
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                ),
+                icon: const Icon(
+                  Icons.visibility_outlined,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
       ];
 
   List<Widget> mobileButtonsForDebugging(
@@ -1402,7 +1407,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             itemCount: devices.length,
                                             itemBuilder: (BuildContext context,
                                                 int index) {
-                                              dynamic i = info[devices[index]];
+                                              Map<String, dynamic> i =
+                                                  info[devices[index]];
 
                                               String zoneName = '';
                                               if (i['control_id'] != null) {
@@ -1697,104 +1703,108 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         ),
                                                                       ),
                                                                     ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              8.0),
-                                                                      child:
-                                                                          IconButtonElement(
-                                                                        label: translations['messageButtonText'] ??
-                                                                            'Message',
-                                                                        noBackground:
-                                                                            false,
-                                                                        withCircle:
-                                                                            true,
-                                                                        icon:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .message_outlined,
-                                                                          size:
-                                                                              18,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                        onPressed:
-                                                                            () =>
-                                                                                showGeneralDialog(
-                                                                          context:
-                                                                              context,
-                                                                          // barrierColor: Colors
-                                                                          //     .black12
-                                                                          //     .withOpacity(0.6), // Background color
-                                                                          barrierDismissible:
+                                                                    if (!i.containsKey(
+                                                                            'display_cover') ||
+                                                                        i['display_cover'] ==
+                                                                            false)
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            left:
+                                                                                8.0),
+                                                                        child:
+                                                                            IconButtonElement(
+                                                                          label:
+                                                                              translations['messageButtonText'] ?? 'Message',
+                                                                          noBackground:
                                                                               false,
-                                                                          barrierLabel:
-                                                                              'Dialog',
-                                                                          transitionDuration:
-                                                                              const Duration(milliseconds: 0),
-                                                                          pageBuilder: (_,
-                                                                              __,
-                                                                              ___) {
-                                                                            return MessagePage(
-                                                                              ip: devices[index],
-                                                                              name: i['name'],
-                                                                              close: () {
-                                                                                Navigator.pop(context);
-                                                                              },
-                                                                            );
-                                                                          },
+                                                                          withCircle:
+                                                                              true,
+                                                                          icon:
+                                                                              Icon(
+                                                                            Icons.message_outlined,
+                                                                            size:
+                                                                                18,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                          onPressed: () =>
+                                                                              showGeneralDialog(
+                                                                            context:
+                                                                                context,
+                                                                            // barrierColor: Colors
+                                                                            //     .black12
+                                                                            //     .withOpacity(0.6), // Background color
+                                                                            barrierDismissible:
+                                                                                false,
+                                                                            barrierLabel:
+                                                                                'Dialog',
+                                                                            transitionDuration:
+                                                                                const Duration(milliseconds: 0),
+                                                                            pageBuilder: (_,
+                                                                                __,
+                                                                                ___) {
+                                                                              return MessagePage(
+                                                                                ip: devices[index],
+                                                                                name: i['name'],
+                                                                                close: () {
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                              );
+                                                                            },
+                                                                          ),
                                                                         ),
                                                                       ),
-                                                                    ),
-                                                                    Padding(
-                                                                      padding: const EdgeInsets
-                                                                          .only(
-                                                                          left:
-                                                                              8.0),
-                                                                      child:
-                                                                          IconButtonElement(
-                                                                        label: translations['liveControlButtonText'] ??
-                                                                            'Live Control',
-                                                                        noBackground:
-                                                                            false,
-                                                                        withCircle:
-                                                                            true,
-                                                                        icon:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .visibility_outlined,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                        onPressed:
-                                                                            () =>
-                                                                                showGeneralDialog(
-                                                                          context:
-                                                                              context,
-                                                                          // barrierColor: Colors
-                                                                          //     .black12
-                                                                          //     .withOpacity(0.6), // Background color
-                                                                          barrierDismissible:
+                                                                    if (!i.containsKey(
+                                                                            'display_cover') ||
+                                                                        i['display_cover'] ==
+                                                                            false)
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            left:
+                                                                                8.0),
+                                                                        child:
+                                                                            IconButtonElement(
+                                                                          label:
+                                                                              translations['liveControlButtonText'] ?? 'Live Control',
+                                                                          noBackground:
                                                                               false,
-                                                                          barrierLabel:
-                                                                              'Dialog',
-                                                                          transitionDuration:
-                                                                              const Duration(milliseconds: 0),
-                                                                          pageBuilder: (_,
-                                                                              __,
-                                                                              ___) {
-                                                                            return LiveControlPage(
-                                                                              ip: devices[index],
-                                                                              name: i['name'],
-                                                                              close: () {
-                                                                                Navigator.pop(context);
-                                                                              },
-                                                                            );
-                                                                          },
+                                                                          withCircle:
+                                                                              true,
+                                                                          icon:
+                                                                              Icon(
+                                                                            Icons.visibility_outlined,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                          onPressed: () =>
+                                                                              showGeneralDialog(
+                                                                            context:
+                                                                                context,
+                                                                            // barrierColor: Colors
+                                                                            //     .black12
+                                                                            //     .withOpacity(0.6), // Background color
+                                                                            barrierDismissible:
+                                                                                false,
+                                                                            barrierLabel:
+                                                                                'Dialog',
+                                                                            transitionDuration:
+                                                                                const Duration(milliseconds: 0),
+                                                                            pageBuilder: (_,
+                                                                                __,
+                                                                                ___) {
+                                                                              return LiveControlPage(
+                                                                                ip: devices[index],
+                                                                                name: i['name'],
+                                                                                close: () {
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                              );
+                                                                            },
+                                                                          ),
                                                                         ),
                                                                       ),
-                                                                    ),
                                                                     if (moreInfo ==
                                                                         true)
                                                                       Padding(
@@ -2019,21 +2029,19 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         ? 90
                                                                         : 16),
                                                                 child:
-                                                                    TextScroll(
-                                                                  '${replaceCodes(i['displaystr'] ?? '')}    ////    ',
-                                                                  key: ValueKey(
-                                                                      'TextScroll-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: SharedWidgets.textColor(
-                                                                        context:
-                                                                            context),
-                                                                  ),
-                                                                  fadedBorder:
-                                                                      true,
-                                                                  fadeBorderSide:
-                                                                      FadeBorderSide
-                                                                          .right,
+                                                                    SmoothTicker(
+                                                                  // key: ValueKey(
+                                                                  //     'TextScroll-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                  text:
+                                                                      '${replaceCodes(i['displaystr'] ?? '')}    ////    ',
+                                                                  fontSize:
+                                                                      14.0,
+                                                                  speedPixelsPerSecond:
+                                                                      100,
+
+                                                                  textColor:
+                                                                      Colors
+                                                                          .black,
                                                                 ),
                                                               ),
                                                             ),
