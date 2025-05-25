@@ -68,6 +68,7 @@ dependencies:
   animated_gradient: ^0.0.3
   screen_retriever: ^0.2.0
   top_snackbar_flutter: ^3.2.0
+  hovering: ^1.0.4
 
 dependency_overrides:
 

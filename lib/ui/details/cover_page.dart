@@ -410,7 +410,6 @@ class _CoverPageState extends State<CoverPage> {
                                 webZone['status'] != null &&
                                 (webZone['status'] == 'not running' ||
                                     webZone['status'] == 'idle');
-                            print('shuffle: $webZone');
                             shuffle =
                                 webZone != null && webZone['shuffle'] != null
                                     ? webZone['shuffle'] == 'true'

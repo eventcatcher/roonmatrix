@@ -21,7 +21,7 @@ import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/smooth_scroll_bar.dart';
+import 'package:roonmatrix/ui/layout/updatable_scroll_bar.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,6 @@ import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:screen_retriever/screen_retriever.dart';
-import 'package:text_scroll/text_scroll.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -1410,6 +1409,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                               Map<String, dynamic> i =
                                                   info[devices[index]];
 
+                                              String scrollText =
+                                                  '${replaceCodes(i['displaystr'] ?? '')}    ////    ';
+
                                               String zoneName = '';
                                               if (i['control_id'] != null) {
                                                 String controlId =
@@ -1445,6 +1447,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 itemListHeight =
                                                     1 + box.size.height;
                                               }
+
+                                              // print('xxxx StartPage rebuild');
 
                                               return Container(
                                                 key: index == 0
@@ -2029,19 +2033,21 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         ? 90
                                                                         : 16),
                                                                 child:
-                                                                    SmoothTicker(
-                                                                  // key: ValueKey(
-                                                                  //     'TextScroll-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                    UpdatableScrollBar(
+                                                                  key: ValueKey(
+                                                                      'TextScrollStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                                                                   text:
-                                                                      '${replaceCodes(i['displaystr'] ?? '')}    ////    ',
-                                                                  fontSize:
-                                                                      14.0,
-                                                                  speedPixelsPerSecond:
-                                                                      100,
-
-                                                                  textColor:
-                                                                      Colors
-                                                                          .black,
+                                                                      scrollText,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        'whiteCupertino subtitle',
+                                                                    fontSize:
+                                                                        14.0,
+                                                                  ),
+                                                                  pixelsPerSecond:
+                                                                      90,
+                                                                  height: 20,
                                                                 ),
                                                               ),
                                                             ),

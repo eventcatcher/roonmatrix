@@ -2,16 +2,17 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hovering/hovering.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/updatable_scroll_bar.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
-import 'package:text_scroll/text_scroll.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
   final int index;
@@ -49,6 +50,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   final double sliderMobileMin = 550;
 
   String displaystr = '';
+  String scrollText = '';
   double width = 1280;
   double height = 768;
   double fontSize = 64.0;
@@ -57,6 +59,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   double sliderMin = 550;
   double pixelsPerSecond = 200 + 64.0 / 2.25;
   double sliderValue = 1.0;
+
+  double opacityLevel = 0;
 
   late MainBloc mainBloc;
 
@@ -116,59 +120,36 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   controls() => Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (width > sliderTextMin)
-            Text('${translations['speed'] ?? 'speed:'}:'),
-          InkWell(
-            onDoubleTap: () {
-              setState(() {
-                sliderValue = 1.0;
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: SizedBox(
-                width: width > sliderMin ? 200 : 120,
-                child: Slider(
-                  value: sliderValue,
-                  min: 0.1,
-                  max: 5,
-                  divisions: 100,
-                  thumbColor: Colors.red.shade700,
-                  activeColor: Colors.green.shade200,
-                  inactiveColor: Colors.grey.shade700,
-                  onChanged: (double value) {
-                    setState(() {
-                      sliderValue = value;
-                    });
-                  },
+          if (SharedWidgets.isMobileDevice()) ...[
+            if (width > sliderTextMin)
+              Text('${translations['speed'] ?? 'speed:'}:'),
+            InkWell(
+              onDoubleTap: () {
+                setState(() {
+                  sliderValue = 1.0;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: SizedBox(
+                  width: width > sliderMin ? 200 : 120,
+                  child: Slider(
+                    value: sliderValue,
+                    min: 0.1,
+                    max: 5,
+                    divisions: 100,
+                    thumbColor: Colors.red.shade700,
+                    activeColor: Colors.green.shade200,
+                    inactiveColor: Colors.grey.shade700,
+                    onChanged: (double value) {
+                      setState(() {
+                        sliderValue = value;
+                      });
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-          if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
-            BlocBuilder(
-                bloc: mainBloc,
-                builder: (context, MainState mainState) {
-                  String zoneName = '';
-                  dynamic info = mainState.info[mainState.devices[index]];
-                  if (info['control_id'] != null) {
-                    String controlId = info['control_id'];
-                    if (info['channels'] != null &&
-                        info['channels'][controlId] != null) {
-                      if (info['channels'][controlId] == 'webserver') {
-                        zoneName = controlId;
-                      } else {
-                        zoneName = info['channels'][controlId];
-                      }
-                    }
-                  }
-
-                  return Text(
-                      'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
-                }),
-          if (SharedWidgets.inIosStyle() ||
-              Platform.isAndroid ||
-              Platform.isFuchsia) ...[
             const Text('  |  '),
             IconButton(
               iconSize: 12.0,
@@ -192,21 +173,121 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
               icon: const Icon(FontAwesomeIcons.font),
             ),
           ],
+          if (SharedWidgets.isDesktopDevice())
+            BlocBuilder(
+                bloc: mainBloc,
+                builder: (context, MainState mainState) {
+                  String zoneName = '';
+                  dynamic info = mainState.info[mainState.devices[index]];
+                  if (info['control_id'] != null) {
+                    String controlId = info['control_id'];
+                    if (info['channels'] != null &&
+                        info['channels'][controlId] != null) {
+                      if (info['channels'][controlId] == 'webserver') {
+                        zoneName = controlId;
+                      } else {
+                        zoneName = info['channels'][controlId];
+                      }
+                    }
+                  }
+
+                  return Text(
+                      'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
+                }),
           const SizedBox(width: 4.0),
         ],
       );
 
+  Widget speedSliderOverlay() => HoverWidget(
+      hoverChild: InkWell(
+        onDoubleTap: () {
+          setState(() {
+            sliderValue = 1.0;
+          });
+        },
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0.0, end: 1.0),
+          curve: Curves.ease,
+          duration: const Duration(seconds: 1),
+          builder: (BuildContext context, double opacity, Widget? child) {
+            return Opacity(
+                opacity: opacity,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    color: Color.fromARGB(80, 33, 33, 33),
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
+                        child: Text(
+                          '${translations['speed'] ?? 'speed:'}:',
+                          style: TextStyle(
+                            color: SharedWidgets.borderColor(context: context),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: width > sliderMin ? 200 : 120,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 6.0),
+                          child: Slider(
+                            value: sliderValue,
+                            min: 0.1,
+                            max: 5,
+                            divisions: 100,
+                            thumbColor: Colors.red.shade700,
+                            activeColor: Colors.green.shade200,
+                            inactiveColor: Colors.grey.shade700,
+                            onChanged: (double value) {
+                              setState(() {
+                                sliderValue = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ));
+          },
+        ),
+      ),
+      onHover: (PointerEnterEvent event) {
+        //
+      },
+      child: Container(
+        width: 324,
+        height: 54,
+        color: Colors.transparent,
+      ));
+
   Widget body() => SizedBox(
         width: double.infinity,
         child: RoonmatrixAnimatedGradient(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              BlocBuilder(
+          child: NotificationListener<SizeChangedLayoutNotification>(
+            onNotification: (notification) {
+              updateSizes('NotificationListener');
+              build(context);
+              return false;
+            },
+            child: OrientationBuilder(
+                builder: (BuildContext context, Orientation orientation) {
+              updateSizes('OrientationBuilder');
+
+              // if (kDebugMode) {
+              //   print('height: $height, fontSize: $fontSize');
+              // }
+
+              return BlocBuilder(
                   bloc: mainBloc,
                   builder: (context, MainState mainState) {
-                    if (mainState is MainStateLoaded) {
+                    if (mainState is! MainStateLoaded) {
+                      return SizedBox();
+                    }
+
+                    if (mainState.devices.length > index) {
                       String displaystrNew = mainState
                           .info[mainState.devices[index]]['displaystr'];
 
@@ -215,65 +296,31 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                       String displaystrMasked = getMaskedString(displaystr);
 
                       if (displaystrNewMasked != displaystrMasked) {
-                        SchedulerBinding.instance
-                            .addPostFrameCallback((_) async {
-                          if (mounted) {
-                            setState(() {
-                              displaystr = displaystrNew;
-                            });
-                          }
-                        });
+                        scrollText =
+                            '${replaceCodes(displaystrNew)}    ////    ';
+                        debugPrint('xxxx new scrollText: $scrollText');
                       }
                     }
 
-                    return const SizedBox(height: 0.0);
-                  }),
-              Stack(
-                clipBehavior: Clip.none,
-                children: <Widget>[
-                  OrientationBuilder(
-                      builder: (BuildContext context, Orientation orientation) {
-                    updateSizes('OrientationBuilder');
-
-                    // if (kDebugMode) {
-                    //   print('height: $height, fontSize: $fontSize');
-                    // }
-
-                    return NotificationListener<SizeChangedLayoutNotification>(
-                      onNotification: (notification) {
-                        updateSizes('NotificationListener');
-                        build(context);
-                        return false;
-                      },
-                      child: SizeChangedLayoutNotifier(
-                        child: Container(
-                          padding: EdgeInsets.only(bottom: 20.0),
+                    return SizeChangedLayoutNotifier(
+                      child: Container(
+                        padding: EdgeInsets.only(bottom: 20.0),
+                        child: UpdatableScrollBar(
+                          text: scrollText,
                           key: ValueKey(
-                              'TextScrollWrapper${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                          child: TextScroll(
-                            '${replaceCodes(displaystr)}    ////    ',
-                            key: ValueKey(
-                                'TextScroll${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                            style: TextStyle(
-                              fontFamily: 'Arial',
-                              fontSize: fontSize / 1.2,
-                              color: SharedWidgets.textColor(context: context),
-                            ),
-                            mode: TextScrollMode.endless,
-                            velocity: Velocity(
-                              pixelsPerSecond:
-                                  Offset(pixelsPerSecond * sliderValue, 0),
-                            ),
-                            fadedBorder: true,
-                            fadeBorderSide: FadeBorderSide.right,
+                              'TextScrollScrollMatrixPage${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                          style: TextStyle(
+                            fontFamily: 'Arial',
+                            fontSize: fontSize / 1.2,
+                            color: SharedWidgets.textColor(context: context),
                           ),
+                          pixelsPerSecond: pixelsPerSecond * sliderValue,
+                          height: height - 72,
                         ),
                       ),
                     );
-                  }),
-                ],
-              ),
-            ],
+                  });
+            }),
           ),
         ),
       );
@@ -301,7 +348,17 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
             ),
           ),
           child: SafeArea(
-            child: body(),
+            child: Stack(
+              children: [
+                body(),
+                if (SharedWidgets.isDesktopDevice())
+                  Positioned(
+                    bottom: -10,
+                    right: 0,
+                    child: speedSliderOverlay(),
+                  ),
+              ],
+            ),
           ),
         ),
       );
@@ -314,87 +371,42 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                 title: Text(name),
                 titleWidth: 540.0,
                 actions: [
-                  if (width > sliderTextMin)
-                    CustomToolbarItem(
-                      inToolbarBuilder: (context) => Padding(
-                        padding: const EdgeInsets.only(
-                            left: 8.0, right: 8.0, bottom: 8.0),
-                        child: Text(
-                          '${translations['speed'] ?? 'speed:'}:',
-                          style: TextStyle(
-                            color: SharedWidgets.textColor(context: context),
-                          ),
-                        ),
-                      ),
-                      inOverflowedBuilder: (context) =>
-                          Container(color: Colors.grey, width: 30, height: 1),
-                    ),
                   CustomToolbarItem(
                     inToolbarBuilder: (context) => Padding(
                       padding: const EdgeInsets.only(
                           left: 8.0, right: 8.0, bottom: 0.0),
-                      child: InkWell(
-                        onDoubleTap: () {
-                          setState(() {
-                            sliderValue = 1.0;
-                          });
-                        },
-                        child: SizedBox(
-                          width: width > sliderMin ? 200 : 120,
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 6.0),
-                            child: Slider(
-                              value: sliderValue,
-                              min: 0.1,
-                              max: 5,
-                              divisions: 100,
-                              thumbColor: Colors.red.shade700,
-                              activeColor: Colors.green.shade200,
-                              inactiveColor: Colors.grey.shade700,
-                              onChanged: (double value) {
-                                setState(() {
-                                  sliderValue = value;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    inOverflowedBuilder: (context) =>
-                        Container(color: Colors.grey, width: 30, height: 1),
-                  ),
-                  const ToolBarSpacer(),
-                  CustomToolbarItem(
-                    inToolbarBuilder: (context) => Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, bottom: 8.0),
                       child: BlocBuilder(
                           bloc: mainBloc,
                           builder: (context, MainState mainState) {
                             String zoneName = '';
-                            dynamic info =
-                                mainState.info[mainState.devices[index]];
-                            if (info['control_id'] != null) {
-                              String controlId = info['control_id'];
-                              if (info['channels'] != null &&
-                                  info['channels'][controlId] != null) {
-                                if (info['channels'][controlId] ==
-                                    'webserver') {
-                                  zoneName = controlId;
-                                } else {
-                                  zoneName = info['channels'][controlId];
+                            if (mainState.devices.length > index &&
+                                mainState.info
+                                    .containsKey(mainState.devices[index])) {
+                              dynamic info =
+                                  mainState.info[mainState.devices[index]];
+                              if (info['control_id'] != null) {
+                                String controlId = info['control_id'];
+                                if (info['channels'] != null &&
+                                    info['channels'][controlId] != null) {
+                                  if (info['channels'][controlId] ==
+                                      'webserver') {
+                                    zoneName = controlId;
+                                  } else {
+                                    zoneName = info['channels'][controlId];
+                                  }
                                 }
                               }
+
+                              return Text(
+                                'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
+                                style: TextStyle(
+                                  color:
+                                      SharedWidgets.textColor(context: context),
+                                ),
+                              );
                             }
 
-                            return Text(
-                              'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
-                              style: TextStyle(
-                                color:
-                                    SharedWidgets.textColor(context: context),
-                              ),
-                            );
+                            return Text('');
                           }),
                     ),
                     inOverflowedBuilder: (context) =>
@@ -408,7 +420,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   builder: ((context, scrollController) {
                     return Material(
                       child: MacosWindow(
-                        child: body(),
+                        child: Stack(
+                          children: [
+                            body(),
+                            Positioned(
+                              bottom: -10,
+                              right: 0,
+                              child: speedSliderOverlay(),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }),
@@ -421,7 +442,17 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
               title: Text(name),
               actions: [controls()],
             ),
-            body: body(),
+            body: Stack(
+              children: [
+                body(),
+                if (SharedWidgets.isDesktopDevice())
+                  Positioned(
+                    bottom: -10,
+                    right: 0,
+                    child: speedSliderOverlay(),
+                  ),
+              ],
+            ),
           );
   }
 }
