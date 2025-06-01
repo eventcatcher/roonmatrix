@@ -17,6 +17,7 @@ import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/helper/animated_list_helper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
+import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
@@ -934,26 +935,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return str;
   }
 
-  List<Widget> mobileButtonsWithPrependedInfo({
+  List<Widget> mobileButtons({
     required String zoneName,
     required String ip,
     required Map<String, dynamic> zoneData,
-    required bool showButtonsInTwoColumns,
+    required Function getExpandableMenuController,
   }) =>
       [
-        if (showButtonsInTwoColumns == true)
-          Text('${zoneData['playcount']}',
-              softWrap: true,
-              overflow: TextOverflow.fade,
-              style: const TextStyle(fontSize: 9)),
-        if (!showButtonsInTwoColumns)
-          Text(
-            '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: zoneData['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${zoneData['playcount']}  ',
-            softWrap: true,
-            maxLines: 2,
-            overflow: TextOverflow.fade,
-            style: const TextStyle(fontSize: 11),
-          ),
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: CircleAvatar(
@@ -961,24 +949,35 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             backgroundColor: CupertinoColors.activeBlue.color,
             child: IconButton(
               padding: EdgeInsets.zero,
-              onPressed: () => showGeneralDialog(
-                context: context,
-                // barrierColor: Colors
-                //     .black12
-                //     .withOpacity(0.6), // Background color
-                barrierDismissible: false,
-                barrierLabel: 'Dialog',
-                transitionDuration: const Duration(milliseconds: 0),
-                pageBuilder: (_, __, ___) {
-                  return ConfigPage(
-                    name: zoneData['name'],
-                    ip: ip,
-                    close: () {
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
+              onPressed: () {
+                ExpandableMenuController? expandableMenuController =
+                    getExpandableMenuController();
+
+                if (expandableMenuController != null) {
+                  expandableMenuController.close();
+                }
+                Future<void>.delayed(Duration(milliseconds: 500))
+                    .then((value) => mounted
+                        ? showGeneralDialog(
+                            context: context,
+                            // barrierColor: Colors
+                            //     .black12
+                            //     .withOpacity(0.6), // Background color
+                            barrierDismissible: false,
+                            barrierLabel: 'Dialog',
+                            transitionDuration: const Duration(milliseconds: 0),
+                            pageBuilder: (_, __, ___) {
+                              return ConfigPage(
+                                name: zoneData['name'],
+                                ip: ip,
+                                close: () {
+                                  Navigator.pop(context);
+                                },
+                              );
+                            },
+                          )
+                        : null);
+              },
               icon: const Icon(
                 Icons.settings_outlined,
                 color: Colors.white,
@@ -993,20 +992,31 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             backgroundColor: CupertinoColors.activeBlue.color,
             child: IconButton(
               padding: EdgeInsets.zero,
-              onPressed: () => showGeneralDialog(
-                context: context,
-                barrierDismissible: false,
-                barrierLabel: 'Dialog',
-                transitionDuration: const Duration(milliseconds: 0),
-                pageBuilder: (_, __, ___) {
-                  return CoverPage(
-                    index: 0,
-                    name: zoneData['name'],
-                    ip: ip,
-                    translations: translations,
-                  );
-                },
-              ),
+              onPressed: () {
+                ExpandableMenuController? expandableMenuController =
+                    getExpandableMenuController();
+
+                if (expandableMenuController != null) {
+                  expandableMenuController.close();
+                }
+                Future<void>.delayed(Duration(milliseconds: 500))
+                    .then((value) => mounted
+                        ? showGeneralDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            barrierLabel: 'Dialog',
+                            transitionDuration: const Duration(milliseconds: 0),
+                            pageBuilder: (_, __, ___) {
+                              return CoverPage(
+                                index: 0,
+                                name: zoneData['name'],
+                                ip: ip,
+                                translations: translations,
+                              );
+                            },
+                          )
+                        : null);
+              },
               icon: const Icon(
                 Icons.control_camera,
                 color: Colors.white,
@@ -1023,24 +1033,36 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               backgroundColor: CupertinoColors.activeBlue.color,
               child: IconButton(
                 padding: EdgeInsets.zero,
-                onPressed: () => showGeneralDialog(
-                  context: context,
-                  // barrierColor: Colors
-                  //     .black12
-                  //     .withOpacity(0.6), // Background color
-                  barrierDismissible: false,
-                  barrierLabel: 'Dialog',
-                  transitionDuration: const Duration(milliseconds: 0),
-                  pageBuilder: (_, __, ___) {
-                    return MessagePage(
-                      ip: ip,
-                      name: zoneData['name'],
-                      close: () {
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
+                onPressed: () {
+                  ExpandableMenuController? expandableMenuController =
+                      getExpandableMenuController();
+
+                  if (expandableMenuController != null) {
+                    expandableMenuController.close();
+                  }
+                  Future<void>.delayed(Duration(milliseconds: 500))
+                      .then((value) => mounted
+                          ? showGeneralDialog(
+                              context: context,
+                              // barrierColor: Colors
+                              //     .black12
+                              //     .withOpacity(0.6), // Background color
+                              barrierDismissible: false,
+                              barrierLabel: 'Dialog',
+                              transitionDuration:
+                                  const Duration(milliseconds: 0),
+                              pageBuilder: (_, __, ___) {
+                                return MessagePage(
+                                  ip: ip,
+                                  name: zoneData['name'],
+                                  close: () {
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            )
+                          : null);
+                },
                 icon: const Icon(
                   Icons.message_outlined,
                   color: Colors.white,
@@ -1058,24 +1080,36 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               backgroundColor: CupertinoColors.activeBlue.color,
               child: IconButton(
                 padding: EdgeInsets.zero,
-                onPressed: () => showGeneralDialog(
-                  context: context,
-                  // barrierColor: Colors
-                  //     .black12
-                  //     .withOpacity(0.6), // Background color
-                  barrierDismissible: false,
-                  barrierLabel: 'Dialog',
-                  transitionDuration: const Duration(milliseconds: 0),
-                  pageBuilder: (_, __, ___) {
-                    return LiveControlPage(
-                      ip: ip,
-                      name: zoneData['name'],
-                      close: () {
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
+                onPressed: () {
+                  ExpandableMenuController? expandableMenuController =
+                      getExpandableMenuController();
+
+                  if (expandableMenuController != null) {
+                    expandableMenuController.close();
+                  }
+                  Future<void>.delayed(Duration(milliseconds: 500))
+                      .then((value) => mounted
+                          ? showGeneralDialog(
+                              context: context,
+                              // barrierColor: Colors
+                              //     .black12
+                              //     .withOpacity(0.6), // Background color
+                              barrierDismissible: false,
+                              barrierLabel: 'Dialog',
+                              transitionDuration:
+                                  const Duration(milliseconds: 0),
+                              pageBuilder: (_, __, ___) {
+                                return LiveControlPage(
+                                  ip: ip,
+                                  name: zoneData['name'],
+                                  close: () {
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            )
+                          : null);
+                },
                 icon: const Icon(
                   Icons.visibility_outlined,
                   color: Colors.white,
@@ -1085,10 +1119,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           ),
       ];
 
-  List<Widget> mobileButtonsForDebugging(
-          {required String zoneName,
-          required String ip,
-          required Map<String, dynamic> zoneData}) =>
+  List<Widget> mobileButtonsForDebugging({
+    required String zoneName,
+    required String ip,
+    required Map<String, dynamic> zoneData,
+    required Function getExpandableMenuController,
+  }) =>
       [
         if (moreInfo == true)
           Padding(
@@ -1098,24 +1134,36 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               backgroundColor: CupertinoColors.activeOrange.color,
               child: IconButton(
                 padding: EdgeInsets.zero,
-                onPressed: () => showGeneralDialog(
-                  context: context,
-                  // barrierColor: Colors
-                  //     .black12
-                  //     .withOpacity(0.6), // Background color
-                  barrierDismissible: false,
-                  barrierLabel: 'Dialog',
-                  transitionDuration: const Duration(milliseconds: 0),
-                  pageBuilder: (_, __, ___) {
-                    return InfoPage(
-                      name: zoneData['name'],
-                      ip: ip,
-                      close: () {
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
+                onPressed: () {
+                  ExpandableMenuController? expandableMenuController =
+                      getExpandableMenuController();
+
+                  if (expandableMenuController != null) {
+                    expandableMenuController.close();
+                  }
+                  Future<void>.delayed(Duration(milliseconds: 500))
+                      .then((value) => mounted
+                          ? showGeneralDialog(
+                              context: context,
+                              // barrierColor: Colors
+                              //     .black12
+                              //     .withOpacity(0.6), // Background color
+                              barrierDismissible: false,
+                              barrierLabel: 'Dialog',
+                              transitionDuration:
+                                  const Duration(milliseconds: 0),
+                              pageBuilder: (_, __, ___) {
+                                return InfoPage(
+                                  name: zoneData['name'],
+                                  ip: ip,
+                                  close: () {
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            )
+                          : null);
+                },
                 icon: const Icon(
                   Icons.info_outline,
                   color: Colors.white,
@@ -1131,24 +1179,36 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               backgroundColor: CupertinoColors.activeOrange.color,
               child: IconButton(
                 padding: EdgeInsets.zero,
-                onPressed: () => showGeneralDialog(
-                  context: context,
-                  // barrierColor: Colors
-                  //     .black12
-                  //     .withOpacity(0.6), // Background color
-                  barrierDismissible: false,
-                  barrierLabel: 'Dialog',
-                  transitionDuration: const Duration(milliseconds: 0),
-                  pageBuilder: (_, __, ___) {
-                    return LogPage(
-                      name: zoneData['name'],
-                      ip: ip,
-                      close: () {
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
+                onPressed: () {
+                  ExpandableMenuController? expandableMenuController =
+                      getExpandableMenuController();
+
+                  if (expandableMenuController != null) {
+                    expandableMenuController.close();
+                  }
+                  Future<void>.delayed(Duration(milliseconds: 500))
+                      .then((value) => mounted
+                          ? showGeneralDialog(
+                              context: context,
+                              // barrierColor: Colors
+                              //     .black12
+                              //     .withOpacity(0.6), // Background color
+                              barrierDismissible: false,
+                              barrierLabel: 'Dialog',
+                              transitionDuration:
+                                  const Duration(milliseconds: 0),
+                              pageBuilder: (_, __, ___) {
+                                return LogPage(
+                                  name: zoneData['name'],
+                                  ip: ip,
+                                  close: () {
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            )
+                          : null);
+                },
                 icon: const Icon(
                   Icons.terminal,
                   color: Colors.white,
@@ -1255,7 +1315,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         });
                       }
 
-                      bool showButtonsInTwoColumns =
+                      bool isSmallDeviceWidth =
                           MediaQuery.of(context).size.width < 700;
 
                       return Container(
@@ -1449,6 +1509,35 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                               }
 
                                               // print('xxxx StartPage rebuild');
+
+                                              ExpandableMenuController?
+                                                  expandableMenuController;
+
+                                              ExpandableMenuController?
+                                                  getExpandableMenuController() =>
+                                                      expandableMenuController;
+
+                                              List<Widget> mobileButtonsList =
+                                                  [];
+                                              if (SharedWidgets
+                                                  .isMobileDevice()) {
+                                                mobileButtonsList = [
+                                                  ...mobileButtonsForDebugging(
+                                                    zoneName: zoneName,
+                                                    ip: devices[index],
+                                                    zoneData: i,
+                                                    getExpandableMenuController:
+                                                        getExpandableMenuController,
+                                                  ).reversed,
+                                                  ...mobileButtons(
+                                                    zoneName: zoneName,
+                                                    ip: devices[index],
+                                                    zoneData: i,
+                                                    getExpandableMenuController:
+                                                        getExpandableMenuController,
+                                                  ).reversed,
+                                                ];
+                                              }
 
                                               return Container(
                                                 key: index == 0
@@ -1908,72 +1997,91 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                       ),
                                                                   ],
                                                                 )
-                                                              : moreInfo ==
-                                                                          true &&
-                                                                      showButtonsInTwoColumns ==
-                                                                          true
-                                                                  ? Column(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      crossAxisAlignment:
-                                                                          CrossAxisAlignment
-                                                                              .end,
-                                                                      children: [
-                                                                        Row(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.min,
-                                                                          children: [
-                                                                            ...mobileButtonsWithPrependedInfo(
-                                                                                zoneName: zoneName,
-                                                                                ip: devices[index],
-                                                                                zoneData: i,
-                                                                                showButtonsInTwoColumns: showButtonsInTwoColumns)
-                                                                          ],
-                                                                        ),
-                                                                        SizedBox(
-                                                                            height:
+                                                              : Row(
+                                                                  children: [
+                                                                    if (isSmallDeviceWidth ==
+                                                                        true)
+                                                                      Padding(
+                                                                        padding: EdgeInsets.only(
+                                                                            top: Platform.isAndroid
+                                                                                ? 14.0
+                                                                                : 11.0,
+                                                                            right:
                                                                                 8.0),
-                                                                        Row(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.min,
-                                                                          children: [
-                                                                            ...mobileButtonsForDebugging(
-                                                                              zoneName: zoneName,
-                                                                              ip: devices[index],
-                                                                              zoneData: i,
-                                                                            )
-                                                                          ],
-                                                                        )
-                                                                      ],
-                                                                    )
-                                                                  : Row(
-                                                                      mainAxisSize:
-                                                                          MainAxisSize
-                                                                              .min,
-                                                                      children: [
-                                                                        ...mobileButtonsWithPrependedInfo(
-                                                                            zoneName:
-                                                                                zoneName,
-                                                                            ip: devices[
-                                                                                index],
-                                                                            zoneData:
-                                                                                i,
-                                                                            showButtonsInTwoColumns:
-                                                                                showButtonsInTwoColumns),
-                                                                        ...mobileButtonsForDebugging(
-                                                                          zoneName:
-                                                                              zoneName,
-                                                                          ip: devices[
-                                                                              index],
-                                                                          zoneData:
-                                                                              i,
-                                                                        ),
-                                                                      ],
-                                                                    ),
+                                                                        child: Text(
+                                                                            '${i['playcount']}',
+                                                                            softWrap:
+                                                                                true,
+                                                                            overflow:
+                                                                                TextOverflow.fade,
+                                                                            style: const TextStyle(fontSize: 9)),
+                                                                      ),
+                                                                    if (!isSmallDeviceWidth)
+                                                                      Text(
+                                                                        '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${i['playcount']}  ',
+                                                                        softWrap:
+                                                                            true,
+                                                                        maxLines:
+                                                                            2,
+                                                                        overflow:
+                                                                            TextOverflow.fade,
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                11),
+                                                                      ),
+                                                                    SizedBox(
+                                                                        width:
+                                                                            40.0)
+                                                                  ],
+                                                                ),
                                                         ],
                                                       ),
                                                     ),
+                                                    if (SharedWidgets
+                                                        .isMobileDevice())
+                                                      Positioned(
+                                                        top: Platform.isAndroid
+                                                            ? 4.0
+                                                            : 7.0,
+                                                        right: 0.0,
+                                                        child: SizedBox(
+                                                          width: mobileButtonsList
+                                                                      .length *
+                                                                  50 +
+                                                              30, // moreInfo == true
+                                                          height: 38.0,
+                                                          child: Stack(
+                                                            children: [
+                                                              Positioned(
+                                                                top: 0.0,
+                                                                left: 0.0,
+                                                                right: 0.0,
+                                                                child:
+                                                                    ExpandableMenu(
+                                                                        key: ValueKey(
+                                                                            'ExpandableMenu$index-$moreInfo'),
+                                                                        width:
+                                                                            38.0,
+                                                                        height:
+                                                                            38.0,
+                                                                        animationSpeed:
+                                                                            400,
+                                                                        backgroundColor: SharedWidgets.buttonRowBackgroundColor(
+                                                                            context:
+                                                                                context),
+                                                                        items:
+                                                                            mobileButtonsList,
+                                                                        getController:
+                                                                            (ExpandableMenuController
+                                                                                controller) {
+                                                                          expandableMenuController =
+                                                                              controller;
+                                                                        }),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
                                                     Positioned(
                                                         top: 60,
                                                         child: InkWell(
@@ -2028,7 +2136,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         .width -
                                                                     (moreInfo ==
                                                                                 true &&
-                                                                            showButtonsInTwoColumns ==
+                                                                            isSmallDeviceWidth ==
                                                                                 true
                                                                         ? 90
                                                                         : 16),

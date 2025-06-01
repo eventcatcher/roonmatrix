@@ -221,6 +221,14 @@ class SharedWidgets {
         : Colors.blue.shade100;
   }
 
+  static Color buttonRowBackgroundColor({
+    required BuildContext context,
+  }) {
+    return SharedWidgets.brightness() == Brightness.dark
+        ? Colors.grey.shade600
+        : Colors.blue.shade300;
+  }
+
   static Color textFieldBackgroundColor({
     required BuildContext context,
   }) {
