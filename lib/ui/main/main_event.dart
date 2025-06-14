@@ -74,12 +74,17 @@ class ZoneControl extends MainEvent {
   final String ip;
   final String controlId;
   final String cmd;
+  final bool enable;
 
-  const ZoneControl(
-      {required this.ip, required this.controlId, required this.cmd});
+  const ZoneControl({
+    required this.ip,
+    required this.controlId,
+    required this.cmd,
+    required this.enable,
+  });
 
   @override
-  List<Object> get props => [ip, controlId, cmd];
+  List<Object> get props => [ip, controlId, cmd, enable];
 }
 
 class SetIpRange extends MainEvent {

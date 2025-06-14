@@ -55,6 +55,7 @@ class _CoverPageState extends State<CoverPage> {
   String? controlId;
   bool idle = false;
   bool shuffle = false;
+  bool repeat = false;
 
   late MainBloc mainBloc;
 
@@ -89,14 +90,19 @@ class _CoverPageState extends State<CoverPage> {
       }
     }
 
+    Map<String, String> roonOptions = {};
     for (String key in channels.keys) {
       if (channels[key] != 'webserver') {
         String zoneName = channels[key]!;
         if ((info['roon_playouts'] as Map).containsKey(zoneName)) {
-          options.putIfAbsent(zoneName, () => key);
+          roonOptions.putIfAbsent(zoneName, () => key);
         }
       }
     }
+    options.addAll(Map.fromEntries(
+        roonOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key))));
+
+    Map<String, String> webOptions = {};
     for (String key in channels.keys) {
       if (channels[key] == 'webserver') {
         List<String> controlIdParts = key.split('-');
@@ -107,11 +113,13 @@ class _CoverPageState extends State<CoverPage> {
           Map<String, dynamic>? zone = zones.firstWhereOrNull(
               (dynamic el) => (el['zone'] as String) == zoneName);
           if (zone != null) {
-            options.putIfAbsent(key, () => channels[key]);
+            webOptions.putIfAbsent(key, () => channels[key]);
           }
         }
       }
     }
+    options.addAll(Map.fromEntries(
+        webOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key))));
 
     return options;
   }
@@ -199,7 +207,9 @@ class _CoverPageState extends State<CoverPage> {
               ),
               TableCell(
                 child: Text(
-                  selectedZone!['zone'] ?? '',
+                  selectedZone!['zone'] != null
+                      ? '${selectedZone!['zone']}${idle ? ' (${translations['paused'] ?? 'paused'})' : ''}'
+                      : '',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,
@@ -389,43 +399,20 @@ class _CoverPageState extends State<CoverPage> {
                         }
                       });
 
-                      if (selectedZone != null) {
-                        String? zone = selectedZone!['zone'];
-
-                        if (controlIdUpdated != null &&
-                            channels[controlIdUpdated] == 'webserver') {
-                          List<String> controlIdParts =
-                              controlIdUpdated.split('-');
-                          String serverName = controlIdParts[0];
-                          String zoneName = controlIdParts[1];
-
-                          if (info['web_playouts'][serverName] != null) {
-                            List<dynamic> zones =
-                                info['web_playouts'][serverName];
-                            Map<String, dynamic>? webZone =
-                                zones.firstWhereOrNull((dynamic el) =>
-                                    (el['zone'] as String) == zoneName);
-
-                            idle = webZone != null &&
-                                webZone['status'] != null &&
-                                (webZone['status'] == 'not running' ||
-                                    webZone['status'] == 'idle');
-                            shuffle =
-                                webZone != null && webZone['shuffle'] != null
-                                    ? webZone['shuffle'] == 'true'
-                                    : false;
-                          }
-                        } else {
-                          idle = zone != null &&
-                              info['roon_playouts'][zone] != null &&
-                              info['roon_playouts'][zone]['status'] != null &&
-                              info['roon_playouts'][zone]['status'] ==
-                                  'not running';
-                          shuffle = zone != null &&
-                                  info['roon_playouts'][zone] != null &&
-                                  info['roon_playouts'][zone]['shuffle'] != null
-                              ? info['roon_playouts'][zone]['shuffle']
-                              : false;
+                      if (controlIdUpdated != null) {
+                        if ((info['shufflemode'] as Map<String, dynamic>)
+                            .containsKey(controlIdUpdated)) {
+                          shuffle = info['shufflemode'][controlIdUpdated] ==
+                              'shuffle';
+                        }
+                        if ((info['repeatmode'] as Map<String, dynamic>)
+                            .containsKey(controlIdUpdated)) {
+                          repeat =
+                              info['repeatmode'][controlIdUpdated] == 'repeat';
+                        }
+                        if ((info['playmode'] as Map<String, dynamic>)
+                            .containsKey(controlIdUpdated)) {
+                          idle = info['playmode'][controlIdUpdated] != 'play';
                         }
                       }
                     }
@@ -509,7 +496,7 @@ class _CoverPageState extends State<CoverPage> {
                                     Expanded(
                                       child: ControlButtons(
                                         key: ValueKey(
-                                            'ControButtonsDesktop-$idle-$shuffle'),
+                                            'ControButtonsDesktop-$idle-$shuffle-$repeat'),
                                         orientation: orientation,
                                         translations: translations,
                                         partsToSubtract: 275,
@@ -518,6 +505,7 @@ class _CoverPageState extends State<CoverPage> {
                                             controlId ?? widget.controlId ?? '',
                                         idle: idle,
                                         shuffle: shuffle,
+                                        repeat: repeat,
                                         readOnly: selectedZoneId == null ||
                                             selectedZoneId!.isEmpty,
                                       ),
@@ -535,7 +523,7 @@ class _CoverPageState extends State<CoverPage> {
                             Expanded(child: getTextArea()),
                             ControlButtons(
                               key: ValueKey(
-                                  'ControButtonsPortrait-$idle-$shuffle'),
+                                  'ControButtonsPortrait-$idle-$shuffle-$repeat'),
                               orientation: orientation,
                               translations: translations,
                               partsToSubtract:
@@ -544,6 +532,7 @@ class _CoverPageState extends State<CoverPage> {
                               controlId: controlId ?? widget.controlId ?? '',
                               idle: idle,
                               shuffle: shuffle,
+                              repeat: repeat,
                               readOnly: selectedZoneId == null ||
                                   selectedZoneId!.isEmpty,
                             ),

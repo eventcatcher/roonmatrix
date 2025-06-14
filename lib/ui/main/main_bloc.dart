@@ -34,11 +34,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     "config": TextEditingController(),
     "log": TextEditingController()
   };
-  final bool logDebugMessage = false;
   final int pollingIntervalInSeconds = 30;
   final int port = 8000;
-  final int timeoutInMilliseconds = 500;
-  final int logTextDelayInMilliseconds = 500;
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
@@ -447,6 +444,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         String ip = event.ip;
         String controlId = event.controlId;
         String cmd = event.cmd; // previous, next, shufflemode, playmode
+        bool enable = event.enable;
 
         Map<String, String> headers = {
           "Content-Type": 'application/json; charset=utf-8',
@@ -457,11 +455,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           "control_id": controlId,
           "cmd": cmd,
         };
+        if (cmd == 'playmode' || cmd == 'shufflemode' || cmd == 'repeatmode') {
+          payload['enable'] = enable;
+        }
 
         try {
           String url = 'http://$ip:$port/zone_control/';
           Uri uri = Uri.parse(url);
           try {
+            if (kDebugMode) {
+              debugPrint('send zone_control => payload: $payload');
+            }
             var response = await client.post(uri,
                 headers: headers, body: json.encode(payload));
 
@@ -490,7 +494,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               }
               if (kDebugMode) {
                 print(
-                    'zoneControl => ip: $ip, controlId: $controlId, cmd: $cmd');
+                    'zoneControl => ip: $ip, controlId: $controlId, cmd: $cmd${payload['enable'] != null ? ', enable: $enable' : ''}');
               }
             }
           } catch (e) {
@@ -1116,29 +1120,61 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return Future.value(null);
   }
 
+  Future<bool> isPortOpen(String ip, int port, Duration timeout) async {
+    try {
+      final socket = await Socket.connect(ip, port, timeout: timeout);
+      socket.destroy();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<List<String>> parallelScan({
+    required String subnet,
+    required int start,
+    required int end,
+    required int port,
+  }) async {
+    final List<Future> futures = <Future>[];
+    final List<String> found = [];
+    const timeout = Duration(milliseconds: 300);
+
+    for (int i = start; i <= end; i++) {
+      String ip = '$subnet.$i';
+      futures.add(isPortOpen(ip, port, timeout).then((open) {
+        if (open) {
+          if (kDebugMode) {
+            debugPrint('Open: $ip:$port');
+          }
+          found.add(ip);
+        }
+      }));
+    }
+
+    if (futures.isNotEmpty) await Future.wait(futures);
+
+    return found;
+  }
+
   Future<void> searchDevices() async {
     if (kDebugMode) {
-      print('searchDevices, isScanning: $isScanning');
+      debugPrint('searchDevices, isScanning: $isScanning');
     }
 
     if (isScanning == true) {
-      if (logDebugMessage == true) {
-        await Future.delayed(
-            Duration(milliseconds: logTextDelayInMilliseconds));
-        addToLogMessage(msg: 'networkscan is running...');
-        await Future.delayed(
-            Duration(milliseconds: logTextDelayInMilliseconds));
+      if (kDebugMode) {
+        debugPrint('networkscan is running...');
       }
     } else {
       List<String> devices = [];
       Map<String, dynamic> info = {};
+
       isScanning = true;
 
       try {
-        addToLogMessage(msg: 'start networkscan', clear: true);
-        if (logDebugMessage == true) {
-          await Future.delayed(
-              Duration(milliseconds: logTextDelayInMilliseconds));
+        if (kDebugMode) {
+          debugPrint('start networkscan');
         }
 
         if (ipStart != null && ipEnd != null) {
@@ -1147,60 +1183,48 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           final String subnet =
               ipStart!.substring(0, ipStart!.lastIndexOf('.'));
 
-          for (int i = firstHostId; i <= lastHostId; i++) {
-            String ip = '$subnet.$i';
-            await Socket.connect(ip, port,
-                    timeout: Duration(milliseconds: timeoutInMilliseconds))
-                .then((socket) async {
-              if (logDebugMessage == true) {
-                await Future.delayed(
-                    Duration(milliseconds: logTextDelayInMilliseconds));
-                addToLogMessage(msg: 'found device on ip: $ip');
-                await Future.delayed(
-                    Duration(milliseconds: logTextDelayInMilliseconds));
-              }
-              if (kDebugMode) {
-                print('found device on ip: $ip');
-              }
+          List<String> ipList = await parallelScan(
+            subnet: subnet,
+            start: firstHostId,
+            end: lastHostId,
+            port: port,
+          );
 
-              String url = 'http://$ip:$port/info/';
-              Uri uri = Uri.parse(url);
-              addToLogMessage(msg: 'test rest-api route: $url');
-              try {
-                var response = await client.get(uri);
-                if (response.statusCode == 200) {
-                  if (response.body.substring(0, 1) == '{') {
-                    Map<String, dynamic> json = jsonDecode(filterIllegalChars(
-                            text: utf8.decode(response.bodyBytes),
-                            messageHeader: 'searchDevices/info (raw)'))
-                        as Map<String, dynamic>;
-                    if (json['name'] != null && json['time'] != null) {
-                      addToLogMessage(
-                          msg:
-                              'roonmatrix device found on ip: $ip, name: ${json['name']}');
-                      if (kDebugMode) {
-                        print(
-                            'roonmatrix device found on ip: $ip, name: ${json['name']}, time: ${json['time']}');
-                      }
+          for (String ip in ipList) {
+            if (kDebugMode) {
+              debugPrint('found device on ip: $ip');
+            }
 
-                      devices.add(ip);
-                      info[ip] = json;
+            String url = 'http://$ip:$port/info/';
+            Uri uri = Uri.parse(url);
+
+            if (kDebugMode) {
+              debugPrint('test rest-api route: $url');
+            }
+            try {
+              var response = await client.get(uri);
+              if (response.statusCode == 200) {
+                if (response.body.substring(0, 1) == '{') {
+                  Map<String, dynamic> json = jsonDecode(filterIllegalChars(
+                          text: utf8.decode(response.bodyBytes),
+                          messageHeader: 'searchDevices/info (raw)'))
+                      as Map<String, dynamic>;
+                  if (json['name'] != null && json['time'] != null) {
+                    if (kDebugMode) {
+                      debugPrint(
+                          'roonmatrix device found on ip: $ip, name: ${json['name']}');
                     }
+
+                    devices.add(ip);
+                    info[ip] = json;
                   }
                 }
-              } catch (e) {
-                addToLogMessage(msg: 'error by access to $url: $e');
-                if (kDebugMode) {
-                  print('error by access to $url: $e');
-                }
               }
-
-              socket.destroy();
-            }).catchError((error) {
+            } catch (e) {
               if (kDebugMode) {
-                print("nothing found on ip: $ip");
+                debugPrint('error by access to $url: $e');
               }
-            });
+            }
           }
 
           add(LoadDevicesAndInfo(devices: devices, info: info));
@@ -1208,16 +1232,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         isScanning = false;
       } catch (e) {
-        if (logDebugMessage == true) {
-          await Future.delayed(
-              Duration(milliseconds: logTextDelayInMilliseconds));
-          addToLogMessage(msg: 'general ip scan error: $e');
-          await Future.delayed(
-              Duration(milliseconds: logTextDelayInMilliseconds));
+        if (kDebugMode == true) {
+          debugPrint('general ip scan error: $e');
         }
-        if (kDebugMode) {
-          print('general ip scan error: $e');
-        }
+
         isScanning = false;
       }
     }
@@ -1231,19 +1249,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     String jsonStr = encoder.convert(jsonObject);
 
     return jsonStr;
-  }
-
-  addToLogMessage({required String msg, bool clear = false}) {
-    if (logDebugMessage == true) {
-      String logMessage = state.logMessage;
-      if (clear == true) {
-        logMessage = '$msg\n';
-      } else {
-        logMessage += '$msg\n';
-      }
-
-      setLogMessage(msg: logMessage);
-    }
   }
 
   Map<String, dynamic>? getZoneDataForControlId({
@@ -1431,8 +1436,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   void zoneControl(
-      {required String ip, required String controlId, required String cmd}) {
-    add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd));
+      {required String ip,
+      required String controlId,
+      required String cmd,
+      bool enable = false}) {
+    add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd, enable: enable));
   }
 
   void setSearchFilter({required String type, required String filter}) {

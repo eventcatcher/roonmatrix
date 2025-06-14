@@ -239,9 +239,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     required bool idle,
   }) {
     String? coverUrl = zone['cover'];
-    if (((idle == false && zone['status'] == null) ||
-            (idle == true && zone['status'] != null)) &&
-        channels.values.contains(zoneName)) {
+    if (channels.values.contains(zoneName) &&
+        ((!idle && zone['status'] == 'playing') ||
+            (idle == true && zone['status'] != 'playing'))) {
       String controlId =
           channels.keys.firstWhere((el) => channels[el] == zoneName);
       CoverModel coverModel = CoverModel(
@@ -250,9 +250,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         coverUrl: coverUrl ?? '',
         artist: zone['artist'] ?? '',
         album: zone['album'] ?? '',
-        track: coverUrl != null
-            ? zone['track'] ?? ''
-            : '${translations['inactive'] ?? 'inactive zone'}',
+        track: zone['track'] ?? '',
+        status: zone['status'],
       );
 
       return coverModel;
@@ -268,18 +267,17 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     required bool idle,
   }) {
     String? coverUrl = zone['cover'];
-    if (((idle == false && zone['status'] == null) ||
-            (idle == true && zone['status'] != null)) &&
-        channels.keys.contains(zoneName)) {
+    if (channels.keys.contains(zoneName) &&
+        ((!idle && zone['status'] == 'playing') ||
+            (idle == true && zone['status'] != 'playing'))) {
       CoverModel coverModel = CoverModel(
         controlId: zoneName,
         zoneName: zoneName,
         coverUrl: coverUrl ?? '',
         artist: zone['artist'] ?? '',
         album: zone['album'] ?? '',
-        track: coverUrl != null
-            ? zone['track'] ?? ''
-            : '${translations['inactive'] ?? 'inactive zone'}',
+        track: zone['track'] ?? '',
+        status: zone['status'],
       );
 
       return coverModel;
@@ -536,24 +534,69 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         //   return ScaleTransition(scale: animation, child: child);
                         // },
                         child: coverModel.coverUrl.isNotEmpty
-                            ? Image.network(
-                                coverModel
-                                    .coverUrl, // if imageUrl changed, the transition will be animated
-                                key: ValueKey(
-                                    'CoverRow-${orientation.name}-${coverModel.coverUrl}'),
-                                fit: BoxFit.cover,
-                                width: coverRowDynamicSize
-                                    ? double.infinity
-                                    : null,
-                                height: coverRowDynamicSize
-                                    ? double.infinity
-                                    : null,
+                            ? Stack(
+                                children: [
+                                  Container(
+                                    key: ValueKey(
+                                        'CoverRow-${orientation.name}-${coverModel.coverUrl}'),
+                                    width: coverRowDynamicSize
+                                        ? double.infinity
+                                        : null,
+                                    height: coverRowDynamicSize
+                                        ? double.infinity
+                                        : null,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xff7c94b6),
+                                      image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        colorFilter:
+                                            coverModel.status != 'playing'
+                                                ? ColorFilter.mode(
+                                                    Colors.black
+                                                        .withValues(alpha: 0.2),
+                                                    BlendMode.dstATop)
+                                                : null,
+                                        image: NetworkImage(
+                                          coverModel.coverUrl,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if (coverModel.status != 'playing')
+                                    Positioned.fill(
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Icon(
+                                          Icons.pause,
+                                          color: Colors.white,
+                                          size: 60.0,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               )
-                            : SvgPicture.asset(
-                                'assets/svg/8-8-led-matrix-display-unit.svg',
-                                allowDrawingOutsideViewBox: false,
-                                width: double.infinity,
-                                height: double.infinity,
+                            : Stack(
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/svg/8-8-led-matrix-display-unit.svg',
+                                    colorFilter: ColorFilter.mode(
+                                        Colors.black.withValues(alpha: 0.2),
+                                        BlendMode.dstATop),
+                                    allowDrawingOutsideViewBox: false,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  ),
+                                  Positioned.fill(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Icon(
+                                        Icons.close,
+                                        color: Colors.red,
+                                        size: 60.0,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                       ),
                     ),
@@ -758,12 +801,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   }
 
   void itemsToRemove({required List<CoverModel> newList}) {
+    print('yyyy newList itemsToRemove: ${newList.map((el) => el.artist)}');
+    print('yyyy coverList itemsToRemove: ${coverList.map((el) => el.artist)}');
     List<int> indexesToRemove = [];
     coverList.asMap().forEach((index, item) {
       CoverModel? obj = newList.firstWhereOrNull((CoverModel el) =>
           el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
       if (obj == null) {
         indexesToRemove.add(index);
+        print('yyyy itemsToRemove: ${item.artist}');
       }
     });
 
@@ -789,6 +835,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
       if (obj == null) {
         newItems.add(item);
+        print('yyyy itemsToAdd: ${item.artist}');
       }
     });
 
@@ -1290,6 +1337,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     // ];
 
                     List<CoverModel> coverListNew = getCoversModel(info);
+                    print(
+                        'yyyy coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
                     if (coverListNew.length != coverList.length) {
                       itemsToRemove(newList: coverListNew);
                       itemsToAdd(newList: coverListNew);
@@ -2471,6 +2520,7 @@ class CoverModel {
   String artist;
   String album;
   String track;
+  String status;
 
   CoverModel({
     required this.controlId,
@@ -2479,5 +2529,6 @@ class CoverModel {
     required this.artist,
     required this.album,
     required this.track,
+    required this.status,
   });
 }

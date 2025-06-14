@@ -9,6 +9,7 @@ class ControlButtons extends StatefulWidget {
   final String ip;
   final bool? idle;
   final bool? shuffle;
+  final bool? repeat;
   final String controlId;
   final bool readOnly;
 
@@ -19,6 +20,7 @@ class ControlButtons extends StatefulWidget {
     this.partsToSubtract = 0,
     this.idle,
     this.shuffle,
+    this.repeat,
     required this.ip,
     required this.controlId,
     this.readOnly = false,
@@ -41,6 +43,7 @@ class ControlButtonsState extends State<ControlButtons> {
   final bool showButtonUp = false;
   bool idle = false;
   bool shuffle = false;
+  bool repeat = false;
 
   late MainBloc mainBloc;
 
@@ -49,6 +52,7 @@ class ControlButtonsState extends State<ControlButtons> {
     mainBloc = BlocProvider.of<MainBloc>(context);
     idle = widget.idle ?? false;
     shuffle = widget.shuffle ?? false;
+    repeat = widget.repeat ?? false;
 
     super.initState();
   }
@@ -84,27 +88,36 @@ class ControlButtonsState extends State<ControlButtons> {
                           SizedBox(
                             width: buttonSize,
                             height: buttonSize,
-                            child: showButtonUp == true
-                                ? Tooltip(
-                                    message:
-                                        translations['controlButtonUpText'] ??
-                                            'up',
-                                    triggerMode: TooltipTriggerMode.manual,
-                                    verticalOffset: verticalOffset,
-                                    child: IconButton(
-                                      padding: EdgeInsets.zero,
-                                      color: Colors.grey,
-                                      hoverColor: Colors.blue,
-                                      onPressed: () async {
-                                        //
-                                      },
-                                      icon: Icon(
-                                        Icons.keyboard_arrow_up,
-                                        size: buttonSize,
-                                      ),
-                                    ),
-                                  )
-                                : null,
+                            child: Tooltip(
+                              message:
+                                  translations['controlButtonRepeatText'] ??
+                                      'repeat',
+                              triggerMode: TooltipTriggerMode.manual,
+                              verticalOffset: verticalOffset,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                hoverColor: Colors.blue,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
+                                        ip: ip,
+                                        controlId: controlId,
+                                        cmd: 'repeatmode',
+                                        enable: !repeat);
+                                    if (mounted) {
+                                      setState(() {
+                                        repeat = !repeat;
+                                      });
+                                    }
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.repeat,
+                                  size: buttonSize * 0.5,
+                                  color: repeat ? Colors.green : Colors.grey,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -151,15 +164,17 @@ class ControlButtonsState extends State<ControlButtons> {
                                 hoverColor: Colors.blue,
                                 onPressed: () {
                                   if (!readOnly) {
+                                    mainBloc.zoneControl(
+                                      ip: ip,
+                                      controlId: controlId,
+                                      cmd: 'playmode',
+                                      enable: idle,
+                                    );
                                     if (mounted) {
                                       setState(() {
                                         idle = !idle;
                                       });
                                     }
-                                    mainBloc.zoneControl(
-                                        ip: ip,
-                                        controlId: controlId,
-                                        cmd: 'playmode');
                                   }
                                 },
                                 icon: Icon(
@@ -219,15 +234,16 @@ class ControlButtonsState extends State<ControlButtons> {
                                 hoverColor: Colors.blue,
                                 onPressed: () {
                                   if (!readOnly) {
+                                    mainBloc.zoneControl(
+                                        ip: ip,
+                                        controlId: controlId,
+                                        cmd: 'shufflemode',
+                                        enable: !shuffle);
                                     if (mounted) {
                                       setState(() {
                                         shuffle = !shuffle;
                                       });
                                     }
-                                    mainBloc.zoneControl(
-                                        ip: ip,
-                                        controlId: controlId,
-                                        cmd: 'shufflemode');
                                   }
                                 },
                                 icon: Icon(

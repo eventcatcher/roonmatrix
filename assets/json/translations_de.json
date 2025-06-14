@@ -54,6 +54,8 @@
     "controlButtonNextText": "nächster Titel",
     "controlButtonUpText": "hoch",
     "controlButtonShuffleText": "zufälliger Titel",
+    "controlButtonRepeatText": "wiederholen",
+    "paused": "pausiert",
     "controlButtonPlaymodeText": "Pause/Wiedergabe",
     "zoneSelectionLabel": "Zone",
     "zoneSelectionPlaceholder": "Bitte Zone auswählen",
