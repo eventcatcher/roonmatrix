@@ -12,6 +12,7 @@ import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
+import 'package:roonmatrix/ui/helper/websocket_service.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/main/main_event.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -39,6 +40,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
+  List<WebSocketService> services = [];
+
   String? ipStart;
   String? ipEnd;
   bool isScanning = false;
@@ -92,6 +95,41 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
 
       if (event is LoadDevicesAndInfo) {
+        List<String> existingServiceUrls =
+            services.map((WebSocketService el) => el.url).toList();
+
+        for (String ip in event.devices) {
+          String url = 'ws://$ip:$port/ws';
+          if (!existingServiceUrls.contains(url)) {
+            debugPrint('add WebSocketService $url');
+            services.add(WebSocketService(
+              url,
+              onMessage: (jsonStr) {
+                if (jsonStr.isNotEmpty &&
+                    jsonStr.startsWith('{') &&
+                    jsonStr.endsWith('}')) {
+                  Map<String, dynamic> info = state.info;
+                  info[ip] = jsonDecode(jsonStr);
+                  debugPrint(
+                      'WebSocketService received data from device ${info['name']}');
+                  add(LoadDevicesAndInfo(devices: state.devices, info: info));
+                }
+              },
+            )..connect());
+          }
+        }
+
+        List<String> newWebSocketUrls =
+            event.devices.map((String ip) => 'ws://$ip:$port/ws').toList();
+        for (WebSocketService service in services) {
+          if (!newWebSocketUrls.contains(service.url)) {
+            debugPrint('remove WebSocketService ${service.url}');
+            service.dispose();
+            services.remove(service);
+          }
+        }
+        debugPrint('active websocket connections: ${services.length}');
+
         emit(MainStateLoaded(
           update: DateTime.now(),
           ipStart: state.ipStart,
@@ -1450,6 +1488,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   @override
   Future<void> close() {
     timer?.cancel();
+    for (WebSocketService service in services) {
+      service.dispose();
+    }
     return super.close();
   }
 }
