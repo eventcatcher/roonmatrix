@@ -1313,11 +1313,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     if (mainState.searchFilter.isNotEmpty &&
                         devices.isNotEmpty) {
                       devices = devices
-                          .where((String el) => (info[el]['name'] as String)
-                              .toLowerCase()
-                              .contains(
-                                  (mainState.searchFilter['main'] as String)
-                                      .toLowerCase()))
+                          .where((String el) =>
+                              info.containsKey(el) &&
+                              (info[el]['name'] as String)
+                                  .toLowerCase()
+                                  .contains(
+                                      (mainState.searchFilter['main'] as String)
+                                          .toLowerCase()))
                           .toList();
                     }
 

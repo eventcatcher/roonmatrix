@@ -32,14 +32,23 @@ class SetSearchFilter extends MainEvent {
   List<Object> get props => [type, filter];
 }
 
-class LoadDevicesAndInfo extends MainEvent {
+class LoadDevices extends MainEvent {
   final List<String> devices;
-  final Map<String, dynamic> info;
 
-  const LoadDevicesAndInfo({required this.devices, required this.info});
+  const LoadDevices({required this.devices});
 
   @override
-  List<Object> get props => [devices, info];
+  List<Object> get props => [devices];
+}
+
+class LoadInfo extends MainEvent {
+  final String ip;
+  final dynamic info;
+
+  const LoadInfo({required this.ip, required this.info});
+
+  @override
+  List<Object> get props => [ip, info];
 }
 
 class GetInfo extends MainEvent {

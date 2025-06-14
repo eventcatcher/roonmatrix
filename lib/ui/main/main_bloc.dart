@@ -35,6 +35,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     "config": TextEditingController(),
     "log": TextEditingController()
   };
+  final List<String> allowedDeviceTypes = ['roonmatrix', 'coverplayer'];
   final int pollingIntervalInSeconds = 30;
   final int port = 8000;
 
@@ -94,7 +95,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         ));
       }
 
-      if (event is LoadDevicesAndInfo) {
+      if (event is LoadDevices) {
         List<String> existingServiceUrls =
             services.map((WebSocketService el) => el.url).toList();
 
@@ -108,11 +109,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 if (jsonStr.isNotEmpty &&
                     jsonStr.startsWith('{') &&
                     jsonStr.endsWith('}')) {
-                  Map<String, dynamic> info = state.info;
-                  info[ip] = jsonDecode(jsonStr);
+                  dynamic info = jsonDecode(jsonStr);
                   debugPrint(
                       'WebSocketService received data from device ${info['name']}');
-                  add(LoadDevicesAndInfo(devices: state.devices, info: info));
+                  add(LoadInfo(ip: ip, info: info));
                 }
               },
             )..connect());
@@ -136,12 +136,33 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           ipEnd: state.ipEnd,
           searchFilter: state.searchFilter,
           devices: event.devices,
-          info: event.info,
+          info: state.info,
           config: state.config,
           definitions: state.definitions,
           fieldValues: state.fieldValues,
           log: state.log,
           idle: false,
+          subPageIdle: state.subPageIdle,
+          logMessage: state.logMessage,
+        ));
+      }
+
+      if (event is LoadInfo) {
+        Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
+        info[event.ip] = event.info;
+
+        emit(MainStateLoaded(
+          update: DateTime.now(),
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          searchFilter: state.searchFilter,
+          devices: state.devices,
+          info: info,
+          config: state.config,
+          definitions: state.definitions,
+          fieldValues: state.fieldValues,
+          log: state.log,
+          idle: state.idle,
           subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
         ));
@@ -1206,8 +1227,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
     } else {
       List<String> devices = [];
-      Map<String, dynamic> info = {};
-
       isScanning = true;
 
       try {
@@ -1233,7 +1252,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               debugPrint('found device on ip: $ip');
             }
 
-            String url = 'http://$ip:$port/info/';
+            String url = 'http://$ip:$port/';
             Uri uri = Uri.parse(url);
 
             if (kDebugMode) {
@@ -1245,16 +1264,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 if (response.body.substring(0, 1) == '{') {
                   Map<String, dynamic> json = jsonDecode(filterIllegalChars(
                           text: utf8.decode(response.bodyBytes),
-                          messageHeader: 'searchDevices/info (raw)'))
+                          messageHeader: 'searchDevices/type (raw)'))
                       as Map<String, dynamic>;
-                  if (json['name'] != null && json['time'] != null) {
+                  if (json['type'] != null &&
+                      json['name'] != null &&
+                      json['time'] != null &&
+                      allowedDeviceTypes.contains(json['type'])) {
                     if (kDebugMode) {
                       debugPrint(
-                          'roonmatrix device found on ip: $ip, name: ${json['name']}');
+                          '${json['type']} device found on ip: $ip, name: ${json['name']}, time: ${json['time']}');
                     }
 
                     devices.add(ip);
-                    info[ip] = json;
                   }
                 }
               }
@@ -1265,7 +1286,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
           }
 
-          add(LoadDevicesAndInfo(devices: devices, info: info));
+          add(LoadDevices(devices: devices));
         }
 
         isScanning = false;
