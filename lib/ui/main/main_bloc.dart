@@ -111,7 +111,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                     jsonStr.endsWith('}')) {
                   dynamic info = jsonDecode(jsonStr);
                   debugPrint(
-                      'WebSocketService received data from device ${info['name']}');
+                      'vvvv WebSocketService received data from device ${info['name']}, app_displaystr: ${info['app_displaystr']}');
                   add(LoadInfo(ip: ip, info: info));
                 }
               },
@@ -150,6 +150,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is LoadInfo) {
         Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
         info[event.ip] = event.info;
+        print(
+            'vvvv LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}');
 
         emit(MainStateLoaded(
           update: DateTime.now(),
@@ -513,10 +515,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         Map<String, dynamic> payload = {
           "control_id": controlId,
           "cmd": cmd,
+          'enable': enable
         };
-        if (cmd == 'playmode' || cmd == 'shufflemode' || cmd == 'repeatmode') {
-          payload['enable'] = enable;
-        }
 
         try {
           String url = 'http://$ip:$port/zone_control/';

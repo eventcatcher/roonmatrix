@@ -48,7 +48,8 @@ class _UpdatableScrollBarState extends State<UpdatableScrollBar>
       _oldText = _newText;
       _newText = widget.text;
       initialized = false;
-      debugPrint('xxxx didUpdateWidget, get _newText: $_newText');
+      debugPrint(
+          'xxxx didUpdateWidget, _oldText: $_oldText, get _newText: $_newText');
     }
     if (pixelsPerSecond != widget.pixelsPerSecond &&
         _animationController != null) {

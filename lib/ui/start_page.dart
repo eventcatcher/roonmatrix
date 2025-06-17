@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
@@ -197,7 +198,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             height > (minDesktopSize.height + 75));
     // if (kDebugMode) {
     //   print(
-    //       'StartPage => updateSizes, caller: $caller, width: $width, height: $height');
+    //       'yyyy StartPage/updateSizes => caller: $caller, width: $width, height: $height');
     // }
   }
 
@@ -738,7 +739,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
         if (kDebugMode == true) {
           debugPrint(
-              'getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToSubtract: $partsToSubtract, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
+              'yyyy StartPage/getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToSubtract: $partsToSubtract, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
         }
       }
     }
@@ -748,7 +749,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
   Widget getCoverRow({required Map<String, dynamic> info}) {
     if (kDebugMode == true) {
-      debugPrint('getCoverRow => covers to display: ${coverList.length}');
+      debugPrint(
+          'yyyy StartPage/getCoverRow => covers to display: ${coverList.length}');
     }
 
     double coverSize = getCoverSize();
@@ -801,15 +803,17 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   }
 
   void itemsToRemove({required List<CoverModel> newList}) {
-    print('yyyy newList itemsToRemove: ${newList.map((el) => el.artist)}');
-    print('yyyy coverList itemsToRemove: ${coverList.map((el) => el.artist)}');
+    print(
+        'yyyy StartPage/itemsToRemove => newList itemsToRemove: ${newList.map((el) => el.artist)}');
+    print(
+        'yyyy StartPage/itemsToRemove => coverList itemsToRemove: ${coverList.map((el) => el.artist)}');
     List<int> indexesToRemove = [];
     coverList.asMap().forEach((index, item) {
       CoverModel? obj = newList.firstWhereOrNull((CoverModel el) =>
           el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
       if (obj == null) {
         indexesToRemove.add(index);
-        print('yyyy itemsToRemove: ${item.artist}');
+        print('yyyy StartPage/itemsToRemove => itemsToRemove: ${item.artist}');
       }
     });
 
@@ -835,7 +839,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
       if (obj == null) {
         newItems.add(item);
-        print('yyyy itemsToAdd: ${item.artist}');
+        print('yyyy StartPage/itemsToAdd => ${item.artist}');
       }
     });
 
@@ -1340,7 +1344,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
                     List<CoverModel> coverListNew = getCoversModel(info);
                     print(
-                        'yyyy coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
+                        'yyyy StartPage/body => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
                     if (coverListNew.length != coverList.length) {
                       itemsToRemove(newList: coverListNew);
                       itemsToAdd(newList: coverListNew);
@@ -1350,7 +1354,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
                     if (kDebugMode) {
                       print(
-                          'state changed => rebuild, devices: ${devices.length}, idle: $idle');
+                          'yyyy StartPage/body => state changed => rebuild, devices: ${devices.length}, idle: $idle');
                     }
                     return OrientationBuilder(
                         builder: (BuildContext context, Orientation o) {
@@ -1521,7 +1525,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   info[devices[index]];
 
                                               String scrollText =
-                                                  '${replaceCodes(i['displaystr'] ?? '')}    ////    ';
+                                                  '${replaceCodes(i['app_displaystr'] ?? '')}    ////    ';
+                                              String hash = md5
+                                                  .convert(
+                                                      utf8.encode(scrollText))
+                                                  .toString();
+                                              print(
+                                                  'yyyy StartPage => new info received @ index $index), hash: $hash, scrollText: $scrollText');
 
                                               String zoneName = '';
                                               if (i['control_id'] != null) {
@@ -1559,7 +1569,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                     1 + box.size.height;
                                               }
 
-                                              // print('xxxx StartPage rebuild');
+                                              // print('yyyy StartPage rebuild');
 
                                               ExpandableMenuController?
                                                   expandableMenuController;

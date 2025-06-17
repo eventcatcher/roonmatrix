@@ -289,7 +289,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
 
                     if (mainState.devices.length > index) {
                       String displaystrNew = mainState
-                          .info[mainState.devices[index]]['displaystr'];
+                          .info[mainState.devices[index]]['app_displaystr'];
 
                       String displaystrNewMasked =
                           getMaskedString(displaystrNew);
