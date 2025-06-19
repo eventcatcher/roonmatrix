@@ -278,7 +278,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         artist: zone['artist'] ?? '',
         album: zone['album'] ?? '',
         track: zone['track'] ?? '',
-        status: zone['status'],
+        status: zone['status'] ?? '',
       );
 
       return coverModel;
@@ -1299,6 +1299,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               return BlocBuilder(
                   bloc: mainBloc,
                   builder: (context, MainState mainState) {
+                    print(
+                        'yyyy StartPage => mainState event $mainState @ ${DateTime.now().toLocal()}');
                     if (mainState is! MainStateLoaded) {
                       return SizedBox();
                     }
@@ -1531,7 +1533,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                       utf8.encode(scrollText))
                                                   .toString();
                                               print(
-                                                  'yyyy StartPage => new info received @ index $index), hash: $hash, scrollText: $scrollText');
+                                                  'yyyy StartPage => new info received on index $index @ ${DateTime.now().toLocal()}), hash: $hash, scrollText: $scrollText');
 
                                               String zoneName = '';
                                               if (i['control_id'] != null) {

@@ -102,7 +102,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         for (String ip in event.devices) {
           String url = 'ws://$ip:$port/ws';
           if (!existingServiceUrls.contains(url)) {
-            debugPrint('add WebSocketService $url');
+            debugPrint('vvvv add WebSocketService $url');
             services.add(WebSocketService(
               url,
               onMessage: (jsonStr) {
@@ -111,24 +111,32 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                     jsonStr.endsWith('}')) {
                   dynamic info = jsonDecode(jsonStr);
                   debugPrint(
-                      'vvvv WebSocketService received data from device ${info['name']}, app_displaystr: ${info['app_displaystr']}');
+                      'vvvv WebSocketService received data from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
                   add(LoadInfo(ip: ip, info: info));
                 }
               },
             )..connect());
+            getInfo(ip: ip);
           }
         }
 
         List<String> newWebSocketUrls =
             event.devices.map((String ip) => 'ws://$ip:$port/ws').toList();
+        List<WebSocketService> servicesToRemove = [];
         for (WebSocketService service in services) {
           if (!newWebSocketUrls.contains(service.url)) {
-            debugPrint('remove WebSocketService ${service.url}');
+            debugPrint('vvvv remove WebSocketService ${service.url}');
             service.dispose();
+            servicesToRemove.add(service);
+          }
+        }
+        if (servicesToRemove.isNotEmpty) {
+          for (WebSocketService service in servicesToRemove) {
             services.remove(service);
           }
         }
-        debugPrint('active websocket connections: ${services.length}');
+
+        debugPrint('vvvv active websocket connections: ${services.length}');
 
         emit(MainStateLoaded(
           update: DateTime.now(),
@@ -150,7 +158,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is LoadInfo) {
         Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
         info[event.ip] = event.info;
-        print(
+        debugPrint(
             'vvvv LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}');
 
         emit(MainStateLoaded(
@@ -250,7 +258,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                         messageHeader: 'GetInfo/info (raw)'))
                     as Map<String, dynamic>;
 
-                Map<String, dynamic> info = state.info;
+                Map<String, dynamic> info =
+                    Map<String, dynamic>.from(state.info);
                 info[ip] = json;
 
                 emit(MainStateLoaded(
@@ -530,7 +539,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
             if (response.statusCode == 200) {
               if (state.info.containsKey(ip)) {
-                Map<String, dynamic> info = state.info;
+                Map<String, dynamic> info =
+                    Map<String, dynamic>.from(state.info);
                 if (cmd == 'switch') {
                   info[ip]['control_id'] = controlId;
 

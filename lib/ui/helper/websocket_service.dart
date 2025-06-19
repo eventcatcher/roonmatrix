@@ -12,7 +12,8 @@ class WebSocketService {
   WebSocketService(this.url, {this.onMessage});
 
   void connect() {
-    debugPrint("zzzz WebSocketService => connect to $url");
+    debugPrint(
+        "zzzz WebSocketService @ ${DateTime.now().toLocal()} => connect to $url");
     _channel = WebSocketChannel.connect(Uri.parse(url));
 
     _subscription = _channel!.stream.listen(
@@ -22,11 +23,12 @@ class WebSocketService {
       },
       onDone: () {
         debugPrint(
-            "zzzz WebSocketService => disconnected from $url. try again to connect...");
+            "zzzz WebSocketService @ ${DateTime.now().toLocal()} => disconnected from $url. try again to connect...");
         _reconnect();
       },
       onError: (error) {
-        debugPrint("zzzz WebSocketService => error for $url: $error");
+        debugPrint(
+            "zzzz WebSocketService @ ${DateTime.now().toLocal()} => error for $url: $error");
         _reconnect();
       },
       cancelOnError: true,
