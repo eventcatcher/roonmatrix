@@ -918,7 +918,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   String filterIllegalChars(
       {required String text, String messageHeader = '*'}) {
-    if (kDebugMode == true) {
+    if (kDebugMode) {
       //debugPrint('$messageHeader: $text');
     }
 
@@ -1296,12 +1296,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
           }
 
+          if (devices.isNotEmpty && state.info.isEmpty) {
+            List<String> iplist = state.info.keys.toList();
+            for (var device in devices) {
+              if (!iplist.contains(device)) {
+                if (kDebugMode) {
+                  debugPrint('get missing info data at start: $device');
+                }
+                getInfo(ip: device);
+              }
+            }
+          }
           add(LoadDevices(devices: devices));
         }
 
         isScanning = false;
       } catch (e) {
-        if (kDebugMode == true) {
+        if (kDebugMode) {
           debugPrint('general ip scan error: $e');
         }
 
