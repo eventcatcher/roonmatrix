@@ -23,7 +23,7 @@ import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/updatable_scroll_bar.dart';
+import 'package:roonmatrix/ui/layout/updatable_ticker.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
@@ -737,7 +737,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           coverSize = listHeightArea - (listItemCount * itemListHeight);
         }
 
-        if (kDebugMode == true) {
+        if (kDebugMode) {
           debugPrint(
               'yyyy StartPage/getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToSubtract: $partsToSubtract, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
         }
@@ -748,7 +748,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   }
 
   Widget getCoverRow({required Map<String, dynamic> info}) {
-    if (kDebugMode == true) {
+    if (kDebugMode) {
       debugPrint(
           'yyyy StartPage/getCoverRow => covers to display: ${coverList.length}');
     }
@@ -2203,11 +2203,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                                 true
                                                                         ? 90
                                                                         : 16),
+                                                                height: 20.0,
                                                                 child:
-                                                                    UpdatableScrollBar(
+                                                                    UpdatableTicker(
                                                                   key: ValueKey(
                                                                       'TextScrollStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                                                  text:
+                                                                  newText:
                                                                       scrollText,
                                                                   style:
                                                                       TextStyle(
@@ -2215,10 +2216,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         'whiteCupertino subtitle',
                                                                     fontSize:
                                                                         14.0,
+                                                                    color: Colors
+                                                                        .black,
                                                                   ),
                                                                   pixelsPerSecond:
-                                                                      90,
-                                                                  height: 20,
+                                                                      50,
                                                                 ),
                                                               ),
                                                             ),

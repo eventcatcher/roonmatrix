@@ -4,13 +4,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hovering/hovering.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/updatable_scroll_bar.dart';
+import 'package:roonmatrix/ui/layout/updatable_ticker.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 
@@ -49,6 +50,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   final double sliderDesktopMin = 1480;
   final double sliderMobileMin = 550;
 
+  Orientation orientation = Orientation.portrait;
   String displaystr = '';
   String scrollText = '';
   double width = 1280;
@@ -266,62 +268,65 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   Widget body() => SizedBox(
         width: double.infinity,
         child: RoonmatrixAnimatedGradient(
-          child: NotificationListener<SizeChangedLayoutNotification>(
-            onNotification: (notification) {
-              updateSizes('NotificationListener');
-              build(context);
-              return false;
-            },
-            child: OrientationBuilder(
-                builder: (BuildContext context, Orientation orientation) {
-              updateSizes('OrientationBuilder');
+          child: BlocBuilder(
+              bloc: mainBloc,
+              builder: (context, MainState mainState) {
+                if (mainState is! MainStateLoaded) {
+                  return SizedBox();
+                }
 
-              // if (kDebugMode) {
-              //   print('height: $height, fontSize: $fontSize');
-              // }
+                if (mainState.devices.length > index) {
+                  String displaystrNew = mainState
+                      .info[mainState.devices[index]]['app_displaystr'];
 
-              return BlocBuilder(
-                  bloc: mainBloc,
-                  builder: (context, MainState mainState) {
-                    if (mainState is! MainStateLoaded) {
-                      return SizedBox();
-                    }
+                  String displaystrNewMasked = getMaskedString(displaystrNew);
+                  String displaystrMasked = getMaskedString(displaystr);
 
-                    if (mainState.devices.length > index) {
-                      String displaystrNew = mainState
-                          .info[mainState.devices[index]]['app_displaystr'];
+                  if (displaystrNewMasked != displaystrMasked) {
+                    scrollText = '${replaceCodes(displaystrNew)}    ////    ';
+                    debugPrint('xxxx new scrollText: $scrollText');
+                  }
+                }
 
-                      String displaystrNewMasked =
-                          getMaskedString(displaystrNew);
-                      String displaystrMasked = getMaskedString(displaystr);
-
-                      if (displaystrNewMasked != displaystrMasked) {
-                        scrollText =
-                            '${replaceCodes(displaystrNew)}    ////    ';
-                        debugPrint('xxxx new scrollText: $scrollText');
+                return OrientationBuilder(
+                    builder: (BuildContext context, Orientation o) {
+                  if (o != orientation) {
+                    orientation = o;
+                    SchedulerBinding.instance.addPostFrameCallback((_) async {
+                      if (mounted) {
+                        setState(() {
+                          orientation = o;
+                        });
                       }
-                    }
+                    });
+                  }
 
-                    return SizeChangedLayoutNotifier(
+                  return NotificationListener<SizeChangedLayoutNotification>(
+                    onNotification: (notification) {
+                      updateSizes('NotificationListener');
+                      build(context);
+                      return false;
+                    },
+                    child: SizeChangedLayoutNotifier(
                       child: Container(
-                        padding: EdgeInsets.only(bottom: 20.0),
-                        child: UpdatableScrollBar(
-                          text: scrollText,
+                        padding: EdgeInsets.symmetric(vertical: 20.0),
+                        height: height - 52,
+                        child: UpdatableTicker(
                           key: ValueKey(
                               'TextScrollScrollMatrixPage${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                          newText: scrollText,
                           style: TextStyle(
                             fontFamily: 'Arial',
                             fontSize: fontSize / 1.2,
                             color: SharedWidgets.textColor(context: context),
                           ),
                           pixelsPerSecond: pixelsPerSecond * sliderValue,
-                          height: height - 72,
                         ),
                       ),
-                    );
-                  });
-            }),
-          ),
+                    ),
+                  );
+                });
+              }),
         ),
       );
 
