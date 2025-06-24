@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -85,17 +86,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
     super.initState();
   }
 
-  getMaskedString(String str) {
-    int strTimePos = str.indexOf('Uhrzeit');
-    if (strTimePos == -1) {
-      return str;
-    }
-
-    String strMasked =
-        '${str.substring(0, strTimePos + 9)}hh:mm:ss${str.substring(strTimePos + 17)}';
-    return strMasked;
-  }
-
   updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
@@ -104,7 +94,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
         : mobileFontSize;
     pixelsPerSecond = 200 + fontSize / 2.25;
     // if (kDebugMode) {
-    //   print(
+    //   debugPrint(
     //       'ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
     // }
   }
@@ -279,12 +269,11 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   String displaystrNew = mainState
                       .info[mainState.devices[index]]['app_displaystr'];
 
-                  String displaystrNewMasked = getMaskedString(displaystrNew);
-                  String displaystrMasked = getMaskedString(displaystr);
-
-                  if (displaystrNewMasked != displaystrMasked) {
+                  if (displaystrNew != displaystr) {
                     scrollText = '${replaceCodes(displaystrNew)}    ////    ';
-                    debugPrint('xxxx new scrollText: $scrollText');
+                    if (kDebugMode) {
+                      debugPrint('xxxx new scrollText: $scrollText');
+                    }
                   }
                 }
 
