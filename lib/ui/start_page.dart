@@ -2183,7 +2183,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                             pageBuilder:
                                                                 (_, __, ___) {
                                                               return ScrollMatrixPage(
-                                                                index: index,
+                                                                device: devices[
+                                                                    index],
                                                                 name: i['name'],
                                                                 translations:
                                                                     translations,

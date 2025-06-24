@@ -17,7 +17,7 @@ import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
-  final int index;
+  final String device;
   final String name;
   final Map<String, dynamic> translations;
   final Size minDesktopSize;
@@ -25,7 +25,7 @@ class ScrollMatrixPage extends StatefulWidget {
 
   const ScrollMatrixPage({
     super.key,
-    required this.index,
+    required this.device,
     required this.name,
     required this.translations,
     required this.minDesktopSize,
@@ -37,7 +37,7 @@ class ScrollMatrixPage extends StatefulWidget {
 }
 
 class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
-  int get index => widget.index;
+  String get device => widget.device;
   String get name => widget.name;
   Map<String, dynamic> get translations => widget.translations;
   Size get minDesktopSize => widget.minDesktopSize;
@@ -170,8 +170,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                 bloc: mainBloc,
                 builder: (context, MainState mainState) {
                   String zoneName = '';
-                  dynamic info = mainState.info[mainState.devices[index]];
-                  if (info['control_id'] != null) {
+                  dynamic info = mainState.info.containsKey(device)
+                      ? mainState.info[device]
+                      : null;
+                  if (info != null && info['control_id'] != null) {
                     String controlId = info['control_id'];
                     if (info['channels'] != null &&
                         info['channels'][controlId] != null) {
@@ -184,7 +186,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   }
 
                   return Text(
-                      'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
+                      'IP: $device  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
                 }),
           const SizedBox(width: 4.0),
         ],
@@ -265,9 +267,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   return SizedBox();
                 }
 
-                if (mainState.devices.length > index) {
-                  String displaystrNew = mainState
-                      .info[mainState.devices[index]]['app_displaystr'];
+                if (mainState.devices.isNotEmpty &&
+                    mainState.info.containsKey(device)) {
+                  String displaystrNew =
+                      mainState.info[device]['app_displaystr'];
 
                   if (displaystrNew != displaystr) {
                     scrollText = '${replaceCodes(displaystrNew)}    ////    ';
@@ -373,11 +376,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                           bloc: mainBloc,
                           builder: (context, MainState mainState) {
                             String zoneName = '';
-                            if (mainState.devices.length > index &&
-                                mainState.info
-                                    .containsKey(mainState.devices[index])) {
-                              dynamic info =
-                                  mainState.info[mainState.devices[index]];
+                            if (mainState.devices.isNotEmpty &&
+                                mainState.info.containsKey(device)) {
+                              dynamic info = mainState.info[device];
                               if (info['control_id'] != null) {
                                 String controlId = info['control_id'];
                                 if (info['channels'] != null &&
@@ -392,7 +393,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                               }
 
                               return Text(
-                                'IP: ${mainState.devices[index]}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
+                                'IP: $device  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
                                 style: TextStyle(
                                   color:
                                       SharedWidgets.textColor(context: context),
