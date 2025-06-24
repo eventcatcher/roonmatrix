@@ -102,7 +102,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         for (String ip in event.devices) {
           String url = 'ws://$ip:$port/ws';
           if (!existingServiceUrls.contains(url)) {
-            debugPrint('vvvv add WebSocketService $url');
+            if (kDebugMode) {
+              debugPrint('vvvv add WebSocketService $url');
+            }
             services.add(WebSocketService(
               url,
               onMessage: (jsonStr) {
@@ -110,8 +112,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                     jsonStr.startsWith('{') &&
                     jsonStr.endsWith('}')) {
                   dynamic info = jsonDecode(jsonStr);
-                  debugPrint(
-                      'vvvv WebSocketService received data from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
+                  if (kDebugMode) {
+                    debugPrint(
+                        'vvvv WebSocketService received data from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
+                  }
                   add(LoadInfo(ip: ip, info: info));
                 }
               },
@@ -125,7 +129,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         List<WebSocketService> servicesToRemove = [];
         for (WebSocketService service in services) {
           if (!newWebSocketUrls.contains(service.url)) {
-            debugPrint('vvvv remove WebSocketService ${service.url}');
+            if (kDebugMode) {
+              debugPrint('vvvv remove WebSocketService ${service.url}');
+            }
             service.dispose();
             servicesToRemove.add(service);
           }
@@ -136,7 +142,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
         }
 
-        debugPrint('vvvv active websocket connections: ${services.length}');
+        if (kDebugMode) {
+          debugPrint('vvvv active websocket connections: ${services.length}');
+        }
 
         emit(MainStateLoaded(
           update: DateTime.now(),
@@ -158,8 +166,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is LoadInfo) {
         Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
         info[event.ip] = event.info;
-        debugPrint(
-            'vvvv LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}');
+        if (kDebugMode) {
+          debugPrint(
+              'vvvv LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}');
+        }
 
         emit(MainStateLoaded(
           update: DateTime.now(),
@@ -281,7 +291,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
           } catch (e) {
             if (kDebugMode) {
-              print('error by access to $url: $e');
+              debugPrint('error by access to $url: $e');
             }
             emit(MainStateLoaded(
               update: DateTime.now(),
@@ -301,7 +311,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
         } catch (e) {
           if (kDebugMode) {
-            print(e);
+            debugPrint('GetInfo try/catch error: $e');
           }
           emit(MainStateLoaded(
             update: DateTime.now(),
@@ -376,7 +386,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
           } catch (e) {
             if (kDebugMode) {
-              print('error by access to $url: $e');
+              debugPrint('error by access to $url: $e');
             }
             emit(MainStateLoaded(
               update: DateTime.now(),
@@ -396,7 +406,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
         } catch (e) {
           if (kDebugMode) {
-            print(e);
+            debugPrint('GetConfig try/catch error: $e');
           }
           emit(MainStateLoaded(
             update: DateTime.now(),
@@ -470,7 +480,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
           } catch (e) {
             if (kDebugMode) {
-              print('error by access to $url: $e');
+              debugPrint('error by access to $url: $e');
             }
             emit(MainStateLoaded(
               update: DateTime.now(),
@@ -490,7 +500,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
         } catch (e) {
           if (kDebugMode) {
-            print(e);
+            debugPrint('GetLog try/catch error: $e');
           }
           emit(MainStateLoaded(
             update: DateTime.now(),
@@ -562,18 +572,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 }
               }
               if (kDebugMode) {
-                print(
+                debugPrint(
                     'zoneControl => ip: $ip, controlId: $controlId, cmd: $cmd${payload['enable'] != null ? ', enable: $enable' : ''}');
               }
             }
           } catch (e) {
             if (kDebugMode) {
-              print('ZoneControl error by access to $url: $e');
+              debugPrint('ZoneControl error by access to $url: $e');
             }
           }
         } catch (e) {
           if (kDebugMode) {
-            print('ZoneControl error: $e');
+            debugPrint('ZoneControl error: $e');
           }
         }
       }
@@ -655,7 +665,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         return Future.value(true);
       } catch (e) {
         if (kDebugMode) {
-          print('save of $fileName error: $e');
+          debugPrint('save of $fileName error: $e');
         }
         return Future.value(false);
       }
@@ -732,7 +742,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 fieldValues[areaKey][fieldKey] = area[fieldKey];
               }
               if (kDebugMode) {
-                print(
+                debugPrint(
                     'area: $areaKey, field: $fieldKey, value: ${fieldValues[areaKey][fieldKey]}, fieldType: $fieldType');
               }
             }
@@ -1011,19 +1021,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             headers: headers, body: json.encode(payload));
         if (response.statusCode == 200) {
           if (kDebugMode) {
-            print('message => ip: $ip, payload: $payload');
+            debugPrint('message => ip: $ip, payload: $payload');
           }
 
           return Future.value(true);
         }
       } catch (e) {
         if (kDebugMode) {
-          print('Message error by access to $url: $e');
+          debugPrint('Message error by access to $url: $e');
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Message error: $e');
+        debugPrint('Message error: $e');
       }
       return Future.value(false);
     }
@@ -1037,7 +1047,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       try {
         String jsonStr = jsonEncode(data);
         if (kDebugMode) {
-          print('saveConfig, name: $name, ip: $ip, data: $jsonStr');
+          debugPrint('saveConfig, name: $name, ip: $ip, data: $jsonStr');
         }
 
         Map<String, String> headers = {
@@ -1058,23 +1068,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
             if (response.statusCode == 200) {
               if (kDebugMode) {
-                print('setup => ip: $ip, data: $jsonStr');
+                debugPrint('setup => ip: $ip, data: $jsonStr');
               }
               return Future.value(true);
             }
           } catch (e) {
             if (kDebugMode) {
-              print('Setup error by access to $url: $e');
+              debugPrint('Setup error by access to $url: $e');
             }
           }
         } catch (e) {
           if (kDebugMode) {
-            print('Setup error: $e');
+            debugPrint('Setup error: $e');
           }
         }
       } catch (e) {
         if (kDebugMode) {
-          print('Setup error: $e');
+          debugPrint('Setup error: $e');
         }
       }
     }
@@ -1104,19 +1114,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             headers: headers, body: json.encode(payload));
         if (response.statusCode == 200) {
           if (kDebugMode) {
-            print('LiveControl => ip: $ip, payload: $payload');
+            debugPrint('LiveControl => ip: $ip, payload: $payload');
           }
 
           return Future.value(true);
         }
       } catch (e) {
         if (kDebugMode) {
-          print('LiveControl error by access to $url: $e');
+          debugPrint('LiveControl error by access to $url: $e');
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('LiveControl error: $e');
+        debugPrint('LiveControl error: $e');
       }
       return Future.value(false);
     }
@@ -1179,7 +1189,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           return Future.value(true);
         } catch (e) {
           if (kDebugMode) {
-            print('save of $fileName error: $e');
+            debugPrint('save of $fileName error: $e');
           }
           return Future.value(false);
         }

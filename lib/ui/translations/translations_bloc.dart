@@ -93,7 +93,8 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
       translations = jsonDecode(translationsJsonString);
     } catch (e) {
       if (kDebugMode) {
-        print('translations file for languageCode $languageCode not found!');
+        debugPrint(
+            'translations file for languageCode $languageCode not found!');
       }
     }
 

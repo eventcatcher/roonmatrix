@@ -163,7 +163,7 @@ class MapListItemsState extends State<MapListItems> {
                         mode: LaunchMode.externalApplication,
                       )) {
                         if (kDebugMode) {
-                          print('Could not launch url: $url');
+                          debugPrint('Could not launch url: $url');
                         }
                       }
                     }
@@ -234,7 +234,7 @@ class MapListItemsState extends State<MapListItems> {
                     mode: LaunchMode.externalApplication,
                   )) {
                     if (kDebugMode) {
-                      print('Could not launch url: $url');
+                      debugPrint('Could not launch url: $url');
                     }
                   }
                 },

@@ -12,23 +12,31 @@ class WebSocketService {
   WebSocketService(this.url, {this.onMessage});
 
   void connect() {
-    debugPrint(
-        "zzzz WebSocketService @ ${DateTime.now().toLocal()} => connect to $url");
+    if (kDebugMode) {
+      debugPrint(
+          "zzzz WebSocketService @ ${DateTime.now().toLocal()} => connect to $url");
+    }
     _channel = WebSocketChannel.connect(Uri.parse(url));
 
     _subscription = _channel!.stream.listen(
       (jsonStr) {
-        //debugPrint("zzzz WebSocketService => received data from $url");
+        if (kDebugMode) {
+          //debugPrint("zzzz WebSocketService => received data from $url");
+        }
         onMessage?.call(jsonStr);
       },
       onDone: () {
-        debugPrint(
-            "zzzz WebSocketService @ ${DateTime.now().toLocal()} => disconnected from $url. try again to connect...");
+        if (kDebugMode) {
+          debugPrint(
+              "eeee WebSocketService @ ${DateTime.now().toLocal()} => disconnected from $url. try again to connect...");
+        }
         _reconnect();
       },
       onError: (error) {
-        debugPrint(
-            "zzzz WebSocketService @ ${DateTime.now().toLocal()} => error for $url: $error");
+        if (kDebugMode) {
+          debugPrint(
+              "eeee WebSocketService @ ${DateTime.now().toLocal()} => error for $url: ${error.toString()}");
+        }
         _reconnect();
       },
       cancelOnError: true,

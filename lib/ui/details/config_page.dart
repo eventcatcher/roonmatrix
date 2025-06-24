@@ -91,7 +91,7 @@ class ConfigPageState extends State<ConfigPage> {
             mainBloc.getFieldType(fieldDefinition: fieldDefinition);
         if (fieldType != null && fieldDefinition.editable == true) {
           if (kDebugMode) {
-            print(
+            debugPrint(
                 'area: ${area.name}, field: ${fieldDefinition.name}, value: ${fieldValues[area.name][fieldDefinition.name]}, fieldType: $fieldType');
           }
 
@@ -293,7 +293,7 @@ class ConfigPageState extends State<ConfigPage> {
                                 mode: LaunchMode.externalApplication,
                               )) {
                                 if (kDebugMode) {
-                                  print('Could not launch url: $url');
+                                  debugPrint('Could not launch url: $url');
                                 }
                               }
                             }

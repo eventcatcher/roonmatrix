@@ -490,7 +490,7 @@ class SharedWidgets {
           mode: LaunchMode.externalApplication,
         )) {
           if (kDebugMode) {
-            print('Could not launch url: $url');
+            debugPrint('Could not launch url: $url');
           }
         }
       },
