@@ -49,7 +49,10 @@ class _UpdatableTickerState extends State<UpdatableTicker>
   void didUpdateWidget(UpdatableTicker oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.newText != newText) {
-      oldText = newText;
+      if (oldText.isEmpty) {
+        oldText = newText;
+      }
+
       newText = widget.newText;
 
       if (kDebugMode) {
