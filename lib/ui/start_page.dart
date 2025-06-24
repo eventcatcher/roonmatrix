@@ -197,7 +197,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         (SharedWidgets.isDesktopDevice() &&
             height > (minDesktopSize.height + 75));
     // if (kDebugMode) {
-    //   print(
+    //   debugPrint(
     //       'yyyy StartPage/updateSizes => caller: $caller, width: $width, height: $height');
     // }
   }
@@ -803,17 +803,22 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   }
 
   void itemsToRemove({required List<CoverModel> newList}) {
-    print(
-        'yyyy StartPage/itemsToRemove => newList itemsToRemove: ${newList.map((el) => el.artist)}');
-    print(
-        'yyyy StartPage/itemsToRemove => coverList itemsToRemove: ${coverList.map((el) => el.artist)}');
+    if (kDebugMode) {
+      debugPrint(
+          'yyyy StartPage/itemsToRemove => newList itemsToRemove: ${newList.map((el) => el.artist)}');
+      debugPrint(
+          'yyyy StartPage/itemsToRemove => coverList itemsToRemove: ${coverList.map((el) => el.artist)}');
+    }
     List<int> indexesToRemove = [];
     coverList.asMap().forEach((index, item) {
       CoverModel? obj = newList.firstWhereOrNull((CoverModel el) =>
           el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
       if (obj == null) {
         indexesToRemove.add(index);
-        print('yyyy StartPage/itemsToRemove => itemsToRemove: ${item.artist}');
+        if (kDebugMode) {
+          debugPrint(
+              'yyyy StartPage/itemsToRemove => itemsToRemove: ${item.artist}');
+        }
       }
     });
 
@@ -839,7 +844,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
       if (obj == null) {
         newItems.add(item);
-        print('yyyy StartPage/itemsToAdd => ${item.artist}');
+        if (kDebugMode) {
+          debugPrint('yyyy StartPage/itemsToAdd => ${item.artist}');
+        }
       }
     });
 
@@ -1299,8 +1306,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               return BlocBuilder(
                   bloc: mainBloc,
                   builder: (context, MainState mainState) {
-                    print(
-                        'yyyy StartPage => mainState event $mainState @ ${DateTime.now().toLocal()}');
+                    if (kDebugMode) {
+                      debugPrint(
+                          'yyyy StartPage => mainState event $mainState @ ${DateTime.now().toLocal()}');
+                    }
                     if (mainState is! MainStateLoaded) {
                       return SizedBox();
                     }
@@ -1316,8 +1325,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     info = mainState.info;
                     idle = mainState.idle;
 
-                    if (mainState.searchFilter.isNotEmpty &&
-                        devices.isNotEmpty) {
+                    if (devices.isNotEmpty) {
                       devices = devices
                           .where((String el) =>
                               info.containsKey(el) &&
@@ -1326,27 +1334,21 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                   .contains(
                                       (mainState.searchFilter['main'] as String)
                                           .toLowerCase()))
-                          .toList();
+                          .toList()
+                        ..sort((String a, String b) => info.containsKey(a) &&
+                                (info[a] as Map).containsKey('name')
+                            ? (info[a]['name'] as String)
+                                .toLowerCase()
+                                .compareTo(
+                                    (info[b]['name'] as String).toLowerCase())
+                            : a.compareTo(b));
                     }
 
-                    // devices = [
-                    //   // enable this to test with multiple fake-devices
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices,
-                    //   ...devices
-                    // ];
-
                     List<CoverModel> coverListNew = getCoversModel(info);
-                    print(
-                        'yyyy StartPage/body => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
+                    if (kDebugMode) {
+                      debugPrint(
+                          'yyyy StartPage/body => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
+                    }
                     if (coverListNew.length != coverList.length) {
                       itemsToRemove(newList: coverListNew);
                       itemsToAdd(newList: coverListNew);
@@ -1355,7 +1357,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     }
 
                     if (kDebugMode) {
-                      print(
+                      debugPrint(
                           'yyyy StartPage/body => state changed => rebuild, devices: ${devices.length}, idle: $idle');
                     }
                     return OrientationBuilder(
@@ -1532,8 +1534,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   .convert(
                                                       utf8.encode(scrollText))
                                                   .toString();
-                                              print(
-                                                  'yyyy StartPage => new info received on index $index @ ${DateTime.now().toLocal()}), hash: $hash, scrollText: $scrollText');
+                                              if (kDebugMode) {
+                                                debugPrint(
+                                                    'yyyy StartPage => new info received on index $index @ ${DateTime.now().toLocal()}), hash: $hash, scrollText: $scrollText');
+                                              }
 
                                               String zoneName = '';
                                               if (i['control_id'] != null) {
@@ -1562,16 +1566,29 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   ? zone['cover']
                                                   : null;
 
-                                              RenderBox? box = itemListKey
-                                                      .currentContext
-                                                      ?.findRenderObject()
-                                                  as RenderBox?;
-                                              if (box != null) {
-                                                itemListHeight =
-                                                    1 + box.size.height;
-                                              }
+                                              WidgetsBinding.instance
+                                                  .addPostFrameCallback((_) {
+                                                if (!mounted) return;
 
-                                              // print('yyyy StartPage rebuild');
+                                                RenderBox? box;
+                                                BuildContext? itemContext =
+                                                    itemListKey.currentContext;
+                                                if (mounted &&
+                                                    itemContext != null) {
+                                                  RenderObject? renderObject =
+                                                      itemContext
+                                                          .findRenderObject();
+                                                  if (renderObject
+                                                          is RenderBox &&
+                                                      renderObject.attached) {
+                                                    box = renderObject;
+                                                  }
+                                                }
+                                                if (box != null) {
+                                                  itemListHeight =
+                                                      1 + box.size.height;
+                                                }
+                                              });
 
                                               ExpandableMenuController?
                                                   expandableMenuController;
