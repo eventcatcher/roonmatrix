@@ -56,7 +56,9 @@ class _UpdatableTickerState extends State<UpdatableTicker>
     if ((nextNewText.isEmpty && widget.newText != newText) ||
         (nextNewText.isNotEmpty && widget.newText != nextNewText)) {
       if (oldText.isEmpty && nextNewText.isEmpty) {
-        oldText = newText;
+        if (oldText.isEmpty) {
+          oldText = newText;
+        }
         newText = widget.newText;
 
         if (kDebugMode) {
