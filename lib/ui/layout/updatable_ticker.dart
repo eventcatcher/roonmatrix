@@ -5,12 +5,14 @@ import 'package:flutter/scheduler.dart';
 class UpdatableTicker extends StatefulWidget {
   final String newText;
   final TextStyle style;
+  final bool center;
 
   final double pixelsPerSecond;
 
   const UpdatableTicker({
     required this.newText,
     required this.style,
+    required this.center,
     this.pixelsPerSecond = 30.0,
     super.key,
   });
@@ -26,9 +28,12 @@ class _UpdatableTickerState extends State<UpdatableTicker>
   List<String> textBuffer = [];
   String oldText = '';
   String newText = '';
+  String nextNewText = '';
   String renderedText = '';
+  String renderedNextNewText = '';
 
   double containerWidth = 0.0;
+  double textHeight = 30.0;
   double newTextWidth = 0.0;
   double posToUpdate = 0.0;
   double offset = 0.0;
@@ -48,20 +53,25 @@ class _UpdatableTickerState extends State<UpdatableTicker>
   @override
   void didUpdateWidget(UpdatableTicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.newText != newText) {
-      if (oldText.isEmpty) {
+    if ((nextNewText.isEmpty && widget.newText != newText) ||
+        (nextNewText.isNotEmpty && widget.newText != nextNewText)) {
+      if (oldText.isEmpty && nextNewText.isEmpty) {
         oldText = newText;
-      }
+        newText = widget.newText;
 
-      newText = widget.newText;
+        if (kDebugMode) {
+          debugPrint(
+              'xxxx didUpdateWidget, oldText: $oldText, newText: $newText');
+        }
+        if (containerWidth > 0) {
+          renderedText = updateRenderedText();
+        }
+      } else {
+        nextNewText = widget.newText;
 
-      if (kDebugMode) {
-        debugPrint(
-            'xxxx didUpdateWidget, oldText: $oldText, newText: $newText');
-      }
-
-      if (containerWidth > 0) {
-        updateRenderedText();
+        if (kDebugMode) {
+          debugPrint('xxxx didUpdateWidget, nextNewText: $nextNewText');
+        }
       }
     }
   }
@@ -72,7 +82,7 @@ class _UpdatableTickerState extends State<UpdatableTicker>
     super.dispose();
   }
 
-  double measureTextWidth(String text) {
+  double measureTextSize({required String text, bool vertical = false}) {
     if (text.isEmpty) return 0;
 
     final TextScaler textScaler = MediaQuery.of(context).textScaler;
@@ -84,12 +94,12 @@ class _UpdatableTickerState extends State<UpdatableTicker>
       textScaler: textScaler,
     )..layout();
 
-    return tp.width;
+    return vertical ? tp.height : tp.width;
   }
 
-  void updateRenderedText() {
-    double oldTextWidth = measureTextWidth(oldText);
-    newTextWidth = measureTextWidth(newText);
+  String updateRenderedText() {
+    double oldTextWidth = measureTextSize(text: oldText);
+    newTextWidth = measureTextSize(text: newText);
 
     int minRepeatCountOldText = oldTextWidth > 0
         ? ((offset.abs() + containerWidth) / oldTextWidth).ceil()
@@ -103,25 +113,38 @@ class _UpdatableTickerState extends State<UpdatableTicker>
         ? minRepeatCountOldText * oldTextWidth
         : minRepeatCountNewText * newTextWidth;
 
-    renderedText = textBuffer.join(); // refresh scrolling text
-
     if (kDebugMode) {
       debugPrint(
           'xxxx updateRenderedText => offset: $offset, minRepeatCountOldText: $minRepeatCountOldText, minRepeatCountNewText: $minRepeatCountNewText,  posToUpdate: $posToUpdate, containerWidth: $containerWidth, oldTextWidth: $oldTextWidth, newTextWidth: $newTextWidth');
     }
+
+    return textBuffer.join(); // refresh scrolling text
   }
 
   void replaceTextBufferWithNewText() {
-    textBuffer = List.filled(minRepeatCountNewText * loopsToFill, newText);
-    offset = 0;
-    oldText = '';
-    renderedText = textBuffer.join(); // refresh scrolling text
+    if (kDebugMode) {
+      debugPrint('xxxx wwww nextNewText: ${nextNewText.isNotEmpty}');
+    }
+    if (nextNewText.isNotEmpty) {
+      offset = 0;
+      oldText = newText;
+      newText = nextNewText;
+      nextNewText = '';
+      if (containerWidth > 0) {
+        renderedText = renderedNextNewText;
+      }
+    } else {
+      textBuffer = List.filled(minRepeatCountNewText * loopsToFill, newText);
+      offset = 0;
+      oldText = '';
+      renderedText = textBuffer.join(); // refresh scrolling text
+    }
 
     posToUpdate = minRepeatCountNewText * newTextWidth;
 
     if (kDebugMode) {
       debugPrint(
-          'xxxx replaceTextBufferWithNewText => reset offset => posToUpdate: $posToUpdate');
+          'xxxx wwww replaceTextBufferWithNewText => reset offset => posToUpdate: $posToUpdate');
     }
   }
 
@@ -145,16 +168,23 @@ class _UpdatableTickerState extends State<UpdatableTicker>
     return LayoutBuilder(builder: (context, constraints) {
       if (containerWidth != constraints.maxWidth) {
         containerWidth = constraints.maxWidth;
-        updateRenderedText();
+        renderedText = updateRenderedText();
       }
+
+      textHeight = measureTextSize(text: 'XXX', vertical: true);
+
       return Container(
         padding: EdgeInsets.all(2.0),
         child: ClipRect(
-          child: CustomPaint(
-            painter: _UpdatableTickerTextPainter(
-              text: renderedText,
-              textStyle: widget.style,
-              offset: offset,
+          child: Align(
+            alignment: widget.center ? Alignment.centerLeft : Alignment.topLeft,
+            child: CustomPaint(
+              painter: _UpdatableTickerTextPainter(
+                text: renderedText,
+                textStyle: widget.style,
+                offset: offset,
+                ypos: widget.center ? -textHeight / 2 : 0,
+              ),
             ),
           ),
         ),
@@ -167,11 +197,13 @@ class _UpdatableTickerTextPainter extends CustomPainter {
   final String text;
   final TextStyle textStyle;
   final double offset;
+  final double ypos;
 
   _UpdatableTickerTextPainter({
     required this.text,
     required this.textStyle,
     required this.offset,
+    required this.ypos,
   });
 
   @override
@@ -180,7 +212,7 @@ class _UpdatableTickerTextPainter extends CustomPainter {
     final tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
 
-    canvas.translate(offset, 0);
+    canvas.translate(offset, ypos);
     tp.paint(canvas, Offset.zero);
   }
 
