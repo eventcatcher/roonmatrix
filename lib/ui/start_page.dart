@@ -92,6 +92,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   String aboutAppMessage = '';
   double width = 1280;
   double height = 768;
+  double infoOpacityLevel = 1.0;
 
   bool translationsLoaded = false;
   bool idle = false;
@@ -2097,17 +2098,23 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                             style: const TextStyle(fontSize: 9)),
                                                                       ),
                                                                     if (!isSmallDeviceWidth)
-                                                                      Text(
-                                                                        '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${i['playcount']}  ',
-                                                                        softWrap:
-                                                                            true,
-                                                                        maxLines:
-                                                                            2,
-                                                                        overflow:
-                                                                            TextOverflow.fade,
-                                                                        style: const TextStyle(
-                                                                            fontSize:
-                                                                                11),
+                                                                      AnimatedOpacity(
+                                                                        opacity:
+                                                                            infoOpacityLevel,
+                                                                        duration:
+                                                                            const Duration(milliseconds: 400),
+                                                                        child:
+                                                                            Text(
+                                                                          '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${i['playcount']}  ',
+                                                                          softWrap:
+                                                                              true,
+                                                                          maxLines:
+                                                                              2,
+                                                                          overflow:
+                                                                              TextOverflow.fade,
+                                                                          style:
+                                                                              const TextStyle(fontSize: 11),
+                                                                        ),
                                                                       ),
                                                                     SizedBox(
                                                                         width:
@@ -2138,25 +2145,36 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 right: 0.0,
                                                                 child:
                                                                     ExpandableMenu(
-                                                                        key: ValueKey(
-                                                                            'ExpandableMenu$index-$moreInfo'),
-                                                                        width:
-                                                                            38.0,
-                                                                        height:
-                                                                            38.0,
-                                                                        animationSpeed:
-                                                                            400,
-                                                                        backgroundColor: SharedWidgets.buttonRowBackgroundColor(
-                                                                            context:
-                                                                                context),
-                                                                        items:
-                                                                            mobileButtonsList,
-                                                                        getController:
-                                                                            (ExpandableMenuController
-                                                                                controller) {
-                                                                          expandableMenuController =
-                                                                              controller;
-                                                                        }),
+                                                                  key: ValueKey(
+                                                                      'ExpandableMenu$index-$moreInfo'),
+                                                                  width: 38.0,
+                                                                  height: 38.0,
+                                                                  animationSpeed:
+                                                                      400,
+                                                                  backgroundColor:
+                                                                      SharedWidgets.buttonRowBackgroundColor(
+                                                                          context:
+                                                                              context),
+                                                                  items:
+                                                                      mobileButtonsList,
+                                                                  getController:
+                                                                      (ExpandableMenuController
+                                                                          controller) {
+                                                                    expandableMenuController =
+                                                                        controller;
+                                                                  },
+                                                                  isExpanded:
+                                                                      (bool
+                                                                          mode) {
+                                                                    setState(
+                                                                        () {
+                                                                      infoOpacityLevel = mode ==
+                                                                              true
+                                                                          ? 0.0
+                                                                          : 1.0;
+                                                                    });
+                                                                  },
+                                                                ),
                                                               ),
                                                             ],
                                                           ),
@@ -2215,12 +2233,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                             context)
                                                                         .size
                                                                         .width -
-                                                                    (moreInfo ==
-                                                                                true &&
-                                                                            isSmallDeviceWidth ==
-                                                                                true
-                                                                        ? 90
-                                                                        : 16),
+                                                                    16,
                                                                 height: 20.0,
                                                                 child:
                                                                     UpdatableTicker(
@@ -2234,11 +2247,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         'whiteCupertino subtitle',
                                                                     fontSize:
                                                                         14.0,
-                                                                    color: Colors
-                                                                        .black,
+                                                                    color: SharedWidgets
+                                                                        .textColor(
+                                                                      context:
+                                                                          context,
+                                                                    ),
                                                                   ),
                                                                   pixelsPerSecond:
                                                                       50,
+                                                                  center: false,
                                                                 ),
                                                               ),
                                                             ),

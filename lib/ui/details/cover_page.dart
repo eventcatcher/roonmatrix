@@ -177,6 +177,7 @@ class _CoverPageState extends State<CoverPage> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: fontSize,
+                color: Colors.black,
               ),
             ),
           ),
@@ -201,6 +202,7 @@ class _CoverPageState extends State<CoverPage> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: fontSize,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -213,6 +215,7 @@ class _CoverPageState extends State<CoverPage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -226,6 +229,7 @@ class _CoverPageState extends State<CoverPage> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: fontSize,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -236,6 +240,7 @@ class _CoverPageState extends State<CoverPage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -249,6 +254,7 @@ class _CoverPageState extends State<CoverPage> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: fontSize,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -259,6 +265,7 @@ class _CoverPageState extends State<CoverPage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -272,6 +279,7 @@ class _CoverPageState extends State<CoverPage> {
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: fontSize,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -283,6 +291,7 @@ class _CoverPageState extends State<CoverPage> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -555,7 +564,8 @@ class _CoverPageState extends State<CoverPage> {
           navigationBar: CupertinoNavigationBar(
             brightness: SharedWidgets.brightness(),
             middle: Text(
-                '$name : ${translations['coverPageHeaderText'] ?? 'Zone / Cover'}'),
+              '$name : ${translations['coverPageHeaderText'] ?? 'Zone / Cover'}',
+            ),
           ),
           child: SafeArea(
             child: body(),

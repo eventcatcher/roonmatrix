@@ -310,9 +310,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                           style: TextStyle(
                             fontFamily: 'Arial',
                             fontSize: fontSize / 1.2,
-                            color: SharedWidgets.textColor(context: context),
+                            color: Colors.black,
                           ),
                           pixelsPerSecond: pixelsPerSecond * sliderValue,
+                          center: true,
                         ),
                       ),
                     ),

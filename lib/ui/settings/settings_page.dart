@@ -308,7 +308,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: Align(
                   alignment: Alignment.topLeft,
-                  child: Text('Covers of active zones',
+                  child: Text(
+                      translations['zonesCoverHeadline'] ?? 'Zone Overview',
                       textAlign: TextAlign.left,
                       style: TextStyle(
                         fontSize: 14.0,
@@ -322,8 +323,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   bottom: 16.0,
                 ),
                 child: SwitchButton(
-                  label: translations['activeZonesCoverSelectorLabel'] ??
-                      'Show covers of active zones',
+                  label: translations['zonesCoverSelectorLabel'] ??
+                      'Show covers of all zones',
                   enabled: coverRowActiv,
                   onChanged: (value) {
                     settingsBloc.setCoverRowActiveMode(enabled: value);
@@ -337,7 +338,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: SwitchButton(
                   label:
-                      '${translations['activeZonesArtistSelectorLabel'] ?? 'Show artist information in cover area'}',
+                      '${translations['zonesArtistSelectorLabel'] ?? 'Show artist information in cover area'}',
                   enabled: coverRowArtist,
                   onChanged: (value) {
                     settingsBloc.setCoverRowArtistMode(enabled: value);
@@ -351,7 +352,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: SwitchButton(
                   label:
-                      '${translations['activeZonesAlbumSelectorLabel'] ?? 'Show album information in cover area'}',
+                      '${translations['zonesAlbumSelectorLabel'] ?? 'Show album information in cover area'}',
                   enabled: coverRowAlbum,
                   onChanged: (value) {
                     settingsBloc.setCoverRowAlbumMode(enabled: value);
@@ -365,7 +366,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: SwitchButton(
                   label:
-                      '${translations['activeZonesTrackSelectorLabel'] ?? 'Show title information in cover area'}',
+                      '${translations['zonesTrackSelectorLabel'] ?? 'Show title information in cover area'}',
                   enabled: coverRowTrack,
                   onChanged: (value) {
                     settingsBloc.setCoverRowTrackMode(enabled: value);
@@ -379,7 +380,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: SwitchButton(
                   label:
-                      '${translations['activeZonesCoverSizeSelectorLabel'] ?? 'Size of the covers dynamically in relation to the window size'}',
+                      '${translations['zonesCoverSizeSelectorLabel'] ?? 'Size of the covers dynamically in relation to the window size'}',
                   enabled: coverRowDynamicSize,
                   onChanged: (value) {
                     settingsBloc.setCoverRowDynamicSizeMode(enabled: value);
