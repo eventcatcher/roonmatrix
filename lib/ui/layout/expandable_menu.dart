@@ -35,6 +35,8 @@ class ExpandableMenu extends StatefulWidget {
 
   final Function? getController;
 
+  final Function(bool mode)? isExpanded;
+
   const ExpandableMenu({
     super.key,
     this.width = 70.0,
@@ -46,6 +48,7 @@ class ExpandableMenu extends StatefulWidget {
     this.itemContainerColor,
     this.controller,
     this.getController,
+    this.isExpanded,
   });
 
   @override
@@ -202,6 +205,10 @@ class ExpandableMenuState extends State<ExpandableMenu>
   /// In [onExpandableIconClicked] method container animation will run.
   void onExpandableIconClicked() {
     _isExpanded = !_isExpanded;
+    if (widget.isExpanded != null) {
+      widget.isExpanded!(_isExpanded);
+    }
+
     setState(() {
       if (_isExpanded) {
         _containerAnimationController.forward();
