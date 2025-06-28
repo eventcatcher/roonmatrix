@@ -273,7 +273,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                       mainState.info[device]['app_displaystr'];
 
                   if (displaystrNew != displaystr) {
-                    scrollText = '${replaceCodes(displaystrNew)}    ////    ';
+                    scrollText = replaceCodes(displaystrNew);
                     if (kDebugMode) {
                       debugPrint('xxxx new scrollText: $scrollText');
                     }
@@ -306,14 +306,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                         child: UpdatableTicker(
                           key: ValueKey(
                               'TextScrollScrollMatrixPage${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                          newText: scrollText,
+                          updatableText: scrollText,
                           style: TextStyle(
                             fontFamily: 'Arial',
                             fontSize: fontSize / 1.2,
                             color: Colors.black,
                           ),
                           pixelsPerSecond: pixelsPerSecond * sliderValue,
+                          forceUpdate: false,
                           center: true,
+                          separator: '    ////    ',
                         ),
                       ),
                     ),

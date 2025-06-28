@@ -1529,8 +1529,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                               Map<String, dynamic> i =
                                                   info[devices[index]];
 
-                                              String scrollText =
-                                                  '${replaceCodes(i['app_displaystr'] ?? '')}    ////    ';
+                                              String scrollText = replaceCodes(
+                                                  i['app_displaystr'] ?? '');
                                               String hash = md5
                                                   .convert(
                                                       utf8.encode(scrollText))
@@ -2239,7 +2239,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                     UpdatableTicker(
                                                                   key: ValueKey(
                                                                       'TextScrollStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                                                  newText:
+                                                                  updatableText:
                                                                       scrollText,
                                                                   style:
                                                                       TextStyle(
@@ -2255,7 +2255,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                   ),
                                                                   pixelsPerSecond:
                                                                       50,
-                                                                  center: false,
+                                                                  forceUpdate:
+                                                                      false,
+                                                                  separator:
+                                                                      '    ////    ',
                                                                 ),
                                                               ),
                                                             ),
