@@ -24,18 +24,20 @@ class UpdatableTicker extends StatefulWidget {
 class _UpdatableTickerState extends State<UpdatableTicker>
     with SingleTickerProviderStateMixin {
   final int loopsToFill = 3;
+  final double securitySecSpacing =
+      3; // minimum of 3 seconds before new text starts
 
-  List<String> textBuffer = [];
+  List nextUpdateProperties = [];
   String oldText = '';
   String newText = '';
-  String nextNewText = '';
   String renderedText = '';
-  String renderedNextNewText = '';
 
+  double securityPxSpacing = 50;
   double containerWidth = 0.0;
   double textHeight = 30.0;
   double newTextWidth = 0.0;
   double posToUpdate = 0.0;
+  double posNewTextStarts = -1;
   double offset = 0.0;
 
   int minRepeatCountNewText = 1;
@@ -45,34 +47,53 @@ class _UpdatableTickerState extends State<UpdatableTicker>
   @override
   void initState() {
     super.initState();
+    oldText = '';
     newText = widget.newText;
-    textBuffer.add(widget.newText);
     ticker = Ticker(onTick)..start();
   }
 
   @override
   void didUpdateWidget(UpdatableTicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if ((nextNewText.isEmpty && widget.newText != newText) ||
-        (nextNewText.isNotEmpty && widget.newText != nextNewText)) {
-      if (oldText.isEmpty && nextNewText.isEmpty) {
-        if (oldText.isEmpty) {
-          oldText = newText;
-        }
-        newText = widget.newText;
+    securityPxSpacing = widget.pixelsPerSecond * 3;
+    if (securityPxSpacing > containerWidth / 3) {
+      securityPxSpacing = containerWidth / 3;
+    }
 
-        if (kDebugMode) {
-          debugPrint(
-              'xxxx didUpdateWidget, oldText: $oldText, newText: $newText');
-        }
-        if (containerWidth > 0) {
-          renderedText = updateRenderedText();
-        }
-      } else {
-        nextNewText = widget.newText;
+    if (widget.newText != newText) {
+      bool oldTextIsEmpty = oldText.isEmpty;
 
-        if (kDebugMode) {
-          debugPrint('xxxx didUpdateWidget, nextNewText: $nextNewText');
+      if (oldTextIsEmpty) {
+        oldText = newText;
+      }
+      String newTextBeforeUpdate = newText;
+      newText = widget.newText;
+
+      if (containerWidth > 0) {
+        bool newTextVisible =
+            offset.abs() >= (posNewTextStarts - securityPxSpacing);
+        if (oldTextIsEmpty == true ||
+            (!oldTextIsEmpty && posNewTextStarts >= 0 && !newTextVisible)) {
+          List updateProperties = updateRenderDataList();
+          updateRenderingProperties(updateProperties);
+
+          if (kDebugMode) {
+            debugPrint(
+                'UpdatableTicker => new text received (std) => generate var updates + set @ ${DateTime.now().toLocal()} => oldTextIsEmpty: $oldTextIsEmpty, offset: ${offset.abs()}, posNewTextStarts: $posNewTextStarts, posToUpdate: $posToUpdate, newTextVisible: $newTextVisible, newText: $newText');
+          }
+        } else {
+          // Wenn oldText und newText laufen, dann kann man (NUR) newText durch den neuen Text austauschen und direkt neu rendern,
+          // solange noch kein Teil des neuen Textes sichtbar ist.
+          // Sollte ein Teil des neuen Textes bereits sichtbar sein, dann muss man den Switch abwarten bis nur noch newText angezeigt wird (set oldText = '').
+          // Dafür wird nextUpdateProperties verwendet, welcher den newText + veryNewTest vorher vorgerendert hat.
+
+          oldText = newTextBeforeUpdate;
+          nextUpdateProperties = updateRenderDataList(withOffset: false);
+
+          if (kDebugMode) {
+            debugPrint(
+                'UpdatableTicker => new text received (early preparation) @ ${DateTime.now().toLocal()} => offset: ${offset.abs()}, posNewTextStarts: $posNewTextStarts, newTextVisible: $newTextVisible, posToUpdate: ${nextUpdateProperties[2]}, next newText: ${nextUpdateProperties[0]}, ');
+          }
         }
       }
     }
@@ -82,6 +103,17 @@ class _UpdatableTickerState extends State<UpdatableTicker>
   void dispose() {
     ticker.dispose();
     super.dispose();
+  }
+
+  void updateRenderingProperties(List updateProperties) {
+    //newText = updateProperties[0];
+    renderedText = updateProperties[1];
+    posToUpdate = updateProperties[2];
+    posNewTextStarts = updateProperties[3];
+    minRepeatCountNewText = updateProperties[4];
+    newTextWidth = updateProperties[5];
+
+    nextUpdateProperties = [];
   }
 
   double measureTextSize({required String text, bool vertical = false}) {
@@ -99,54 +131,67 @@ class _UpdatableTickerState extends State<UpdatableTicker>
     return vertical ? tp.height : tp.width;
   }
 
-  String updateRenderedText() {
+  List updateRenderDataList({bool withOffset = true}) {
     double oldTextWidth = measureTextSize(text: oldText);
-    newTextWidth = measureTextSize(text: newText);
+    double preparedNewTextWidth = measureTextSize(text: newText);
 
     int minRepeatCountOldText = oldTextWidth > 0
-        ? ((offset.abs() + containerWidth) / oldTextWidth).ceil()
+        ? (((withOffset ? offset.abs() : 0) + containerWidth) / oldTextWidth)
+            .ceil()
         : 0;
-    minRepeatCountNewText =
-        newTextWidth > 0 ? (containerWidth / newTextWidth).ceil() : 1;
+    int preparedMinRepeatCountNewText = preparedNewTextWidth > 0
+        ? (containerWidth / preparedNewTextWidth).ceil()
+        : 1;
 
-    textBuffer = List.filled(minRepeatCountOldText, oldText) +
-        List.filled(minRepeatCountNewText * loopsToFill, newText);
-    posToUpdate = oldText != ''
+    List<String> textBuffer = List.filled(minRepeatCountOldText, oldText) +
+        List.filled(preparedMinRepeatCountNewText * loopsToFill, newText);
+    double preparedPosToUpdate = oldText != ''
         ? minRepeatCountOldText * oldTextWidth
-        : minRepeatCountNewText * newTextWidth;
+        : preparedMinRepeatCountNewText * preparedNewTextWidth;
+    double preparePosNewTextStarts = oldText != ''
+        ? minRepeatCountOldText * oldTextWidth - containerWidth
+        : -1;
 
-    if (kDebugMode) {
-      debugPrint(
-          'xxxx updateRenderedText => offset: $offset, minRepeatCountOldText: $minRepeatCountOldText, minRepeatCountNewText: $minRepeatCountNewText,  posToUpdate: $posToUpdate, containerWidth: $containerWidth, oldTextWidth: $oldTextWidth, newTextWidth: $newTextWidth');
-    }
-
-    return textBuffer.join(); // refresh scrolling text
+    return [
+      newText,
+      textBuffer.join(),
+      preparedPosToUpdate,
+      preparePosNewTextStarts,
+      preparedMinRepeatCountNewText,
+      preparedNewTextWidth,
+    ];
   }
 
   void replaceTextBufferWithNewText() {
-    if (kDebugMode) {
-      debugPrint('xxxx wwww nextNewText: ${nextNewText.isNotEmpty}');
-    }
-    if (nextNewText.isNotEmpty) {
+    // switch at posToUpdate position (position of the old text has disappeared and the first new text has just arrived at the start of ticker area)
+    if (nextUpdateProperties.isNotEmpty) {
+      double actualPosToUpdate = posToUpdate;
       offset = 0;
-      oldText = newText;
-      newText = nextNewText;
-      nextNewText = '';
       if (containerWidth > 0) {
-        renderedText = renderedNextNewText;
+        updateRenderingProperties(nextUpdateProperties);
+      }
+      if (kDebugMode) {
+        debugPrint(
+            'UpdatableTicker =>  buffer update with prepared properties @ ${DateTime.now().toLocal()} => nextUpdateProperties isNotEmpty: ${nextUpdateProperties.isNotEmpty}, offset: ${offset.abs()}, actualPosToUpdate: $actualPosToUpdate, new posToUpdate: $posToUpdate');
       }
     } else {
-      textBuffer = List.filled(minRepeatCountNewText * loopsToFill, newText);
+      if (kDebugMode) {
+        debugPrint(
+            'UpdatableTicker =>  buffer update only with newText @ ${DateTime.now().toLocal()} => nextUpdateProperties isNotEmpty: ${nextUpdateProperties.isNotEmpty}, offset: ${offset.abs()}, posToUpdate: $posToUpdate');
+      }
+      List<String> textBuffer =
+          List.filled(minRepeatCountNewText * loopsToFill, newText);
       offset = 0;
       oldText = '';
       renderedText = textBuffer.join(); // refresh scrolling text
-    }
 
-    posToUpdate = minRepeatCountNewText * newTextWidth;
+      posToUpdate = minRepeatCountNewText * newTextWidth;
+    }
 
     if (kDebugMode) {
       debugPrint(
-          'xxxx wwww replaceTextBufferWithNewText => reset offset => posToUpdate: $posToUpdate');
+          'UpdatableTicker =>  buffer update => reset offset + new generated posToUpdate: $posToUpdate ($minRepeatCountNewText x $newTextWidth)');
+      debugPrint('UpdatableTicker => ---');
     }
   }
 
@@ -155,12 +200,9 @@ class _UpdatableTickerState extends State<UpdatableTicker>
 
     setState(() {
       offset -= delta;
-      // if (kDebugMode) {
-      //   debugPrint('offset: ${offset.abs()}, posToUpdate: $posToUpdate');
-      // }
 
       if (offset.abs() >= posToUpdate) {
-        replaceTextBufferWithNewText();
+        replaceTextBufferWithNewText(); // switch on posToUpdate (position of the old text has disappeared and the first new text has just arrived at the start of ticker area)
       }
     });
   }
@@ -170,7 +212,12 @@ class _UpdatableTickerState extends State<UpdatableTicker>
     return LayoutBuilder(builder: (context, constraints) {
       if (containerWidth != constraints.maxWidth) {
         containerWidth = constraints.maxWidth;
-        renderedText = updateRenderedText();
+        List updateProperties = updateRenderDataList();
+        updateRenderingProperties(updateProperties);
+        if (kDebugMode) {
+          debugPrint(
+              'UpdatableTicker => widget build => var generating + set @ ${DateTime.now().toLocal()}, newText: $newText');
+        }
       }
 
       textHeight = measureTextSize(text: 'XXX', vertical: true);
