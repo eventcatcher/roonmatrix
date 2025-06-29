@@ -305,7 +305,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                         height: height - 52,
                         child: UpdatableTicker(
                           key: ValueKey(
-                              'TextScrollScrollMatrixPage${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                              'UpdatableTickerMatrixPage${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
                           updatableText: scrollText,
                           style: TextStyle(
                             fontFamily: 'Arial',

@@ -72,6 +72,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   final int flexDevice = 1;
   final int flexCoverRow = 1;
   final Color coverRowBackgroundColor = Colors.grey.shade200;
+  final bool showWebCoverNotRunning = false;
 
   GlobalKey windowKey = GlobalKey();
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -271,7 +272,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     String? coverUrl = zone['cover'];
     if (channels.keys.contains(zoneName) &&
         ((!idle && zone['status'] == 'playing') ||
-            (idle == true && zone['status'] != 'playing'))) {
+            (idle == true && zone['status'] == 'paused') ||
+            (idle == true &&
+                showWebCoverNotRunning == true &&
+                zone['status'] == 'not running'))) {
       CoverModel coverModel = CoverModel(
         controlId: zoneName,
         zoneName: zoneName,
@@ -569,9 +573,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                       child: Align(
                                         alignment: Alignment.center,
                                         child: Icon(
-                                          Icons.pause,
-                                          color: Colors.white,
-                                          size: 60.0,
+                                          Icons.play_arrow,
+                                          color: Colors.black,
+                                          size: 80.0,
                                         ),
                                       ),
                                     ),
@@ -2228,7 +2232,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 SizeChangedLayoutNotifier(
                                                               child: SizedBox(
                                                                 key: ValueKey(
-                                                                    'TextScrollWrapper-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                    'UpdatableTickerWrapper-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                                                                 width: MediaQuery.of(
                                                                             context)
                                                                         .size
@@ -2238,7 +2242,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 child:
                                                                     UpdatableTicker(
                                                                   key: ValueKey(
-                                                                      'TextScrollStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                                                      'UpdatableTickerStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                                                                   updatableText:
                                                                       scrollText,
                                                                   style:
