@@ -128,10 +128,16 @@ class ExpandableMenuState extends State<ExpandableMenu>
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      _width = _width + _spacerKey.currentContext!.size!.width;
+      _width = _spacerKey.currentContext!.size!.width;
       _listWidth = _width - widget.width;
       //_listItemSize = itemSize();
     });
+  }
+
+  @override
+  void didUpdateWidget(ExpandableMenu oldWidget) {
+    _listWidget = widget.items;
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -151,6 +157,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
         Spacer(
           key: _spacerKey,
         ),
+        Container(width: 20.0),
         Container(
           clipBehavior: Clip.antiAlias,
           width: _width * _containerProgress,
@@ -185,9 +192,11 @@ class ExpandableMenuState extends State<ExpandableMenu>
                     : _listWidth * _containerProgress,
                 height: widget.height,
                 child: Directionality(
-                  textDirection: Directionality.of(context) == TextDirection.rtl
-                      ? TextDirection.ltr
-                      : TextDirection.rtl,
+                  textDirection: _listWidget.length > 1
+                      ? Directionality.of(context) == TextDirection.rtl
+                          ? TextDirection.ltr
+                          : TextDirection.rtl
+                      : TextDirection.ltr,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: _listWidget,
@@ -219,10 +228,10 @@ class ExpandableMenuState extends State<ExpandableMenu>
             if (_listWidget.length < allWidgets.length) {
               if (_listWidget.isEmpty) {
                 final item = widget.items[0];
-                _listWidget.add(buildContainer(child: item));
+                _listWidget.add(item);
               } else {
                 final item = widget.items[_listWidget.length];
-                _listWidget.add(buildContainer(child: item));
+                _listWidget.add(item);
                 if (_listWidget.length == widget.items.length) {
                   timer.cancel();
                 }
@@ -235,22 +244,6 @@ class ExpandableMenuState extends State<ExpandableMenu>
         _listTimer?.cancel();
       }
     });
-  }
-
-  /// This method build menu items containers
-  Widget buildContainer({required Widget child}) {
-    return Center(
-      child: Container(
-        //width: _listItemSize,
-        //height: _listItemSize,
-        // decoration: BoxDecoration(
-        //     color: widget.itemContainerColor ??
-        //         Colors.white.withValues(alpha: 0.4),
-        //     borderRadius: BorderRadius.all(Radius.circular(widget.height))),
-        margin: const EdgeInsets.only(left: 10.0),
-        child: child,
-      ),
-    );
   }
 
   /// This method will return size of item.

@@ -110,6 +110,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   bool coverRowAlbum = false;
   bool coverRowTrack = false;
   bool coverRowDynamicSize = false;
+  bool showExpandableSpeedSlider = false;
 
   late SettingsBloc settingsBloc;
   late TranslationsBloc translationsBloc;
@@ -150,6 +151,83 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             });
           },
         ),
+        trailing: SharedWidgets.inIosStyle()
+            ? SizedBox(
+                width: 150,
+                child: showExpandableSpeedSlider
+                    ? expandableSpeedSlider()
+                    : speedSlider(),
+              )
+            : null,
+      );
+
+  Widget speedSlider() => Container(
+        padding: EdgeInsets.only(top: 2.0),
+        height: 38.0,
+        child: Slider(
+          value: scrollSpeedDevice,
+          min: 0.75,
+          max: 5,
+          divisions: 100,
+          thumbColor: Colors.red.shade700,
+          activeColor: Colors.green.shade200,
+          inactiveColor: Colors.grey.shade700,
+          onChanged: (double value) {
+            setState(() {
+              scrollSpeedDevice = value;
+              settingsBloc.setScrollSpeedDevice(speed: value);
+            });
+          },
+        ),
+      );
+
+  Widget expandableSpeedSlider() => Stack(
+        children: [
+          Positioned(
+            top: 4.0,
+            right: 0.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                    width: 236.0,
+                    height: 38.0,
+                    child: ExpandableMenu(
+                      key: ValueKey('ExpandableMenuSpeed'),
+                      width: 38.0,
+                      height: 38.0,
+                      animationSpeed: 400,
+                      backgroundColor: SharedWidgets.buttonRowBackgroundColor(
+                          context: context),
+                      items: [
+                        SizedBox(
+                          width: 152.0,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 2.0),
+                            child: Slider(
+                              value: scrollSpeedDevice,
+                              min: 0.75,
+                              max: 5,
+                              divisions: 100,
+                              thumbColor: Colors.red.shade700,
+                              activeColor: Colors.green.shade200,
+                              inactiveColor: Colors.grey.shade700,
+                              onChanged: (double value) {
+                                setState(() {
+                                  scrollSpeedDevice = value;
+                                  settingsBloc.setScrollSpeedDevice(
+                                      speed: value);
+                                });
+                              },
+                            ),
+                          ),
+                        )
+                      ],
+                    )),
+              ],
+            ),
+          ),
+        ],
       );
 
   void openAboutModal(
@@ -370,7 +448,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return covers;
   }
 
-  Widget speedSliderOverlay({required String ip}) => HoverWidget(
+  Widget speedSliderOverlay() => HoverWidget(
       hoverChild: InkWell(
         onDoubleTap: () {
           setState(() {
@@ -393,7 +471,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                   child: Row(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0, bottom: 5.0),
+                        padding: const EdgeInsets.only(left: 8.0, bottom: 9.0),
                         child: Text(
                           '${translations['speed'] ?? 'speed:'}:',
                           style: TextStyle(
@@ -403,9 +481,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                       ),
                       SizedBox(
                         width: 120,
-                        height: 48.0,
+                        height: 36.0,
                         child: Padding(
-                          padding: const EdgeInsets.only(bottom: 5.0),
+                          padding: const EdgeInsets.only(bottom: 9.0),
                           child: Slider(
                             value: scrollSpeedDevice,
                             min: 0.75,
@@ -2210,10 +2288,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                             : 7.0,
                                                         right: 0.0,
                                                         child: SizedBox(
-                                                          width: mobileButtonsList
-                                                                      .length *
-                                                                  50 +
-                                                              30, // moreInfo == true
+                                                          width: 100.0 +
+                                                              38.0 *
+                                                                  mobileButtonsList
+                                                                      .length,
                                                           height: 38.0,
                                                           child: Stack(
                                                             children: [
@@ -2361,9 +2439,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                         bottom: -10,
                                                         right: 0,
                                                         child:
-                                                            speedSliderOverlay(
-                                                                ip: devices[
-                                                                    index]),
+                                                            speedSliderOverlay(),
                                                       ),
                                                   ],
                                                 ),
@@ -2564,7 +2640,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     PreferredSizeWidget appBar = AppBar(
       title: Text(title),
       actions: [
-        if (Platform.isMacOS || Platform.isWindows || Platform.isLinux)
+        if (SharedWidgets.isDesktopDevice())
           Row(
             children: [
               Padding(
@@ -2611,6 +2687,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                   ),
                 ),
             ],
+          ),
+        if (SharedWidgets.isMobileDevice())
+          SizedBox(
+            width: 150,
+            child: showExpandableSpeedSlider
+                ? expandableSpeedSlider()
+                : speedSlider(),
           ),
       ],
     );
