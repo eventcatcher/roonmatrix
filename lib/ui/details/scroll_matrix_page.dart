@@ -21,6 +21,8 @@ class ScrollMatrixPage extends StatefulWidget {
   final String name;
   final Map<String, dynamic> translations;
   final Size minDesktopSize;
+  final double scrollSpeed;
+  final Function(double speed) speedChanged;
   final VoidCallback close;
 
   const ScrollMatrixPage({
@@ -29,6 +31,8 @@ class ScrollMatrixPage extends StatefulWidget {
     required this.name,
     required this.translations,
     required this.minDesktopSize,
+    required this.scrollSpeed,
+    required this.speedChanged,
     required this.close,
   });
 
@@ -41,6 +45,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   String get name => widget.name;
   Map<String, dynamic> get translations => widget.translations;
   Size get minDesktopSize => widget.minDesktopSize;
+  Function(double speed) get speedChanged => widget.speedChanged;
   VoidCallback get close => widget.close;
 
   final double mobileFontSizeSmall = 32.0;
@@ -72,6 +77,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
     width = minDesktopSize.width;
     height = minDesktopSize.height;
     mainBloc = BlocProvider.of<MainBloc>(context);
+
+    sliderValue = widget.scrollSpeed;
 
     if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       sliderTextMin = sliderTextDesktopMin;
@@ -134,6 +141,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                     activeColor: Colors.green.shade200,
                     inactiveColor: Colors.grey.shade700,
                     onChanged: (double value) {
+                      speedChanged(value);
                       setState(() {
                         sliderValue = value;
                       });
@@ -235,6 +243,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                             activeColor: Colors.green.shade200,
                             inactiveColor: Colors.grey.shade700,
                             onChanged: (double value) {
+                              speedChanged(value);
                               setState(() {
                                 sliderValue = value;
                               });

@@ -74,3 +74,21 @@ class SetCoverRowDynamicSizeMode extends SettingsEvent {
   @override
   List<Object> get props => [enabled];
 }
+
+class SetScrollSpeedDevice extends SettingsEvent {
+  final double speed;
+
+  const SetScrollSpeedDevice({required this.speed});
+
+  @override
+  List<Object> get props => [speed];
+}
+
+class SetScrollSpeedScrollMatrix extends SettingsEvent {
+  final double speed;
+
+  const SetScrollSpeedScrollMatrix({required this.speed});
+
+  @override
+  List<Object> get props => [speed];
+}

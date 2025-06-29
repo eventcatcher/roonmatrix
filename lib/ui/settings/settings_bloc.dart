@@ -21,6 +21,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         bool coverRowTrack = prefs.getBool('coverRowTrack') ?? false;
         bool coverRowDynamicSize =
             prefs.getBool('coverRowDynamicSize') ?? false;
+        double scrollSpeedDevice = prefs.getDouble('scrollSpeedDevice') ?? 1.0;
+        double scrollSpeedScrollMatrix =
+            prefs.getDouble('scrollSpeedScrollMatrix') ?? 1.0;
 
         emit(SettingsStateLoaded(
           ipStart: validIp ? ipStart! : state.ipStart,
@@ -31,6 +34,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowAlbum: coverRowAlbum,
           coverRowTrack: coverRowTrack,
           coverRowDynamicSize: coverRowDynamicSize,
+          scrollSpeedDevice: scrollSpeedDevice,
+          scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
         ));
       }
 
@@ -53,6 +58,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: state.coverRowDynamicSize,
+          scrollSpeedDevice: state.scrollSpeedDevice,
+          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -71,6 +78,48 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: state.coverRowDynamicSize,
+          scrollSpeedDevice: state.scrollSpeedDevice,
+          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
+        ));
+      }
+
+      if (event is SetScrollSpeedDevice) {
+        double scrollSpeedDevice = event.speed;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setDouble('scrollSpeedDevice', scrollSpeedDevice);
+
+        emit(SettingsStateLoaded(
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          moreInfo: state.moreInfo,
+          coverRowActiv: state.coverRowActiv,
+          coverRowArtist: state.coverRowArtist,
+          coverRowAlbum: state.coverRowAlbum,
+          coverRowTrack: state.coverRowTrack,
+          coverRowDynamicSize: state.coverRowDynamicSize,
+          scrollSpeedDevice: scrollSpeedDevice,
+          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
+        ));
+      }
+
+      if (event is SetScrollSpeedScrollMatrix) {
+        double scrollSpeedScrollMatrix = event.speed;
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setDouble('scrollSpeedScrollMatrix', scrollSpeedScrollMatrix);
+
+        emit(SettingsStateLoaded(
+          ipStart: state.ipStart,
+          ipEnd: state.ipEnd,
+          moreInfo: state.moreInfo,
+          coverRowActiv: state.coverRowActiv,
+          coverRowArtist: state.coverRowArtist,
+          coverRowAlbum: state.coverRowAlbum,
+          coverRowTrack: state.coverRowTrack,
+          coverRowDynamicSize: state.coverRowDynamicSize,
+          scrollSpeedDevice: state.scrollSpeedDevice,
+          scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
         ));
       }
 
@@ -89,6 +138,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: state.coverRowDynamicSize,
+          scrollSpeedDevice: state.scrollSpeedDevice,
+          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -107,6 +158,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: state.coverRowDynamicSize,
+          scrollSpeedDevice: state.scrollSpeedDevice,
+          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
       if (event is SetCoverRowAlbumMode) {
@@ -124,6 +177,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowAlbum: enabled,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: state.coverRowDynamicSize,
+          scrollSpeedDevice: state.scrollSpeedDevice,
+          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -142,6 +197,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: enabled,
           coverRowDynamicSize: state.coverRowDynamicSize,
+          scrollSpeedDevice: state.scrollSpeedDevice,
+          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -160,6 +217,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowAlbum: state.coverRowAlbum,
           coverRowTrack: state.coverRowTrack,
           coverRowDynamicSize: enabled,
+          scrollSpeedDevice: state.scrollSpeedDevice,
+          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
     });
@@ -181,6 +240,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     await prefs.remove("coverRowAlbum");
     await prefs.remove("coverRowTrack");
     await prefs.remove("coverRowDynamicSize");
+    await prefs.remove("scrollSpeedDevice");
+    await prefs.remove("scrollSpeedScrollMatrix");
   }
 
   bool validateIp({required String? ip}) =>
@@ -253,5 +314,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   void setCoverRowDynamicSizeMode({required bool enabled}) {
     add(SetCoverRowDynamicSizeMode(enabled: enabled));
+  }
+
+  void setScrollSpeedDevice({required double speed}) {
+    add(SetScrollSpeedDevice(speed: speed));
+  }
+
+  void setScrollSpeedScrollMatrix({required double speed}) {
+    add(SetScrollSpeedScrollMatrix(speed: speed));
   }
 }

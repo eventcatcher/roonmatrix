@@ -9,6 +9,8 @@ abstract class SettingsState extends Equatable {
   final bool coverRowAlbum;
   final bool coverRowTrack;
   final bool coverRowDynamicSize;
+  final double scrollSpeedDevice;
+  final double scrollSpeedScrollMatrix;
 
   const SettingsState({
     this.ipStart = '',
@@ -19,6 +21,8 @@ abstract class SettingsState extends Equatable {
     this.coverRowAlbum = false,
     this.coverRowTrack = true,
     this.coverRowDynamicSize = true,
+    this.scrollSpeedDevice = 1.0,
+    this.scrollSpeedScrollMatrix = 1.0,
   });
 
   @override
@@ -32,6 +36,8 @@ abstract class SettingsState extends Equatable {
       coverRowAlbum,
       coverRowTrack,
       coverRowDynamicSize,
+      scrollSpeedDevice,
+      scrollSpeedScrollMatrix,
     ];
 
     return props;
@@ -58,6 +64,8 @@ class SettingsStateLoaded extends SettingsState {
     required super.coverRowAlbum,
     required super.coverRowTrack,
     required super.coverRowDynamicSize,
+    required super.scrollSpeedDevice,
+    required super.scrollSpeedScrollMatrix,
   });
 
   @override

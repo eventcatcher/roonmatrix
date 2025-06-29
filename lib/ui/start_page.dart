@@ -5,7 +5,9 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hovering/hovering.dart';
 import 'package:intl/intl.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
@@ -94,6 +96,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   double width = 1280;
   double height = 768;
   double infoOpacityLevel = 1.0;
+  double scrollSpeedDevice = 1.0;
+  double scrollSpeedScrollMatrix = 1.0;
 
   bool translationsLoaded = false;
   bool idle = false;
@@ -365,6 +369,74 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
     return covers;
   }
+
+  Widget speedSliderOverlay({required String ip}) => HoverWidget(
+      hoverChild: InkWell(
+        onDoubleTap: () {
+          setState(() {
+            scrollSpeedDevice = 1.0;
+            settingsBloc.setScrollSpeedDevice(speed: 1.0);
+          });
+        },
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0.0, end: 1.0),
+          curve: Curves.ease,
+          duration: const Duration(seconds: 1),
+          builder: (BuildContext context, double opacity, Widget? child) {
+            return Opacity(
+                opacity: opacity,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    color: Color.fromARGB(200, 33, 33, 33),
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, bottom: 5.0),
+                        child: Text(
+                          '${translations['speed'] ?? 'speed:'}:',
+                          style: TextStyle(
+                            color: SharedWidgets.borderColor(context: context),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 120,
+                        height: 48.0,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 5.0),
+                          child: Slider(
+                            value: scrollSpeedDevice,
+                            min: 0.75,
+                            max: 5,
+                            divisions: 100,
+                            thumbColor: Colors.red.shade700,
+                            activeColor: Colors.green.shade200,
+                            inactiveColor: Colors.grey.shade700,
+                            onChanged: (double value) {
+                              setState(() {
+                                scrollSpeedDevice = value;
+                                settingsBloc.setScrollSpeedDevice(speed: value);
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ));
+          },
+        ),
+      ),
+      onHover: (PointerEnterEvent event) {
+        //
+      },
+      child: Container(
+        width: 240,
+        height: 54,
+        color: Colors.transparent,
+      ));
 
   Widget getTextArea(CoverModel coverModel) {
     final double fontSize = 12.0;
@@ -1307,6 +1379,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               coverRowAlbum = settingsState.coverRowAlbum;
               coverRowTrack = settingsState.coverRowTrack;
               coverRowDynamicSize = settingsState.coverRowDynamicSize;
+              scrollSpeedDevice = settingsState.scrollSpeedDevice;
+              scrollSpeedScrollMatrix = settingsState.scrollSpeedScrollMatrix;
 
               return BlocBuilder(
                   bloc: mainBloc,
@@ -2207,11 +2281,23 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                               return ScrollMatrixPage(
                                                                 device: devices[
                                                                     index],
+                                                                scrollSpeed:
+                                                                    scrollSpeedScrollMatrix,
                                                                 name: i['name'],
                                                                 translations:
                                                                     translations,
                                                                 minDesktopSize:
                                                                     minDesktopSize,
+                                                                speedChanged:
+                                                                    (double
+                                                                        speed) {
+                                                                  scrollSpeedScrollMatrix =
+                                                                      speed;
+                                                                  settingsBloc
+                                                                      .setScrollSpeedScrollMatrix(
+                                                                          speed:
+                                                                              speed);
+                                                                },
                                                                 close: () {
                                                                   Navigator.pop(
                                                                       context);
@@ -2258,7 +2344,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                     ),
                                                                   ),
                                                                   pixelsPerSecond:
-                                                                      50,
+                                                                      50 *
+                                                                          scrollSpeedDevice,
                                                                   forceUpdate:
                                                                       false,
                                                                   separator:
@@ -2267,7 +2354,17 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                               ),
                                                             ),
                                                           ),
-                                                        ))
+                                                        )),
+                                                    if (SharedWidgets
+                                                        .isDesktopDevice())
+                                                      Positioned(
+                                                        bottom: -10,
+                                                        right: 0,
+                                                        child:
+                                                            speedSliderOverlay(
+                                                                ip: devices[
+                                                                    index]),
+                                                      ),
                                                   ],
                                                 ),
                                               );
