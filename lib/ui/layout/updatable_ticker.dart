@@ -84,7 +84,7 @@ class _UpdatableTickerState extends State<UpdatableTicker>
   }
 
   void textUpdateReceived() {
-    if (widget.updatableText != secondText) {
+    if ((widget.updatableText + widget.separator) != secondText) {
       if (widget.forceUpdate == true) {
         firstText = '';
         secondText = widget.updatableText + widget.separator;
