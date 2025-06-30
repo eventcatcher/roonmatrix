@@ -25,7 +25,6 @@ import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/updatable_ticker.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +36,7 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:updatable_ticker/updatable_ticker.dart';
 import 'package:window_manager/window_manager.dart';
 
 class StartPage extends StatefulWidget {

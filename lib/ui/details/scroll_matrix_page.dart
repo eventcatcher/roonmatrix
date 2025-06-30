@@ -12,9 +12,9 @@ import 'package:hovering/hovering.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/updatable_ticker.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
+import 'package:updatable_ticker/updatable_ticker.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
   final String device;
