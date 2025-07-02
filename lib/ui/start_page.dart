@@ -61,6 +61,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   String get title => widget.title;
   bool showExportButton = true;
 
+  final GlobalKey keyWebZoneNotRunningButtonsKey = GlobalKey();
+  final GlobalKey windowKey = GlobalKey();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<AnimatedListState> coverListKey =
+      GlobalKey<AnimatedListState>();
+  final GlobalKey itemListKey = GlobalKey();
   final double minimumCoverSize = 100;
   final double smallCoverSize = 150;
   final double midCoverSize = 200;
@@ -71,16 +77,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   final double noDevicesFoundRectSize = 184;
   final double exportButtonPaddingIos = 14.0;
   final double deviceListCoverSize = 40.0;
+  final double notRunningButtonsExpandableMenuWidthStandardAddon = 42;
   final int flexDevice = 1;
   final int flexCoverRow = 1;
   final Color coverRowBackgroundColor = Colors.grey.shade200;
   final bool showWebCoverNotRunning = false;
 
-  GlobalKey windowKey = GlobalKey();
-  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   AnimationController? animationController;
-  GlobalKey<AnimatedListState> coverListKey = GlobalKey<AnimatedListState>();
-  GlobalKey itemListKey = GlobalKey();
   Map<String, dynamic> info = {};
   Map<String, dynamic> translations = {};
   List<String> devices = [];
@@ -98,6 +101,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   double infoOpacityLevel = 1.0;
   double scrollSpeedDevice = 1.0;
   double scrollSpeedScrollMatrix = 1.0;
+  double? webZoneNotRunningButtonsWidth;
+  List<Widget> webZoneNotRunningButtons = [];
 
   bool translationsLoaded = false;
   bool idle = false;
@@ -132,6 +137,58 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   void dispose() {
     super.dispose();
     animationController?.dispose();
+  }
+
+  void updateWebZoneNotRunningButtonsWidth(
+      {required int length, int retry = 0}) {
+    double deviceWidth = MediaQuery.of(context).size.width;
+    double width = 0;
+    double addOn = orientation == Orientation.portrait
+        ? notRunningButtonsExpandableMenuWidthStandardAddon
+        : Platform.isAndroid
+            ? notRunningButtonsExpandableMenuWidthStandardAddon
+            : -46;
+
+    if (length > 0) {
+      if (keyWebZoneNotRunningButtonsKey.currentContext != null) {
+        RenderBox? box;
+        BuildContext? itemContext =
+            keyWebZoneNotRunningButtonsKey.currentContext;
+        if (mounted && itemContext != null) {
+          RenderObject? renderObject = itemContext.findRenderObject();
+          if (renderObject is RenderBox && renderObject.attached) {
+            box = renderObject;
+            width = box.size.width + 94 + (length - 1) * 2;
+          }
+        }
+
+        if (webZoneNotRunningButtonsWidth == null && width == 0) {
+          width = deviceWidth + addOn;
+        }
+
+        if (width > 0) {
+          if (width > deviceWidth + addOn) {
+            width = deviceWidth + addOn;
+          }
+
+          if (width != webZoneNotRunningButtonsWidth) {
+            SchedulerBinding.instance.addPostFrameCallback((_) async {
+              if (mounted) {
+                setState(() {
+                  webZoneNotRunningButtonsWidth = width;
+                });
+              }
+            });
+          }
+        }
+      } else {
+        if (retry < 10) {
+          Future<void>.delayed(Duration(milliseconds: 500)).then((value) =>
+              updateWebZoneNotRunningButtonsWidth(
+                  length: length, retry: retry += 1));
+        }
+      }
+    }
   }
 
   ObstructingPreferredSizeWidget navigationBar() => CupertinoNavigationBar(
@@ -274,7 +331,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   }
 
   updateSizes(String caller) {
-    width = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     showExportButton = (SharedWidgets.isMobileDevice() &&
             orientation == Orientation.portrait) ||
@@ -372,6 +429,72 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     }
 
     return null;
+  }
+
+  List<Widget> getWebZonesNotRunningStartButtons(Map<String, dynamic>? info) {
+    List<Widget> buttons = [];
+
+    if (info != null &&
+        info != {} &&
+        info.keys.isNotEmpty &&
+        (info[info.keys.first] as Map<String, dynamic>)
+            .containsKey('channels')) {
+      Map<String, dynamic> channels = info[info.keys.first]['channels'];
+      Map<String, dynamic> webPlayouts = info[info.keys.first]['web_playouts'];
+      for (String serverName in webPlayouts.keys) {
+        List<dynamic> zones = webPlayouts[serverName];
+        for (dynamic zone in zones) {
+          String zoneName = '$serverName-${zone['zone']}';
+          if (zone['status'] == 'not running') {
+            String? controlId =
+                channels.keys.firstWhereOrNull((el) => el == zoneName);
+
+            if (controlId != null) {
+              buttons.add(Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: IconTextButtonElement(
+                  onMacAsText: true,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
+                    child: Icon(
+                      Icons.open_with,
+                      color: Colors.white,
+                      size: 20.0,
+                    ),
+                  ),
+                  label:
+                      '${SharedWidgets.inMacosStyle() ? translations['startZone'] ?? 'start' : ''} $zoneName',
+                  onPressed: () async {
+                    mainBloc.zoneControl(
+                      ip: info.keys.first,
+                      controlId: controlId,
+                      cmd: 'playmode',
+                      enable: true,
+                    );
+                    // Future<void>.delayed(Duration(seconds: 10))
+                    //     .then((value) => mainBloc.zoneControl(
+                    //           ip: info.keys.first,
+                    //           controlId: controlId,
+                    //           cmd: 'playmode',
+                    //           enable: true,
+                    //         ));
+                  },
+                ),
+              ));
+            }
+          }
+        }
+      }
+    }
+
+    updateWebZoneNotRunningButtonsWidth(length: buttons.length);
+
+    return buttons;
   }
 
   List<CoverModel> getCoversModel(Map<String, dynamic>? info) {
@@ -1471,6 +1594,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                       return SizedBox();
                     }
 
+                    updateSizes('NotificationListener');
+
                     if ((mainState.ipStart == null ||
                             mainState.ipEnd == null) &&
                         !settingsPageLoaded) {
@@ -1481,6 +1606,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     devices = mainState.devices;
                     info = mainState.info;
                     idle = mainState.idle;
+
+                    webZoneNotRunningButtons =
+                        getWebZonesNotRunningStartButtons(info);
 
                     if (devices.isNotEmpty) {
                       devices = devices
@@ -1520,6 +1648,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     return OrientationBuilder(
                         builder: (BuildContext context, Orientation o) {
                       if (o != orientation) {
+                        webZoneNotRunningButtons =
+                            getWebZonesNotRunningStartButtons(info);
                         orientation = o;
                         SchedulerBinding.instance
                             .addPostFrameCallback((_) async {
@@ -1531,8 +1661,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         });
                       }
 
-                      bool isSmallDeviceWidth =
-                          MediaQuery.of(context).size.width < 700;
+                      double deviceWidth = MediaQuery.of(context).size.width;
+                      bool isSmallDeviceWidth = deviceWidth < 700;
 
                       return Container(
                         key: windowKey,
@@ -2447,13 +2577,72 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             }),
                               ),
                               if (devices.isNotEmpty && coverRowActiv == true)
-                                getCoverRow(info: info),
+                                if (SharedWidgets.isDesktopDevice())
+                                  getCoverRow(info: info),
+                              if (SharedWidgets.isMobileDevice())
+                                Stack(
+                                  children: [
+                                    getCoverRow(info: info),
+                                    if (SharedWidgets.isMobileDevice() &&
+                                        webZoneNotRunningButtons.isNotEmpty)
+                                      Positioned(
+                                        bottom: 8,
+                                        right: 8,
+                                        child: SizedBox(
+                                          width:
+                                              webZoneNotRunningButtonsWidth ??
+                                                  200,
+                                          child: ExpandableMenu(
+                                            key: ValueKey(
+                                                'ExpandableMenuZoneButtons-$webZoneNotRunningButtonsWidth'),
+                                            width: 38.0,
+                                            height: 38.0,
+                                            animationSpeed: 400,
+                                            backgroundColor: SharedWidgets
+                                                .buttonRowBackgroundColor(
+                                                    context: context),
+                                            items: [
+                                              Wrap(
+                                                direction: Axis.horizontal,
+                                                children: [
+                                                  Row(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    key:
+                                                        keyWebZoneNotRunningButtonsKey,
+                                                    children: [
+                                                      SizedBox(
+                                                          height: 38.0,
+                                                          child: Center(
+                                                              child: Text(
+                                                                  '${translations['startZone'] ?? 'start'}: '))),
+                                                      ...getWebZonesNotRunningStartButtons(
+                                                          info),
+                                                      Text(
+                                                        '$webZoneNotRunningButtonsWidth-${orientation.name}',
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              0, // update value here to refresh widget (without the width is not actualized)
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               if (SharedWidgets.inIosStyle() &&
                                   orientation == Orientation.portrait)
                                 SizedBox(height: exportButtonPaddingIos),
                               if (showExportButton == true)
                                 Padding(
                                   padding: EdgeInsets.symmetric(
+                                      horizontal: 8.0,
                                       vertical: Platform.isMacOS ||
                                               Platform.isWindows ||
                                               Platform.isLinux
@@ -2506,6 +2695,19 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                     valid: valid);
                                               },
                                       ),
+                                      if (SharedWidgets.isDesktopDevice()) ...[
+                                        Spacer(),
+                                        SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          physics:
+                                              AlwaysScrollableScrollPhysics(),
+                                          child: Row(
+                                            children:
+                                                getWebZonesNotRunningStartButtons(
+                                                    info),
+                                          ),
+                                        ),
+                                      ],
                                     ],
                                   ),
                                 ),
@@ -2711,7 +2913,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 Platform.isFuchsia
             ? burgerMenu()
             : null,
-        body: body());
+        body: SafeArea(child: body()));
   }
 }
 

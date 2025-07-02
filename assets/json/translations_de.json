@@ -124,6 +124,7 @@
     "coverTrackHeader": "Titel",
     "inactive": "inaktive Zone",
     "activeZonesHeadline": "Aktive Zonen",
+    "startZone": "starte",
     "config": {
         "hostname": "Hostname [Wichtig]",
         "password": "Passwort [Wichtig]",

@@ -66,10 +66,6 @@ class ExpandableMenuState extends State<ExpandableMenu>
   /// This private property declare list widget.
   double _listWidth = 0;
 
-  /// This private property declare list items size.
-  /// Every item size computed with [itemSize] method
-  //late double _listItemSize;
-
   /// This private property declare items in widgets.
   List<Widget> _listWidget = <Widget>[];
 
@@ -130,7 +126,6 @@ class ExpandableMenuState extends State<ExpandableMenu>
     Future.delayed(const Duration(milliseconds: 500), () {
       _width = _spacerKey.currentContext!.size!.width;
       _listWidth = _width - widget.width;
-      //_listItemSize = itemSize();
     });
   }
 
