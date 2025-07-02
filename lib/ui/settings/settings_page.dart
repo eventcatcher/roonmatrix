@@ -373,20 +373,21 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  right: 10.0,
-                  bottom: 16.0,
+              if (SharedWidgets.isDesktopDevice())
+                Padding(
+                  padding: const EdgeInsets.only(
+                    right: 10.0,
+                    bottom: 16.0,
+                  ),
+                  child: SwitchButton(
+                    label:
+                        '${translations['zonesCoverSizeSelectorLabel'] ?? 'Size of the covers dynamically in relation to the window size'}',
+                    enabled: coverRowDynamicSize,
+                    onChanged: (value) {
+                      settingsBloc.setCoverRowDynamicSizeMode(enabled: value);
+                    },
+                  ),
                 ),
-                child: SwitchButton(
-                  label:
-                      '${translations['zonesCoverSizeSelectorLabel'] ?? 'Size of the covers dynamically in relation to the window size'}',
-                  enabled: coverRowDynamicSize,
-                  onChanged: (value) {
-                    settingsBloc.setCoverRowDynamicSizeMode(enabled: value);
-                  },
-                ),
-              ),
             ],
           ),
         ),

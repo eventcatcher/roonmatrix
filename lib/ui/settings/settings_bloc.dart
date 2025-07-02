@@ -15,10 +15,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         String? ipEnd = prefs.getString('ipEnd');
         bool validIp = validateIp(ip: ipStart) && validateIp(ip: ipEnd);
         bool moreInfo = prefs.getBool('moreInfo') ?? false;
-        bool coverRowActiv = prefs.getBool('coverRowActiv') ?? false;
-        bool coverRowArtist = prefs.getBool('coverRowArtist') ?? false;
-        bool coverRowAlbum = prefs.getBool('coverRowAlbum') ?? false;
-        bool coverRowTrack = prefs.getBool('coverRowTrack') ?? false;
+        bool coverRowActiv = prefs.getBool('coverRowActiv') ?? true;
+        bool coverRowArtist = prefs.getBool('coverRowArtist') ?? true;
+        bool coverRowAlbum = prefs.getBool('coverRowAlbum') ?? true;
+        bool coverRowTrack = prefs.getBool('coverRowTrack') ?? true;
         bool coverRowDynamicSize =
             prefs.getBool('coverRowDynamicSize') ?? false;
         double scrollSpeedDevice = prefs.getDouble('scrollSpeedDevice') ?? 1.0;
