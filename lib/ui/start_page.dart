@@ -2532,7 +2532,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         .size
                                                                         .width -
                                                                     16,
-                                                                height: 20.0,
+                                                                height: 24.0,
                                                                 child:
                                                                     UpdatableTicker(
                                                                   key: ValueKey(
