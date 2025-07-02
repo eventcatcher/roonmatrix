@@ -2579,7 +2579,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                               if (devices.isNotEmpty && coverRowActiv == true)
                                 if (SharedWidgets.isDesktopDevice())
                                   getCoverRow(info: info),
-                              if (SharedWidgets.isMobileDevice())
+                              if (SharedWidgets.isMobileDevice() &&
+                                  coverRowActiv == true)
                                 Stack(
                                   children: [
                                     getCoverRow(info: info),
