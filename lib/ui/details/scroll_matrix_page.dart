@@ -17,7 +17,7 @@ import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:updatable_ticker/updatable_ticker.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
-  final String device;
+  final String ip;
   final String name;
   final Map<String, dynamic> translations;
   final Size minDesktopSize;
@@ -27,7 +27,7 @@ class ScrollMatrixPage extends StatefulWidget {
 
   const ScrollMatrixPage({
     super.key,
-    required this.device,
+    required this.ip,
     required this.name,
     required this.translations,
     required this.minDesktopSize,
@@ -41,7 +41,7 @@ class ScrollMatrixPage extends StatefulWidget {
 }
 
 class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
-  String get device => widget.device;
+  String get ip => widget.ip;
   String get name => widget.name;
   Map<String, dynamic> get translations => widget.translations;
   Size get minDesktopSize => widget.minDesktopSize;
@@ -178,8 +178,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                 bloc: mainBloc,
                 builder: (context, MainState mainState) {
                   String zoneName = '';
-                  dynamic info = mainState.info.containsKey(device)
-                      ? mainState.info[device]
+                  dynamic info = mainState.info.containsKey(ip)
+                      ? mainState.info[ip]
                       : null;
                   if (info != null && info['control_id'] != null) {
                     String controlId = info['control_id'];
@@ -194,7 +194,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   }
 
                   return Text(
-                      'IP: $device  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
+                      'IP: $ip  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
                 }),
           const SizedBox(width: 4.0),
         ],
@@ -277,9 +277,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                 }
 
                 if (mainState.devices.isNotEmpty &&
-                    mainState.info.containsKey(device)) {
-                  String displaystrNew =
-                      mainState.info[device]['app_displaystr'];
+                    mainState.info.containsKey(ip)) {
+                  String displaystrNew = mainState.info[ip]['app_displaystr'];
 
                   if (displaystrNew != displaystr) {
                     scrollText = replaceCodes(displaystrNew);
@@ -389,8 +388,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                           builder: (context, MainState mainState) {
                             String zoneName = '';
                             if (mainState.devices.isNotEmpty &&
-                                mainState.info.containsKey(device)) {
-                              dynamic info = mainState.info[device];
+                                mainState.info.containsKey(ip)) {
+                              dynamic info = mainState.info[ip];
                               if (info['control_id'] != null) {
                                 String controlId = info['control_id'];
                                 if (info['channels'] != null &&
@@ -405,7 +404,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                               }
 
                               return Text(
-                                'IP: $device  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
+                                'IP: $ip  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
                                 style: TextStyle(
                                   color:
                                       SharedWidgets.textColor(context: context),

@@ -791,7 +791,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                       transitionDuration: const Duration(milliseconds: 0),
                       pageBuilder: (_, __, ___) {
                         return CoverPage(
-                          index: 0,
                           name: coverModel.zoneName,
                           ip: devices[0],
                           controlId: coverModel.controlId,
@@ -1351,7 +1350,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                             transitionDuration: const Duration(milliseconds: 0),
                             pageBuilder: (_, __, ___) {
                               return CoverPage(
-                                index: 0,
                                 name: zoneData['name'],
                                 ip: ip,
                                 translations: translations,
@@ -1971,8 +1969,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 pageBuilder: (_,
                                                                     __, ___) {
                                                                   return CoverPage(
-                                                                    index:
-                                                                        index,
                                                                     name: i[
                                                                         'name'],
                                                                     ip: devices[
@@ -2161,7 +2157,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                               __,
                                                                               ___) {
                                                                             return CoverPage(
-                                                                              index: 0,
                                                                               name: i['name'],
                                                                               ip: devices[index],
                                                                               translations: translations,
@@ -2494,7 +2489,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                             pageBuilder:
                                                                 (_, __, ___) {
                                                               return ScrollMatrixPage(
-                                                                device: devices[
+                                                                ip: devices[
                                                                     index],
                                                                 scrollSpeed:
                                                                     scrollSpeedScrollMatrix,

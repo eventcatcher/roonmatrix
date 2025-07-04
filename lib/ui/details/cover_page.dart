@@ -16,7 +16,6 @@ import 'package:roonmatrix/ui/main/main_state.dart'
     show MainState, MainStateLoaded;
 
 class CoverPage extends StatefulWidget {
-  final int index;
   final String name;
   final String ip;
   final String? controlId;
@@ -24,7 +23,6 @@ class CoverPage extends StatefulWidget {
 
   const CoverPage({
     super.key,
-    required this.index,
     required this.name,
     required this.ip,
     this.controlId,
@@ -36,7 +34,6 @@ class CoverPage extends StatefulWidget {
 }
 
 class _CoverPageState extends State<CoverPage> {
-  int get index => widget.index;
   String get name => widget.name;
   String get ip => widget.ip;
   Map<String, dynamic> get translations => widget.translations;
@@ -377,51 +374,54 @@ class _CoverPageState extends State<CoverPage> {
                       }
                     }
 
-                    String? controlIdUpdated = widget.controlId ??
-                        mainState.info[mainState.devices[index]]?['control_id'];
+                    if (info != {} && info['control_id'] != null) {
+                      String? controlIdUpdated =
+                          widget.controlId ?? info['control_id'];
 
-                    if (info['web_playouts_raw'] != webPlayoutsRaw ||
-                        info['roon_playouts_raw'] != roonPlayoutsRaw ||
-                        controlId == null ||
-                        controlIdUpdated != controlId) {
-                      Map<String, dynamic>? zone =
-                          getZoneDataForControlId(controlIdUpdated);
-                      if (zone != null) {
-                        selectedZone = zone;
-                      }
+                      if (info['web_playouts_raw'] != webPlayoutsRaw ||
+                          info['roon_playouts_raw'] != roonPlayoutsRaw ||
+                          controlId == null ||
+                          controlIdUpdated != controlId) {
+                        Map<String, dynamic>? zone =
+                            getZoneDataForControlId(controlIdUpdated);
+                        if (zone != null) {
+                          selectedZone = zone;
+                        }
 
-                      SchedulerBinding.instance.addPostFrameCallback((_) async {
-                        if (mounted) {
-                          setState(() {
-                            webPlayoutsRaw = info['web_playouts_raw'];
-                            roonPlayoutsRaw = info['roon_playouts_raw'];
-                            if (controlIdUpdated != controlId) {
-                              controlId = controlIdUpdated;
-                            }
-                            if (zone != null) {
-                              selectedZone = zone;
-                              selectedZoneId = zone['server'] == 'roon'
-                                  ? zone['zone']
-                                  : '${zone['server']}-${zone['zone']}';
-                            }
-                          });
-                        }
-                      });
+                        SchedulerBinding.instance
+                            .addPostFrameCallback((_) async {
+                          if (mounted) {
+                            setState(() {
+                              webPlayoutsRaw = info['web_playouts_raw'];
+                              roonPlayoutsRaw = info['roon_playouts_raw'];
+                              if (controlIdUpdated != controlId) {
+                                controlId = controlIdUpdated;
+                              }
+                              if (zone != null) {
+                                selectedZone = zone;
+                                selectedZoneId = zone['server'] == 'roon'
+                                    ? zone['zone']
+                                    : '${zone['server']}-${zone['zone']}';
+                              }
+                            });
+                          }
+                        });
 
-                      if (controlIdUpdated != null) {
-                        if ((info['shufflemode'] as Map<String, dynamic>)
-                            .containsKey(controlIdUpdated)) {
-                          shuffle = info['shufflemode'][controlIdUpdated] ==
-                              'shuffle';
-                        }
-                        if ((info['repeatmode'] as Map<String, dynamic>)
-                            .containsKey(controlIdUpdated)) {
-                          repeat =
-                              info['repeatmode'][controlIdUpdated] == 'repeat';
-                        }
-                        if ((info['playmode'] as Map<String, dynamic>)
-                            .containsKey(controlIdUpdated)) {
-                          idle = info['playmode'][controlIdUpdated] != 'play';
+                        if (controlIdUpdated != null) {
+                          if ((info['shufflemode'] as Map<String, dynamic>)
+                              .containsKey(controlIdUpdated)) {
+                            shuffle = info['shufflemode'][controlIdUpdated] ==
+                                'shuffle';
+                          }
+                          if ((info['repeatmode'] as Map<String, dynamic>)
+                              .containsKey(controlIdUpdated)) {
+                            repeat = info['repeatmode'][controlIdUpdated] ==
+                                'repeat';
+                          }
+                          if ((info['playmode'] as Map<String, dynamic>)
+                              .containsKey(controlIdUpdated)) {
+                            idle = info['playmode'][controlIdUpdated] != 'play';
+                          }
                         }
                       }
                     }
