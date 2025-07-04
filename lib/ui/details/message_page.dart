@@ -66,7 +66,10 @@ class MessagePageState extends State<MessagePage> {
 
     for (String ip in devices) {
       String name = infos[ip]['name'];
-      options.putIfAbsent(name, () => ip);
+      bool isCoverPlayer = infos[ip]['display_cover'];
+      if (!isCoverPlayer) {
+        options.putIfAbsent(name, () => ip);
+      }
     }
 
     return options;
