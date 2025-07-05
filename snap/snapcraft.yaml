@@ -1,5 +1,5 @@
 name: roonmatrix
-version: '1.0.1'
+version: '1.1.0'
 summary: App to control your LED-matrix device
 description: |
   App to control your own LED matrix hardware, which can display a wide range of informations: Music played from Roon, Apple Music or Spotify, weather data, RSS feeds, custom text messages, and more. The RoonMatrix is a free maker project, and describes step by step how to build your own LED matrix display hardware. And with this app you can configure your hardware extensively, and specify from which sources the text to display is composed. With the app you can send text messages directly to your device, control the display speed, brightness and much more.
