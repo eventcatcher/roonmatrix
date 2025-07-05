@@ -14,7 +14,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 // ============================ style config============================
 
-final bool showMacStyle = true; // show app in macos ui style (running on macos)
+final bool showMacStyle =
+    false; // show app in macos ui style (running on macos)
 final bool showIosStyle =
     true; // show app in iOS ui style (running on macos or iOS)
 final bool showSelectBoxInMacStyle = true;

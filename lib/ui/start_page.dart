@@ -433,29 +433,56 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           {required String ip, required String id, required String name}) =>
       Padding(
         padding: const EdgeInsets.only(left: 4.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            shadowColor: Colors.transparent,
-            backgroundColor: SharedWidgets.buttonBlueColor(context: context),
-            foregroundColor: Colors.white,
-            padding: EdgeInsets.symmetric(
-                horizontal: 8.0, vertical: Platform.isIOS ? 5.0 : 7.0),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          onPressed: () async {
-            mainBloc.zoneControl(
-              ip: ip,
-              controlId: id,
-              cmd: 'playmode',
-              enable: true,
-            );
-          },
-          child: Text(name),
-        ),
+        child: SharedWidgets.isDesktopDevice()
+            ? IconTextButtonElement(
+                onMacAsText: true,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                icon: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Icon(
+                    Icons.open_with,
+                    color: Colors.white,
+                    size: 20.0,
+                  ),
+                ),
+                label: name,
+                onPressed: () async {
+                  mainBloc.zoneControl(
+                    ip: ip,
+                    controlId: id,
+                    cmd: 'playmode',
+                    enable: true,
+                  );
+                },
+              )
+            : ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  shadowColor: Colors.transparent,
+                  backgroundColor:
+                      SharedWidgets.buttonBlueColor(context: context),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: Platform.isIOS ? 5.0 : 7.0),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: () async {
+                  mainBloc.zoneControl(
+                    ip: ip,
+                    controlId: id,
+                    cmd: 'playmode',
+                    enable: true,
+                  );
+                },
+                child: Text(name),
+              ),
       );
 
   List<Widget> getZonesNotRunningStartButtons(Map<String, dynamic>? info) {
