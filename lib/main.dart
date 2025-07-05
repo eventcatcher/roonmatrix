@@ -423,7 +423,7 @@ class RoonMatrixState extends State<RoonMatrix> {
     ];
   }
 
-  TabBarTheme tabBarTheme = const TabBarTheme(
+  TabBarThemeData tabBarThemeData = const TabBarThemeData(
       labelColor: Colors.white,
       dividerColor: Colors.grey,
       labelStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -465,9 +465,10 @@ class RoonMatrixState extends State<RoonMatrix> {
           );
   }
 
-  ThemeData materialThemeData({required TabBarTheme tabBarTheme}) => ThemeData(
+  ThemeData materialThemeData({required TabBarThemeData tabBarThemeData}) =>
+      ThemeData(
         useMaterial3: false,
-        tabBarTheme: tabBarTheme,
+        tabBarTheme: tabBarThemeData,
       );
 
   MenuBarWidget windowsLinuxMenuBar(
@@ -579,7 +580,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                 })
               : MaterialApp(
                   title: title,
-                  theme: materialThemeData(tabBarTheme: tabBarTheme),
+                  theme: materialThemeData(tabBarThemeData: tabBarThemeData),
                   darkTheme: ThemeData.dark(useMaterial3: false),
                   themeMode: ThemeMode.system,
                   home: home(translationsBloc: translationsBloc),
