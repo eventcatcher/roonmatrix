@@ -432,23 +432,20 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Widget zoneNotRunningStartButton(
           {required String ip, required String id, required String name}) =>
       Padding(
-        padding: const EdgeInsets.only(left: 8.0),
-        child: IconTextButtonElement(
-          onMacAsText: true,
+        padding: const EdgeInsets.only(left: 4.0),
+        child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            shadowColor: Colors.transparent,
+            backgroundColor: SharedWidgets.buttonBlueColor(context: context),
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(
+                horizontal: 8.0, vertical: Platform.isIOS ? 5.0 : 7.0),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          icon: const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: Icon(
-              Icons.open_with,
-              color: Colors.white,
-              size: 20.0,
-            ),
-          ),
-          label: name,
           onPressed: () async {
             mainBloc.zoneControl(
               ip: ip,
@@ -457,6 +454,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               enable: true,
             );
           },
+          child: Text(name),
         ),
       );
 
@@ -2615,7 +2613,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                         keyZoneNotRunningButtonsKey,
                                                     children: [
                                                       SizedBox(
-                                                          height: 38.0,
+                                                          height: 30.0,
                                                           child: Center(
                                                               child: Text(
                                                                   '${translations['startZone'] ?? 'start'}: '))),

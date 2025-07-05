@@ -221,6 +221,24 @@ class SharedWidgets {
         : Colors.blue.shade100;
   }
 
+  static Color buttonBlueColor({
+    required BuildContext context,
+  }) {
+    if (SharedWidgets.inIosStyle()) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : CupertinoColors.systemBlue;
+    }
+    if (SharedWidgets.inMacosStyle()) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : MacosColors.systemBlueColor; // MacosColors.systemTealColor;
+    }
+    return SharedWidgets.brightness() == Brightness.dark
+        ? Colors.grey.shade700
+        : Colors.blue.shade700;
+  }
+
   static Color buttonRowBackgroundColor({
     required BuildContext context,
   }) {
