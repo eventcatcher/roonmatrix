@@ -13,11 +13,20 @@ apps:
     command: roonmatrix
     environment:
       GTK_MODULES: ""
+      GDK_BACKEND: wayland,x11
     extensions: [gnome]
     plugs:
       - home
       - network
       - network-bind
+      - x11
+      - wayland
+      - opengl
+      - desktop
+      - desktop-legacy
+      - gsettings
+      - icon-themes
+      - gtk-3-themes
 
 parts:
   roonmatrix:
