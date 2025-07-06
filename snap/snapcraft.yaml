@@ -11,6 +11,8 @@ grade: stable
 apps:
   roonmatrix:
     command: roonmatrix
+    environment:
+      GTK_MODULES: ""
     extensions: [gnome]
     plugs:
       - home
