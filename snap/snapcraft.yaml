@@ -13,14 +13,14 @@ apps:
     command: roonmatrix
     environment:
       GTK_MODULES: ""
-      GDK_BACKEND: wayland,x11
+      GDK_BACKEND: x11
+      XDG_DATA_DIRS: "$SNAP/data-dir:$XDG_DATA_DIRS"
     extensions: [gnome]
     plugs:
       - home
       - network
       - network-bind
       - x11
-      - wayland
       - opengl
       - desktop
       - desktop-legacy
