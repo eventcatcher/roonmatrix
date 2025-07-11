@@ -7,7 +7,7 @@ part of 'config_definition_item.dart';
 // **************************************************************************
 
 Serializer<ConfigDefinitionItem> _$configDefinitionItemSerializer =
-    new _$ConfigDefinitionItemSerializer();
+    _$ConfigDefinitionItemSerializer();
 
 class _$ConfigDefinitionItemSerializer
     implements StructuredSerializer<ConfigDefinitionItem> {
@@ -28,6 +28,9 @@ class _$ConfigDefinitionItemSerializer
       serializers.serialize(object.name, specifiedType: const FullType(String)),
       'editable',
       serializers.serialize(object.editable,
+          specifiedType: const FullType(bool)),
+      'noValidation',
+      serializers.serialize(object.noValidation,
           specifiedType: const FullType(bool)),
       'type',
       serializers.serialize(object.type,
@@ -51,7 +54,7 @@ class _$ConfigDefinitionItemSerializer
   ConfigDefinitionItem deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ConfigDefinitionItemBuilder();
+    final result = ConfigDefinitionItemBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -65,6 +68,10 @@ class _$ConfigDefinitionItemSerializer
           break;
         case 'editable':
           result.editable = serializers.deserialize(value,
+              specifiedType: const FullType(bool))! as bool;
+          break;
+        case 'noValidation':
+          result.noValidation = serializers.deserialize(value,
               specifiedType: const FullType(bool))! as bool;
           break;
         case 'type':
@@ -100,6 +107,8 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
   @override
   final bool editable;
   @override
+  final bool noValidation;
+  @override
   final ItemType type;
   @override
   final String label;
@@ -112,33 +121,18 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
 
   factory _$ConfigDefinitionItem(
           [void Function(ConfigDefinitionItemBuilder)? updates]) =>
-      (new ConfigDefinitionItemBuilder()..update(updates))._build();
+      (ConfigDefinitionItemBuilder()..update(updates))._build();
 
   _$ConfigDefinitionItem._(
       {required this.name,
       required this.editable,
+      required this.noValidation,
       required this.type,
       required this.label,
       required this.unit,
       required this.value,
       required this.link})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(
-        name, r'ConfigDefinitionItem', 'name');
-    BuiltValueNullFieldError.checkNotNull(
-        editable, r'ConfigDefinitionItem', 'editable');
-    BuiltValueNullFieldError.checkNotNull(
-        type, r'ConfigDefinitionItem', 'type');
-    BuiltValueNullFieldError.checkNotNull(
-        label, r'ConfigDefinitionItem', 'label');
-    BuiltValueNullFieldError.checkNotNull(
-        unit, r'ConfigDefinitionItem', 'unit');
-    BuiltValueNullFieldError.checkNotNull(
-        value, r'ConfigDefinitionItem', 'value');
-    BuiltValueNullFieldError.checkNotNull(
-        link, r'ConfigDefinitionItem', 'link');
-  }
-
+      : super._();
   @override
   ConfigDefinitionItem rebuild(
           void Function(ConfigDefinitionItemBuilder) updates) =>
@@ -146,7 +140,7 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
 
   @override
   ConfigDefinitionItemBuilder toBuilder() =>
-      new ConfigDefinitionItemBuilder()..replace(this);
+      ConfigDefinitionItemBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -154,6 +148,7 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
     return other is ConfigDefinitionItem &&
         name == other.name &&
         editable == other.editable &&
+        noValidation == other.noValidation &&
         type == other.type &&
         label == other.label &&
         unit == other.unit &&
@@ -166,6 +161,7 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
     var _$hash = 0;
     _$hash = $jc(_$hash, name.hashCode);
     _$hash = $jc(_$hash, editable.hashCode);
+    _$hash = $jc(_$hash, noValidation.hashCode);
     _$hash = $jc(_$hash, type.hashCode);
     _$hash = $jc(_$hash, label.hashCode);
     _$hash = $jc(_$hash, unit.hashCode);
@@ -180,6 +176,7 @@ class _$ConfigDefinitionItem extends ConfigDefinitionItem {
     return (newBuiltValueToStringHelper(r'ConfigDefinitionItem')
           ..add('name', name)
           ..add('editable', editable)
+          ..add('noValidation', noValidation)
           ..add('type', type)
           ..add('label', label)
           ..add('unit', unit)
@@ -201,8 +198,12 @@ class ConfigDefinitionItemBuilder
   bool? get editable => _$this._editable;
   set editable(bool? editable) => _$this._editable = editable;
 
+  bool? _noValidation;
+  bool? get noValidation => _$this._noValidation;
+  set noValidation(bool? noValidation) => _$this._noValidation = noValidation;
+
   ItemTypeBuilder? _type;
-  ItemTypeBuilder get type => _$this._type ??= new ItemTypeBuilder();
+  ItemTypeBuilder get type => _$this._type ??= ItemTypeBuilder();
   set type(ItemTypeBuilder? type) => _$this._type = type;
 
   String? _label;
@@ -228,6 +229,7 @@ class ConfigDefinitionItemBuilder
     if ($v != null) {
       _name = $v.name;
       _editable = $v.editable;
+      _noValidation = $v.noValidation;
       _type = $v.type.toBuilder();
       _label = $v.label;
       _unit = $v.unit;
@@ -240,7 +242,6 @@ class ConfigDefinitionItemBuilder
 
   @override
   void replace(ConfigDefinitionItem other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ConfigDefinitionItem;
   }
 
@@ -257,27 +258,30 @@ class ConfigDefinitionItemBuilder
     _$ConfigDefinitionItem _$result;
     try {
       _$result = _$v ??
-          new _$ConfigDefinitionItem._(
-              name: BuiltValueNullFieldError.checkNotNull(
-                  name, r'ConfigDefinitionItem', 'name'),
-              editable: BuiltValueNullFieldError.checkNotNull(
-                  editable, r'ConfigDefinitionItem', 'editable'),
-              type: type.build(),
-              label: BuiltValueNullFieldError.checkNotNull(
-                  label, r'ConfigDefinitionItem', 'label'),
-              unit: BuiltValueNullFieldError.checkNotNull(
-                  unit, r'ConfigDefinitionItem', 'unit'),
-              value: BuiltValueNullFieldError.checkNotNull(
-                  value, r'ConfigDefinitionItem', 'value'),
-              link: BuiltValueNullFieldError.checkNotNull(
-                  link, r'ConfigDefinitionItem', 'link'));
+          _$ConfigDefinitionItem._(
+            name: BuiltValueNullFieldError.checkNotNull(
+                name, r'ConfigDefinitionItem', 'name'),
+            editable: BuiltValueNullFieldError.checkNotNull(
+                editable, r'ConfigDefinitionItem', 'editable'),
+            noValidation: BuiltValueNullFieldError.checkNotNull(
+                noValidation, r'ConfigDefinitionItem', 'noValidation'),
+            type: type.build(),
+            label: BuiltValueNullFieldError.checkNotNull(
+                label, r'ConfigDefinitionItem', 'label'),
+            unit: BuiltValueNullFieldError.checkNotNull(
+                unit, r'ConfigDefinitionItem', 'unit'),
+            value: BuiltValueNullFieldError.checkNotNull(
+                value, r'ConfigDefinitionItem', 'value'),
+            link: BuiltValueNullFieldError.checkNotNull(
+                link, r'ConfigDefinitionItem', 'link'),
+          );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'type';
         type.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ConfigDefinitionItem', _$failedField, e.toString());
       }
       rethrow;

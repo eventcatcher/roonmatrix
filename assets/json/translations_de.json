@@ -170,6 +170,8 @@
         "force_roon_update": "Ausgabedaten sofort erneuern bei Roon Zonen-Updates",
         "force_active_roon_zone_only": "Ausgabedaten nur für aktive Roon-Zone sofort erneuern",
         "discovery_delay": "Roon Zonenerkennung Verzögerungszeit",
+        "core_ip": "Core IP (reset: leere ip und port)",
+        "core_port": "Core Port (reset: leere ip und port)",
         "token_filename": "Token Dateiname",
         "roon_commandline_version": "Roon-Erweiterung Version",
         "roon_commandline_release": "Roon-Erweiterung Release",

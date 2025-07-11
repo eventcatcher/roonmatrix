@@ -19,19 +19,19 @@ StorageFolderType _$storageFolderTypeValueOf(String name) {
     case 'EXTERNAL':
       return _$external;
     default:
-      throw new ArgumentError(name);
+      throw ArgumentError(name);
   }
 }
 
 final BuiltSet<StorageFolderType> _$storageFolderTypeValues =
-    new BuiltSet<StorageFolderType>(const <StorageFolderType>[
+    BuiltSet<StorageFolderType>(const <StorageFolderType>[
   _$app,
   _$temp,
   _$external,
 ]);
 
 Serializer<StorageFolderType> _$storageFolderTypeSerializer =
-    new _$StorageFolderTypeSerializer();
+    _$StorageFolderTypeSerializer();
 
 class _$StorageFolderTypeSerializer
     implements PrimitiveSerializer<StorageFolderType> {

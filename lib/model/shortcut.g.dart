@@ -6,7 +6,7 @@ part of 'shortcut.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<Shortcut> _$shortcutSerializer = new _$ShortcutSerializer();
+Serializer<Shortcut> _$shortcutSerializer = _$ShortcutSerializer();
 
 class _$ShortcutSerializer implements StructuredSerializer<Shortcut> {
   @override
@@ -37,7 +37,7 @@ class _$ShortcutSerializer implements StructuredSerializer<Shortcut> {
   @override
   Shortcut deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ShortcutBuilder();
+    final result = ShortcutBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -85,7 +85,7 @@ class _$Shortcut extends Shortcut {
   final bool meta;
 
   factory _$Shortcut([void Function(ShortcutBuilder)? updates]) =>
-      (new ShortcutBuilder()..update(updates))._build();
+      (ShortcutBuilder()..update(updates))._build();
 
   _$Shortcut._(
       {required this.key,
@@ -93,20 +93,13 @@ class _$Shortcut extends Shortcut {
       required this.shift,
       required this.alt,
       required this.meta})
-      : super._() {
-    BuiltValueNullFieldError.checkNotNull(key, r'Shortcut', 'key');
-    BuiltValueNullFieldError.checkNotNull(control, r'Shortcut', 'control');
-    BuiltValueNullFieldError.checkNotNull(shift, r'Shortcut', 'shift');
-    BuiltValueNullFieldError.checkNotNull(alt, r'Shortcut', 'alt');
-    BuiltValueNullFieldError.checkNotNull(meta, r'Shortcut', 'meta');
-  }
-
+      : super._();
   @override
   Shortcut rebuild(void Function(ShortcutBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ShortcutBuilder toBuilder() => new ShortcutBuilder()..replace(this);
+  ShortcutBuilder toBuilder() => ShortcutBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -183,7 +176,6 @@ class ShortcutBuilder implements Builder<Shortcut, ShortcutBuilder> {
 
   @override
   void replace(Shortcut other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$Shortcut;
   }
 
@@ -198,15 +190,16 @@ class ShortcutBuilder implements Builder<Shortcut, ShortcutBuilder> {
   _$Shortcut _build() {
     Shortcut._finalizeBuilder(this);
     final _$result = _$v ??
-        new _$Shortcut._(
-            key: BuiltValueNullFieldError.checkNotNull(key, r'Shortcut', 'key'),
-            control: BuiltValueNullFieldError.checkNotNull(
-                control, r'Shortcut', 'control'),
-            shift: BuiltValueNullFieldError.checkNotNull(
-                shift, r'Shortcut', 'shift'),
-            alt: BuiltValueNullFieldError.checkNotNull(alt, r'Shortcut', 'alt'),
-            meta: BuiltValueNullFieldError.checkNotNull(
-                meta, r'Shortcut', 'meta'));
+        _$Shortcut._(
+          key: BuiltValueNullFieldError.checkNotNull(key, r'Shortcut', 'key'),
+          control: BuiltValueNullFieldError.checkNotNull(
+              control, r'Shortcut', 'control'),
+          shift: BuiltValueNullFieldError.checkNotNull(
+              shift, r'Shortcut', 'shift'),
+          alt: BuiltValueNullFieldError.checkNotNull(alt, r'Shortcut', 'alt'),
+          meta:
+              BuiltValueNullFieldError.checkNotNull(meta, r'Shortcut', 'meta'),
+        );
     replace(_$result);
     return _$result;
   }

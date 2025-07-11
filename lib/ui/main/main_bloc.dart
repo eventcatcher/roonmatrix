@@ -949,7 +949,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             .firstWhereOrNull((ConfigDefinitionArea el) => el.name == areaKey)
             ?.items
             .firstWhereOrNull((ConfigDefinitionItem el) => el.name == fieldKey);
-        if (fieldDefinition != null && fieldDefinition.editable == true) {
+        if (fieldDefinition != null &&
+            fieldDefinition.editable == true &&
+            !fieldDefinition.noValidation) {
           String? fieldType = getFieldType(fieldDefinition: fieldDefinition);
           if (fieldType != null) {
             if (fieldType == 'int') {

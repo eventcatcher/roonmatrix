@@ -6,7 +6,7 @@ part of 'serializers.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializers _$serializers = (new Serializers().toBuilder()
+Serializers _$serializers = (Serializers().toBuilder()
       ..add(ConfigDefinition.serializer)
       ..add(ConfigDefinitionArea.serializer)
       ..add(ConfigDefinitionItem.serializer)
@@ -17,14 +17,14 @@ Serializers _$serializers = (new Serializers().toBuilder()
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(ConfigDefinitionArea)]),
-          () => new ListBuilder<ConfigDefinitionArea>())
+          () => ListBuilder<ConfigDefinitionArea>())
       ..addBuilderFactory(
           const FullType(
               BuiltList, const [const FullType(ConfigDefinitionItem)]),
-          () => new ListBuilder<ConfigDefinitionItem>())
+          () => ListBuilder<ConfigDefinitionItem>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ItemTypeStructure)]),
-          () => new ListBuilder<ItemTypeStructure>()))
+          () => ListBuilder<ItemTypeStructure>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

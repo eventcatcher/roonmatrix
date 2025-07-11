@@ -7,7 +7,7 @@ part of 'config_definition.dart';
 // **************************************************************************
 
 Serializer<ConfigDefinition> _$configDefinitionSerializer =
-    new _$ConfigDefinitionSerializer();
+    _$ConfigDefinitionSerializer();
 
 class _$ConfigDefinitionSerializer
     implements StructuredSerializer<ConfigDefinition> {
@@ -33,7 +33,7 @@ class _$ConfigDefinitionSerializer
   ConfigDefinition deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ConfigDefinitionBuilder();
+    final result = ConfigDefinitionBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -60,19 +60,16 @@ class _$ConfigDefinition extends ConfigDefinition {
 
   factory _$ConfigDefinition(
           [void Function(ConfigDefinitionBuilder)? updates]) =>
-      (new ConfigDefinitionBuilder()..update(updates))._build();
+      (ConfigDefinitionBuilder()..update(updates))._build();
 
-  _$ConfigDefinition._({required this.area}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(area, r'ConfigDefinition', 'area');
-  }
-
+  _$ConfigDefinition._({required this.area}) : super._();
   @override
   ConfigDefinition rebuild(void Function(ConfigDefinitionBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
   ConfigDefinitionBuilder toBuilder() =>
-      new ConfigDefinitionBuilder()..replace(this);
+      ConfigDefinitionBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -101,7 +98,7 @@ class ConfigDefinitionBuilder
 
   ListBuilder<ConfigDefinitionArea>? _area;
   ListBuilder<ConfigDefinitionArea> get area =>
-      _$this._area ??= new ListBuilder<ConfigDefinitionArea>();
+      _$this._area ??= ListBuilder<ConfigDefinitionArea>();
   set area(ListBuilder<ConfigDefinitionArea>? area) => _$this._area = area;
 
   ConfigDefinitionBuilder();
@@ -117,7 +114,6 @@ class ConfigDefinitionBuilder
 
   @override
   void replace(ConfigDefinition other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ConfigDefinition;
   }
 
@@ -132,14 +128,17 @@ class ConfigDefinitionBuilder
   _$ConfigDefinition _build() {
     _$ConfigDefinition _$result;
     try {
-      _$result = _$v ?? new _$ConfigDefinition._(area: area.build());
+      _$result = _$v ??
+          _$ConfigDefinition._(
+            area: area.build(),
+          );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'area';
         area.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ConfigDefinition', _$failedField, e.toString());
       }
       rethrow;

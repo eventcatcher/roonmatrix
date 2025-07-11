@@ -6,7 +6,7 @@ part of 'item_type.dart';
 // BuiltValueGenerator
 // **************************************************************************
 
-Serializer<ItemType> _$itemTypeSerializer = new _$ItemTypeSerializer();
+Serializer<ItemType> _$itemTypeSerializer = _$ItemTypeSerializer();
 
 class _$ItemTypeSerializer implements StructuredSerializer<ItemType> {
   @override
@@ -32,7 +32,7 @@ class _$ItemTypeSerializer implements StructuredSerializer<ItemType> {
   @override
   ItemType deserialize(Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ItemTypeBuilder();
+    final result = ItemTypeBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -64,19 +64,15 @@ class _$ItemType extends ItemType {
   final BuiltList<ItemTypeStructure> structure;
 
   factory _$ItemType([void Function(ItemTypeBuilder)? updates]) =>
-      (new ItemTypeBuilder()..update(updates))._build();
+      (ItemTypeBuilder()..update(updates))._build();
 
-  _$ItemType._({required this.type, required this.structure}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(type, r'ItemType', 'type');
-    BuiltValueNullFieldError.checkNotNull(structure, r'ItemType', 'structure');
-  }
-
+  _$ItemType._({required this.type, required this.structure}) : super._();
   @override
   ItemType rebuild(void Function(ItemTypeBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
-  ItemTypeBuilder toBuilder() => new ItemTypeBuilder()..replace(this);
+  ItemTypeBuilder toBuilder() => ItemTypeBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -113,7 +109,7 @@ class ItemTypeBuilder implements Builder<ItemType, ItemTypeBuilder> {
 
   ListBuilder<ItemTypeStructure>? _structure;
   ListBuilder<ItemTypeStructure> get structure =>
-      _$this._structure ??= new ListBuilder<ItemTypeStructure>();
+      _$this._structure ??= ListBuilder<ItemTypeStructure>();
   set structure(ListBuilder<ItemTypeStructure>? structure) =>
       _$this._structure = structure;
 
@@ -131,7 +127,6 @@ class ItemTypeBuilder implements Builder<ItemType, ItemTypeBuilder> {
 
   @override
   void replace(ItemType other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ItemType;
   }
 
@@ -148,17 +143,18 @@ class ItemTypeBuilder implements Builder<ItemType, ItemTypeBuilder> {
     _$ItemType _$result;
     try {
       _$result = _$v ??
-          new _$ItemType._(
-              type: BuiltValueNullFieldError.checkNotNull(
-                  type, r'ItemType', 'type'),
-              structure: structure.build());
+          _$ItemType._(
+            type: BuiltValueNullFieldError.checkNotNull(
+                type, r'ItemType', 'type'),
+            structure: structure.build(),
+          );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'structure';
         structure.build();
       } catch (e) {
-        throw new BuiltValueNestedFieldError(
+        throw BuiltValueNestedFieldError(
             r'ItemType', _$failedField, e.toString());
       }
       rethrow;

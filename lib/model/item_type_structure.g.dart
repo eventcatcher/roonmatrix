@@ -7,7 +7,7 @@ part of 'item_type_structure.dart';
 // **************************************************************************
 
 Serializer<ItemTypeStructure> _$itemTypeStructureSerializer =
-    new _$ItemTypeStructureSerializer();
+    _$ItemTypeStructureSerializer();
 
 class _$ItemTypeStructureSerializer
     implements StructuredSerializer<ItemTypeStructure> {
@@ -33,7 +33,7 @@ class _$ItemTypeStructureSerializer
   ItemTypeStructure deserialize(
       Serializers serializers, Iterable<Object?> serialized,
       {FullType specifiedType = FullType.unspecified}) {
-    final result = new ItemTypeStructureBuilder();
+    final result = ItemTypeStructureBuilder();
 
     final iterator = serialized.iterator;
     while (iterator.moveNext()) {
@@ -64,20 +64,16 @@ class _$ItemTypeStructure extends ItemTypeStructure {
 
   factory _$ItemTypeStructure(
           [void Function(ItemTypeStructureBuilder)? updates]) =>
-      (new ItemTypeStructureBuilder()..update(updates))._build();
+      (ItemTypeStructureBuilder()..update(updates))._build();
 
-  _$ItemTypeStructure._({required this.name, required this.type}) : super._() {
-    BuiltValueNullFieldError.checkNotNull(name, r'ItemTypeStructure', 'name');
-    BuiltValueNullFieldError.checkNotNull(type, r'ItemTypeStructure', 'type');
-  }
-
+  _$ItemTypeStructure._({required this.name, required this.type}) : super._();
   @override
   ItemTypeStructure rebuild(void Function(ItemTypeStructureBuilder) updates) =>
       (toBuilder()..update(updates)).build();
 
   @override
   ItemTypeStructureBuilder toBuilder() =>
-      new ItemTypeStructureBuilder()..replace(this);
+      ItemTypeStructureBuilder()..replace(this);
 
   @override
   bool operator ==(Object other) {
@@ -131,7 +127,6 @@ class ItemTypeStructureBuilder
 
   @override
   void replace(ItemTypeStructure other) {
-    ArgumentError.checkNotNull(other, 'other');
     _$v = other as _$ItemTypeStructure;
   }
 
@@ -146,11 +141,12 @@ class ItemTypeStructureBuilder
   _$ItemTypeStructure _build() {
     ItemTypeStructure._finalizeBuilder(this);
     final _$result = _$v ??
-        new _$ItemTypeStructure._(
-            name: BuiltValueNullFieldError.checkNotNull(
-                name, r'ItemTypeStructure', 'name'),
-            type: BuiltValueNullFieldError.checkNotNull(
-                type, r'ItemTypeStructure', 'type'));
+        _$ItemTypeStructure._(
+          name: BuiltValueNullFieldError.checkNotNull(
+              name, r'ItemTypeStructure', 'name'),
+          type: BuiltValueNullFieldError.checkNotNull(
+              type, r'ItemTypeStructure', 'type'),
+        );
     replace(_$result);
     return _$result;
   }

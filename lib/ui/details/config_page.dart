@@ -130,10 +130,13 @@ class ConfigPageState extends State<ConfigPage> {
                       type: fieldDefinition.type.type,
                       translations: translations);
                 },
-                validation: (String text) => mainBloc.validateText(
-                    text: text,
-                    fieldDefinition: fieldDefinition,
-                    type: fieldDefinition.type.type),
+                validation: (String text) =>
+                    fieldDefinition.noValidation == true
+                        ? true
+                        : mainBloc.validateText(
+                            text: text,
+                            fieldDefinition: fieldDefinition,
+                            type: fieldDefinition.type.type),
                 onChanged: (value) {
                   if (mounted) {
                     setState(() =>

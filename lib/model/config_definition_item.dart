@@ -9,6 +9,7 @@ abstract class ConfigDefinitionItem
     implements Built<ConfigDefinitionItem, ConfigDefinitionItemBuilder> {
   String get name;
   bool get editable;
+  bool get noValidation;
   ItemType get type;
   String get label;
   String get unit;
@@ -23,6 +24,7 @@ abstract class ConfigDefinitionItem
   // DEFAULTS
   static void _finalizeBuilder(ConfigDefinitionItemBuilder b) {
     b.editable ??= false;
+    b.noValidation ??= false;
     b.label ??= '';
     b.unit ??= '';
     b.value ??= '';
