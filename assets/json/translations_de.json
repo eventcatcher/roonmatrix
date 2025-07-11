@@ -160,6 +160,7 @@
         "datetime_show": "Zeige Datum und Zeit",
         "datetime_only_time": "Zeige nur die Zeit",
         "socket_timeout": "Socket Timeout",
+        "screensaver_seconds": "Bildschirmschoner Timeout",
         "conversions": "Sonderzeichen-Konvertierungen",
         "deg_to_compass": "Konvertierung Winkel in Windrichtung",
         "weather_description": "Wetter-Beschreibungstext [Weatherbit]",
