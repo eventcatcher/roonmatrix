@@ -321,7 +321,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   getFormattedDateString(
       {required String date,
       String languageCode = 'de',
-      String format = 'dd.MM.yyyy hh:mm:ss'}) {
+      String format = 'dd.MM.yyyy HH:mm:ss'}) {
     String formattedDate =
         DateFormat(format, languageCode).format(DateTime.parse(date));
 
