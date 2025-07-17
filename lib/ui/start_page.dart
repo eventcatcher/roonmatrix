@@ -2418,7 +2418,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                             const Duration(milliseconds: 400),
                                                                         child:
                                                                             Text(
-                                                                          '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'zone'}: ${i['playcount']}  ',
+                                                                          '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
                                                                           softWrap:
                                                                               true,
                                                                           maxLines:
