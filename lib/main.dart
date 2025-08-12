@@ -308,7 +308,7 @@ class RoonMatrixState extends State<RoonMatrix> {
 
     initializeDateFormatting('de_DE', null);
 
-    translationsBloc = TranslationsBloc();
+    translationsBloc = TranslationsBloc(fileRepository: fileRepository);
     settingsBloc = SettingsBloc();
     mainBloc = MainBloc(fileRepository: fileRepository);
 
@@ -415,7 +415,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                   aboutAppMessage: aboutAppMessage,
                   translations: translations),
               icon: const Icon(Icons.info),
-              text: Text(translations['menuEntryAbout'] ?? 'About'),
+              text: Text(translations['menuEntryAbout'] ?? 'About RoonMatrix'),
             ),
           ],
         ),

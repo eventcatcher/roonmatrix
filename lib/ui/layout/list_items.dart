@@ -55,7 +55,11 @@ class ListItemsState extends State<ListItems> {
   }
 
   returnJson(fieldValues) {
-    String json = jsonEncode(fieldValues).replaceAll('"', "'");
+    String json = jsonEncode(fieldValues)
+        .replaceAll('\'', '[q]')
+        .replaceAll('\\"', '[dq]')
+        .replaceAll('"', "'");
+
     widget.onChanged(json);
   }
 

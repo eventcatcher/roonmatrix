@@ -212,7 +212,9 @@ class ConfigPageState extends State<ConfigPage> {
           if (fieldType.startsWith('listItems')) {
             List<dynamic> json = jsonDecode(
                 (fieldValues[area.name][fieldDefinition.name] as String)
-                    .replaceAll("'", '"'));
+                    .replaceAll("'", '"')
+                    .replaceAll('[q]', "'")
+                    .replaceAll('[dq]', "\\\""));
             widgetField = ListItems(
               label: label,
               fieldValues: json,

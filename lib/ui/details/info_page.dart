@@ -148,7 +148,8 @@ class InfoPageState extends State<InfoPage> {
           if (translationsState is TranslationsStateLoaded) {
             translations = translationsState.translations;
             translationsLoaded = translationsState.translationsLoaded;
-            title = '$name : ${translations['infoPageHeaderText'] ?? 'Info'}';
+            title =
+                '$name : ${translations['infoPageHeaderText'] ?? 'Monitoring'}';
           }
 
           if (translationsState is! TranslationsStateLoaded ||

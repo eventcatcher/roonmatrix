@@ -194,6 +194,28 @@ class FileRepository {
   bool isStopAskingForPermissions() =>
       prefs.containsKey('stopAskingForPermissions');
 
+  Future<Directory>? fetchAppDataPath(
+      {StorageFolderType storageFolderType = StorageFolderType.APP}) async {
+    Directory? directory;
+
+    if (storageFolderType == StorageFolderType.EXTERNAL) {
+      directory = Platform.isIOS
+          ? await getTemporaryDirectory()
+          : await getExternalStorageDirectory();
+
+      // ignore:prefer_conditional_assignment
+      if (directory == null) {
+        directory = await getTemporaryDirectory();
+      }
+    } else if (storageFolderType == StorageFolderType.TEMP) {
+      directory = await getTemporaryDirectory();
+    } else {
+      directory = await getApplicationSupportDirectory();
+    }
+
+    return directory;
+  }
+
   Future<File?> saveFileFromUrl(
       {required String url,
       required String subFolder,
@@ -216,53 +238,40 @@ class FileRepository {
       }
 
       if (pG) {
-        if (storageFolderType == StorageFolderType.EXTERNAL) {
-          // if a download is interrupted, next try to download results in: OS Error: No such file or directory, errno = 2
-          // you need to wait a minute and try again. it should solve the problem.
-          directory = Platform.isIOS
-              ? await getTemporaryDirectory()
-              : await getExternalStorageDirectory();
-
-          // ignore:prefer_conditional_assignment
-          if (directory == null) {
-            directory = await getTemporaryDirectory();
+        directory =
+            await fetchAppDataPath(storageFolderType: storageFolderType);
+        if (directory != null) {
+          String newPath = '';
+          List<String> paths = directory.path.split('/');
+          for (int x = 1; x < paths.length; x++) {
+            String folder = paths[x];
+            if (folder != 'Android') {
+              newPath += '/$folder';
+            } else {
+              break;
+            }
           }
-        } else if (storageFolderType == StorageFolderType.TEMP) {
-          directory = await getTemporaryDirectory();
+          newPath += subFolder;
+
+          directory = Directory(newPath);
+          log('FileRepository/saveFile, path: ${directory.path}/$fileName');
+
+          saveFile = File('${directory.path}/$fileName');
+          if (saveFile.existsSync()) {
+            saveFile.deleteSync();
+            log('FileRepository/saveFile, existing file deleted');
+          }
+          if (!await directory.exists()) {
+            await directory.create(recursive: true);
+          }
+          await Dio().download(
+            url,
+            saveFile.path,
+          );
         } else {
-          directory = await getApplicationDocumentsDirectory();
+          log('permissions not granted error (url: $url, subFolder: $subFolder, fileName: $fileName, statusMap: ${statusMap.toString()})',
+              name: 'FileRepository/saveFile/error');
         }
-
-        String newPath = '';
-        List<String> paths = directory.path.split('/');
-        for (int x = 1; x < paths.length; x++) {
-          String folder = paths[x];
-          if (folder != 'Android') {
-            newPath += '/$folder';
-          } else {
-            break;
-          }
-        }
-        newPath += subFolder;
-
-        directory = Directory(newPath);
-        log('FileRepository/saveFile, path: ${directory.path}/$fileName');
-
-        saveFile = File('${directory.path}/$fileName');
-        if (saveFile.existsSync()) {
-          saveFile.deleteSync();
-          log('FileRepository/saveFile, existing file deleted');
-        }
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
-        await Dio().download(
-          url,
-          saveFile.path,
-        );
-      } else {
-        log('permissions not granted error (url: $url, subFolder: $subFolder, fileName: $fileName, statusMap: ${statusMap.toString()})',
-            name: 'FileRepository/saveFile/error');
       }
 
       return saveFile;

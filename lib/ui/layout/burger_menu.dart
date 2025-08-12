@@ -34,7 +34,7 @@ class BurgerMenuState extends State<BurgerMenu> {
 
     popupData.add(BurgerMenuItemData(
       key: "about",
-      name: widget.translations['menuEntryAbout'] ?? "About",
+      name: widget.translations['menuEntryAbout'] ?? "About RoonMatrix",
     ));
 
     popupData.add(BurgerMenuItemData(

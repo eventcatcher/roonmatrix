@@ -154,7 +154,9 @@ flutter:
   # svg
     - assets/svg/8-8-led-matrix-display-unit.svg
   # data
+    - assets/json/translations_en.json
     - assets/json/translations_de.json
+    - assets/json/translations_fr.json
 
   fonts:
     - family: Lightdot

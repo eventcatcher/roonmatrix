@@ -129,7 +129,7 @@ class ControlButtonsState extends State<ControlButtons> {
                             child: Tooltip(
                               message:
                                   translations['controlButtonPreviousText'] ??
-                                      'previous',
+                                      'previous track',
                               triggerMode: TooltipTriggerMode.manual,
                               verticalOffset: verticalOffset,
                               child: IconButton(
@@ -189,7 +189,7 @@ class ControlButtonsState extends State<ControlButtons> {
                             height: buttonSize,
                             child: Tooltip(
                               message: translations['controlButtonNextText'] ??
-                                  'next',
+                                  'next track',
                               triggerMode: TooltipTriggerMode.manual,
                               verticalOffset: verticalOffset,
                               child: IconButton(
