@@ -128,6 +128,7 @@
     "config": {
 		"hostname": "Nom d'hôte (important)",
         "password": "Mot de passe (important)",
+        "countrycode": "Code pays (code auto ou à 2 caractères ISO-639 Set 1)",
         "led_modules": "Modules LED",
         "led_block_orientation": "Orientation des blocs LED",
         "led_rotate": "Rotation des LED",
