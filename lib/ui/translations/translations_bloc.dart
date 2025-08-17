@@ -107,6 +107,7 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
         if (older < 0) {
           debugPrint('too old local saved translation => reload from server');
         } else {
+          debugPrint('get local saved translation');
           return localFile.readAsString();
         }
       }
