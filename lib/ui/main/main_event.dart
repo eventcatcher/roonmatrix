@@ -96,6 +96,20 @@ class ZoneControl extends MainEvent {
   List<Object> get props => [ip, controlId, cmd, enable];
 }
 
+class SetSpotifyAuthRedirectUrl extends MainEvent {
+  final String ip;
+
+  final String url;
+
+  const SetSpotifyAuthRedirectUrl({
+    required this.ip,
+    required this.url,
+  });
+
+  @override
+  List<Object> get props => [ip, url];
+}
+
 class SetIpRange extends MainEvent {
   final String? ipStart;
   final String? ipEnd;

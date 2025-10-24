@@ -72,6 +72,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: state.idle,
           subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -92,6 +93,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: state.idle,
           subPageIdle: state.subPageIdle,
           logMessage: logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -160,6 +162,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: false,
           subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -185,6 +188,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: state.idle,
           subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -208,6 +212,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: state.idle,
           subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -232,6 +237,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: idle,
           subPageIdle: state.subPageIdle,
           logMessage: state.logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
 
         searchDevices();
@@ -254,6 +260,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: state.idle,
           subPageIdle: true,
           logMessage: state.logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
 
         try {
@@ -270,6 +277,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
                 Map<String, dynamic> info =
                     Map<String, dynamic>.from(state.info);
+                Map<String, dynamic> spotifyAuthUrls =
+                    Map<String, dynamic>.from(state.spotifyAuthUrls);
+
+                String spotifyAuthUrl = '';
+                if (json.containsKey('spotify_auth_url')) {
+                  spotifyAuthUrl = json['spotify_auth_url'];
+                  spotifyAuthUrls[ip] = spotifyAuthUrl;
+                  json.remove('spotify_auth_url');
+                }
+
                 info[ip] = json;
 
                 emit(MainStateLoaded(
@@ -286,6 +303,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   idle: state.idle,
                   subPageIdle: false,
                   logMessage: state.logMessage,
+                  spotifyAuthUrls: spotifyAuthUrls,
                 ));
               }
             }
@@ -307,6 +325,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               idle: state.idle,
               subPageIdle: false,
               logMessage: state.logMessage,
+              spotifyAuthUrls: state.spotifyAuthUrls,
             ));
           }
         } catch (e) {
@@ -327,6 +346,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             idle: state.idle,
             subPageIdle: false,
             logMessage: state.logMessage,
+            spotifyAuthUrls: state.spotifyAuthUrls,
           ));
         }
       }
@@ -348,6 +368,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: state.idle,
           subPageIdle: true,
           logMessage: state.logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
 
         try {
@@ -381,6 +402,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   idle: state.idle,
                   subPageIdle: false,
                   logMessage: state.logMessage,
+                  spotifyAuthUrls: state.spotifyAuthUrls,
                 ));
               }
             }
@@ -402,6 +424,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               idle: state.idle,
               subPageIdle: false,
               logMessage: state.logMessage,
+              spotifyAuthUrls: state.spotifyAuthUrls,
             ));
           }
         } catch (e) {
@@ -422,6 +445,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             idle: state.idle,
             subPageIdle: false,
             logMessage: state.logMessage,
+            spotifyAuthUrls: state.spotifyAuthUrls,
           ));
         }
       }
@@ -444,6 +468,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           idle: state.idle,
           subPageIdle: true,
           logMessage: state.logMessage,
+          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
 
         Map<String, String> headers = {
@@ -476,6 +501,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 idle: state.idle,
                 subPageIdle: false,
                 logMessage: state.logMessage,
+                spotifyAuthUrls: state.spotifyAuthUrls,
               ));
             }
           } catch (e) {
@@ -496,6 +522,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               idle: state.idle,
               subPageIdle: false,
               logMessage: state.logMessage,
+              spotifyAuthUrls: state.spotifyAuthUrls,
             ));
           }
         } catch (e) {
@@ -516,6 +543,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             idle: state.idle,
             subPageIdle: false,
             logMessage: state.logMessage,
+            spotifyAuthUrls: state.spotifyAuthUrls,
           ));
         }
       }
@@ -568,6 +596,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                     idle: state.idle,
                     subPageIdle: state.subPageIdle,
                     logMessage: state.logMessage,
+                    spotifyAuthUrls: state.spotifyAuthUrls,
                   ));
                 }
               }
@@ -584,6 +613,70 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           if (kDebugMode) {
             debugPrint('ZoneControl error: $e');
+          }
+        }
+      }
+
+      if (event is SetSpotifyAuthRedirectUrl) {
+        String ip = event.ip;
+        String url = event.url;
+
+        Map<String, String> headers = {
+          "Content-Type": 'application/json; charset=utf-8',
+          "Accept": 'application/json',
+        };
+
+        Map<String, dynamic> payload = {
+          "url": url,
+        };
+
+        try {
+          String url = 'http://$ip:$port/spotify_auth_redirect_url/';
+          Uri uri = Uri.parse(url);
+          try {
+            if (kDebugMode) {
+              debugPrint('send spotify_auth_redirect_url => payload: $payload');
+            }
+            var response = await client.post(uri,
+                headers: headers, body: json.encode(payload));
+
+            if (response.statusCode == 200) {
+              String success = response.body;
+              if (kDebugMode) {
+                debugPrint(
+                    'send spotify_auth_redirect_url => response: $success');
+              }
+
+              Map<String, dynamic> spotifyAuthUrls =
+                  Map<String, dynamic>.from(state.spotifyAuthUrls);
+              spotifyAuthUrls[ip] = '*';
+
+              emit(MainStateLoaded(
+                update: DateTime.now(),
+                ipStart: state.ipStart,
+                ipEnd: state.ipEnd,
+                searchFilter: state.searchFilter,
+                devices: state.devices,
+                info: state.info,
+                config: state.config,
+                definitions: state.definitions,
+                fieldValues: state.fieldValues,
+                log: state.log,
+                idle: state.idle,
+                subPageIdle: state.subPageIdle,
+                logMessage: state.logMessage,
+                spotifyAuthUrls: spotifyAuthUrls,
+              ));
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint(
+                  'SetSpotifyAuthRedirectUrl error by access to $url: $e');
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('SetSpotifyAuthRedirectUrl error: $e');
           }
         }
       }
@@ -680,6 +773,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     if (fieldDefinition.editable == true) {
       fieldType = 'text';
 
+      if (fieldDefinition.type.type.startsWith('multiline')) {
+        fieldType = 'multiline-text';
+      }
+
       if (fieldDefinition.type.type.startsWith('int')) {
         fieldType = 'int';
       }
@@ -737,6 +834,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                     bool.parse(area[fieldKey].toString().toLowerCase());
               }
               if (fieldType == 'text' ||
+                  fieldType == 'multiline-text' ||
                   fieldType.startsWith('list') ||
                   fieldType == 'keyValItems') {
                 fieldValues[areaKey][fieldKey] = area[fieldKey];
@@ -912,7 +1010,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
           }
 
-          if (fieldType.startsWith('string')) {
+          if (fieldType.startsWith('string') || fieldType.endsWith('string')) {
             bool itemValid =
                 validateText(text: fieldValues[idx][key], type: fieldType);
             if (itemValid == false) {
@@ -1153,7 +1251,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (i['control_id'] != null) {
             String controlId = i['control_id'];
             if (i['channels'] != null && i['channels'][controlId] != null) {
-              if (i['channels'][controlId] == 'webserver') {
+              if (i['channels'][controlId] == 'webserver' ||
+                  i['channels'][controlId] == 'spotifyconnect') {
                 zoneName = controlId;
               } else {
                 zoneName = i['channels'][controlId];
@@ -1358,7 +1457,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     if (controlId != null &&
         controlId.isNotEmpty &&
         channels.keys.contains(controlId)) {
-      if (channels[controlId] == 'webserver') {
+      if (channels[controlId] == 'webserver' ||
+          channels[controlId] == 'spotifyconnect') {
         List<String> controlIdParts = controlId.split('-');
         String serverName = controlIdParts[0];
         String zoneName = controlIdParts[1];
@@ -1533,6 +1633,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       required String cmd,
       bool enable = false}) {
     add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd, enable: enable));
+  }
+
+  void setSpotifyAuthRedirectUrl({
+    required String ip,
+    required String url,
+  }) {
+    print('setSpotifyAuthRedirectUrl => ip: $ip, url: $url');
+    add(SetSpotifyAuthRedirectUrl(ip: ip, url: url));
   }
 
   void setSearchFilter({required String type, required String filter}) {

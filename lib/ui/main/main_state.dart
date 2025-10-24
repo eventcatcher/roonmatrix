@@ -15,6 +15,7 @@ abstract class MainState extends Equatable {
   final bool idle;
   final bool subPageIdle;
   final String logMessage;
+  final Map<String, dynamic> spotifyAuthUrls;
 
   const MainState({
     this.update,
@@ -30,6 +31,7 @@ abstract class MainState extends Equatable {
     this.idle = false,
     this.subPageIdle = false,
     this.logMessage = '',
+    this.spotifyAuthUrls = const {},
   });
 
   @override
@@ -44,6 +46,7 @@ abstract class MainState extends Equatable {
       idle,
       subPageIdle,
       logMessage,
+      spotifyAuthUrls,
     ];
 
     if (ipStart != null) {
@@ -88,6 +91,7 @@ class MainStateLoaded extends MainState {
     required super.idle,
     required super.subPageIdle,
     required super.logMessage,
+    required super.spotifyAuthUrls,
   });
 
   @override

@@ -111,7 +111,8 @@ class MapListItemsState extends State<MapListItems> {
               return mainBloc.validateUrl(text: text, type: fieldType);
             }
 
-            if (fieldType.startsWith('string')) {
+            if (fieldType.startsWith('string') ||
+                fieldType.endsWith('string')) {
               return mainBloc.validateText(text: text, type: fieldType);
             }
 

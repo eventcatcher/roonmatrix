@@ -1,0 +1,199 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/details/web_page_display.dart';
+import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
+import 'package:roonmatrix/ui/translations/translations_bloc.dart';
+import 'package:roonmatrix/ui/translations/translations_state.dart';
+
+class SpotifyConnectWebAuthPage extends StatefulWidget {
+  final String name;
+  final String ip;
+  final String url;
+  final Function({required String url}) callbackUrl;
+  final VoidCallback close;
+
+  const SpotifyConnectWebAuthPage({
+    super.key,
+    required this.name,
+    required this.ip,
+    required this.url,
+    required this.callbackUrl,
+    required this.close,
+  });
+
+  @override
+  State<SpotifyConnectWebAuthPage> createState() =>
+      SpotifyConnectWebAuthPageState();
+}
+
+class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
+  String get name => widget.name;
+  String get ip => widget.ip;
+  VoidCallback get close => widget.close;
+
+  Map<String, dynamic> translations = {};
+  String title = '';
+  bool translationsLoaded = false;
+  bool saveIdle = false;
+
+  late TranslationsBloc translationsBloc;
+  late MainBloc mainBloc;
+
+  @override
+  void initState() {
+    title =
+        '$name : ${translations['spotifyConnectAuthText'] ?? 'Spotify Connect Authorize'}';
+
+    translationsBloc = BlocProvider.of<TranslationsBloc>(context);
+    mainBloc = BlocProvider.of<MainBloc>(context);
+    mainBloc.getInfo(ip: ip);
+
+    super.initState();
+  }
+
+  Widget body({
+    required BuildContext context,
+    required MainState mainState,
+    required String url,
+  }) =>
+      Column(
+        children: [
+          Expanded(
+            child: mainState.subPageIdle == true
+                ? const LoadingIndicatorSmall()
+                : WebPageDisplay(
+                    title: 'URL: $url',
+                    url: url,
+                    translations: translations,
+                    callbackUrl: widget.callbackUrl),
+          ),
+          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder(
+        bloc: translationsBloc,
+        builder: (context, TranslationsState translationsState) {
+          if (translationsState is TranslationsStateLoaded) {
+            translations = translationsState.translations;
+            translationsLoaded = translationsState.translationsLoaded;
+            title =
+                '$name : ${translations['spotifyConnectAuthText'] ?? 'Spotify Connect Authorize'}';
+          }
+
+          if (translationsState is! TranslationsStateLoaded ||
+              !translationsLoaded) {
+            if (SharedWidgets.inIosStyle()) {
+              return CupertinoPageScaffold(
+                navigationBar: CupertinoNavigationBar(
+                  brightness: SharedWidgets.brightness(),
+                  middle: Text(title),
+                ),
+                child: SizedBox(),
+              );
+            }
+            return SharedWidgets.inMacosStyle()
+                ? MacosScaffold(
+                    toolBar: ToolBar(
+                      title: Text(title),
+                      titleWidth: 200.0,
+                      leading: MacosBackButton(
+                        onPressed: () => Navigator.pop(context),
+                        fillColor: Colors.transparent,
+                      ),
+                      actions: [],
+                    ),
+                    children: [
+                      ContentArea(
+                        builder: ((context, scrollController) {
+                          return MacosWindow(
+                            child: Material(
+                              child: SizedBox(),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  )
+                : Scaffold(
+                    appBar: AppBar(
+                      title: Text(title),
+                    ),
+                    body: const SizedBox());
+          }
+
+          return BlocBuilder(
+              bloc: mainBloc,
+              builder: (context, MainState mainState) {
+                if (mainState is! MainStateLoaded) {
+                  return Container();
+                }
+
+                if (SharedWidgets.inIosStyle()) {
+                  return CupertinoPageScaffold(
+                    navigationBar: CupertinoNavigationBar(
+                      brightness: SharedWidgets.brightness(),
+                      middle: Text(title),
+                      leading: CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        child: CupertinoNavigationBarBackButton(),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    child: SafeArea(
+                      child: body(
+                          context: context,
+                          mainState: mainState,
+                          url: widget.url),
+                    ),
+                  );
+                }
+
+                return SharedWidgets.inMacosStyle()
+                    ? MacosScaffold(
+                        toolBar: ToolBar(
+                          title: Text(title),
+                          titleWidth: 1000.0,
+                          leading: MacosBackButton(
+                            onPressed: () => Navigator.pop(context),
+                            fillColor: Colors.transparent,
+                          ),
+                          actions: [],
+                        ),
+                        children: [
+                          ContentArea(
+                            builder: ((context, scrollController) {
+                              return Material(
+                                child: MacosWindow(
+                                  child: body(
+                                      context: context,
+                                      mainState: mainState,
+                                      url: widget.url),
+                                ),
+                              );
+                            }),
+                          ),
+                        ],
+                      )
+                    : Scaffold(
+                        appBar: AppBar(
+                          title: Text(title),
+                          actions: const [],
+                        ),
+                        body: body(
+                            context: context,
+                            mainState: mainState,
+                            url: widget.url),
+                      );
+              });
+        });
+  }
+}

@@ -43,6 +43,27 @@ class SharedWidgets {
     return showSelectBoxInMacStyle == true && inMacosStyle();
   }
 
+  static String getZoneIcon({required String zoneName}) {
+    if (zoneName.endsWith('-SpotifyConnect')) {
+      return 'assets/icon/spotifyconnect.png';
+    }
+    if (zoneName.endsWith('-Spotify')) {
+      return 'assets/icon/spotify.png';
+    }
+    if (zoneName.endsWith('-Apple Music')) {
+      return 'assets/icon/applemusic.png';
+    }
+
+    return 'assets/icon/roon.png';
+  }
+
+  static String getZoneNameWithoutType({required String zoneName}) {
+    return zoneName
+        .replaceFirst('-SpotifyConnect', '')
+        .replaceFirst('-Spotify', '')
+        .replaceFirst('-Apple Music', '');
+  }
+
   static List<Widget> labelWidget(
           {required String? label, Color? labelColor}) =>
       label != null

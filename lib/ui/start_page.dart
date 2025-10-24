@@ -18,6 +18,7 @@ import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
+import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
 import 'package:roonmatrix/ui/helper/animated_list_helper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
@@ -87,6 +88,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Map<String, dynamic> info = {};
   Map<String, dynamic> translations = {};
   List<String> devices = [];
+  Map<String, dynamic> spotifyAuthUrls = {};
 
   ObstructingPreferredSizeWidget? iosNavigationBar;
   double? appBarHeight;
@@ -351,7 +353,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       if (controlId != null &&
           controlId.isNotEmpty &&
           channels.keys.contains(controlId)) {
-        if (channels[controlId] == 'webserver') {
+        if (channels[controlId] == 'webserver' ||
+            channels[controlId] == 'spotifyconnect') {
           List<String> controlIdParts = info['control_id'].split('-');
           String serverName = controlIdParts[0];
           String zoneName = controlIdParts[1];
@@ -500,7 +503,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       //     info[info.keys.first]['roon_playouts'];
       // for (String channelId in channels.keys) {
       //   String channelName = channels[channelId];
-      //   if (channels[channelId] != 'webserver' &&
+      //   if (channels[channelId] != 'webserver' && channels[channelId] != 'spotifyconnect'
       //       !roonPlayouts.keys.contains(channelName)) {
       //     buttons.add(zoneNotRunningStartButton(
       //         ip: info.keys.first, id: channelId, name: channelName));
@@ -510,8 +513,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       for (String serverName in webPlayouts.keys) {
         List<dynamic> zones = webPlayouts[serverName];
         for (dynamic zone in zones) {
-          String zoneName = '$serverName-${zone['zone']}';
-          if (zone['status'] == 'not running') {
+          if (zone != null &&
+              zone['status'] == 'not running' &&
+              zone['zone'] != 'SpotifyConnect') {
+            String zoneName = '$serverName-${zone['zone']}';
+
             String? controlId =
                 channels.keys.firstWhereOrNull((el) => el == zoneName);
 
@@ -555,16 +561,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         for (String serverName in webPlayouts.keys) {
           List<dynamic> zones = webPlayouts[serverName];
           for (dynamic zone in zones) {
-            String zoneName = '$serverName-${zone['zone']}';
+            if (zone != null) {
+              String zoneName = '$serverName-${zone['zone']}';
 
-            CoverModel? coverModel = getWebCoverModel(
-              channels: channels,
-              zoneName: zoneName,
-              zone: zone,
-              idle: false,
-            );
-            if (coverModel != null) {
-              covers.add(coverModel);
+              CoverModel? coverModel = getWebCoverModel(
+                channels: channels,
+                zoneName: zoneName,
+                zone: zone,
+                idle: false,
+              );
+              if (coverModel != null) {
+                covers.add(coverModel);
+              }
             }
           }
         }
@@ -584,16 +592,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         for (String serverName in webPlayouts.keys) {
           List<dynamic> zones = webPlayouts[serverName];
           for (dynamic zone in zones) {
-            String zoneName = '$serverName-${zone['zone']}';
+            if (zone != null) {
+              String zoneName = '$serverName-${zone['zone']}';
 
-            CoverModel? coverModel = getWebCoverModel(
-              channels: channels,
-              zoneName: zoneName,
-              zone: zone,
-              idle: true,
-            );
-            if (coverModel != null) {
-              covers.add(coverModel);
+              CoverModel? coverModel = getWebCoverModel(
+                channels: channels,
+                zoneName: zoneName,
+                zone: zone,
+                idle: true,
+              );
+              if (coverModel != null) {
+                covers.add(coverModel);
+              }
             }
           }
         }
@@ -912,6 +922,17 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0, vertical: 4.0),
+                  child: Image(
+                    image: AssetImage(
+                      SharedWidgets.getZoneIcon(zoneName: coverModel.zoneName),
+                    ),
+                    width: 48,
+                    height: 48,
+                  ),
+                ),
                 Container(
                   padding: EdgeInsets.all(8.0),
                   child: Align(
@@ -933,7 +954,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                     coverRowAlbum == true)
                             ? getTextArea(coverModel)
                             : Text(
-                                '${translations['zoneSelectionLabel'] ?? 'Zone'}: ${coverModel.zoneName}${coverRowTrack == true && coverModel.track.isNotEmpty && constraints.maxHeight > 169 ? ', ${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
+                                '${translations['zoneSelectionLabel'] ?? 'Zone'}: ${SharedWidgets.getZoneNameWithoutType(zoneName: coverModel.zoneName)}${coverRowTrack == true && coverModel.track.isNotEmpty && constraints.maxHeight > 169 ? ', ${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
                                 style: TextStyle(
                                   fontSize:
                                       constraints.maxHeight > 250 ? 12.0 : 9.0,
@@ -1305,10 +1326,64 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   List<Widget> mobileButtons({
     required String zoneName,
     required String ip,
+    required String spotifyAuthUrl,
     required Map<String, dynamic> zoneData,
     required Function getExpandableMenuController,
   }) =>
       [
+        if (spotifyAuthUrl != '*')
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: CircleAvatar(
+              radius: 15,
+              backgroundColor: CupertinoColors.activeOrange.color,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  ExpandableMenuController? expandableMenuController =
+                      getExpandableMenuController();
+
+                  if (expandableMenuController != null) {
+                    expandableMenuController.close();
+                  }
+                  Future<void>.delayed(Duration(milliseconds: 500))
+                      .then((value) => mounted
+                          ? showGeneralDialog(
+                              context: context,
+                              // barrierColor: Colors
+                              //     .black12
+                              //     .withOpacity(0.6), // Background color
+                              barrierDismissible: false,
+                              barrierLabel:
+                                  translations['spotifyConnectAuthText'] ??
+                                      'Spotify Connect Authorize',
+                              transitionDuration:
+                                  const Duration(milliseconds: 0),
+                              pageBuilder: (_, __, ___) {
+                                return SpotifyConnectWebAuthPage(
+                                  name: zoneData['name'],
+                                  ip: ip,
+                                  url: spotifyAuthUrl,
+                                  callbackUrl: ({required String url}) {
+                                    mainBloc.setSpotifyAuthRedirectUrl(
+                                        ip: ip, url: url);
+                                    Navigator.pop(context);
+                                  },
+                                  close: () {
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            )
+                          : null);
+                },
+                icon: const Icon(
+                  Icons.phone_enabled,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: CircleAvatar(
@@ -1488,6 +1563,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   List<Widget> mobileButtonsForDebugging({
     required String zoneName,
     required String ip,
+    required String spotifyAuthUrl,
     required Map<String, dynamic> zoneData,
     required Function getExpandableMenuController,
   }) =>
@@ -1635,6 +1711,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
                     devices = mainState.devices;
                     info = mainState.info;
+                    spotifyAuthUrls = mainState.spotifyAuthUrls;
                     idle = mainState.idle;
 
                     zoneNotRunningButtons =
@@ -1844,6 +1921,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 int index) {
                                               Map<String, dynamic> i =
                                                   info[devices[index]];
+                                              String spotifyAuthUrl =
+                                                  spotifyAuthUrls[
+                                                          devices[index]] ??
+                                                      '*';
 
                                               String scrollText = replaceCodes(
                                                   i['app_displaystr'] ?? '');
@@ -1922,6 +2003,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   ...mobileButtonsForDebugging(
                                                     zoneName: zoneName,
                                                     ip: devices[index],
+                                                    spotifyAuthUrl:
+                                                        spotifyAuthUrl,
                                                     zoneData: i,
                                                     getExpandableMenuController:
                                                         getExpandableMenuController,
@@ -1929,6 +2012,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   ...mobileButtons(
                                                     zoneName: zoneName,
                                                     ip: devices[index],
+                                                    spotifyAuthUrl:
+                                                        spotifyAuthUrl,
                                                     zoneData: i,
                                                     getExpandableMenuController:
                                                         getExpandableMenuController,
@@ -2099,6 +2184,61 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                           TextOverflow
                                                                               .fade,
                                                                     ),
+                                                                    if (spotifyAuthUrl !=
+                                                                        '*')
+                                                                      Padding(
+                                                                        padding: const EdgeInsets
+                                                                            .only(
+                                                                            left:
+                                                                                8.0),
+                                                                        child:
+                                                                            IconButtonElement(
+                                                                          label:
+                                                                              translations['spotifyConnectAuthText'] ?? 'Spotify Connect Authorize',
+                                                                          noBackground:
+                                                                              false,
+                                                                          withCircle:
+                                                                              true,
+                                                                          moreInfo:
+                                                                              true,
+                                                                          icon:
+                                                                              Icon(
+                                                                            Icons.phone_enabled,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                          onPressed: () =>
+                                                                              showGeneralDialog(
+                                                                            context:
+                                                                                context,
+                                                                            // barrierColor: Colors
+                                                                            //     .black12
+                                                                            //     .withOpacity(0.6), // Background color
+                                                                            barrierDismissible:
+                                                                                false,
+                                                                            barrierLabel:
+                                                                                'Dialog',
+                                                                            transitionDuration:
+                                                                                const Duration(milliseconds: 0),
+                                                                            pageBuilder: (_,
+                                                                                __,
+                                                                                ___) {
+                                                                              return SpotifyConnectWebAuthPage(
+                                                                                name: i['name'],
+                                                                                ip: devices[index],
+                                                                                url: spotifyAuthUrl,
+                                                                                callbackUrl: ({required String url}) {
+                                                                                  mainBloc.setSpotifyAuthRedirectUrl(ip: devices[index], url: url);
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                                close: () {
+                                                                                  Navigator.pop(context);
+                                                                                },
+                                                                              );
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                      ),
                                                                     Padding(
                                                                       padding: const EdgeInsets
                                                                           .only(
@@ -2666,81 +2806,86 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                               if (SharedWidgets.inIosStyle() &&
                                   orientation == Orientation.portrait)
                                 SizedBox(height: exportButtonPaddingIos),
-                              if (showExportButton == true)
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                      vertical: Platform.isMacOS ||
-                                              Platform.isWindows ||
-                                              Platform.isLinux
-                                          ? 16.0
-                                          : 0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconTextButtonElement(
-                                        onMacAsText: true,
-                                        icon: const Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 8.0),
-                                          child: Icon(
-                                            Icons.download,
-                                            color: Colors.white,
-                                            size: 20.0,
-                                          ),
-                                        ),
-                                        label:
-                                            translations['exportButtonText'] ??
-                                                'export',
-                                        onPressed: saveIdle == true ||
-                                                idle == true ||
-                                                devices.isEmpty
-                                            ? null
-                                            : () async {
-                                                setState(() {
-                                                  saveIdle = true;
-                                                });
-                                                bool? valid = await mainBloc
-                                                    .exportDevicesData();
-                                                setState(() {
-                                                  saveIdle = false;
-                                                });
-                                                if (valid == null) {
-                                                  return;
-                                                }
 
-                                                SharedWidgets.showSnackBar(
-                                                    // ignore: use_build_context_synchronously
-                                                    context: context,
-                                                    doneMessage: translations[
-                                                            'exportDoneMessage'] ??
-                                                        'export successfully done',
-                                                    failMessage: translations[
-                                                            'exportFailedMessage'] ??
-                                                        'export failed!',
-                                                    valid: valid);
-                                              },
-                                      ),
-                                      if (SharedWidgets.isDesktopDevice() &&
-                                          zoneNotRunningButtons.isNotEmpty) ...[
-                                        Spacer(),
-                                        Text(translations['startZone'] ??
-                                            'start'),
-                                        SingleChildScrollView(
-                                          scrollDirection: Axis.horizontal,
-                                          physics:
-                                              AlwaysScrollableScrollPhysics(),
-                                          child: Row(
-                                            children:
-                                                getZonesNotRunningStartButtons(
-                                                    info),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                    vertical: Platform.isMacOS ||
+                                            Platform.isWindows ||
+                                            Platform.isLinux
+                                        ? 16.0
+                                        : 0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (showExportButton == true)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 8.0),
+                                        child: IconTextButtonElement(
+                                          onMacAsText: true,
+                                          icon: const Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 8.0),
+                                            child: Icon(
+                                              Icons.download,
+                                              color: Colors.white,
+                                              size: 20.0,
+                                            ),
                                           ),
+                                          label: translations[
+                                                  'exportButtonText'] ??
+                                              'export',
+                                          onPressed: saveIdle == true ||
+                                                  idle == true ||
+                                                  devices.isEmpty
+                                              ? null
+                                              : () async {
+                                                  setState(() {
+                                                    saveIdle = true;
+                                                  });
+                                                  bool? valid = await mainBloc
+                                                      .exportDevicesData();
+                                                  setState(() {
+                                                    saveIdle = false;
+                                                  });
+                                                  if (valid == null) {
+                                                    return;
+                                                  }
+
+                                                  SharedWidgets.showSnackBar(
+                                                      // ignore: use_build_context_synchronously
+                                                      context: context,
+                                                      doneMessage: translations[
+                                                              'exportDoneMessage'] ??
+                                                          'export successfully done',
+                                                      failMessage: translations[
+                                                              'exportFailedMessage'] ??
+                                                          'export failed!',
+                                                      valid: valid);
+                                                },
                                         ),
-                                      ],
+                                      ),
+                                    if (SharedWidgets.isDesktopDevice() &&
+                                        zoneNotRunningButtons.isNotEmpty) ...[
+                                      Spacer(),
+                                      Text(
+                                          translations['startZone'] ?? 'start'),
+                                      SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        physics:
+                                            AlwaysScrollableScrollPhysics(),
+                                        child: Row(
+                                          children:
+                                              getZonesNotRunningStartButtons(
+                                                  info),
+                                        ),
+                                      ),
                                     ],
-                                  ),
+                                  ],
                                 ),
+                              ),
                               if (SharedWidgets.inIosStyle() &&
                                   orientation == Orientation.portrait)
                                 SizedBox(height: exportButtonPaddingIos),

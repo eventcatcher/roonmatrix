@@ -72,6 +72,7 @@ dependencies:
   web_socket_channel: ^3.0.3
   crypto: ^3.0.6
   updatable_ticker: ^1.0.5
+  flutter_inappwebview: ^6.1.5
 
 dependency_overrides:
 
@@ -153,6 +154,11 @@ flutter:
   assets:
   # svg
     - assets/svg/8-8-led-matrix-display-unit.svg
+  # png
+    - assets/icon/roon.png
+    - assets/icon/spotify.png
+    - assets/icon/spotifyconnect.png
+    - assets/icon/applemusic.png
   # data
     - assets/json/translations_en.json
     - assets/json/translations_de.json

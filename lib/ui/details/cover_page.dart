@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, BlocProvider;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/helper/string_casing_extension.dart';
 import 'package:roonmatrix/ui/layout/control_buttons.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
@@ -42,7 +43,7 @@ class _CoverPageState extends State<CoverPage> {
       Platform.isMacOS || Platform.isWindows || Platform.isLinux ? 20.0 : 16.0;
 
   Map<String, dynamic> info = {};
-  Map<String, dynamic> channels = {};
+  Map<String, dynamic> optionschannels = {};
   Map<String, String> options = {};
   Map<String, dynamic> webPlayoutsRaw = {};
   Map<String, dynamic> roonPlayoutsRaw = {};
@@ -53,6 +54,7 @@ class _CoverPageState extends State<CoverPage> {
   bool idle = false;
   bool shuffle = false;
   bool repeat = false;
+  bool isRadio = false;
 
   late MainBloc mainBloc;
 
@@ -79,7 +81,8 @@ class _CoverPageState extends State<CoverPage> {
       }
 
       if (controlId != null && channels.containsKey(controlId)) {
-        if (channels[controlId] == 'webserver') {
+        if (channels[controlId] == 'webserver' ||
+            channels[controlId] == 'spotifyconnect') {
           selectedZoneId = controlId;
         } else {
           selectedZoneId = channels[controlId]!;
@@ -89,7 +92,7 @@ class _CoverPageState extends State<CoverPage> {
 
     Map<String, String> roonOptions = {};
     for (String key in channels.keys) {
-      if (channels[key] != 'webserver') {
+      if (channels[key] != 'webserver' && channels[key] != 'spotifyconnect') {
         String zoneName = channels[key]!;
         if ((info['roon_playouts'] as Map).containsKey(zoneName)) {
           roonOptions.putIfAbsent(zoneName, () => key);
@@ -101,7 +104,7 @@ class _CoverPageState extends State<CoverPage> {
 
     Map<String, String> webOptions = {};
     for (String key in channels.keys) {
-      if (channels[key] == 'webserver') {
+      if (channels[key] == 'webserver' || channels[key] == 'spotifyconnect') {
         List<String> controlIdParts = key.split('-');
         String serverName = controlIdParts[0];
         String zoneName = controlIdParts[1];
@@ -133,7 +136,8 @@ class _CoverPageState extends State<CoverPage> {
     if (controlId != null &&
         controlId.isNotEmpty &&
         channels.keys.contains(controlId)) {
-      if (channels[controlId] == 'webserver') {
+      if (channels[controlId] == 'webserver' ||
+          channels[controlId] == 'spotifyconnect') {
         List<String> controlIdParts = controlId.split('-');
         String serverName = controlIdParts[0];
         String zoneName = controlIdParts[1];
@@ -141,8 +145,16 @@ class _CoverPageState extends State<CoverPage> {
           List<dynamic> zones = info['web_playouts'][serverName];
           zone = zones.firstWhereOrNull(
               (dynamic el) => (el['zone'] as String) == zoneName);
+
           if (zone != null) {
             zone['server'] = serverName;
+            isRadio = zone['zone'] == 'Apple Music' &&
+                zone['sourcetype'] == 'stream' &&
+                zone['position'] ==
+                    '0'; // if this is a radio stream, set this prop to true (at the moment a radio stream is recognized by sourcetype is stream and playpos is 0, because playpos is not counting on radio streams)
+            zone['is_radio'] = isRadio;
+            debugPrint(
+                'zone: ${zone['zone']}, sourcetype: ${zone['sourcetype']}, playpos: ${zone['position']} => is_radio: $isRadio');
           }
         }
       } else {
@@ -152,6 +164,8 @@ class _CoverPageState extends State<CoverPage> {
           if (zone != null) {
             zone['zone'] = zoneName;
             zone['server'] = 'roon';
+            isRadio = false;
+            zone['is_radio'] = isRadio;
           }
         }
       }
@@ -166,6 +180,14 @@ class _CoverPageState extends State<CoverPage> {
         selectedZone!['cover'] == null) {
       return Row(
         children: [
+          Image(
+            image: AssetImage(
+              SharedWidgets.getZoneIcon(
+                  zoneName: '-${selectedZone?['zone'] ?? name}'),
+            ),
+            width: 48,
+            height: 48,
+          ),
           Padding(
             padding:
                 const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 104.0),
@@ -185,114 +207,145 @@ class _CoverPageState extends State<CoverPage> {
     if (selectedZone != null &&
         selectedZone!.isNotEmpty &&
         selectedZone!['artist'] != null) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
-        child: Table(
-          columnWidths: {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TableRow(children: [
-              TableCell(
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${translations['coverZoneHeader'] ?? 'Zone'}: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSize,
-                      color: Colors.black,
-                    ),
-                  ),
+            Container(
+              padding: EdgeInsets.only(left: 16.0, bottom: 16.0),
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Image.asset(
+                  SharedWidgets.getZoneIcon(
+                      zoneName: '-${selectedZone!['zone']}'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              TableCell(
-                child: Text(
-                  selectedZone!['zone'] != null
-                      ? '${selectedZone!['zone']}${idle ? ' (${translations['paused'] ?? 'paused'})' : ''}'
-                      : '',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                    color: Colors.black,
-                  ),
+            ),
+            Expanded(
+              child: Padding(
+                padding:
+                    const EdgeInsets.only(left: 8.0, right: 16.0, bottom: 16.0),
+                child: Table(
+                  columnWidths: {
+                    0: IntrinsicColumnWidth(),
+                    1: FlexColumnWidth()
+                  },
+                  children: [
+                    TableRow(children: [
+                      Table(columnWidths: {
+                        0: IntrinsicColumnWidth(),
+                        1: FlexColumnWidth()
+                      }, children: [
+                        TableRow(children: [
+                          TableCell(
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '${translations['coverZoneHeader'] ?? 'Zone'}: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              selectedZone!['zone'] != null
+                                  ? '${selectedZone!['server'].toString().toFirstUpper} ${idle ? ' (${translations['paused'] ?? 'paused'})' : ''}'
+                                  : '',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: fontSize,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ]),
+                        TableRow(children: [
+                          TableCell(
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '${translations['coverArtistHeader'] ?? 'Artist'}: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              selectedZone!['artist'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: fontSize,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ]),
+                        TableRow(children: [
+                          TableCell(
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '${translations['coverAlbumHeader'] ?? 'Album'}: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              selectedZone!['album'],
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: fontSize,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ]),
+                        TableRow(children: [
+                          TableCell(
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '${translations['coverTrackHeader'] ?? 'Track'}: ',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              selectedZone!['track'],
+                              softWrap: true,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: fontSize,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ]),
+                      ]),
+                    ]),
+                  ],
                 ),
               ),
-            ]),
-            TableRow(children: [
-              TableCell(
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${translations['coverArtistHeader'] ?? 'Artist'}: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSize,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Text(
-                  selectedZone!['artist'],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ]),
-            TableRow(children: [
-              TableCell(
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${translations['coverAlbumHeader'] ?? 'Album'}: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSize,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Text(
-                  selectedZone!['album'],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ]),
-            TableRow(children: [
-              TableCell(
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${translations['coverTrackHeader'] ?? 'Track'}: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSize,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Text(
-                  selectedZone!['track'],
-                  softWrap: true,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ]),
+            ),
           ],
         ),
       );
@@ -320,7 +373,8 @@ class _CoverPageState extends State<CoverPage> {
             if (newValue != null) {
               String? selectedControlId;
               if (options[newValue] != null &&
-                  options[newValue] == 'webserver') {
+                  (options[newValue] == 'webserver' ||
+                      options[newValue] == 'spotifyconnect')) {
                 selectedControlId = newValue;
               } else {
                 selectedControlId = options[newValue];
@@ -354,7 +408,7 @@ class _CoverPageState extends State<CoverPage> {
                   if (mainState is MainStateLoaded) {
                     info = mainState.info[ip] ?? {};
 
-                    channels = (info['channels'] ?? {});
+                    //channels = (info['channels'] ?? {});
                     if (widget.controlId == null) {
                       Map<String, String> optionsUpdated =
                           generateOptionsAndPreselect();
@@ -505,7 +559,7 @@ class _CoverPageState extends State<CoverPage> {
                                     Expanded(
                                       child: ControlButtons(
                                         key: ValueKey(
-                                            'ControButtonsDesktop-$idle-$shuffle-$repeat'),
+                                            'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
                                         orientation: orientation,
                                         translations: translations,
                                         partsToSubtract: 275,
@@ -515,6 +569,7 @@ class _CoverPageState extends State<CoverPage> {
                                         idle: idle,
                                         shuffle: shuffle,
                                         repeat: repeat,
+                                        isRadio: isRadio,
                                         readOnly: selectedZoneId == null ||
                                             selectedZoneId!.isEmpty,
                                       ),
@@ -532,7 +587,7 @@ class _CoverPageState extends State<CoverPage> {
                             Expanded(child: getTextArea()),
                             ControlButtons(
                               key: ValueKey(
-                                  'ControButtonsPortrait-$idle-$shuffle-$repeat'),
+                                  'ControButtonsPortrait-$idle-$shuffle-$repeat-$isRadio'),
                               orientation: orientation,
                               translations: translations,
                               partsToSubtract:
@@ -542,6 +597,7 @@ class _CoverPageState extends State<CoverPage> {
                               idle: idle,
                               shuffle: shuffle,
                               repeat: repeat,
+                              isRadio: isRadio,
                               readOnly: selectedZoneId == null ||
                                   selectedZoneId!.isEmpty,
                             ),

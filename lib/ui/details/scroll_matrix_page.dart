@@ -185,7 +185,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                     String controlId = info['control_id'];
                     if (info['channels'] != null &&
                         info['channels'][controlId] != null) {
-                      if (info['channels'][controlId] == 'webserver') {
+                      if (info['channels'][controlId] == 'webserver' ||
+                          info['channels'][controlId] == 'spotifyconnect') {
                         zoneName = controlId;
                       } else {
                         zoneName = info['channels'][controlId];

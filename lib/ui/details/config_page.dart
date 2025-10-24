@@ -10,6 +10,7 @@ import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
+import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/headline.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
@@ -115,6 +116,46 @@ class ConfigPageState extends State<ConfigPage> {
                 inputType: TextInputType.text,
                 noCounter: true,
                 label: label,
+                text: fieldValues[area.name][fieldDefinition.name],
+                filter: (String text) {
+                  if (text == '') {
+                    setState(() {
+                      fieldValues[area.name][fieldDefinition.name] = '';
+                    });
+                  }
+                  return text;
+                },
+                errorMessageHandler: (String newValue) {
+                  return mainBloc.getFieldErrorMessage(
+                      value: newValue,
+                      type: fieldDefinition.type.type,
+                      translations: translations);
+                },
+                validation: (String text) =>
+                    fieldDefinition.noValidation == true
+                        ? true
+                        : mainBloc.validateText(
+                            text: text,
+                            fieldDefinition: fieldDefinition,
+                            type: fieldDefinition.type.type),
+                onChanged: (value) {
+                  if (mounted) {
+                    setState(() =>
+                        fieldValues[area.name][fieldDefinition.name] = value);
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'multiline-text') {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: EditableMultilineText(
+                translations: translations,
+                label: label,
+                maxLines: 6,
+                placeholder: translations['pleaseTypeSettingPlaceholder'] ??
+                    'Please insert secret here',
                 text: fieldValues[area.name][fieldDefinition.name],
                 filter: (String text) {
                   if (text == '') {

@@ -10,6 +10,7 @@ class ControlButtons extends StatefulWidget {
   final bool? idle;
   final bool? shuffle;
   final bool? repeat;
+  final bool? isRadio;
   final String controlId;
   final bool readOnly;
 
@@ -21,6 +22,7 @@ class ControlButtons extends StatefulWidget {
     this.idle,
     this.shuffle,
     this.repeat,
+    this.isRadio,
     required this.ip,
     required this.controlId,
     this.readOnly = false,
@@ -44,6 +46,7 @@ class ControlButtonsState extends State<ControlButtons> {
   bool idle = false;
   bool shuffle = false;
   bool repeat = false;
+  bool isRadio = false;
 
   late MainBloc mainBloc;
 
@@ -53,6 +56,7 @@ class ControlButtonsState extends State<ControlButtons> {
     idle = widget.idle ?? false;
     shuffle = widget.shuffle ?? false;
     repeat = widget.repeat ?? false;
+    isRadio = widget.isRadio ?? false;
 
     super.initState();
   }
@@ -89,28 +93,32 @@ class ControlButtonsState extends State<ControlButtons> {
                             width: buttonSize,
                             height: buttonSize,
                             child: Tooltip(
-                              message:
-                                  translations['controlButtonRepeatText'] ??
+                              message: isRadio
+                                  ? ''
+                                  : translations['controlButtonRepeatText'] ??
                                       'repeat',
                               triggerMode: TooltipTriggerMode.manual,
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor: Colors.blue,
-                                onPressed: () {
-                                  if (!readOnly) {
-                                    mainBloc.zoneControl(
-                                        ip: ip,
-                                        controlId: controlId,
-                                        cmd: 'repeatmode',
-                                        enable: !repeat);
-                                    if (mounted) {
-                                      setState(() {
-                                        repeat = !repeat;
-                                      });
-                                    }
-                                  }
-                                },
+                                hoverColor:
+                                    isRadio ? Colors.transparent : Colors.blue,
+                                onPressed: isRadio
+                                    ? null
+                                    : () {
+                                        if (!readOnly) {
+                                          mainBloc.zoneControl(
+                                              ip: ip,
+                                              controlId: controlId,
+                                              cmd: 'repeatmode',
+                                              enable: !repeat);
+                                          if (mounted) {
+                                            setState(() {
+                                              repeat = !repeat;
+                                            });
+                                          }
+                                        }
+                                      },
                                 icon: Icon(
                                   Icons.repeat,
                                   size: buttonSize * 0.5,
@@ -127,22 +135,26 @@ class ControlButtonsState extends State<ControlButtons> {
                             width: buttonSize,
                             height: buttonSize,
                             child: Tooltip(
-                              message:
-                                  translations['controlButtonPreviousText'] ??
+                              message: isRadio
+                                  ? ''
+                                  : translations['controlButtonPreviousText'] ??
                                       'previous track',
                               triggerMode: TooltipTriggerMode.manual,
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor: Colors.blue,
-                                onPressed: () {
-                                  if (!readOnly) {
-                                    mainBloc.zoneControl(
-                                        ip: ip,
-                                        controlId: controlId,
-                                        cmd: 'previous');
-                                  }
-                                },
+                                hoverColor:
+                                    isRadio ? Colors.transparent : Colors.blue,
+                                onPressed: isRadio
+                                    ? null
+                                    : () {
+                                        if (!readOnly) {
+                                          mainBloc.zoneControl(
+                                              ip: ip,
+                                              controlId: controlId,
+                                              cmd: 'previous');
+                                        }
+                                      },
                                 icon: Icon(
                                   Icons.keyboard_arrow_left,
                                   size: buttonSize,
@@ -188,26 +200,31 @@ class ControlButtonsState extends State<ControlButtons> {
                             width: buttonSize,
                             height: buttonSize,
                             child: Tooltip(
-                              message: translations['controlButtonNextText'] ??
-                                  'next track',
+                              message: isRadio
+                                  ? ''
+                                  : translations['controlButtonNextText'] ??
+                                      'next track',
                               triggerMode: TooltipTriggerMode.manual,
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor: Colors.blue,
-                                onPressed: () {
-                                  if (!readOnly) {
-                                    if (mounted) {
-                                      setState(() {
-                                        idle = false;
-                                      });
-                                    }
-                                    mainBloc.zoneControl(
-                                        ip: ip,
-                                        controlId: controlId,
-                                        cmd: 'next');
-                                  }
-                                },
+                                hoverColor:
+                                    isRadio ? Colors.transparent : Colors.blue,
+                                onPressed: isRadio
+                                    ? null
+                                    : () {
+                                        if (!readOnly) {
+                                          if (mounted) {
+                                            setState(() {
+                                              idle = false;
+                                            });
+                                          }
+                                          mainBloc.zoneControl(
+                                              ip: ip,
+                                              controlId: controlId,
+                                              cmd: 'next');
+                                        }
+                                      },
                                 icon: Icon(
                                   Icons.keyboard_arrow_right,
                                   size: buttonSize,
@@ -224,28 +241,32 @@ class ControlButtonsState extends State<ControlButtons> {
                             width: buttonSize,
                             height: buttonSize,
                             child: Tooltip(
-                              message:
-                                  translations['controlButtonShuffleText'] ??
+                              message: isRadio
+                                  ? ''
+                                  : translations['controlButtonShuffleText'] ??
                                       'shuffle',
                               triggerMode: TooltipTriggerMode.manual,
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor: Colors.blue,
-                                onPressed: () {
-                                  if (!readOnly) {
-                                    mainBloc.zoneControl(
-                                        ip: ip,
-                                        controlId: controlId,
-                                        cmd: 'shufflemode',
-                                        enable: !shuffle);
-                                    if (mounted) {
-                                      setState(() {
-                                        shuffle = !shuffle;
-                                      });
-                                    }
-                                  }
-                                },
+                                hoverColor:
+                                    isRadio ? Colors.transparent : Colors.blue,
+                                onPressed: isRadio
+                                    ? null
+                                    : () {
+                                        if (!readOnly) {
+                                          mainBloc.zoneControl(
+                                              ip: ip,
+                                              controlId: controlId,
+                                              cmd: 'shufflemode',
+                                              enable: !shuffle);
+                                          if (mounted) {
+                                            setState(() {
+                                              shuffle = !shuffle;
+                                            });
+                                          }
+                                        }
+                                      },
                                 icon: Icon(
                                   Icons.shuffle,
                                   size: buttonSize * 0.5,
