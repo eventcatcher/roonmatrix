@@ -1,8 +1,12 @@
 import 'dart:io';
 
+import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
+import 'package:roonmatrix/ui/helper/rich_parser.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/select_box_with_icon.dart';
@@ -14,8 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
-import 'package:styled_text/tags/styled_text_tag.dart';
-import 'package:styled_text/widgets/styled_text.dart';
 
 class LogPage extends StatefulWidget {
   final String name;
@@ -39,10 +41,16 @@ class LogPageState extends State<LogPage> {
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
+  List<int> logfilePartOffset = [];
+  String lastLog = '';
   String title = '';
   int hours = 1;
+  int logfileSliceSize = 500000;
+  int logfileParts = 1;
+  int logfilePart = 1;
   bool translationsLoaded = false;
   bool saveIdle = false;
+  bool refreshLog = false;
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -58,6 +66,63 @@ class LogPageState extends State<LogPage> {
     super.initState();
   }
 
+  List<Widget> logfilePartSelection({required String log}) => [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 2.0),
+          child: Text(
+            '${translations['filesize'] ?? 'filesize'}: ${log.length.readableFileSize(base1024: false)}',
+            style: TextStyle(fontSize: 16.0),
+          ),
+        ),
+        SizedBox(width: 8.0),
+        IconButton(
+          padding: EdgeInsets.zero,
+          hoverColor: Colors.transparent,
+          onPressed: () {
+            if (logfilePart > 1) {
+              setState(() {
+                logfilePart -= 1;
+                refreshLog = true;
+              });
+            }
+          },
+          icon: Icon(
+            Icons.arrow_left,
+            size: 40,
+            color: logfilePart > 1 ? Colors.green : Colors.grey,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            '$logfilePart / $logfileParts',
+            style: TextStyle(fontSize: 16.0),
+          ),
+        ),
+        IconButton(
+          padding: EdgeInsets.zero,
+          hoverColor: Colors.transparent,
+          onPressed: () {
+            if (logfilePart < logfileParts) {
+              setState(() {
+                logfilePart += 1;
+                refreshLog = true;
+              });
+            }
+          },
+          icon: Icon(
+            Icons.arrow_right,
+            size: 40,
+            color: logfilePart < logfileParts ? Colors.green : Colors.grey,
+          ),
+        ),
+        if (refreshLog == true)
+          SizedBox(
+              width: 20.0,
+              height: 20.0,
+              child: const CircularProgressIndicator()),
+      ];
+
   Widget body({
     required BuildContext context,
     required MainState mainState,
@@ -72,19 +137,35 @@ class LogPageState extends State<LogPage> {
               controller: mainBloc.getSearchController(type: 'log'),
             ),
           ),
-          SelectBoxWithIcon(
-            translations: translations,
-            options: translationsBloc.state.logHoursOptions,
-            placeholder:
-                translations['pleaseSelectPlaceholder'] ?? 'Please Select',
-            selected: hours.toString(),
-            onChanged: (String? value) {
-              if (mounted && value != null) {
-                setState(() => hours = int.parse(value));
-                mainBloc.getLog(ip: ip, hours: hours);
-              }
-            },
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SelectBoxWithIcon(
+                translations: translations,
+                options: translationsBloc.state.logHoursOptions,
+                placeholder:
+                    translations['pleaseSelectPlaceholder'] ?? 'Please Select',
+                selected: hours.toString(),
+                onChanged: (String? value) {
+                  if (mounted && value != null) {
+                    setState(() {
+                      hours = int.parse(value);
+                      logfilePart = 1;
+                      logfilePartOffset = [];
+                    });
+                    mainBloc.getLog(ip: ip, hours: hours);
+                  }
+                },
+              ),
+              if (SharedWidgets.isDesktopDevice() && mainState.log.isNotEmpty)
+                ...logfilePartSelection(log: mainState.log)
+            ],
           ),
+          if (SharedWidgets.isMobileDevice() && mainState.log.isNotEmpty)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: logfilePartSelection(log: mainState.log),
+            ),
           Expanded(
             child: mainState.subPageIdle == true
                 ? const LoadingIndicatorSmall()
@@ -93,21 +174,10 @@ class LogPageState extends State<LogPage> {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(20),
-                        child: StyledText(
-                          text: log,
-                          style: TextStyle(
-                            color: SharedWidgets.textColor(context: context),
-                          ),
-                          tags: {
-                            'b': StyledTextTag(
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: SharedWidgets.brightness() ==
-                                          Brightness.dark
-                                      ? Colors.red.shade300
-                                      : Colors.red),
-                            ),
-                          },
+                        child: ExtendedText(
+                          log,
+                          specialTextSpanBuilder: RichParser(),
+                          style: const TextStyle(color: Colors.black),
                         ),
                       ),
                     ],
@@ -167,6 +237,40 @@ class LogPageState extends State<LogPage> {
           if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
         ],
       );
+
+  int generateLogParts(String log) {
+    String fullLog = log;
+    int part = 1;
+    int offset = 0;
+    logfilePartOffset = [];
+    if (log.isNotEmpty) {
+      logfilePartOffset = [0];
+      part = 0;
+      do {
+        part++;
+        if (fullLog.length > logfileSliceSize) {
+          offset = logfilePartOffset[part - 1];
+          log = fullLog.substring(offset);
+          if (log.length > logfileSliceSize) {
+            int endOfLine = 0;
+            if ((logfileSliceSize) < log.length) {
+              endOfLine = log.substring(logfileSliceSize).indexOf('\n');
+            }
+            int partlen =
+                logfileSliceSize + (endOfLine == -1 ? 0 : (endOfLine + 1));
+            log = log.substring(0, partlen);
+          }
+
+          if (logfilePartOffset.length <= part) {
+            logfilePartOffset.add(offset + log.length);
+          }
+        }
+      } while (fullLog.length > logfileSliceSize &&
+          fullLog.length > (offset + log.length));
+    }
+
+    return part;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -238,8 +342,39 @@ class LogPageState extends State<LogPage> {
                   }
                   log = log.replaceAll('\\n', '\n');
                   if (search.isNotEmpty) {
-                    log = log.replaceAll(
-                        RegExp(search, caseSensitive: false), '<b>$search</b>');
+                    log = log.replaceAllMapped(
+                        RegExp(search, caseSensitive: false), (match) {
+                      return '[bg-orange]${match.group(0)}[/bg-orange]';
+                    });
+                  }
+
+                  if (log.isNotEmpty &&
+                      lastLog.length != log.length &&
+                      (lastLog.isEmpty ||
+                          (lastLog.length > 17 &&
+                              log.length > 17 &&
+                              lastLog.substring(0, 17) !=
+                                  log.substring(0, 17)))) {
+                    int newLogfileParts = generateLogParts(log);
+                    if (newLogfileParts != logfileParts &&
+                        logfilePart > newLogfileParts) {
+                      logfilePart = 1;
+                    }
+                    logfileParts = newLogfileParts;
+                  }
+                  if (logfilePartOffset.isNotEmpty) {
+                    log = log.substring(logfilePartOffset[logfilePart - 1],
+                        logfilePartOffset[logfilePart]);
+                  }
+
+                  if (refreshLog == true) {
+                    SchedulerBinding.instance.addPostFrameCallback((_) async {
+                      if (mounted) {
+                        setState(() {
+                          refreshLog = false;
+                        });
+                      }
+                    });
                   }
                 }
 

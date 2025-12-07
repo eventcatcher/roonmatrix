@@ -495,10 +495,10 @@ class ConfigPageState extends State<ConfigPage> {
                             'b': StyledTextTag(
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: SharedWidgets.brightness() ==
+                                  backgroundColor: SharedWidgets.brightness() ==
                                           Brightness.dark
-                                      ? Colors.red.shade300
-                                      : Colors.red),
+                                      ? Color(0xFFffaf00)
+                                      : Color(0xFFffaf00)),
                             ),
                           },
                         ),
@@ -651,8 +651,10 @@ class ConfigPageState extends State<ConfigPage> {
                 jsonStr = mainBloc.getPrettyJSONString(mainState.config);
 
                 if (search.isNotEmpty) {
-                  jsonStr = jsonStr.replaceAll(
-                      RegExp(search, caseSensitive: false), '<b>$search</b>');
+                  jsonStr = jsonStr.replaceAllMapped(
+                      RegExp(search, caseSensitive: false), (match) {
+                    return '<b>${match.group(0)}</b>';
+                  });
                 }
 
                 if (mainState.definitions == null) {
