@@ -39,6 +39,13 @@ class SearchFieldState extends State<SearchField> {
     super.initState();
   }
 
+  String escapeForRegex(String text) {
+    return text.replaceAllMapped(
+      RegExp(r'[-\/\\^$*+?.()|[\]{}]'),
+      (m) => '\\${m[0]}',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
@@ -98,6 +105,7 @@ class SearchFieldState extends State<SearchField> {
                               translations['searchfieldHint'] ?? 'search',
                           controller: controller,
                           onChanged: (String value) {
+                            value = escapeForRegex(value);
                             if (value == '') {
                               setState(() {
                                 controller.text = '';

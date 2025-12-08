@@ -2,80 +2,116 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 
 class RichParser extends SpecialTextSpanBuilder {
-  // erkennt z. B. [bold red]
-  static final _startTagRegex = RegExp(r'\[([^\]]+)\]');
+  // erlaubte Tag-Namen:
+  // Wörter: a-z, A-Z, Zahlen, -, _
+  // mehrere Wörter erlaubt: "bold red"
+  static final _startTagRegex = RegExp(r'^[a-zA-Z0-9_-]+(\s+[a-zA-Z0-9_-]+)*$');
+
+  static final _endTagRegex = RegExp(r'^/[a-zA-Z0-9_-]+(\s+[a-zA-Z0-9_-]+)*$');
 
   @override
-  SpecialText? createSpecialText(
-    String flag, {
-    required int index,
-    TextStyle? textStyle,
-    SpecialTextGestureTapCallback? onTap,
-  }) {
-    // Wir nutzen diese Methode nicht — sie MUSS aber existieren.
-    return null;
+  SpecialText? createSpecialText(String flag,
+      {required int index,
+      TextStyle? textStyle,
+      SpecialTextGestureTapCallback? onTap}) {
+    return null; // unused
   }
 
   @override
-  TextSpan build(
-    String data, {
-    TextStyle? textStyle,
-    SpecialTextGestureTapCallback? onTap,
-  }) {
-    final children = <InlineSpan>[];
-    int index = 0;
+  TextSpan build(String data,
+      {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap}) {
     final baseStyle = textStyle ?? const TextStyle();
+    final stack = <_Frame>[];
+    stack.add(_Frame(tagName: null, style: baseStyle));
 
-    while (index < data.length) {
-      final nextOpen = data.indexOf('[', index);
-      if (nextOpen == -1) {
-        children.add(TextSpan(text: data.substring(index), style: baseStyle));
-        break;
-      }
+    int i = 0;
 
-      if (nextOpen > index) {
-        children.add(
-            TextSpan(text: data.substring(index, nextOpen), style: baseStyle));
-      }
+    while (i < data.length) {
+      if (data[i] == '[') {
+        final close = data.indexOf(']', i + 1);
 
-      final match = _startTagRegex.matchAsPrefix(data, nextOpen);
-      if (match == null) {
-        children.add(TextSpan(text: '[', style: baseStyle));
-        index = nextOpen + 1;
+        if (close == -1) {
+          // Kein schließendes ']', treat as normal text.
+          stack.last.children.add(TextSpan(text: '[', style: stack.last.style));
+          i++;
+          continue;
+        }
+
+        final inside = data.substring(i + 1, close).trim();
+
+        // **END TAG**
+        if (_endTagRegex.hasMatch(inside)) {
+          final tagName = inside.substring(1).trim();
+
+          if (stack.length > 1 && stack.last.tagName == tagName) {
+            final popped = stack.removeLast();
+            final built =
+                TextSpan(children: popped.children, style: popped.style);
+            stack.last.children.add(built);
+          } else {
+            // mismatched end tag → as literal text
+            stack.last.children.add(TextSpan(
+                text: data.substring(i, close + 1), style: stack.last.style));
+          }
+
+          i = close + 1;
+          continue;
+        }
+
+        // **START TAG**
+        if (_startTagRegex.hasMatch(inside)) {
+          final parts = inside
+              .split(RegExp(r'\s+'))
+              .map((s) => s.trim())
+              .where((s) => s.isNotEmpty)
+              .toList();
+
+          if (parts.isNotEmpty) {
+            final newStyle = _styleFromParts(stack.last.style, parts);
+            stack.add(_Frame(tagName: inside, style: newStyle));
+            i = close + 1;
+            continue;
+          }
+        }
+
+        // nicht als Tag erkennbar → raw
+        stack.last.children.add(TextSpan(
+            text: data.substring(i, close + 1), style: stack.last.style));
+        i = close + 1;
         continue;
       }
 
-      final tagContent = match.group(1)!.trim(); // z.B. "red", "bold red"
-      final startTagEnd = match.end;
-      final endTag = '[/$tagContent]';
-      final endIndex = data.indexOf(endTag, startTagEnd);
-
-      if (endIndex == -1) {
-        children.add(TextSpan(text: '[', style: baseStyle));
-        index = nextOpen + 1;
-        continue;
-      }
-
-      final content = data.substring(startTagEnd, endIndex);
-
-      final parts = tagContent
-          .split(RegExp(r'\s+'))
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .toList();
-
-      final appliedStyle = _styleFromParts(baseStyle, parts);
-
-      children.add(TextSpan(text: content, style: appliedStyle));
-
-      index = endIndex + endTag.length;
+      // Normales Zeichenblock
+      final next = data.indexOf('[', i);
+      final end = next == -1 ? data.length : next;
+      final segment = data.substring(i, end);
+      stack.last.children.add(TextSpan(text: segment, style: stack.last.style));
+      i = end;
     }
 
-    return TextSpan(children: children, style: baseStyle);
+    // Ungeschlossene Tags sauber beenden
+    while (stack.length > 1) {
+      final popped = stack.removeLast();
+      final literalStart = "[${popped.tagName}]";
+
+      stack.last.children.add(TextSpan(
+        children: [
+          TextSpan(text: literalStart, style: stack.last.style),
+          ...popped.children
+        ],
+        style: popped.style,
+      ));
+    }
+
+    return TextSpan(children: stack.first.children, style: baseStyle);
   }
 
+  // --------------------------------------------------
+  // STYLE SYSTEM
+  // --------------------------------------------------
+
   TextStyle _styleFromParts(TextStyle base, List<String> parts) {
-    TextStyle result = base;
+    var result = base;
 
     for (final p in parts) {
       switch (p.toLowerCase()) {
@@ -83,25 +119,29 @@ class RichParser extends SpecialTextSpanBuilder {
         case 'b':
           result = result.merge(const TextStyle(fontWeight: FontWeight.bold));
           break;
+
         case 'italic':
         case 'i':
           result = result.merge(const TextStyle(fontStyle: FontStyle.italic));
           break;
+
         case 'underline':
         case 'u':
           result = result
               .merge(const TextStyle(decoration: TextDecoration.underline));
           break;
+
         case 'strike':
         case 's':
           result = result
               .merge(const TextStyle(decoration: TextDecoration.lineThrough));
           break;
+
         case 'dim':
           result = result.merge(const TextStyle(color: Colors.grey));
           break;
 
-        /// Farben
+        // Farben
         case 'red':
         case 'orange':
         case 'green':
@@ -110,15 +150,15 @@ class RichParser extends SpecialTextSpanBuilder {
         case 'blue':
         case 'bright_magenta':
         case 'magenta':
-          result = result.merge(TextStyle(color: _colorFromName(p)));
+          final c = _colorFromName(p);
+          if (c != null) result = result.merge(TextStyle(color: c));
           break;
 
         default:
           if (p.startsWith('bg-')) {
-            final colName = p.substring(3);
-            final bg = _colorFromName(colName);
-            if (bg != null) {
-              result = result.merge(TextStyle(backgroundColor: bg));
+            final c = _colorFromName(p.substring(3));
+            if (c != null) {
+              result = result.merge(TextStyle(backgroundColor: c));
             }
           }
       }
@@ -132,20 +172,30 @@ class RichParser extends SpecialTextSpanBuilder {
       case 'red':
         return Colors.red;
       case 'orange':
-        return Color(0xFFffaf00);
+        return const Color(0xFFffaf00);
       case 'green':
-        return Color(0xFF146710);
+        return const Color(0xFF146710);
       case 'green4':
-        return Color(0xFF008700);
+        return const Color(0xFF008700);
       case 'deep_sky_blue4':
-        return Color(0xFF005faf);
+        return const Color(0xFF005faf);
       case 'blue':
-        return Color(0xFF080767);
+        return const Color(0xFF080767);
       case 'bright_magenta':
-        return Color(0xFFFF01FF);
+        return const Color(0xFFFF01FF);
       case 'magenta':
-        return Color(0xFF680d68);
+        return const Color(0xFF680d68);
     }
     return null;
   }
+}
+
+class _Frame {
+  _Frame({required this.tagName, required this.style}) {
+    children = <InlineSpan>[];
+  }
+
+  final String? tagName; // null for root
+  final TextStyle style;
+  late List<InlineSpan> children;
 }

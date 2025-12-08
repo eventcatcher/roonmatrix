@@ -362,7 +362,7 @@ class LogPageState extends State<LogPage> {
                     }
                     logfileParts = newLogfileParts;
                   }
-                  if (logfilePartOffset.isNotEmpty) {
+                  if (logfilePartOffset.length > 1) {
                     log = log.substring(logfilePartOffset[logfilePart - 1],
                         logfilePartOffset[logfilePart]);
                   }
