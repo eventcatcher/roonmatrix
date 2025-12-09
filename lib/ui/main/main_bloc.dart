@@ -487,6 +487,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             var response = await client.post(uri,
                 headers: headers, body: json.encode(payload));
             if (response.statusCode == 200) {
+              Uint8List bytes = response.bodyBytes;
+              String log = decompressZlib(bytes);
+
               emit(MainStateLoaded(
                 update: DateTime.now(),
                 ipStart: state.ipStart,
@@ -497,7 +500,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 config: state.config,
                 definitions: state.definitions,
                 fieldValues: state.fieldValues,
-                log: utf8.decode(response.bodyBytes),
+                log: log,
                 idle: state.idle,
                 subPageIdle: false,
                 logMessage: state.logMessage,
@@ -1599,6 +1602,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     prefs.setString('customMessages', jsonEncode(messages));
   }
 
+  String decompressZlib(Uint8List data) {
+    return utf8.decode(ZLibCodec().decode(data));
+  }
+
   // ==================== //
   // public event methods //
   // ==================== //
@@ -1639,7 +1646,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required String ip,
     required String url,
   }) {
-    print('setSpotifyAuthRedirectUrl => ip: $ip, url: $url');
+    if (kDebugMode) {
+      debugPrint('setSpotifyAuthRedirectUrl => ip: $ip, url: $url');
+    }
     add(SetSpotifyAuthRedirectUrl(ip: ip, url: url));
   }
 

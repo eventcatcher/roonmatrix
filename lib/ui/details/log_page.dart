@@ -51,6 +51,7 @@ class LogPageState extends State<LogPage> {
   bool translationsLoaded = false;
   bool saveIdle = false;
   bool refreshLog = false;
+  bool filterLog = false;
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -67,53 +68,87 @@ class LogPageState extends State<LogPage> {
   }
 
   List<Widget> logfilePartSelection({required String log}) => [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 2.0),
-          child: Text(
-            '${translations['filesize'] ?? 'filesize'}: ${log.length.readableFileSize(base1024: false)}',
-            style: TextStyle(fontSize: 16.0),
+        AnimatedOpacity(
+          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 500),
+          child: IconButton(
+            padding: const EdgeInsets.only(bottom: 2.0),
+            hoverColor: Colors.transparent,
+            onPressed: () {
+              setState(() {
+                filterLog = !filterLog;
+              });
+            },
+            icon: Icon(
+              Icons.filter_alt,
+              size: 24,
+              color: filterLog ? Colors.green : Colors.grey,
+            ),
+          ),
+        ),
+        AnimatedOpacity(
+          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 500),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 2.0),
+            child: Text(
+              '${translations['filesize'] ?? 'filesize'}: ${log.length.readableFileSize(base1024: false)}',
+              style: TextStyle(fontSize: 16.0),
+            ),
           ),
         ),
         SizedBox(width: 8.0),
-        IconButton(
-          padding: EdgeInsets.zero,
-          hoverColor: Colors.transparent,
-          onPressed: () {
-            if (logfilePart > 1) {
-              setState(() {
-                logfilePart -= 1;
-                refreshLog = true;
-              });
-            }
-          },
-          icon: Icon(
-            Icons.arrow_left,
-            size: 40,
-            color: logfilePart > 1 ? Colors.green : Colors.grey,
+        AnimatedOpacity(
+          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 500),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            hoverColor: Colors.transparent,
+            onPressed: () {
+              if (logfilePart > 1) {
+                setState(() {
+                  logfilePart -= 1;
+                  refreshLog = true;
+                });
+              }
+            },
+            icon: Icon(
+              Icons.arrow_left,
+              size: 40,
+              color: logfilePart > 1 ? Colors.green : Colors.grey,
+            ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            '$logfilePart / $logfileParts',
-            style: TextStyle(fontSize: 16.0),
+        AnimatedOpacity(
+          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 500),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              '$logfilePart / $logfileParts',
+              style: TextStyle(fontSize: 16.0),
+            ),
           ),
         ),
-        IconButton(
-          padding: EdgeInsets.zero,
-          hoverColor: Colors.transparent,
-          onPressed: () {
-            if (logfilePart < logfileParts) {
-              setState(() {
-                logfilePart += 1;
-                refreshLog = true;
-              });
-            }
-          },
-          icon: Icon(
-            Icons.arrow_right,
-            size: 40,
-            color: logfilePart < logfileParts ? Colors.green : Colors.grey,
+        AnimatedOpacity(
+          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 500),
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            hoverColor: Colors.transparent,
+            onPressed: () {
+              if (logfilePart < logfileParts) {
+                setState(() {
+                  logfilePart += 1;
+                  refreshLog = true;
+                });
+              }
+            },
+            icon: Icon(
+              Icons.arrow_right,
+              size: 40,
+              color: logfilePart < logfileParts ? Colors.green : Colors.grey,
+            ),
           ),
         ),
         if (refreshLog == true)
@@ -272,6 +307,22 @@ class LogPageState extends State<LogPage> {
     return part;
   }
 
+  String showOnlyMatchedLines(String log) {
+    if (!filterLog) {
+      return log;
+    }
+
+    List<String> matchedLines = [];
+    List<String> lines = log.split('\n');
+    for (String line in lines) {
+      if (line.contains('[bg-orange]')) {
+        matchedLines.add(line);
+      }
+    }
+
+    return matchedLines.join('\n');
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
@@ -347,6 +398,7 @@ class LogPageState extends State<LogPage> {
                       return '[bg-orange]${match.group(0)}[/bg-orange]';
                     });
                   }
+                  log = showOnlyMatchedLines(log);
 
                   if (log.isNotEmpty &&
                       lastLog.length != log.length &&

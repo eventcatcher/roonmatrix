@@ -432,6 +432,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return null;
   }
 
+  isRoonZone(String zoneName) {
+    return !zoneName.endsWith('-Apple Music') &&
+        !zoneName.endsWith('-SpotifyConnect') &&
+        !zoneName.endsWith('-Spotify');
+  }
+
   Widget zoneNotRunningStartButton(
           {required String ip, required String id, required String name}) =>
       Padding(
@@ -923,15 +929,38 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 4.0),
-                  child: Image(
-                    image: AssetImage(
-                      SharedWidgets.getZoneIcon(zoneName: coverModel.zoneName),
-                    ),
-                    width: 48,
-                    height: 48,
-                  ),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: coverModel.zoneName.endsWith('-Apple Music')
+                          ? 0.0
+                          : 8.0,
+                      vertical: coverModel.zoneName.endsWith('-Apple Music')
+                          ? 0.0
+                          : 5.0),
+                  child: isRoonZone(coverModel.zoneName)
+                      ? CircleAvatar(
+                          radius: 23,
+                          backgroundColor: Colors.blue.shade300,
+                          child: Image(
+                            image: AssetImage(
+                              SharedWidgets.getZoneIcon(
+                                  zoneName: coverModel.zoneName),
+                            ),
+                            width: 44,
+                            height: 44,
+                          ),
+                        )
+                      : Image(
+                          image: AssetImage(
+                            SharedWidgets.getZoneIcon(
+                                zoneName: coverModel.zoneName),
+                          ),
+                          width: coverModel.zoneName.endsWith('-Apple Music')
+                              ? 56
+                              : 44,
+                          height: coverModel.zoneName.endsWith('-Apple Music')
+                              ? 56
+                              : 44,
+                        ),
                 ),
                 Container(
                   padding: EdgeInsets.all(8.0),

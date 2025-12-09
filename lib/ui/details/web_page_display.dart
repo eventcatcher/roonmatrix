@@ -121,7 +121,9 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
         builder: (context, WebPageState webPageState) {
           if (webPageState is WebPageStateLoaded) {
             url = webPageState.url;
-            print('WebPageDisplay url: $url');
+            if (kDebugMode) {
+              debugPrint('WebPageDisplay url: $url');
+            }
             progress = webPageState.progress;
             urlController.text = url;
 
@@ -147,7 +149,10 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                             webViewController = controller;
                           },
                           onLoadStart: (controller, myUrl) {
-                            print('WebPageDisplay onLoadStart, url: $myUrl');
+                            if (kDebugMode) {
+                              debugPrint(
+                                  'WebPageDisplay onLoadStart, url: $myUrl');
+                            }
                             webPageBloc.setUrl(
                               url: myUrl.toString(),
                             );
@@ -161,7 +166,9 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                             controller,
                             request,
                           ) async {
-                            print('WebPageDisplay onPermissionRequest');
+                            if (kDebugMode) {
+                              debugPrint('WebPageDisplay onPermissionRequest');
+                            }
                             return PermissionResponse(
                               resources: request.resources,
                               action: PermissionResponseAction.GRANT,
@@ -179,7 +186,9 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                             controller,
                             myUrl,
                           ) async {
-                            print('WebPageDisplay onLoadStop');
+                            if (kDebugMode) {
+                              debugPrint('WebPageDisplay onLoadStop');
+                            }
                             webPageBloc.setUrl(
                               url: myUrl.toString(),
                             );
@@ -213,8 +222,10 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                           onDidReceiveServerRedirectForProvisionalNavigation: (
                             controller,
                           ) {
-                            print(
-                                'WebPageDisplay onDidReceiveServerRedirectForProvisionalNavigation');
+                            if (kDebugMode) {
+                              debugPrint(
+                                  'WebPageDisplay onDidReceiveServerRedirectForProvisionalNavigation');
+                            }
                           },
                           // onNavigationResponse: (
                           //   controller,
@@ -228,13 +239,17 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                             request,
                             error,
                           ) {
-                            print('WebPageDisplay onReceivedError');
+                            if (kDebugMode) {
+                              debugPrint('WebPageDisplay onReceivedError');
+                            }
                           },
                           onProgressChanged: (
                             controller,
                             myProgress,
                           ) {
-                            print('WebPageDisplay onProgressChanged');
+                            if (kDebugMode) {
+                              debugPrint('WebPageDisplay onProgressChanged');
+                            }
                             webPageBloc.setProgress(
                               progress: myProgress / 100,
                             );
@@ -266,8 +281,10 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                             controller,
                             consoleMessage,
                           ) {
-                            print('WebPageDisplay onConsoleMessage');
-                            debugPrint(consoleMessage.toString());
+                            if (kDebugMode) {
+                              debugPrint('WebPageDisplay onConsoleMessage');
+                              debugPrint(consoleMessage.toString());
+                            }
                           },
                         ),
                         progress < 1.0
