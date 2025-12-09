@@ -497,8 +497,8 @@ class ConfigPageState extends State<ConfigPage> {
                                   fontWeight: FontWeight.bold,
                                   backgroundColor: SharedWidgets.brightness() ==
                                           Brightness.dark
-                                      ? Color(0xFFffaf00)
-                                      : Color(0xFFffaf00)),
+                                      ? const Color.fromARGB(255, 135, 94, 6)
+                                      : const Color(0xFFffaf00)),
                             ),
                           },
                         ),

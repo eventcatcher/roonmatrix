@@ -70,7 +70,7 @@ class LogPageState extends State<LogPage> {
   List<Widget> logfilePartSelection({required String log}) => [
         AnimatedOpacity(
           opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: const EdgeInsets.only(bottom: 2.0),
             hoverColor: Colors.transparent,
@@ -88,19 +88,21 @@ class LogPageState extends State<LogPage> {
         ),
         AnimatedOpacity(
           opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 2000),
           child: Padding(
             padding: const EdgeInsets.only(bottom: 2.0),
             child: Text(
-              '${translations['filesize'] ?? 'filesize'}: ${log.length.readableFileSize(base1024: false)}',
-              style: TextStyle(fontSize: 16.0),
+              '${translations['filesize'] ?? 'filesize'}: ${log.length.readableFileSize(base1024: true)}',
+              style: TextStyle(
+                  fontSize: 16.0,
+                  color: SharedWidgets.textColor(context: context)),
             ),
           ),
         ),
         SizedBox(width: 8.0),
         AnimatedOpacity(
           opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: EdgeInsets.zero,
             hoverColor: Colors.transparent,
@@ -121,18 +123,20 @@ class LogPageState extends State<LogPage> {
         ),
         AnimatedOpacity(
           opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 2000),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
               '$logfilePart / $logfileParts',
-              style: TextStyle(fontSize: 16.0),
+              style: TextStyle(
+                  fontSize: 16.0,
+                  color: SharedWidgets.textColor(context: context)),
             ),
           ),
         ),
         AnimatedOpacity(
           opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: EdgeInsets.zero,
             hoverColor: Colors.transparent,
@@ -192,13 +196,16 @@ class LogPageState extends State<LogPage> {
                   }
                 },
               ),
-              if (SharedWidgets.isDesktopDevice() && mainState.log.isNotEmpty)
-                ...logfilePartSelection(log: mainState.log)
+              if (SharedWidgets.isDesktopDevice())
+                SizedBox(
+                    width: 400.0,
+                    child: Row(
+                        children: logfilePartSelection(log: mainState.log))),
             ],
           ),
-          if (SharedWidgets.isMobileDevice() && mainState.log.isNotEmpty)
+          if (SharedWidgets.isMobileDevice())
             Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: logfilePartSelection(log: mainState.log),
             ),
           Expanded(
@@ -212,7 +219,8 @@ class LogPageState extends State<LogPage> {
                         child: ExtendedText(
                           log,
                           specialTextSpanBuilder: RichParser(),
-                          style: const TextStyle(color: Colors.black),
+                          style: TextStyle(
+                              color: SharedWidgets.textColor(context: context)),
                         ),
                       ),
                     ],
@@ -308,7 +316,7 @@ class LogPageState extends State<LogPage> {
   }
 
   String showOnlyMatchedLines(String log) {
-    if (!filterLog) {
+    if (!filterLog || log.isEmpty) {
       return log;
     }
 
@@ -414,7 +422,7 @@ class LogPageState extends State<LogPage> {
                     }
                     logfileParts = newLogfileParts;
                   }
-                  if (logfilePartOffset.length > 1) {
+                  if (logfilePartOffset.length > 1 && log.isNotEmpty) {
                     log = log.substring(logfilePartOffset[logfilePart - 1],
                         logfilePartOffset[logfilePart]);
                   }
