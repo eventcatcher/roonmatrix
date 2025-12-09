@@ -73,6 +73,7 @@ class LogPageState extends State<LogPage> {
           duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: const EdgeInsets.only(bottom: 2.0),
+            splashRadius: 16.0,
             hoverColor: Colors.transparent,
             onPressed: () {
               setState(() {
@@ -105,6 +106,7 @@ class LogPageState extends State<LogPage> {
           duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: EdgeInsets.zero,
+            splashRadius: 16.0,
             hoverColor: Colors.transparent,
             onPressed: () {
               if (logfilePart > 1) {
@@ -139,6 +141,7 @@ class LogPageState extends State<LogPage> {
           duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: EdgeInsets.zero,
+            splashRadius: 16.0,
             hoverColor: Colors.transparent,
             onPressed: () {
               if (logfilePart < logfileParts) {
@@ -179,33 +182,39 @@ class LogPageState extends State<LogPage> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SelectBoxWithIcon(
-                translations: translations,
-                options: translationsBloc.state.logHoursOptions,
-                placeholder:
-                    translations['pleaseSelectPlaceholder'] ?? 'Please Select',
-                selected: hours.toString(),
-                onChanged: (String? value) {
-                  if (mounted && value != null) {
-                    setState(() {
-                      hours = int.parse(value);
-                      logfilePart = 1;
-                      logfilePartOffset = [];
-                    });
-                    mainBloc.getLog(ip: ip, hours: hours);
-                  }
-                },
+              Flexible(
+                flex: 2,
+                child: SelectBoxWithIcon(
+                  translations: translations,
+                  options: translationsBloc.state.logHoursOptions,
+                  placeholder: translations['pleaseSelectPlaceholder'] ??
+                      'Please Select',
+                  selected: hours.toString(),
+                  onChanged: (String? value) {
+                    if (mounted && value != null) {
+                      setState(() {
+                        hours = int.parse(value);
+                        logfilePart = 1;
+                        logfilePartOffset = [];
+                      });
+                      mainBloc.getLog(ip: ip, hours: hours);
+                    }
+                  },
+                ),
               ),
               if (SharedWidgets.isDesktopDevice())
-                SizedBox(
-                    width: 400.0,
-                    child: Row(
-                        children: logfilePartSelection(log: mainState.log))),
+                Flexible(
+                  flex: 1,
+                  child: SizedBox(
+                      width: 400.0,
+                      child: Row(
+                          children: logfilePartSelection(log: mainState.log))),
+                ),
             ],
           ),
           if (SharedWidgets.isMobileDevice())
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: logfilePartSelection(log: mainState.log),
             ),
           Expanded(
