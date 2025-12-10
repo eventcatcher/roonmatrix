@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, BlocProvider;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
+import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/layout/control_buttons.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
@@ -65,6 +66,59 @@ class _CoverPageState extends State<CoverPage> {
 
     super.initState();
   }
+
+  Color getZoneColor(String zoneName) {
+    if (zoneName.endsWith('-Apple Music')) {
+      return Color(0xFFF50057);
+    }
+    if (zoneName.endsWith('-SpotifyConnect') || zoneName.endsWith('-Spotify')) {
+      return Colors.green;
+    }
+
+    return Colors.blue.shade300;
+  }
+
+  Offset getZoneIconPosition({required String zoneName}) {
+    if (zoneName.endsWith('-Apple Music')) {
+      return Offset(-9.0, -2.0);
+    }
+    if (zoneName.endsWith('-SpotifyConnect')) {
+      return Offset(0, 5.0);
+    }
+
+    if (zoneName.endsWith('-Spotify')) {
+      return Offset(2.0, 5.0);
+    }
+
+    return Offset(4.0, 5.0);
+  }
+
+  double getZoneIconSize({required String zoneName}) {
+    if (zoneName.endsWith('-Apple Music')) {
+      return 56.0;
+    }
+    if (zoneName.endsWith('-SpotifyConnect')) {
+      return 44.0;
+    }
+
+    if (zoneName.endsWith('-Spotify')) {
+      return 44.0;
+    }
+
+    return 40.0;
+  }
+
+  statusCorner({required Color color}) => SizedBox(
+        width: 84,
+        height: 84,
+        child: ClipRRect(
+          child: CustomPaint(
+            painter: TrianglePainter(
+              color: color,
+            ),
+          ),
+        ),
+      );
 
   Map<String, String> generateOptionsAndPreselect() {
     Map<String, String> options = {};
@@ -180,14 +234,6 @@ class _CoverPageState extends State<CoverPage> {
         selectedZone!['cover'] == null) {
       return Row(
         children: [
-          Image(
-            image: AssetImage(
-              SharedWidgets.getZoneIcon(
-                  zoneName: '-${selectedZone?['zone'] ?? name}'),
-            ),
-            width: 48,
-            height: 48,
-          ),
           Padding(
             padding:
                 const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 104.0),
@@ -211,17 +257,6 @@ class _CoverPageState extends State<CoverPage> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.only(left: 16.0, bottom: 16.0),
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Image.asset(
-                  SharedWidgets.getZoneIcon(
-                      zoneName: '-${selectedZone!['zone']}'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
             Expanded(
               child: Padding(
                 padding:
@@ -400,212 +435,249 @@ class _CoverPageState extends State<CoverPage> {
   }
 
   Widget body() => SizedBox(
-        child: Column(
+        child: Stack(
           children: [
-            BlocBuilder(
-                bloc: mainBloc,
-                builder: (context, MainState mainState) {
-                  if (mainState is MainStateLoaded) {
-                    info = mainState.info[ip] ?? {};
+            Column(
+              children: [
+                BlocBuilder(
+                    bloc: mainBloc,
+                    builder: (context, MainState mainState) {
+                      if (mainState is MainStateLoaded) {
+                        info = mainState.info[ip] ?? {};
 
-                    //channels = (info['channels'] ?? {});
-                    if (widget.controlId == null) {
-                      Map<String, String> optionsUpdated =
-                          generateOptionsAndPreselect();
+                        //channels = (info['channels'] ?? {});
+                        if (widget.controlId == null) {
+                          Map<String, String> optionsUpdated =
+                              generateOptionsAndPreselect();
 
-                      if (options.keys.join(',') !=
-                              optionsUpdated.keys.join(',') ||
-                          options.values.join(',') !=
-                              optionsUpdated.values.join(',')) {
-                        SchedulerBinding.instance
-                            .addPostFrameCallback((_) async {
-                          if (mounted) {
-                            setState(() {
-                              options = optionsUpdated;
-                            });
-                          }
-                        });
-                      }
-                    }
-
-                    if (info != {} && info['control_id'] != null) {
-                      String? controlIdUpdated =
-                          widget.controlId ?? info['control_id'];
-
-                      if (info['web_playouts_raw'] != webPlayoutsRaw ||
-                          info['roon_playouts_raw'] != roonPlayoutsRaw ||
-                          controlId == null ||
-                          controlIdUpdated != controlId) {
-                        Map<String, dynamic>? zone =
-                            getZoneDataForControlId(controlIdUpdated);
-                        if (zone != null) {
-                          selectedZone = zone;
-                        }
-
-                        SchedulerBinding.instance
-                            .addPostFrameCallback((_) async {
-                          if (mounted) {
-                            setState(() {
-                              webPlayoutsRaw = info['web_playouts_raw'];
-                              roonPlayoutsRaw = info['roon_playouts_raw'];
-                              if (controlIdUpdated != controlId) {
-                                controlId = controlIdUpdated;
-                              }
-                              if (zone != null) {
-                                selectedZone = zone;
-                                selectedZoneId = zone['server'] == 'roon'
-                                    ? zone['zone']
-                                    : '${zone['server']}-${zone['zone']}';
+                          if (options.keys.join(',') !=
+                                  optionsUpdated.keys.join(',') ||
+                              options.values.join(',') !=
+                                  optionsUpdated.values.join(',')) {
+                            SchedulerBinding.instance
+                                .addPostFrameCallback((_) async {
+                              if (mounted) {
+                                setState(() {
+                                  options = optionsUpdated;
+                                });
                               }
                             });
                           }
-                        });
+                        }
 
-                        if (controlIdUpdated != null) {
-                          if ((info['shufflemode'] as Map<String, dynamic>)
-                              .containsKey(controlIdUpdated)) {
-                            shuffle = info['shufflemode'][controlIdUpdated] ==
-                                'shuffle';
-                          }
-                          if ((info['repeatmode'] as Map<String, dynamic>)
-                              .containsKey(controlIdUpdated)) {
-                            repeat = info['repeatmode'][controlIdUpdated] ==
-                                'repeat';
-                          }
-                          if ((info['playmode'] as Map<String, dynamic>)
-                              .containsKey(controlIdUpdated)) {
-                            idle = info['playmode'][controlIdUpdated] != 'play';
+                        if (info != {} && info['control_id'] != null) {
+                          String? controlIdUpdated =
+                              widget.controlId ?? info['control_id'];
+
+                          if (info['web_playouts_raw'] != webPlayoutsRaw ||
+                              info['roon_playouts_raw'] != roonPlayoutsRaw ||
+                              controlId == null ||
+                              controlIdUpdated != controlId) {
+                            Map<String, dynamic>? zone =
+                                getZoneDataForControlId(controlIdUpdated);
+                            if (zone != null) {
+                              selectedZone = zone;
+                            }
+
+                            SchedulerBinding.instance
+                                .addPostFrameCallback((_) async {
+                              if (mounted) {
+                                setState(() {
+                                  webPlayoutsRaw = info['web_playouts_raw'];
+                                  roonPlayoutsRaw = info['roon_playouts_raw'];
+                                  if (controlIdUpdated != controlId) {
+                                    controlId = controlIdUpdated;
+                                  }
+                                  if (zone != null) {
+                                    selectedZone = zone;
+                                    selectedZoneId = zone['server'] == 'roon'
+                                        ? zone['zone']
+                                        : '${zone['server']}-${zone['zone']}';
+                                  }
+                                });
+                              }
+                            });
+
+                            if (controlIdUpdated != null) {
+                              if ((info['shufflemode'] as Map<String, dynamic>)
+                                  .containsKey(controlIdUpdated)) {
+                                shuffle = info['shufflemode']
+                                        [controlIdUpdated] ==
+                                    'shuffle';
+                              }
+                              if ((info['repeatmode'] as Map<String, dynamic>)
+                                  .containsKey(controlIdUpdated)) {
+                                repeat = info['repeatmode'][controlIdUpdated] ==
+                                    'repeat';
+                              }
+                              if ((info['playmode'] as Map<String, dynamic>)
+                                  .containsKey(controlIdUpdated)) {
+                                idle = info['playmode'][controlIdUpdated] !=
+                                    'play';
+                              }
+                            }
                           }
                         }
                       }
-                    }
-                  }
 
-                  return const SizedBox(height: 0.0);
-                }),
-            Expanded(
-              child: RoonmatrixAnimatedGradient(
-                child: OrientationBuilder(
-                    builder: (BuildContext context, Orientation orientation) {
-                  bool portraitMode = (SharedWidgets.isMobileDevice() &&
-                          orientation == Orientation.portrait) ||
-                      (SharedWidgets.isDesktopDevice() &&
-                          MediaQuery.of(context).size.height > 800);
-                  bool dektopMode = !portraitMode;
+                      return const SizedBox(height: 0.0);
+                    }),
+                Expanded(
+                  child: RoonmatrixAnimatedGradient(
+                    child: OrientationBuilder(builder:
+                        (BuildContext context, Orientation orientation) {
+                      bool portraitMode = (SharedWidgets.isMobileDevice() &&
+                              orientation == Orientation.portrait) ||
+                          (SharedWidgets.isDesktopDevice() &&
+                              MediaQuery.of(context).size.height > 800);
+                      bool dektopMode = !portraitMode;
 
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      if (portraitMode == true && widget.controlId == null)
-                        getSelectBoxArea(),
-                      Expanded(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Flexible(
-                              fit: FlexFit.loose,
-                              child: NotificationListener<
-                                  SizeChangedLayoutNotification>(
-                                onNotification: (notification) {
-                                  build(context);
-                                  return false;
-                                },
-                                child: SizeChangedLayoutNotifier(
-                                  child: Container(
-                                    padding: EdgeInsets.all(24.0),
-                                    child: AnimatedSwitcher(
-                                      duration: Duration(milliseconds: 2000),
-                                      // transitionBuilder: (Widget child,
-                                      //     Animation<double> animation) {
-                                      //   return ScaleTransition(
-                                      //       scale: animation, child: child);
-                                      // },
-                                      child: selectedZone != null &&
-                                              selectedZone!['cover'] != null &&
-                                              (selectedZone!['cover'] as String)
-                                                  .isNotEmpty
-                                          ? Image.network(
-                                              selectedZone!['cover'],
-                                              key: ValueKey(
-                                                  'BigCover${selectedZone!['cover']}'),
-                                              fit: BoxFit.contain,
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                            )
-                                          : SvgPicture.asset(
-                                              'assets/svg/8-8-led-matrix-display-unit.svg',
-                                              allowDrawingOutsideViewBox: false,
-                                              width: double.infinity,
-                                              height: double.infinity,
-                                            ),
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          if (portraitMode == true && widget.controlId == null)
+                            getSelectBoxArea(),
+                          Expanded(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                  fit: FlexFit.loose,
+                                  child: NotificationListener<
+                                      SizeChangedLayoutNotification>(
+                                    onNotification: (notification) {
+                                      build(context);
+                                      return false;
+                                    },
+                                    child: SizeChangedLayoutNotifier(
+                                      child: Container(
+                                        padding: EdgeInsets.all(24.0),
+                                        child: AnimatedSwitcher(
+                                          duration:
+                                              Duration(milliseconds: 2000),
+                                          // transitionBuilder: (Widget child,
+                                          //     Animation<double> animation) {
+                                          //   return ScaleTransition(
+                                          //       scale: animation, child: child);
+                                          // },
+                                          child: selectedZone != null &&
+                                                  selectedZone!['cover'] !=
+                                                      null &&
+                                                  (selectedZone!['cover']
+                                                          as String)
+                                                      .isNotEmpty
+                                              ? Image.network(
+                                                  selectedZone!['cover'],
+                                                  key: ValueKey(
+                                                      'BigCover${selectedZone!['cover']}'),
+                                                  fit: BoxFit.contain,
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                )
+                                              : SvgPicture.asset(
+                                                  'assets/svg/8-8-led-matrix-display-unit.svg',
+                                                  allowDrawingOutsideViewBox:
+                                                      false,
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                            if (dektopMode == true)
-                              Flexible(
-                                fit: FlexFit.tight,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    if (widget.controlId == null)
-                                      getSelectBoxArea(),
-                                    Expanded(
-                                      child: ControlButtons(
-                                        key: ValueKey(
-                                            'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
-                                        orientation: orientation,
-                                        translations: translations,
-                                        partsToSubtract: 275,
-                                        ip: ip,
-                                        controlId:
-                                            controlId ?? widget.controlId ?? '',
-                                        idle: idle,
-                                        shuffle: shuffle,
-                                        repeat: repeat,
-                                        isRadio: isRadio,
-                                        readOnly: selectedZoneId == null ||
-                                            selectedZoneId!.isEmpty,
-                                      ),
+                                if (dektopMode == true)
+                                  Flexible(
+                                    fit: FlexFit.tight,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        if (widget.controlId == null)
+                                          getSelectBoxArea(),
+                                        Expanded(
+                                          child: ControlButtons(
+                                            key: ValueKey(
+                                                'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
+                                            orientation: orientation,
+                                            translations: translations,
+                                            partsToSubtract: 275,
+                                            ip: ip,
+                                            controlId: controlId ??
+                                                widget.controlId ??
+                                                '',
+                                            idle: idle,
+                                            shuffle: shuffle,
+                                            repeat: repeat,
+                                            isRadio: isRadio,
+                                            readOnly: selectedZoneId == null ||
+                                                selectedZoneId!.isEmpty,
+                                          ),
+                                        ),
+                                        getTextArea(),
+                                      ],
                                     ),
-                                    getTextArea(),
-                                  ],
-                                ),
-                              )
-                          ],
-                        ),
-                      ),
-                      if (portraitMode == true)
-                        Row(
-                          children: [
-                            Expanded(child: getTextArea()),
-                            ControlButtons(
-                              key: ValueKey(
-                                  'ControButtonsPortrait-$idle-$shuffle-$repeat-$isRadio'),
-                              orientation: orientation,
-                              translations: translations,
-                              partsToSubtract:
-                                  MediaQuery.of(context).size.height - 150,
-                              ip: ip,
-                              controlId: controlId ?? widget.controlId ?? '',
-                              idle: idle,
-                              shuffle: shuffle,
-                              repeat: repeat,
-                              isRadio: isRadio,
-                              readOnly: selectedZoneId == null ||
-                                  selectedZoneId!.isEmpty,
+                                  )
+                              ],
                             ),
-                          ],
-                        ),
-                    ],
-                  );
-                }),
+                          ),
+                          if (portraitMode == true)
+                            Row(
+                              children: [
+                                Expanded(child: getTextArea()),
+                                ControlButtons(
+                                  key: ValueKey(
+                                      'ControButtonsPortrait-$idle-$shuffle-$repeat-$isRadio'),
+                                  orientation: orientation,
+                                  translations: translations,
+                                  partsToSubtract:
+                                      MediaQuery.of(context).size.height - 150,
+                                  ip: ip,
+                                  controlId:
+                                      controlId ?? widget.controlId ?? '',
+                                  idle: idle,
+                                  shuffle: shuffle,
+                                  repeat: repeat,
+                                  isRadio: isRadio,
+                                  readOnly: selectedZoneId == null ||
+                                      selectedZoneId!.isEmpty,
+                                ),
+                              ],
+                            ),
+                        ],
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: statusCorner(
+                    color: getZoneColor('-${selectedZone?['zone'] ?? name}')),
+              ),
+            ),
+            Positioned(
+              right: getZoneIconPosition(
+                      zoneName: '-${selectedZone?['zone'] ?? name}')
+                  .dx,
+              top: getZoneIconPosition(
+                      zoneName: '-${selectedZone?['zone'] ?? name}')
+                  .dy,
+              child: Image(
+                image: AssetImage(
+                  SharedWidgets.getZoneIcon(
+                      zoneName: '-${selectedZone?['zone'] ?? name}'),
+                ),
+                width: getZoneIconSize(
+                    zoneName: '-${selectedZone?['zone'] ?? name}'),
+                height: getZoneIconSize(
+                    zoneName: '-${selectedZone?['zone'] ?? name}'),
               ),
             ),
           ],

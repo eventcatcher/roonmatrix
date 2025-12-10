@@ -20,6 +20,7 @@ import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
 import 'package:roonmatrix/ui/helper/animated_list_helper.dart';
+import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
@@ -541,6 +542,63 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return buttons;
   }
 
+  Color getZoneColor(CoverModel coverModel) {
+    if (coverModel.zoneName.endsWith('-Apple Music')) {
+      return Color(0xFFF50057);
+    }
+    if (coverModel.zoneName.endsWith('-SpotifyConnect') ||
+        coverModel.zoneName.endsWith('-Spotify')) {
+      return Colors.green;
+    }
+
+    return Colors.blue.shade300;
+  }
+
+  Offset getZoneIconPosition(
+      {required double size, required CoverModel coverModel}) {
+    if (coverModel.zoneName.endsWith('-Apple Music')) {
+      return Offset(size < 200 ? -2.0 : -5.0, size < 200 ? -2.0 : -3.0);
+    }
+    if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
+      return Offset(size < 200 ? 2.0 : 0, size < 200 ? 4.0 : 5.0);
+    }
+
+    if (coverModel.zoneName.endsWith('-Spotify')) {
+      return Offset(2.0, size < 200 ? 4.0 : 5.0);
+    }
+
+    return Offset(4.0, 5.0);
+  }
+
+  double getZoneIconSize(
+      {required double size, required CoverModel coverModel}) {
+    double factor = size < 200 ? 0.65 : 1.0;
+    if (coverModel.zoneName.endsWith('-Apple Music')) {
+      return factor * 56.0;
+    }
+    if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
+      return factor * 44.0;
+    }
+
+    if (coverModel.zoneName.endsWith('-Spotify')) {
+      return factor * 44.0;
+    }
+
+    return factor * 40.0;
+  }
+
+  statusCorner({required double size, required Color color}) => SizedBox(
+        width: size < 200 ? 56 : 84,
+        height: size < 200 ? 56 : 84,
+        child: ClipRRect(
+          child: CustomPaint(
+            painter: TrianglePainter(
+              color: color,
+            ),
+          ),
+        ),
+      );
+
   List<CoverModel> getCoversModel(Map<String, dynamic>? info) {
     List<CoverModel> covers = [];
 
@@ -928,39 +986,30 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: coverModel.zoneName.endsWith('-Apple Music')
-                          ? 0.0
-                          : 8.0,
-                      vertical: coverModel.zoneName.endsWith('-Apple Music')
-                          ? 0.0
-                          : 5.0),
-                  child: isRoonZone(coverModel.zoneName)
-                      ? CircleAvatar(
-                          radius: 23,
-                          backgroundColor: Colors.blue.shade300,
-                          child: Image(
-                            image: AssetImage(
-                              SharedWidgets.getZoneIcon(
-                                  zoneName: coverModel.zoneName),
-                            ),
-                            width: 44,
-                            height: 44,
-                          ),
-                        )
-                      : Image(
-                          image: AssetImage(
-                            SharedWidgets.getZoneIcon(
-                                zoneName: coverModel.zoneName),
-                          ),
-                          width: coverModel.zoneName.endsWith('-Apple Music')
-                              ? 56
-                              : 44,
-                          height: coverModel.zoneName.endsWith('-Apple Music')
-                              ? 56
-                              : 44,
-                        ),
+                SizedBox(
+                  width: coverWidth,
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: statusCorner(
+                        size: coverWidth, color: getZoneColor(coverModel)),
+                  ),
+                ),
+                Positioned(
+                  right: getZoneIconPosition(
+                          size: coverWidth, coverModel: coverModel)
+                      .dx,
+                  top: getZoneIconPosition(
+                          size: coverWidth, coverModel: coverModel)
+                      .dy,
+                  child: Image(
+                    image: AssetImage(
+                      SharedWidgets.getZoneIcon(zoneName: coverModel.zoneName),
+                    ),
+                    width: getZoneIconSize(
+                        size: coverWidth, coverModel: coverModel),
+                    height: getZoneIconSize(
+                        size: coverWidth, coverModel: coverModel),
+                  ),
                 ),
                 Container(
                   padding: EdgeInsets.all(8.0),
