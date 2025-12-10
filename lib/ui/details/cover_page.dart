@@ -392,45 +392,48 @@ class _CoverPageState extends State<CoverPage> {
   Widget getSelectBoxArea() {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
-      child: SelectBox(
-          key: ValueKey('ZoneSelectBox$selectedZoneId'),
-          translations: translations,
-          aligned: 'horizontal',
-          label: '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
-          placeholder:
-              '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-          inRow: false,
-          noVerticalSpace: false,
-          readOnly: false,
-          selected: selectedZoneId,
-          options: options,
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              String? selectedControlId;
-              if (options[newValue] != null &&
-                  (options[newValue] == 'webserver' ||
-                      options[newValue] == 'spotifyconnect')) {
-                selectedControlId = newValue;
-              } else {
-                selectedControlId = options[newValue];
-              }
+      child: Padding(
+        padding: const EdgeInsets.only(right: 64.0),
+        child: SelectBox(
+            key: ValueKey('ZoneSelectBox$selectedZoneId'),
+            translations: translations,
+            aligned: 'horizontal',
+            label: '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+            placeholder:
+                '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+            inRow: false,
+            noVerticalSpace: false,
+            readOnly: false,
+            selected: selectedZoneId,
+            options: options,
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                String? selectedControlId;
+                if (options[newValue] != null &&
+                    (options[newValue] == 'webserver' ||
+                        options[newValue] == 'spotifyconnect')) {
+                  selectedControlId = newValue;
+                } else {
+                  selectedControlId = options[newValue];
+                }
 
-              if (selectedControlId != null) {
-                mainBloc.zoneControl(
-                    ip: ip, controlId: selectedControlId, cmd: 'switch');
+                if (selectedControlId != null) {
+                  mainBloc.zoneControl(
+                      ip: ip, controlId: selectedControlId, cmd: 'switch');
 
-                Map<String, dynamic>? zone =
-                    getZoneDataForControlId(selectedControlId);
-                if (zone != null) {
-                  setState(() {
-                    controlId = selectedControlId;
-                    selectedZone = zone;
-                    selectedZoneId = newValue;
-                  });
+                  Map<String, dynamic>? zone =
+                      getZoneDataForControlId(selectedControlId);
+                  if (zone != null) {
+                    setState(() {
+                      controlId = selectedControlId;
+                      selectedZone = zone;
+                      selectedZoneId = newValue;
+                    });
+                  }
                 }
               }
-            }
-          }),
+            }),
+      ),
     );
   }
 

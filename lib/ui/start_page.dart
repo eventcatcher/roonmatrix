@@ -574,7 +574,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       {required double size, required CoverModel coverModel}) {
     double factor = size < 200 ? 0.65 : 1.0;
     if (coverModel.zoneName.endsWith('-Apple Music')) {
-      return factor * 56.0;
+      return factor * 54.0;
     }
     if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
       return factor * 44.0;
