@@ -986,29 +986,40 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: coverWidth,
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: statusCorner(
-                        size: coverWidth, color: getZoneColor(coverModel)),
-                  ),
-                ),
-                Positioned(
-                  right: getZoneIconPosition(
-                          size: coverWidth, coverModel: coverModel)
-                      .dx,
-                  top: getZoneIconPosition(
-                          size: coverWidth, coverModel: coverModel)
-                      .dy,
-                  child: Image(
-                    image: AssetImage(
-                      SharedWidgets.getZoneIcon(zoneName: coverModel.zoneName),
+                Opacity(
+                  opacity: 0.7,
+                  child: SizedBox(
+                    width: coverWidth,
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Stack(
+                        children: [
+                          statusCorner(
+                              size: coverWidth,
+                              color: getZoneColor(coverModel)),
+                          Positioned(
+                            right: getZoneIconPosition(
+                                    size: coverWidth, coverModel: coverModel)
+                                .dx,
+                            top: getZoneIconPosition(
+                                    size: coverWidth, coverModel: coverModel)
+                                .dy,
+                            child: Center(
+                              child: Image(
+                                image: AssetImage(
+                                  SharedWidgets.getZoneIcon(
+                                      zoneName: coverModel.zoneName),
+                                ),
+                                width: getZoneIconSize(
+                                    size: coverWidth, coverModel: coverModel),
+                                height: getZoneIconSize(
+                                    size: coverWidth, coverModel: coverModel),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    width: getZoneIconSize(
-                        size: coverWidth, coverModel: coverModel),
-                    height: getZoneIconSize(
-                        size: coverWidth, coverModel: coverModel),
                   ),
                 ),
                 Container(
