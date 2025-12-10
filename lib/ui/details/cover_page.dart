@@ -237,13 +237,25 @@ class _CoverPageState extends State<CoverPage> {
           Padding(
             padding:
                 const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 104.0),
-            child: Text(
-              '${translations['inactive'] ?? 'inactive zone'}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: Colors.black,
-              ),
+            child: Row(
+              children: [
+                Text(
+                  '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone!['server'] == 'roon' ? selectedZone!['zone'] : selectedZone!['server']).toString().toFirstUpper}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  ' (${translations['inactive'] ?? 'inactive zone'})',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                    color: Colors.red.shade700,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -289,7 +301,7 @@ class _CoverPageState extends State<CoverPage> {
                           TableCell(
                             child: Text(
                               selectedZone!['zone'] != null
-                                  ? '${selectedZone!['server'].toString().toFirstUpper} ${idle ? ' (${translations['paused'] ?? 'paused'})' : ''}'
+                                  ? '${(selectedZone!['server'] == 'roon' ? selectedZone!['zone'] : selectedZone!['server']).toString().toFirstUpper} ${idle ? ' (${translations['paused'] ?? 'paused'})' : ''}'
                                   : '',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
