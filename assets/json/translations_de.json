@@ -154,6 +154,7 @@
         "separator": "Nachrichten-Trennungszeichen",
         "control_zone": "Zonensteuerung Vorauswahl [Zonen-Name]",
         "zone_control_map": "Zonensteuerung Konvertierungsliste [Kürzung der Zonen-Namen]",
+        "restart_with_last_selected_zone": "Zeige zuletzt ausgewählte Zone nach autom. Neustart aufgrund eines Fehlers an",
         "zone_control_timeout": "Zonensteuerung Timeout",
         "map_zone_control": "Zonensteuerung: Namen der Zonen kürzen",
         "playing_headline": "Headline welche vor den Audio-Informationen angezeigt wird",

@@ -153,6 +153,7 @@
         "internet_connection_url": "Internet connection check url",
         "separator": "Message Separator",
         "control_zone": "Default control zone",
+        "restart_with_last_selected_zone": "Display last selected zone after an auto-restart due to an error",
         "zone_control_map": "Zone control conversion map",
         "zone_control_timeout": "Zone control timeout",
         "map_zone_control": "Zone control conversion",
