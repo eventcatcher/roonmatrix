@@ -12,6 +12,7 @@ class SelectBox extends StatefulWidget {
   final Color? labelColor;
   final String? placeholder;
   final String? selected;
+  final bool? showValue;
   final bool? inRow;
   final bool? noVerticalSpace;
   final bool? readOnly;
@@ -28,6 +29,7 @@ class SelectBox extends StatefulWidget {
     this.labelColor,
     this.placeholder,
     this.selected,
+    this.showValue = false,
     this.inRow,
     this.noVerticalSpace,
     this.readOnly,
@@ -41,6 +43,7 @@ class SelectBox extends StatefulWidget {
 }
 
 class SelectBoxState extends State<SelectBox> {
+  BuildContext? modalContext;
   late EdgeInsetsGeometry margin;
 
   int selectedItem = -1;
@@ -78,40 +81,47 @@ class SelectBoxState extends State<SelectBox> {
     super.initState();
   }
 
-  void _showDialog(Widget child) {
+  void _showDialog({required BuildContext context, required Widget child}) {
     showCupertinoModalPopup<void>(
       context: context,
-      builder: (BuildContext context) => Container(
-        height: 216,
-        padding: const EdgeInsets.only(top: 6.0),
-        // The Bottom margin is provided to align the popup above the system navigation bar.
-        margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        // Provide a background color for the popup.
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        // Use a SafeArea widget to avoid system overlaps.
-        child: SafeArea(
-          top: false,
-          child: child,
-        ),
-      ),
+      builder: (BuildContext context) {
+        modalContext = context;
+        return Container(
+          height: 216,
+          padding: const EdgeInsets.only(top: 6.0),
+          // The Bottom margin is provided to align the popup above the system navigation bar.
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          // Provide a background color for the popup.
+          color: CupertinoColors.systemBackground.resolveFrom(context),
+          // Use a SafeArea widget to avoid system overlaps.
+          child: SafeArea(
+            top: false,
+            child: child,
+          ),
+        );
+      },
     );
   }
 
-  Widget dropdownElement({required bool expanded}) {
+  Widget dropdownElement(
+      {required bool expanded, required BuildContext context}) {
     if (SharedWidgets.inIosStyle()) {
       return widget.options!.keys.toList().isEmpty
           ? Text(widget.translations['zonePickerOptionsEmpty'] ?? 'none')
           : CupertinoButton(
               child: Text(
                 widget.selected != null
-                    ? widget.selected!
+                    ? widget.showValue!
+                        ? widget.options![widget.selected]
+                        : widget.selected!
                     : widget.translations['zonePickerSelectionEmpty'] ??
                         'Please Select',
               ),
               onPressed: () => _showDialog(
-                Column(
+                context: context,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,
                   children: [
@@ -123,7 +133,7 @@ class SelectBoxState extends State<SelectBox> {
                               widget.translations['dialogCancelButtonText'] ??
                                   'Cancel'),
                           onPressed: () {
-                            Navigator.pop(context);
+                            Navigator.pop(modalContext ?? context);
                           },
                         ),
                         Expanded(
@@ -135,7 +145,7 @@ class SelectBoxState extends State<SelectBox> {
                           onPressed: () {
                             widget.onChanged(widget.options!.keys.toList()[
                                 selectedItem >= 0 ? selectedItem : 0]);
-                            Navigator.pop(context);
+                            Navigator.pop(modalContext ?? context);
                           },
                         ),
                       ],
@@ -160,7 +170,9 @@ class SelectBoxState extends State<SelectBox> {
                             (int index) {
                           return Center(
                             child: Text(
-                              widget.options!.keys.toList()[index],
+                              widget.showValue!
+                                  ? widget.options!.values.toList()[index]
+                                  : widget.options!.keys.toList()[index],
                               style: TextStyle(fontSize: 13.0),
                             ),
                           );
@@ -190,7 +202,7 @@ class SelectBoxState extends State<SelectBox> {
                                 ? 8.0
                                 : 0.0),
                         child: Text(
-                          key,
+                          widget.showValue! ? widget.options![key]! : key,
                           overflow: TextOverflow.fade,
                         ),
                       ),
@@ -238,7 +250,7 @@ class SelectBoxState extends State<SelectBox> {
                                 ? 8.0
                                 : 0.0),
                         child: Text(
-                          key,
+                          widget.showValue! ? widget.options![key]! : key,
                           overflow: TextOverflow.fade,
                         ),
                       ),
@@ -248,7 +260,7 @@ class SelectBoxState extends State<SelectBox> {
           );
   }
 
-  Widget dropdownReadonlyElement() {
+  Widget dropdownReadonlyElement({required BuildContext context}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -268,7 +280,8 @@ class SelectBoxState extends State<SelectBox> {
     );
   }
 
-  Widget dropdown({required bool expanded}) => Container(
+  Widget dropdown({required bool expanded, required BuildContext context}) =>
+      Container(
         height: SharedWidgets.inIosStyle()
             ? 56.0
             : SharedWidgets.selectBoxInMacStyle()
@@ -284,12 +297,13 @@ class SelectBoxState extends State<SelectBox> {
                     SharedWidgets.elementBackgroundColor(context: context),
               ),
         child: widget.readOnly == true
-            ? dropdownReadonlyElement()
-            : dropdownElement(expanded: expanded),
+            ? dropdownReadonlyElement(context: context)
+            : dropdownElement(expanded: expanded, context: context),
       );
 
   @override
   Widget build(BuildContext context) {
+    BuildContext dropdownContext = context;
     return Container(
       margin: margin,
       alignment: Alignment.topLeft,
@@ -308,7 +322,7 @@ class SelectBoxState extends State<SelectBox> {
                         fontSize: 12.0,
                       ),
                     ),
-                  dropdown(expanded: false),
+                  dropdown(expanded: false, context: dropdownContext),
                 ],
               )
             : Column(
@@ -327,7 +341,7 @@ class SelectBoxState extends State<SelectBox> {
                       height: 4.0,
                     ),
                   ],
-                  dropdown(expanded: true),
+                  dropdown(expanded: true, context: dropdownContext),
                 ],
               ),
       ),

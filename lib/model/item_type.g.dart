@@ -25,7 +25,15 @@ class _$ItemTypeSerializer implements StructuredSerializer<ItemType> {
           specifiedType: const FullType(
               BuiltList, const [const FullType(ItemTypeStructure)])),
     ];
-
+    Object? value;
+    value = object.options;
+    if (value != null) {
+      result
+        ..add('options')
+        ..add(serializers.serialize(value,
+            specifiedType: const FullType(BuiltMap,
+                const [const FullType(String), const FullType(String)])));
+    }
     return result;
   }
 
@@ -50,6 +58,11 @@ class _$ItemTypeSerializer implements StructuredSerializer<ItemType> {
                       BuiltList, const [const FullType(ItemTypeStructure)]))!
               as BuiltList<Object?>);
           break;
+        case 'options':
+          result.options.replace(serializers.deserialize(value,
+              specifiedType: const FullType(BuiltMap,
+                  const [const FullType(String), const FullType(String)]))!);
+          break;
       }
     }
 
@@ -62,11 +75,14 @@ class _$ItemType extends ItemType {
   final String type;
   @override
   final BuiltList<ItemTypeStructure> structure;
+  @override
+  final BuiltMap<String, String>? options;
 
   factory _$ItemType([void Function(ItemTypeBuilder)? updates]) =>
       (ItemTypeBuilder()..update(updates))._build();
 
-  _$ItemType._({required this.type, required this.structure}) : super._();
+  _$ItemType._({required this.type, required this.structure, this.options})
+      : super._();
   @override
   ItemType rebuild(void Function(ItemTypeBuilder) updates) =>
       (toBuilder()..update(updates)).build();
@@ -79,7 +95,8 @@ class _$ItemType extends ItemType {
     if (identical(other, this)) return true;
     return other is ItemType &&
         type == other.type &&
-        structure == other.structure;
+        structure == other.structure &&
+        options == other.options;
   }
 
   @override
@@ -87,6 +104,7 @@ class _$ItemType extends ItemType {
     var _$hash = 0;
     _$hash = $jc(_$hash, type.hashCode);
     _$hash = $jc(_$hash, structure.hashCode);
+    _$hash = $jc(_$hash, options.hashCode);
     _$hash = $jf(_$hash);
     return _$hash;
   }
@@ -95,7 +113,8 @@ class _$ItemType extends ItemType {
   String toString() {
     return (newBuiltValueToStringHelper(r'ItemType')
           ..add('type', type)
-          ..add('structure', structure))
+          ..add('structure', structure)
+          ..add('options', options))
         .toString();
   }
 }
@@ -113,6 +132,11 @@ class ItemTypeBuilder implements Builder<ItemType, ItemTypeBuilder> {
   set structure(ListBuilder<ItemTypeStructure>? structure) =>
       _$this._structure = structure;
 
+  MapBuilder<String, String>? _options;
+  MapBuilder<String, String> get options =>
+      _$this._options ??= MapBuilder<String, String>();
+  set options(MapBuilder<String, String>? options) => _$this._options = options;
+
   ItemTypeBuilder();
 
   ItemTypeBuilder get _$this {
@@ -120,6 +144,7 @@ class ItemTypeBuilder implements Builder<ItemType, ItemTypeBuilder> {
     if ($v != null) {
       _type = $v.type;
       _structure = $v.structure.toBuilder();
+      _options = $v.options?.toBuilder();
       _$v = null;
     }
     return this;
@@ -147,12 +172,15 @@ class ItemTypeBuilder implements Builder<ItemType, ItemTypeBuilder> {
             type: BuiltValueNullFieldError.checkNotNull(
                 type, r'ItemType', 'type'),
             structure: structure.build(),
+            options: _options?.build(),
           );
     } catch (_) {
       late String _$failedField;
       try {
         _$failedField = 'structure';
         structure.build();
+        _$failedField = 'options';
+        _options?.build();
       } catch (e) {
         throw BuiltValueNestedFieldError(
             r'ItemType', _$failedField, e.toString());

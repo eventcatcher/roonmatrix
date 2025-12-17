@@ -24,7 +24,11 @@ Serializers _$serializers = (Serializers().toBuilder()
           () => ListBuilder<ConfigDefinitionItem>())
       ..addBuilderFactory(
           const FullType(BuiltList, const [const FullType(ItemTypeStructure)]),
-          () => ListBuilder<ItemTypeStructure>()))
+          () => ListBuilder<ItemTypeStructure>())
+      ..addBuilderFactory(
+          const FullType(
+              BuiltMap, const [const FullType(String), const FullType(String)]),
+          () => MapBuilder<String, String>()))
     .build();
 
 // ignore_for_file: deprecated_member_use_from_same_package,type=lint

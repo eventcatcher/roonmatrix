@@ -9,6 +9,7 @@ part 'item_type.g.dart';
 abstract class ItemType implements Built<ItemType, ItemTypeBuilder> {
   String get type;
   BuiltList<ItemTypeStructure> get structure;
+  BuiltMap<String, String>? get options;
 
   ItemType._();
   factory ItemType([void Function(ItemTypeBuilder) updates]) = _$ItemType;

@@ -19,6 +19,7 @@ import 'package:roonmatrix/ui/layout/key_val_items.dart';
 import 'package:roonmatrix/ui/layout/list_items.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/map_list_items.dart';
+import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -108,7 +109,36 @@ class ConfigPageState extends State<ConfigPage> {
                 : '');
           }
 
-          if (fieldType == 'text') {
+          if (fieldType == 'text' && fieldDefinition.type.options != null) {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: SelectBox(
+                translations: translations,
+                aligned: 'horizontal',
+                label: label,
+                showValue: true,
+                inRow: false,
+                noVerticalSpace: false,
+                readOnly: false,
+                selected:
+                    fieldValues[area.name][fieldDefinition.name].toString(),
+                options: fieldDefinition.type.options!.toMap(),
+                onChanged: (String? value) {
+                  if (mounted) {
+                    try {
+                      setState(() => fieldValues[area.name]
+                          [fieldDefinition.name] = value!);
+                    } catch (e) {
+                      setState(() {
+                        fieldValues[area.name][fieldDefinition.name] = '';
+                      });
+                    }
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'text' && fieldDefinition.type.options == null) {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: EditableSinglelineText(
@@ -187,7 +217,36 @@ class ConfigPageState extends State<ConfigPage> {
               ),
             );
           }
-          if (fieldType == 'int') {
+          if (fieldType == 'int' && fieldDefinition.type.options != null) {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: SelectBox(
+                translations: translations,
+                aligned: 'horizontal',
+                label: label,
+                inRow: false,
+                showValue: true,
+                noVerticalSpace: false,
+                readOnly: false,
+                selected:
+                    fieldValues[area.name][fieldDefinition.name].toString(),
+                options: fieldDefinition.type.options!.toMap(),
+                onChanged: (String? value) {
+                  if (mounted) {
+                    try {
+                      setState(() => fieldValues[area.name]
+                          [fieldDefinition.name] = int.parse(value!));
+                    } catch (e) {
+                      setState(() {
+                        fieldValues[area.name][fieldDefinition.name] = '';
+                      });
+                    }
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'int' && fieldDefinition.type.options == null) {
             widgetField = Padding(
               padding: const EdgeInsets.symmetric(vertical: 6.0),
               child: EditableSinglelineText(
