@@ -193,6 +193,7 @@
         "librespot_device": "Spotify Connect Audioausgang",
         "librespot_bitrate": "Spotify Connect Bitrate",
         "librespot_format": "Spotify Connect Format",
+        "shairport_device": "Airplay 2 Audioausgang (shairport)",
         "weather_show": "Zeige Wetter-Informationen",
         "location": "Ort",
         "weatherbit_api_key": "Weatherbit API-Schlüssel",
