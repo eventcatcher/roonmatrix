@@ -10,9 +10,6 @@ website:
 contact: 
   - support@wilhelm-devblog.de
 license: GPL-3.0+
-issues:
-  - support@wilhelm-devblog.de
-  - https://www.wilhelm-devblog.de/en/forum
 
 base: core22
 confinement: strict
