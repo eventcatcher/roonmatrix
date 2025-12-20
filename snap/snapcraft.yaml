@@ -13,8 +13,6 @@ license: GPL-3.0+
 issues:
   - support@wilhelm-devblog.de
   - https://www.wilhelm-devblog.de/en/forum
-source-code:
-donation:
 
 base: core22
 confinement: strict
