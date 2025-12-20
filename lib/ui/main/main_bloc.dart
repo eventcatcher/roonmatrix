@@ -484,11 +484,26 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           String url = 'http://$ip:$port/log/';
           Uri uri = Uri.parse(url);
           try {
+            if (kDebugMode) {
+              debugPrint('websocket log request @ ${DateTime.now().toLocal()}');
+            }
             var response = await client.post(uri,
                 headers: headers, body: json.encode(payload));
+            if (kDebugMode) {
+              debugPrint(
+                  'websocket log response  @ ${DateTime.now().toLocal()} => statuscode: ${response.statusCode}, bodyBytes: ${response.contentLength}');
+            }
             if (response.statusCode == 200) {
               Uint8List bytes = response.bodyBytes;
+              if (kDebugMode) {
+                debugPrint(
+                    'websocket log @ ${DateTime.now().toLocal()} => decompress now...');
+              }
               String log = decompressZlib(bytes);
+              if (kDebugMode) {
+                debugPrint(
+                    'websocket log @ ${DateTime.now().toLocal()} => decompress done, log size: ${log.length}');
+              }
 
               emit(MainStateLoaded(
                 update: DateTime.now(),
@@ -692,6 +707,34 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   // ============== //
   // public methods //
   // ============== //
+
+  void stringExportToFile(String fileStr) async {
+    if (fileStr.isNotEmpty) {
+      FileSaveLocation? result;
+      String fileName =
+          'stringExport-${DateFormat('yyyyMMddTHHmmss').format(DateTime.now())}.txt';
+      if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        result = await getSaveLocation(suggestedName: fileName);
+        if (result == null) {
+          // Operation was canceled by the user.
+          return Future.value(null);
+        }
+      }
+
+      if (result != null) {
+        List<int> encoded = utf8.encode(fileStr);
+        final Uint8List fileData = Uint8List.fromList(encoded);
+        const String mimeType = 'text/plain';
+        final XFile textFile =
+            XFile.fromData(fileData, mimeType: mimeType, name: fileName);
+
+        if (kDebugMode) {
+          debugPrint('stringExportToFile');
+        }
+        textFile.saveTo(result.path);
+      }
+    }
+  }
 
   Future<bool?> exportData(
       {required String name, required String ip, required String type}) async {

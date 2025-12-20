@@ -67,9 +67,9 @@ class LogPageState extends State<LogPage> {
     super.initState();
   }
 
-  List<Widget> logfilePartSelection({required String log}) => [
+  List<Widget> logfilePartSelection({required String logstr}) => [
         AnimatedOpacity(
-          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: const EdgeInsets.only(bottom: 2.0),
@@ -88,12 +88,12 @@ class LogPageState extends State<LogPage> {
           ),
         ),
         AnimatedOpacity(
-          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 2000),
           child: Padding(
             padding: const EdgeInsets.only(bottom: 2.0),
             child: Text(
-              '${translations['filesize'] ?? 'filesize'}: ${log.length.readableFileSize(base1024: true)}',
+              '${translations['filesize'] ?? 'filesize'}: ${logstr.length.readableFileSize(base1024: true)}',
               style: TextStyle(
                   fontSize: 16.0,
                   color: SharedWidgets.textColor(context: context)),
@@ -102,7 +102,7 @@ class LogPageState extends State<LogPage> {
         ),
         SizedBox(width: 8.0),
         AnimatedOpacity(
-          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: EdgeInsets.zero,
@@ -124,7 +124,7 @@ class LogPageState extends State<LogPage> {
           ),
         ),
         AnimatedOpacity(
-          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 2000),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -137,7 +137,7 @@ class LogPageState extends State<LogPage> {
           ),
         ),
         AnimatedOpacity(
-          opacity: !refreshLog && log.isNotEmpty ? 1.0 : 0.0,
+          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 2000),
           child: IconButton(
             padding: EdgeInsets.zero,
@@ -168,7 +168,7 @@ class LogPageState extends State<LogPage> {
   Widget body({
     required BuildContext context,
     required MainState mainState,
-    required String log,
+    required String logstr,
   }) =>
       Column(
         children: [
@@ -208,14 +208,15 @@ class LogPageState extends State<LogPage> {
                   child: SizedBox(
                       width: 400.0,
                       child: Row(
-                          children: logfilePartSelection(log: mainState.log))),
+                          children:
+                              logfilePartSelection(logstr: mainState.log))),
                 ),
             ],
           ),
           if (SharedWidgets.isMobileDevice())
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: logfilePartSelection(log: mainState.log),
+              children: logfilePartSelection(logstr: mainState.log),
             ),
           Expanded(
             child: mainState.subPageIdle == true
@@ -226,7 +227,7 @@ class LogPageState extends State<LogPage> {
                       Padding(
                         padding: const EdgeInsets.all(20),
                         child: ExtendedText(
-                          log,
+                          logstr,
                           specialTextSpanBuilder: RichParser(),
                           style: TextStyle(
                               color: SharedWidgets.textColor(context: context)),
@@ -290,47 +291,47 @@ class LogPageState extends State<LogPage> {
         ],
       );
 
-  int generateLogParts(String log) {
-    String fullLog = log;
+  int generateLogParts(String logstr) {
+    String fullLog = logstr;
     int part = 1;
     int offset = 0;
     logfilePartOffset = [];
-    if (log.isNotEmpty) {
+    if (logstr.isNotEmpty) {
       logfilePartOffset = [0];
       part = 0;
       do {
         part++;
         if (fullLog.length > logfileSliceSize) {
           offset = logfilePartOffset[part - 1];
-          log = fullLog.substring(offset);
-          if (log.length > logfileSliceSize) {
+          logstr = fullLog.substring(offset);
+          if (logstr.length > logfileSliceSize) {
             int endOfLine = 0;
-            if ((logfileSliceSize) < log.length) {
-              endOfLine = log.substring(logfileSliceSize).indexOf('\n');
+            if ((logfileSliceSize) < logstr.length) {
+              endOfLine = logstr.substring(logfileSliceSize).indexOf('\n');
             }
             int partlen =
                 logfileSliceSize + (endOfLine == -1 ? 0 : (endOfLine + 1));
-            log = log.substring(0, partlen);
+            logstr = logstr.substring(0, partlen);
           }
 
           if (logfilePartOffset.length <= part) {
-            logfilePartOffset.add(offset + log.length);
+            logfilePartOffset.add(offset + logstr.length);
           }
         }
       } while (fullLog.length > logfileSliceSize &&
-          fullLog.length > (offset + log.length));
+          fullLog.length > (offset + logstr.length));
     }
 
     return part;
   }
 
-  String showOnlyMatchedLines(String log) {
-    if (!filterLog || log.isEmpty) {
-      return log;
+  String showOnlyMatchedLines(String logstr) {
+    if (!filterLog || logstr.isEmpty) {
+      return logstr;
     }
 
     List<String> matchedLines = [];
-    List<String> lines = log.split('\n');
+    List<String> lines = logstr.split('\n');
     for (String line in lines) {
       if (line.contains('[bg-orange]')) {
         matchedLines.add(line);
@@ -400,39 +401,43 @@ class LogPageState extends State<LogPage> {
                 }
 
                 String search = mainState.searchFilter['log']!;
-                String log = mainState.log;
-                if (log.isNotEmpty) {
-                  if (log.endsWith('"')) {
-                    log = log.substring(0, log.length - 1);
+                String logstr = mainState.log;
+                if (logstr.isNotEmpty) {
+                  if (logstr.endsWith('"')) {
+                    logstr = logstr.substring(0, logstr.length - 1);
                   }
-                  if (log.startsWith('"')) {
-                    log = log.substring(1);
+                  if (logstr.startsWith('"')) {
+                    logstr = logstr.substring(1);
                   }
-                  log = log.replaceAll('\\n', '\n');
+                  logstr = logstr
+                      .replaceAll('\\n', '\n')
+                      .removeNumericBrackets()
+                      .removeEmptyBrackets();
                   if (search.isNotEmpty) {
-                    log = log.replaceAllMapped(
+                    logstr = logstr.replaceAllMapped(
                         RegExp(search, caseSensitive: false), (match) {
                       return '[bg-orange]${match.group(0)}[/bg-orange]';
                     });
                   }
-                  log = showOnlyMatchedLines(log);
+                  logstr = showOnlyMatchedLines(logstr);
 
-                  if (log.isNotEmpty &&
-                      lastLog.length != log.length &&
+                  if (logstr.isNotEmpty &&
+                      lastLog.length != logstr.length &&
                       (lastLog.isEmpty ||
                           (lastLog.length > 17 &&
-                              log.length > 17 &&
+                              logstr.length > 17 &&
                               lastLog.substring(0, 17) !=
-                                  log.substring(0, 17)))) {
-                    int newLogfileParts = generateLogParts(log);
+                                  logstr.substring(0, 17)))) {
+                    int newLogfileParts = generateLogParts(logstr);
                     if (newLogfileParts != logfileParts &&
                         logfilePart > newLogfileParts) {
                       logfilePart = 1;
                     }
                     logfileParts = newLogfileParts;
                   }
-                  if (logfilePartOffset.length > 1 && log.isNotEmpty) {
-                    log = log.substring(logfilePartOffset[logfilePart - 1],
+                  if (logfilePartOffset.length > 1 && logstr.isNotEmpty) {
+                    logstr = logstr.substring(
+                        logfilePartOffset[logfilePart - 1],
                         logfilePartOffset[logfilePart]);
                   }
 
@@ -460,7 +465,9 @@ class LogPageState extends State<LogPage> {
                     ),
                     child: SafeArea(
                         child: body(
-                            context: context, mainState: mainState, log: log)),
+                            context: context,
+                            mainState: mainState,
+                            logstr: logstr)),
                   );
                 }
 
@@ -483,7 +490,7 @@ class LogPageState extends State<LogPage> {
                                   child: body(
                                       context: context,
                                       mainState: mainState,
-                                      log: log),
+                                      logstr: logstr),
                                 ),
                               );
                             }),
@@ -496,7 +503,9 @@ class LogPageState extends State<LogPage> {
                           actions: const [],
                         ),
                         body: body(
-                            context: context, mainState: mainState, log: log),
+                            context: context,
+                            mainState: mainState,
+                            logstr: logstr),
                       );
               });
         });

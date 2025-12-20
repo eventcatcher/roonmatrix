@@ -22,3 +22,20 @@ extension FileFormatter on num {
     return '${NumberFormat("#,##0.#").format(this / pow(base, digitGroups))} ${units[digitGroups]}';
   }
 }
+
+extension NumericBracketFilter on String {
+  String removeNumericBrackets() {
+    return replaceAllMapped(
+      RegExp(r'\[(\d+)\]'),
+      (_) => '',
+    ).replaceAll(RegExp(r'\s{2,}'), ' ').trim();
+  }
+}
+
+extension EmptyBracketFilter on String {
+  String removeEmptyBrackets() {
+    return replaceAll(RegExp(r'\[\s*\]'), '')
+        .replaceAll(RegExp(r'\s{2,}'), ' ')
+        .trim();
+  }
+}

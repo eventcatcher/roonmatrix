@@ -435,7 +435,7 @@ class ConfigPageState extends State<ConfigPage> {
   }
 
   Widget tabEdit({
-    required BuildContext context,
+    required BuildContext widgetContext,
     required ColorScheme defaultColorScheme,
     required MainState mainState,
   }) =>
@@ -488,7 +488,7 @@ class ConfigPageState extends State<ConfigPage> {
 
                             SharedWidgets.showSnackBar(
                                 // ignore: use_build_context_synchronously
-                                context: context,
+                                context: widgetContext,
                                 doneMessage: translations['saveDoneMessage'] ??
                                     'save config successfully done',
                                 failMessage:
@@ -497,12 +497,12 @@ class ConfigPageState extends State<ConfigPage> {
                                 valid: valid);
 
                             if (valid == true) {
-                              if (context.mounted) {
+                              if (widgetContext.mounted) {
                                 Timer.periodic(const Duration(seconds: 3),
                                     (Timer timer) {
                                   timer.cancel();
-                                  if (context.mounted) {
-                                    Navigator.of(context).pop();
+                                  if (widgetContext.mounted) {
+                                    Navigator.of(widgetContext).pop();
                                   }
                                 });
                               }
@@ -518,7 +518,7 @@ class ConfigPageState extends State<ConfigPage> {
       );
 
   tabView({
-    required BuildContext context,
+    required BuildContext widgetContext,
     required ColorScheme defaultColorScheme,
     required MainState mainState,
     required String jsonStr,
@@ -548,7 +548,8 @@ class ConfigPageState extends State<ConfigPage> {
                         child: StyledText(
                           text: jsonStr,
                           style: TextStyle(
-                            color: SharedWidgets.textColor(context: context),
+                            color:
+                                SharedWidgets.textColor(context: widgetContext),
                           ),
                           tags: {
                             'b': StyledTextTag(
@@ -604,7 +605,7 @@ class ConfigPageState extends State<ConfigPage> {
 
                           SharedWidgets.showSnackBar(
                               // ignore: use_build_context_synchronously
-                              context: context,
+                              context: widgetContext,
                               doneMessage: translations['exportDoneMessage'] ??
                                   'export successfully done',
                               failMessage:
@@ -623,7 +624,7 @@ class ConfigPageState extends State<ConfigPage> {
   }
 
   Widget body({
-    required BuildContext context,
+    required BuildContext widgetContext,
     required ColorScheme defaultColorScheme,
     required MainState mainState,
     required String jsonStr,
@@ -631,11 +632,11 @@ class ConfigPageState extends State<ConfigPage> {
       TabBarView(
         children: <Widget>[
           tabEdit(
-              context: context,
+              widgetContext: widgetContext,
               defaultColorScheme: defaultColorScheme,
               mainState: mainState),
           tabView(
-              context: context,
+              widgetContext: widgetContext,
               defaultColorScheme: defaultColorScheme,
               mainState: mainState,
               jsonStr: jsonStr),
@@ -646,6 +647,7 @@ class ConfigPageState extends State<ConfigPage> {
 
   @override
   Widget build(BuildContext context) {
+    final BuildContext widgetContext = context;
     final ColorScheme defaultColorScheme = Theme.of(context).colorScheme;
 
     return BlocBuilder(
@@ -759,7 +761,7 @@ class ConfigPageState extends State<ConfigPage> {
                                   child: CupertinoPageScaffold(
                                     child: Center(
                                       child: tabEdit(
-                                          context: context,
+                                          widgetContext: widgetContext,
                                           defaultColorScheme:
                                               defaultColorScheme,
                                           mainState: mainState),
@@ -774,7 +776,7 @@ class ConfigPageState extends State<ConfigPage> {
                                     child: CupertinoPageScaffold(
                                       child: Center(
                                         child: tabView(
-                                            context: context,
+                                            widgetContext: widgetContext,
                                             defaultColorScheme:
                                                 defaultColorScheme,
                                             mainState: mainState,
@@ -825,14 +827,14 @@ class ConfigPageState extends State<ConfigPage> {
                                     children: [
                                       Center(
                                         child: tabEdit(
-                                            context: context,
+                                            widgetContext: widgetContext,
                                             defaultColorScheme:
                                                 defaultColorScheme,
                                             mainState: mainState),
                                       ),
                                       Center(
                                         child: tabView(
-                                            context: context,
+                                            widgetContext: widgetContext,
                                             defaultColorScheme:
                                                 defaultColorScheme,
                                             mainState: mainState,
@@ -878,7 +880,7 @@ class ConfigPageState extends State<ConfigPage> {
                             ),
                           ),
                           body: body(
-                              context: context,
+                              widgetContext: widgetContext,
                               defaultColorScheme: defaultColorScheme,
                               mainState: mainState,
                               jsonStr: jsonStr),
