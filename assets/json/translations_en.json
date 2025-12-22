@@ -151,6 +151,7 @@
         "controlswitch_bouncetime": "Button bounce time",
         "internet_connection_timeout": "Internet connection timeout",
         "internet_connection_url": "Internet connection check url",
+        "zone_autoswitch": "Switch automatically to another zone if zone is lost (offline)",
         "separator": "Message Separator",
         "control_zone": "Default control zone",
         "restart_with_last_selected_zone": "Display last selected zone after an auto-restart due to an error",

@@ -151,6 +151,7 @@
         "controlswitch_bouncetime": "Taster Prellverzögerung",
         "internet_connection_timeout": "Internet Verbindungsprüfung Timeout",
         "internet_connection_url": "Internet Verbindungsprüfung url",
+        "zone_autoswitch": "Automatisch zu einer anderen Zone wechseln, wenn die Zone verloren geht (offline)",
         "separator": "Nachrichten-Trennungszeichen",
         "control_zone": "Zonensteuerung Vorauswahl [Zonen-Name]",
         "zone_control_map": "Zonensteuerung Konvertierungsliste [Kürzung der Zonen-Namen]",

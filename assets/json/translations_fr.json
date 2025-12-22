@@ -151,6 +151,7 @@
         "controlswitch_bouncetime": "Temps de rebond du bouton",
         "internet_connection_timeout": "Délai d'expiration de la connexion Internet",
         "internet_connection_url": "URL de vérification de la connexion Internet",
+        "zone_autoswitch": "Passer automatiquement à une autre zone si la zone est perdue (hors ligne)",
         "separator": "Séparateur de messages",
         "control_zone": "Zone de contrôle par défaut",
         "restart_with_last_selected_zone": "Afficher la dernière zone sélectionnée après un redémarrage automatique dû à une erreur",
