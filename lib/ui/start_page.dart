@@ -2992,6 +2992,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           SafeArea(
             child: body(),
           ),
+          if (isDrawerOpen)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  setState(() {
+                    isDrawerOpen = false;
+                    animationController!.reverse();
+                  });
+                },
+              ),
+            ),
           AnimatedPositioned(
             duration: Duration(milliseconds: 200),
             curve: Curves.easeIn,
@@ -3014,15 +3026,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 width: double.infinity,
                 height: height,
                 color: Colors.transparent, // background color of burger menu
-                child: TapRegion(
-                  onTapOutside: (tap) {
-                    setState(() {
-                      isDrawerOpen = false;
-                      animationController!.reverse();
-                    });
-                  },
-                  child: burgerMenu(),
-                ),
+                child: burgerMenu(),
               ),
             ),
           ),
