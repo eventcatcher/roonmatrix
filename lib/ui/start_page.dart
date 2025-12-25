@@ -101,7 +101,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   String aboutAppMessage = '';
   double width = 1280;
   double height = 768;
-  double infoOpacityLevel = 1.0;
+  Map<String, double> infoOpacityLevel = {};
   double scrollSpeedDevice = 1.0;
   double scrollSpeedScrollMatrix = 1.0;
   double? zoneNotRunningButtonsWidth;
@@ -251,7 +251,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     width: 236.0,
                     height: 38.0,
                     child: ExpandableMenu(
-                      key: ValueKey('ExpandableMenuSpeed'),
+                      key: ValueKey('ExpandableMenuSpeed'), // speed slider
                       width: 38.0,
                       height: 38.0,
                       animationSpeed: 400,
@@ -2008,12 +2008,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             itemCount: devices.length,
                                             itemBuilder: (BuildContext context,
                                                 int index) {
-                                              Map<String, dynamic> i =
-                                                  info[devices[index]];
+                                              String ip = devices[index];
+                                              Map<String, dynamic> i = info[ip];
                                               String spotifyAuthUrl =
-                                                  spotifyAuthUrls[
-                                                          devices[index]] ??
-                                                      '*';
+                                                  spotifyAuthUrls[ip] ?? '*';
+
+                                              double itemInfoOpacityLevel =
+                                                  infoOpacityLevel[ip] ?? 1.0;
 
                                               String scrollText = replaceCodes(
                                                   i['app_displaystr'] ?? '');
@@ -2091,7 +2092,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 mobileButtonsList = [
                                                   ...mobileButtonsForDebugging(
                                                     zoneName: zoneName,
-                                                    ip: devices[index],
+                                                    ip: ip,
                                                     spotifyAuthUrl:
                                                         spotifyAuthUrl,
                                                     zoneData: i,
@@ -2100,7 +2101,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   ).reversed,
                                                   ...mobileButtons(
                                                     zoneName: zoneName,
-                                                    ip: devices[index],
+                                                    ip: ip,
                                                     spotifyAuthUrl:
                                                         spotifyAuthUrl,
                                                     zoneData: i,
@@ -2314,10 +2315,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                                 ___) {
                                                                               return SpotifyConnectWebAuthPage(
                                                                                 name: i['name'],
-                                                                                ip: devices[index],
+                                                                                ip: ip,
                                                                                 url: spotifyAuthUrl,
                                                                                 callbackUrl: ({required String url}) {
-                                                                                  mainBloc.setSpotifyAuthRedirectUrl(ip: devices[index], url: url);
+                                                                                  mainBloc.setSpotifyAuthRedirectUrl(ip: ip, url: url);
                                                                                   Navigator.pop(context);
                                                                                 },
                                                                                 close: () {
@@ -2367,7 +2368,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                               ___) {
                                                                             return ConfigPage(
                                                                               name: i['name'],
-                                                                              ip: devices[index],
+                                                                              ip: ip,
                                                                               close: () {
                                                                                 Navigator.pop(context);
                                                                               },
@@ -2412,7 +2413,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                               ___) {
                                                                             return CoverPage(
                                                                               name: i['name'],
-                                                                              ip: devices[index],
+                                                                              ip: ip,
                                                                               translations: translations,
                                                                             );
                                                                           },
@@ -2461,7 +2462,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                                 __,
                                                                                 ___) {
                                                                               return MessagePage(
-                                                                                ip: devices[index],
+                                                                                ip: ip,
                                                                                 name: i['name'],
                                                                                 close: () {
                                                                                   Navigator.pop(context);
@@ -2511,7 +2512,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                                 __,
                                                                                 ___) {
                                                                               return LiveControlPage(
-                                                                                ip: devices[index],
+                                                                                ip: ip,
                                                                                 name: i['name'],
                                                                                 close: () {
                                                                                   Navigator.pop(context);
@@ -2562,7 +2563,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                                 ___) {
                                                                               return InfoPage(
                                                                                 name: i['name'],
-                                                                                ip: devices[index],
+                                                                                ip: ip,
                                                                                 close: () {
                                                                                   Navigator.pop(context);
                                                                                 },
@@ -2609,7 +2610,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                                 ___) {
                                                                               return LogPage(
                                                                                 name: i['name'],
-                                                                                ip: devices[index],
+                                                                                ip: ip,
                                                                                 close: () {
                                                                                   Navigator.pop(context);
                                                                                 },
@@ -2642,7 +2643,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                     if (!isSmallDeviceWidth)
                                                                       AnimatedOpacity(
                                                                         opacity:
-                                                                            infoOpacityLevel,
+                                                                            itemInfoOpacityLevel,
                                                                         duration:
                                                                             const Duration(milliseconds: 400),
                                                                         child:
@@ -2688,7 +2689,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 child:
                                                                     ExpandableMenu(
                                                                   key: ValueKey(
-                                                                      'ExpandableMenu$index-$moreInfo'),
+                                                                      'ExpandableMenu$index-$moreInfo'), // main item expandable for mobile
                                                                   width: 38.0,
                                                                   height: 38.0,
                                                                   animationSpeed:
@@ -2710,7 +2711,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                           mode) {
                                                                     setState(
                                                                         () {
-                                                                      infoOpacityLevel = mode ==
+                                                                      infoOpacityLevel[
+                                                                          ip] = mode ==
                                                                               true
                                                                           ? 0.0
                                                                           : 1.0;
@@ -2850,7 +2852,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                               zoneNotRunningButtonsWidth ?? 200,
                                           child: ExpandableMenu(
                                             key: ValueKey(
-                                                'ExpandableMenuZoneButtons-$zoneNotRunningButtonsWidth'),
+                                                'ExpandableMenuZoneButtons-$zoneNotRunningButtonsWidth'), // zone button menu in cover area
                                             width: 38.0,
                                             height: 38.0,
                                             animationSpeed: 400,
