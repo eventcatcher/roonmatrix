@@ -94,6 +94,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
 
   @override
   void initState() {
+    print('yyyyy ExpandableMenu initState (items: ${widget.items.length})');
     //Set state controller if set
     if (widget.controller != null) {
       widget.controller!.setControllerState(this, _iconController);
@@ -115,6 +116,8 @@ class ExpandableMenuState extends State<ExpandableMenu>
       ..addListener(() {
         setState(() {
           _containerProgress = _containerAnimation.value;
+          print(
+              'yyyyy _containerAnimation (items: ${widget.items.length}), _containerProgress: $_containerProgress');
           if (!_isExpanded && _containerProgress == 0.0) {
             _listWidget = [];
           }
@@ -124,25 +127,32 @@ class ExpandableMenuState extends State<ExpandableMenu>
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      _width = _spacerKey.currentContext!.size!.width;
-      _listWidth = _width - widget.width;
+      if (_spacerKey.currentContext != null &&
+          _spacerKey.currentContext!.size != null) {
+        _width = _spacerKey.currentContext!.size!.width;
+        _listWidth = _width - widget.width;
+      }
     });
   }
 
   @override
   void didUpdateWidget(ExpandableMenu oldWidget) {
+    print(
+        'yyyyy ExpandableMenu didUpdateWidget (items: ${widget.items.length})');
     _listWidget = widget.items;
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
+    print('yyyyy ExpandableMenu dispose (items: ${widget.items.length})');
     _containerAnimationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('yyyyy ExpandableMenu build (items: ${widget.items.length})');
     if (widget.getController != null) {
       widget.getController!(expandableMenuController);
     }

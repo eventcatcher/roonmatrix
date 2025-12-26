@@ -2689,7 +2689,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 child:
                                                                     ExpandableMenu(
                                                                   key: ValueKey(
-                                                                      'ExpandableMenu$index-$moreInfo'), // main item expandable for mobile
+                                                                      'ExpandableMenu$ip-$moreInfo'), // main item expandable for mobile
                                                                   width: 38.0,
                                                                   height: 38.0,
                                                                   animationSpeed:
