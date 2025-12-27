@@ -4,6 +4,20 @@ abstract class MainEvent extends Equatable {
   const MainEvent([List props = const []]);
 }
 
+class RestartPollingTimer extends MainEvent {
+  const RestartPollingTimer();
+
+  @override
+  List<Object> get props => [];
+}
+
+class ResetWebSocketServices extends MainEvent {
+  const ResetWebSocketServices();
+
+  @override
+  List<Object> get props => [];
+}
+
 class SetLogMessage extends MainEvent {
   final String msg;
 

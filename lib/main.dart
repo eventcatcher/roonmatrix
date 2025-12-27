@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -8,6 +9,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/data/file_repository.dart';
+import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
+import 'package:roonmatrix/ui/helper/connection_status_state.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -89,8 +92,10 @@ class RoonMatrixState extends State<RoonMatrix> {
 
   Brightness? brightnessValue;
 
+  late StreamSubscription connectionStatusStreamSubscription;
   late TranslationsBloc translationsBloc;
   late SettingsBloc settingsBloc;
+  late ConnectionStatusBloc connectionStatusBloc;
   late MainBloc mainBloc;
   late String appVersionAndBuildNumber;
 
@@ -310,7 +315,22 @@ class RoonMatrixState extends State<RoonMatrix> {
 
     translationsBloc = TranslationsBloc(fileRepository: fileRepository);
     settingsBloc = SettingsBloc();
+    connectionStatusBloc = ConnectionStatusBloc();
+    connectionStatusBloc.init();
     mainBloc = MainBloc(fileRepository: fileRepository);
+
+    connectionStatusStreamSubscription = connectionStatusBloc.stream.listen((
+      ConnectionStatusState connectionStatusState,
+    ) {
+      if (connectionStatusState is ConnectionStatusStateLoaded &&
+          connectionStatusState.connected) {
+        mainBloc.resetWebSocketServices();
+        WidgetsBinding.instance.addPostFrameCallback((timestamp) {
+          mainBloc.restartPollingTimer();
+          mainBloc.searching(idle: true);
+        });
+      }
+    });
 
     super.initState();
   }
@@ -553,6 +573,9 @@ class RoonMatrixState extends State<RoonMatrix> {
         BlocProvider<SettingsBloc>(
           create: (BuildContext context) => settingsBloc,
         ),
+        BlocProvider<ConnectionStatusBloc>(
+          create: (BuildContext context) => connectionStatusBloc,
+        ),
         BlocProvider<MainBloc>(
           create: (BuildContext context) => mainBloc,
         ),
@@ -586,5 +609,12 @@ class RoonMatrixState extends State<RoonMatrix> {
                   home: home(translationsBloc: translationsBloc),
                 ),
     );
+  }
+
+  @override
+  Future<void> dispose() async {
+    connectionStatusStreamSubscription.cancel();
+
+    super.dispose();
   }
 }

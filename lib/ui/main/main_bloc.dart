@@ -97,12 +97,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         ));
       }
 
+      if (event is ResetWebSocketServices) {
+        debugPrint('ResetWebSocketServices, services: ${services.length}');
+        for (WebSocketService service in services) {
+          service.dispose();
+        }
+        services = [];
+      }
+
       if (event is LoadDevices) {
         List<String> existingServiceUrls =
             services.map((WebSocketService el) => el.url).toList();
 
         for (String ip in event.devices) {
           String url = 'ws://$ip:$port/ws';
+          // WebSocketService service =
+          //     services.firstWhere((WebSocketService el) => el.url == url);
+
           if (!existingServiceUrls.contains(url)) {
             if (kDebugMode) {
               debugPrint('vvvv add WebSocketService $url');
@@ -696,6 +707,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (kDebugMode) {
             debugPrint('SetSpotifyAuthRedirectUrl error: $e');
           }
+        }
+      }
+
+      if (event is RestartPollingTimer) {
+        if (timer == null || !timer!.isActive) {
+          timer?.cancel();
+          setPollingTimer();
         }
       }
     });
@@ -1532,6 +1550,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   setPollingTimer() {
+    debugPrint(
+        'setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds');
     timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds),
         (Timer timer) {
       searching(idle: state.devices.isEmpty);
@@ -1652,6 +1672,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   // ==================== //
   // public event methods //
   // ==================== //
+
+  void restartPollingTimer() {
+    add(RestartPollingTimer());
+  }
+
+  void resetWebSocketServices() {
+    add(ResetWebSocketServices());
+  }
 
   void setIpRange({required String? ipStart, required String? ipEnd}) {
     add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
