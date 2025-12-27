@@ -1881,6 +1881,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                               child: Center(
                                 child: Column(
                                   children: <Widget>[
+                                    // if (devices.isNotEmpty) // && kDebugMode
+                                    //   Text(
+                                    //       'new info @ ${DateTime.now().toLocal()}): ${replaceCodes(info[devices[0]]['app_displaystr'] ?? 'empty')}',
+                                    //       style: TextStyle(fontSize: 10.0)),
+
                                     // searchfield area
                                     Padding(
                                       padding: const EdgeInsets.only(
