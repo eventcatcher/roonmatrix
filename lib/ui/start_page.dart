@@ -2748,17 +2748,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                     );
                                                   }),
                                     ),
-                                    if (devices.isNotEmpty &&
+
+                                    if (SharedWidgets.isDesktopDevice() &&
+                                        devices.isNotEmpty &&
                                         coverRowActiv == true)
-                                      if (SharedWidgets.isDesktopDevice())
-                                        getCoverRow(info: info),
+                                      getCoverRow(info: info),
                                     if (SharedWidgets.isMobileDevice() &&
+                                        devices.isNotEmpty &&
                                         coverRowActiv == true)
                                       Stack(
                                         children: [
                                           getCoverRow(info: info),
-                                          if (SharedWidgets.isMobileDevice() &&
-                                              zoneNotRunningButtons.isNotEmpty)
+                                          if (zoneNotRunningButtons.isNotEmpty)
                                             Positioned(
                                               bottom: 8,
                                               right: 8,
