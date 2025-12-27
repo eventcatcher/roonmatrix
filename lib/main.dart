@@ -324,10 +324,13 @@ class RoonMatrixState extends State<RoonMatrix> {
     ) {
       if (connectionStatusState is ConnectionStatusStateLoaded &&
           connectionStatusState.connected) {
-        mainBloc.resetWebSocketServices();
+        if (SharedWidgets.isMobileDevice() == true) {
+          mainBloc.resetWebSocketServices();
+        }
+
         WidgetsBinding.instance.addPostFrameCallback((timestamp) {
           mainBloc.restartPollingTimer();
-          mainBloc.searching(idle: true);
+          mainBloc.searching(idle: SharedWidgets.isMobileDevice());
         });
       }
     });

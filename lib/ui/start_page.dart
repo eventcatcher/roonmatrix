@@ -1753,10 +1753,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   body() => AppLifecyclePageWrapper(
         onResume: () {
           debugPrint('AppLifecycle => onResume');
-          mainBloc.resetWebSocketServices();
+          if (SharedWidgets.isMobileDevice() == true) {
+            mainBloc.resetWebSocketServices();
+          }
           WidgetsBinding.instance.addPostFrameCallback((timestamp) {
             mainBloc.restartPollingTimer();
-            mainBloc.searching(idle: true);
+            mainBloc.searching(idle: SharedWidgets.isMobileDevice());
           });
         },
         child: BlocBuilder(
