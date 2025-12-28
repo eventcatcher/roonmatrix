@@ -3,11 +3,15 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
+import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/text_field_element.dart';
+import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -564,4 +568,52 @@ class SharedWidgets {
       }
     }
   }
+
+  static void openAboutModal(
+          {required BuildContext context,
+          required String aboutAppMessage,
+          required Map<String, dynamic> translations}) async =>
+      ApproveModal(
+        context: context,
+        icon: Container(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: SizedBox(
+            width: 64,
+            height: 64,
+            child: SvgPicture.asset(
+              'assets/svg/8-8-led-matrix-display-unit.svg',
+              allowDrawingOutsideViewBox: false,
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
+            ),
+          ),
+        ),
+        title: "RoonMatrix",
+        question: aboutAppMessage,
+        okText: translations['okButtonText'] ?? 'OK',
+        cancelText: '',
+        onApproved: () {
+          //
+        },
+      ).show();
+
+  static void openSettingsPage(BuildContext context) =>
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        if (context.mounted) {
+          await showGeneralDialog(
+            context: context,
+            //barrierColor: Colors.black12.withOpacity(0.6), // Background color
+            barrierDismissible: false,
+            barrierLabel: 'Dialog',
+            transitionDuration: const Duration(milliseconds: 0),
+            pageBuilder: (_, __, ___) {
+              return SettingsPage(
+                close: () {
+                  Navigator.pop(context);
+                },
+              );
+            },
+          );
+        }
+      });
 }

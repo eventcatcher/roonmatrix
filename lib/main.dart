@@ -433,7 +433,7 @@ class RoonMatrixState extends State<RoonMatrix> {
         submenu: SubMenu(
           menuItems: [
             MenuButton(
-              onTap: () => mainBloc.openAboutModal(
+              onTap: () => SharedWidgets.openAboutModal(
                   context: context,
                   aboutAppMessage: aboutAppMessage,
                   translations: translations),

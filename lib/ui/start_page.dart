@@ -5,11 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hovering/hovering.dart';
-import 'package:intl/intl.dart';
-import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
@@ -21,19 +17,25 @@ import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
 import 'package:roonmatrix/ui/helper/animated_list_helper.dart';
 import 'package:roonmatrix/ui/helper/lifecycle_page_wrapper.dart';
-import 'package:roonmatrix/ui/helper/triangle_painter.dart';
-import 'package:roonmatrix/ui/layout/burger_menu.dart';
+import 'package:roonmatrix/ui/layout/burger_menu_wrapper.dart';
+import 'package:roonmatrix/ui/layout/cover_row.dart';
+import 'package:roonmatrix/ui/layout/cover_widget.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
+import 'package:roonmatrix/ui/layout/mobile_page_buttons.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_ios_style.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
+import 'package:roonmatrix/ui/layout/zone_start_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
-import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
@@ -193,145 +195,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     }
   }
 
-  ObstructingPreferredSizeWidget navigationBar() => CupertinoNavigationBar(
-        key: ValueKey('navigationBar-$isDrawerOpen'),
-        brightness: SharedWidgets.brightness(),
-        middle: Text(title),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: AnimatedIcon(
-              icon: AnimatedIcons.menu_close, progress: animationController!),
-          onPressed: () {
-            setState(() {
-              isDrawerOpen = !isDrawerOpen;
-              isDrawerOpen
-                  ? animationController!.forward()
-                  : animationController!.reverse();
-            });
-          },
-        ),
-        trailing: SharedWidgets.inIosStyle()
-            ? SizedBox(
-                width: 150,
-                child: showExpandableSpeedSlider
-                    ? expandableSpeedSlider()
-                    : speedSlider(),
-              )
-            : null,
-      );
-
-  Widget speedSlider() => Container(
-        padding: EdgeInsets.only(top: 2.0),
-        height: 38.0,
-        child: Slider(
-          value: scrollSpeedDevice,
-          min: 0.75,
-          max: 5,
-          divisions: 100,
-          thumbColor: Colors.red.shade700,
-          activeColor: Colors.green.shade200,
-          inactiveColor: Colors.grey.shade700,
-          onChanged: (double value) {
-            setState(() {
-              scrollSpeedDevice = value;
-              settingsBloc.setScrollSpeedDevice(speed: value);
-            });
-          },
-        ),
-      );
-
-  Widget expandableSpeedSlider() => Stack(
-        children: [
-          Positioned(
-            top: 4.0,
-            right: 0.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SizedBox(
-                    width: 236.0,
-                    height: 38.0,
-                    child: ExpandableMenu(
-                      key: ValueKey('ExpandableMenuSpeed'), // speed slider
-                      width: 38.0,
-                      height: 38.0,
-                      animationSpeed: 400,
-                      backgroundColor: SharedWidgets.buttonRowBackgroundColor(
-                          context: context),
-                      items: [
-                        SizedBox(
-                          width: 152.0,
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 2.0),
-                            child: Slider(
-                              value: scrollSpeedDevice,
-                              min: 0.75,
-                              max: 5,
-                              divisions: 100,
-                              thumbColor: Colors.red.shade700,
-                              activeColor: Colors.green.shade200,
-                              inactiveColor: Colors.grey.shade700,
-                              onChanged: (double value) {
-                                setState(() {
-                                  scrollSpeedDevice = value;
-                                  settingsBloc.setScrollSpeedDevice(
-                                      speed: value);
-                                });
-                              },
-                            ),
-                          ),
-                        )
-                      ],
-                    )),
-              ],
-            ),
-          ),
-        ],
-      );
-
-  void openAboutModal(
-          {required BuildContext context,
-          required String aboutAppMessage,
-          required Map<String, dynamic> translations}) =>
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        if (mounted) {
-          mainBloc.openAboutModal(
-              context: context,
-              aboutAppMessage: aboutAppMessage,
-              translations: translations);
-        }
-      });
-
-  void openSettingsPage() =>
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        if (mounted) {
-          await showGeneralDialog(
-            context: context,
-            //barrierColor: Colors.black12.withOpacity(0.6), // Background color
-            barrierDismissible: false,
-            barrierLabel: 'Dialog',
-            transitionDuration: const Duration(milliseconds: 0),
-            pageBuilder: (_, __, ___) {
-              return SettingsPage(
-                close: () {
-                  Navigator.pop(context);
-                },
-              );
-            },
-          );
-        }
-      });
-
-  getFormattedDateString(
-      {required String date,
-      String languageCode = 'de',
-      String format = 'dd.MM.yyyy HH:mm:ss'}) {
-    String formattedDate =
-        DateFormat(format, languageCode).format(DateTime.parse(date));
-
-    return formattedDate;
-  }
-
   updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
@@ -345,157 +208,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     // }
   }
 
-  Map<String, dynamic>? getZoneDataForControlId(Map<String, dynamic>? info) {
-    Map<String, dynamic>? zone;
-
-    if (info != null && info != {} && info.keys.contains('channels')) {
-      String? controlId = info['control_id'];
-      Map<String, dynamic> channels = info['channels'];
-
-      if (controlId != null &&
-          controlId.isNotEmpty &&
-          channels.keys.contains(controlId)) {
-        if (channels[controlId] == 'webserver' ||
-            channels[controlId] == 'spotifyconnect') {
-          List<String> controlIdParts = info['control_id'].split('-');
-          String serverName = controlIdParts[0];
-          String zoneName = controlIdParts[1];
-          if (info['web_playouts'][serverName] != null) {
-            List<dynamic> zones = info['web_playouts'][serverName];
-            zone = zones.firstWhereOrNull(
-                (dynamic el) => (el['zone'] as String) == zoneName);
-          }
-        } else {
-          String zoneName = channels[controlId];
-          if (info['roon_playouts'][zoneName] != null) {
-            zone = info['roon_playouts'][zoneName];
-          }
-        }
-      }
-    }
-
-    return zone;
-  }
-
-  CoverModel? getRoonCoverModel({
-    required Map<String, dynamic> channels,
-    required String zoneName,
-    required dynamic zone,
-    required bool idle,
-  }) {
-    String? coverUrl = zone['cover'];
-    if (channels.values.contains(zoneName) &&
-        ((!idle && zone['status'] == 'playing') ||
-            (idle == true && zone['status'] != 'playing'))) {
-      String controlId =
-          channels.keys.firstWhere((el) => channels[el] == zoneName);
-      CoverModel coverModel = CoverModel(
-        controlId: controlId,
-        zoneName: zoneName,
-        coverUrl: coverUrl ?? '',
-        artist: zone['artist'] ?? '',
-        album: zone['album'] ?? '',
-        track: zone['track'] ?? '',
-        status: zone['status'],
-      );
-
-      return coverModel;
-    }
-
-    return null;
-  }
-
-  CoverModel? getWebCoverModel({
-    required Map<String, dynamic> channels,
-    required String zoneName,
-    required dynamic zone,
-    required bool idle,
-  }) {
-    String? coverUrl = zone['cover'];
-    if (channels.keys.contains(zoneName) &&
-        ((!idle && zone['status'] == 'playing') ||
-            (idle == true && zone['status'] == 'paused') ||
-            (idle == true &&
-                showWebCoverNotRunning == true &&
-                zone['status'] == 'not running'))) {
-      CoverModel coverModel = CoverModel(
-        controlId: zoneName,
-        zoneName: zoneName,
-        coverUrl: coverUrl ?? '',
-        artist: zone['artist'] ?? '',
-        album: zone['album'] ?? '',
-        track: zone['track'] ?? '',
-        status: zone['status'] ?? '',
-      );
-
-      return coverModel;
-    }
-
-    return null;
-  }
-
-  isRoonZone(String zoneName) {
-    return !zoneName.endsWith('-Apple Music') &&
-        !zoneName.endsWith('-SpotifyConnect') &&
-        !zoneName.endsWith('-Spotify');
-  }
-
-  Widget zoneNotRunningStartButton(
-          {required String ip, required String id, required String name}) =>
-      Padding(
-        padding: const EdgeInsets.only(left: 4.0),
-        child: SharedWidgets.isDesktopDevice()
-            ? IconTextButtonElement(
-                onMacAsText: true,
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                icon: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Icon(
-                    Icons.open_with,
-                    color: Colors.white,
-                    size: 20.0,
-                  ),
-                ),
-                label: name,
-                onPressed: () async {
-                  mainBloc.zoneControl(
-                    ip: ip,
-                    controlId: id,
-                    cmd: 'playmode',
-                    enable: true,
-                  );
-                },
-              )
-            : ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  shadowColor: Colors.transparent,
-                  backgroundColor:
-                      SharedWidgets.buttonBlueColor(context: context),
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: Platform.isIOS ? 5.0 : 7.0),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                onPressed: () async {
-                  mainBloc.zoneControl(
-                    ip: ip,
-                    controlId: id,
-                    cmd: 'playmode',
-                    enable: true,
-                  );
-                },
-                child: Text(name),
-              ),
-      );
-
   List<Widget> getZonesNotRunningStartButtons(Map<String, dynamic>? info) {
     List<Widget> buttons = [];
 
@@ -507,14 +219,24 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       Map<String, dynamic> channels = info[info.keys.first]['channels'];
       Map<String, dynamic> webPlayouts = info[info.keys.first]['web_playouts'];
 
-      // Map<String, dynamic> roonPlayouts =
+      //  Map<String, dynamic> roonPlayouts =
       //     info[info.keys.first]['roon_playouts'];
       // for (String channelId in channels.keys) {
       //   String channelName = channels[channelId];
-      //   if (channels[channelId] != 'webserver' && channels[channelId] != 'spotifyconnect'
+      //   if (channels[channelId] != 'webserver' &&
+      //       channels[channelId] != 'spotifyconnect' &&
       //       !roonPlayouts.keys.contains(channelName)) {
-      //     buttons.add(zoneNotRunningStartButton(
-      //         ip: info.keys.first, id: channelId, name: channelName));
+      //     buttons.add(ZoneStartButton(
+      //       label: channelName,
+      //       onPressed: () {
+      //         mainBloc.zoneControl(
+      //           ip: info.keys.first,
+      //           controlId: channelId,
+      //           cmd: 'playmode',
+      //           enable: true,
+      //         );
+      //       },
+      //     ));
       //   }
       // }
 
@@ -530,8 +252,17 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 channels.keys.firstWhereOrNull((el) => el == zoneName);
 
             if (controlId != null) {
-              buttons.add(zoneNotRunningStartButton(
-                  ip: info.keys.first, id: controlId, name: zoneName));
+              buttons.add(ZoneStartButton(
+                label: zoneName,
+                onPressed: () {
+                  mainBloc.zoneControl(
+                    ip: info.keys.first,
+                    controlId: controlId,
+                    cmd: 'playmode',
+                    enable: true,
+                  );
+                },
+              ));
             }
           }
         }
@@ -541,526 +272,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     updateZoneNotRunningButtonsWidth(length: buttons.length);
 
     return buttons;
-  }
-
-  Color getZoneColor(CoverModel coverModel) {
-    if (coverModel.zoneName.endsWith('-Apple Music')) {
-      return Color(0xFFF50057);
-    }
-    if (coverModel.zoneName.endsWith('-SpotifyConnect') ||
-        coverModel.zoneName.endsWith('-Spotify')) {
-      return Colors.green;
-    }
-
-    return Colors.blue.shade300;
-  }
-
-  Offset getZoneIconPosition(
-      {required double size, required CoverModel coverModel}) {
-    if (coverModel.zoneName.endsWith('-Apple Music')) {
-      return Offset(size < 200 ? -2.0 : -5.0, size < 200 ? -2.0 : -3.0);
-    }
-    if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
-      return Offset(size < 200 ? 2.0 : 0, size < 200 ? 4.0 : 5.0);
-    }
-
-    if (coverModel.zoneName.endsWith('-Spotify')) {
-      return Offset(2.0, size < 200 ? 4.0 : 5.0);
-    }
-
-    return Offset(4.0, 5.0);
-  }
-
-  double getZoneIconSize(
-      {required double size, required CoverModel coverModel}) {
-    double factor = size < 200 ? 0.65 : 1.0;
-    if (coverModel.zoneName.endsWith('-Apple Music')) {
-      return factor * 54.0;
-    }
-    if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
-      return factor * 44.0;
-    }
-
-    if (coverModel.zoneName.endsWith('-Spotify')) {
-      return factor * 44.0;
-    }
-
-    return factor * 40.0;
-  }
-
-  statusCorner({required double size, required Color color}) => SizedBox(
-        width: size < 200 ? 56 : 84,
-        height: size < 200 ? 56 : 84,
-        child: ClipRRect(
-          child: CustomPaint(
-            painter: TrianglePainter(
-              color: color,
-            ),
-          ),
-        ),
-      );
-
-  List<CoverModel> getCoversModel(Map<String, dynamic>? info) {
-    List<CoverModel> covers = [];
-
-    if (info != null && info != {}) {
-      if (info.keys.isNotEmpty) {
-        Map<String, dynamic> roonPlayouts =
-            info[info.keys.first]['roon_playouts'];
-        Map<String, dynamic> channels = info[info.keys.first]['channels'];
-
-        for (String zoneName in roonPlayouts.keys) {
-          CoverModel? coverModel = getRoonCoverModel(
-            channels: channels,
-            zoneName: zoneName,
-            zone: roonPlayouts[zoneName],
-            idle: false,
-          );
-          if (coverModel != null) {
-            covers.add(coverModel);
-          }
-        }
-
-        Map<String, dynamic> webPlayouts =
-            info[info.keys.first]['web_playouts'];
-        for (String serverName in webPlayouts.keys) {
-          List<dynamic> zones = webPlayouts[serverName];
-          for (dynamic zone in zones) {
-            if (zone != null) {
-              String zoneName = '$serverName-${zone['zone']}';
-
-              CoverModel? coverModel = getWebCoverModel(
-                channels: channels,
-                zoneName: zoneName,
-                zone: zone,
-                idle: false,
-              );
-              if (coverModel != null) {
-                covers.add(coverModel);
-              }
-            }
-          }
-        }
-
-        for (String zoneName in roonPlayouts.keys) {
-          CoverModel? coverModel = getRoonCoverModel(
-            channels: channels,
-            zoneName: zoneName,
-            zone: roonPlayouts[zoneName],
-            idle: true,
-          );
-          if (coverModel != null) {
-            covers.add(coverModel);
-          }
-        }
-
-        for (String serverName in webPlayouts.keys) {
-          List<dynamic> zones = webPlayouts[serverName];
-          for (dynamic zone in zones) {
-            if (zone != null) {
-              String zoneName = '$serverName-${zone['zone']}';
-
-              CoverModel? coverModel = getWebCoverModel(
-                channels: channels,
-                zoneName: zoneName,
-                zone: zone,
-                idle: true,
-              );
-              if (coverModel != null) {
-                covers.add(coverModel);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return covers;
-  }
-
-  Widget speedSliderOverlay() => HoverWidget(
-      hoverChild: InkWell(
-        onDoubleTap: () {
-          setState(() {
-            scrollSpeedDevice = 1.0;
-            settingsBloc.setScrollSpeedDevice(speed: 1.0);
-          });
-        },
-        child: TweenAnimationBuilder<double>(
-          tween: Tween<double>(begin: 0.0, end: 1.0),
-          curve: Curves.ease,
-          duration: const Duration(seconds: 1),
-          builder: (BuildContext context, double opacity, Widget? child) {
-            return Opacity(
-                opacity: opacity,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    color: Color.fromARGB(200, 33, 33, 33),
-                  ),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0, bottom: 9.0),
-                        child: Text(
-                          '${translations['speed'] ?? 'speed:'}:',
-                          style: TextStyle(
-                            color: SharedWidgets.borderColor(context: context),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 120,
-                        height: 36.0,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 9.0),
-                          child: Slider(
-                            value: scrollSpeedDevice,
-                            min: 0.75,
-                            max: 5,
-                            divisions: 100,
-                            thumbColor: Colors.red.shade700,
-                            activeColor: Colors.green.shade200,
-                            inactiveColor: Colors.grey.shade700,
-                            onChanged: (double value) {
-                              setState(() {
-                                scrollSpeedDevice = value;
-                                settingsBloc.setScrollSpeedDevice(speed: value);
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ));
-          },
-        ),
-      ),
-      onHover: (PointerEnterEvent event) {
-        //
-      },
-      child: Container(
-        width: 240,
-        height: 54,
-        color: Colors.transparent,
-      ));
-
-  Widget getTextArea(CoverModel coverModel) {
-    final double fontSize = 12.0;
-
-    return Table(
-      columnWidths: {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
-      children: [
-        TableRow(children: [
-          TableCell(
-            child: Container(
-              alignment: Alignment.centerRight,
-              child: Text(
-                '${translations['coverZoneHeader'] ?? 'Zone'}: ',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          TableCell(
-            child: Text(
-              coverModel.zoneName,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ]),
-        if (coverRowArtist == true)
-          TableRow(children: [
-            TableCell(
-              child: Container(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '${translations['coverArtistHeader'] ?? 'Artist'}: ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            TableCell(
-              child: Text(
-                coverModel.artist,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ]),
-        if (coverRowAlbum == true)
-          TableRow(children: [
-            TableCell(
-              child: Container(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '${translations['coverAlbumHeader'] ?? 'Album'}: ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            TableCell(
-              child: Text(
-                coverModel.album,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ]),
-        if (coverRowTrack == true && coverModel.track.isNotEmpty)
-          TableRow(children: [
-            TableCell(
-              child: Container(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '${translations['coverTrackHeader'] ?? 'Track'}: ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            TableCell(
-              child: Text(
-                coverModel.track,
-                softWrap: true,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ]),
-      ],
-    );
-  }
-
-  Widget getCoverWidget({
-    required CoverModel coverModel,
-  }) {
-    double coverSize = getCoverSize();
-
-    return Align(
-      alignment: Alignment.bottomLeft,
-      child: Container(
-        constraints: coverRowDynamicSize
-            ? null
-            : BoxConstraints(
-                maxWidth: coverSize,
-                maxHeight: coverSize,
-              ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            // constraints.maxHeight gets the height of the AnimatedList
-            double coverHeight = constraints.maxHeight;
-            double coverWidth = coverHeight;
-
-            return Stack(
-              children: [
-                InkWell(
-                  onTap: () {
-                    showGeneralDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      barrierLabel: 'Dialog',
-                      transitionDuration: const Duration(milliseconds: 0),
-                      pageBuilder: (_, __, ___) {
-                        return CoverPage(
-                          name: coverModel.zoneName,
-                          ip: devices[0],
-                          controlId: coverModel.controlId,
-                          translations: translations,
-                        );
-                      },
-                    );
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(left: 1.0),
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //     color: Colors.white,
-                    //     width: 1.0,
-                    //   ),
-                    // ),
-                    width: coverWidth,
-                    height: coverHeight,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(0),
-                      child: AnimatedSwitcher(
-                        duration: Duration(milliseconds: 2000),
-                        switchInCurve: Curves.easeIn,
-                        switchOutCurve: Curves.easeOut,
-                        // transitionBuilder: (Widget child, Animation<double> animation) {
-                        //   return ScaleTransition(scale: animation, child: child);
-                        // },
-                        child: coverModel.coverUrl.isNotEmpty
-                            ? Stack(
-                                children: [
-                                  Container(
-                                    key: ValueKey(
-                                        'CoverRow-${orientation.name}-${coverModel.coverUrl}'),
-                                    width: coverRowDynamicSize
-                                        ? double.infinity
-                                        : null,
-                                    height: coverRowDynamicSize
-                                        ? double.infinity
-                                        : null,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xff7c94b6),
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        colorFilter:
-                                            coverModel.status != 'playing'
-                                                ? ColorFilter.mode(
-                                                    Colors.black
-                                                        .withValues(alpha: 0.2),
-                                                    BlendMode.dstATop)
-                                                : null,
-                                        image: NetworkImage(
-                                          coverModel.coverUrl,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  if (coverModel.status != 'playing')
-                                    Positioned.fill(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Icon(
-                                          Icons.play_arrow,
-                                          color: Colors.black,
-                                          size: 80.0,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              )
-                            : Stack(
-                                children: [
-                                  SvgPicture.asset(
-                                    'assets/svg/8-8-led-matrix-display-unit.svg',
-                                    colorFilter: ColorFilter.mode(
-                                        Colors.black.withValues(alpha: 0.2),
-                                        BlendMode.dstATop),
-                                    allowDrawingOutsideViewBox: false,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                  ),
-                                  Positioned.fill(
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: Icon(
-                                        Icons.close,
-                                        color: Colors.red,
-                                        size: 60.0,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-                Opacity(
-                  opacity: 0.7,
-                  child: SizedBox(
-                    width: coverWidth,
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Stack(
-                        children: [
-                          statusCorner(
-                              size: coverWidth,
-                              color: getZoneColor(coverModel)),
-                          Positioned(
-                            right: getZoneIconPosition(
-                                    size: coverWidth, coverModel: coverModel)
-                                .dx,
-                            top: getZoneIconPosition(
-                                    size: coverWidth, coverModel: coverModel)
-                                .dy,
-                            child: Center(
-                              child: Image(
-                                image: AssetImage(
-                                  SharedWidgets.getZoneIcon(
-                                      zoneName: coverModel.zoneName),
-                                ),
-                                width: getZoneIconSize(
-                                    size: coverWidth, coverModel: coverModel),
-                                height: getZoneIconSize(
-                                    size: coverWidth, coverModel: coverModel),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                      constraints: BoxConstraints(
-                        maxWidth: coverWidth - 14,
-                      ),
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                        color: Color.fromARGB(200, 0, 0, 0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 4.0, vertical: 2.0),
-                        child: coverHeight > 400 &&
-                                (coverRowArtist == true ||
-                                    coverRowAlbum == true)
-                            ? getTextArea(coverModel)
-                            : Text(
-                                '${translations['zoneSelectionLabel'] ?? 'Zone'}: ${SharedWidgets.getZoneNameWithoutType(zoneName: coverModel.zoneName)}${coverRowTrack == true && coverModel.track.isNotEmpty && constraints.maxHeight > 169 ? ', ${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
-                                style: TextStyle(
-                                  fontSize:
-                                      constraints.maxHeight > 250 ? 12.0 : 9.0,
-                                  color: Colors.white,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
   }
 
   double getSafeHeight() {
@@ -1167,61 +378,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return coverSize;
   }
 
-  Widget getCoverRow({required Map<String, dynamic> info}) {
-    if (kDebugMode) {
-      debugPrint(
-          'yyyy StartPage/getCoverRow => covers to display: ${coverList.length}');
-    }
-
-    double coverSize = getCoverSize();
-
-    Widget coverRowList = AnimatedList(
-      key: coverListKey,
-      scrollDirection: Axis.horizontal,
-      physics:
-          const BouncingScrollPhysics(), // PageScrollPhysics <-- pagewide scrolling
-      initialItemCount: coverList.length,
-      itemBuilder: (context, index, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: SizeTransition(
-            sizeFactor: animation,
-            axis: Axis.horizontal,
-            child: getCoverWidget(coverModel: coverList[index]),
-          ),
-        );
-      },
-    );
-
-    return coverRowDynamicSize == true
-        ? Expanded(
-            flex: flexCoverRow,
-            child: Container(
-              color: coverRowBackgroundColor,
-              child: coverRowList,
-            ))
-        : ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: coverSize,
-            ),
-            child: Align(
-              // flexible child
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Container(
-                      color: coverRowBackgroundColor,
-                      child: coverRowList,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-  }
-
   void itemsToRemove({required List<CoverModel> newList}) {
     if (kDebugMode) {
       debugPrint(
@@ -1242,6 +398,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       }
     });
 
+    double coverSize = getCoverSize();
+
     if (indexesToRemove.isNotEmpty) {
       AnimatedListHelper.removeMultipleAnimatedItems(
         listKey: coverListKey,
@@ -1250,7 +408,20 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
         buildItem: (item, animation) => SizeTransition(
           axis: Axis.horizontal,
           sizeFactor: animation,
-          child: getCoverWidget(coverModel: item),
+          child: CoverWidget(
+            translations: translations,
+            devices: devices,
+            coverModel: item,
+            coverSize: coverSize,
+            coverRowDynamicSize: coverRowDynamicSize,
+            showExportButton: showExportButton,
+            appBarHeight: appBarHeight,
+            itemListHeight: itemListHeight,
+            orientation: orientation,
+            coverRowArtist: coverRowArtist,
+            coverRowAlbum: coverRowAlbum,
+            coverRowTrack: coverRowTrack,
+          ),
         ),
         duration: const Duration(seconds: 2),
       );
@@ -1284,6 +455,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   void updateInCoverlist({required List<CoverModel> newList}) {
     final bool replace =
         false; // true: remove inactive and add new content, false: replace content
+
+    double coverSize = getCoverSize();
 
     List<int> indexesToUpdate = [];
     List<int> indexesToAdd = [];
@@ -1328,7 +501,20 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             buildItem: (item, animation) => SizeTransition(
               axis: Axis.horizontal,
               sizeFactor: animation,
-              child: getCoverWidget(coverModel: item),
+              child: CoverWidget(
+                translations: translations,
+                devices: devices,
+                coverModel: item,
+                coverSize: coverSize,
+                coverRowDynamicSize: coverRowDynamicSize,
+                showExportButton: showExportButton,
+                appBarHeight: appBarHeight,
+                itemListHeight: itemListHeight,
+                orientation: orientation,
+                coverRowArtist: coverRowArtist,
+                coverRowAlbum: coverRowAlbum,
+                coverRowTrack: coverRowTrack,
+              ),
             ),
             duration: const Duration(seconds: 2),
           );
@@ -1336,419 +522,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       }
     }
   }
-
-  openBurgerMenuItem(String? key) {
-    if (key == 'about') {
-      openAboutModal(
-          context: context,
-          aboutAppMessage: aboutAppMessage,
-          translations: translations);
-    }
-    if (key == 'settings') {
-      openSettingsPage();
-    }
-  }
-
-  burgerMenuRaw(bool noPop) => BurgerMenu(
-        translations: translations,
-        noPop: noPop,
-        navigationTop: navigationTop,
-        onClose: (String? key) {
-          setState(() {
-            isDrawerOpen = false;
-            animationController!.reverse();
-          });
-          return openBurgerMenuItem(key);
-        },
-      );
-
-  burgerMenu() => BlocBuilder(
-      bloc: translationsBloc,
-      builder: (context, TranslationsState translationsState) {
-        if (translationsState is TranslationsStateLoaded) {
-          translations = translationsState.translations;
-          aboutAppMessage = translationsState.aboutAppMessage;
-          translationsLoaded = translationsState.translationsLoaded;
-        }
-
-        if (translationsState is! TranslationsStateLoaded ||
-            !translationsLoaded) {
-          return const SizedBox();
-        }
-
-        return SharedWidgets.inIosStyle()
-            ? burgerMenuRaw(true)
-            : Drawer(
-                child: Stack(
-                  children: [
-                    burgerMenuRaw(false),
-                    Positioned(
-                      top: (navigationTop ?? 84.0) - 40,
-                      left: 16.0,
-                      child: InkWell(
-                        onTap: () => setState(() {
-                          isDrawerOpen = false;
-                          scaffoldKey.currentState?.openEndDrawer();
-                        }),
-                        child: Icon(
-                          CupertinoIcons.clear,
-                          color: Colors.white,
-                          size: 24.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-      });
-
-  String replaceCodes(String str) {
-    if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
-      str = jsonDecode(str.replaceAll("'", '"')).join(
-          ' '); // maybe troublemaker (should be replaced in python part on device)
-      str = str.replaceAll('< ', ', ');
-      str = str.replaceAll(' >', ': ');
-    }
-
-    return str;
-  }
-
-  List<Widget> mobileButtons({
-    required String zoneName,
-    required String ip,
-    required String spotifyAuthUrl,
-    required Map<String, dynamic> zoneData,
-    required Function getExpandableMenuController,
-  }) =>
-      [
-        if (spotifyAuthUrl != '*')
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeOrange.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  ExpandableMenuController? expandableMenuController =
-                      getExpandableMenuController();
-
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel:
-                                  translations['spotifyConnectAuthText'] ??
-                                      'Spotify Connect Authorize',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return SpotifyConnectWebAuthPage(
-                                  name: zoneData['name'],
-                                  ip: ip,
-                                  url: spotifyAuthUrl,
-                                  callbackUrl: ({required String url}) {
-                                    mainBloc.setSpotifyAuthRedirectUrl(
-                                        ip: ip, url: url);
-                                    Navigator.pop(context);
-                                  },
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.phone_enabled,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: CupertinoColors.activeBlue.color,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                ExpandableMenuController? expandableMenuController =
-                    getExpandableMenuController();
-
-                if (expandableMenuController != null) {
-                  expandableMenuController.close();
-                }
-                Future<void>.delayed(Duration(milliseconds: 500))
-                    .then((value) => mounted
-                        ? showGeneralDialog(
-                            context: context,
-                            // barrierColor: Colors
-                            //     .black12
-                            //     .withOpacity(0.6), // Background color
-                            barrierDismissible: false,
-                            barrierLabel: 'Dialog',
-                            transitionDuration: const Duration(milliseconds: 0),
-                            pageBuilder: (_, __, ___) {
-                              return ConfigPage(
-                                name: zoneData['name'],
-                                ip: ip,
-                                close: () {
-                                  Navigator.pop(context);
-                                },
-                              );
-                            },
-                          )
-                        : null);
-              },
-              icon: const Icon(
-                Icons.settings_outlined,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: CupertinoColors.activeBlue.color,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                ExpandableMenuController? expandableMenuController =
-                    getExpandableMenuController();
-
-                if (expandableMenuController != null) {
-                  expandableMenuController.close();
-                }
-                Future<void>.delayed(Duration(milliseconds: 500))
-                    .then((value) => mounted
-                        ? showGeneralDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            barrierLabel: 'Dialog',
-                            transitionDuration: const Duration(milliseconds: 0),
-                            pageBuilder: (_, __, ___) {
-                              return CoverPage(
-                                name: zoneData['name'],
-                                ip: ip,
-                                translations: translations,
-                              );
-                            },
-                          )
-                        : null);
-              },
-              icon: const Icon(
-                Icons.control_camera,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-        if (!zoneData.containsKey('display_cover') ||
-            zoneData['display_cover'] == false)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeBlue.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  ExpandableMenuController? expandableMenuController =
-                      getExpandableMenuController();
-
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return MessagePage(
-                                  ip: ip,
-                                  name: zoneData['name'],
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.message_outlined,
-                  color: Colors.white,
-                  size: 19.0,
-                ),
-              ),
-            ),
-          ),
-        if (!zoneData.containsKey('display_cover') ||
-            zoneData['display_cover'] == false)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeBlue.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  ExpandableMenuController? expandableMenuController =
-                      getExpandableMenuController();
-
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return LiveControlPage(
-                                  ip: ip,
-                                  name: zoneData['name'],
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.visibility_outlined,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-      ];
-
-  List<Widget> mobileButtonsForDebugging({
-    required String zoneName,
-    required String ip,
-    required String spotifyAuthUrl,
-    required Map<String, dynamic> zoneData,
-    required Function getExpandableMenuController,
-  }) =>
-      [
-        if (moreInfo == true)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeOrange.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  ExpandableMenuController? expandableMenuController =
-                      getExpandableMenuController();
-
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return InfoPage(
-                                  name: zoneData['name'],
-                                  ip: ip,
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.info_outline,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        if (moreInfo == true)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeOrange.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  ExpandableMenuController? expandableMenuController =
-                      getExpandableMenuController();
-
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return LogPage(
-                                  name: zoneData['name'],
-                                  ip: ip,
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.terminal,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-      ];
 
   body() => AppLifecyclePageWrapper(
         onResume: () {
@@ -1808,7 +581,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                   mainState.ipEnd == null) &&
                               !settingsPageLoaded) {
                             settingsPageLoaded = true;
-                            openSettingsPage();
+                            SharedWidgets.openSettingsPage(context);
                           }
 
                           devices = mainState.devices;
@@ -1838,7 +611,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                   : a.compareTo(b));
                           }
 
-                          List<CoverModel> coverListNew = getCoversModel(info);
+                          List<CoverModel> coverListNew =
+                              mainBloc.getCoversModel(
+                                  info: info,
+                                  showWebCoverNotRunning:
+                                      showWebCoverNotRunning);
                           if (kDebugMode) {
                             debugPrint(
                                 'yyyy StartPage/body => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
@@ -1883,7 +660,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                   children: <Widget>[
                                     // if (devices.isNotEmpty) // && kDebugMode
                                     //   Text(
-                                    //       'new info @ ${DateTime.now().toLocal()}): ${replaceCodes(info[devices[0]]['app_displaystr'] ?? 'empty')}',
+                                    //       'new info @ ${DateTime.now().toLocal()}): ${mainBloc.replaceIllegalCharsInTickerString(info[devices[0]]['app_displaystr'] ?? 'empty')}',
                                     //       style: TextStyle(fontSize: 10.0)),
 
                                     // searchfield area
@@ -2055,8 +832,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                         infoOpacityLevel[ip] ??
                                                             1.0;
 
-                                                    String scrollText =
-                                                        replaceCodes(
+                                                    String scrollText = mainBloc
+                                                        .replaceIllegalCharsInTickerString(
                                                             i['app_displaystr'] ??
                                                                 '');
                                                     String hash = md5
@@ -2091,8 +868,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                     }
 
                                                     Map<String, dynamic>? zone =
-                                                        getZoneDataForControlId(
-                                                            i);
+                                                        mainBloc
+                                                            .getZoneDataForControlId(
+                                                                i);
                                                     String? coverUrl = zone !=
                                                                 null &&
                                                             zone['cover'] !=
@@ -2131,39 +909,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                             1 + box.size.height;
                                                       }
                                                     });
-
-                                                    ExpandableMenuController?
-                                                        expandableMenuController;
-
-                                                    ExpandableMenuController?
-                                                        getExpandableMenuController() =>
-                                                            expandableMenuController;
-
-                                                    List<Widget>
-                                                        mobileButtonsList = [];
-                                                    if (SharedWidgets
-                                                        .isMobileDevice()) {
-                                                      mobileButtonsList = [
-                                                        ...mobileButtonsForDebugging(
-                                                          zoneName: zoneName,
-                                                          ip: ip,
-                                                          spotifyAuthUrl:
-                                                              spotifyAuthUrl,
-                                                          zoneData: i,
-                                                          getExpandableMenuController:
-                                                              getExpandableMenuController,
-                                                        ).reversed,
-                                                        ...mobileButtons(
-                                                          zoneName: zoneName,
-                                                          ip: ip,
-                                                          spotifyAuthUrl:
-                                                              spotifyAuthUrl,
-                                                          zoneData: i,
-                                                          getExpandableMenuController:
-                                                              getExpandableMenuController,
-                                                        ).reversed,
-                                                      ];
-                                                    }
 
                                                     return Container(
                                                       key: index == 0
@@ -2316,7 +1061,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                             MainAxisSize.min,
                                                                         children: [
                                                                           Text(
-                                                                            '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
+                                                                            '${translations['deviceListTime'] ?? 'time'}: ${mainBloc.getFormattedDateString(date: i['time'])}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
                                                                             softWrap:
                                                                                 true,
                                                                             maxLines:
@@ -2567,7 +1312,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                                 opacity: itemInfoOpacityLevel,
                                                                                 duration: const Duration(milliseconds: 400),
                                                                                 child: Text(
-                                                                                  '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
+                                                                                  '${translations['deviceListTime'] ?? 'time'}: ${mainBloc.getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
                                                                                   softWrap: true,
                                                                                   maxLines: 2,
                                                                                   overflow: TextOverflow.fade,
@@ -2589,53 +1334,36 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                   ? 4.0
                                                                   : 7.0,
                                                               right: 0.0,
-                                                              child: SizedBox(
-                                                                width: 100.0 +
-                                                                    38.0 *
-                                                                        mobileButtonsList
-                                                                            .length,
-                                                                height: 38.0,
-                                                                child: Stack(
-                                                                  children: [
-                                                                    Positioned(
-                                                                      top: 0.0,
-                                                                      left: 0.0,
-                                                                      right:
-                                                                          0.0,
-                                                                      child:
-                                                                          ExpandableMenu(
-                                                                        key: ValueKey(
-                                                                            'ExpandableMenu$ip-$moreInfo'), // main item expandable for mobile
-                                                                        width:
-                                                                            38.0,
-                                                                        height:
-                                                                            38.0,
-                                                                        animationSpeed:
-                                                                            400,
-                                                                        backgroundColor:
-                                                                            SharedWidgets.buttonRowBackgroundColor(context: context),
-                                                                        items:
-                                                                            mobileButtonsList,
-                                                                        getController:
-                                                                            (ExpandableMenuController
-                                                                                controller) {
-                                                                          expandableMenuController =
-                                                                              controller;
-                                                                        },
-                                                                        isExpanded:
-                                                                            (bool
-                                                                                mode) {
-                                                                          setState(
-                                                                              () {
-                                                                            infoOpacityLevel[ip] = mode == true
-                                                                                ? 0.0
-                                                                                : 1.0;
-                                                                          });
-                                                                        },
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
+                                                              child:
+                                                                  MobilePageButtons(
+                                                                translations:
+                                                                    translations,
+                                                                moreInfo:
+                                                                    moreInfo,
+                                                                zoneName:
+                                                                    zoneName,
+                                                                ip: ip,
+                                                                spotifyAuthUrl:
+                                                                    spotifyAuthUrl,
+                                                                zoneData: i,
+                                                                isExpanded: (
+                                                                    {required bool
+                                                                        mode}) {
+                                                                  setState(() {
+                                                                    infoOpacityLevel[
+                                                                        ip] = mode ==
+                                                                            true
+                                                                        ? 0.0
+                                                                        : 1.0;
+                                                                  });
+                                                                },
+                                                                setSpotifyAuthRedirectUrl: (
+                                                                    {required String
+                                                                        url}) {
+                                                                  mainBloc.setSpotifyAuthRedirectUrl(
+                                                                      ip: ip,
+                                                                      url: url);
+                                                                },
                                                               ),
                                                             ),
                                                           Positioned(
@@ -2746,7 +1474,25 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                               bottom: -10,
                                                               right: 0,
                                                               child:
-                                                                  speedSliderOverlay(),
+                                                                  SliderHoverOverlay(
+                                                                translations:
+                                                                    translations,
+                                                                width: 120,
+                                                                value:
+                                                                    scrollSpeedDevice,
+                                                                updateValue:
+                                                                    (double
+                                                                        value) {
+                                                                  setState(() {
+                                                                    scrollSpeedDevice =
+                                                                        value;
+                                                                    settingsBloc
+                                                                        .setScrollSpeedDevice(
+                                                                            speed:
+                                                                                value);
+                                                                  });
+                                                                },
+                                                              ),
                                                             ),
                                                         ],
                                                       ),
@@ -2757,13 +1503,41 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                     if (SharedWidgets.isDesktopDevice() &&
                                         devices.isNotEmpty &&
                                         coverRowActiv == true)
-                                      getCoverRow(info: info),
+                                      CoverRow(
+                                        translations: translations,
+                                        info: info,
+                                        devices: devices,
+                                        coverList: coverList,
+                                        coverRowDynamicSize:
+                                            coverRowDynamicSize,
+                                        showExportButton: showExportButton,
+                                        appBarHeight: appBarHeight,
+                                        itemListHeight: itemListHeight,
+                                        orientation: orientation,
+                                        coverRowArtist: coverRowArtist,
+                                        coverRowAlbum: coverRowAlbum,
+                                        coverRowTrack: coverRowTrack,
+                                      ),
                                     if (SharedWidgets.isMobileDevice() &&
                                         devices.isNotEmpty &&
                                         coverRowActiv == true)
                                       Stack(
                                         children: [
-                                          getCoverRow(info: info),
+                                          CoverRow(
+                                            translations: translations,
+                                            info: info,
+                                            devices: devices,
+                                            coverList: coverList,
+                                            coverRowDynamicSize:
+                                                coverRowDynamicSize,
+                                            showExportButton: showExportButton,
+                                            appBarHeight: appBarHeight,
+                                            itemListHeight: itemListHeight,
+                                            orientation: orientation,
+                                            coverRowArtist: coverRowArtist,
+                                            coverRowAlbum: coverRowAlbum,
+                                            coverRowTrack: coverRowTrack,
+                                          ),
                                           if (zoneNotRunningButtons.isNotEmpty)
                                             Positioned(
                                               bottom: 8,
@@ -2959,7 +1733,14 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 width: double.infinity,
                 height: height,
                 color: Colors.transparent, // background color of burger menu
-                child: burgerMenu(),
+                child: animationController != null
+                    ? BurgerMenuWrapper(
+                        scaffoldKey: scaffoldKey,
+                        animationController: animationController!,
+                        navigationTop: navigationTop,
+                        isDrawerOpen: isDrawerOpen,
+                      )
+                    : SizedBox(),
               ),
             ),
           ),
@@ -2971,205 +1752,86 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     updateSizes('build');
 
     if (SharedWidgets.inIosStyle()) {
-      iosNavigationBar = navigationBar();
-
-      appBarHeight = iosNavigationBar!.preferredSize.height;
-      navigationTop = appBarHeight! + MediaQuery.of(context).padding.top;
-
-      return Material(
-        child: CupertinoPageScaffold(
-          navigationBar: iosNavigationBar,
-          child: stack(context),
-        ),
+      if (animationController == null) {
+        return SizedBox();
+      }
+      return PageWithToolbarIosStyle(
+        title: title,
+        showExpandableSpeedSlider: showExpandableSpeedSlider,
+        scrollSpeedDevice: scrollSpeedDevice,
+        animationController: animationController!,
+        isDrawerOpen: isDrawerOpen,
+        body: stack(context),
+        resizeToFullWidth: () {
+          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+              minDesktopSize: minDesktopSize);
+        },
+        sliderUpdateValue: ({required double speed}) {
+          setState(() {
+            scrollSpeedDevice = speed;
+            settingsBloc.setScrollSpeedDevice(speed: speed);
+          });
+        },
+        setAppBarHeight: ({required double height}) {
+          appBarHeight = height;
+          navigationTop = appBarHeight! + MediaQuery.of(context).padding.top;
+        },
+        setDrawerState: ({required bool open}) {
+          setState(() {
+            isDrawerOpen = open;
+          });
+        },
       );
     }
 
     if (SharedWidgets.inMacosStyle()) {
-      return MacosScaffold(
-        toolBar: ToolBar(
-          title: Center(child: Text(title)),
-          titleWidth: 1000.0,
-          actions: [
-            const ToolBarSpacer(),
-            ToolBarIconButton(
-              label: "",
-              icon: Icon(
-                FontAwesomeIcons.arrowsLeftRight,
-                size: 16.0,
-                color: SharedWidgets.toolbarResizeButtonColor(context: context),
-              ),
-              onPressed: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                  minDesktopSize: minDesktopSize),
-              showLabel: false,
-            ),
-            ToolBarIconButton(
-              label: "",
-              icon: Icon(
-                FontAwesomeIcons.minimize,
-                size: 16.0,
-                color: SharedWidgets.toolbarResizeButtonColor(context: context),
-              ),
-              onPressed: () =>
-                  windowManager.setSize(standardDesktopSize, animate: true),
-              showLabel: false,
-            ),
-            ToolBarIconButton(
-              label: "",
-              icon: Icon(
-                FontAwesomeIcons.maximize,
-                size: 16.0,
-                color: SharedWidgets.toolbarResizeButtonColor(context: context),
-              ),
-              onPressed: () => windowManager.maximize(),
-              showLabel: false,
-            ),
-            const ToolBarSpacer(),
-          ],
-        ),
-        children: [
-          ContentArea(
-            builder: ((context, scrollController) {
-              return Material(
-                child: MacosWindow(
-                  child: body(),
-                ),
-              );
-            }),
-          ),
-        ],
+      return PageWithToolbarMacStyle(
+        title: title,
+        standardDesktopSize: standardDesktopSize,
+        windowManager: windowManager,
+        body: body(),
+        resizeToFullWidth: () {
+          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+              minDesktopSize: minDesktopSize);
+        },
       );
     }
 
-    PreferredSizeWidget appBar = AppBar(
-      title: Text(title),
-      actions: [
-        if (SharedWidgets.isDesktopDevice())
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: IconButton(
-                  iconSize: 16.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () =>
-                      mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                          minDesktopSize: minDesktopSize),
-                  icon: Icon(
-                    FontAwesomeIcons.arrowsLeftRight,
-                    color: SharedWidgets.toolbarResizeButtonColor(
-                        context: context),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
-                child: IconButton(
-                  iconSize: 16.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () =>
-                      windowManager.setSize(standardDesktopSize, animate: true),
-                  icon: Icon(
-                    FontAwesomeIcons.minimize,
-                    color: SharedWidgets.toolbarResizeButtonColor(
-                        context: context),
-                  ),
-                ),
-              ),
-              if (Platform.isMacOS)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
-                  child: IconButton(
-                    iconSize: 16.0,
-                    padding: EdgeInsets.zero,
-                    onPressed: () => windowManager.maximize(),
-                    icon: Icon(
-                      FontAwesomeIcons.maximize,
-                      color: SharedWidgets.toolbarResizeButtonColor(
-                          context: context),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        if (SharedWidgets.isMobileDevice())
-          SizedBox(
-            width: 150,
-            child: showExpandableSpeedSlider
-                ? expandableSpeedSlider()
-                : speedSlider(),
-          ),
-      ],
-    );
-
-    if (Platform.isAndroid || Platform.isFuchsia) {
-      appBarHeight = appBar.preferredSize.height;
-      navigationTop = appBarHeight! + MediaQuery.of(context).padding.top;
-    }
-
-    return Scaffold(
-        key: scaffoldKey,
-        appBar: appBar,
-        drawer: SharedWidgets.inIosStyle() ||
-                Platform.isAndroid ||
-                Platform.isFuchsia
-            ? burgerMenu()
-            : null,
-        body: SafeArea(child: body()));
-  }
-}
-
-class MenuItem extends StatelessWidget {
-  final Icon icon;
-  final String label;
-
-  const MenuItem({
-    super.key,
-    required this.icon,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 42.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Icon(
-            icon.icon,
-            color: Color(0xFFB42827),
-          ),
-          SizedBox(
-            width: 8.0,
-          ),
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
+    return PageWithToolbarFlutterStyle(
+      scaffoldKey: scaffoldKey,
+      title: title,
+      showExpandableSpeedSlider: showExpandableSpeedSlider,
+      scrollSpeedDevice: scrollSpeedDevice,
+      standardDesktopSize: standardDesktopSize,
+      windowManager: windowManager,
+      drawer:
+          SharedWidgets.inIosStyle() || Platform.isAndroid || Platform.isFuchsia
+              ? animationController != null
+                  ? BurgerMenuWrapper(
+                      scaffoldKey: scaffoldKey,
+                      animationController: animationController!,
+                      navigationTop: navigationTop,
+                      isDrawerOpen: isDrawerOpen,
+                    )
+                  : SizedBox()
+              : null,
+      body: body(),
+      resizeToFullWidth: () {
+        mainBloc.windowResizeToFullWidthAndMinimumHeight(
+            minDesktopSize: minDesktopSize);
+      },
+      sliderUpdateValue: ({required double speed}) {
+        setState(() {
+          scrollSpeedDevice = speed;
+          settingsBloc.setScrollSpeedDevice(speed: speed);
+        });
+      },
+      setAppBarHeight: ({required double height}) {
+        if (Platform.isAndroid || Platform.isFuchsia) {
+          appBarHeight = height;
+          navigationTop = appBarHeight! + MediaQuery.of(context).padding.top;
+        }
+      },
     );
   }
-}
-
-class CoverModel {
-  String controlId;
-  String coverUrl;
-  String zoneName;
-  String artist;
-  String album;
-  String track;
-  String status;
-
-  CoverModel({
-    required this.controlId,
-    required this.coverUrl,
-    required this.zoneName,
-    required this.artist,
-    required this.album,
-    required this.track,
-    required this.status,
-  });
 }

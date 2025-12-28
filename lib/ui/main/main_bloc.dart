@@ -5,18 +5,17 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
+import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
+import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/helper/websocket_service.dart';
-import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/main/main_event.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 //ignore:depend_on_referenced_packages
@@ -1506,41 +1505,30 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return jsonStr;
   }
 
-  Map<String, dynamic>? getZoneDataForControlId({
-    required String? controlId,
-    required Map<String, dynamic> info,
-  }) {
+  Map<String, dynamic>? getZoneDataForControlId(Map<String, dynamic>? info) {
     Map<String, dynamic>? zone;
 
-    if (info == {}) {
-      return {};
-    }
+    if (info != null && info != {} && info.keys.contains('channels')) {
+      String? controlId = info['control_id'];
+      Map<String, dynamic> channels = info['channels'];
 
-    Map<String, dynamic> channels = info['channels'];
-
-    if (controlId != null &&
-        controlId.isNotEmpty &&
-        channels.keys.contains(controlId)) {
-      if (channels[controlId] == 'webserver' ||
-          channels[controlId] == 'spotifyconnect') {
-        List<String> controlIdParts = controlId.split('-');
-        String serverName = controlIdParts[0];
-        String zoneName = controlIdParts[1];
-        if (info['web_playouts'][serverName] != null) {
-          List<dynamic> zones = info['web_playouts'][serverName];
-          zone = zones.firstWhereOrNull(
-              (dynamic el) => (el['zone'] as String) == zoneName);
-          if (zone != null) {
-            zone['server'] = serverName;
+      if (controlId != null &&
+          controlId.isNotEmpty &&
+          channels.keys.contains(controlId)) {
+        if (channels[controlId] == 'webserver' ||
+            channels[controlId] == 'spotifyconnect') {
+          List<String> controlIdParts = info['control_id'].split('-');
+          String serverName = controlIdParts[0];
+          String zoneName = controlIdParts[1];
+          if (info['web_playouts'][serverName] != null) {
+            List<dynamic> zones = info['web_playouts'][serverName];
+            zone = zones.firstWhereOrNull(
+                (dynamic el) => (el['zone'] as String) == zoneName);
           }
-        }
-      } else {
-        String zoneName = channels[controlId];
-        if (info['roon_playouts'][zoneName] != null) {
-          zone = info['roon_playouts'][zoneName];
-          if (zone != null) {
-            zone['zone'] = zoneName;
-            zone['server'] = 'roon';
+        } else {
+          String zoneName = channels[controlId];
+          if (info['roon_playouts'][zoneName] != null) {
+            zone = info['roon_playouts'][zoneName];
           }
         }
       }
@@ -1557,34 +1545,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       searching(idle: state.devices.isEmpty);
     });
   }
-
-  void openAboutModal(
-          {required BuildContext context,
-          required String aboutAppMessage,
-          required Map<String, dynamic> translations}) async =>
-      ApproveModal(
-        context: context,
-        icon: Container(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: SizedBox(
-            width: 64,
-            height: 64,
-            child: SvgPicture.asset(
-              'assets/svg/8-8-led-matrix-display-unit.svg',
-              allowDrawingOutsideViewBox: false,
-              fit: BoxFit.cover,
-              clipBehavior: Clip.hardEdge,
-            ),
-          ),
-        ),
-        title: "RoonMatrix",
-        question: aboutAppMessage,
-        okText: translations['okButtonText'] ?? 'OK',
-        cancelText: '',
-        onApproved: () {
-          //
-        },
-      ).show();
 
   String getNumberFieldErrorMessage(
       {required String value, required Map<String, dynamic> translations}) {
@@ -1667,6 +1627,231 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   String decompressZlib(Uint8List data) {
     return utf8.decode(ZLibCodec().decode(data));
+  }
+
+  CoverModel? getRoonCoverModel({
+    required Map<String, dynamic> channels,
+    required String zoneName,
+    required dynamic zone,
+    required bool idle,
+  }) {
+    String? coverUrl = zone['cover'];
+    if (channels.values.contains(zoneName) &&
+        ((!idle && zone['status'] == 'playing') ||
+            (idle == true && zone['status'] != 'playing'))) {
+      String controlId =
+          channels.keys.firstWhere((el) => channels[el] == zoneName);
+      CoverModel coverModel = CoverModel(
+        controlId: controlId,
+        zoneName: zoneName,
+        coverUrl: coverUrl ?? '',
+        artist: zone['artist'] ?? '',
+        album: zone['album'] ?? '',
+        track: zone['track'] ?? '',
+        status: zone['status'],
+      );
+
+      return coverModel;
+    }
+
+    return null;
+  }
+
+  CoverModel? getWebCoverModel({
+    required Map<String, dynamic> channels,
+    required String zoneName,
+    required dynamic zone,
+    required bool idle,
+    required bool showWebCoverNotRunning,
+  }) {
+    String? coverUrl = zone['cover'];
+    if (channels.keys.contains(zoneName) &&
+        ((!idle && zone['status'] == 'playing') ||
+            (idle == true && zone['status'] == 'paused') ||
+            (idle == true &&
+                showWebCoverNotRunning == true &&
+                zone['status'] == 'not running'))) {
+      CoverModel coverModel = CoverModel(
+        controlId: zoneName,
+        zoneName: zoneName,
+        coverUrl: coverUrl ?? '',
+        artist: zone['artist'] ?? '',
+        album: zone['album'] ?? '',
+        track: zone['track'] ?? '',
+        status: zone['status'] ?? '',
+      );
+
+      return coverModel;
+    }
+
+    return null;
+  }
+
+  List<CoverModel> getCoversModel({
+    required Map<String, dynamic>? info,
+    required bool showWebCoverNotRunning,
+  }) {
+    List<CoverModel> covers = [];
+
+    if (info != null && info != {}) {
+      if (info.keys.isNotEmpty) {
+        Map<String, dynamic> roonPlayouts =
+            info[info.keys.first]['roon_playouts'];
+        Map<String, dynamic> channels = info[info.keys.first]['channels'];
+
+        for (String zoneName in roonPlayouts.keys) {
+          CoverModel? coverModel = getRoonCoverModel(
+            channels: channels,
+            zoneName: zoneName,
+            zone: roonPlayouts[zoneName],
+            idle: false,
+          );
+          if (coverModel != null) {
+            covers.add(coverModel);
+          }
+        }
+
+        Map<String, dynamic> webPlayouts =
+            info[info.keys.first]['web_playouts'];
+        for (String serverName in webPlayouts.keys) {
+          List<dynamic> zones = webPlayouts[serverName];
+          for (dynamic zone in zones) {
+            if (zone != null) {
+              String zoneName = '$serverName-${zone['zone']}';
+
+              CoverModel? coverModel = getWebCoverModel(
+                channels: channels,
+                zoneName: zoneName,
+                zone: zone,
+                idle: false,
+                showWebCoverNotRunning: showWebCoverNotRunning,
+              );
+              if (coverModel != null) {
+                covers.add(coverModel);
+              }
+            }
+          }
+        }
+
+        for (String zoneName in roonPlayouts.keys) {
+          CoverModel? coverModel = getRoonCoverModel(
+            channels: channels,
+            zoneName: zoneName,
+            zone: roonPlayouts[zoneName],
+            idle: true,
+          );
+          if (coverModel != null) {
+            covers.add(coverModel);
+          }
+        }
+
+        for (String serverName in webPlayouts.keys) {
+          List<dynamic> zones = webPlayouts[serverName];
+          for (dynamic zone in zones) {
+            if (zone != null) {
+              String zoneName = '$serverName-${zone['zone']}';
+
+              CoverModel? coverModel = getWebCoverModel(
+                channels: channels,
+                zoneName: zoneName,
+                zone: zone,
+                idle: true,
+                showWebCoverNotRunning: showWebCoverNotRunning,
+              );
+              if (coverModel != null) {
+                covers.add(coverModel);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return covers;
+  }
+
+  isRoonZone(String zoneName) {
+    return !zoneName.endsWith('-Apple Music') &&
+        !zoneName.endsWith('-SpotifyConnect') &&
+        !zoneName.endsWith('-Spotify');
+  }
+
+  getFormattedDateString(
+      {required String date,
+      String languageCode = 'de',
+      String format = 'dd.MM.yyyy HH:mm:ss'}) {
+    String formattedDate =
+        DateFormat(format, languageCode).format(DateTime.parse(date));
+
+    return formattedDate;
+  }
+
+  Offset getZoneIconPosition(
+      {required double size, required CoverModel coverModel}) {
+    if (coverModel.zoneName.endsWith('-Apple Music')) {
+      return Offset(size < 200 ? -2.0 : -5.0, size < 200 ? -2.0 : -3.0);
+    }
+    if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
+      return Offset(size < 200 ? 2.0 : 0, size < 200 ? 4.0 : 5.0);
+    }
+
+    if (coverModel.zoneName.endsWith('-Spotify')) {
+      return Offset(2.0, size < 200 ? 4.0 : 5.0);
+    }
+
+    return Offset(4.0, 5.0);
+  }
+
+  Color getZoneColor(CoverModel coverModel) {
+    if (coverModel.zoneName.endsWith('-Apple Music')) {
+      return Color(0xFFF50057);
+    }
+    if (coverModel.zoneName.endsWith('-SpotifyConnect') ||
+        coverModel.zoneName.endsWith('-Spotify')) {
+      return Colors.green;
+    }
+
+    return Colors.blue.shade300;
+  }
+
+  double getZoneIconSize(
+      {required double size, required CoverModel coverModel}) {
+    double factor = size < 200 ? 0.65 : 1.0;
+    if (coverModel.zoneName.endsWith('-Apple Music')) {
+      return factor * 54.0;
+    }
+    if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
+      return factor * 44.0;
+    }
+
+    if (coverModel.zoneName.endsWith('-Spotify')) {
+      return factor * 44.0;
+    }
+
+    return factor * 40.0;
+  }
+
+  statusCorner({required double size, required Color color}) => SizedBox(
+        width: size < 200 ? 56 : 84,
+        height: size < 200 ? 56 : 84,
+        child: ClipRRect(
+          child: CustomPaint(
+            painter: TrianglePainter(
+              color: color,
+            ),
+          ),
+        ),
+      );
+
+  String replaceIllegalCharsInTickerString(String str) {
+    if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
+      str = jsonDecode(str.replaceAll("'", '"')).join(
+          ' '); // maybe troublemaker (should be replaced in python part on device)
+      str = str.replaceAll('< ', ', ');
+      str = str.replaceAll(' >', ': ');
+    }
+
+    return str;
   }
 
   // ==================== //
