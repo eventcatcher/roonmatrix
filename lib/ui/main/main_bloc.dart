@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:file_selector/file_selector.dart';
@@ -14,6 +15,7 @@ import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/helper/websocket_service.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_event.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
@@ -1852,6 +1854,122 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
 
     return str;
+  }
+
+  double getSafeHeight({required FlutterView viewData}) {
+    //Safe area paddings in logical pixels
+    double paddingTop = viewData.padding.top / viewData.devicePixelRatio;
+    double paddingBottom = viewData.padding.bottom / viewData.devicePixelRatio;
+
+    //Safe area in logical pixels
+    double pixelRatio = viewData.devicePixelRatio;
+    Size logicalScreenSize = viewData.physicalSize / pixelRatio;
+    double logicalHeight = logicalScreenSize.height;
+    double safeHeight = logicalHeight - paddingTop - paddingBottom;
+
+    return safeHeight;
+  }
+
+  double getCoverSize({
+    required FlutterView viewData,
+    required MediaQueryData mediaQueryData,
+    required bool coverRowDynamicSize,
+    required bool showExportButton,
+    required double? appBarHeight,
+  }) {
+    final double minimumCoverSize = 100;
+    final double smallCoverSize = 150;
+    final double midCoverSize = 200;
+    final double bigCoverSize = 250;
+
+    final double itemListHeight = 84;
+    final double exportButtonPaddingIos = 14.0;
+
+    double coverSize = smallCoverSize;
+    int minNumberOfListItems = 1;
+    int minNumberOfCoversInRow = 2;
+
+    if (!coverRowDynamicSize) {
+      double boxSizeWidth = mediaQueryData.size.width;
+      double boxSizeHeight = mediaQueryData.size.height;
+      double preferredCoverSize =
+          boxSizeWidth > minNumberOfCoversInRow * bigCoverSize &&
+                  boxSizeHeight > minNumberOfCoversInRow * bigCoverSize
+              ? bigCoverSize
+              : boxSizeWidth > minNumberOfCoversInRow * midCoverSize &&
+                      boxSizeHeight > minNumberOfCoversInRow * midCoverSize
+                  ? midCoverSize
+                  : smallCoverSize;
+      if (SharedWidgets.isDesktopDevice()) {
+        coverSize = preferredCoverSize;
+      }
+
+      if (SharedWidgets.isMobileDevice()) {
+        double safeHeight = getSafeHeight(viewData: viewData);
+        boxSizeHeight = safeHeight;
+
+        double searchFieldAreaHeight = 44;
+        double paddingTop = mediaQueryData.padding.top;
+        double paddingBottom = mediaQueryData.padding.bottom;
+        double exportButtonHeight =
+            40; // height of export button (ios: CupertinoButton.filled)
+        double exportButtonAreaHeight = showExportButton == true
+            ? Platform.isIOS
+                ? exportButtonHeight + 2 * exportButtonPaddingIos
+                : 48 // height of export button (Android: ElevatedButton.icon)
+            : 0;
+
+        double partsToSubtract = (appBarHeight ?? 56) +
+            searchFieldAreaHeight +
+            exportButtonAreaHeight;
+        double coverSizeMaxPossibleOnMobile = boxSizeHeight -
+            partsToSubtract -
+            minNumberOfListItems * itemListHeight;
+        double listHeightArea = boxSizeHeight - partsToSubtract;
+        int maxListCount = (listHeightArea / itemListHeight).floor();
+
+        double listHeightMax = listHeightArea - preferredCoverSize;
+        int listItemCount = (listHeightMax / itemListHeight).floor();
+        coverSize = listHeightArea - (listItemCount * itemListHeight);
+        if (listItemCount < minNumberOfListItems ||
+            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
+          preferredCoverSize = smallCoverSize;
+          listHeightMax = listHeightArea - preferredCoverSize;
+          listItemCount = (listHeightMax / itemListHeight).floor();
+          coverSize = listHeightArea - (listItemCount * itemListHeight);
+        }
+        if (listItemCount < minNumberOfListItems ||
+            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
+          preferredCoverSize = smallCoverSize;
+          listHeightMax = listHeightArea - preferredCoverSize;
+          listItemCount = (listHeightMax / itemListHeight).ceil();
+          coverSize = listHeightArea - (listItemCount * itemListHeight);
+        }
+
+        if (boxSizeWidth < minNumberOfCoversInRow * coverSize) {
+          if (listItemCount < maxListCount) {
+            listItemCount += 1;
+            double testCoverSize =
+                listHeightArea - (listItemCount * itemListHeight);
+            if (testCoverSize >= minimumCoverSize) {
+              coverSize = testCoverSize;
+            }
+          }
+        }
+        if (coverSize < minimumCoverSize &&
+            listItemCount > minNumberOfListItems) {
+          listItemCount -= 1;
+          coverSize = listHeightArea - (listItemCount * itemListHeight);
+        }
+
+        if (kDebugMode) {
+          debugPrint(
+              'MainBloc/getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToSubtract: $partsToSubtract, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
+        }
+      }
+    }
+
+    return coverSize;
   }
 
   // ==================== //

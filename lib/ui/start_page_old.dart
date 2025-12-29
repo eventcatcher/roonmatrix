@@ -274,110 +274,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return buttons;
   }
 
-  double getSafeHeight() {
-    //Safe area paddings in logical pixels
-    double paddingTop =
-        View.of(context).padding.top / View.of(context).devicePixelRatio;
-    double paddingBottom =
-        View.of(context).padding.bottom / View.of(context).devicePixelRatio;
-
-    //Safe area in logical pixels
-    double pixelRatio = View.of(context).devicePixelRatio;
-    Size logicalScreenSize = View.of(context).physicalSize / pixelRatio;
-    double logicalHeight = logicalScreenSize.height;
-    double safeHeight = logicalHeight - paddingTop - paddingBottom;
-
-    return safeHeight;
-  }
-
-  double getCoverSize() {
-    double coverSize = smallCoverSize;
-    int minNumberOfListItems = 1;
-    int minNumberOfCoversInRow = 2;
-
-    if (!coverRowDynamicSize) {
-      double boxSizeWidth = MediaQuery.of(context).size.width;
-      double boxSizeHeight = MediaQuery.of(context).size.height;
-      double preferredCoverSize =
-          boxSizeWidth > minNumberOfCoversInRow * bigCoverSize &&
-                  boxSizeHeight > minNumberOfCoversInRow * bigCoverSize
-              ? bigCoverSize
-              : boxSizeWidth > minNumberOfCoversInRow * midCoverSize &&
-                      boxSizeHeight > minNumberOfCoversInRow * midCoverSize
-                  ? midCoverSize
-                  : smallCoverSize;
-      if (SharedWidgets.isDesktopDevice()) {
-        coverSize = preferredCoverSize;
-      }
-
-      if (SharedWidgets.isMobileDevice()) {
-        double safeHeight = getSafeHeight();
-        boxSizeHeight = safeHeight;
-
-        double searchFieldAreaHeight = 44;
-        double paddingTop = MediaQuery.of(context).padding.top;
-        double paddingBottom = MediaQuery.of(context).padding.bottom;
-        double exportButtonHeight =
-            40; // height of export button (ios: CupertinoButton.filled)
-        double exportButtonAreaHeight = showExportButton == true
-            ? Platform.isIOS
-                ? exportButtonHeight + 2 * exportButtonPaddingIos
-                : 48 // height of export button (Android: ElevatedButton.icon)
-            : 0;
-
-        double partsToSubtract = (appBarHeight ?? 56) +
-            searchFieldAreaHeight +
-            exportButtonAreaHeight;
-        double coverSizeMaxPossibleOnMobile = boxSizeHeight -
-            partsToSubtract -
-            minNumberOfListItems * itemListHeight;
-        double listHeightArea = boxSizeHeight - partsToSubtract;
-        int maxListCount = (listHeightArea / itemListHeight).floor();
-
-        double listHeightMax = listHeightArea - preferredCoverSize;
-        int listItemCount = (listHeightMax / itemListHeight).floor();
-        coverSize = listHeightArea - (listItemCount * itemListHeight);
-        if (listItemCount < minNumberOfListItems ||
-            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          preferredCoverSize = smallCoverSize;
-          listHeightMax = listHeightArea - preferredCoverSize;
-          listItemCount = (listHeightMax / itemListHeight).floor();
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-        if (listItemCount < minNumberOfListItems ||
-            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          preferredCoverSize = smallCoverSize;
-          listHeightMax = listHeightArea - preferredCoverSize;
-          listItemCount = (listHeightMax / itemListHeight).ceil();
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-
-        if (boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          if (listItemCount < maxListCount) {
-            listItemCount += 1;
-            double testCoverSize =
-                listHeightArea - (listItemCount * itemListHeight);
-            if (testCoverSize >= minimumCoverSize) {
-              coverSize = testCoverSize;
-            }
-          }
-        }
-        if (coverSize < minimumCoverSize &&
-            listItemCount > minNumberOfListItems) {
-          listItemCount -= 1;
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-
-        if (kDebugMode) {
-          debugPrint(
-              'yyyy StartPage/getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToSubtract: $partsToSubtract, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
-        }
-      }
-    }
-
-    return coverSize;
-  }
-
   void itemsToRemove({required List<CoverModel> newList}) {
     if (kDebugMode) {
       debugPrint(
@@ -398,7 +294,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       }
     });
 
-    double coverSize = getCoverSize();
+    double coverSize = mainBloc.getCoverSize(
+      viewData: View.of(context),
+      mediaQueryData: MediaQuery.of(context),
+      coverRowDynamicSize: coverRowDynamicSize,
+      showExportButton: showExportButton,
+      appBarHeight: appBarHeight,
+    );
 
     if (indexesToRemove.isNotEmpty) {
       AnimatedListHelper.removeMultipleAnimatedItems(
@@ -456,7 +358,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     final bool replace =
         false; // true: remove inactive and add new content, false: replace content
 
-    double coverSize = getCoverSize();
+    double coverSize = mainBloc.getCoverSize(
+      viewData: View.of(context),
+      mediaQueryData: MediaQuery.of(context),
+      coverRowDynamicSize: coverRowDynamicSize,
+      showExportButton: showExportButton,
+      appBarHeight: appBarHeight,
+    );
 
     List<int> indexesToUpdate = [];
     List<int> indexesToAdd = [];
@@ -1505,6 +1413,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         coverRowActiv == true)
                                       CoverRow(
                                         coverListKey: coverListKey,
+                                        mediaQueryData: MediaQuery.of(context),
                                         translations: translations,
                                         info: info,
                                         devices: devices,
@@ -1526,6 +1435,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         children: [
                                           CoverRow(
                                             coverListKey: coverListKey,
+                                            mediaQueryData:
+                                                MediaQuery.of(context),
                                             translations: translations,
                                             info: info,
                                             devices: devices,

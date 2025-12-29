@@ -252,22 +252,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return buttons;
   }
 
-  double getSafeHeight() {
-    //Safe area paddings in logical pixels
-    double paddingTop =
-        View.of(context).padding.top / View.of(context).devicePixelRatio;
-    double paddingBottom =
-        View.of(context).padding.bottom / View.of(context).devicePixelRatio;
-
-    //Safe area in logical pixels
-    double pixelRatio = View.of(context).devicePixelRatio;
-    Size logicalScreenSize = View.of(context).physicalSize / pixelRatio;
-    double logicalHeight = logicalScreenSize.height;
-    double safeHeight = logicalHeight - paddingTop - paddingBottom;
-
-    return safeHeight;
-  }
-
   body() => AppLifecyclePageWrapper(
         onResume: () {
           debugPrint('AppLifecycle => onResume');
@@ -1233,7 +1217,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         devices.isNotEmpty &&
                                         coverRowActiv == true)
                                       CoverRowAnimation(
+                                        viewData: View.of(context),
                                         mediaQueryData: MediaQuery.of(context),
+                                        orientation: orientation,
                                         translations: translations,
                                         devices: devices,
                                         info: info,
@@ -1250,8 +1236,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                       Stack(
                                         children: [
                                           CoverRowAnimation(
+                                            viewData: View.of(context),
                                             mediaQueryData:
                                                 MediaQuery.of(context),
+                                            orientation: orientation,
                                             translations: translations,
                                             devices: devices,
                                             info: info,
