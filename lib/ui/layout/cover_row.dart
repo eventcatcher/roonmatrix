@@ -9,6 +9,7 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverRow extends StatefulWidget {
+  final GlobalKey<AnimatedListState> coverListKey;
   final Map<String, dynamic> translations;
   final Map<String, dynamic> info;
   final List<String> devices;
@@ -24,6 +25,7 @@ class CoverRow extends StatefulWidget {
 
   const CoverRow({
     super.key,
+    required this.coverListKey,
     required this.translations,
     required this.info,
     required this.devices,
@@ -43,6 +45,7 @@ class CoverRow extends StatefulWidget {
 }
 
 class _CoverRowState extends State<CoverRow> {
+  GlobalKey<AnimatedListState> get coverListKey => widget.coverListKey;
   List<String> get devices => widget.devices;
   Map<String, dynamic> get translations => widget.translations;
   Map<String, dynamic> get info => widget.info;
@@ -63,8 +66,6 @@ class _CoverRowState extends State<CoverRow> {
 
   final int flexCoverRow = 1;
   final Color coverRowBackgroundColor = Colors.grey.shade200;
-  final GlobalKey<AnimatedListState> coverListKey =
-      GlobalKey<AnimatedListState>();
 
   late List<CoverModel> coverList;
   late MainBloc mainBloc;
@@ -109,6 +110,7 @@ class _CoverRowState extends State<CoverRow> {
     if (!coverRowDynamicSize) {
       double boxSizeWidth = MediaQuery.of(context).size.width;
       double boxSizeHeight = MediaQuery.of(context).size.height;
+      print('boxSizeWidth: $boxSizeWidth, boxSizeHeight: $boxSizeHeight');
       double preferredCoverSize =
           boxSizeWidth > minNumberOfCoversInRow * bigCoverSize &&
                   boxSizeHeight > minNumberOfCoversInRow * bigCoverSize
@@ -194,8 +196,10 @@ class _CoverRowState extends State<CoverRow> {
       debugPrint(
           'yyyy StartPage/getCoverRow => covers to display: ${coverList.length}');
     }
+    debugPrint('before coverSize');
 
     double coverSize = getCoverSize();
+    debugPrint('coverSize: $coverSize');
 
     Widget coverRowList = AnimatedList(
       key: coverListKey,

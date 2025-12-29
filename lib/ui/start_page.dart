@@ -2,10 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
@@ -15,11 +13,9 @@ import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
-import 'package:roonmatrix/ui/helper/animated_list_helper.dart';
 import 'package:roonmatrix/ui/helper/lifecycle_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu_wrapper.dart';
-import 'package:roonmatrix/ui/layout/cover_row.dart';
-import 'package:roonmatrix/ui/layout/cover_widget.dart';
+import 'package:roonmatrix/ui/layout/cover_row_animation.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
@@ -39,7 +35,6 @@ import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
-import 'package:screen_retriever/screen_retriever.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:updatable_ticker/updatable_ticker.dart';
 import 'package:window_manager/window_manager.dart';
@@ -69,24 +64,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   final GlobalKey keyZoneNotRunningButtonsKey = GlobalKey();
   final GlobalKey windowKey = GlobalKey();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey<AnimatedListState> coverListKey =
-      GlobalKey<AnimatedListState>();
   final GlobalKey itemListKey = GlobalKey();
-  final double minimumCoverSize = 100;
-  final double smallCoverSize = 150;
-  final double midCoverSize = 200;
-  final double bigCoverSize = 250;
-  final double zoneTitleAreaMinHeight = 17;
-  final double zoneTitleAreaHeight = 34;
-  final double treeFontSize = 12;
   final double noDevicesFoundRectSize = 184;
   final double exportButtonPaddingIos = 14.0;
   final double deviceListCoverSize = 40.0;
   final double notRunningButtonsExpandableMenuWidthStandardAddon = 42;
   final int flexDevice = 1;
-  final int flexCoverRow = 1;
-  final Color coverRowBackgroundColor = Colors.grey.shade200;
-  final bool showWebCoverNotRunning = false;
 
   AnimationController? animationController;
   Map<String, dynamic> info = {};
@@ -94,14 +77,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   List<String> devices = [];
   Map<String, dynamic> spotifyAuthUrls = {};
 
-  ObstructingPreferredSizeWidget? iosNavigationBar;
   double? appBarHeight;
   double? navigationTop;
-  Display? primaryDisplay;
   double itemListHeight = 84;
   Orientation orientation = Orientation.portrait;
-  List<CoverModel> coverList = [];
-  String aboutAppMessage = '';
   double width = 1280;
   double height = 768;
   Map<String, double> infoOpacityLevel = {};
@@ -126,7 +105,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   late SettingsBloc settingsBloc;
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
-  late String appVersionAndBuildNumber;
 
   @override
   void initState() {
@@ -290,239 +268,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     return safeHeight;
   }
 
-  double getCoverSize() {
-    double coverSize = smallCoverSize;
-    int minNumberOfListItems = 1;
-    int minNumberOfCoversInRow = 2;
-
-    if (!coverRowDynamicSize) {
-      double boxSizeWidth = MediaQuery.of(context).size.width;
-      double boxSizeHeight = MediaQuery.of(context).size.height;
-      double preferredCoverSize =
-          boxSizeWidth > minNumberOfCoversInRow * bigCoverSize &&
-                  boxSizeHeight > minNumberOfCoversInRow * bigCoverSize
-              ? bigCoverSize
-              : boxSizeWidth > minNumberOfCoversInRow * midCoverSize &&
-                      boxSizeHeight > minNumberOfCoversInRow * midCoverSize
-                  ? midCoverSize
-                  : smallCoverSize;
-      if (SharedWidgets.isDesktopDevice()) {
-        coverSize = preferredCoverSize;
-      }
-
-      if (SharedWidgets.isMobileDevice()) {
-        double safeHeight = getSafeHeight();
-        boxSizeHeight = safeHeight;
-
-        double searchFieldAreaHeight = 44;
-        double paddingTop = MediaQuery.of(context).padding.top;
-        double paddingBottom = MediaQuery.of(context).padding.bottom;
-        double exportButtonHeight =
-            40; // height of export button (ios: CupertinoButton.filled)
-        double exportButtonAreaHeight = showExportButton == true
-            ? Platform.isIOS
-                ? exportButtonHeight + 2 * exportButtonPaddingIos
-                : 48 // height of export button (Android: ElevatedButton.icon)
-            : 0;
-
-        double partsToSubtract = (appBarHeight ?? 56) +
-            searchFieldAreaHeight +
-            exportButtonAreaHeight;
-        double coverSizeMaxPossibleOnMobile = boxSizeHeight -
-            partsToSubtract -
-            minNumberOfListItems * itemListHeight;
-        double listHeightArea = boxSizeHeight - partsToSubtract;
-        int maxListCount = (listHeightArea / itemListHeight).floor();
-
-        double listHeightMax = listHeightArea - preferredCoverSize;
-        int listItemCount = (listHeightMax / itemListHeight).floor();
-        coverSize = listHeightArea - (listItemCount * itemListHeight);
-        if (listItemCount < minNumberOfListItems ||
-            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          preferredCoverSize = smallCoverSize;
-          listHeightMax = listHeightArea - preferredCoverSize;
-          listItemCount = (listHeightMax / itemListHeight).floor();
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-        if (listItemCount < minNumberOfListItems ||
-            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          preferredCoverSize = smallCoverSize;
-          listHeightMax = listHeightArea - preferredCoverSize;
-          listItemCount = (listHeightMax / itemListHeight).ceil();
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-
-        if (boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          if (listItemCount < maxListCount) {
-            listItemCount += 1;
-            double testCoverSize =
-                listHeightArea - (listItemCount * itemListHeight);
-            if (testCoverSize >= minimumCoverSize) {
-              coverSize = testCoverSize;
-            }
-          }
-        }
-        if (coverSize < minimumCoverSize &&
-            listItemCount > minNumberOfListItems) {
-          listItemCount -= 1;
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-
-        if (kDebugMode) {
-          debugPrint(
-              'yyyy StartPage/getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToSubtract: $partsToSubtract, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
-        }
-      }
-    }
-
-    return coverSize;
-  }
-
-  void itemsToRemove({required List<CoverModel> newList}) {
-    if (kDebugMode) {
-      debugPrint(
-          'yyyy StartPage/itemsToRemove => newList itemsToRemove: ${newList.map((el) => el.artist)}');
-      debugPrint(
-          'yyyy StartPage/itemsToRemove => coverList itemsToRemove: ${coverList.map((el) => el.artist)}');
-    }
-    List<int> indexesToRemove = [];
-    coverList.asMap().forEach((index, item) {
-      CoverModel? obj = newList.firstWhereOrNull((CoverModel el) =>
-          el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
-      if (obj == null) {
-        indexesToRemove.add(index);
-        if (kDebugMode) {
-          debugPrint(
-              'yyyy StartPage/itemsToRemove => itemsToRemove: ${item.artist}');
-        }
-      }
-    });
-
-    double coverSize = getCoverSize();
-
-    if (indexesToRemove.isNotEmpty) {
-      AnimatedListHelper.removeMultipleAnimatedItems(
-        listKey: coverListKey,
-        itemList: coverList,
-        indexesToRemove: indexesToRemove,
-        buildItem: (item, animation) => SizeTransition(
-          axis: Axis.horizontal,
-          sizeFactor: animation,
-          child: CoverWidget(
-            translations: translations,
-            devices: devices,
-            coverModel: item,
-            coverSize: coverSize,
-            coverRowDynamicSize: coverRowDynamicSize,
-            showExportButton: showExportButton,
-            appBarHeight: appBarHeight,
-            itemListHeight: itemListHeight,
-            orientation: orientation,
-            coverRowArtist: coverRowArtist,
-            coverRowAlbum: coverRowAlbum,
-            coverRowTrack: coverRowTrack,
-          ),
-        ),
-        duration: const Duration(seconds: 2),
-      );
-    }
-  }
-
-  void itemsToAdd({required List<CoverModel> newList}) {
-    List<CoverModel> newItems = [];
-    newList.asMap().forEach((index, item) {
-      CoverModel? obj = coverList.firstWhereOrNull((CoverModel el) =>
-          el.coverUrl == item.coverUrl && el.zoneName == item.zoneName);
-      if (obj == null) {
-        newItems.add(item);
-        if (kDebugMode) {
-          debugPrint('yyyy StartPage/itemsToAdd => ${item.artist}');
-        }
-      }
-    });
-
-    if (newItems.isNotEmpty) {
-      AnimatedListHelper.insertMultipleAnimatedItems(
-        listKey: coverListKey,
-        itemList: coverList,
-        startIndex: coverList.length,
-        newItems: newItems,
-        duration: const Duration(milliseconds: 500),
-      );
-    }
-  }
-
-  void updateInCoverlist({required List<CoverModel> newList}) {
-    final bool replace =
-        false; // true: remove inactive and add new content, false: replace content
-
-    double coverSize = getCoverSize();
-
-    List<int> indexesToUpdate = [];
-    List<int> indexesToAdd = [];
-    newList.asMap().forEach((index, item) {
-      int coverlistIndex =
-          coverList.indexWhere((CoverModel el) => el.zoneName == item.zoneName);
-      if (coverlistIndex == -1) {
-        indexesToAdd.add(index);
-      } else {
-        coverList[coverlistIndex] = item;
-      }
-    });
-
-    if (!replace) {
-      AnimatedListHelper.insertMultipleAnimatedItems(
-        listKey: coverListKey,
-        itemList: coverList,
-        startIndex: coverList.length,
-        newItems: indexesToAdd.map((int idx) => newList[idx]).toList(),
-        duration: const Duration(milliseconds: 500),
-      );
-    }
-
-    if (indexesToAdd.isNotEmpty) {
-      coverList.asMap().forEach((index, item) {
-        int newlistIndex =
-            newList.indexWhere((CoverModel el) => el.zoneName == item.zoneName);
-        if (newlistIndex == -1) {
-          indexesToUpdate.add(index);
-        }
-      });
-
-      for (int newListIndex in indexesToAdd) {
-        int updateIndex = indexesToUpdate.removeLast();
-        if (replace == true) {
-          coverList[updateIndex] = newList[newListIndex];
-        } else {
-          AnimatedListHelper.removeMultipleAnimatedItems(
-            listKey: coverListKey,
-            itemList: coverList,
-            indexesToRemove: indexesToUpdate,
-            buildItem: (item, animation) => SizeTransition(
-              axis: Axis.horizontal,
-              sizeFactor: animation,
-              child: CoverWidget(
-                translations: translations,
-                devices: devices,
-                coverModel: item,
-                coverSize: coverSize,
-                coverRowDynamicSize: coverRowDynamicSize,
-                showExportButton: showExportButton,
-                appBarHeight: appBarHeight,
-                itemListHeight: itemListHeight,
-                orientation: orientation,
-                coverRowArtist: coverRowArtist,
-                coverRowAlbum: coverRowAlbum,
-                coverRowTrack: coverRowTrack,
-              ),
-            ),
-            duration: const Duration(seconds: 2),
-          );
-        }
-      }
-    }
-  }
-
   body() => AppLifecyclePageWrapper(
         onResume: () {
           debugPrint('AppLifecycle => onResume');
@@ -609,22 +354,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                       .compareTo(
                                           (info[b]['name'] as String).toLowerCase())
                                   : a.compareTo(b));
-                          }
-
-                          List<CoverModel> coverListNew =
-                              mainBloc.getCoversModel(
-                                  info: info,
-                                  showWebCoverNotRunning:
-                                      showWebCoverNotRunning);
-                          if (kDebugMode) {
-                            debugPrint(
-                                'yyyy StartPage/body => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
-                          }
-                          if (coverListNew.length != coverList.length) {
-                            itemsToRemove(newList: coverListNew);
-                            itemsToAdd(newList: coverListNew);
-                          } else {
-                            updateInCoverlist(newList: coverListNew);
                           }
 
                           if (kDebugMode) {
@@ -1503,40 +1232,35 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                     if (SharedWidgets.isDesktopDevice() &&
                                         devices.isNotEmpty &&
                                         coverRowActiv == true)
-                                      CoverRow(
+                                      CoverRowAnimation(
+                                        mediaQueryData: MediaQuery.of(context),
                                         translations: translations,
-                                        info: info,
                                         devices: devices,
-                                        coverList: coverList,
-                                        coverRowDynamicSize:
-                                            coverRowDynamicSize,
-                                        showExportButton: showExportButton,
-                                        appBarHeight: appBarHeight,
-                                        itemListHeight: itemListHeight,
-                                        orientation: orientation,
+                                        info: info,
                                         coverRowArtist: coverRowArtist,
                                         coverRowAlbum: coverRowAlbum,
                                         coverRowTrack: coverRowTrack,
+                                        coverRowDynamicSize:
+                                            coverRowDynamicSize,
+                                        showExportButton: showExportButton,
                                       ),
                                     if (SharedWidgets.isMobileDevice() &&
                                         devices.isNotEmpty &&
                                         coverRowActiv == true)
                                       Stack(
                                         children: [
-                                          CoverRow(
+                                          CoverRowAnimation(
+                                            mediaQueryData:
+                                                MediaQuery.of(context),
                                             translations: translations,
-                                            info: info,
                                             devices: devices,
-                                            coverList: coverList,
-                                            coverRowDynamicSize:
-                                                coverRowDynamicSize,
-                                            showExportButton: showExportButton,
-                                            appBarHeight: appBarHeight,
-                                            itemListHeight: itemListHeight,
-                                            orientation: orientation,
+                                            info: info,
                                             coverRowArtist: coverRowArtist,
                                             coverRowAlbum: coverRowAlbum,
                                             coverRowTrack: coverRowTrack,
+                                            coverRowDynamicSize:
+                                                coverRowDynamicSize,
+                                            showExportButton: showExportButton,
                                           ),
                                           if (zoneNotRunningButtons.isNotEmpty)
                                             Positioned(
