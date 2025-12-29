@@ -300,6 +300,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       coverRowDynamicSize: coverRowDynamicSize,
       showExportButton: showExportButton,
       appBarHeight: appBarHeight,
+      itemListHeight: itemListHeight,
     );
 
     if (indexesToRemove.isNotEmpty) {
@@ -364,6 +365,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       coverRowDynamicSize: coverRowDynamicSize,
       showExportButton: showExportButton,
       appBarHeight: appBarHeight,
+      itemListHeight: itemListHeight,
     );
 
     List<int> indexesToUpdate = [];

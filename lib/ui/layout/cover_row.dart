@@ -58,24 +58,17 @@ class _CoverRowState extends State<CoverRow> {
   bool get coverRowAlbum => widget.coverRowAlbum;
   bool get coverRowTrack => widget.coverRowTrack;
 
-  final double minimumCoverSize = 100;
-  final double smallCoverSize = 150;
-  final double midCoverSize = 200;
-  final double bigCoverSize = 250;
-  final double exportButtonPaddingIos = 14.0;
-
   final int flexCoverRow = 1;
   final Color coverRowBackgroundColor = Colors.grey.shade200;
 
-  late List<CoverModel> coverList;
   late MainBloc mainBloc;
+  late List<CoverModel> coverList;
 
   @override
   void initState() {
     super.initState();
 
     mainBloc = BlocProvider.of<MainBloc>(context);
-
     coverList = widget.coverList;
   }
 
@@ -98,6 +91,7 @@ class _CoverRowState extends State<CoverRow> {
       coverRowDynamicSize: coverRowDynamicSize,
       showExportButton: showExportButton,
       appBarHeight: appBarHeight,
+      itemListHeight: itemListHeight,
     );
 
     Widget coverRowList = AnimatedList(

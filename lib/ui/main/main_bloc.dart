@@ -1876,13 +1876,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required bool coverRowDynamicSize,
     required bool showExportButton,
     required double? appBarHeight,
+    required double itemListHeight,
   }) {
     final double minimumCoverSize = 100;
     final double smallCoverSize = 150;
     final double midCoverSize = 200;
     final double bigCoverSize = 250;
-
-    final double itemListHeight = 84;
     final double exportButtonPaddingIos = 14.0;
 
     double coverSize = smallCoverSize;

@@ -54,16 +54,9 @@ class _CoverWidgetState extends State<CoverWidget> {
   bool get coverRowAlbum => widget.coverRowAlbum;
   bool get coverRowTrack => widget.coverRowTrack;
 
-  final double minimumCoverSize = 100;
-  final double smallCoverSize = 150;
-  final double midCoverSize = 200;
-  final double bigCoverSize = 250;
-
-  final double exportButtonPaddingIos = 14.0;
-
-  late CoverModel coverModel;
-  late double coverSize;
   late MainBloc mainBloc;
+  late double coverSize;
+  late CoverModel coverModel;
 
   @override
   void initState() {
@@ -142,7 +135,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                   children: [
                                     Container(
                                       key: ValueKey(
-                                          'CoverRow-${orientation.name}-${coverModel.coverUrl}'),
+                                          'CoverRow-${coverModel.zoneName}-${orientation.name}-${coverModel.coverUrl}'),
                                       width: coverRowDynamicSize
                                           ? double.infinity
                                           : null,

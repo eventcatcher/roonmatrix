@@ -17,6 +17,7 @@ class CoverRowAnimation extends StatefulWidget {
   final Map<String, dynamic> translations;
   final List<String> devices;
   final Map<String, dynamic> info;
+  final double? appBarHeight;
   final bool coverRowArtist;
   final bool coverRowAlbum;
   final bool coverRowTrack;
@@ -31,6 +32,7 @@ class CoverRowAnimation extends StatefulWidget {
     required this.translations,
     required this.devices,
     required this.info,
+    required this.appBarHeight,
     required this.coverRowArtist,
     required this.coverRowAlbum,
     required this.coverRowTrack,
@@ -48,6 +50,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   MediaQueryData get mediaQueryData => widget.mediaQueryData;
   Orientation get orientation => widget.orientation;
   Map<String, dynamic> get translations => widget.translations;
+  double? get appBarHeight => widget.appBarHeight;
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
   bool get coverRowTrack => widget.coverRowTrack;
@@ -56,33 +59,19 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
 
   final GlobalKey<AnimatedListState> coverListKey =
       GlobalKey<AnimatedListState>();
-  final double minimumCoverSize = 100;
-  final double smallCoverSize = 150;
-  final double midCoverSize = 200;
-  final double bigCoverSize = 250;
-  final double exportButtonPaddingIos = 14.0;
-  final bool showWebCoverNotRunning = false;
-  final int flexCoverRow = 1;
-  final Color coverRowBackgroundColor = Colors.grey.shade200;
 
-  AnimationController? animationController;
+  final bool showWebCoverNotRunning = false;
+
   Map<String, dynamic> info = {};
   List<String> devices = [];
-
-  double? appBarHeight;
-  double itemListHeight = 84;
-
   List<CoverModel> coverList = [];
-
-  bool showExpandableSpeedSlider = false;
+  double itemListHeight = 84;
 
   late MainBloc mainBloc;
 
   @override
   void initState() {
     mainBloc = BlocProvider.of<MainBloc>(context);
-    animationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
 
     info = widget.info;
     devices = widget.devices;
@@ -98,12 +87,6 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     info = widget.info;
     devices = widget.devices;
     refreshCovers();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    animationController?.dispose();
   }
 
   void refreshCovers() {
@@ -147,6 +130,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       coverRowDynamicSize: coverRowDynamicSize,
       showExportButton: showExportButton,
       appBarHeight: appBarHeight,
+      itemListHeight: itemListHeight,
     );
 
     if (indexesToRemove.isNotEmpty) {
@@ -211,6 +195,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       coverRowDynamicSize: coverRowDynamicSize,
       showExportButton: showExportButton,
       appBarHeight: appBarHeight,
+      itemListHeight: itemListHeight,
     );
 
     List<int> indexesToUpdate = [];
