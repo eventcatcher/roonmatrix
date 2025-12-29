@@ -60,7 +60,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   final GlobalKey<AnimatedListState> coverListKey =
       GlobalKey<AnimatedListState>();
 
-  final bool showWebCoverNotRunning = false;
+  final bool showWebCoverNotRunning =
+      false; // true: show covers for inactive zones too
 
   Map<String, dynamic> info = {};
   List<String> devices = [];

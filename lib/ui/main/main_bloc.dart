@@ -1667,6 +1667,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required bool showWebCoverNotRunning,
   }) {
     String? coverUrl = zone['cover'];
+    // debugPrint(
+    //     'showWebCoverNotRunning: $showWebCoverNotRunning, idle: $idle, status: ${zone['status']}');
     if (channels.keys.contains(zoneName) &&
         ((!idle && zone['status'] == 'playing') ||
             (idle == true && zone['status'] == 'paused') ||
