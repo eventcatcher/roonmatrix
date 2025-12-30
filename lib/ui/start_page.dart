@@ -1215,14 +1215,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                               devices.isNotEmpty &&
                                               coverRowActiv == true)
                                             Expanded(
-                                              child: ZoneStartButtons(
-                                                translations: translations,
-                                                deviceWidth:
-                                                    MediaQuery.of(context)
-                                                        .size
-                                                        .width,
-                                                orientation: orientation,
-                                                info: info,
+                                              child: Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: ZoneStartButtons(
+                                                  translations: translations,
+                                                  deviceWidth:
+                                                      MediaQuery.of(context)
+                                                          .size
+                                                          .width,
+                                                  orientation: orientation,
+                                                  info: info,
+                                                ),
                                               ),
                                             ),
                                         ],

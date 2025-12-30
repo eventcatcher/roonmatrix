@@ -223,14 +223,18 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
             ),
           )
         : Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Spacer(),
+              const SizedBox(width: 8),
               Text(translations['startZone'] ?? 'start'),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: AlwaysScrollableScrollPhysics(),
-                child: Row(
-                  children: [...buttons, ...buttons, ...buttons],
+              Flexible(
+                fit: FlexFit.loose,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: AlwaysScrollableScrollPhysics(),
+                  child: Row(
+                    children: buttons,
+                  ),
                 ),
               ),
             ],
