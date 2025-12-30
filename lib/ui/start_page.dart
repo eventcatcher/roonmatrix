@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
@@ -17,7 +16,6 @@ import 'package:roonmatrix/ui/helper/lifecycle_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu_wrapper.dart';
 import 'package:roonmatrix/ui/layout/cover_row_animation.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
-import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator.dart';
@@ -26,7 +24,7 @@ import 'package:roonmatrix/ui/layout/page_with_toolbar_ios_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
-import 'package:roonmatrix/ui/layout/zone_start_button.dart';
+import 'package:roonmatrix/ui/layout/zone_start_buttons.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +66,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   final double noDevicesFoundRectSize = 184;
   final double exportButtonPaddingIos = 14.0;
   final double deviceListCoverSize = 40.0;
-  final double notRunningButtonsExpandableMenuWidthStandardAddon = 42;
   final int flexDevice = 1;
 
   AnimationController? animationController;
@@ -86,8 +83,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Map<String, double> infoOpacityLevel = {};
   double scrollSpeedDevice = 1.0;
   double scrollSpeedScrollMatrix = 1.0;
-  double? zoneNotRunningButtonsWidth;
-  List<Widget> zoneNotRunningButtons = [];
 
   bool translationsLoaded = false;
   bool idle = false;
@@ -123,56 +118,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     animationController?.dispose();
   }
 
-  void updateZoneNotRunningButtonsWidth({required int length, int retry = 0}) {
-    double deviceWidth = MediaQuery.of(context).size.width;
-    double width = 0;
-    double addOn = orientation == Orientation.portrait
-        ? notRunningButtonsExpandableMenuWidthStandardAddon
-        : Platform.isAndroid
-            ? notRunningButtonsExpandableMenuWidthStandardAddon
-            : -46;
-
-    if (length > 0) {
-      if (keyZoneNotRunningButtonsKey.currentContext != null) {
-        RenderBox? box;
-        BuildContext? itemContext = keyZoneNotRunningButtonsKey.currentContext;
-        if (mounted && itemContext != null) {
-          RenderObject? renderObject = itemContext.findRenderObject();
-          if (renderObject is RenderBox && renderObject.attached) {
-            box = renderObject;
-            width = box.size.width + 94 + (length - 1) * 2;
-          }
-        }
-
-        if (zoneNotRunningButtonsWidth == null && width == 0) {
-          width = deviceWidth + addOn;
-        }
-
-        if (width > 0) {
-          if (width > deviceWidth + addOn) {
-            width = deviceWidth + addOn;
-          }
-
-          if (width != zoneNotRunningButtonsWidth) {
-            SchedulerBinding.instance.addPostFrameCallback((_) async {
-              if (mounted) {
-                setState(() {
-                  zoneNotRunningButtonsWidth = width;
-                });
-              }
-            });
-          }
-        }
-      } else {
-        if (retry < 10) {
-          Future<void>.delayed(Duration(milliseconds: 500)).then((value) =>
-              updateZoneNotRunningButtonsWidth(
-                  length: length, retry: retry += 1));
-        }
-      }
-    }
-  }
-
   updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
@@ -184,72 +129,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     //   debugPrint(
     //       'yyyy StartPage/updateSizes => caller: $caller, width: $width, height: $height');
     // }
-  }
-
-  List<Widget> getZonesNotRunningStartButtons(Map<String, dynamic>? info) {
-    List<Widget> buttons = [];
-
-    if (info != null &&
-        info != {} &&
-        info.keys.isNotEmpty &&
-        (info[info.keys.first] as Map<String, dynamic>)
-            .containsKey('channels')) {
-      Map<String, dynamic> channels = info[info.keys.first]['channels'];
-      Map<String, dynamic> webPlayouts = info[info.keys.first]['web_playouts'];
-
-      //  Map<String, dynamic> roonPlayouts =
-      //     info[info.keys.first]['roon_playouts'];
-      // for (String channelId in channels.keys) {
-      //   String channelName = channels[channelId];
-      //   if (channels[channelId] != 'webserver' &&
-      //       channels[channelId] != 'spotifyconnect' &&
-      //       !roonPlayouts.keys.contains(channelName)) {
-      //     buttons.add(ZoneStartButton(
-      //       label: channelName,
-      //       onPressed: () {
-      //         mainBloc.zoneControl(
-      //           ip: info.keys.first,
-      //           controlId: channelId,
-      //           cmd: 'playmode',
-      //           enable: true,
-      //         );
-      //       },
-      //     ));
-      //   }
-      // }
-
-      for (String serverName in webPlayouts.keys) {
-        List<dynamic> zones = webPlayouts[serverName];
-        for (dynamic zone in zones) {
-          if (zone != null &&
-              zone['status'] == 'not running' &&
-              zone['zone'] != 'SpotifyConnect') {
-            String zoneName = '$serverName-${zone['zone']}';
-
-            String? controlId =
-                channels.keys.firstWhereOrNull((el) => el == zoneName);
-
-            if (controlId != null) {
-              buttons.add(ZoneStartButton(
-                label: zoneName,
-                onPressed: () {
-                  mainBloc.zoneControl(
-                    ip: info.keys.first,
-                    controlId: controlId,
-                    cmd: 'playmode',
-                    enable: true,
-                  );
-                },
-              ));
-            }
-          }
-        }
-      }
-    }
-
-    updateZoneNotRunningButtonsWidth(length: buttons.length);
-
-    return buttons;
   }
 
   body() => AppLifecyclePageWrapper(
@@ -318,9 +197,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                           spotifyAuthUrls = mainState.spotifyAuthUrls;
                           idle = mainState.idle;
 
-                          zoneNotRunningButtons =
-                              getZonesNotRunningStartButtons(info);
-
                           if (devices.isNotEmpty) {
                             devices = devices
                                 .where((String el) =>
@@ -347,8 +223,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                           return OrientationBuilder(
                               builder: (BuildContext context, Orientation o) {
                             if (o != orientation) {
-                              zoneNotRunningButtons =
-                                  getZonesNotRunningStartButtons(info);
                               orientation = o;
                               SchedulerBinding.instance
                                   .addPostFrameCallback((_) async {
@@ -1252,57 +1126,19 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 coverRowDynamicSize,
                                             showExportButton: showExportButton,
                                           ),
-                                          if (zoneNotRunningButtons.isNotEmpty)
-                                            Positioned(
-                                              bottom: 8,
-                                              right: 8,
-                                              child: SizedBox(
-                                                width:
-                                                    zoneNotRunningButtonsWidth ??
-                                                        200,
-                                                child: ExpandableMenu(
-                                                  key: ValueKey(
-                                                      'ExpandableMenuZoneButtons-$zoneNotRunningButtonsWidth'), // zone button menu in cover area
-                                                  width: 38.0,
-                                                  height: 38.0,
-                                                  animationSpeed: 400,
-                                                  backgroundColor: SharedWidgets
-                                                      .buttonRowBackgroundColor(
-                                                          context: context),
-                                                  items: [
-                                                    Wrap(
-                                                      direction:
-                                                          Axis.horizontal,
-                                                      children: [
-                                                        Row(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          key:
-                                                              keyZoneNotRunningButtonsKey,
-                                                          children: [
-                                                            SizedBox(
-                                                                height: 30.0,
-                                                                child: Center(
-                                                                    child: Text(
-                                                                        '${translations['startZone'] ?? 'start'}: '))),
-                                                            ...getZonesNotRunningStartButtons(
-                                                                info),
-                                                            Text(
-                                                              '$zoneNotRunningButtonsWidth-${orientation.name}',
-                                                              style: TextStyle(
-                                                                fontSize:
-                                                                    0, // update value here to refresh widget (without the width is not actualized)
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
+                                          Positioned(
+                                            bottom: 8,
+                                            right: 8,
+                                            child: ZoneStartButtons(
+                                              translations: translations,
+                                              deviceWidth:
+                                                  MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                              orientation: orientation,
+                                              info: info,
                                             ),
+                                          ),
                                         ],
                                       ),
                                     if (SharedWidgets.inIosStyle() &&
@@ -1376,22 +1212,19 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                               ),
                                             ),
                                           if (SharedWidgets.isDesktopDevice() &&
-                                              zoneNotRunningButtons
-                                                  .isNotEmpty) ...[
-                                            Spacer(),
-                                            Text(translations['startZone'] ??
-                                                'start'),
-                                            SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              physics:
-                                                  AlwaysScrollableScrollPhysics(),
-                                              child: Row(
-                                                children:
-                                                    getZonesNotRunningStartButtons(
-                                                        info),
+                                              devices.isNotEmpty &&
+                                              coverRowActiv == true)
+                                            Expanded(
+                                              child: ZoneStartButtons(
+                                                translations: translations,
+                                                deviceWidth:
+                                                    MediaQuery.of(context)
+                                                        .size
+                                                        .width,
+                                                orientation: orientation,
+                                                info: info,
                                               ),
                                             ),
-                                          ],
                                         ],
                                       ),
                                     ),
