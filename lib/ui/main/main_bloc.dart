@@ -1973,6 +1973,42 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return coverSize;
   }
 
+  List<String> getFilteredDevices() {
+    if (state.devices.isEmpty) {
+      return [];
+    }
+
+    return state.devices
+        .where((String el) =>
+            state.info.containsKey(el) &&
+            (state.info[el]['name'] as String)
+                .toLowerCase()
+                .contains((state.searchFilter['main'] as String).toLowerCase()))
+        .toList()
+      ..sort((String a, String b) => state.info.containsKey(a) &&
+              (state.info[a] as Map).containsKey('name')
+          ? (state.info[a]['name'] as String)
+              .toLowerCase()
+              .compareTo((state.info[b]['name'] as String).toLowerCase())
+          : a.compareTo(b));
+  }
+
+  String getZoneName({required Map<String, dynamic> info}) {
+    String zoneName = '';
+    if (info['control_id'] != null) {
+      String controlId = info['control_id'];
+      if (info['channels'] != null && info['channels'][controlId] != null) {
+        if (info['channels'][controlId] == 'webserver') {
+          zoneName = controlId;
+        } else {
+          zoneName = info['channels'][controlId];
+        }
+      }
+    }
+
+    return zoneName;
+  }
+
   // ==================== //
   // public event methods //
   // ==================== //
