@@ -42,8 +42,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle> {
   @override
   Widget build(BuildContext context) => MacosScaffold(
         toolBar: ToolBar(
-          title: Center(child: Text(widget.title)),
-          titleWidth: 1000.0,
+          title: Text(widget.title),
           actions: [
             const ToolBarSpacer(),
             ToolBarIconButton(
