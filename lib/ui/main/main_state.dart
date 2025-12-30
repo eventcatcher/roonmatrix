@@ -34,6 +34,40 @@ abstract class MainState extends Equatable {
     this.spotifyAuthUrls = const {},
   });
 
+  MainState copyWith({
+    DateTime? update,
+    String? ipStart,
+    String? ipEnd,
+    Map<String, String>? searchFilter,
+    List<String>? devices,
+    Map<String, dynamic>? info,
+    Map<String, dynamic>? config,
+    ConfigDefinition? definitions,
+    Map? fieldValues,
+    String? log,
+    bool? idle,
+    bool? subPageIdle,
+    String? logMessage,
+    Map<String, dynamic>? spotifyAuthUrls,
+  }) {
+    return MainStateLoaded(
+      update: update ?? this.update,
+      ipStart: ipStart ?? this.ipStart,
+      ipEnd: ipEnd ?? this.ipEnd,
+      searchFilter: searchFilter ?? this.searchFilter,
+      devices: devices ?? this.devices,
+      info: info ?? this.info,
+      config: config ?? this.config,
+      definitions: definitions ?? this.definitions,
+      fieldValues: fieldValues ?? this.fieldValues,
+      log: log ?? this.log,
+      idle: idle ?? this.idle,
+      subPageIdle: subPageIdle ?? this.subPageIdle,
+      logMessage: logMessage ?? this.logMessage,
+      spotifyAuthUrls: spotifyAuthUrls ?? this.spotifyAuthUrls,
+    );
+  }
+
   @override
   List<Object> get props {
     List<Object> props = [
