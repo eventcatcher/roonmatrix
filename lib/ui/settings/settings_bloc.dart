@@ -49,17 +49,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           prefs.setString('ipEnd', ipEnd);
         }
 
-        emit(SettingsStateLoaded(
+        emit(state.copyWith(
           ipStart: ipStart,
           ipEnd: ipEnd,
-          moreInfo: state.moreInfo,
-          coverRowActiv: state.coverRowActiv,
-          coverRowArtist: state.coverRowArtist,
-          coverRowAlbum: state.coverRowAlbum,
-          coverRowTrack: state.coverRowTrack,
-          coverRowDynamicSize: state.coverRowDynamicSize,
-          scrollSpeedDevice: state.scrollSpeedDevice,
-          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -69,17 +61,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('moreInfo', enabled);
 
-        emit(SettingsStateLoaded(
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
+        emit(state.copyWith(
           moreInfo: enabled,
-          coverRowActiv: state.coverRowActiv,
-          coverRowArtist: state.coverRowArtist,
-          coverRowAlbum: state.coverRowAlbum,
-          coverRowTrack: state.coverRowTrack,
-          coverRowDynamicSize: state.coverRowDynamicSize,
-          scrollSpeedDevice: state.scrollSpeedDevice,
-          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -89,17 +72,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setDouble('scrollSpeedDevice', scrollSpeedDevice);
 
-        emit(SettingsStateLoaded(
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          moreInfo: state.moreInfo,
-          coverRowActiv: state.coverRowActiv,
-          coverRowArtist: state.coverRowArtist,
-          coverRowAlbum: state.coverRowAlbum,
-          coverRowTrack: state.coverRowTrack,
-          coverRowDynamicSize: state.coverRowDynamicSize,
+        emit(state.copyWith(
           scrollSpeedDevice: scrollSpeedDevice,
-          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -109,16 +83,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setDouble('scrollSpeedScrollMatrix', scrollSpeedScrollMatrix);
 
-        emit(SettingsStateLoaded(
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          moreInfo: state.moreInfo,
-          coverRowActiv: state.coverRowActiv,
-          coverRowArtist: state.coverRowArtist,
-          coverRowAlbum: state.coverRowAlbum,
-          coverRowTrack: state.coverRowTrack,
-          coverRowDynamicSize: state.coverRowDynamicSize,
-          scrollSpeedDevice: state.scrollSpeedDevice,
+        emit(state.copyWith(
           scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
         ));
       }
@@ -129,17 +94,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowActiv', enabled);
 
-        emit(SettingsStateLoaded(
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          moreInfo: state.moreInfo,
+        emit(state.copyWith(
           coverRowActiv: enabled,
-          coverRowArtist: state.coverRowArtist,
-          coverRowAlbum: state.coverRowAlbum,
-          coverRowTrack: state.coverRowTrack,
-          coverRowDynamicSize: state.coverRowDynamicSize,
-          scrollSpeedDevice: state.scrollSpeedDevice,
-          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -149,17 +105,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowArtist', enabled);
 
-        emit(SettingsStateLoaded(
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          moreInfo: state.moreInfo,
-          coverRowActiv: state.coverRowActiv,
+        emit(state.copyWith(
           coverRowArtist: enabled,
-          coverRowAlbum: state.coverRowAlbum,
-          coverRowTrack: state.coverRowTrack,
-          coverRowDynamicSize: state.coverRowDynamicSize,
-          scrollSpeedDevice: state.scrollSpeedDevice,
-          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
       if (event is SetCoverRowAlbumMode) {
@@ -168,17 +115,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowAlbum', enabled);
 
-        emit(SettingsStateLoaded(
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          moreInfo: state.moreInfo,
-          coverRowActiv: state.coverRowActiv,
-          coverRowArtist: state.coverRowArtist,
+        emit(state.copyWith(
           coverRowAlbum: enabled,
-          coverRowTrack: state.coverRowTrack,
-          coverRowDynamicSize: state.coverRowDynamicSize,
-          scrollSpeedDevice: state.scrollSpeedDevice,
-          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -188,17 +126,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowTrack', enabled);
 
-        emit(SettingsStateLoaded(
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          moreInfo: state.moreInfo,
-          coverRowActiv: state.coverRowActiv,
-          coverRowArtist: state.coverRowArtist,
-          coverRowAlbum: state.coverRowAlbum,
+        emit(state.copyWith(
           coverRowTrack: enabled,
-          coverRowDynamicSize: state.coverRowDynamicSize,
-          scrollSpeedDevice: state.scrollSpeedDevice,
-          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
 
@@ -208,17 +137,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowDynamicSize', enabled);
 
-        emit(SettingsStateLoaded(
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          moreInfo: state.moreInfo,
-          coverRowActiv: state.coverRowActiv,
-          coverRowArtist: state.coverRowArtist,
-          coverRowAlbum: state.coverRowAlbum,
-          coverRowTrack: state.coverRowTrack,
+        emit(state.copyWith(
           coverRowDynamicSize: enabled,
-          scrollSpeedDevice: state.scrollSpeedDevice,
-          scrollSpeedScrollMatrix: state.scrollSpeedScrollMatrix,
         ));
       }
     });

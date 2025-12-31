@@ -59,42 +59,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         String? ipStart = event.ipStart;
         String? ipEnd = event.ipEnd;
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
           ipStart: ipStart,
           ipEnd: ipEnd,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
-          subPageIdle: state.subPageIdle,
-          logMessage: state.logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
       if (event is SetLogMessage) {
         String logMessage = event.msg;
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
-          subPageIdle: state.subPageIdle,
           logMessage: logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -160,21 +137,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           debugPrint('vvvv active websocket connections: ${services.length}');
         }
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          searchFilter: state.searchFilter,
           devices: event.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
           idle: false,
-          subPageIdle: state.subPageIdle,
-          logMessage: state.logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -186,21 +152,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               'vvvv LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}');
         }
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
           info: info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
-          subPageIdle: state.subPageIdle,
-          logMessage: state.logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -210,21 +164,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         Map<String, String> searchFilter = Map.from(state.searchFilter);
         searchFilter[type] = filter;
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
           searchFilter: searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
-          subPageIdle: state.subPageIdle,
-          logMessage: state.logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
       }
 
@@ -235,21 +177,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         ipEnd = prefs.getString('ipEnd');
         bool idle = event.idle ?? false;
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
           ipStart: ipStart,
           ipEnd: ipEnd,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
           idle: idle,
-          subPageIdle: state.subPageIdle,
-          logMessage: state.logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
 
         searchDevices();
@@ -258,21 +190,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is GetInfo) {
         String ip = event.ip;
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
           subPageIdle: true,
-          logMessage: state.logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
 
         try {
@@ -301,20 +221,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
                 info[ip] = json;
 
-                emit(MainStateLoaded(
+                emit(state.copyWith(
                   update: DateTime.now(),
-                  ipStart: state.ipStart,
-                  ipEnd: state.ipEnd,
-                  searchFilter: state.searchFilter,
-                  devices: state.devices,
                   info: info,
-                  config: state.config,
-                  definitions: state.definitions,
-                  fieldValues: state.fieldValues,
-                  log: state.log,
-                  idle: state.idle,
                   subPageIdle: false,
-                  logMessage: state.logMessage,
                   spotifyAuthUrls: spotifyAuthUrls,
                 ));
               }
@@ -323,42 +233,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             if (kDebugMode) {
               debugPrint('error by access to $url: $e');
             }
-            emit(MainStateLoaded(
+            emit(state.copyWith(
               update: DateTime.now(),
-              ipStart: state.ipStart,
-              ipEnd: state.ipEnd,
-              searchFilter: state.searchFilter,
-              devices: state.devices,
-              info: state.info,
-              config: state.config,
-              definitions: state.definitions,
-              fieldValues: state.fieldValues,
-              log: state.log,
-              idle: state.idle,
               subPageIdle: false,
-              logMessage: state.logMessage,
-              spotifyAuthUrls: state.spotifyAuthUrls,
             ));
           }
         } catch (e) {
           if (kDebugMode) {
             debugPrint('GetInfo try/catch error: $e');
           }
-          emit(MainStateLoaded(
+          emit(state.copyWith(
             update: DateTime.now(),
-            ipStart: state.ipStart,
-            ipEnd: state.ipEnd,
-            searchFilter: state.searchFilter,
-            devices: state.devices,
-            info: state.info,
-            config: state.config,
-            definitions: state.definitions,
-            fieldValues: state.fieldValues,
-            log: state.log,
-            idle: state.idle,
             subPageIdle: false,
-            logMessage: state.logMessage,
-            spotifyAuthUrls: state.spotifyAuthUrls,
           ));
         }
       }
@@ -366,21 +252,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is GetConfig) {
         String ip = event.ip;
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
-          log: state.log,
-          idle: state.idle,
           subPageIdle: true,
-          logMessage: state.logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
 
         try {
@@ -400,21 +274,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 Map fieldValues =
                     getFieldValues(defs: definitions, json: json['config']);
 
-                emit(MainStateLoaded(
+                emit(state.copyWith(
                   update: DateTime.now(),
-                  ipStart: state.ipStart,
-                  ipEnd: state.ipEnd,
-                  searchFilter: state.searchFilter,
-                  devices: state.devices,
-                  info: state.info,
                   config: json['config'],
                   definitions: definitions,
                   fieldValues: fieldValues,
-                  log: state.log,
-                  idle: state.idle,
                   subPageIdle: false,
-                  logMessage: state.logMessage,
-                  spotifyAuthUrls: state.spotifyAuthUrls,
                 ));
               }
             }
@@ -422,42 +287,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             if (kDebugMode) {
               debugPrint('error by access to $url: $e');
             }
-            emit(MainStateLoaded(
+            emit(state.copyWith(
               update: DateTime.now(),
-              ipStart: state.ipStart,
-              ipEnd: state.ipEnd,
-              searchFilter: state.searchFilter,
-              devices: state.devices,
-              info: state.info,
-              config: state.config,
-              definitions: state.definitions,
-              fieldValues: state.fieldValues,
-              log: state.log,
-              idle: state.idle,
               subPageIdle: false,
-              logMessage: state.logMessage,
-              spotifyAuthUrls: state.spotifyAuthUrls,
             ));
           }
         } catch (e) {
           if (kDebugMode) {
             debugPrint('GetConfig try/catch error: $e');
           }
-          emit(MainStateLoaded(
+          emit(state.copyWith(
             update: DateTime.now(),
-            ipStart: state.ipStart,
-            ipEnd: state.ipEnd,
-            searchFilter: state.searchFilter,
-            devices: state.devices,
-            info: state.info,
-            config: state.config,
-            definitions: state.definitions,
-            fieldValues: state.fieldValues,
-            log: state.log,
-            idle: state.idle,
             subPageIdle: false,
-            logMessage: state.logMessage,
-            spotifyAuthUrls: state.spotifyAuthUrls,
           ));
         }
       }
@@ -466,21 +307,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         String ip = event.ip;
         int hours = event.hours;
 
-        emit(MainStateLoaded(
+        emit(state.copyWith(
           update: DateTime.now(),
-          ipStart: state.ipStart,
-          ipEnd: state.ipEnd,
-          searchFilter: state.searchFilter,
-          devices: state.devices,
-          info: state.info,
-          config: state.config,
-          definitions: state.definitions,
-          fieldValues: state.fieldValues,
           log: '',
-          idle: state.idle,
           subPageIdle: true,
-          logMessage: state.logMessage,
-          spotifyAuthUrls: state.spotifyAuthUrls,
         ));
 
         Map<String, String> headers = {
@@ -517,63 +347,31 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                     'websocket log @ ${DateTime.now().toLocal()} => decompress done, log size: ${log.length}');
               }
 
-              emit(MainStateLoaded(
+              emit(state.copyWith(
                 update: DateTime.now(),
-                ipStart: state.ipStart,
-                ipEnd: state.ipEnd,
-                searchFilter: state.searchFilter,
-                devices: state.devices,
-                info: state.info,
-                config: state.config,
-                definitions: state.definitions,
-                fieldValues: state.fieldValues,
                 log: log,
-                idle: state.idle,
                 subPageIdle: false,
-                logMessage: state.logMessage,
-                spotifyAuthUrls: state.spotifyAuthUrls,
               ));
             }
           } catch (e) {
             if (kDebugMode) {
               debugPrint('error by access to $url: $e');
             }
-            emit(MainStateLoaded(
+
+            emit(state.copyWith(
               update: DateTime.now(),
-              ipStart: state.ipStart,
-              ipEnd: state.ipEnd,
-              searchFilter: state.searchFilter,
-              devices: state.devices,
-              info: state.info,
-              config: state.config,
-              definitions: state.definitions,
-              fieldValues: state.fieldValues,
               log: '',
-              idle: state.idle,
               subPageIdle: false,
-              logMessage: state.logMessage,
-              spotifyAuthUrls: state.spotifyAuthUrls,
             ));
           }
         } catch (e) {
           if (kDebugMode) {
             debugPrint('GetLog try/catch error: $e');
           }
-          emit(MainStateLoaded(
+          emit(state.copyWith(
             update: DateTime.now(),
-            ipStart: state.ipStart,
-            ipEnd: state.ipEnd,
-            searchFilter: state.searchFilter,
-            devices: state.devices,
-            info: state.info,
-            config: state.config,
-            definitions: state.definitions,
-            fieldValues: state.fieldValues,
             log: '',
-            idle: state.idle,
             subPageIdle: false,
-            logMessage: state.logMessage,
-            spotifyAuthUrls: state.spotifyAuthUrls,
           ));
         }
       }
@@ -612,21 +410,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 if (cmd == 'switch') {
                   info[ip]['control_id'] = controlId;
 
-                  emit(MainStateLoaded(
+                  emit(state.copyWith(
                     update: DateTime.now(),
-                    ipStart: state.ipStart,
-                    ipEnd: state.ipEnd,
-                    searchFilter: state.searchFilter,
-                    devices: state.devices,
                     info: info,
-                    config: state.config,
-                    definitions: state.definitions,
-                    fieldValues: state.fieldValues,
-                    log: state.log,
-                    idle: state.idle,
-                    subPageIdle: state.subPageIdle,
-                    logMessage: state.logMessage,
-                    spotifyAuthUrls: state.spotifyAuthUrls,
                   ));
                 }
               }
@@ -681,20 +467,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   Map<String, dynamic>.from(state.spotifyAuthUrls);
               spotifyAuthUrls[ip] = '*';
 
-              emit(MainStateLoaded(
+              emit(state.copyWith(
                 update: DateTime.now(),
-                ipStart: state.ipStart,
-                ipEnd: state.ipEnd,
-                searchFilter: state.searchFilter,
-                devices: state.devices,
-                info: state.info,
-                config: state.config,
-                definitions: state.definitions,
-                fieldValues: state.fieldValues,
-                log: state.log,
-                idle: state.idle,
-                subPageIdle: state.subPageIdle,
-                logMessage: state.logMessage,
                 spotifyAuthUrls: spotifyAuthUrls,
               ));
             }

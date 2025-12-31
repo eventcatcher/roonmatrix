@@ -15,22 +15,6 @@ abstract class TranslationsState extends Equatable {
     this.translationsLoaded = false,
   });
 
-  TranslationsState copyWith({
-    String? languageCode,
-    Map<String, dynamic>? translations,
-    Map<String, dynamic>? logHoursOptions,
-    String? aboutAppMessage,
-    bool? translationsLoaded,
-  }) {
-    return TranslationsStateLoaded(
-      languageCode: languageCode ?? this.languageCode,
-      translations: translations ?? this.translations,
-      logHoursOptions: logHoursOptions ?? this.logHoursOptions,
-      aboutAppMessage: aboutAppMessage ?? this.aboutAppMessage,
-      translationsLoaded: translationsLoaded ?? this.translationsLoaded,
-    );
-  }
-
   @override
   List<Object> get props => [
         languageCode,
