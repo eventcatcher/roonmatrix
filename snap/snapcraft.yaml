@@ -1,5 +1,5 @@
 name: roonmatrix
-version: '1.2.0'
+version: '1.2.1'
 summary: App to control your LED-matrix device
 description: |
   App to control your own LED matrix hardware, which can display a wide range of informations: Music played from Roon, Apple Music or Spotify, weather data, RSS feeds, custom text messages, and more. The RoonMatrix is a free maker project, and describes step by step how to build your own LED matrix display hardware. And with this app you can configure your hardware extensively, and specify from which sources the text to display is composed. With the app you can send text messages directly to your device, control the display speed, brightness and much more.
@@ -15,25 +15,32 @@ base: core22
 confinement: strict
 grade: stable
 
+plugs:
+  graphics-core22:
+    interface: content
+    target: $SNAP/graphics
+    default-provider: mesa-core22
+
 apps:
   roonmatrix:
     command: roonmatrix
+    extensions: [gnome]
     environment:
       GTK_MODULES: ""
-      GDK_BACKEND: wayland,x11
-    extensions: [gnome]
+      GDK_BACKEND: x11
     plugs:
-      - home
-      - network
-      - network-bind
+      - graphics-core22
+      - opengl
       - x11
       - wayland
-      - opengl
       - desktop
       - desktop-legacy
       - gsettings
       - icon-themes
       - gtk-3-themes
+      - home
+      - network
+      - network-bind
 
 parts:
   roonmatrix:

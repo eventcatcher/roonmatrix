@@ -30,7 +30,7 @@ import 'package:window_manager/window_manager.dart';
 class MainBloc extends Bloc<MainEvent, MainState> {
   final FileRepository fileRepository;
 
-  final Map<String, TextEditingController> conrollerSearch = {
+  final Map<String, TextEditingController> controllerSearch = {
     "main": TextEditingController(),
     "info": TextEditingController(),
     "config": TextEditingController(),
@@ -195,52 +195,41 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           subPageIdle: true,
         ));
 
+        String url = 'http://$ip:$port/info/';
         try {
-          String url = 'http://$ip:$port/info/';
           Uri uri = Uri.parse(url);
-          try {
-            var response = await client.get(uri);
-            if (response.statusCode == 200) {
-              if (response.body.substring(0, 1) == '{') {
-                Map<String, dynamic> json = jsonDecode(filterIllegalChars(
-                        text: utf8.decode(response.bodyBytes),
-                        messageHeader: 'GetInfo/info (raw)'))
-                    as Map<String, dynamic>;
 
-                Map<String, dynamic> info =
-                    Map<String, dynamic>.from(state.info);
-                Map<String, dynamic> spotifyAuthUrls =
-                    Map<String, dynamic>.from(state.spotifyAuthUrls);
+          var response = await client.get(uri);
+          if (response.statusCode == 200) {
+            if (response.body.substring(0, 1) == '{') {
+              Map<String, dynamic> json = jsonDecode(filterIllegalChars(
+                  text: utf8.decode(response.bodyBytes),
+                  messageHeader: 'GetInfo/info (raw)')) as Map<String, dynamic>;
 
-                String spotifyAuthUrl = '';
-                if (json.containsKey('spotify_auth_url')) {
-                  spotifyAuthUrl = json['spotify_auth_url'];
-                  spotifyAuthUrls[ip] = spotifyAuthUrl;
-                  json.remove('spotify_auth_url');
-                }
+              Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
+              Map<String, dynamic> spotifyAuthUrls =
+                  Map<String, dynamic>.from(state.spotifyAuthUrls);
 
-                info[ip] = json;
-
-                emit(state.copyWith(
-                  update: DateTime.now(),
-                  info: info,
-                  subPageIdle: false,
-                  spotifyAuthUrls: spotifyAuthUrls,
-                ));
+              String spotifyAuthUrl = '';
+              if (json.containsKey('spotify_auth_url')) {
+                spotifyAuthUrl = json['spotify_auth_url'];
+                spotifyAuthUrls[ip] = spotifyAuthUrl;
+                json.remove('spotify_auth_url');
               }
+
+              info[ip] = json;
+
+              emit(state.copyWith(
+                update: DateTime.now(),
+                info: info,
+                subPageIdle: false,
+                spotifyAuthUrls: spotifyAuthUrls,
+              ));
             }
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint('error by access to $url: $e');
-            }
-            emit(state.copyWith(
-              update: DateTime.now(),
-              subPageIdle: false,
-            ));
           }
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('GetInfo try/catch error: $e');
+            debugPrint('GetInfo error by access to $url: $e');
           }
           emit(state.copyWith(
             update: DateTime.now(),
@@ -257,44 +246,35 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           subPageIdle: true,
         ));
 
+        String url = 'http://$ip:$port/config/';
         try {
-          String url = 'http://$ip:$port/config/';
           Uri uri = Uri.parse(url);
-          try {
-            var response = await client.get(uri);
-            if (response.statusCode == 200) {
-              if (response.body.substring(0, 1) == '{') {
-                Map<String, dynamic> json =
-                    jsonDecode(utf8.decode(response.bodyBytes))
-                        as Map<String, dynamic>;
 
-                ConfigDefinition definitions =
-                    ConfigDefinition.fromJson(json['definitions']);
+          var response = await client.get(uri);
+          if (response.statusCode == 200) {
+            if (response.body.substring(0, 1) == '{') {
+              Map<String, dynamic> json =
+                  jsonDecode(utf8.decode(response.bodyBytes))
+                      as Map<String, dynamic>;
 
-                Map fieldValues =
-                    getFieldValues(defs: definitions, json: json['config']);
+              ConfigDefinition definitions =
+                  ConfigDefinition.fromJson(json['definitions']);
 
-                emit(state.copyWith(
-                  update: DateTime.now(),
-                  config: json['config'],
-                  definitions: definitions,
-                  fieldValues: fieldValues,
-                  subPageIdle: false,
-                ));
-              }
+              Map fieldValues =
+                  getFieldValues(defs: definitions, json: json['config']);
+
+              emit(state.copyWith(
+                update: DateTime.now(),
+                config: json['config'],
+                definitions: definitions,
+                fieldValues: fieldValues,
+                subPageIdle: false,
+              ));
             }
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint('error by access to $url: $e');
-            }
-            emit(state.copyWith(
-              update: DateTime.now(),
-              subPageIdle: false,
-            ));
           }
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('GetConfig try/catch error: $e');
+            debugPrint('GetConfig error by access to $url: $e');
           }
           emit(state.copyWith(
             update: DateTime.now(),
@@ -322,51 +302,40 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           "hours": hours,
         };
 
+        String url = 'http://$ip:$port/log/';
         try {
-          String url = 'http://$ip:$port/log/';
           Uri uri = Uri.parse(url);
-          try {
-            if (kDebugMode) {
-              debugPrint('websocket log request @ ${DateTime.now().toLocal()}');
-            }
-            var response = await client.post(uri,
-                headers: headers, body: json.encode(payload));
+
+          if (kDebugMode) {
+            debugPrint('websocket log request @ ${DateTime.now().toLocal()}');
+          }
+          var response = await client.post(uri,
+              headers: headers, body: json.encode(payload));
+          if (kDebugMode) {
+            debugPrint(
+                'websocket log response  @ ${DateTime.now().toLocal()} => statuscode: ${response.statusCode}, bodyBytes: ${response.contentLength}');
+          }
+          if (response.statusCode == 200) {
+            Uint8List bytes = response.bodyBytes;
             if (kDebugMode) {
               debugPrint(
-                  'websocket log response  @ ${DateTime.now().toLocal()} => statuscode: ${response.statusCode}, bodyBytes: ${response.contentLength}');
+                  'websocket log @ ${DateTime.now().toLocal()} => decompress now...');
             }
-            if (response.statusCode == 200) {
-              Uint8List bytes = response.bodyBytes;
-              if (kDebugMode) {
-                debugPrint(
-                    'websocket log @ ${DateTime.now().toLocal()} => decompress now...');
-              }
-              String log = decompressZlib(bytes);
-              if (kDebugMode) {
-                debugPrint(
-                    'websocket log @ ${DateTime.now().toLocal()} => decompress done, log size: ${log.length}');
-              }
-
-              emit(state.copyWith(
-                update: DateTime.now(),
-                log: log,
-                subPageIdle: false,
-              ));
-            }
-          } catch (e) {
+            String log = decompressZlib(bytes);
             if (kDebugMode) {
-              debugPrint('error by access to $url: $e');
+              debugPrint(
+                  'websocket log @ ${DateTime.now().toLocal()} => decompress done, log size: ${log.length}');
             }
 
             emit(state.copyWith(
               update: DateTime.now(),
-              log: '',
+              log: log,
               subPageIdle: false,
             ));
           }
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('GetLog try/catch error: $e');
+            debugPrint('GetLog error by access to $url: $e');
           }
           emit(state.copyWith(
             update: DateTime.now(),
@@ -393,49 +362,42 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           'enable': enable
         };
 
+        String url = 'http://$ip:$port/zone_control/';
         try {
-          String url = 'http://$ip:$port/zone_control/';
           Uri uri = Uri.parse(url);
-          try {
-            if (kDebugMode) {
-              debugPrint('send zone_control => payload: $payload');
-            }
-            var response = await client.post(uri,
-                headers: headers, body: json.encode(payload));
 
-            if (response.statusCode == 200) {
-              if (state.info.containsKey(ip)) {
-                Map<String, dynamic> info =
-                    Map<String, dynamic>.from(state.info);
-                if (cmd == 'switch') {
-                  info[ip]['control_id'] = controlId;
+          if (kDebugMode) {
+            debugPrint('send zone_control => payload: $payload');
+          }
+          var response = await client.post(uri,
+              headers: headers, body: json.encode(payload));
 
-                  emit(state.copyWith(
-                    update: DateTime.now(),
-                    info: info,
-                  ));
-                }
-              }
-              if (kDebugMode) {
-                debugPrint(
-                    'zoneControl => ip: $ip, controlId: $controlId, cmd: $cmd${payload['enable'] != null ? ', enable: $enable' : ''}');
+          if (response.statusCode == 200) {
+            if (state.info.containsKey(ip)) {
+              Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
+              if (cmd == 'switch') {
+                info[ip]['control_id'] = controlId;
+
+                emit(state.copyWith(
+                  update: DateTime.now(),
+                  info: info,
+                ));
               }
             }
-          } catch (e) {
             if (kDebugMode) {
-              debugPrint('ZoneControl error by access to $url: $e');
+              debugPrint(
+                  'zoneControl => ip: $ip, controlId: $controlId, cmd: $cmd${payload['enable'] != null ? ', enable: $enable' : ''}');
             }
           }
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('ZoneControl error: $e');
+            debugPrint('ZoneControl error by access to $url: $e');
           }
         }
       }
 
       if (event is SetSpotifyAuthRedirectUrl) {
         String ip = event.ip;
-        String url = event.url;
 
         Map<String, String> headers = {
           "Content-Type": 'application/json; charset=utf-8',
@@ -443,44 +405,38 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         };
 
         Map<String, dynamic> payload = {
-          "url": url,
+          "url": event.url,
         };
 
+        String url = 'http://$ip:$port/spotify_auth_redirect_url/';
         try {
-          String url = 'http://$ip:$port/spotify_auth_redirect_url/';
           Uri uri = Uri.parse(url);
-          try {
-            if (kDebugMode) {
-              debugPrint('send spotify_auth_redirect_url => payload: $payload');
-            }
-            var response = await client.post(uri,
-                headers: headers, body: json.encode(payload));
 
-            if (response.statusCode == 200) {
-              String success = response.body;
-              if (kDebugMode) {
-                debugPrint(
-                    'send spotify_auth_redirect_url => response: $success');
-              }
+          if (kDebugMode) {
+            debugPrint('send spotify_auth_redirect_url => payload: $payload');
+          }
+          var response = await client.post(uri,
+              headers: headers, body: json.encode(payload));
 
-              Map<String, dynamic> spotifyAuthUrls =
-                  Map<String, dynamic>.from(state.spotifyAuthUrls);
-              spotifyAuthUrls[ip] = '*';
-
-              emit(state.copyWith(
-                update: DateTime.now(),
-                spotifyAuthUrls: spotifyAuthUrls,
-              ));
-            }
-          } catch (e) {
+          if (response.statusCode == 200) {
+            String success = response.body;
             if (kDebugMode) {
               debugPrint(
-                  'SetSpotifyAuthRedirectUrl error by access to $url: $e');
+                  'send spotify_auth_redirect_url => response: $success');
             }
+
+            Map<String, dynamic> spotifyAuthUrls =
+                Map<String, dynamic>.from(state.spotifyAuthUrls);
+            spotifyAuthUrls[ip] = '*';
+
+            emit(state.copyWith(
+              update: DateTime.now(),
+              spotifyAuthUrls: spotifyAuthUrls,
+            ));
           }
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('SetSpotifyAuthRedirectUrl error: $e');
+            debugPrint('SetSpotifyAuthRedirectUrl error by access to $url: $e');
           }
         }
       }
@@ -952,27 +908,22 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       "option": option,
     };
 
+    String url = 'http://$ip:$port/message/';
     try {
-      String url = 'http://$ip:$port/message/';
       Uri uri = Uri.parse(url);
-      try {
-        var response = await client.post(uri,
-            headers: headers, body: json.encode(payload));
-        if (response.statusCode == 200) {
-          if (kDebugMode) {
-            debugPrint('message => ip: $ip, payload: $payload');
-          }
 
-          return Future.value(true);
-        }
-      } catch (e) {
+      var response =
+          await client.post(uri, headers: headers, body: json.encode(payload));
+      if (response.statusCode == 200) {
         if (kDebugMode) {
-          debugPrint('Message error by access to $url: $e');
+          debugPrint('message => ip: $ip, payload: $payload');
         }
+
+        return Future.value(true);
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('Message error: $e');
+        debugPrint('Message error by access to $url: $e');
       }
       return Future.value(false);
     }
@@ -983,47 +934,43 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Future<bool> saveConfig(
       {required String name, required String ip, required dynamic data}) async {
     if (state.devices.isNotEmpty) {
+      Map<String, String> headers = {
+        "Content-Type": 'application/json; charset=utf-8',
+        "Accept": 'application/json',
+      };
+      String jsonStr = '';
+
       try {
-        String jsonStr = jsonEncode(data);
+        jsonStr = jsonEncode(data);
         if (kDebugMode) {
           debugPrint('saveConfig, name: $name, ip: $ip, data: $jsonStr');
         }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Setup jsonEncode error: $e');
+        }
+        Future.value(false);
+      }
 
-        Map<String, String> headers = {
-          "Content-Type": 'application/json; charset=utf-8',
-          "Accept": 'application/json',
-        };
-
+      String url = 'http://$ip:$port/setup/';
+      try {
+        Uri uri = Uri.parse(url);
         Map<String, dynamic> payload = {
           "data": jsonStr,
         };
 
-        try {
-          String url = 'http://$ip:$port/setup/';
-          Uri uri = Uri.parse(url);
-          try {
-            var response = await client.post(uri,
-                headers: headers, body: json.encode(payload));
+        var response = await client.post(uri,
+            headers: headers, body: json.encode(payload));
 
-            if (response.statusCode == 200) {
-              if (kDebugMode) {
-                debugPrint('setup => ip: $ip, data: $jsonStr');
-              }
-              return Future.value(true);
-            }
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint('Setup error by access to $url: $e');
-            }
-          }
-        } catch (e) {
+        if (response.statusCode == 200) {
           if (kDebugMode) {
-            debugPrint('Setup error: $e');
+            debugPrint('setup => ip: $ip, data: $jsonStr');
           }
+          return Future.value(true);
         }
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('Setup error: $e');
+          debugPrint('Setup error by access to $url: $e');
         }
       }
     }
@@ -1045,27 +992,22 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       "value": value,
     };
 
+    String url = 'http://$ip:$port/livecontrol/';
     try {
-      String url = 'http://$ip:$port/livecontrol/';
       Uri uri = Uri.parse(url);
-      try {
-        var response = await client.post(uri,
-            headers: headers, body: json.encode(payload));
-        if (response.statusCode == 200) {
-          if (kDebugMode) {
-            debugPrint('LiveControl => ip: $ip, payload: $payload');
-          }
 
-          return Future.value(true);
-        }
-      } catch (e) {
+      var response =
+          await client.post(uri, headers: headers, body: json.encode(payload));
+      if (response.statusCode == 200) {
         if (kDebugMode) {
-          debugPrint('LiveControl error by access to $url: $e');
+          debugPrint('LiveControl => ip: $ip, payload: $payload');
         }
+
+        return Future.value(true);
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('LiveControl error: $e');
+        debugPrint('LiveControl error by access to $url: $e');
       }
       return Future.value(false);
     }
@@ -1272,7 +1214,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   TextEditingController getSearchController({required String type}) =>
-      conrollerSearch[type]!;
+      controllerSearch[type]!;
 
   String getPrettyJSONString(jsonObject) {
     JsonEncoder encoder = const JsonEncoder.withIndent("     ");
