@@ -11,7 +11,7 @@ contact:
   - support@wilhelm-devblog.de
 license: GPL-3.0+
 
-base: core22
+base: core24
 confinement: strict
 grade: stable
 
@@ -25,6 +25,7 @@ apps:
       G_MESSAGES_DEBUG: ""
       G_LOG_LEVEL: "ERROR"
       NO_AT_BRIDGE: "1"
+      GTK_A11Y: "none"
     plugs:
       - opengl
       - x11
