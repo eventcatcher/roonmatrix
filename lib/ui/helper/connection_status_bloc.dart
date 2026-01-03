@@ -57,9 +57,11 @@ class ConnectionStatusBloc
         bool hasChanged = state.connected != connected;
 
         if (hasChanged == true) {
-          debugPrint(
-            'ConnectionStatusBloc/ConnectionStatusChanged -> hasChanged: $hasChanged, connected: $connected',
-          );
+          if (kDebugMode) {
+            debugPrint(
+              'ConnectionStatusBloc/ConnectionStatusChanged -> hasChanged: $hasChanged, connected: $connected',
+            );
+          }
           emit(
             ConnectionStatusStateLoaded(
               connected: connected,
@@ -89,9 +91,11 @@ class ConnectionStatusBloc
   // ============== //
 
   Future<List<ConnectivityResult>?> checkConnectivity() async {
-    debugPrint(
-      'ConnectionStatusBloc/checkConnectivity -> _readConnectivityAndUpdateConnectionStatus',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'ConnectionStatusBloc/checkConnectivity -> _readConnectivityAndUpdateConnectionStatus',
+      );
+    }
     return await _readConnectivityAndUpdateConnectionStatus();
   }
 
@@ -115,9 +119,11 @@ class ConnectionStatusBloc
   }
 
   void restartConnectivityCheck() async {
-    debugPrint(
-      'ConnectionStatusBloc/restartConnectivityCheck @ ${DateTime.now().toLocal()}',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'ConnectionStatusBloc/restartConnectivityCheck @ ${DateTime.now().toLocal()}',
+      );
+    }
 
     await _readConnectivityAndUpdateConnectionStatus();
     _restartConnectivitySubscription();
@@ -149,18 +155,22 @@ class ConnectionStatusBloc
 
   connectivityMasterTimerCallback() {
     if (connectivityCheckCounterBackup == connectivityCheckCounter) {
-      debugPrint(
-        'connectivityCheckTimer is not running => restartConnectivityCheck',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'ConnectionStatusBloc/connectivityMasterTimerCallback is not running => restartConnectivityCheck',
+        );
+      }
       restartConnectivityCheck();
     }
     connectivityCheckCounterBackup = connectivityCheckCounter;
   }
 
   void _restartConnectivityCheckTimer() {
-    debugPrint(
-      'ConnectionStatusBloc/restartConnectivityCheckTimer',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'ConnectionStatusBloc/restartConnectivityCheckTimer',
+      );
+    }
     connectivityCheckTimer?.cancel();
     connectivityCheckTimer = Timer.periodic(
       const Duration(seconds: 10),
@@ -169,9 +179,11 @@ class ConnectionStatusBloc
   }
 
   getConnectivityResultAndUpdateConnectionStatus() async {
-    debugPrint(
-      'ConnectionStatusBloc/getConnectivityResultAndUpdateConnectionStatus => running code @ ${DateTime.now().toLocal()}',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'ConnectionStatusBloc/getConnectivityResultAndUpdateConnectionStatus => running code @ ${DateTime.now().toLocal()}',
+      );
+    }
     List<ConnectivityResult> result = await connectivity.checkConnectivity();
     _updateConnectionStatus(result, fromTimer: true);
     connectivityCheckCounter++;
@@ -194,15 +206,19 @@ class ConnectionStatusBloc
     await connectivitySubscription?.cancel();
     connectivitySubscription = connectivity.onConnectivityChanged.listen(
       (List<ConnectivityResult> result) {
-        debugPrint(
-          'ConnectionStatusBloc/_restartConnectivitySubscription/onConnectivityChanged listener => change detected from onConnectivityChanged listener @ ${DateTime.now().toLocal()}',
-        );
+        if (kDebugMode) {
+          debugPrint(
+            'ConnectionStatusBloc/_restartConnectivitySubscription/onConnectivityChanged listener => change detected from onConnectivityChanged listener @ ${DateTime.now().toLocal()}',
+          );
+        }
         _updateConnectionStatus(result);
       },
       onError: (Object e, StackTrace stack) {
-        debugPrint(
-          'ConnectionStatusBloc/_restartConnectivitySubscription/onError => error: $e, stack: $stack',
-        );
+        if (kDebugMode) {
+          debugPrint(
+            'ConnectionStatusBloc/_restartConnectivitySubscription/onError => error: $e, stack: $stack',
+          );
+        }
       },
     );
 
@@ -211,9 +227,11 @@ class ConnectionStatusBloc
       networkStatusSubscription = _connectionNetworkTypePlugin
           .onNetworkStateChanged
           .listen((NetworkStatus networkStatus) {
-        debugPrint(
-          'ConnectionStatusBloc/_restartConnectivitySubscription/onNetworkStateChanged listener => change detected of ${networkStatus.name} from onNetworkStateChanged listener @ ${DateTime.now().toLocal()}',
-        );
+        if (kDebugMode) {
+          debugPrint(
+            'ConnectionStatusBloc/_restartConnectivitySubscription/onNetworkStateChanged listener => change detected of ${networkStatus.name} from onNetworkStateChanged listener @ ${DateTime.now().toLocal()}',
+          );
+        }
 
         _updateConnectionStatus([ConnectivityResult.mobile]);
       });
@@ -235,9 +253,11 @@ class ConnectionStatusBloc
       if (SharedWidgets.isMobileDevice()) {
         NetworkStatus networkStatus = await getNetworkStatus();
         if (networkStatus == NetworkStatus.mobile2G) {
-          debugPrint(
-            'ConnectionStatusBloc/_updateConnectionStatus => network too slow: $networkStatus',
-          );
+          if (kDebugMode) {
+            debugPrint(
+              'ConnectionStatusBloc/_updateConnectionStatus => network too slow: $networkStatus',
+            );
+          }
         } else {
           connected = await checkInternetStatus();
         }
@@ -251,9 +271,11 @@ class ConnectionStatusBloc
 
   waitForConnection() async {
     await Future.delayed(Duration(seconds: 1));
-    debugPrint(
-      'ConnectionStatusBloc/waitForConnection, time: ${DateTime.now().toLocal()}',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'ConnectionStatusBloc/waitForConnection, time: ${DateTime.now().toLocal()}',
+      );
+    }
 
     if (state.connected == false) {
       await waitForConnection();
@@ -267,9 +289,11 @@ class ConnectionStatusBloc
     try {
       result = await connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      debugPrint(
-        'ConnectionStatusBloc/_readConnectivityAndUpdateConnectionStatus/catch, error: $e',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          'ConnectionStatusBloc/_readConnectivityAndUpdateConnectionStatus/catch, error: $e',
+        );
+      }
 
       return result;
     }

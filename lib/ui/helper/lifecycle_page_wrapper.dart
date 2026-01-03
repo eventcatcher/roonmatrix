@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AppLifecyclePageWrapper extends StatefulWidget {
@@ -19,9 +20,11 @@ class _AppLifecyclePageWrapperState extends State<AppLifecyclePageWrapper>
     with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    debugPrint(
-      'AppLifecyclePageWrapper/didChangeAppLifecycleState =>  => change to $state',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'AppLifecyclePageWrapper/didChangeAppLifecycleState =>  => change to $state',
+      );
+    }
 
     if (state == AppLifecycleState.resumed) {
       widget.onResume();
@@ -38,9 +41,11 @@ class _AppLifecyclePageWrapperState extends State<AppLifecyclePageWrapper>
   @override
   void didUpdateWidget(AppLifecyclePageWrapper oldWidget) {
     super.didUpdateWidget(oldWidget);
-    debugPrint(
-      'AppLifecyclePageWrapper/didUpdateWidget',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'AppLifecyclePageWrapper/didUpdateWidget',
+      );
+    }
   }
 
   @override

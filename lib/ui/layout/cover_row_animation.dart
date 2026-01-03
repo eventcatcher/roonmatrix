@@ -95,7 +95,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
         info: info, showWebCoverNotRunning: showWebCoverNotRunning);
     if (kDebugMode) {
       debugPrint(
-          'CoverRowAnimation/body => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
+          'CoverRowAnimation/refreshCovers => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
     }
     if (coverListNew.length != coverList.length) {
       itemsToRemove(newList: coverListNew);
@@ -108,9 +108,9 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   void itemsToRemove({required List<CoverModel> newList}) {
     if (kDebugMode) {
       debugPrint(
-          'yyyy CoverRowAnimation/itemsToRemove => newList itemsToRemove: ${newList.map((el) => el.artist)}');
+          'CoverRowAnimation/itemsToRemove => newList itemsToRemove: ${newList.map((el) => el.artist)}');
       debugPrint(
-          'yyyy CoverRowAnimation/itemsToRemove => coverList itemsToRemove: ${coverList.map((el) => el.artist)}');
+          'CoverRowAnimation/itemsToRemove => coverList itemsToRemove: ${coverList.map((el) => el.artist)}');
     }
     List<int> indexesToRemove = [];
     coverList.asMap().forEach((index, item) {
@@ -120,7 +120,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
         indexesToRemove.add(index);
         if (kDebugMode) {
           debugPrint(
-              'yyyy CoverRowAnimation/itemsToRemove => itemsToRemove: ${item.artist}');
+              'CoverRowAnimation/itemsToRemove => itemsToRemove: ${item.artist}');
         }
       }
     });
@@ -170,7 +170,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       if (obj == null) {
         newItems.add(item);
         if (kDebugMode) {
-          debugPrint('yyyy CoverRowAnimation/itemsToAdd => ${item.artist}');
+          debugPrint('CoverRowAnimation/itemsToAdd => ${item.artist}');
         }
       }
     });

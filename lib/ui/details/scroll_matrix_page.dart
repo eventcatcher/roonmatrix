@@ -284,7 +284,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   if (displaystrNew != displaystr) {
                     scrollText = replaceCodes(displaystrNew);
                     if (kDebugMode) {
-                      debugPrint('xxxx new scrollText: $scrollText');
+                      debugPrint('==> new scrollText: $scrollText');
                     }
                   }
                 }

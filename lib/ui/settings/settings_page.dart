@@ -455,7 +455,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     return Container();
                   }
                   if (kDebugMode) {
-                    debugPrint('state changed => rebuild');
+                    debugPrint('SettingsState changed => rebuild');
                   }
 
                   moreInfo = settingsState.moreInfo;

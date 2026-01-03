@@ -106,7 +106,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
   body() => AppLifecyclePageWrapper(
         onResume: () {
-          debugPrint('AppLifecycle => onResume');
+          if (kDebugMode) {
+            debugPrint('AppLifecycle => onResume');
+          }
           if (SharedWidgets.isMobileDevice() == true) {
             mainBloc.resetWebSocketServices();
           }

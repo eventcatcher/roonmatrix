@@ -97,7 +97,9 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
     if (appDir != null) {
       String fileName = 'translations_$languageCode.json';
       String filePath = '${appDir.path}/translations/$fileName';
-      debugPrint('local filePath: $filePath');
+      if (kDebugMode) {
+        debugPrint('local filePath: $filePath');
+      }
       File localFile = File(filePath);
       bool exist = localFile.existsSync();
       if (exist == true) {

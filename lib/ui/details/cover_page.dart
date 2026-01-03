@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, BlocProvider;
@@ -207,8 +208,10 @@ class _CoverPageState extends State<CoverPage> {
                 zone['position'] ==
                     '0'; // if this is a radio stream, set this prop to true (at the moment a radio stream is recognized by sourcetype is stream and playpos is 0, because playpos is not counting on radio streams)
             zone['is_radio'] = isRadio;
-            debugPrint(
-                'zone: ${zone['zone']}, sourcetype: ${zone['sourcetype']}, playpos: ${zone['position']} => is_radio: $isRadio');
+            if (kDebugMode) {
+              debugPrint(
+                  'zone: ${zone['zone']}, sourcetype: ${zone['sourcetype']}, playpos: ${zone['position']} => is_radio: $isRadio');
+            }
           }
         }
       } else {

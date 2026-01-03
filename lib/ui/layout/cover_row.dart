@@ -82,7 +82,7 @@ class _CoverRowState extends State<CoverRow> {
   Widget getCoverRow({required Map<String, dynamic> info}) {
     if (kDebugMode) {
       debugPrint(
-          'StartPage/getCoverRow => covers to display: ${coverList.length}');
+          'CoverRow/getCoverRow => covers to display: ${coverList.length}');
     }
 
     double coverSize = mainBloc.getCoverSize(

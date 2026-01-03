@@ -76,7 +76,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
 
       if (event is ResetWebSocketServices) {
-        debugPrint('ResetWebSocketServices, services: ${services.length}');
+        if (kDebugMode) {
+          debugPrint('ResetWebSocketServices, services: ${services.length}');
+        }
         for (WebSocketService service in services) {
           service.dispose();
         }
@@ -94,7 +96,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
           if (!existingServiceUrls.contains(url)) {
             if (kDebugMode) {
-              debugPrint('vvvv add WebSocketService $url');
+              debugPrint('add WebSocketService $url');
             }
             services.add(WebSocketService(
               url,
@@ -105,7 +107,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   dynamic info = jsonDecode(jsonStr);
                   if (kDebugMode) {
                     debugPrint(
-                        'vvvv WebSocketService received data from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
+                        'WebSocketService received data from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
                   }
                   add(LoadInfo(ip: ip, info: info));
                 }
@@ -121,7 +123,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         for (WebSocketService service in services) {
           if (!newWebSocketUrls.contains(service.url)) {
             if (kDebugMode) {
-              debugPrint('vvvv remove WebSocketService ${service.url}');
+              debugPrint('remove WebSocketService ${service.url}');
             }
             service.dispose();
             servicesToRemove.add(service);
@@ -134,7 +136,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
 
         if (kDebugMode) {
-          debugPrint('vvvv active websocket connections: ${services.length}');
+          debugPrint('active websocket connections: ${services.length}');
         }
 
         emit(state.copyWith(
@@ -149,7 +151,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         info[event.ip] = event.info;
         if (kDebugMode) {
           debugPrint(
-              'vvvv LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}');
+              'LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}');
         }
 
         emit(state.copyWith(
@@ -1257,8 +1259,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   setPollingTimer() {
-    debugPrint(
-        'setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds');
+    if (kDebugMode) {
+      debugPrint(
+          'setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds');
+    }
     timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds),
         (Timer timer) {
       searching(idle: state.devices.isEmpty);

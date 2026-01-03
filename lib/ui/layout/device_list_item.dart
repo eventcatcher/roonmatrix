@@ -109,7 +109,7 @@ class DeviceListItemState extends State<DeviceListItem> {
     String hash = md5.convert(utf8.encode(scrollText)).toString();
     if (kDebugMode) {
       debugPrint(
-          'yyyy StartPage => new info received on index $index @ ${DateTime.now().toLocal()}), hash: $hash, scrollText: $scrollText');
+          'DeviceListItem => new info received on index $index @ ${DateTime.now().toLocal()}), hash: $hash, scrollText: $scrollText');
     }
 
     String zoneName = mainBloc.getZoneName(info: i);
