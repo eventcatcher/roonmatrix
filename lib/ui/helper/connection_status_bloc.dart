@@ -13,7 +13,7 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class ConnectionStatusBloc
     extends Bloc<ConnectionStatusEvent, ConnectionStatusState> {
-  final Connectivity connectivity = Connectivity();
+  Connectivity? connectivity;
   StreamSubscription<List<ConnectivityResult>>? connectivitySubscription;
   StreamSubscription<NetworkStatus>? networkStatusSubscription;
   bool actualConnectedStatus = true;
@@ -29,6 +29,9 @@ class ConnectionStatusBloc
 
   void init() async {
     if (isInitialized == false) {
+      if (!SharedWidgets.isLinux()) {
+        connectivity = Connectivity();
+      }
       restartConnectivityCheck();
 
       isInitialized = true;
@@ -100,22 +103,20 @@ class ConnectionStatusBloc
   }
 
   Future<bool> checkInternetStatus() async {
-    bool connected = false;
-    List<InternetAddress> result = [];
     try {
-      result = await InternetAddress.lookup('roonmatrix.com');
-    } on SocketException catch (e) {
+      final client = HttpClient()
+        ..connectionTimeout = const Duration(seconds: 3);
+
+      final request = await client.headUrl(Uri.parse('https://www.google.com'));
+      final response = await request.close();
+      return response.statusCode >= 200 && response.statusCode < 400;
+    } catch (e) {
       log(
         e.toString(),
-        name: 'ConnectionStatusBloc/checkInternetStatus/lookup/error',
+        name: 'ConnectionStatusBloc/checkInternetStatus/error',
       );
+      return false;
     }
-
-    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-      connected = true;
-    }
-
-    return connected;
   }
 
   void restartConnectivityCheck() async {
@@ -125,8 +126,11 @@ class ConnectionStatusBloc
       );
     }
 
-    await _readConnectivityAndUpdateConnectionStatus();
-    _restartConnectivitySubscription();
+    if (!SharedWidgets.isLinux()) {
+      await _readConnectivityAndUpdateConnectionStatus();
+      _restartConnectivitySubscription();
+    }
+
     _restartConnectivityCheckTimer();
   }
 
@@ -184,8 +188,14 @@ class ConnectionStatusBloc
         'ConnectionStatusBloc/getConnectivityResultAndUpdateConnectionStatus => running code @ ${DateTime.now().toLocal()}',
       );
     }
-    List<ConnectivityResult> result = await connectivity.checkConnectivity();
-    _updateConnectionStatus(result, fromTimer: true);
+    if (SharedWidgets.isLinux()) {
+      bool connected = await checkInternetStatus();
+      connectionStatusChanged(connected: connected);
+    } else {
+      List<ConnectivityResult> result = await connectivity!.checkConnectivity();
+      _updateConnectionStatus(result, fromTimer: true);
+    }
+
     connectivityCheckCounter++;
     connectivityCheckUpdated = DateTime.now();
   }
@@ -204,7 +214,7 @@ class ConnectionStatusBloc
 
   void _restartConnectivitySubscription() async {
     await connectivitySubscription?.cancel();
-    connectivitySubscription = connectivity.onConnectivityChanged.listen(
+    connectivitySubscription = connectivity!.onConnectivityChanged.listen(
       (List<ConnectivityResult> result) {
         if (kDebugMode) {
           debugPrint(
@@ -287,7 +297,7 @@ class ConnectionStatusBloc
     List<ConnectivityResult> result = [];
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      result = await connectivity.checkConnectivity();
+      result = await connectivity!.checkConnectivity();
     } on PlatformException catch (e) {
       if (kDebugMode) {
         debugPrint(

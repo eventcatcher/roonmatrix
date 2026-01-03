@@ -243,7 +243,7 @@ class _CoverPageState extends State<CoverPage> {
             child: Row(
               children: [
                 Text(
-                  '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone!['server'] == 'roon' ? selectedZone!['zone'] : selectedZone!['server']).toString().toFirstUpper}',
+                  '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone?['server'] == 'roon' ? selectedZone!['zone'] : selectedZone!['server']).toString().toFirstUpper}',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,

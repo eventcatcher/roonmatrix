@@ -34,6 +34,10 @@ class SharedWidgets {
     return Platform.isMacOS || Platform.isWindows || Platform.isLinux;
   }
 
+  static bool isLinux() {
+    return Platform.isLinux;
+  }
+
   static bool inIosStyle() {
     return (showIosStyle == true && Platform.isIOS) ||
         (!showMacStyle && showIosStyle == true && Platform.isMacOS);
