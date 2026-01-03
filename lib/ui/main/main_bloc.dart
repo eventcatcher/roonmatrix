@@ -161,6 +161,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is SetSearchFilter) {
         String type = event.type;
         String filter = event.filter;
+
         Map<String, String> searchFilter = Map.from(state.searchFilter);
         searchFilter[type] = filter;
 

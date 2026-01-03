@@ -20,8 +20,11 @@ apps:
     command: roonmatrix
     extensions: [gnome]
     environment:
-      GTK_MODULES: ""
       GDK_BACKEND: x11
+      GTK_MODULES: ""
+      G_MESSAGES_DEBUG: ""
+      G_LOG_LEVEL: "ERROR"
+      NO_AT_BRIDGE: "1"
     plugs:
       - opengl
       - x11
@@ -33,6 +36,7 @@ apps:
       - gtk-3-themes
       - home
       - network
+      - network-status
       - network-bind
 
 parts:

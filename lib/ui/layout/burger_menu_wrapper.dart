@@ -50,7 +50,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
     isDrawerOpen = widget.isDrawerOpen;
   }
 
-  openBurgerMenuItem(String? key) {
+  openBurgerMenuItem({required String? key, required BuildContext context}) {
     if (key == 'about') {
       SharedWidgets.openAboutModal(
           context: context,
@@ -62,7 +62,8 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
     }
   }
 
-  Widget burgerMenuRaw(bool noPop) => BurgerMenu(
+  Widget burgerMenuRaw({required bool noPop, required BuildContext context}) =>
+      BurgerMenu(
         translations: translations,
         noPop: noPop,
         navigationTop: widget.navigationTop,
@@ -71,7 +72,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
             isDrawerOpen = false;
             widget.animationController.reverse();
           });
-          return openBurgerMenuItem(key);
+          return openBurgerMenuItem(key: key, context: context);
         },
       );
 
@@ -91,11 +92,15 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
         }
 
         return SharedWidgets.inIosStyle()
-            ? burgerMenuRaw(true)
+            ? burgerMenuRaw(
+                noPop: true,
+                context: widget.scaffoldKey.currentContext ?? context)
             : Drawer(
                 child: Stack(
                   children: [
-                    burgerMenuRaw(false),
+                    burgerMenuRaw(
+                        noPop: false,
+                        context: widget.scaffoldKey.currentContext ?? context),
                     Positioned(
                       top: (widget.navigationTop ?? 84.0) - 40,
                       left: 16.0,

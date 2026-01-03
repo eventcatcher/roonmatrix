@@ -496,33 +496,44 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     updateSizes('build');
 
     if (SharedWidgets.inIosStyle()) {
-      return PageWithToolbarIosStyle(
-        title: title,
-        showExpandableSpeedSlider: showExpandableSpeedSlider,
-        scrollSpeedDevice: scrollSpeedDevice,
-        animationController: animationController,
-        isDrawerOpen: isDrawerOpen,
-        body: bodyWithMenuDrawerOverlay(context),
-        resizeToFullWidth: () {
-          mainBloc.windowResizeToFullWidthAndMinimumHeight(
-              minDesktopSize: minDesktopSize);
-        },
-        sliderUpdateValue: ({required double speed}) {
-          setState(() {
-            scrollSpeedDevice = speed;
-            settingsBloc.setScrollSpeedDevice(speed: speed);
+      return BlocBuilder(
+          bloc: settingsBloc,
+          builder: (context, SettingsState settingsState) {
+            if (settingsState is! SettingsStateLoaded) {
+              return SizedBox();
+            }
+
+            scrollSpeedDevice = settingsState.scrollSpeedDevice;
+
+            return PageWithToolbarIosStyle(
+              title: title,
+              showExpandableSpeedSlider: showExpandableSpeedSlider,
+              scrollSpeedDevice: scrollSpeedDevice,
+              animationController: animationController,
+              isDrawerOpen: isDrawerOpen,
+              body: bodyWithMenuDrawerOverlay(context),
+              resizeToFullWidth: () {
+                mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                    minDesktopSize: minDesktopSize);
+              },
+              sliderUpdateValue: ({required double speed}) {
+                setState(() {
+                  scrollSpeedDevice = speed;
+                  settingsBloc.setScrollSpeedDevice(speed: speed);
+                });
+              },
+              setAppBarHeight: ({required double height}) {
+                appBarHeight = height;
+                navigationTop =
+                    appBarHeight! + MediaQuery.of(context).padding.top;
+              },
+              setDrawerState: ({required bool open}) {
+                setState(() {
+                  isDrawerOpen = open;
+                });
+              },
+            );
           });
-        },
-        setAppBarHeight: ({required double height}) {
-          appBarHeight = height;
-          navigationTop = appBarHeight! + MediaQuery.of(context).padding.top;
-        },
-        setDrawerState: ({required bool open}) {
-          setState(() {
-            isDrawerOpen = open;
-          });
-        },
-      );
     }
 
     if (SharedWidgets.inMacosStyle()) {
@@ -538,39 +549,51 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       );
     }
 
-    return PageWithToolbarFlutterStyle(
-      scaffoldKey: scaffoldKey,
-      title: title,
-      showExpandableSpeedSlider: showExpandableSpeedSlider,
-      scrollSpeedDevice: scrollSpeedDevice,
-      standardDesktopSize: standardDesktopSize,
-      windowManager: windowManager,
-      drawer:
-          SharedWidgets.inIosStyle() || Platform.isAndroid || Platform.isFuchsia
-              ? BurgerMenuWrapper(
-                  scaffoldKey: scaffoldKey,
-                  animationController: animationController,
-                  navigationTop: navigationTop,
-                  isDrawerOpen: isDrawerOpen,
-                )
-              : null,
-      body: body(),
-      resizeToFullWidth: () {
-        mainBloc.windowResizeToFullWidthAndMinimumHeight(
-            minDesktopSize: minDesktopSize);
-      },
-      sliderUpdateValue: ({required double speed}) {
-        setState(() {
-          scrollSpeedDevice = speed;
-          settingsBloc.setScrollSpeedDevice(speed: speed);
+    return BlocBuilder(
+        bloc: settingsBloc,
+        builder: (context, SettingsState settingsState) {
+          if (settingsState is! SettingsStateLoaded) {
+            return SizedBox();
+          }
+
+          scrollSpeedDevice = settingsState.scrollSpeedDevice;
+
+          return PageWithToolbarFlutterStyle(
+            scaffoldKey: scaffoldKey,
+            title: title,
+            showExpandableSpeedSlider: showExpandableSpeedSlider,
+            scrollSpeedDevice: scrollSpeedDevice,
+            standardDesktopSize: standardDesktopSize,
+            windowManager: windowManager,
+            drawer: SharedWidgets.inIosStyle() ||
+                    Platform.isAndroid ||
+                    Platform.isFuchsia
+                ? BurgerMenuWrapper(
+                    scaffoldKey: scaffoldKey,
+                    animationController: animationController,
+                    navigationTop: navigationTop,
+                    isDrawerOpen: isDrawerOpen,
+                  )
+                : null,
+            body: body(),
+            resizeToFullWidth: () {
+              mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                  minDesktopSize: minDesktopSize);
+            },
+            sliderUpdateValue: ({required double speed}) {
+              setState(() {
+                scrollSpeedDevice = speed;
+                settingsBloc.setScrollSpeedDevice(speed: speed);
+              });
+            },
+            setAppBarHeight: ({required double height}) {
+              if (Platform.isAndroid || Platform.isFuchsia) {
+                appBarHeight = height;
+                navigationTop =
+                    appBarHeight! + MediaQuery.of(context).padding.top;
+              }
+            },
+          );
         });
-      },
-      setAppBarHeight: ({required double height}) {
-        if (Platform.isAndroid || Platform.isFuchsia) {
-          appBarHeight = height;
-          navigationTop = appBarHeight! + MediaQuery.of(context).padding.top;
-        }
-      },
-    );
   }
 }

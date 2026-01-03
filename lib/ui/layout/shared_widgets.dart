@@ -573,29 +573,33 @@ class SharedWidgets {
           {required BuildContext context,
           required String aboutAppMessage,
           required Map<String, dynamic> translations}) async =>
-      ApproveModal(
-        context: context,
-        icon: Container(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: SizedBox(
-            width: 64,
-            height: 64,
-            child: SvgPicture.asset(
-              'assets/svg/8-8-led-matrix-display-unit.svg',
-              allowDrawingOutsideViewBox: false,
-              fit: BoxFit.cover,
-              clipBehavior: Clip.hardEdge,
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        if (context.mounted) {
+          ApproveModal(
+            context: context,
+            icon: Container(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: SizedBox(
+                width: 64,
+                height: 64,
+                child: SvgPicture.asset(
+                  'assets/svg/8-8-led-matrix-display-unit.svg',
+                  allowDrawingOutsideViewBox: false,
+                  fit: BoxFit.cover,
+                  clipBehavior: Clip.hardEdge,
+                ),
+              ),
             ),
-          ),
-        ),
-        title: "RoonMatrix",
-        question: aboutAppMessage,
-        okText: translations['okButtonText'] ?? 'OK',
-        cancelText: '',
-        onApproved: () {
-          //
-        },
-      ).show();
+            title: "RoonMatrix",
+            question: aboutAppMessage,
+            okText: translations['okButtonText'] ?? 'OK',
+            cancelText: '',
+            onApproved: () {
+              //
+            },
+          ).show();
+        }
+      });
 
   static void openSettingsPage(BuildContext context) =>
       SchedulerBinding.instance.addPostFrameCallback((_) async {

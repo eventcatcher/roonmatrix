@@ -117,8 +117,10 @@ class SearchFieldState extends State<SearchField> {
                                 'searchfield-debouncer',
                                 const Duration(milliseconds: 500),
                                 () {
-                                  mainBloc.setSearchFilter(
-                                      type: type, filter: value);
+                                  if (controller.text.isNotEmpty) {
+                                    mainBloc.setSearchFilter(
+                                        type: type, filter: value);
+                                  }
                                 },
                               );
                             }
