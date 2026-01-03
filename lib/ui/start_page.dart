@@ -480,11 +480,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 height: height,
                 color: Colors.transparent, // background color of burger menu
                 child: BurgerMenuWrapper(
-                  scaffoldKey: scaffoldKey,
-                  animationController: animationController,
-                  navigationTop: navigationTop,
-                  isDrawerOpen: isDrawerOpen,
-                ),
+                    scaffoldKey: scaffoldKey,
+                    animationController: animationController,
+                    navigationTop: navigationTop,
+                    isDrawerOpen: isDrawerOpen,
+                    setDrawerVisibility: ({required bool visibility}) {
+                      setState(() {
+                        isDrawerOpen = visibility;
+                      });
+                    }),
               ),
             ),
           ),
@@ -573,7 +577,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     animationController: animationController,
                     navigationTop: navigationTop,
                     isDrawerOpen: isDrawerOpen,
-                  )
+                    setDrawerVisibility: ({required bool visibility}) {
+                      setState(() {
+                        isDrawerOpen = visibility;
+                      });
+                    })
                 : null,
             body: body(),
             resizeToFullWidth: () {

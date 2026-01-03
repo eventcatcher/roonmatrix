@@ -12,6 +12,7 @@ class BurgerMenuWrapper extends StatefulWidget {
   final AnimationController animationController;
   final double? navigationTop;
   final bool isDrawerOpen;
+  final Function({required bool visibility}) setDrawerVisibility;
 
   const BurgerMenuWrapper({
     super.key,
@@ -19,6 +20,7 @@ class BurgerMenuWrapper extends StatefulWidget {
     required this.animationController,
     this.navigationTop,
     required this.isDrawerOpen,
+    required this.setDrawerVisibility,
   });
 
   @override
@@ -70,6 +72,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
         onClose: (String? key) {
           setState(() {
             isDrawerOpen = false;
+            widget.setDrawerVisibility(visibility: isDrawerOpen);
             widget.animationController.reverse();
           });
           return openBurgerMenuItem(key: key, context: context);
