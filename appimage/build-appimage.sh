@@ -80,6 +80,18 @@ if ! command -v appimagetool &> /dev/null; then
     exit 1
 fi
 
+if [ ! -f "$APPDIR/usr/share/applications/roonmatrix.desktop" ]; then
+  echo "ERROR: Desktop file missing!"
+  ls -R "$APPDIR/usr/share/applications"
+  exit 1
+fi
+
+if [ ! -f "$APPDIR/usr/share/icons/hicolor/256x256/apps/roonmatrix.png" ]; then
+  echo "ERROR: Icon missing!"
+  ls -R "$APPDIR/usr/share/icons/hicolor/256x256/apps"
+  exit 1
+fi
+
 echo "Building AppImage..."
 appimagetool "$APPDIR"
 
