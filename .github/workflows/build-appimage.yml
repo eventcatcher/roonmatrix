@@ -38,11 +38,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libfuse2
 
-      - name: Install appimagetool
+      - name: Install stable appimagetool
         run: |
-          wget -O appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool
-          sudo mv appimagetool /usr/local/bin/
+          wget -q https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          sudo mv appimagetool-x86_64.AppImage /usr/local/bin/appimagetool
 
       - name: Build AppImage
         run: |
