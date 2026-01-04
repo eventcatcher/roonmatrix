@@ -97,6 +97,21 @@ fi
 cp "$BINARY" "$APPDIR/usr/bin/"
 
 # -----------------------------
+# Flutter runtime data (REQUIRED!)
+# -----------------------------
+DATA_SRC="$PROJECT_ROOT/build/linux/x64/release/bundle/data"
+DATA_DST="$APPDIR/usr/bin/data"
+
+if [ ! -d "$DATA_SRC" ]; then
+  echo "ERROR: Flutter data directory not found at $DATA_SRC"
+  ls -R "$PROJECT_ROOT/build/linux/x64/release/bundle"
+  exit 1
+fi
+
+mkdir -p "$DATA_DST"
+cp -r "$DATA_SRC/"* "$DATA_DST/"
+
+# -----------------------------
 # AppImageTool
 # -----------------------------
 #if [ -z "${GITHUB_WORKSPACE:-}" ]; then
