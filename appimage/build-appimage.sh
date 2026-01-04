@@ -14,11 +14,21 @@ PROJECT_ROOT="${GITHUB_WORKSPACE:-$(dirname "$(realpath "$0")")/..}"
 # AppDir
 APPDIR="$PROJECT_ROOT/appimage/RoonMatrix.AppDir"
 
+FLUTTER_LIB_DIR="$PROJECT_ROOT/build/linux/x64/release/bundle/lib"
+
 # Clean AppDir
 rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin"
 mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 mkdir -p "$APPDIR/usr/share/applications"
+
+mkdir -p "$APPDIR/usr/lib"
+if [ -d "$FLUTTER_LIB_DIR" ]; then
+  echo "Copying Flutter shared libraries..."
+  cp -r "$FLUTTER_LIB_DIR/"* "$APPDIR/usr/lib/"
+else
+  echo "WARNING: No Flutter lib directory found"
+fi
 
 echo "PROJECT_ROOT: $PROJECT_ROOT"
 echo "APPDIR: $APPDIR"
