@@ -142,6 +142,6 @@ echo "Building AppImage..."
 linuxdeploy --appdir "$APPDIR" --output appimage
 
 # set rights
-chmod +x "$PROJECT_ROOT"/RoonMatrix-x86_64.AppImage
+chmod +x "$PROJECT_ROOT"/appimage/RoonMatrix-x86_64.AppImage
 
 echo "✅ AppImage created: $PROJECT_ROOT/RoonMatrix-x86_64.AppImage"
