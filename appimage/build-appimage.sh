@@ -46,6 +46,10 @@ if [ ! -f "$DESKTOP_FILE" ]; then
     exit 1
 fi
 
+# Normalize desktop file
+sed -i 's/\r$//' "$DESKTOP_FILE"
+chmod +x "$DESKTOP_FILE"
+
 # -----------------------------
 # Icons & Desktop
 # -----------------------------
