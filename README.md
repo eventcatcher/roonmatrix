@@ -13,3 +13,12 @@ With the buttons you can control the playout of the Music Software (next track, 
 
 The RoonMatrix app is build with Flutter, Dart, and Visual Code, a fine cross platform programming environment.
 With this source code its possible, supported, and tested to build executable code for Apple iOS (iPhone, iPad), Android, MacOS (Universal), Windows (x64) and Linux (Arm / x64).
+
+## Linux
+
+The recommended way to run RoonMatrix on Linux is the AppImage.
+It does not require installation and supports hardware-accelerated graphics
+(including NVIDIA).
+
+Download:
+https://github.com/eventcatcher/roonmatrix/releases/latest
