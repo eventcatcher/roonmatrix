@@ -11,9 +11,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: roonmatrix  # Pfad to the project
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install system deps
@@ -32,6 +35,12 @@ jobs:
 
       - name: Flutter build
         run: flutter build linux --release
+
+      - name: Install appimagetool
+        run: |
+          wget -O appimagetool https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          sudo mv appimagetool /usr/local/bin/
 
       - name: Build AppImage
         run: |
