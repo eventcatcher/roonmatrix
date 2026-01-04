@@ -70,15 +70,7 @@ fi
 # -----------------------------
 echo "Building Flutter Linux release..."
 
-if [ -z "${GITHUB_WORKSPACE:-}" ]; then
-    # Local → FVM
-    echo "Using FVM locally"
-    fvm flutter build linux --release
-else
-    # CI → Flutter from Action
-    echo "Using Flutter from GitHub Action"
-    flutter build linux --release
-fi
+flutter build linux --release
 
 # Copy Binary
 BINARY="$PROJECT_ROOT/build/linux/x64/release/bundle/roonmatrix"
