@@ -11,9 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    defaults:
-      run:
-        working-directory: roonmatrix  # Pfad to the project
 
     steps:
       - name: Checkout repository
