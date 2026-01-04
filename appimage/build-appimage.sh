@@ -22,10 +22,10 @@ mkdir -p "$APPDIR/usr/bin"
 mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 mkdir -p "$APPDIR/usr/share/applications"
 
-mkdir -p "$APPDIR/usr/lib"
+mkdir -p "$APPDIR/usr/bin/lib"
 if [ -d "$FLUTTER_LIB_DIR" ]; then
   echo "Copying Flutter shared libraries..."
-  cp -r "$FLUTTER_LIB_DIR/"* "$APPDIR/usr/lib/"
+  cp -r "$FLUTTER_LIB_DIR/"* "$APPDIR/usr/bin/lib/"
 else
   echo "WARNING: No Flutter lib directory found"
 fi
