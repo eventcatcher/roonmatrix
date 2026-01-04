@@ -33,8 +33,8 @@ DESKTOP_FILE="$APPDIR/usr/share/applications/RoonMatrix.desktop"
 cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Name=RoonMatrix
-Exec=roonmatrix
-Icon=RoonMatrix
+Exec=usr/bin/roonmatrix
+Icon=usr/share/icons/hicolor/256x256/apps/RoonMatrix.png
 Type=Application
 Categories=Utility;
 EOF
@@ -99,6 +99,9 @@ if ! command -v appimagetool &> /dev/null; then
     echo "ERROR: appimagetool not found. Install from https://appimage.org/"
     exit 1
 fi
+
+echo "Check AppDir structure:"
+find "$APPDIR"
 
 echo "Building AppImage..."
 appimagetool "$APPDIR"
