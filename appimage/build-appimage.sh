@@ -33,8 +33,8 @@ DESKTOP_FILE="$APPDIR/usr/share/applications/RoonMatrix.desktop"
 cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Name=RoonMatrix
-Exec=usr/bin/roonmatrix
-Icon=usr/share/icons/hicolor/256x256/apps/RoonMatrix.png
+Exec=AppRun
+Icon=RoonMatrix
 Type=Application
 Categories=Utility;
 EOF
@@ -106,6 +106,13 @@ fi
 
 echo "Check AppDir structure:"
 find "$APPDIR"
+
+cat > "$APPDIR/AppRun" <<'EOF'
+#!/bin/bash
+HERE="$(dirname "$(readlink -f "${0}")")"
+exec "$HERE/usr/bin/roonmatrix" "$@"
+EOF
+chmod +x "$APPDIR/AppRun"
 
 echo "Building AppImage..."
 appimagetool "$APPDIR"
