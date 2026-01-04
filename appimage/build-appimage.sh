@@ -7,7 +7,7 @@ APPDIR="appimage/${APP_NAME}.AppDir"
 ICON="assets/icon.png"
 
 echo "==> Flutter build (linux, release)"
-fvm flutter build linux --release
+flutter build linux --release
 
 echo "==> Preparing AppDir"
 rm -rf "$APPDIR"
