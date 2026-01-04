@@ -114,6 +114,15 @@ exec "$HERE/usr/bin/roonmatrix" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"
 
+echo "Listing AppDir root:"
+ls -l "$APPDIR"
+
+echo "Listing applications folder:"
+ls -l "$APPDIR/usr/share/applications"
+
+echo "AppRun executable?"
+[ -x "$APPDIR/AppRun" ] && echo "AppRun OK" || echo "AppRun missing or not executable"
+
 echo "Building AppImage..."
 appimagetool "$APPDIR"
 
