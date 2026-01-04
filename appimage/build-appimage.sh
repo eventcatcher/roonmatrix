@@ -117,7 +117,11 @@ echo "AppRun executable?"
 [ -x "$APPDIR/AppRun" ] && echo "AppRun OK" || echo "AppRun missing or not executable"
 
 echo "Building AppImage..."
-appimagetool "$APPDIR"
+if [ -z "${GITHUB_WORKSPACE:-}" ]; then
+    appimagetool "$APPDIR"
+else
+    linuxdeploy --appdir "$APPDIR" --output appimage
+fi
 
 # set rights
 chmod +x "$PROJECT_ROOT"/RoonMatrix-x86_64.AppImage
