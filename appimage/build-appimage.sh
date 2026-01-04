@@ -29,7 +29,7 @@ echo "APPDIR: $APPDIR"
 echo "Building Flutter Linux release..."
 
 if [ -z "${GITHUB_WORKSPACE:-}" ]; then
-    # Lokal → FVM
+    # Local → FVM
     echo "Using FVM locally"
     fvm flutter build linux --release
 else
@@ -39,9 +39,14 @@ else
 fi
 
 # Copy Binary
-BINARY="$PROJECT_ROOT/build/linux/release/bundle/roonmatrix"
+BINARY="$PROJECT_ROOT/build/linux/x64/release/bundle/roonmatrix"
+if [ ! -f "$BINARY" ]; then
+  BINARY="$PROJECT_ROOT/build/linux/release/bundle/roonmatrix"
+fi
+
 if [ ! -f "$BINARY" ]; then
   echo "ERROR: Flutter binary not found at $BINARY"
+  ls -R "$PROJECT_ROOT/build/linux"
   exit 1
 fi
 
