@@ -23,6 +23,46 @@ mkdir -p "$APPDIR/usr/share/applications"
 echo "PROJECT_ROOT: $PROJECT_ROOT"
 echo "APPDIR: $APPDIR"
 
+if [ ! -d "$APPDIR/usr/share/applications" ]; then
+    echo "ERROR: Applications folder missing at $APPDIR/usr/share/applications"
+    exit 1
+fi
+
+# Desktop-File
+DESKTOP_FILE="$APPDIR/usr/share/applications/RoonMatrix.desktop"
+cat > "$DESKTOP_FILE" <<EOF
+[Desktop Entry]
+Name=RoonMatrix
+Exec=roonmatrix
+Icon=RoonMatrix
+Type=Application
+Categories=Utility;
+EOF
+
+# Prüfen ob korrekt geschrieben
+if [ ! -f "$DESKTOP_FILE" ]; then
+    echo "ERROR: Desktop file not created at $DESKTOP_FILE"
+    ls -l "$APPDIR/usr/share/applications"
+    exit 1
+fi
+
+# -----------------------------
+# Icons & Desktop
+# -----------------------------
+ICON_SRC="$PROJECT_ROOT/assets/icon/icon.png"
+ICON_FILE="$APPDIR/usr/share/icons/hicolor/256x256/apps/RoonMatrix.png"
+if [ ! -f "$ICON_SRC" ]; then
+  echo "ERROR: Icon not found at $ICON_SRC"
+  exit 1
+fi
+cp "$ICON_SRC" "$ICON_FILE"
+
+if [ ! -f "$ICON_FILE" ]; then
+  echo "ERROR: Icon missing!"
+  ls -R "$APPDIR/usr/share/icons/hicolor/256x256/apps"
+  exit 1
+fi
+
 # -----------------------------
 # Flutter Build
 # -----------------------------
@@ -53,43 +93,11 @@ fi
 cp "$BINARY" "$APPDIR/usr/bin/"
 
 # -----------------------------
-# Icons & Desktop
-# -----------------------------
-ICON_SRC="$PROJECT_ROOT/assets/icon/icon.png"
-if [ ! -f "$ICON_SRC" ]; then
-  echo "ERROR: Icon not found at $ICON_SRC"
-  exit 1
-fi
-cp "$ICON_SRC" "$APPDIR/usr/share/icons/hicolor/256x256/apps/RoonMatrix.png"
-
-# Desktop-File
-cat > "$APPDIR/usr/share/applications/RoonMatrix.desktop" <<EOF
-[Desktop Entry]
-Name=RoonMatrix
-Exec=roonmatrix
-Icon=RoonMatrix
-Type=Application
-Categories=Utility;
-EOF
-
-# -----------------------------
 # AppImageTool
 # -----------------------------
 if ! command -v appimagetool &> /dev/null; then
     echo "ERROR: appimagetool not found. Install from https://appimage.org/"
     exit 1
-fi
-
-if [ ! -f "$APPDIR/usr/share/applications/RoonMatrix.desktop" ]; then
-  echo "ERROR: Desktop file missing!"
-  ls -R "$APPDIR/usr/share/applications"
-  exit 1
-fi
-
-if [ ! -f "$APPDIR/usr/share/icons/hicolor/256x256/apps/RoonMatrix.png" ]; then
-  echo "ERROR: Icon missing!"
-  ls -R "$APPDIR/usr/share/icons/hicolor/256x256/apps"
-  exit 1
 fi
 
 echo "Building AppImage..."
