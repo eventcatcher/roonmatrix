@@ -60,14 +60,14 @@ if [ ! -f "$ICON_SRC" ]; then
   echo "ERROR: Icon not found at $ICON_SRC"
   exit 1
 fi
-cp "$ICON_SRC" "$APPDIR/usr/share/icons/hicolor/256x256/apps/roonmatrix.png"
+cp "$ICON_SRC" "$APPDIR/usr/share/icons/hicolor/256x256/apps/RoonMatrix.png"
 
 # Desktop-File
-cat > "$APPDIR/usr/share/applications/roonmatrix.desktop" <<EOF
+cat > "$APPDIR/usr/share/applications/RoonMatrix.desktop" <<EOF
 [Desktop Entry]
 Name=RoonMatrix
 Exec=roonmatrix
-Icon=roonmatrix
+Icon=RoonMatrix
 Type=Application
 Categories=Utility;
 EOF
@@ -80,13 +80,13 @@ if ! command -v appimagetool &> /dev/null; then
     exit 1
 fi
 
-if [ ! -f "$APPDIR/usr/share/applications/roonmatrix.desktop" ]; then
+if [ ! -f "$APPDIR/usr/share/applications/RoonMatrix.desktop" ]; then
   echo "ERROR: Desktop file missing!"
   ls -R "$APPDIR/usr/share/applications"
   exit 1
 fi
 
-if [ ! -f "$APPDIR/usr/share/icons/hicolor/256x256/apps/roonmatrix.png" ]; then
+if [ ! -f "$APPDIR/usr/share/icons/hicolor/256x256/apps/RoonMatrix.png" ]; then
   echo "ERROR: Icon missing!"
   ls -R "$APPDIR/usr/share/icons/hicolor/256x256/apps"
   exit 1
