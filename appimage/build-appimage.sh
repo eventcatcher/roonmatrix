@@ -55,7 +55,7 @@ cp "$BINARY" "$APPDIR/usr/bin/"
 # -----------------------------
 # Icons & Desktop
 # -----------------------------
-ICON_SRC="$PROJECT_ROOT/assets/icon.png"
+ICON_SRC="$PROJECT_ROOT/assets/icon/icon.png"
 if [ ! -f "$ICON_SRC" ]; then
   echo "ERROR: Icon not found at $ICON_SRC"
   exit 1
