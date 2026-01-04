@@ -89,8 +89,14 @@ cp "$BINARY" "$APPDIR/usr/bin/"
 # -----------------------------
 # AppImageTool
 # -----------------------------
-if ! command -v appimagetool &> /dev/null; then
+if [ -z "${GITHUB_WORKSPACE:-}" ]; then
+  if ! command -v appimagetool &> /dev/null; then
     echo "ERROR: appimagetool not found. Install from https://appimage.org/"
+    exit 1
+  fi
+else
+  if ! command -v linuxdeploy &> /dev/null; then
+    echo "ERROR: linuxdeploy not found."
     exit 1
 fi
 
