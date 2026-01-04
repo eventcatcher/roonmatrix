@@ -98,6 +98,7 @@ else
   if ! command -v linuxdeploy &> /dev/null; then
     echo "ERROR: linuxdeploy not found."
     exit 1
+  fi
 fi
 
 echo "Check AppDir structure:"
