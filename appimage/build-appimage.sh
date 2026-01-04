@@ -4,7 +4,8 @@ set -e
 APP_NAME="RoonMatrix"
 APP_ID="roonmatrix"
 APPDIR="appimage/${APP_NAME}.AppDir"
-ICON="assets/icon.png"
+PROJECT_ROOT=$(dirname "$(realpath "$0")")/..   # appimage/build-appimage.sh → root
+ICON="$PROJECT_ROOT/assets/icon.png"
 
 echo "==> Flutter build (linux, release)"
 flutter build linux --release
