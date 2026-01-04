@@ -123,6 +123,10 @@ unlinked_spec.ds
 **/linux/flutter/generated_plugin_registrant.h
 **/linux/flutter/generated_plugins.cmake
 
+# AppImage
+appimage/RoonMatrix.AppDir/
+*.AppImage
+
 # Coverage
 coverage/
 
