@@ -33,11 +33,13 @@ DESKTOP_FILE="$APPDIR/usr/share/applications/RoonMatrix.desktop"
 cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Name=RoonMatrix
-Exec=AppRun
+Exec=roonmatrix
 Icon=RoonMatrix
 Type=Application
 Categories=Utility;
 EOF
+
+chmod 644 "$DESKTOP_FILE"
 
 # Prüfen ob korrekt geschrieben
 if [ ! -f "$DESKTOP_FILE" ]; then
@@ -45,10 +47,6 @@ if [ ! -f "$DESKTOP_FILE" ]; then
     ls -l "$APPDIR/usr/share/applications"
     exit 1
 fi
-
-# Normalize desktop file
-sed -i 's/\r$//' "$DESKTOP_FILE"
-chmod +x "$DESKTOP_FILE"
 
 # -----------------------------
 # Icons & Desktop
@@ -107,6 +105,9 @@ fi
 echo "Check AppDir structure:"
 find "$APPDIR"
 
+# -----------------------------
+# AppRun
+# -----------------------------
 cat > "$APPDIR/AppRun" <<'EOF'
 #!/bin/bash
 HERE="$(dirname "$(readlink -f "${0}")")"
