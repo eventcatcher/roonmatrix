@@ -17,6 +17,7 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart'
     show MainState, MainStateLoaded;
+import 'package:window_manager/window_manager.dart';
 
 class CoverPage extends StatefulWidget {
   final String name;
@@ -36,7 +37,7 @@ class CoverPage extends StatefulWidget {
   State<CoverPage> createState() => _CoverPageState();
 }
 
-class _CoverPageState extends State<CoverPage> {
+class _CoverPageState extends State<CoverPage> with WindowListener {
   String get name => widget.name;
   String get ip => widget.ip;
   Map<String, dynamic> get translations => widget.translations;
@@ -53,19 +54,57 @@ class _CoverPageState extends State<CoverPage> {
 
   String? selectedZoneId;
   String? controlId;
+  int macosVersionMajor = 0;
   bool idle = false;
   bool shuffle = false;
   bool repeat = false;
   bool isRadio = false;
+  bool isFullscreen = false;
 
   late MainBloc mainBloc;
 
   @override
   void initState() {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        setState(() async {
+          isFullscreen = await windowManager.isFullScreen();
+        });
+      }
+    });
+
+    windowManager.addListener(this);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getInfo(ip: ip);
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  void onWindowEvent(String eventName) {
+    if (kDebugMode) {
+      debugPrint('[WindowManager] onWindowEvent: $eventName');
+    }
+  }
+
+  @override
+  void onWindowEnterFullScreen() {
+    setState(() {
+      isFullscreen = true;
+    });
+  }
+
+  @override
+  void onWindowLeaveFullScreen() {
+    setState(() {
+      isFullscreen = false;
+    });
   }
 
   Color getZoneColor(String zoneName) {
@@ -462,6 +501,16 @@ class _CoverPageState extends State<CoverPage> {
                     builder: (context, MainState mainState) {
                       if (mainState is MainStateLoaded) {
                         info = mainState.info[ip] ?? {};
+                        String macosVersion = mainState.macosVersion;
+                        SchedulerBinding.instance
+                            .addPostFrameCallback((_) async {
+                          if (mounted) {
+                            setState(() {
+                              macosVersionMajor =
+                                  int.parse(macosVersion.split('.').first);
+                            });
+                          }
+                        });
 
                         //channels = (info['channels'] ?? {});
                         if (widget.controlId == null) {
@@ -731,6 +780,25 @@ class _CoverPageState extends State<CoverPage> {
                   builder: ((context, scrollController) {
                     return Material(
                       child: MacosWindow(
+                        titleBar: isFullscreen && macosVersionMajor >= 13
+                            ? TitleBar(
+                                height: 40.0,
+                                title: Row(children: [
+                                  MacosBackButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    fillColor: Colors.transparent,
+                                  ),
+                                  Text(
+                                    name,
+                                    style: TextStyle(
+                                      color: SharedWidgets.textColor(
+                                          context: context),
+                                      fontSize: 14.0,
+                                    ),
+                                  ),
+                                ]),
+                              )
+                            : null,
                         child: body(),
                       ),
                     );

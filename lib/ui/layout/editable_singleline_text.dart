@@ -178,17 +178,19 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                   ? null
                   : BoxDecoration(
                       boxShadow: const [
-                          BoxShadow(
-                            color: Colors.grey,
-                            offset: Offset(0.1, 0.5),
-                            blurRadius: 0.1,
-                            blurStyle: BlurStyle.normal,
-                          )
-                        ],
+                        BoxShadow(
+                          color: Colors.grey,
+                          offset: Offset(0.1, 0.5),
+                          blurRadius: 0.1,
+                          blurStyle: BlurStyle.normal,
+                        )
+                      ],
                       color: SharedWidgets.textFieldBackgroundColor(
                           context: context),
                       borderRadius: BorderRadius.all(
-                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5))),
+                        Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5),
+                      ),
+                    ),
               padding: EdgeInsets.only(
                   top: widget.maxLength != null && widget.placeholder == null
                       ? widget.noCounter

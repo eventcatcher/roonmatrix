@@ -27,9 +27,14 @@ import 'package:window_manager/window_manager.dart';
 Future<void> _configureMacosWindowUtils() async {
   const config = MacosWindowUtilsConfig(
     makeTitlebarTransparent: true,
-    toolbarStyle: NSWindowToolbarStyle.automatic,
+    toolbarStyle: NSWindowToolbarStyle.unified,
   );
-  await config.apply();
+
+  final macosVersion = await SharedWidgets.getMacosVersion();
+  final macosVersionMajor = int.parse(macosVersion.split('.').first);
+  if (macosVersionMajor >= 13) {
+    await config.apply();
+  }
 }
 
 void main() async {
@@ -318,6 +323,7 @@ class RoonMatrixState extends State<RoonMatrix> {
     connectionStatusBloc = ConnectionStatusBloc();
     connectionStatusBloc.init();
     mainBloc = MainBloc(fileRepository: fileRepository);
+    mainBloc.loadDefaults();
 
     connectionStatusStreamSubscription = connectionStatusBloc.stream.listen((
       ConnectionStatusState connectionStatusState,

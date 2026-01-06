@@ -226,7 +226,9 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(width: 8),
-              Text(translations['startZone'] ?? 'start'),
+              Text(translations['startZone'] ?? 'start',
+                  style: TextStyle(
+                      color: SharedWidgets.textColor(context: context))),
               Flexible(
                 fit: FlexFit.loose,
                 child: SingleChildScrollView(

@@ -16,23 +16,29 @@ abstract class MainState extends Equatable {
   final bool subPageIdle;
   final String logMessage;
   final Map<String, dynamic> spotifyAuthUrls;
+  final String macosVersion;
 
-  const MainState({
-    this.update,
-    this.ipStart,
-    this.ipEnd,
-    this.searchFilter = const {"main": "", "info": "", "config": "", "log": ""},
-    this.devices = const [],
-    this.info = const {},
-    this.config = const {},
-    this.definitions,
-    this.fieldValues = const {},
-    this.log = '',
-    this.idle = false,
-    this.subPageIdle = false,
-    this.logMessage = '',
-    this.spotifyAuthUrls = const {},
-  });
+  const MainState(
+      {this.update,
+      this.ipStart,
+      this.ipEnd,
+      this.searchFilter = const {
+        "main": "",
+        "info": "",
+        "config": "",
+        "log": ""
+      },
+      this.devices = const [],
+      this.info = const {},
+      this.config = const {},
+      this.definitions,
+      this.fieldValues = const {},
+      this.log = '',
+      this.idle = false,
+      this.subPageIdle = false,
+      this.logMessage = '',
+      this.spotifyAuthUrls = const {},
+      this.macosVersion = ''});
 
   MainState copyWith({
     DateTime? update,
@@ -49,6 +55,7 @@ abstract class MainState extends Equatable {
     bool? subPageIdle,
     String? logMessage,
     Map<String, dynamic>? spotifyAuthUrls,
+    String? macosVersion,
   }) {
     return MainStateLoaded(
       update: update ?? this.update,
@@ -65,6 +72,7 @@ abstract class MainState extends Equatable {
       subPageIdle: subPageIdle ?? this.subPageIdle,
       logMessage: logMessage ?? this.logMessage,
       spotifyAuthUrls: spotifyAuthUrls ?? this.spotifyAuthUrls,
+      macosVersion: macosVersion ?? this.macosVersion,
     );
   }
 
@@ -81,6 +89,7 @@ abstract class MainState extends Equatable {
       subPageIdle,
       logMessage,
       spotifyAuthUrls,
+      macosVersion,
     ];
 
     if (ipStart != null) {
@@ -126,6 +135,7 @@ class MainStateLoaded extends MainState {
     required super.subPageIdle,
     required super.logMessage,
     required super.spotifyAuthUrls,
+    required super.macosVersion,
   });
 
   @override

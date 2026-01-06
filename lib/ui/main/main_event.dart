@@ -143,3 +143,10 @@ class SetIpRange extends MainEvent {
     return props;
   }
 }
+
+class MainStateLoadDefaults extends MainEvent {
+  const MainStateLoadDefaults();
+
+  @override
+  List<Object> get props => [];
+}

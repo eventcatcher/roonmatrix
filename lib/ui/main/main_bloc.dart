@@ -55,6 +55,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     // event to state handler //
     // ====================== //
     on<MainEvent>((event, emit) async {
+      if (event is MainStateLoadDefaults) {
+        if (SharedWidgets.inMacosStyle()) {
+          String macosVersion = await SharedWidgets.getMacosVersion();
+
+          emit(state.copyWith(
+            update: DateTime.now(),
+            macosVersion: macosVersion,
+          ));
+        }
+      }
+
       if (event is SetIpRange) {
         String? ipStart = event.ipStart;
         String? ipEnd = event.ipEnd;
@@ -1733,6 +1744,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   // ==================== //
   // public event methods //
   // ==================== //
+
+  void loadDefaults() {
+    add(MainStateLoadDefaults());
+  }
 
   void restartPollingTimer() {
     add(RestartPollingTimer());

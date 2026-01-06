@@ -76,6 +76,8 @@ class TextFieldElement extends StatelessWidget {
     return SharedWidgets.inMacosStyle()
         ? MacosTextField(
             placeholder: placeholder,
+            placeholderStyle:
+                TextStyle(color: SharedWidgets.hintColor(context: context)),
             prefix: prefixIcon,
             padding: EdgeInsets.symmetric(
                 horizontal: prefixIcon != null ? 0.0 : 8.0, vertical: 4.0),

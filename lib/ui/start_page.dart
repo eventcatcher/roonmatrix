@@ -212,7 +212,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                     // searchfield area
                                     Padding(
                                       padding: const EdgeInsets.only(
-                                          bottom: 8.0, right: 8.0),
+                                        bottom: 8.0,
+                                        right: 8.0,
+                                      ),
                                       child: Wrap(
                                         alignment: WrapAlignment.start,
                                         crossAxisAlignment:
@@ -543,16 +545,25 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     }
 
     if (SharedWidgets.inMacosStyle()) {
-      return PageWithToolbarMacStyle(
-        title: title,
-        standardDesktopSize: standardDesktopSize,
-        windowManager: windowManager,
-        body: body(),
-        resizeToFullWidth: () {
-          mainBloc.windowResizeToFullWidthAndMinimumHeight(
-              minDesktopSize: minDesktopSize);
-        },
-      );
+      return BlocBuilder(
+          bloc: mainBloc,
+          builder: (context, MainState mainState) {
+            if (mainState is! MainStateLoaded) {
+              return SizedBox();
+            }
+
+            return PageWithToolbarMacStyle(
+              title: title,
+              standardDesktopSize: standardDesktopSize,
+              windowManager: windowManager,
+              macosVersion: mainState.macosVersion,
+              body: body(),
+              resizeToFullWidth: () {
+                mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                    minDesktopSize: minDesktopSize);
+              },
+            );
+          });
     }
 
     return BlocBuilder(

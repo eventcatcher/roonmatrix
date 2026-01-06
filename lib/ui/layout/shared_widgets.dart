@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -624,4 +625,12 @@ class SharedWidgets {
           );
         }
       });
+
+  static Future<String> getMacosVersion() async {
+    final deviceInfo = DeviceInfoPlugin();
+    final macosInfo = await deviceInfo.macOsInfo;
+    final version = macosInfo.osRelease.replaceFirst('Version', '').trim();
+
+    return version;
+  }
 }
