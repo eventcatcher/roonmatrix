@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/layout/control_buttons.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
@@ -46,6 +47,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
 
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final double fontSize = SharedWidgets.isDesktopDevice() ? 20.0 : 16.0;
 
   Map<String, dynamic> info = {};
@@ -746,11 +748,17 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   minDesktopSize: minDesktopSize);
             },
           )
-        : Scaffold(
-            appBar: AppBar(
-              title: Text(name),
-            ),
+        : PageWithToolbarFlutterStyle(
+            scaffoldKey: scaffoldKey,
+            title: name,
+            showExpandableSpeedSlider: false,
+            scrollSpeedDevice: 1.0,
+            standardDesktopSize: standardDesktopSize,
             body: body(context: context, mainBloc: mainBloc),
+            resizeToFullWidth: () {
+              mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                  minDesktopSize: minDesktopSize);
+            },
           );
   }
 }

@@ -5,6 +5,7 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -38,6 +39,8 @@ class InfoPageState extends State<InfoPage> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Map<String, dynamic> translations = {};
   String title = '';
@@ -254,15 +257,20 @@ class InfoPageState extends State<InfoPage> {
                               minDesktopSize: minDesktopSize);
                         },
                       )
-                    : Scaffold(
-                        appBar: AppBar(
-                          title: Text(title),
-                          actions: const [],
-                        ),
+                    : PageWithToolbarFlutterStyle(
+                        scaffoldKey: scaffoldKey,
+                        title: title,
+                        showExpandableSpeedSlider: false,
+                        scrollSpeedDevice: 1.0,
+                        standardDesktopSize: standardDesktopSize,
                         body: body(
                             context: context,
                             mainState: mainState,
                             infoStr: infoStr),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                              minDesktopSize: minDesktopSize);
+                        },
                       );
               });
         });

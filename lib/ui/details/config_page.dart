@@ -19,6 +19,7 @@ import 'package:roonmatrix/ui/layout/key_val_items.dart';
 import 'package:roonmatrix/ui/layout/list_items.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/map_list_items.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -61,6 +62,7 @@ class ConfigPageState extends State<ConfigPage> {
   Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
 
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final MacosTabController _controller = MacosTabController(
     initialIndex: 0,
     length: 2,
@@ -838,43 +840,46 @@ class ConfigPageState extends State<ConfigPage> {
                               minDesktopSize: minDesktopSize);
                         },
                       )
-                    : DefaultTabController(
-                        initialIndex: 0,
-                        length: 2,
-                        child: Scaffold(
-                          appBar: AppBar(
-                            title: Text(title),
-                            actions: const [],
-                            bottom: PreferredSize(
-                              preferredSize: const Size.fromHeight(48.0),
-                              child: Material(
-                                color: SharedWidgets.brightness() ==
-                                        Brightness.dark
-                                    ? Colors.blue.shade800
-                                    : Colors.blue.shade400,
-                                child: TabBar(
-                                  tabs: <Widget>[
-                                    Tab(
-                                      text: translations[
-                                              'configPageTabEditLabel'] ??
+                    : PageWithToolbarFlutterStyle(
+                        scaffoldKey: scaffoldKey,
+                        title: title,
+                        withTabController: true,
+                        tabLength: 2,
+                        tabBar: PreferredSize(
+                          preferredSize: const Size.fromHeight(48.0),
+                          child: Material(
+                            color: SharedWidgets.brightness() == Brightness.dark
+                                ? Colors.blue.shade800
+                                : Colors.blue.shade400,
+                            child: TabBar(
+                              tabs: <Widget>[
+                                Tab(
+                                  text:
+                                      translations['configPageTabEditLabel'] ??
                                           'Edit',
-                                    ),
-                                    Tab(
-                                      text: translations[
-                                              'configPageTabReadLabel'] ??
-                                          'View',
-                                    ),
-                                  ],
                                 ),
-                              ),
+                                Tab(
+                                  text:
+                                      translations['configPageTabReadLabel'] ??
+                                          'View',
+                                ),
+                              ],
                             ),
                           ),
-                          body: body(
-                              widgetContext: widgetContext,
-                              defaultColorScheme: defaultColorScheme,
-                              mainState: mainState,
-                              jsonStr: jsonStr),
                         ),
+                        showExpandableSpeedSlider: false,
+                        scrollSpeedDevice: 1.0,
+                        standardDesktopSize: standardDesktopSize,
+                        drawer: null,
+                        body: body(
+                            widgetContext: widgetContext,
+                            defaultColorScheme: defaultColorScheme,
+                            mainState: mainState,
+                            jsonStr: jsonStr),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                              minDesktopSize: minDesktopSize);
+                        },
                       );
               });
         });

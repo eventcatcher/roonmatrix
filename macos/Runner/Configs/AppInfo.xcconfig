@@ -11,4 +11,4 @@ PRODUCT_NAME = roonmatrix
 PRODUCT_BUNDLE_IDENTIFIER = de.eventcatcher.roonmatrixmac
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 de.eventcatcher. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 de.eventcatcher. All rights reserved.

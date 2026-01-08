@@ -129,6 +129,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
                                   name: zoneData['name'],
                                   ip: ip,
                                   url: spotifyAuthUrl,
+                                  minDesktopSize: minDesktopSize,
+                                  standardDesktopSize: standardDesktopSize,
                                   callbackUrl: ({required String url}) =>
                                       setSpotifyAuthRedirectUrl(url: url),
                                   close: () {

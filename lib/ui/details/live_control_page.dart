@@ -9,6 +9,7 @@ import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/ui/layout/horizontal_slider.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -43,6 +44,8 @@ class LiveControlPageState extends State<LiveControlPage> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Map<String, dynamic> translations = {};
   Map<String, String> options = {};
@@ -424,11 +427,12 @@ class LiveControlPageState extends State<LiveControlPage> {
                                 minDesktopSize: minDesktopSize);
                           },
                         )
-                      : Scaffold(
-                          appBar: AppBar(
-                            title: Text(title),
-                            actions: const [],
-                          ),
+                      : PageWithToolbarFlutterStyle(
+                          scaffoldKey: scaffoldKey,
+                          title: title,
+                          showExpandableSpeedSlider: false,
+                          scrollSpeedDevice: 1.0,
+                          standardDesktopSize: standardDesktopSize,
                           body: body(
                             devices: devices,
                             infos: infos,
@@ -437,6 +441,10 @@ class LiveControlPageState extends State<LiveControlPage> {
                             sliders: sliders,
                             orientation: orientation,
                           ),
+                          resizeToFullWidth: () {
+                            mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                                minDesktopSize: minDesktopSize);
+                          },
                         );
                 });
               });

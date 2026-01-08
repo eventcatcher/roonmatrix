@@ -61,10 +61,14 @@ class _TitlebarInfoContentState extends State<TitlebarInfoContent> {
               }
             }
 
-            return Text(
-              'IP: $ip  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
-              style: TextStyle(
-                color: SharedWidgets.textColor(context: context),
+            return Container(
+              constraints: BoxConstraints(minWidth: 350.0),
+              child: Text(
+                'IP: $ip  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName\n${translations['deviceListTime'] ?? 'time'}: ${mainBloc.getFormattedDateString(date: info['time'])}  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
+                style: TextStyle(
+                  color: SharedWidgets.textColor(context: context),
+                  fontSize: 12.0,
+                ),
               ),
             );
           }

@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/mobile_speedslider_and_fontsize_controls.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -47,6 +48,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   Function(double speed) get speedChanged => widget.speedChanged;
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Orientation orientation = Orientation.portrait;
   Offset actualPosition = Offset(0, 0);
@@ -264,118 +267,131 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       );
     }
 
-    return SharedWidgets.inMacosStyle()
-        ? BlocBuilder(
-            bloc: mainBloc,
-            builder: (context, MainState mainState) {
-              if (mainState is! MainStateLoaded) {
-                return Container();
-              }
+    return BlocBuilder(
+        bloc: mainBloc,
+        builder: (context, MainState mainState) {
+          if (mainState is! MainStateLoaded) {
+            return Container();
+          }
 
-              macosVersion = mainState.macosVersion;
+          macosVersion = mainState.macosVersion;
 
-              return PageWithToolbarMacStyle(
-                title: name,
-                standardDesktopSize: standardDesktopSize,
-                macosVersion: macosVersion,
-                actions: [
-                  CustomToolbarItem(
-                    inToolbarBuilder: (context) => Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, bottom: 0.0),
-                      child: TitlebarInfoContent(
-                        ip: ip,
-                        translations: translations,
+          return SharedWidgets.inMacosStyle()
+              ? PageWithToolbarMacStyle(
+                  title: name,
+                  standardDesktopSize: standardDesktopSize,
+                  macosVersion: macosVersion,
+                  actions: [
+                    CustomToolbarItem(
+                      inToolbarBuilder: (context) => Padding(
+                        padding: const EdgeInsets.only(
+                            left: 8.0, right: 8.0, bottom: 0.0),
+                        child: TitlebarInfoContent(
+                          ip: ip,
+                          translations: translations,
+                        ),
                       ),
+                      inOverflowedBuilder: (context) =>
+                          Container(color: Colors.grey, width: 30, height: 1),
                     ),
-                    inOverflowedBuilder: (context) =>
-                        Container(color: Colors.grey, width: 30, height: 1),
+                    const ToolBarSpacer(),
+                  ],
+                  additionalFullscreenTitleContent: TitlebarInfoContent(
+                    ip: ip,
+                    translations: translations,
                   ),
-                  const ToolBarSpacer(),
-                ],
-                additionalFullscreenTitleContent: TitlebarInfoContent(
-                  ip: ip,
-                  translations: translations,
-                ),
-                body: Stack(
-                  children: [
-                    body(),
-                    Positioned(
-                      bottom: -10,
-                      right: 0,
-                      child: SpeedSliderOverlay(
+                  body: Stack(
+                    children: [
+                      body(),
+                      Positioned(
+                        bottom: -10,
+                        right: 0,
+                        child: SpeedSliderOverlay(
+                          translations: translations,
+                          width: width,
+                          scrollSpeed: widget.scrollSpeed,
+                          speedChanged: (double speed) {
+                            speedChanged(speed);
+                            setState(() {
+                              sliderValue = speed;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  backButtonPressed: () {
+                    if (SharedWidgets.isDesktopDevice() && !isFullscreen) {
+                      mainBloc.windowResize(
+                          size: actualSize, position: actualPosition);
+                    }
+                  },
+                  resizeToFullWidth: () {
+                    mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                        minDesktopSize: minDesktopSize);
+                  },
+                )
+              : PageWithToolbarFlutterStyle(
+                  scaffoldKey: scaffoldKey,
+                  title: name,
+                  showExpandableSpeedSlider: false,
+                  scrollSpeedDevice: 1.0,
+                  standardDesktopSize: standardDesktopSize,
+                  actions: [
+                    if (SharedWidgets.isDesktopDevice())
+                      Padding(
+                        padding: const EdgeInsets.only(right: 24.0),
+                        child: TitlebarInfoContent(
+                          ip: ip,
+                          translations: translations,
+                        ),
+                      ),
+                    if (SharedWidgets.isMobileDevice())
+                      MobileSpeedSliderAndFontsizeControls(
                         translations: translations,
+                        ip: ip,
                         width: width,
                         scrollSpeed: widget.scrollSpeed,
                         speedChanged: (double speed) {
                           speedChanged(speed);
-                          setState(() {
-                            sliderValue = speed;
-                          });
+                          setState(() => sliderValue = speed);
                         },
+                        sizeChanged: (double size) =>
+                            setState(() => fontSize = size),
                       ),
-                    ),
                   ],
-                ),
-                backButtonPressed: () {
-                  if (SharedWidgets.isDesktopDevice() && !isFullscreen) {
-                    mainBloc.windowResize(
-                        size: actualSize, position: actualPosition);
-                  }
-                },
-                resizeToFullWidth: () {
-                  mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                      minDesktopSize: minDesktopSize);
-                },
-              );
-            })
-        : Scaffold(
-            appBar: AppBar(
-              title: Text(name),
-              leading: BackButton(
-                onPressed: () {
-                  if (SharedWidgets.isDesktopDevice() && !isFullscreen) {
-                    mainBloc.windowResize(
-                        size: actualSize, position: actualPosition);
-                  }
-                  Navigator.pop(context);
-                },
-              ),
-              actions: [
-                MobileSpeedSliderAndFontsizeControls(
-                  translations: translations,
-                  ip: ip,
-                  width: width,
-                  scrollSpeed: widget.scrollSpeed,
-                  speedChanged: (double speed) {
-                    speedChanged(speed);
-                    setState(() => sliderValue = speed);
-                  },
-                  sizeChanged: (double size) => setState(() => fontSize = size),
-                ),
-              ],
-            ),
-            body: Stack(
-              children: [
-                body(),
-                if (SharedWidgets.isDesktopDevice())
-                  Positioned(
-                    bottom: -10,
-                    right: 0,
-                    child: SpeedSliderOverlay(
-                      translations: translations,
-                      width: width,
-                      scrollSpeed: widget.scrollSpeed,
-                      speedChanged: (double speed) {
-                        speedChanged(speed);
-                        setState(() {
-                          sliderValue = speed;
-                        });
-                      },
-                    ),
+                  body: Stack(
+                    children: [
+                      body(),
+                      if (SharedWidgets.isDesktopDevice())
+                        Positioned(
+                          bottom: -10,
+                          right: 0,
+                          child: SpeedSliderOverlay(
+                            translations: translations,
+                            width: width,
+                            scrollSpeed: widget.scrollSpeed,
+                            speedChanged: (double speed) {
+                              speedChanged(speed);
+                              setState(() {
+                                sliderValue = speed;
+                              });
+                            },
+                          ),
+                        ),
+                    ],
                   ),
-              ],
-            ),
-          );
+                  backButtonPressed: () {
+                    if (SharedWidgets.isDesktopDevice() && !isFullscreen) {
+                      mainBloc.windowResize(
+                          size: actualSize, position: actualPosition);
+                    }
+                  },
+                  resizeToFullWidth: () {
+                    mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                        minDesktopSize: minDesktopSize);
+                  },
+                );
+        });
   }
 }

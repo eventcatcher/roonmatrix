@@ -95,6 +95,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
                     name: info[ip]['name'],
                     ip: ip,
                     url: spotifyAuthUrl,
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
                     callbackUrl: ({required String url}) {
                       mainBloc.setSpotifyAuthRedirectUrl(ip: ip, url: url);
                       Navigator.pop(context);

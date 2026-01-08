@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/web_page_display.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -14,6 +16,9 @@ class SpotifyConnectWebAuthPage extends StatefulWidget {
   final String name;
   final String ip;
   final String url;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
+
   final Function({required String url}) callbackUrl;
   final VoidCallback close;
 
@@ -22,6 +27,8 @@ class SpotifyConnectWebAuthPage extends StatefulWidget {
     required this.name,
     required this.ip,
     required this.url,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.callbackUrl,
     required this.close,
   });
@@ -34,10 +41,15 @@ class SpotifyConnectWebAuthPage extends StatefulWidget {
 class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
   String get name => widget.name;
   String get ip => widget.ip;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Map<String, dynamic> translations = {};
   String title = '';
+  String macosVersion = '';
   bool translationsLoaded = false;
   bool saveIdle = false;
 
@@ -134,8 +146,10 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
               bloc: mainBloc,
               builder: (context, MainState mainState) {
                 if (mainState is! MainStateLoaded) {
-                  return Container();
+                  return SizedBox();
                 }
+
+                macosVersion = mainState.macosVersion;
 
                 if (SharedWidgets.inIosStyle()) {
                   return CupertinoPageScaffold(
@@ -158,40 +172,33 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                 }
 
                 return SharedWidgets.inMacosStyle()
-                    ? MacosScaffold(
-                        toolBar: ToolBar(
-                          title: Text(title),
-                          titleWidth: 1000.0,
-                          leading: MacosBackButton(
-                            onPressed: () => Navigator.pop(context),
-                            fillColor: Colors.transparent,
-                          ),
-                          actions: [],
-                        ),
-                        children: [
-                          ContentArea(
-                            builder: ((context, scrollController) {
-                              return Material(
-                                child: MacosWindow(
-                                  child: body(
-                                      context: context,
-                                      mainState: mainState,
-                                      url: widget.url),
-                                ),
-                              );
-                            }),
-                          ),
-                        ],
-                      )
-                    : Scaffold(
-                        appBar: AppBar(
-                          title: Text(title),
-                          actions: const [],
-                        ),
+                    ? PageWithToolbarMacStyle(
+                        title: title,
+                        standardDesktopSize: standardDesktopSize,
+                        macosVersion: macosVersion,
                         body: body(
                             context: context,
                             mainState: mainState,
                             url: widget.url),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                              minDesktopSize: minDesktopSize);
+                        },
+                      )
+                    : PageWithToolbarFlutterStyle(
+                        scaffoldKey: scaffoldKey,
+                        title: title,
+                        showExpandableSpeedSlider: false,
+                        scrollSpeedDevice: 1.0,
+                        standardDesktopSize: standardDesktopSize,
+                        body: body(
+                            context: context,
+                            mainState: mainState,
+                            url: widget.url),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                              minDesktopSize: minDesktopSize);
+                        },
                       );
               });
         });

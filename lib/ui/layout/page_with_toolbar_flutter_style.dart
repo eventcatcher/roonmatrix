@@ -11,29 +11,37 @@ import 'package:window_manager/window_manager.dart';
 class PageWithToolbarFlutterStyle extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String title;
+  final bool withTabController;
+  final int tabLength;
+  final PreferredSizeWidget? tabBar;
+  final List<Widget>? actions;
   final bool showExpandableSpeedSlider;
   final Size standardDesktopSize;
   final double scrollSpeedDevice;
-  final WindowManager windowManager;
   final Widget? drawer;
   final Widget body;
+  final VoidCallback? backButtonPressed;
   final VoidCallback resizeToFullWidth;
-  final Function({required double height}) setAppBarHeight;
-  final Function({required double speed}) sliderUpdateValue;
+  final Function({required double height})? setAppBarHeight;
+  final Function({required double speed})? sliderUpdateValue;
 
   const PageWithToolbarFlutterStyle({
     super.key,
     required this.scaffoldKey,
     required this.title,
+    this.withTabController = false,
+    this.tabLength = 2,
+    this.tabBar,
+    this.actions,
     required this.showExpandableSpeedSlider,
     required this.standardDesktopSize,
     required this.scrollSpeedDevice,
-    required this.windowManager,
     this.drawer,
     required this.body,
+    this.backButtonPressed,
     required this.resizeToFullWidth,
-    required this.setAppBarHeight,
-    required this.sliderUpdateValue,
+    this.setAppBarHeight,
+    this.sliderUpdateValue,
   });
 
   @override
@@ -43,13 +51,13 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
 
 class _PageWithToolbarFlutterStyleState
     extends State<PageWithToolbarFlutterStyle> with WindowListener {
+  bool get withTabController => widget.withTabController;
   bool get showExpandableSpeedSlider => widget.showExpandableSpeedSlider;
   Size get standardDesktopSize => widget.standardDesktopSize;
   double get scrollSpeedDevice => widget.scrollSpeedDevice;
-  WindowManager get windowManager => widget.windowManager;
-  Function({required double speed}) get sliderUpdateValue =>
+  Function({required double speed})? get sliderUpdateValue =>
       widget.sliderUpdateValue;
-  Function({required double height}) get setAppBarHeight =>
+  Function({required double height})? get setAppBarHeight =>
       widget.setAppBarHeight;
 
   bool isFullscreen = false;
@@ -72,7 +80,9 @@ class _PageWithToolbarFlutterStyleState
 
     appBarWithActions = getAppBar();
     double appBarHeight = appBarWithActions.preferredSize.height;
-    setAppBarHeight(height: appBarHeight);
+    if (setAppBarHeight != null) {
+      setAppBarHeight!(height: appBarHeight);
+    }
 
     super.initState();
   }
@@ -83,13 +93,16 @@ class _PageWithToolbarFlutterStyleState
 
     appBarWithActions = getAppBar();
     double appBarHeight = appBarWithActions.preferredSize.height;
-    setAppBarHeight(height: appBarHeight);
+    if (setAppBarHeight != null) {
+      setAppBarHeight!(height: appBarHeight);
+    }
   }
 
   @override
   void onWindowEnterFullScreen() {
     setState(() {
       isFullscreen = true;
+      appBarWithActions = getAppBar();
     });
   }
 
@@ -97,6 +110,7 @@ class _PageWithToolbarFlutterStyleState
   void onWindowLeaveFullScreen() {
     setState(() {
       isFullscreen = false;
+      appBarWithActions = getAppBar();
     });
   }
 
@@ -107,50 +121,65 @@ class _PageWithToolbarFlutterStyleState
   }
 
   PreferredSizeWidget getAppBar() => AppBar(
+        title: Text(widget.title),
+        leading: widget.title == 'RoonMatrix'
+            ? null
+            : BackButton(
+                onPressed: () {
+                  if (widget.backButtonPressed != null) {
+                    widget.backButtonPressed!();
+                  }
+                  Navigator.pop(context);
+                },
+              ),
         actions: [
           Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 16.0),
-                child: IconButton(
-                  iconSize: 16.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () => widget.resizeToFullWidth(),
-                  icon: Icon(
-                    FontAwesomeIcons.arrowsLeftRight,
-                    color: SharedWidgets.toolbarResizeButtonColor(
-                        context: context),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
-                child: IconButton(
-                  iconSize: 16.0,
-                  padding: EdgeInsets.zero,
-                  onPressed: () =>
-                      windowManager.setSize(standardDesktopSize, animate: true),
-                  icon: Icon(
-                    FontAwesomeIcons.minimize,
-                    color: SharedWidgets.toolbarResizeButtonColor(
-                        context: context),
-                  ),
-                ),
-              ),
-              if (Platform.isMacOS)
+              if (widget.actions != null) ...widget.actions!,
+              if (SharedWidgets.isDesktopDevice() && !isFullscreen) ...[
                 Padding(
-                  padding: const EdgeInsets.only(right: 4.0),
+                  padding: const EdgeInsets.only(right: 16.0),
                   child: IconButton(
                     iconSize: 16.0,
                     padding: EdgeInsets.zero,
-                    onPressed: () => windowManager.maximize(),
+                    onPressed: () => widget.resizeToFullWidth(),
                     icon: Icon(
-                      FontAwesomeIcons.maximize,
+                      FontAwesomeIcons.arrowsLeftRight,
                       color: SharedWidgets.toolbarResizeButtonColor(
                           context: context),
                     ),
                   ),
                 ),
+                Padding(
+                  padding:
+                      EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
+                  child: IconButton(
+                    iconSize: 16.0,
+                    padding: EdgeInsets.zero,
+                    onPressed: () => windowManager.setSize(standardDesktopSize,
+                        animate: true),
+                    icon: Icon(
+                      FontAwesomeIcons.minimize,
+                      color: SharedWidgets.toolbarResizeButtonColor(
+                          context: context),
+                    ),
+                  ),
+                ),
+                if (Platform.isMacOS)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4.0),
+                    child: IconButton(
+                      iconSize: 16.0,
+                      padding: EdgeInsets.zero,
+                      onPressed: () => windowManager.maximize(),
+                      icon: Icon(
+                        FontAwesomeIcons.maximize,
+                        color: SharedWidgets.toolbarResizeButtonColor(
+                            context: context),
+                      ),
+                    ),
+                  ),
+              ]
             ],
           ),
           if (SharedWidgets.isMobileDevice())
@@ -163,24 +192,39 @@ class _PageWithToolbarFlutterStyleState
                   ? SliderExpandable(
                       width: 236.0,
                       value: scrollSpeedDevice,
-                      updateValue: (double value) =>
-                          sliderUpdateValue(speed: value),
+                      updateValue: (double value) => sliderUpdateValue != null
+                          ? sliderUpdateValue!(speed: value)
+                          : null,
                     )
                   : SliderMobile(
                       value: scrollSpeedDevice,
-                      updateValue: (double value) =>
-                          sliderUpdateValue(speed: value),
+                      updateValue: (double value) => sliderUpdateValue != null
+                          ? sliderUpdateValue!(speed: value)
+                          : null,
                     ),
             ),
         ],
+        bottom: widget.withTabController == true && widget.tabBar != null
+            ? widget.tabBar
+            : null,
       );
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-      key: widget.scaffoldKey,
-      appBar: SharedWidgets.isDesktopDevice() && isFullscreen
-          ? null
-          : appBarWithActions,
-      drawer: widget.drawer,
-      body: SafeArea(child: widget.body));
+  Widget build(BuildContext context) => withTabController
+      ? DefaultTabController(
+          initialIndex: 0,
+          length: widget.tabLength,
+          child: Scaffold(
+            key: widget.scaffoldKey,
+            appBar: appBarWithActions,
+            drawer: widget.drawer,
+            body: SafeArea(child: widget.body),
+          ),
+        )
+      : Scaffold(
+          key: widget.scaffoldKey,
+          appBar: appBarWithActions,
+          drawer: widget.drawer,
+          body: SafeArea(child: widget.body),
+        );
 }

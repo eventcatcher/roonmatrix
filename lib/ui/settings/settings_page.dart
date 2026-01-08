@@ -11,6 +11,7 @@ import 'package:roonmatrix/ui/helper/ip_address_input_formatter.dart';
 import 'package:roonmatrix/ui/helper/ip_input_formatter.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
@@ -41,6 +42,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Map<String, dynamic> translations = {};
   TextEditingController ipStart = TextEditingController();
@@ -538,16 +541,22 @@ class _SettingsPageState extends State<SettingsPage> {
                                           minDesktopSize: minDesktopSize);
                                 },
                               )
-                            : Scaffold(
-                                appBar: AppBar(
-                                  title: Text(title),
-                                  actions: const [],
-                                ),
+                            : PageWithToolbarFlutterStyle(
+                                scaffoldKey: scaffoldKey,
+                                title: title,
+                                showExpandableSpeedSlider: false,
+                                scrollSpeedDevice: 1.0,
+                                standardDesktopSize: standardDesktopSize,
                                 body: body(
                                   ipStart: ipStart,
                                   ipEnd: ipEnd,
                                   orientation: orientation,
                                 ),
+                                resizeToFullWidth: () {
+                                  mainBloc
+                                      .windowResizeToFullWidthAndMinimumHeight(
+                                          minDesktopSize: minDesktopSize);
+                                },
                               );
                       });
                 });

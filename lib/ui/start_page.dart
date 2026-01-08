@@ -23,7 +23,6 @@ import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
-import 'package:window_manager/window_manager.dart';
 
 class StartPage extends StatefulWidget {
   final Size minDesktopSize;
@@ -594,7 +593,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             showExpandableSpeedSlider: showExpandableSpeedSlider,
             scrollSpeedDevice: scrollSpeedDevice,
             standardDesktopSize: standardDesktopSize,
-            windowManager: windowManager,
             drawer: SharedWidgets.inIosStyle() ||
                     Platform.isAndroid ||
                     Platform.isFuchsia

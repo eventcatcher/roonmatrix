@@ -7,6 +7,7 @@ import 'package:roonmatrix/ui/helper/rich_parser.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/select_box_with_icon.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -44,6 +45,8 @@ class LogPageState extends State<LogPage> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
+
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Map<String, dynamic> translations = {};
   List<int> logfilePartOffset = [];
@@ -489,15 +492,20 @@ class LogPageState extends State<LogPage> {
                               minDesktopSize: minDesktopSize);
                         },
                       )
-                    : Scaffold(
-                        appBar: AppBar(
-                          title: Text(title),
-                          actions: const [],
-                        ),
+                    : PageWithToolbarFlutterStyle(
+                        scaffoldKey: scaffoldKey,
+                        title: title,
+                        showExpandableSpeedSlider: false,
+                        scrollSpeedDevice: 1.0,
+                        standardDesktopSize: standardDesktopSize,
                         body: body(
                             context: context,
                             mainState: mainState,
                             logstr: logstr),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                              minDesktopSize: minDesktopSize);
+                        },
                       );
               });
         });
