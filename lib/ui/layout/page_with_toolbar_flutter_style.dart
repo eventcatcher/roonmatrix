@@ -182,7 +182,7 @@ class _PageWithToolbarFlutterStyleState
               ]
             ],
           ),
-          if (SharedWidgets.isMobileDevice())
+          if (SharedWidgets.isMobileDevice() && sliderUpdateValue != null)
             Container(
               width: showExpandableSpeedSlider ? 188.0 : 150.0,
               padding: showExpandableSpeedSlider
@@ -192,15 +192,13 @@ class _PageWithToolbarFlutterStyleState
                   ? SliderExpandable(
                       width: 236.0,
                       value: scrollSpeedDevice,
-                      updateValue: (double value) => sliderUpdateValue != null
-                          ? sliderUpdateValue!(speed: value)
-                          : null,
+                      updateValue: (double value) =>
+                          sliderUpdateValue!(speed: value),
                     )
                   : SliderMobile(
                       value: scrollSpeedDevice,
-                      updateValue: (double value) => sliderUpdateValue != null
-                          ? sliderUpdateValue!(speed: value)
-                          : null,
+                      updateValue: (double value) =>
+                          sliderUpdateValue!(speed: value),
                     ),
             ),
         ],

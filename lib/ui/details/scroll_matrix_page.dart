@@ -61,7 +61,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   double width = 1280;
   double height = 768;
   double fontSize = 64.0;
-  double mobileFontSize = 48.0;
+  double mobileFontSize = 64.0;
   double pixelsPerSecond = 200 + 64.0 / 2.25;
   double sliderValue = 1.0;
   double opacityLevel = 0;
@@ -238,7 +238,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   speedChanged(speed);
                   setState(() => sliderValue = speed);
                 },
-                sizeChanged: (double size) => setState(() => fontSize = size),
+                sizeChanged: (double size) =>
+                    setState(() => mobileFontSize = size),
               ),
             ),
           ),
@@ -359,7 +360,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                           setState(() => sliderValue = speed);
                         },
                         sizeChanged: (double size) =>
-                            setState(() => fontSize = size),
+                            setState(() => mobileFontSize = size),
                       ),
                   ],
                   body: Stack(
