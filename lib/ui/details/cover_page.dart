@@ -57,6 +57,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   Map<String, dynamic> roonPlayoutsRaw = {};
   Map<String, dynamic>? selectedZone;
 
+  String title = '';
   String? selectedZoneId;
   String? controlId;
   String macosVersion = '';
@@ -69,6 +70,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   @override
   void initState() {
+    title = '$name : ${translations['coverPageHeaderText'] ?? 'Control'}';
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getInfo(ip: ip);
 
@@ -727,7 +729,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           navigationBar: CupertinoNavigationBar(
             brightness: SharedWidgets.brightness(),
             middle: Text(
-              '$name : ${translations['coverPageHeaderText'] ?? 'Zone / Cover'}',
+              title,
             ),
           ),
           child: SafeArea(
@@ -739,7 +741,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
     return SharedWidgets.inMacosStyle()
         ? PageWithToolbarMacStyle(
-            title: name,
+            title: title,
             standardDesktopSize: standardDesktopSize,
             macosVersion: macosVersion,
             body: body(context: context, mainBloc: mainBloc),
@@ -750,7 +752,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           )
         : PageWithToolbarFlutterStyle(
             scaffoldKey: scaffoldKey,
-            title: name,
+            title: title,
             showExpandableSpeedSlider: false,
             scrollSpeedDevice: 1.0,
             standardDesktopSize: standardDesktopSize,

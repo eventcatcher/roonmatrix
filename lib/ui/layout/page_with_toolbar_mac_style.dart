@@ -95,6 +95,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
         name: widget.title == 'RoonMatrix' ? null : widget.title,
         macosVersion: widget.macosVersion,
         toolBar: ToolBar(
+          titleWidth: 500.0,
           title: widget.title == 'RoonMatrix'
               ? Text(widget.title)
               : MacosTappableTextBackButton(

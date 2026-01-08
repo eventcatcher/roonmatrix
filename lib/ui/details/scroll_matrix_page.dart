@@ -57,6 +57,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   String macosVersion = '';
   String displaystr = '';
   String scrollText = '';
+  String title = '';
   double width = 1280;
   double height = 768;
   double fontSize = 64.0;
@@ -70,6 +71,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
   @override
   void initState() {
+    title = '$name : ${translations['tickerPageHeaderText'] ?? 'Ticker'}';
     width = minDesktopSize.width;
     height = minDesktopSize.height;
 
@@ -217,7 +219,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
             brightness: SharedWidgets.brightness(),
-            middle: SharedWidgets.inIosStyle() ? null : Text(name),
+            middle: SharedWidgets.inIosStyle() ? null : Text(title),
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               child: CupertinoNavigationBarBackButton(),
@@ -278,7 +280,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
           return SharedWidgets.inMacosStyle()
               ? PageWithToolbarMacStyle(
-                  title: name,
+                  title: title,
                   standardDesktopSize: standardDesktopSize,
                   macosVersion: macosVersion,
                   actions: [
@@ -333,7 +335,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                 )
               : PageWithToolbarFlutterStyle(
                   scaffoldKey: scaffoldKey,
-                  title: name,
+                  title: title,
                   showExpandableSpeedSlider: false,
                   scrollSpeedDevice: 1.0,
                   standardDesktopSize: standardDesktopSize,

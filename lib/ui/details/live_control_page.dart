@@ -411,7 +411,7 @@ class LiveControlPageState extends State<LiveControlPage> {
 
                   return SharedWidgets.inMacosStyle()
                       ? PageWithToolbarMacStyle(
-                          title: name,
+                          title: title,
                           standardDesktopSize: standardDesktopSize,
                           macosVersion: macosVersion,
                           body: body(

@@ -66,7 +66,10 @@ class _TitlebarInfoContentState extends State<TitlebarInfoContent> {
               child: Text(
                 'IP: $ip  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName\n${translations['deviceListTime'] ?? 'time'}: ${mainBloc.getFormattedDateString(date: info['time'])}  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
                 style: TextStyle(
-                  color: SharedWidgets.textColor(context: context),
+                  color:
+                      SharedWidgets.inMacosStyle() || SharedWidgets.inIosStyle()
+                          ? SharedWidgets.textColor(context: context)
+                          : Colors.white,
                   fontSize: 12.0,
                 ),
               ),

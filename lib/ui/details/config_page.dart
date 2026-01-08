@@ -801,7 +801,7 @@ class ConfigPageState extends State<ConfigPage> {
 
                 return SharedWidgets.inMacosStyle()
                     ? PageWithToolbarMacStyle(
-                        title: name,
+                        title: title,
                         standardDesktopSize: standardDesktopSize,
                         macosVersion: macosVersion,
                         body: Padding(

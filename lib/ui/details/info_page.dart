@@ -245,7 +245,7 @@ class InfoPageState extends State<InfoPage> {
 
                 return SharedWidgets.inMacosStyle()
                     ? PageWithToolbarMacStyle(
-                        title: name,
+                        title: title,
                         standardDesktopSize: standardDesktopSize,
                         macosVersion: macosVersion,
                         body: body(

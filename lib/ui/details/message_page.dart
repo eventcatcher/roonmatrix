@@ -257,7 +257,7 @@ class MessagePageState extends State<MessagePage> {
 
                   return SharedWidgets.inMacosStyle()
                       ? PageWithToolbarMacStyle(
-                          title: name,
+                          title: title,
                           standardDesktopSize: standardDesktopSize,
                           macosVersion: macosVersion,
                           body:
