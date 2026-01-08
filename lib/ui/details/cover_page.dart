@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -7,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, BlocProvider;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/layout/control_buttons.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -24,6 +22,8 @@ class CoverPage extends StatefulWidget {
   final String ip;
   final String? controlId;
   final Map<String, dynamic> translations;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
 
   const CoverPage({
     super.key,
@@ -31,6 +31,8 @@ class CoverPage extends StatefulWidget {
     required this.ip,
     this.controlId,
     required this.translations,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
   });
 
   @override
@@ -41,9 +43,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   String get name => widget.name;
   String get ip => widget.ip;
   Map<String, dynamic> get translations => widget.translations;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
 
-  final double fontSize =
-      Platform.isMacOS || Platform.isWindows || Platform.isLinux ? 20.0 : 16.0;
+  final double fontSize = SharedWidgets.isDesktopDevice() ? 20.0 : 16.0;
 
   Map<String, dynamic> info = {};
   Map<String, dynamic> optionschannels = {};
@@ -54,26 +57,16 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   String? selectedZoneId;
   String? controlId;
-  int macosVersionMajor = 0;
+  String macosVersion = '';
   bool idle = false;
   bool shuffle = false;
   bool repeat = false;
   bool isRadio = false;
-  bool isFullscreen = false;
 
   late MainBloc mainBloc;
 
   @override
   void initState() {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      if (mounted) {
-        setState(() async {
-          isFullscreen = await windowManager.isFullScreen();
-        });
-      }
-    });
-
-    windowManager.addListener(this);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getInfo(ip: ip);
 
@@ -82,29 +75,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   @override
   void dispose() {
-    windowManager.removeListener(this);
     super.dispose();
-  }
-
-  @override
-  void onWindowEvent(String eventName) {
-    if (kDebugMode) {
-      debugPrint('[WindowManager] onWindowEvent: $eventName');
-    }
-  }
-
-  @override
-  void onWindowEnterFullScreen() {
-    setState(() {
-      isFullscreen = true;
-    });
-  }
-
-  @override
-  void onWindowLeaveFullScreen() {
-    setState(() {
-      isFullscreen = false;
-    });
   }
 
   Color getZoneColor(String zoneName) {
@@ -491,7 +462,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     );
   }
 
-  Widget body() => SizedBox(
+  Widget body({
+    required BuildContext context,
+    required MainBloc mainBloc,
+  }) =>
+      SizedBox(
         child: Stack(
           children: [
             Column(
@@ -501,16 +476,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                     builder: (context, MainState mainState) {
                       if (mainState is MainStateLoaded) {
                         info = mainState.info[ip] ?? {};
-                        String macosVersion = mainState.macosVersion;
-                        SchedulerBinding.instance
-                            .addPostFrameCallback((_) async {
-                          if (mounted) {
-                            setState(() {
-                              macosVersionMajor =
-                                  int.parse(macosVersion.split('.').first);
-                            });
-                          }
-                        });
+                        macosVersion = mainState.macosVersion;
 
                         //channels = (info['channels'] ?? {});
                         if (widget.controlId == null) {
@@ -763,55 +729,28 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             ),
           ),
           child: SafeArea(
-            child: body(),
+            child: body(context: context, mainBloc: mainBloc),
           ),
         ),
       );
     }
 
     return SharedWidgets.inMacosStyle()
-        ? Material(
-            child: MacosScaffold(
-              toolBar: ToolBar(
-                title: Text(name),
-              ),
-              children: [
-                ContentArea(
-                  builder: ((context, scrollController) {
-                    return Material(
-                      child: MacosWindow(
-                        titleBar: isFullscreen && macosVersionMajor >= 13
-                            ? TitleBar(
-                                height: 40.0,
-                                title: Row(children: [
-                                  MacosBackButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    fillColor: Colors.transparent,
-                                  ),
-                                  Text(
-                                    name,
-                                    style: TextStyle(
-                                      color: SharedWidgets.textColor(
-                                          context: context),
-                                      fontSize: 14.0,
-                                    ),
-                                  ),
-                                ]),
-                              )
-                            : null,
-                        child: body(),
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            ),
+        ? PageWithToolbarMacStyle(
+            title: name,
+            standardDesktopSize: standardDesktopSize,
+            macosVersion: macosVersion,
+            body: body(context: context, mainBloc: mainBloc),
+            resizeToFullWidth: () {
+              mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                  minDesktopSize: minDesktopSize);
+            },
           )
         : Scaffold(
             appBar: AppBar(
               title: Text(name),
             ),
-            body: body(),
+            body: body(context: context, mainBloc: mainBloc),
           );
   }
 }

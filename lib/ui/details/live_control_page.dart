@@ -9,6 +9,7 @@ import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/ui/layout/horizontal_slider.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -19,12 +20,16 @@ import 'package:roonmatrix/ui/translations/translations_state.dart';
 class LiveControlPage extends StatefulWidget {
   final String name;
   final String ip;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
   final VoidCallback close;
 
   const LiveControlPage({
     super.key,
     required this.name,
     required this.ip,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.close,
   });
 
@@ -35,6 +40,8 @@ class LiveControlPage extends StatefulWidget {
 class LiveControlPageState extends State<LiveControlPage> {
   String get name => widget.name;
   String get ip => widget.ip;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
@@ -42,6 +49,7 @@ class LiveControlPageState extends State<LiveControlPage> {
   List<ConfigDefinitionItem> fieldDefinition = [];
   List<Widget> sliders = [];
   String title = '';
+  String macosVersion = '';
   bool translationsLoaded = false;
 
   double verticalScrollDelay = 5;
@@ -354,6 +362,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                   return const SizedBox();
                 }
 
+                macosVersion = mainState.macosVersion;
                 List<String> devices = mainState.devices;
                 Map<String, dynamic> infos = mainState.info;
                 ConfigDefinition? definitions = mainState.definitions;
@@ -398,33 +407,22 @@ class LiveControlPageState extends State<LiveControlPage> {
                   }
 
                   return SharedWidgets.inMacosStyle()
-                      ? MacosScaffold(
-                          toolBar: ToolBar(
-                            title: Text(title),
-                            titleWidth: 600.0,
-                            leading: MacosBackButton(
-                              onPressed: () => Navigator.pop(context),
-                              fillColor: Colors.transparent,
-                            ),
-                            actions: [],
+                      ? PageWithToolbarMacStyle(
+                          title: name,
+                          standardDesktopSize: standardDesktopSize,
+                          macosVersion: macosVersion,
+                          body: body(
+                            devices: devices,
+                            infos: infos,
+                            definitions: definitions,
+                            options: options,
+                            sliders: sliders,
+                            orientation: orientation,
                           ),
-                          children: [
-                            ContentArea(
-                              builder: ((context, scrollController) {
-                                return Material(
-                                  child: MacosWindow(
-                                      child: body(
-                                    devices: devices,
-                                    infos: infos,
-                                    definitions: definitions,
-                                    options: options,
-                                    sliders: sliders,
-                                    orientation: orientation,
-                                  )),
-                                );
-                              }),
-                            ),
-                          ],
+                          resizeToFullWidth: () {
+                            mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                                minDesktopSize: minDesktopSize);
+                          },
                         )
                       : Scaffold(
                           appBar: AppBar(

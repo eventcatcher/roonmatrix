@@ -27,13 +27,13 @@ import 'package:window_manager/window_manager.dart';
 Future<void> _configureMacosWindowUtils() async {
   const config = MacosWindowUtilsConfig(
     makeTitlebarTransparent: true,
-    toolbarStyle: NSWindowToolbarStyle.unified,
+    toolbarStyle: NSWindowToolbarStyle.automatic,
   );
 
   final macosVersion = await SharedWidgets.getMacosVersion();
   final macosVersionMajor = int.parse(macosVersion.split('.').first);
   if (macosVersionMajor >= 13) {
-    await config.apply();
+    await config.apply(); // crashing on older macs with macos version < 13.0
   }
 }
 
@@ -42,6 +42,11 @@ void main() async {
   double minHeight = Platform.isWindows ? 392 : 320;
   if (Platform.isLinux) {
     minHeight = 456;
+  }
+  if (Platform.isMacOS &&
+      SharedWidgets.inMacosStyle() == false &&
+      SharedWidgets.inIosStyle() == false) {
+    minHeight = 364;
   }
   Size minDesktopSize = Size(1280, minHeight);
   Size standardDesktopSize = const Size(1280, 768);
@@ -58,7 +63,7 @@ void main() async {
   Bloc.transformer = sequential<
       dynamic>(); // all bloc events strictly sequential (like mapEventToState in bloc prior v8)
 
-  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+  if (SharedWidgets.isDesktopDevice()) {
     doWhenWindowReady(() {
       appWindow.minSize = minDesktopSize;
       appWindow.size = standardDesktopSize;
@@ -133,6 +138,8 @@ class RoonMatrixState extends State<RoonMatrix> {
                         transitionDuration: const Duration(milliseconds: 0),
                         pageBuilder: (_, __, ___) {
                           return SettingsPage(
+                            minDesktopSize: minDesktopSize,
+                            standardDesktopSize: standardDesktopSize,
                             close: () {
                               Navigator.pop(context);
                             },
@@ -396,6 +403,8 @@ class RoonMatrixState extends State<RoonMatrix> {
                 transitionDuration: const Duration(milliseconds: 0),
                 pageBuilder: (_, __, ___) {
                   return SettingsPage(
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
                     close: () {
                       Navigator.pop(context);
                     },

@@ -24,6 +24,7 @@ class DeviceListItem extends StatefulWidget {
   final double height;
   final Orientation orientation;
   final Size minDesktopSize;
+  final Size standardDesktopSize;
   final Map<String, dynamic> translations;
   final String ip;
   final Map<String, dynamic> info;
@@ -42,6 +43,7 @@ class DeviceListItem extends StatefulWidget {
     required this.height,
     required this.orientation,
     required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.translations,
     required this.ip,
     required this.info,
@@ -64,6 +66,7 @@ class DeviceListItemState extends State<DeviceListItem> {
   double get height => widget.height;
   Orientation get orientation => widget.orientation;
   Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   Map<String, dynamic> get translations => widget.translations;
   String get spotifyAuthUrl => widget.spotifyAuthUrl;
   bool get isSmallDeviceWidth => widget.isSmallDeviceWidth;
@@ -175,6 +178,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                           name: i['name'],
                           ip: ip,
                           translations: translations,
+                          minDesktopSize: minDesktopSize,
+                          standardDesktopSize: standardDesktopSize,
                         );
                       },
                     ),
@@ -221,6 +226,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                             info: info,
                             spotifyAuthUrl: spotifyAuthUrl,
                             moreInfo: moreInfo,
+                            minDesktopSize: minDesktopSize,
+                            standardDesktopSize: standardDesktopSize,
                           )
                         ],
                       )
@@ -268,6 +275,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                 ip: ip,
                 spotifyAuthUrl: spotifyAuthUrl,
                 zoneData: i,
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
                 isExpanded: ({required bool mode}) {
                   setState(() {
                     infoOpacityLevel = mode == true ? 0.0 : 1.0;
@@ -297,12 +306,10 @@ class DeviceListItemState extends State<DeviceListItem> {
                       name: i['name'],
                       translations: translations,
                       minDesktopSize: minDesktopSize,
+                      standardDesktopSize: standardDesktopSize,
                       speedChanged: (double speed) {
                         scrollSpeedScrollMatrix = speed;
                         settingsBloc.setScrollSpeedScrollMatrix(speed: speed);
-                      },
-                      close: () {
-                        Navigator.pop(context);
                       },
                     );
                   },

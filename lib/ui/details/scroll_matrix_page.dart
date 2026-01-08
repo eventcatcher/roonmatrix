@@ -1,29 +1,28 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hovering/hovering.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/layout/mobile_speedslider_and_fontsize_controls.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/speed_slider_overlay.dart';
+import 'package:roonmatrix/ui/layout/titlebar_info_content.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:updatable_ticker/updatable_ticker.dart';
+import 'package:window_manager/window_manager.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
   final String ip;
   final String name;
   final Map<String, dynamic> translations;
   final Size minDesktopSize;
+  final Size standardDesktopSize;
   final double scrollSpeed;
   final Function(double speed) speedChanged;
-  final VoidCallback close;
 
   const ScrollMatrixPage({
     super.key,
@@ -31,44 +30,38 @@ class ScrollMatrixPage extends StatefulWidget {
     required this.name,
     required this.translations,
     required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.scrollSpeed,
     required this.speedChanged,
-    required this.close,
   });
 
   @override
   State<ScrollMatrixPage> createState() => _ScrollMatrixPageState();
 }
 
-class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
+class _ScrollMatrixPageState extends State<ScrollMatrixPage>
+    with WindowListener {
   String get ip => widget.ip;
   String get name => widget.name;
   Map<String, dynamic> get translations => widget.translations;
   Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   Function(double speed) get speedChanged => widget.speedChanged;
-  VoidCallback get close => widget.close;
-
-  final double mobileFontSizeSmall = 32.0;
-  final double mobileFontSizeMedium = 64.0;
-  final double mobileFontSizeBig = 128.0;
-  final double sliderTextDesktopMin = 1800;
-  final double sliderTextMobileMin = 800;
-  final double sliderDesktopMin = 1480;
-  final double sliderMobileMin = 550;
 
   Orientation orientation = Orientation.portrait;
+  Offset actualPosition = Offset(0, 0);
+  Size actualSize = Size(1280, 768);
+  String macosVersion = '';
   String displaystr = '';
   String scrollText = '';
   double width = 1280;
   double height = 768;
   double fontSize = 64.0;
   double mobileFontSize = 48.0;
-  double sliderTextMin = 800;
-  double sliderMin = 550;
   double pixelsPerSecond = 200 + 64.0 / 2.25;
   double sliderValue = 1.0;
-
   double opacityLevel = 0;
+  bool isFullscreen = false;
 
   late MainBloc mainBloc;
 
@@ -76,196 +69,73 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
   void initState() {
     width = minDesktopSize.width;
     height = minDesktopSize.height;
+
     mainBloc = BlocProvider.of<MainBloc>(context);
 
     sliderValue = widget.scrollSpeed;
 
-    if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-      sliderTextMin = sliderTextDesktopMin;
-      sliderMin = sliderDesktopMin;
-      mainBloc.windowResizeToFullWidthAndMinimumHeight(
-          minDesktopSize: minDesktopSize);
-    } else {
-      sliderTextMin = sliderTextMobileMin;
-      sliderMin = sliderMobileMin;
+    if (SharedWidgets.isDesktopDevice()) {
+      asynInitDesktopDevice();
     }
 
+    windowManager.addListener(this);
+
     super.initState();
+  }
+
+  asynInitDesktopDevice() async {
+    bool isFullscreenStatus = await windowManager.isFullScreen();
+    Offset position = await windowManager.getPosition();
+    Size size = await windowManager.getSize();
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        setState(() {
+          actualPosition = position;
+          actualSize = size;
+          isFullscreen = isFullscreenStatus;
+        });
+      }
+
+      if (!isFullscreenStatus) {
+        mainBloc.windowResizeToFullWidthAndMinimumHeight(
+            minDesktopSize: minDesktopSize);
+      }
+    });
+  }
+
+  @override
+  void onWindowEnterFullScreen() {
+    setState(() {
+      isFullscreen = true;
+    });
+  }
+
+  @override
+  void onWindowLeaveFullScreen() {
+    setState(() {
+      isFullscreen = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
   }
 
   updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
-    fontSize = Platform.isMacOS || Platform.isWindows || Platform.isLinux
+    fontSize = SharedWidgets.isDesktopDevice()
         ? height - 60 - height / 6
         : mobileFontSize;
     pixelsPerSecond = 200 + fontSize / 2.25;
     // if (kDebugMode) {
     //   debugPrint(
-    //       'ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
+    //       'xxx123 ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
     // }
   }
-
-  String replaceCodes(String str) {
-    if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
-      str = jsonDecode(str.replaceAll("'", '"')).join(' ');
-      str = str.replaceAll('< ', ', ');
-      str = str.replaceAll(' >', ': ');
-    }
-
-    return str;
-  }
-
-  controls() => Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (SharedWidgets.isMobileDevice()) ...[
-            if (width > sliderTextMin)
-              Text('${translations['speed'] ?? 'speed:'}:'),
-            InkWell(
-              onDoubleTap: () {
-                setState(() {
-                  sliderValue = 1.0;
-                });
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: SizedBox(
-                  width: width > sliderMin ? 200 : 120,
-                  child: Slider(
-                    value: sliderValue,
-                    min: 0.1,
-                    max: 5,
-                    divisions: 100,
-                    thumbColor: Colors.red.shade700,
-                    activeColor: Colors.green.shade200,
-                    inactiveColor: Colors.grey.shade700,
-                    onChanged: (double value) {
-                      speedChanged(value);
-                      setState(() {
-                        sliderValue = value;
-                      });
-                    },
-                  ),
-                ),
-              ),
-            ),
-            const Text('  |  '),
-            IconButton(
-              iconSize: 12.0,
-              padding: EdgeInsets.zero,
-              onPressed: () =>
-                  setState(() => mobileFontSize = mobileFontSizeSmall),
-              icon: const Icon(FontAwesomeIcons.font),
-            ),
-            IconButton(
-              iconSize: 16.0,
-              padding: EdgeInsets.zero,
-              onPressed: () =>
-                  setState(() => mobileFontSize = mobileFontSizeMedium),
-              icon: const Icon(FontAwesomeIcons.font),
-            ),
-            IconButton(
-              iconSize: 20.0,
-              padding: EdgeInsets.zero,
-              onPressed: () =>
-                  setState(() => mobileFontSize = mobileFontSizeBig),
-              icon: const Icon(FontAwesomeIcons.font),
-            ),
-          ],
-          if (SharedWidgets.isDesktopDevice())
-            BlocBuilder(
-                bloc: mainBloc,
-                builder: (context, MainState mainState) {
-                  String zoneName = '';
-                  dynamic info = mainState.info.containsKey(ip)
-                      ? mainState.info[ip]
-                      : null;
-                  if (info != null && info['control_id'] != null) {
-                    String controlId = info['control_id'];
-                    if (info['channels'] != null &&
-                        info['channels'][controlId] != null) {
-                      if (info['channels'][controlId] == 'webserver' ||
-                          info['channels'][controlId] == 'spotifyconnect') {
-                        zoneName = controlId;
-                      } else {
-                        zoneName = info['channels'][controlId];
-                      }
-                    }
-                  }
-
-                  return Text(
-                      'IP: $ip  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ');
-                }),
-          const SizedBox(width: 4.0),
-        ],
-      );
-
-  Widget speedSliderOverlay() => HoverWidget(
-      hoverChild: InkWell(
-        onDoubleTap: () {
-          setState(() {
-            sliderValue = 1.0;
-          });
-        },
-        child: TweenAnimationBuilder<double>(
-          tween: Tween<double>(begin: 0.0, end: 1.0),
-          curve: Curves.ease,
-          duration: const Duration(seconds: 1),
-          builder: (BuildContext context, double opacity, Widget? child) {
-            return Opacity(
-                opacity: opacity,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                    color: Color.fromARGB(80, 33, 33, 33),
-                  ),
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
-                        child: Text(
-                          '${translations['speed'] ?? 'speed:'}:',
-                          style: TextStyle(
-                            color: SharedWidgets.borderColor(context: context),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: width > sliderMin ? 200 : 120,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 6.0),
-                          child: Slider(
-                            value: sliderValue,
-                            min: 0.1,
-                            max: 5,
-                            divisions: 100,
-                            thumbColor: Colors.red.shade700,
-                            activeColor: Colors.green.shade200,
-                            inactiveColor: Colors.grey.shade700,
-                            onChanged: (double value) {
-                              speedChanged(value);
-                              setState(() {
-                                sliderValue = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ));
-          },
-        ),
-      ),
-      onHover: (PointerEnterEvent event) {
-        //
-      },
-      child: Container(
-        width: 324,
-        height: 54,
-        color: Colors.transparent,
-      ));
 
   Widget body() => SizedBox(
         width: double.infinity,
@@ -282,7 +152,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   String displaystrNew = mainState.info[ip]['app_displaystr'];
 
                   if (displaystrNew != displaystr) {
-                    scrollText = replaceCodes(displaystrNew);
+                    scrollText = mainBloc
+                        .replaceIllegalCharsInTickerString(displaystrNew);
                     if (kDebugMode) {
                       debugPrint('==> new scrollText: $scrollText');
                     }
@@ -353,7 +224,17 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
               width: SharedWidgets.inIosStyle()
                   ? MediaQuery.of(context).size.width - 100
                   : 900.0,
-              child: controls(),
+              child: MobileSpeedSliderAndFontsizeControls(
+                translations: translations,
+                ip: ip,
+                width: width,
+                scrollSpeed: widget.scrollSpeed,
+                speedChanged: (double speed) {
+                  speedChanged(speed);
+                  setState(() => sliderValue = speed);
+                },
+                sizeChanged: (double size) => setState(() => fontSize = size),
+              ),
             ),
           ),
           child: SafeArea(
@@ -364,7 +245,17 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   Positioned(
                     bottom: -10,
                     right: 0,
-                    child: speedSliderOverlay(),
+                    child: SpeedSliderOverlay(
+                      translations: translations,
+                      width: width,
+                      scrollSpeed: widget.scrollSpeed,
+                      speedChanged: (double speed) {
+                        speedChanged(speed);
+                        setState(() {
+                          sliderValue = speed;
+                        });
+                      },
+                    ),
                   ),
               ],
             ),
@@ -374,80 +265,95 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
     }
 
     return SharedWidgets.inMacosStyle()
-        ? Material(
-            child: MacosScaffold(
-              toolBar: ToolBar(
-                title: Text(name),
-                titleWidth: 540.0,
+        ? BlocBuilder(
+            bloc: mainBloc,
+            builder: (context, MainState mainState) {
+              if (mainState is! MainStateLoaded) {
+                return Container();
+              }
+
+              macosVersion = mainState.macosVersion;
+
+              return PageWithToolbarMacStyle(
+                title: name,
+                standardDesktopSize: standardDesktopSize,
+                macosVersion: macosVersion,
                 actions: [
                   CustomToolbarItem(
                     inToolbarBuilder: (context) => Padding(
                       padding: const EdgeInsets.only(
                           left: 8.0, right: 8.0, bottom: 0.0),
-                      child: BlocBuilder(
-                          bloc: mainBloc,
-                          builder: (context, MainState mainState) {
-                            String zoneName = '';
-                            if (mainState.devices.isNotEmpty &&
-                                mainState.info.containsKey(ip)) {
-                              dynamic info = mainState.info[ip];
-                              if (info['control_id'] != null) {
-                                String controlId = info['control_id'];
-                                if (info['channels'] != null &&
-                                    info['channels'][controlId] != null) {
-                                  if (info['channels'][controlId] ==
-                                      'webserver') {
-                                    zoneName = controlId;
-                                  } else {
-                                    zoneName = info['channels'][controlId];
-                                  }
-                                }
-                              }
-
-                              return Text(
-                                'IP: $ip  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
-                                style: TextStyle(
-                                  color:
-                                      SharedWidgets.textColor(context: context),
-                                ),
-                              );
-                            }
-
-                            return Text('');
-                          }),
+                      child: TitlebarInfoContent(
+                        ip: ip,
+                        translations: translations,
+                      ),
                     ),
                     inOverflowedBuilder: (context) =>
                         Container(color: Colors.grey, width: 30, height: 1),
                   ),
                   const ToolBarSpacer(),
                 ],
-              ),
-              children: [
-                ContentArea(
-                  builder: ((context, scrollController) {
-                    return Material(
-                      child: MacosWindow(
-                        child: Stack(
-                          children: [
-                            body(),
-                            Positioned(
-                              bottom: -10,
-                              right: 0,
-                              child: speedSliderOverlay(),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }),
+                additionalFullscreenTitleContent: TitlebarInfoContent(
+                  ip: ip,
+                  translations: translations,
                 ),
-              ],
-            ),
-          )
+                body: Stack(
+                  children: [
+                    body(),
+                    Positioned(
+                      bottom: -10,
+                      right: 0,
+                      child: SpeedSliderOverlay(
+                        translations: translations,
+                        width: width,
+                        scrollSpeed: widget.scrollSpeed,
+                        speedChanged: (double speed) {
+                          speedChanged(speed);
+                          setState(() {
+                            sliderValue = speed;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                backButtonPressed: () {
+                  if (SharedWidgets.isDesktopDevice() && !isFullscreen) {
+                    mainBloc.windowResize(
+                        size: actualSize, position: actualPosition);
+                  }
+                },
+                resizeToFullWidth: () {
+                  mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                      minDesktopSize: minDesktopSize);
+                },
+              );
+            })
         : Scaffold(
             appBar: AppBar(
               title: Text(name),
-              actions: [controls()],
+              leading: BackButton(
+                onPressed: () {
+                  if (SharedWidgets.isDesktopDevice() && !isFullscreen) {
+                    mainBloc.windowResize(
+                        size: actualSize, position: actualPosition);
+                  }
+                  Navigator.pop(context);
+                },
+              ),
+              actions: [
+                MobileSpeedSliderAndFontsizeControls(
+                  translations: translations,
+                  ip: ip,
+                  width: width,
+                  scrollSpeed: widget.scrollSpeed,
+                  speedChanged: (double speed) {
+                    speedChanged(speed);
+                    setState(() => sliderValue = speed);
+                  },
+                  sizeChanged: (double size) => setState(() => fontSize = size),
+                ),
+              ],
             ),
             body: Stack(
               children: [
@@ -456,7 +362,17 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage> {
                   Positioned(
                     bottom: -10,
                     right: 0,
-                    child: speedSliderOverlay(),
+                    child: SpeedSliderOverlay(
+                      translations: translations,
+                      width: width,
+                      scrollSpeed: widget.scrollSpeed,
+                      speedChanged: (double speed) {
+                        speedChanged(speed);
+                        setState(() {
+                          sliderValue = speed;
+                        });
+                      },
+                    ),
                   ),
               ],
             ),

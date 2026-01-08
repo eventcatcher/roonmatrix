@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +5,7 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/details/searchfield.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -16,12 +15,16 @@ import 'package:roonmatrix/ui/translations/translations_state.dart';
 class InfoPage extends StatefulWidget {
   final String name;
   final String ip;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
   final VoidCallback close;
 
   const InfoPage({
     super.key,
     required this.name,
     required this.ip,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.close,
   });
 
@@ -32,10 +35,13 @@ class InfoPage extends StatefulWidget {
 class InfoPageState extends State<InfoPage> {
   String get name => widget.name;
   String get ip => widget.ip;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
   String title = '';
+  String macosVersion = '';
   bool translationsLoaded = false;
   bool saveIdle = false;
 
@@ -88,10 +94,7 @@ class InfoPageState extends State<InfoPage> {
           if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
-                vertical:
-                    Platform.isMacOS || Platform.isWindows || Platform.isLinux
-                        ? 16.0
-                        : 0),
+                vertical: SharedWidgets.isDesktopDevice() ? 16.0 : 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -200,6 +203,7 @@ class InfoPageState extends State<InfoPage> {
                   return Container();
                 }
 
+                macosVersion = mainState.macosVersion;
                 String search = mainState.searchFilter['info']!;
                 Map<String, dynamic> info =
                     Map<String, dynamic>.from(mainState.info[ip] ?? {});
@@ -237,30 +241,18 @@ class InfoPageState extends State<InfoPage> {
                 }
 
                 return SharedWidgets.inMacosStyle()
-                    ? MacosScaffold(
-                        toolBar: ToolBar(
-                          title: Text(title),
-                          titleWidth: 1000.0,
-                          leading: MacosBackButton(
-                            onPressed: () => Navigator.pop(context),
-                            fillColor: Colors.transparent,
-                          ),
-                          actions: [],
-                        ),
-                        children: [
-                          ContentArea(
-                            builder: ((context, scrollController) {
-                              return Material(
-                                child: MacosWindow(
-                                  child: body(
-                                      context: context,
-                                      mainState: mainState,
-                                      infoStr: infoStr),
-                                ),
-                              );
-                            }),
-                          ),
-                        ],
+                    ? PageWithToolbarMacStyle(
+                        title: name,
+                        standardDesktopSize: standardDesktopSize,
+                        macosVersion: macosVersion,
+                        body: body(
+                            context: context,
+                            mainState: mainState,
+                            infoStr: infoStr),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                              minDesktopSize: minDesktopSize);
+                        },
                       )
                     : Scaffold(
                         appBar: AppBar(

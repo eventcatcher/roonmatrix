@@ -500,9 +500,7 @@ class MessageWriterState extends State<MessageWriter> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    bool desktopLandscapeWide =
-        (Platform.isMacOS || Platform.isWindows || Platform.isLinux) &&
-            width >= 800;
+    bool desktopLandscapeWide = SharedWidgets.isDesktopDevice() && width >= 800;
 
     return optionsLoaded == true
         ? Column(

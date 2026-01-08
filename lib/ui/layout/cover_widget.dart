@@ -21,6 +21,8 @@ class CoverWidget extends StatefulWidget {
   final bool coverRowArtist;
   final bool coverRowAlbum;
   final bool coverRowTrack;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
 
   const CoverWidget({
     super.key,
@@ -36,6 +38,8 @@ class CoverWidget extends StatefulWidget {
     required this.coverRowArtist,
     required this.coverRowAlbum,
     required this.coverRowTrack,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
   });
 
   @override
@@ -53,6 +57,8 @@ class _CoverWidgetState extends State<CoverWidget> {
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
   bool get coverRowTrack => widget.coverRowTrack;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
 
   late MainBloc mainBloc;
   late double coverSize;
@@ -107,6 +113,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                             ip: devices[0],
                             controlId: coverModel.controlId,
                             translations: translations,
+                            minDesktopSize: minDesktopSize,
+                            standardDesktopSize: standardDesktopSize,
                           );
                         },
                       );

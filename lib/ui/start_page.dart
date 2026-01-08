@@ -166,7 +166,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                   mainState.ipEnd == null) &&
                               !settingsPageLoaded) {
                             settingsPageLoaded = true;
-                            SharedWidgets.openSettingsPage(context);
+                            SharedWidgets.openSettingsPage(
+                              context: context,
+                              minDesktopSize: minDesktopSize,
+                              standardDesktopSize: standardDesktopSize,
+                            );
                           }
 
                           List<String> devices = mainBloc.getFilteredDevices();
@@ -268,6 +272,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                       orientation: orientation,
                                                       minDesktopSize:
                                                           minDesktopSize,
+                                                      standardDesktopSize:
+                                                          standardDesktopSize,
                                                       translations:
                                                           translations,
                                                       ip: ip,
@@ -304,6 +310,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         coverRowDynamicSize:
                                             coverRowDynamicSize,
                                         showExportButton: showExportButton,
+                                        minDesktopSize: minDesktopSize,
+                                        standardDesktopSize:
+                                            standardDesktopSize,
                                       ),
                                     if (SharedWidgets.isMobileDevice() &&
                                         devices.isNotEmpty &&
@@ -325,6 +334,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             coverRowDynamicSize:
                                                 coverRowDynamicSize,
                                             showExportButton: showExportButton,
+                                            minDesktopSize: minDesktopSize,
+                                            standardDesktopSize:
+                                                standardDesktopSize,
                                           ),
                                           Positioned(
                                             bottom: 8,
@@ -488,6 +500,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     animationController: animationController,
                     navigationTop: navigationTop,
                     isDrawerOpen: isDrawerOpen,
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
                     setDrawerVisibility: ({required bool visibility}) {
                       setState(() {
                         isDrawerOpen = visibility;
@@ -555,7 +569,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             return PageWithToolbarMacStyle(
               title: title,
               standardDesktopSize: standardDesktopSize,
-              windowManager: windowManager,
               macosVersion: mainState.macosVersion,
               body: body(),
               resizeToFullWidth: () {
@@ -590,6 +603,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     animationController: animationController,
                     navigationTop: navigationTop,
                     isDrawerOpen: isDrawerOpen,
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
                     setDrawerVisibility: ({required bool visibility}) {
                       setState(() {
                         isDrawerOpen = visibility;

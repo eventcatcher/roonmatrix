@@ -16,6 +16,8 @@ class DesktopPageButtons extends StatefulWidget {
   final Map<String, dynamic> info;
   final String spotifyAuthUrl;
   final bool moreInfo;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
 
   const DesktopPageButtons({
     super.key,
@@ -24,6 +26,8 @@ class DesktopPageButtons extends StatefulWidget {
     required this.info,
     required this.spotifyAuthUrl,
     required this.moreInfo,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
   });
 
   @override
@@ -34,6 +38,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
   Map<String, dynamic> get translations => widget.translations;
   String get spotifyAuthUrl => widget.spotifyAuthUrl;
   bool get moreInfo => widget.moreInfo;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
 
   late MainBloc mainBloc;
   late String ip;
@@ -123,6 +129,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
                 return ConfigPage(
                   name: info[ip]['name'],
                   ip: ip,
+                  minDesktopSize: minDesktopSize,
+                  standardDesktopSize: standardDesktopSize,
                   close: () {
                     Navigator.pop(context);
                   },
@@ -151,6 +159,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
                   name: info[ip]['name'],
                   ip: ip,
                   translations: translations,
+                  minDesktopSize: minDesktopSize,
+                  standardDesktopSize: standardDesktopSize,
                 );
               },
             ),
@@ -181,6 +191,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
                   return MessagePage(
                     ip: ip,
                     name: info[ip]['name'],
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
                     close: () {
                       Navigator.pop(context);
                     },
@@ -213,6 +225,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
                   return LiveControlPage(
                     ip: ip,
                     name: info[ip]['name'],
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
                     close: () {
                       Navigator.pop(context);
                     },
@@ -245,6 +259,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
                   return InfoPage(
                     name: info[ip]['name'],
                     ip: ip,
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
                     close: () {
                       Navigator.pop(context);
                     },
@@ -274,6 +290,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
                   return LogPage(
                     name: info[ip]['name'],
                     ip: ip,
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
                     close: () {
                       Navigator.pop(context);
                     },

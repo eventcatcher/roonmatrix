@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hovering/hovering.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class SliderHoverOverlay extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -67,7 +66,7 @@ class _SliderHoverOverlayState extends State<SliderHoverOverlay> {
                         child: Text(
                           '${widget.translations['speed'] ?? 'speed:'}:',
                           style: TextStyle(
-                            color: SharedWidgets.borderColor(context: context),
+                            color: Colors.white,
                           ),
                         ),
                       ),

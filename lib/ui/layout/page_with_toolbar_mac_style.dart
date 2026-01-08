@@ -2,24 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/layout/macos_page_wrapper.dart';
+import 'package:roonmatrix/ui/layout/macos_tappable_icon_back_button.dart';
+import 'package:roonmatrix/ui/layout/macos_tappable_text_back_button.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:window_manager/window_manager.dart';
 
 class PageWithToolbarMacStyle extends StatefulWidget {
   final String title;
   final Size standardDesktopSize;
-  final WindowManager windowManager;
   final String macosVersion;
+  final List<ToolbarItem>? actions;
+  final Widget? additionalFullscreenTitleContent;
   final Widget body;
+  final VoidCallback? backButtonPressed;
   final VoidCallback resizeToFullWidth;
 
   const PageWithToolbarMacStyle({
     super.key,
     required this.title,
     required this.standardDesktopSize,
-    required this.windowManager,
     required this.macosVersion,
+    this.actions,
+    this.additionalFullscreenTitleContent,
     required this.body,
+    this.backButtonPressed,
     required this.resizeToFullWidth,
   });
 
@@ -31,7 +38,9 @@ class PageWithToolbarMacStyle extends StatefulWidget {
 class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
     with WindowListener {
   Size get standardDesktopSize => widget.standardDesktopSize;
-  WindowManager get windowManager => widget.windowManager;
+  List<ToolbarItem>? get actions => widget.actions;
+  Widget? get additionalFullscreenTitleContent =>
+      widget.additionalFullscreenTitleContent;
 
   bool isFullscreen = false;
 
@@ -49,7 +58,9 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
     });
 
     windowManager.addListener(this);
-    macosVersionMajor = int.parse(widget.macosVersion.split('.').first);
+    macosVersionMajor = widget.macosVersion.isNotEmpty
+        ? int.parse(widget.macosVersion.split('.').first)
+        : 0;
 
     super.initState();
   }
@@ -80,64 +91,67 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
   }
 
   @override
-  Widget build(BuildContext context) => MacosScaffold(
-        toolBar: isFullscreen // && macosVersionMajor < 13
-            ? null
-            : ToolBar(
-                title: Text(widget.title),
-                actions: [
-                  const ToolBarSpacer(),
-                  ToolBarIconButton(
-                    label: "",
-                    icon: Icon(
-                      FontAwesomeIcons.arrowsLeftRight,
-                      size: 16.0,
-                      color: SharedWidgets.toolbarResizeButtonColor(
-                          context: context),
-                    ),
-                    onPressed: () => widget.resizeToFullWidth(),
-                    showLabel: false,
-                  ),
-                  ToolBarIconButton(
-                    label: "",
-                    icon: Icon(
-                      FontAwesomeIcons.minimize,
-                      size: 16.0,
-                      color: SharedWidgets.toolbarResizeButtonColor(
-                          context: context),
-                    ),
-                    onPressed: () => windowManager.setSize(standardDesktopSize,
-                        animate: true),
-                    showLabel: false,
-                  ),
-                  ToolBarIconButton(
-                    label: "",
-                    icon: Icon(
-                      FontAwesomeIcons.maximize,
-                      size: 16.0,
-                      color: SharedWidgets.toolbarResizeButtonColor(
-                          context: context),
-                    ),
-                    onPressed: () => windowManager.maximize(),
-                    showLabel: false,
-                  ),
-                  const ToolBarSpacer(),
-                ],
-              ),
-        children: [
-          ContentArea(
-            builder: ((context, scrollController) {
-              return Material(
-                //type: MaterialType.transparency,
-                child: MacosWindow(
-                  child: Container(
-                    margin: EdgeInsets.only(top: isFullscreen ? 53 : 0),
-                    child: widget.body,
-                  ),
+  Widget build(BuildContext context) => MacosPageWrapper(
+        name: widget.title == 'RoonMatrix' ? null : widget.title,
+        macosVersion: widget.macosVersion,
+        toolBar: ToolBar(
+          title: widget.title == 'RoonMatrix'
+              ? Text(widget.title)
+              : MacosTappableTextBackButton(
+                  text: widget.title,
+                  onPressed: widget.backButtonPressed,
                 ),
-              );
-            }),
-          ),
-        ],
+          leading: widget.title == 'RoonMatrix'
+              ? null
+              : MacosTappableIconBackButton(
+                  onPressed: widget.backButtonPressed,
+                ),
+          actions: [
+            if (actions != null && actions!.isNotEmpty) ...[
+              const ToolBarSpacer(),
+              ...actions!,
+            ],
+            if (!isFullscreen) ...[
+              const ToolBarSpacer(),
+              ToolBarIconButton(
+                label: "",
+                icon: Icon(
+                  FontAwesomeIcons.arrowsLeftRight,
+                  size: 16.0,
+                  color:
+                      SharedWidgets.toolbarResizeButtonColor(context: context),
+                ),
+                onPressed: () => widget.resizeToFullWidth(),
+                showLabel: false,
+              ),
+              ToolBarIconButton(
+                label: "",
+                icon: Icon(
+                  FontAwesomeIcons.minimize,
+                  size: 16.0,
+                  color:
+                      SharedWidgets.toolbarResizeButtonColor(context: context),
+                ),
+                onPressed: () =>
+                    windowManager.setSize(standardDesktopSize, animate: true),
+                showLabel: false,
+              ),
+              ToolBarIconButton(
+                label: "",
+                icon: Icon(
+                  FontAwesomeIcons.maximize,
+                  size: 16.0,
+                  color:
+                      SharedWidgets.toolbarResizeButtonColor(context: context),
+                ),
+                onPressed: () => windowManager.maximize(),
+                showLabel: false,
+              ),
+            ],
+            const ToolBarSpacer(),
+          ],
+        ),
+        additionalFullscreenTitleContent: additionalFullscreenTitleContent,
+        body: widget.body,
       );
 }

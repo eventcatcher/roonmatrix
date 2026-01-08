@@ -11,18 +11,25 @@ import 'package:roonmatrix/ui/helper/ip_address_input_formatter.dart';
 import 'package:roonmatrix/ui/helper/ip_input_formatter.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class SettingsPage extends StatefulWidget {
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
   final VoidCallback close;
 
   const SettingsPage({
     super.key,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.close,
   });
 
@@ -31,12 +38,15 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
   TextEditingController ipStart = TextEditingController();
   TextEditingController ipEnd = TextEditingController();
   String title = '';
+  String macosVersion = '';
   bool moreInfo = false;
   bool coverRowActiv = false;
   bool coverRowArtist = false;
@@ -48,6 +58,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool loaded = false;
 
   late TranslationsBloc translationsBloc;
+  late MainBloc mainBloc;
   late SettingsBloc settingsBloc;
 
   @override
@@ -57,6 +68,7 @@ class _SettingsPageState extends State<SettingsPage> {
     ipEnd.text = '';
 
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
+    mainBloc = BlocProvider.of<MainBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
     super.initState();
@@ -314,6 +326,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       style: TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.w400,
+                        color: SharedWidgets.textColor(context: context),
                       )),
                 ),
               ),
@@ -445,100 +458,100 @@ class _SettingsPageState extends State<SettingsPage> {
                     body: const SizedBox());
           }
 
-          return OrientationBuilder(
-              builder: (BuildContext context, Orientation orientation) {
-            return BlocBuilder(
-                bloc: settingsBloc,
-                builder: (context, SettingsState settingsState) {
-                  if (settingsState is! SettingsStateInitial &&
-                      settingsState is! SettingsStateLoaded) {
-                    return Container();
-                  }
-                  if (kDebugMode) {
-                    debugPrint('SettingsState changed => rebuild');
-                  }
+          return BlocBuilder(
+              bloc: mainBloc,
+              builder: (context, MainState mainState) {
+                if (mainState is! MainStateLoaded) {
+                  return const SizedBox();
+                }
 
-                  moreInfo = settingsState.moreInfo;
-                  coverRowActiv = settingsState.coverRowActiv;
-                  coverRowArtist = settingsState.coverRowArtist;
-                  coverRowAlbum = settingsState.coverRowAlbum;
-                  coverRowTrack = settingsState.coverRowTrack;
-                  coverRowDynamicSize = settingsState.coverRowDynamicSize;
+                macosVersion = mainState.macosVersion;
 
-                  if (!loaded) {
-                    SchedulerBinding.instance.addPostFrameCallback((_) async {
-                      if (mounted) {
-                        setState(() {
-                          ipStart.text = settingsState.ipStart;
-                          ipEnd.text = settingsState.ipEnd;
+                return OrientationBuilder(
+                    builder: (BuildContext context, Orientation orientation) {
+                  return BlocBuilder(
+                      bloc: settingsBloc,
+                      builder: (context, SettingsState settingsState) {
+                        if (settingsState is! SettingsStateInitial &&
+                            settingsState is! SettingsStateLoaded) {
+                          return Container();
+                        }
+                        if (kDebugMode) {
+                          debugPrint('SettingsState changed => rebuild');
+                        }
 
-                          loaded = true;
-                        });
-                      }
-                    });
-                  }
+                        moreInfo = settingsState.moreInfo;
+                        coverRowActiv = settingsState.coverRowActiv;
+                        coverRowArtist = settingsState.coverRowArtist;
+                        coverRowAlbum = settingsState.coverRowAlbum;
+                        coverRowTrack = settingsState.coverRowTrack;
+                        coverRowDynamicSize = settingsState.coverRowDynamicSize;
 
-                  if (SharedWidgets.inIosStyle()) {
-                    return CupertinoPageScaffold(
-                      navigationBar: CupertinoNavigationBar(
-                        brightness: SharedWidgets.brightness(),
-                        middle: Text(title),
-                        leading: CupertinoButton(
-                          padding: EdgeInsets.zero,
-                          child: CupertinoNavigationBarBackButton(),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                      child: SafeArea(
-                        child: body(
-                          ipStart: ipStart,
-                          ipEnd: ipEnd,
-                          orientation: orientation,
-                        ),
-                      ),
-                    );
-                  }
+                        if (!loaded) {
+                          SchedulerBinding.instance
+                              .addPostFrameCallback((_) async {
+                            if (mounted) {
+                              setState(() {
+                                ipStart.text = settingsState.ipStart;
+                                ipEnd.text = settingsState.ipEnd;
 
-                  return SharedWidgets.inMacosStyle()
-                      ? MacosScaffold(
-                          toolBar: ToolBar(
-                            title: Text(title),
-                            titleWidth: 200.0,
-                            leading: MacosBackButton(
-                              onPressed: () => Navigator.pop(context),
-                              fillColor: Colors.transparent,
+                                loaded = true;
+                              });
+                            }
+                          });
+                        }
+
+                        if (SharedWidgets.inIosStyle()) {
+                          return CupertinoPageScaffold(
+                            navigationBar: CupertinoNavigationBar(
+                              brightness: SharedWidgets.brightness(),
+                              middle: Text(title),
+                              leading: CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                child: CupertinoNavigationBarBackButton(),
+                                onPressed: () => Navigator.pop(context),
+                              ),
                             ),
-                            actions: [],
-                          ),
-                          children: [
-                            ContentArea(
-                              builder: ((context, scrollController) {
-                                return Material(
-                                  child: MacosWindow(
-                                    child: body(
-                                      ipStart: ipStart,
-                                      ipEnd: ipEnd,
-                                      orientation: orientation,
-                                    ),
-                                  ),
-                                );
-                              }),
+                            child: SafeArea(
+                              child: body(
+                                ipStart: ipStart,
+                                ipEnd: ipEnd,
+                                orientation: orientation,
+                              ),
                             ),
-                          ],
-                        )
-                      : Scaffold(
-                          appBar: AppBar(
-                            title: Text(title),
-                            actions: const [],
-                          ),
-                          body: body(
-                            ipStart: ipStart,
-                            ipEnd: ipEnd,
-                            orientation: orientation,
-                          ),
-                        );
+                          );
+                        }
+
+                        return SharedWidgets.inMacosStyle()
+                            ? PageWithToolbarMacStyle(
+                                title: title,
+                                standardDesktopSize: standardDesktopSize,
+                                macosVersion: macosVersion,
+                                body: body(
+                                  ipStart: ipStart,
+                                  ipEnd: ipEnd,
+                                  orientation: orientation,
+                                ),
+                                resizeToFullWidth: () {
+                                  mainBloc
+                                      .windowResizeToFullWidthAndMinimumHeight(
+                                          minDesktopSize: minDesktopSize);
+                                },
+                              )
+                            : Scaffold(
+                                appBar: AppBar(
+                                  title: Text(title),
+                                  actions: const [],
+                                ),
+                                body: body(
+                                  ipStart: ipStart,
+                                  ipEnd: ipEnd,
+                                  orientation: orientation,
+                                ),
+                              );
+                      });
                 });
-          });
+              });
         });
   }
 }

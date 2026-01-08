@@ -211,8 +211,44 @@ class SharedWidgets {
           : Colors.grey.shade100;
     }
     return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.grey.shade700
+        ? Color.fromARGB(255, 57, 55, 60)
         : Colors.grey.shade100;
+  }
+
+  static Color toolbarBackgroundColor({
+    required BuildContext context,
+  }) {
+    if (SharedWidgets.inIosStyle()) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.controlColor
+          : const Color.fromARGB(255, 195, 219, 239);
+    }
+    if (SharedWidgets.inMacosStyle()) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.controlColor
+          : const Color.fromARGB(255, 195, 219, 239);
+    }
+    return SharedWidgets.brightness() == Brightness.dark
+        ? Colors.black26
+        : const Color.fromARGB(255, 195, 219, 239);
+  }
+
+  static Color coverRowBackgroundColor({
+    required BuildContext context,
+  }) {
+    if (SharedWidgets.inIosStyle()) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : Colors.grey.shade200;
+    }
+    if (SharedWidgets.inMacosStyle()) {
+      return SharedWidgets.brightness() == Brightness.dark
+          ? MacosColors.gridColor
+          : Colors.grey.shade200;
+    }
+    return SharedWidgets.brightness() == Brightness.dark
+        ? const Color.fromARGB(255, 57, 55, 60)
+        : Colors.grey.shade200;
   }
 
   static Color resetIconColor({
@@ -247,7 +283,7 @@ class SharedWidgets {
           : Colors.blue.shade100; // MacosColors.systemTealColor;
     }
     return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.grey.shade700
+        ? const Color.fromARGB(255, 57, 55, 60)
         : Colors.blue.shade100;
   }
 
@@ -606,7 +642,11 @@ class SharedWidgets {
         }
       });
 
-  static void openSettingsPage(BuildContext context) =>
+  static void openSettingsPage({
+    required BuildContext context,
+    required Size minDesktopSize,
+    required Size standardDesktopSize,
+  }) =>
       SchedulerBinding.instance.addPostFrameCallback((_) async {
         if (context.mounted) {
           await showGeneralDialog(
@@ -617,6 +657,8 @@ class SharedWidgets {
             transitionDuration: const Duration(milliseconds: 0),
             pageBuilder: (_, __, ___) {
               return SettingsPage(
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
                 close: () {
                   Navigator.pop(context);
                 },

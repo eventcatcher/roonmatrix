@@ -17,6 +17,8 @@ class MobilePageButtons extends StatefulWidget {
   final String ip;
   final String spotifyAuthUrl;
   final Map<String, dynamic> zoneData;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
   //final Function getExpandableMenuController;
   final Function({required bool mode}) isExpanded;
   final Function({required String url}) setSpotifyAuthRedirectUrl;
@@ -29,6 +31,8 @@ class MobilePageButtons extends StatefulWidget {
     required this.ip,
     required this.spotifyAuthUrl,
     required this.zoneData,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     //required this.getExpandableMenuController,
     required this.isExpanded,
     required this.setSpotifyAuthRedirectUrl,
@@ -45,6 +49,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
   String get ip => widget.ip;
   String get spotifyAuthUrl => widget.spotifyAuthUrl;
   Map<String, dynamic> get zoneData => widget.zoneData;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   // Function get getExpandableMenuController =>
   //     widget.getExpandableMenuController;
   Function({required bool mode}) get isExpanded => widget.isExpanded;
@@ -165,6 +171,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
                               return ConfigPage(
                                 name: zoneData['name'],
                                 ip: ip,
+                                minDesktopSize: minDesktopSize,
+                                standardDesktopSize: standardDesktopSize,
                                 close: () {
                                   Navigator.pop(context);
                                 },
@@ -203,6 +211,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
                                 name: zoneData['name'],
                                 ip: ip,
                                 translations: translations,
+                                minDesktopSize: minDesktopSize,
+                                standardDesktopSize: standardDesktopSize,
                               );
                             },
                           )
@@ -243,6 +253,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
                                 return MessagePage(
                                   ip: ip,
                                   name: zoneData['name'],
+                                  minDesktopSize: minDesktopSize,
+                                  standardDesktopSize: standardDesktopSize,
                                   close: () {
                                     Navigator.pop(context);
                                   },
@@ -287,6 +299,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
                                 return LiveControlPage(
                                   ip: ip,
                                   name: zoneData['name'],
+                                  minDesktopSize: minDesktopSize,
+                                  standardDesktopSize: standardDesktopSize,
                                   close: () {
                                     Navigator.pop(context);
                                   },
@@ -339,6 +353,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
                                 return InfoPage(
                                   name: zoneData['name'],
                                   ip: ip,
+                                  minDesktopSize: minDesktopSize,
+                                  standardDesktopSize: standardDesktopSize,
                                   close: () {
                                     Navigator.pop(context);
                                   },
@@ -381,6 +397,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
                                 return LogPage(
                                   name: zoneData['name'],
                                   ip: ip,
+                                  minDesktopSize: minDesktopSize,
+                                  standardDesktopSize: standardDesktopSize,
                                   close: () {
                                     Navigator.pop(context);
                                   },

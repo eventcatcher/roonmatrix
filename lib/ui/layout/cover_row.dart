@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/layout/cover_widget.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverRow extends StatefulWidget {
@@ -20,6 +21,8 @@ class CoverRow extends StatefulWidget {
   final bool coverRowArtist;
   final bool coverRowAlbum;
   final bool coverRowTrack;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
 
   const CoverRow({
     super.key,
@@ -37,6 +40,8 @@ class CoverRow extends StatefulWidget {
     required this.coverRowArtist,
     required this.coverRowAlbum,
     required this.coverRowTrack,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
   });
 
   @override
@@ -57,9 +62,10 @@ class _CoverRowState extends State<CoverRow> {
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
   bool get coverRowTrack => widget.coverRowTrack;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
 
   final int flexCoverRow = 1;
-  final Color coverRowBackgroundColor = Colors.grey.shade200;
 
   late MainBloc mainBloc;
   late List<CoverModel> coverList;
@@ -119,6 +125,8 @@ class _CoverRowState extends State<CoverRow> {
               coverRowArtist: coverRowArtist,
               coverRowAlbum: coverRowAlbum,
               coverRowTrack: coverRowTrack,
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
             ),
           ),
         );
@@ -129,7 +137,7 @@ class _CoverRowState extends State<CoverRow> {
         ? Expanded(
             flex: flexCoverRow,
             child: Container(
-              color: coverRowBackgroundColor,
+              color: SharedWidgets.coverRowBackgroundColor(context: context),
               child: coverRowList,
             ))
         : ConstrainedBox(
@@ -144,7 +152,8 @@ class _CoverRowState extends State<CoverRow> {
                   Flexible(
                     fit: FlexFit.loose,
                     child: Container(
-                      color: coverRowBackgroundColor,
+                      color: SharedWidgets.coverRowBackgroundColor(
+                          context: context),
                       child: coverRowList,
                     ),
                   ),

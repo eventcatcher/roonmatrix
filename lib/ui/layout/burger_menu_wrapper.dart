@@ -12,6 +12,8 @@ class BurgerMenuWrapper extends StatefulWidget {
   final AnimationController animationController;
   final double? navigationTop;
   final bool isDrawerOpen;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
   final Function({required bool visibility}) setDrawerVisibility;
 
   const BurgerMenuWrapper({
@@ -20,6 +22,8 @@ class BurgerMenuWrapper extends StatefulWidget {
     required this.animationController,
     this.navigationTop,
     required this.isDrawerOpen,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.setDrawerVisibility,
   });
 
@@ -28,6 +32,9 @@ class BurgerMenuWrapper extends StatefulWidget {
 }
 
 class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
+
   Map<String, dynamic> translations = {};
   String aboutAppMessage = '';
   bool translationsLoaded = false;
@@ -60,7 +67,11 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
           translations: translations);
     }
     if (key == 'settings') {
-      SharedWidgets.openSettingsPage(context);
+      SharedWidgets.openSettingsPage(
+        context: context,
+        minDesktopSize: minDesktopSize,
+        standardDesktopSize: standardDesktopSize,
+      );
     }
   }
 

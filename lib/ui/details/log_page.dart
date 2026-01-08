@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
@@ -9,6 +7,7 @@ import 'package:roonmatrix/ui/helper/rich_parser.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/select_box_with_icon.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -22,12 +21,16 @@ import 'package:roonmatrix/ui/translations/translations_state.dart';
 class LogPage extends StatefulWidget {
   final String name;
   final String ip;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
   final VoidCallback close;
 
   const LogPage({
     super.key,
     required this.name,
     required this.ip,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.close,
   });
 
@@ -38,12 +41,15 @@ class LogPage extends StatefulWidget {
 class LogPageState extends State<LogPage> {
   String get name => widget.name;
   String get ip => widget.ip;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
 
   Map<String, dynamic> translations = {};
   List<int> logfilePartOffset = [];
   String lastLog = '';
   String title = '';
+  String macosVersion = '';
   int hours = 1;
   int logfileSliceSize = 500000;
   int logfileParts = 1;
@@ -239,10 +245,7 @@ class LogPageState extends State<LogPage> {
           if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
-                vertical:
-                    Platform.isMacOS || Platform.isWindows || Platform.isLinux
-                        ? 16.0
-                        : 0),
+                vertical: SharedWidgets.isDesktopDevice() ? 16.0 : 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -400,6 +403,7 @@ class LogPageState extends State<LogPage> {
                   return Container();
                 }
 
+                macosVersion = mainState.macosVersion;
                 String search = mainState.searchFilter['log']!;
                 String logstr = mainState.log;
                 if (logstr.isNotEmpty) {
@@ -472,30 +476,18 @@ class LogPageState extends State<LogPage> {
                 }
 
                 return SharedWidgets.inMacosStyle()
-                    ? MacosScaffold(
-                        toolBar: ToolBar(
-                          title: Text(title),
-                          titleWidth: 1000.0,
-                          leading: MacosBackButton(
-                            onPressed: () => Navigator.pop(context),
-                            fillColor: Colors.transparent,
-                          ),
-                          actions: [],
-                        ),
-                        children: [
-                          ContentArea(
-                            builder: ((context, scrollController) {
-                              return Material(
-                                child: MacosWindow(
-                                  child: body(
-                                      context: context,
-                                      mainState: mainState,
-                                      logstr: logstr),
-                                ),
-                              );
-                            }),
-                          ),
-                        ],
+                    ? PageWithToolbarMacStyle(
+                        title: name,
+                        standardDesktopSize: standardDesktopSize,
+                        macosVersion: macosVersion,
+                        body: body(
+                            context: context,
+                            mainState: mainState,
+                            logstr: logstr),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                              minDesktopSize: minDesktopSize);
+                        },
                       )
                     : Scaffold(
                         appBar: AppBar(

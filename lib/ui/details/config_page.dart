@@ -19,12 +19,12 @@ import 'package:roonmatrix/ui/layout/key_val_items.dart';
 import 'package:roonmatrix/ui/layout/list_items.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/map_list_items.dart';
+import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
@@ -37,12 +37,16 @@ import 'package:validators/validators.dart' show isURL;
 class ConfigPage extends StatefulWidget {
   final String name;
   final String ip;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
   final VoidCallback close;
 
   const ConfigPage({
     super.key,
     required this.name,
     required this.ip,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
     required this.close,
   });
 
@@ -53,6 +57,8 @@ class ConfigPage extends StatefulWidget {
 class ConfigPageState extends State<ConfigPage> {
   String get name => widget.name;
   String get ip => widget.ip;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
   VoidCallback get close => widget.close;
 
   final MacosTabController _controller = MacosTabController(
@@ -64,6 +70,7 @@ class ConfigPageState extends State<ConfigPage> {
   Map fieldValues = {};
   List<Widget> formFields = [];
   String title = '';
+  String macosVersion = '';
   bool translationsLoaded = false;
   bool saveIdle = false;
   bool validData = false;
@@ -453,10 +460,7 @@ class ConfigPageState extends State<ConfigPage> {
             if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
             Padding(
               padding: EdgeInsets.symmetric(
-                  vertical:
-                      Platform.isMacOS || Platform.isWindows || Platform.isLinux
-                          ? 16.0
-                          : 0),
+                  vertical: SharedWidgets.isDesktopDevice() ? 16.0 : 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -569,10 +573,7 @@ class ConfigPageState extends State<ConfigPage> {
           if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
-                vertical:
-                    Platform.isMacOS || Platform.isWindows || Platform.isLinux
-                        ? 16.0
-                        : 0),
+                vertical: SharedWidgets.isDesktopDevice() ? 16.0 : 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -708,6 +709,7 @@ class ConfigPageState extends State<ConfigPage> {
                   return Container();
                 }
 
+                macosVersion = mainState.macosVersion;
                 String search = mainState.searchFilter['config']!;
                 jsonStr = mainBloc.getPrettyJSONString(mainState.config);
 
@@ -796,57 +798,45 @@ class ConfigPageState extends State<ConfigPage> {
                 }
 
                 return SharedWidgets.inMacosStyle()
-                    ? MacosScaffold(
-                        toolBar: ToolBar(
-                          title: Text(title),
-                          titleWidth: 1000.0,
-                          leading: MacosBackButton(
-                            onPressed: () => Navigator.pop(context),
-                            fillColor: Colors.transparent,
+                    ? PageWithToolbarMacStyle(
+                        title: name,
+                        standardDesktopSize: standardDesktopSize,
+                        macosVersion: macosVersion,
+                        body: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: MacosTabView(
+                            controller: _controller,
+                            tabs: [
+                              MacosTab(
+                                  label:
+                                      translations['configPageTabEditLabel'] ??
+                                          'Edit'),
+                              MacosTab(
+                                label: translations['configPageTabReadLabel'] ??
+                                    'View',
+                              ),
+                            ],
+                            children: [
+                              Center(
+                                child: tabEdit(
+                                    widgetContext: widgetContext,
+                                    defaultColorScheme: defaultColorScheme,
+                                    mainState: mainState),
+                              ),
+                              Center(
+                                child: tabView(
+                                    widgetContext: widgetContext,
+                                    defaultColorScheme: defaultColorScheme,
+                                    mainState: mainState,
+                                    jsonStr: jsonStr),
+                              ),
+                            ],
                           ),
-                          actions: [],
                         ),
-                        children: [
-                          ContentArea(
-                            builder: ((context, scrollController) {
-                              return Material(
-                                child: MacosWindow(
-                                  child: MacosTabView(
-                                    controller: _controller,
-                                    tabs: [
-                                      MacosTab(
-                                          label: translations[
-                                                  'configPageTabEditLabel'] ??
-                                              'Edit'),
-                                      MacosTab(
-                                        label: translations[
-                                                'configPageTabReadLabel'] ??
-                                            'View',
-                                      ),
-                                    ],
-                                    children: [
-                                      Center(
-                                        child: tabEdit(
-                                            widgetContext: widgetContext,
-                                            defaultColorScheme:
-                                                defaultColorScheme,
-                                            mainState: mainState),
-                                      ),
-                                      Center(
-                                        child: tabView(
-                                            widgetContext: widgetContext,
-                                            defaultColorScheme:
-                                                defaultColorScheme,
-                                            mainState: mainState,
-                                            jsonStr: jsonStr),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }),
-                          ),
-                        ],
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                              minDesktopSize: minDesktopSize);
+                        },
                       )
                     : DefaultTabController(
                         initialIndex: 0,

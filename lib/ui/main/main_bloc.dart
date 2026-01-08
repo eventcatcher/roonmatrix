@@ -476,7 +476,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       FileSaveLocation? result;
       String fileName =
           'stringExport-${DateFormat('yyyyMMddTHHmmss').format(DateTime.now())}.txt';
-      if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      if (SharedWidgets.isDesktopDevice()) {
         result = await getSaveLocation(suggestedName: fileName);
         if (result == null) {
           // Operation was canceled by the user.
@@ -543,7 +543,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       FileSaveLocation? result;
       String fileName =
           'roonmatrix-$name-$type-${DateFormat('yyyyMMddTHHmmss').format(DateTime.now())}.txt';
-      if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+      if (SharedWidgets.isDesktopDevice()) {
         result = await getSaveLocation(suggestedName: fileName);
         if (result == null) {
           // Operation was canceled by the user.
@@ -558,7 +558,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           XFile.fromData(fileData, mimeType: mimeType, name: fileName);
 
       try {
-        if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        if (SharedWidgets.isDesktopDevice()) {
           await textFile.saveTo(result!.path);
         } else {
           await fileRepository.write(
@@ -1061,7 +1061,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       if (fileStr.isNotEmpty) {
         FileSaveLocation? result;
-        if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        if (SharedWidgets.isDesktopDevice()) {
           result = await getSaveLocation(suggestedName: fileName);
           if (result == null) {
             // Operation was canceled by the user.
@@ -1076,7 +1076,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             XFile.fromData(fileData, mimeType: mimeType, name: fileName);
 
         try {
-          if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+          if (SharedWidgets.isDesktopDevice()) {
             await textFile.saveTo(result!.path);
           } else {
             await fileRepository.write(
@@ -1335,10 +1335,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     windowManager.setSize(newSize, animate: true);
   }
 
-  Future<void> windowResize({required Size minDesktopSize}) async {
-    Size newSize = Size(minDesktopSize.width, minDesktopSize.height);
+  Future<void> windowResize({required Size size, Offset? position}) async {
+    Size newSize = Size(size.width, size.height);
 
-    await windowManager.setPosition(Offset.zero);
+    await windowManager.setPosition(position ?? Offset.zero);
     windowManager.setSize(newSize, animate: true);
   }
 

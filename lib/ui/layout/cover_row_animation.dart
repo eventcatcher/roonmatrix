@@ -23,6 +23,8 @@ class CoverRowAnimation extends StatefulWidget {
   final bool coverRowTrack;
   final bool coverRowDynamicSize;
   final bool showExportButton;
+  final Size minDesktopSize;
+  final Size standardDesktopSize;
 
   const CoverRowAnimation({
     super.key,
@@ -38,6 +40,8 @@ class CoverRowAnimation extends StatefulWidget {
     required this.coverRowTrack,
     required this.coverRowDynamicSize,
     required this.showExportButton,
+    required this.minDesktopSize,
+    required this.standardDesktopSize,
   });
 
   @override
@@ -56,6 +60,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   bool get coverRowTrack => widget.coverRowTrack;
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
   bool get showExportButton => widget.showExportButton;
+  Size get minDesktopSize => widget.minDesktopSize;
+  Size get standardDesktopSize => widget.standardDesktopSize;
 
   final GlobalKey<AnimatedListState> coverListKey =
       GlobalKey<AnimatedListState>();
@@ -155,6 +161,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
             coverRowArtist: coverRowArtist,
             coverRowAlbum: coverRowAlbum,
             coverRowTrack: coverRowTrack,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
           ),
         ),
         duration: const Duration(seconds: 2),
@@ -255,6 +263,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
                 coverRowArtist: coverRowArtist,
                 coverRowAlbum: coverRowAlbum,
                 coverRowTrack: coverRowTrack,
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
               ),
             ),
             duration: const Duration(seconds: 2),
@@ -281,6 +291,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       coverRowArtist: coverRowArtist,
       coverRowAlbum: coverRowAlbum,
       coverRowTrack: coverRowTrack,
+      minDesktopSize: minDesktopSize,
+      standardDesktopSize: standardDesktopSize,
     );
   }
 }
