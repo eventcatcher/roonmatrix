@@ -177,6 +177,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                           Map<String, dynamic> spotifyAuthUrls =
                               mainState.spotifyAuthUrls;
                           bool idle = mainState.idle;
+                          Map<String, bool> connected = mainState.connected;
+                          Map<String, bool> ping = mainState.ping;
 
                           if (kDebugMode) {
                             debugPrint(
@@ -262,6 +264,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                       (BuildContext context,
                                                           int index) {
                                                     String ip = devices[index];
+                                                    bool connectedItem =
+                                                        connected[ip] ?? false;
+                                                    bool pingItem =
+                                                        ping[ip] ?? false;
 
                                                     return DeviceListItem(
                                                       itemListKey: itemListKey,
@@ -276,6 +282,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                       translations:
                                                           translations,
                                                       ip: ip,
+                                                      connected: connectedItem,
+                                                      ping: pingItem,
                                                       info: info,
                                                       spotifyAuthUrl:
                                                           spotifyAuthUrls[ip] ??

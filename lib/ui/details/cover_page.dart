@@ -3,10 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, BlocProvider;
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
-import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/layout/control_buttons.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
@@ -66,11 +66,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   bool repeat = false;
   bool isRadio = false;
 
+  late MainRepository mainRepository;
   late MainBloc mainBloc;
 
   @override
   void initState() {
     title = '$name : ${translations['coverPageHeaderText'] ?? 'Control'}';
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getInfo(ip: ip);
 
@@ -81,59 +83,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   void dispose() {
     super.dispose();
   }
-
-  Color getZoneColor(String zoneName) {
-    if (zoneName.endsWith('-Apple Music')) {
-      return Color(0xFFF50057);
-    }
-    if (zoneName.endsWith('-SpotifyConnect') || zoneName.endsWith('-Spotify')) {
-      return Colors.green;
-    }
-
-    return Colors.blue.shade300;
-  }
-
-  Offset getZoneIconPosition({required String zoneName}) {
-    if (zoneName.endsWith('-Apple Music')) {
-      return Offset(-9.0, -2.0);
-    }
-    if (zoneName.endsWith('-SpotifyConnect')) {
-      return Offset(0, 5.0);
-    }
-
-    if (zoneName.endsWith('-Spotify')) {
-      return Offset(2.0, 5.0);
-    }
-
-    return Offset(4.0, 5.0);
-  }
-
-  double getZoneIconSize({required String zoneName}) {
-    if (zoneName.endsWith('-Apple Music')) {
-      return 56.0;
-    }
-    if (zoneName.endsWith('-SpotifyConnect')) {
-      return 44.0;
-    }
-
-    if (zoneName.endsWith('-Spotify')) {
-      return 44.0;
-    }
-
-    return 40.0;
-  }
-
-  statusCorner({required Color color}) => SizedBox(
-        width: 84,
-        height: 84,
-        child: ClipRRect(
-          child: CustomPaint(
-            painter: TrianglePainter(
-              color: color,
-            ),
-          ),
-        ),
-      );
 
   Map<String, String> generateOptionsAndPreselect() {
     Map<String, String> options = {};
@@ -695,15 +644,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             SizedBox(
               child: Align(
                 alignment: Alignment.topRight,
-                child: statusCorner(
-                    color: getZoneColor('-${selectedZone?['zone'] ?? name}')),
+                child: mainRepository.statusCorner(
+                    color: mainRepository
+                        .getZoneColor('-${selectedZone?['zone'] ?? name}')),
               ),
             ),
             Positioned(
-              right: getZoneIconPosition(
+              right: mainRepository
+                  .getZoneIconPosition(
                       zoneName: '-${selectedZone?['zone'] ?? name}')
                   .dx,
-              top: getZoneIconPosition(
+              top: mainRepository
+                  .getZoneIconPosition(
                       zoneName: '-${selectedZone?['zone'] ?? name}')
                   .dy,
               child: Image(
@@ -711,9 +663,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   SharedWidgets.getZoneIcon(
                       zoneName: '-${selectedZone?['zone'] ?? name}'),
                 ),
-                width: getZoneIconSize(
+                width: mainRepository.getZoneIconStaticSize(
                     zoneName: '-${selectedZone?['zone'] ?? name}'),
-                height: getZoneIconSize(
+                height: mainRepository.getZoneIconStaticSize(
                     zoneName: '-${selectedZone?['zone'] ?? name}'),
               ),
             ),

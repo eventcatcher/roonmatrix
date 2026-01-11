@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/ui/layout/mobile_speedslider_and_fontsize_controls.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
@@ -67,6 +68,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   double opacityLevel = 0;
   bool isFullscreen = false;
 
+  late MainRepository mainRepository;
   late MainBloc mainBloc;
 
   @override
@@ -75,6 +77,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     width = minDesktopSize.width;
     height = minDesktopSize.height;
 
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
 
     sliderValue = widget.scrollSpeed;
@@ -157,7 +160,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   String displaystrNew = mainState.info[ip]['app_displaystr'];
 
                   if (displaystrNew != displaystr) {
-                    scrollText = mainBloc
+                    scrollText = mainRepository
                         .replaceIllegalCharsInTickerString(displaystrNew);
                     if (kDebugMode) {
                       debugPrint('==> new scrollText: $scrollText');

@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/helper/animated_list_helper.dart';
 import 'package:roonmatrix/ui/layout/cover_row.dart';
@@ -74,10 +75,12 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   List<CoverModel> coverList = [];
   double itemListHeight = 84;
 
+  late MainRepository mainRepository;
   late MainBloc mainBloc;
 
   @override
   void initState() {
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
 
     info = widget.info;
@@ -97,7 +100,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   }
 
   void refreshCovers() {
-    List<CoverModel> coverListNew = mainBloc.getCoversModel(
+    List<CoverModel> coverListNew = mainRepository.getCoversModel(
         info: info, showWebCoverNotRunning: showWebCoverNotRunning);
     if (kDebugMode) {
       debugPrint(
@@ -131,7 +134,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       }
     });
 
-    double coverSize = mainBloc.getCoverSize(
+    double coverSize = mainRepository.getCoverSize(
       viewData: viewData,
       mediaQueryData: mediaQueryData,
       coverRowDynamicSize: coverRowDynamicSize,
@@ -198,7 +201,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     final bool replace =
         false; // true: remove inactive and add new content, false: replace content
 
-    double coverSize = mainBloc.getCoverSize(
+    double coverSize = mainRepository.getCoverSize(
       viewData: viewData,
       mediaQueryData: mediaQueryData,
       coverRowDynamicSize: coverRowDynamicSize,

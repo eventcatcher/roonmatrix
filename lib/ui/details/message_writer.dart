@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
@@ -48,10 +49,12 @@ class MessageWriterState extends State<MessageWriter> {
   bool setMessage = false;
   bool allDevices = false;
 
+  late MainRepository mainRepository;
   late MainBloc mainBloc;
 
   @override
   void initState() {
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     getCustomMessages();
 
@@ -59,7 +62,7 @@ class MessageWriterState extends State<MessageWriter> {
   }
 
   Future<void> getCustomMessages() async {
-    options = await mainBloc.getCustomMessages();
+    options = await mainRepository.getCustomMessages();
     setState(() {
       optionsLoaded = true;
     });
@@ -629,7 +632,7 @@ class MessageWriterState extends State<MessageWriter> {
                                           () => messageTextController.text);
                                       nameTextController.text = '';
                                       messageTextController.text = '';
-                                      mainBloc.setCustomMessages(
+                                      mainRepository.setCustomMessages(
                                           messages: options);
                                       mainBloc.getInfo(ip: ip);
                                     });
@@ -688,7 +691,7 @@ class MessageWriterState extends State<MessageWriter> {
                                     messageTextController.text = '';
                                     selectedMessageId = null;
                                     options.remove(key);
-                                    mainBloc.setCustomMessages(
+                                    mainRepository.setCustomMessages(
                                         messages: options);
                                     mainBloc.getInfo(ip: ip);
                                   });

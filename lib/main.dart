@@ -9,6 +9,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/data/file_repository.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
@@ -583,49 +584,59 @@ class RoonMatrixState extends State<RoonMatrix> {
   // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider<TranslationsBloc>(
-          create: (BuildContext context) => translationsBloc,
+        RepositoryProvider<MainRepository>(
+          create: (BuildContext context) => MainRepository(),
         ),
-        BlocProvider<SettingsBloc>(
-          create: (BuildContext context) => settingsBloc,
-        ),
-        BlocProvider<ConnectionStatusBloc>(
-          create: (BuildContext context) => connectionStatusBloc,
-        ),
-        BlocProvider<MainBloc>(
-          create: (BuildContext context) => mainBloc,
+        RepositoryProvider<FileRepository>(
+          create: (BuildContext context) => fileRepository,
         ),
       ],
-      child: SharedWidgets.inMacosStyle()
-          ? MacosApp(
-              title: title,
-              theme: MacosThemeData.light(isMainWindow: true),
-              darkTheme: MacosThemeData.dark(isMainWindow: true),
-              themeMode: ThemeMode.system,
-              home: home(translationsBloc: translationsBloc),
-            )
-          : SharedWidgets.inIosStyle()
-              ? Builder(builder: (context) {
-                  brightnessValue = MediaQuery.of(context).platformBrightness;
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<TranslationsBloc>(
+            create: (BuildContext context) => translationsBloc,
+          ),
+          BlocProvider<SettingsBloc>(
+            create: (BuildContext context) => settingsBloc,
+          ),
+          BlocProvider<ConnectionStatusBloc>(
+            create: (BuildContext context) => connectionStatusBloc,
+          ),
+          BlocProvider<MainBloc>(
+            create: (BuildContext context) => mainBloc,
+          ),
+        ],
+        child: SharedWidgets.inMacosStyle()
+            ? MacosApp(
+                title: title,
+                theme: MacosThemeData.light(isMainWindow: true),
+                darkTheme: MacosThemeData.dark(isMainWindow: true),
+                themeMode: ThemeMode.system,
+                home: home(translationsBloc: translationsBloc),
+              )
+            : SharedWidgets.inIosStyle()
+                ? Builder(builder: (context) {
+                    brightnessValue = MediaQuery.of(context).platformBrightness;
 
-                  return CupertinoApp(
+                    return CupertinoApp(
+                      title: title,
+                      theme: CupertinoThemeData(
+                        brightness: SharedWidgets.brightness(),
+                        //primaryColor: CupertinoColors.systemBlue,
+                      ),
+                      home: home(translationsBloc: translationsBloc),
+                    );
+                  })
+                : MaterialApp(
                     title: title,
-                    theme: CupertinoThemeData(
-                      brightness: SharedWidgets.brightness(),
-                      //primaryColor: CupertinoColors.systemBlue,
-                    ),
+                    theme: materialThemeData(tabBarThemeData: tabBarThemeData),
+                    darkTheme: ThemeData.dark(useMaterial3: false),
+                    themeMode: ThemeMode.system,
                     home: home(translationsBloc: translationsBloc),
-                  );
-                })
-              : MaterialApp(
-                  title: title,
-                  theme: materialThemeData(tabBarThemeData: tabBarThemeData),
-                  darkTheme: ThemeData.dark(useMaterial3: false),
-                  themeMode: ThemeMode.system,
-                  home: home(translationsBloc: translationsBloc),
-                ),
+                  ),
+      ),
     );
   }
 

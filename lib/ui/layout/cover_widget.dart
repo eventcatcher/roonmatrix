@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
@@ -60,6 +61,7 @@ class _CoverWidgetState extends State<CoverWidget> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
 
+  late MainRepository mainRepository;
   late MainBloc mainBloc;
   late double coverSize;
   late CoverModel coverModel;
@@ -68,6 +70,7 @@ class _CoverWidgetState extends State<CoverWidget> {
   void initState() {
     super.initState();
 
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
 
     coverSize = widget.coverSize;
@@ -215,17 +218,20 @@ class _CoverWidgetState extends State<CoverWidget> {
                         alignment: Alignment.topRight,
                         child: Stack(
                           children: [
-                            mainBloc.statusCorner(
+                            mainRepository.statusCorner(
                                 size: coverWidth,
-                                color: mainBloc.getZoneColor(coverModel)),
+                                color: mainRepository
+                                    .getZoneColor(coverModel.zoneName)),
                             Positioned(
-                              right: mainBloc
-                                  .getZoneIconPosition(
-                                      size: coverWidth, coverModel: coverModel)
+                              right: mainRepository
+                                  .getZoneIconPositionBySize(
+                                      size: coverWidth,
+                                      zoneName: coverModel.zoneName)
                                   .dx,
-                              top: mainBloc
-                                  .getZoneIconPosition(
-                                      size: coverWidth, coverModel: coverModel)
+                              top: mainRepository
+                                  .getZoneIconPositionBySize(
+                                      size: coverWidth,
+                                      zoneName: coverModel.zoneName)
                                   .dy,
                               child: Center(
                                 child: Image(
@@ -233,10 +239,12 @@ class _CoverWidgetState extends State<CoverWidget> {
                                     SharedWidgets.getZoneIcon(
                                         zoneName: coverModel.zoneName),
                                   ),
-                                  width: mainBloc.getZoneIconSize(
-                                      size: coverWidth, coverModel: coverModel),
-                                  height: mainBloc.getZoneIconSize(
-                                      size: coverWidth, coverModel: coverModel),
+                                  width: mainRepository.getZoneIconDynamicSize(
+                                      size: coverWidth,
+                                      zoneName: coverModel.zoneName),
+                                  height: mainRepository.getZoneIconDynamicSize(
+                                      size: coverWidth,
+                                      zoneName: coverModel.zoneName),
                                 ),
                               ),
                             ),

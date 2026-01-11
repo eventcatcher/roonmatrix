@@ -6,13 +6,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/layout/desktop_page_buttons.dart';
 import 'package:roonmatrix/ui/layout/mobile_page_buttons.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
-import 'package:roonmatrix/ui/layout/small_cover_with_device_info.dart';
+import 'package:roonmatrix/ui/layout/device_info.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:updatable_ticker/updatable_ticker.dart';
@@ -27,6 +28,8 @@ class DeviceListItem extends StatefulWidget {
   final Size standardDesktopSize;
   final Map<String, dynamic> translations;
   final String ip;
+  final bool connected;
+  final bool ping;
   final Map<String, dynamic> info;
   final String spotifyAuthUrl;
   final bool isSmallDeviceWidth;
@@ -46,6 +49,8 @@ class DeviceListItem extends StatefulWidget {
     required this.standardDesktopSize,
     required this.translations,
     required this.ip,
+    required this.connected,
+    required this.ping,
     required this.info,
     required this.spotifyAuthUrl,
     required this.isSmallDeviceWidth,
@@ -76,18 +81,24 @@ class DeviceListItemState extends State<DeviceListItem> {
   double itemListHeight = 84;
   final double deviceListCoverSize = 40.0;
 
+  late MainRepository mainRepository;
   late MainBloc mainBloc;
   late SettingsBloc settingsBloc;
   late String ip;
+  late bool connected;
+  late bool ping;
   late Map<String, dynamic> info;
   late double scrollSpeedScrollMatrix;
   late double scrollSpeedDevice;
 
   @override
   void initState() {
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
     ip = widget.ip;
+    connected = widget.connected;
+    ping = widget.ping;
     info = widget.info;
     scrollSpeedScrollMatrix = widget.scrollSpeedScrollMatrix;
     scrollSpeedDevice = widget.scrollSpeedDevice;
@@ -98,6 +109,8 @@ class DeviceListItemState extends State<DeviceListItem> {
   void didUpdateWidget(DeviceListItem oldWidget) {
     super.didUpdateWidget(oldWidget);
     ip = widget.ip;
+    connected = widget.connected;
+    ping = widget.ping;
     info = widget.info;
     scrollSpeedScrollMatrix = widget.scrollSpeedScrollMatrix;
     scrollSpeedDevice = widget.scrollSpeedDevice;
@@ -107,17 +120,17 @@ class DeviceListItemState extends State<DeviceListItem> {
   Widget build(BuildContext context) {
     Map<String, dynamic> i = info[ip];
 
-    String scrollText =
-        mainBloc.replaceIllegalCharsInTickerString(i['app_displaystr'] ?? '');
+    String scrollText = mainRepository
+        .replaceIllegalCharsInTickerString(i['app_displaystr'] ?? '');
     String hash = md5.convert(utf8.encode(scrollText)).toString();
     if (kDebugMode) {
       debugPrint(
           'DeviceListItem => new info received on index $index @ ${DateTime.now().toLocal()}), hash: $hash, scrollText: $scrollText');
     }
 
-    String zoneName = mainBloc.getZoneName(info: i);
+    String zoneName = mainRepository.getZoneName(info: i);
 
-    Map<String, dynamic>? zone = mainBloc.getZoneDataForControlId(i);
+    Map<String, dynamic>? zone = mainRepository.getZoneDataForControlId(i);
     String? coverUrl = zone != null &&
             zone['cover'] != null &&
             (zone['cover'] as String).isNotEmpty
@@ -204,63 +217,73 @@ class DeviceListItemState extends State<DeviceListItem> {
                   ),
                 ),
                 SizedBox(width: 8.0),
-                Flexible(
-                  flex: 1,
-                  fit: FlexFit.loose,
-                  child: DeviceInfo(ip: ip, info: info),
+                DeviceInfo(
+                  ip: ip,
+                  connected: connected,
+                  ping: ping,
+                  info: info,
+                  deviceListCoverSize: deviceListCoverSize,
+                  onFinishedPing: () {
+                    mainBloc.setPing(ip: ip, ping: false);
+                  },
                 ),
-                SharedWidgets.isDesktopDevice()
-                    ? Row(
-                        // desktop variant
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            '${translations['deviceListTime'] ?? 'time'}: ${mainBloc.getFormattedDateString(date: i['time'])}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
-                            softWrap: true,
-                            maxLines: 2,
-                            overflow: TextOverflow.fade,
-                          ),
-                          DesktopPageButtons(
-                            translations: translations,
-                            ip: ip,
-                            info: info,
-                            spotifyAuthUrl: spotifyAuthUrl,
-                            moreInfo: moreInfo,
-                            minDesktopSize: minDesktopSize,
-                            standardDesktopSize: standardDesktopSize,
-                          )
-                        ],
-                      )
-                    : Flexible(
-                        flex: 2,
-                        child: Row(
+                Expanded(
+                  child: SharedWidgets.isDesktopDevice()
+                      ? Row(
+                          // desktop variant
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            if (isSmallDeviceWidth == true)
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    top: Platform.isAndroid ? 14.0 : 11.0,
-                                    right: 8.0),
-                                child: Text('${i['playcount']}',
-                                    softWrap: true,
-                                    overflow: TextOverflow.fade,
-                                    style: const TextStyle(fontSize: 9)),
+                            Flexible(
+                              child: Text(
+                                '${translations['deviceListTime'] ?? 'time'}: ${mainRepository.getFormattedDateString(date: i['time'])}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
+                                softWrap: true,
+                                maxLines: 2,
+                                overflow: TextOverflow.fade,
+                                style: TextStyle(fontSize: 14.0),
                               ),
-                            if (!isSmallDeviceWidth)
-                              AnimatedOpacity(
-                                opacity: infoOpacityLevel,
-                                duration: const Duration(milliseconds: 400),
-                                child: Text(
-                                  '${translations['deviceListTime'] ?? 'time'}: ${mainBloc.getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
-                                  softWrap: true,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.fade,
-                                  style: const TextStyle(fontSize: 11),
-                                ),
-                              ),
-                            SizedBox(width: 40.0)
+                            ),
+                            DesktopPageButtons(
+                              translations: translations,
+                              ip: ip,
+                              info: info,
+                              spotifyAuthUrl: spotifyAuthUrl,
+                              moreInfo: moreInfo,
+                              minDesktopSize: minDesktopSize,
+                              standardDesktopSize: standardDesktopSize,
+                            )
                           ],
+                        )
+                      : SizedBox(
+                          height: deviceListCoverSize,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              if (isSmallDeviceWidth == true)
+                                Padding(
+                                  padding: EdgeInsets.only(right: 12.0),
+                                  child: Text('${i['playcount']}',
+                                      softWrap: true,
+                                      overflow: TextOverflow.fade,
+                                      style: const TextStyle(fontSize: 9)),
+                                ),
+                              if (!isSmallDeviceWidth)
+                                AnimatedOpacity(
+                                  opacity: infoOpacityLevel,
+                                  duration: const Duration(milliseconds: 400),
+                                  child: Text(
+                                    '${translations['deviceListTime'] ?? 'time'}: ${mainRepository.getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
+                                    softWrap: true,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.fade,
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                              SizedBox(width: 40.0)
+                            ],
+                          ),
                         ),
-                      ),
+                ),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/layout/cover_widget.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -67,6 +68,7 @@ class _CoverRowState extends State<CoverRow> {
 
   final int flexCoverRow = 1;
 
+  late MainRepository mainRepository;
   late MainBloc mainBloc;
   late List<CoverModel> coverList;
 
@@ -74,6 +76,7 @@ class _CoverRowState extends State<CoverRow> {
   void initState() {
     super.initState();
 
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     coverList = widget.coverList;
   }
@@ -91,7 +94,7 @@ class _CoverRowState extends State<CoverRow> {
           'CoverRow/getCoverRow => covers to display: ${coverList.length}');
     }
 
-    double coverSize = mainBloc.getCoverSize(
+    double coverSize = mainRepository.getCoverSize(
       viewData: View.of(context),
       mediaQueryData: mediaQueryData,
       coverRowDynamicSize: coverRowDynamicSize,

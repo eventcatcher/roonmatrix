@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:file_selector/file_selector.dart';
@@ -11,9 +10,7 @@ import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
-import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
-import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/helper/websocket_service.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_event.dart';
@@ -88,12 +85,37 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       if (event is ResetWebSocketServices) {
         if (kDebugMode) {
-          debugPrint('ResetWebSocketServices, services: ${services.length}');
+          debugPrint(
+              'ResetWebSocketServices @ ${DateTime.now().toLocal()}, services: ${services.length}');
         }
         for (WebSocketService service in services) {
           service.dispose();
         }
         services = [];
+      }
+
+      if (event is SetPing) {
+        String ip = event.ip;
+        bool ping = event.ping;
+
+        Map<String, bool> pingList = Map.from(state.ping);
+        pingList[ip] = ping;
+        emit(state.copyWith(
+          update: DateTime.now(),
+          ping: pingList,
+        ));
+      }
+
+      if (event is SetConnected) {
+        String ip = event.ip;
+        bool connected = event.connected;
+
+        Map<String, bool> connectedList = Map.from(state.connected);
+        connectedList[ip] = connected;
+        emit(state.copyWith(
+          update: DateTime.now(),
+          connected: connectedList,
+        ));
       }
 
       if (event is LoadDevices) {
@@ -107,23 +129,26 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
           if (!existingServiceUrls.contains(url)) {
             if (kDebugMode) {
-              debugPrint('add WebSocketService $url');
+              debugPrint(
+                  'add WebSocketService @ ${DateTime.now().toLocal()}: $url');
             }
-            services.add(WebSocketService(
-              url,
-              onMessage: (jsonStr) {
-                if (jsonStr.isNotEmpty &&
-                    jsonStr.startsWith('{') &&
-                    jsonStr.endsWith('}')) {
-                  dynamic info = jsonDecode(jsonStr);
-                  if (kDebugMode) {
-                    debugPrint(
-                        'WebSocketService received data from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
-                  }
-                  add(LoadInfo(ip: ip, info: info));
+            services.add(WebSocketService(url, onMessage: (String jsonStr) {
+              if (jsonStr.isNotEmpty &&
+                  jsonStr.startsWith('{') &&
+                  jsonStr.endsWith('}')) {
+                dynamic info = jsonDecode(jsonStr);
+                if (kDebugMode) {
+                  debugPrint(
+                      'WebSocketService received data @ ${DateTime.now().toLocal()} from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
                 }
-              },
-            )..connect());
+                add(LoadInfo(ip: ip, info: info));
+              }
+            }, onPing: () {
+              setPing(ip: ip, ping: true);
+            }, onConnect: (bool connected) {
+              setConnected(ip: ip, connected: connected);
+            })
+              ..connect());
             getInfo(ip: ip);
           }
         }
@@ -134,7 +159,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         for (WebSocketService service in services) {
           if (!newWebSocketUrls.contains(service.url)) {
             if (kDebugMode) {
-              debugPrint('remove WebSocketService ${service.url}');
+              debugPrint(
+                  'remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}');
             }
             service.dispose();
             servicesToRemove.add(service);
@@ -216,9 +242,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           var response = await client.get(uri);
           if (response.statusCode == 200) {
             if (response.body.substring(0, 1) == '{') {
-              Map<String, dynamic> json = jsonDecode(filterIllegalChars(
-                  text: utf8.decode(response.bodyBytes),
-                  messageHeader: 'GetInfo/info (raw)')) as Map<String, dynamic>;
+              Map<String, dynamic> json = jsonDecode(
+                      filterIllegalCharsFromJsonStr(
+                          text: utf8.decode(response.bodyBytes),
+                          messageHeader: 'GetInfo/info (raw)'))
+                  as Map<String, dynamic>;
 
               Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
               Map<String, dynamic> spotifyAuthUrls =
@@ -833,12 +861,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return valid;
   }
 
-  String filterIllegalChars(
+  String filterIllegalCharsFromJsonStr(
       {required String text, String messageHeader = '*'}) {
-    if (kDebugMode) {
-      //debugPrint('$messageHeader: $text');
-    }
-
     String filtered = text;
     //filtered = filtered.replaceAll(r'\\\"', "'");
 
@@ -1178,9 +1202,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               var response = await client.get(uri);
               if (response.statusCode == 200) {
                 if (response.body.substring(0, 1) == '{') {
-                  Map<String, dynamic> json = jsonDecode(filterIllegalChars(
-                          text: utf8.decode(response.bodyBytes),
-                          messageHeader: 'searchDevices/type (raw)'))
+                  Map<String, dynamic> json = jsonDecode(
+                          filterIllegalCharsFromJsonStr(
+                              text: utf8.decode(response.bodyBytes),
+                              messageHeader: 'searchDevices/type (raw)'))
                       as Map<String, dynamic>;
                   if (json['type'] != null &&
                       json['name'] != null &&
@@ -1235,38 +1260,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     String jsonStr = encoder.convert(jsonObject);
 
     return jsonStr;
-  }
-
-  Map<String, dynamic>? getZoneDataForControlId(Map<String, dynamic>? info) {
-    Map<String, dynamic>? zone;
-
-    if (info != null && info != {} && info.keys.contains('channels')) {
-      String? controlId = info['control_id'];
-      Map<String, dynamic> channels = info['channels'];
-
-      if (controlId != null &&
-          controlId.isNotEmpty &&
-          channels.keys.contains(controlId)) {
-        if (channels[controlId] == 'webserver' ||
-            channels[controlId] == 'spotifyconnect') {
-          List<String> controlIdParts = info['control_id'].split('-');
-          String serverName = controlIdParts[0];
-          String zoneName = controlIdParts[1];
-          if (info['web_playouts'][serverName] != null) {
-            List<dynamic> zones = info['web_playouts'][serverName];
-            zone = zones.firstWhereOrNull(
-                (dynamic el) => (el['zone'] as String) == zoneName);
-          }
-        } else {
-          String zoneName = channels[controlId];
-          if (info['roon_playouts'][zoneName] != null) {
-            zone = info['roon_playouts'][zoneName];
-          }
-        }
-      }
-    }
-
-    return zone;
   }
 
   setPollingTimer() {
@@ -1342,367 +1335,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     windowManager.setSize(newSize, animate: true);
   }
 
-  Future<Map<String, String>> getCustomMessages() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? messagesStr = prefs.getString('customMessages');
-    Map<String, String> customMessages = messagesStr != null &&
-            messagesStr.isNotEmpty &&
-            messagesStr.substring(0, 1) == '{'
-        ? (jsonDecode(messagesStr) as Map<String, dynamic>)
-            .map((String k, dynamic v) => MapEntry(k, v as String))
-        : {};
-    return customMessages;
-  }
-
-  setCustomMessages({required Map<String, String> messages}) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('customMessages', jsonEncode(messages));
-  }
-
   String decompressZlib(Uint8List data) {
     return utf8.decode(ZLibCodec().decode(data));
-  }
-
-  CoverModel? getRoonCoverModel({
-    required Map<String, dynamic> channels,
-    required String zoneName,
-    required dynamic zone,
-    required bool idle,
-  }) {
-    String? coverUrl = zone['cover'];
-    if (channels.values.contains(zoneName) &&
-        ((!idle && zone['status'] == 'playing') ||
-            (idle == true && zone['status'] != 'playing'))) {
-      String controlId =
-          channels.keys.firstWhere((el) => channels[el] == zoneName);
-      CoverModel coverModel = CoverModel(
-        controlId: controlId,
-        zoneName: zoneName,
-        coverUrl: coverUrl ?? '',
-        artist: zone['artist'] ?? '',
-        album: zone['album'] ?? '',
-        track: zone['track'] ?? '',
-        status: zone['status'],
-      );
-
-      return coverModel;
-    }
-
-    return null;
-  }
-
-  CoverModel? getWebCoverModel({
-    required Map<String, dynamic> channels,
-    required String zoneName,
-    required dynamic zone,
-    required bool idle,
-    required bool showWebCoverNotRunning,
-  }) {
-    String? coverUrl = zone['cover'];
-    // debugPrint(
-    //     'showWebCoverNotRunning: $showWebCoverNotRunning, idle: $idle, status: ${zone['status']}');
-    if (channels.keys.contains(zoneName) &&
-        ((!idle && zone['status'] == 'playing') ||
-            (idle == true && zone['status'] == 'paused') ||
-            (idle == true &&
-                showWebCoverNotRunning == true &&
-                zone['status'] == 'not running'))) {
-      CoverModel coverModel = CoverModel(
-        controlId: zoneName,
-        zoneName: zoneName,
-        coverUrl: coverUrl ?? '',
-        artist: zone['artist'] ?? '',
-        album: zone['album'] ?? '',
-        track: zone['track'] ?? '',
-        status: zone['status'] ?? '',
-      );
-
-      return coverModel;
-    }
-
-    return null;
-  }
-
-  List<CoverModel> getCoversModel({
-    required Map<String, dynamic>? info,
-    required bool showWebCoverNotRunning,
-  }) {
-    List<CoverModel> covers = [];
-
-    if (info != null && info != {}) {
-      if (info.keys.isNotEmpty) {
-        Map<String, dynamic> roonPlayouts =
-            info[info.keys.first]['roon_playouts'];
-        Map<String, dynamic> channels = info[info.keys.first]['channels'];
-
-        for (String zoneName in roonPlayouts.keys) {
-          CoverModel? coverModel = getRoonCoverModel(
-            channels: channels,
-            zoneName: zoneName,
-            zone: roonPlayouts[zoneName],
-            idle: false,
-          );
-          if (coverModel != null) {
-            covers.add(coverModel);
-          }
-        }
-
-        Map<String, dynamic> webPlayouts =
-            info[info.keys.first]['web_playouts'];
-        for (String serverName in webPlayouts.keys) {
-          List<dynamic> zones = webPlayouts[serverName];
-          for (dynamic zone in zones) {
-            if (zone != null) {
-              String zoneName = '$serverName-${zone['zone']}';
-
-              CoverModel? coverModel = getWebCoverModel(
-                channels: channels,
-                zoneName: zoneName,
-                zone: zone,
-                idle: false,
-                showWebCoverNotRunning: showWebCoverNotRunning,
-              );
-              if (coverModel != null) {
-                covers.add(coverModel);
-              }
-            }
-          }
-        }
-
-        for (String zoneName in roonPlayouts.keys) {
-          CoverModel? coverModel = getRoonCoverModel(
-            channels: channels,
-            zoneName: zoneName,
-            zone: roonPlayouts[zoneName],
-            idle: true,
-          );
-          if (coverModel != null) {
-            covers.add(coverModel);
-          }
-        }
-
-        for (String serverName in webPlayouts.keys) {
-          List<dynamic> zones = webPlayouts[serverName];
-          for (dynamic zone in zones) {
-            if (zone != null) {
-              String zoneName = '$serverName-${zone['zone']}';
-
-              CoverModel? coverModel = getWebCoverModel(
-                channels: channels,
-                zoneName: zoneName,
-                zone: zone,
-                idle: true,
-                showWebCoverNotRunning: showWebCoverNotRunning,
-              );
-              if (coverModel != null) {
-                covers.add(coverModel);
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return covers;
-  }
-
-  isRoonZone(String zoneName) {
-    return !zoneName.endsWith('-Apple Music') &&
-        !zoneName.endsWith('-SpotifyConnect') &&
-        !zoneName.endsWith('-Spotify');
-  }
-
-  getFormattedDateString(
-      {required String date,
-      String languageCode = 'de',
-      String format = 'dd.MM.yyyy HH:mm:ss'}) {
-    String formattedDate =
-        DateFormat(format, languageCode).format(DateTime.parse(date));
-
-    return formattedDate;
-  }
-
-  Offset getZoneIconPosition(
-      {required double size, required CoverModel coverModel}) {
-    if (coverModel.zoneName.endsWith('-Apple Music')) {
-      return Offset(size < 200 ? -2.0 : -5.0, size < 200 ? -2.0 : -3.0);
-    }
-    if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
-      return Offset(size < 200 ? 2.0 : 0, size < 200 ? 4.0 : 5.0);
-    }
-
-    if (coverModel.zoneName.endsWith('-Spotify')) {
-      return Offset(2.0, size < 200 ? 4.0 : 5.0);
-    }
-
-    return Offset(4.0, 5.0);
-  }
-
-  Color getZoneColor(CoverModel coverModel) {
-    if (coverModel.zoneName.endsWith('-Apple Music')) {
-      return Color(0xFFF50057);
-    }
-    if (coverModel.zoneName.endsWith('-SpotifyConnect') ||
-        coverModel.zoneName.endsWith('-Spotify')) {
-      return Colors.green;
-    }
-
-    return Colors.blue.shade300;
-  }
-
-  double getZoneIconSize(
-      {required double size, required CoverModel coverModel}) {
-    double factor = size < 200 ? 0.65 : 1.0;
-    if (coverModel.zoneName.endsWith('-Apple Music')) {
-      return factor * 54.0;
-    }
-    if (coverModel.zoneName.endsWith('-SpotifyConnect')) {
-      return factor * 44.0;
-    }
-
-    if (coverModel.zoneName.endsWith('-Spotify')) {
-      return factor * 44.0;
-    }
-
-    return factor * 40.0;
-  }
-
-  statusCorner({required double size, required Color color}) => SizedBox(
-        width: size < 200 ? 56 : 84,
-        height: size < 200 ? 56 : 84,
-        child: ClipRRect(
-          child: CustomPaint(
-            painter: TrianglePainter(
-              color: color,
-            ),
-          ),
-        ),
-      );
-
-  String replaceIllegalCharsInTickerString(String str) {
-    if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
-      str = jsonDecode(str.replaceAll("'", '"')).join(
-          ' '); // maybe troublemaker (should be replaced in python part on device)
-      str = str.replaceAll('< ', ', ');
-      str = str.replaceAll(' >', ': ');
-    }
-
-    return str;
-  }
-
-  double getSafeHeight({required FlutterView viewData}) {
-    //Safe area paddings in logical pixels
-    double paddingTop = viewData.padding.top / viewData.devicePixelRatio;
-    double paddingBottom = viewData.padding.bottom / viewData.devicePixelRatio;
-
-    //Safe area in logical pixels
-    double pixelRatio = viewData.devicePixelRatio;
-    Size logicalScreenSize = viewData.physicalSize / pixelRatio;
-    double logicalHeight = logicalScreenSize.height;
-    double safeHeight = logicalHeight - paddingTop - paddingBottom;
-
-    return safeHeight;
-  }
-
-  double getCoverSize({
-    required FlutterView viewData,
-    required MediaQueryData mediaQueryData,
-    required bool coverRowDynamicSize,
-    required bool showExportButton,
-    required double? appBarHeight,
-    required double itemListHeight,
-  }) {
-    final double minimumCoverSize = 100;
-    final double smallCoverSize = 150;
-    final double midCoverSize = 200;
-    final double bigCoverSize = 250;
-    final double exportButtonPaddingIos = 14.0;
-
-    double coverSize = smallCoverSize;
-    int minNumberOfListItems = 1;
-    int minNumberOfCoversInRow = 2;
-
-    if (!coverRowDynamicSize) {
-      double boxSizeWidth = mediaQueryData.size.width;
-      double boxSizeHeight = mediaQueryData.size.height;
-      double preferredCoverSize =
-          boxSizeWidth > minNumberOfCoversInRow * bigCoverSize &&
-                  boxSizeHeight > minNumberOfCoversInRow * bigCoverSize
-              ? bigCoverSize
-              : boxSizeWidth > minNumberOfCoversInRow * midCoverSize &&
-                      boxSizeHeight > minNumberOfCoversInRow * midCoverSize
-                  ? midCoverSize
-                  : smallCoverSize;
-      if (SharedWidgets.isDesktopDevice()) {
-        coverSize = preferredCoverSize;
-      }
-
-      if (SharedWidgets.isMobileDevice()) {
-        double safeHeight = getSafeHeight(viewData: viewData);
-        boxSizeHeight = safeHeight;
-
-        double searchFieldAreaHeight = 44;
-        double paddingTop = mediaQueryData.padding.top;
-        double paddingBottom = mediaQueryData.padding.bottom;
-        double exportButtonHeight =
-            40; // height of export button (ios: CupertinoButton.filled)
-        double exportButtonAreaHeight = showExportButton == true
-            ? Platform.isIOS
-                ? exportButtonHeight + 2 * exportButtonPaddingIos
-                : 48 // height of export button (Android: ElevatedButton.icon)
-            : 0;
-
-        double partsToSubtract = (appBarHeight ?? 56) +
-            searchFieldAreaHeight +
-            exportButtonAreaHeight;
-        double coverSizeMaxPossibleOnMobile = boxSizeHeight -
-            partsToSubtract -
-            minNumberOfListItems * itemListHeight;
-        double listHeightArea = boxSizeHeight - partsToSubtract;
-        int maxListCount = (listHeightArea / itemListHeight).floor();
-
-        double listHeightMax = listHeightArea - preferredCoverSize;
-        int listItemCount = (listHeightMax / itemListHeight).floor();
-        coverSize = listHeightArea - (listItemCount * itemListHeight);
-        if (listItemCount < minNumberOfListItems ||
-            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          preferredCoverSize = smallCoverSize;
-          listHeightMax = listHeightArea - preferredCoverSize;
-          listItemCount = (listHeightMax / itemListHeight).floor();
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-        if (listItemCount < minNumberOfListItems ||
-            boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          preferredCoverSize = smallCoverSize;
-          listHeightMax = listHeightArea - preferredCoverSize;
-          listItemCount = (listHeightMax / itemListHeight).ceil();
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-
-        if (boxSizeWidth < minNumberOfCoversInRow * coverSize) {
-          if (listItemCount < maxListCount) {
-            listItemCount += 1;
-            double testCoverSize =
-                listHeightArea - (listItemCount * itemListHeight);
-            if (testCoverSize >= minimumCoverSize) {
-              coverSize = testCoverSize;
-            }
-          }
-        }
-        if (coverSize < minimumCoverSize &&
-            listItemCount > minNumberOfListItems) {
-          listItemCount -= 1;
-          coverSize = listHeightArea - (listItemCount * itemListHeight);
-        }
-
-        if (kDebugMode) {
-          debugPrint(
-              'MainBloc/getCoverSize => boxSizeHeight: $boxSizeHeight, paddingTop: $paddingTop, paddingBottom: $paddingBottom, exportButtonAreaHeight: $exportButtonAreaHeight, partsToSubtract: $partsToSubtract, listHeightArea: $listHeightArea, listHeightMax: $listHeightMax, preferredCoverSize: $preferredCoverSize, minNumberOfListItems: $minNumberOfListItems, listItemCount: $listItemCount, itemListHeight: $itemListHeight, coverSizeMaxPossibleOnMobile: $coverSizeMaxPossibleOnMobile');
-        }
-      }
-    }
-
-    return coverSize;
   }
 
   List<String> getFilteredDevices() {
@@ -1723,22 +1357,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               .toLowerCase()
               .compareTo((state.info[b]['name'] as String).toLowerCase())
           : a.compareTo(b));
-  }
-
-  String getZoneName({required Map<String, dynamic> info}) {
-    String zoneName = '';
-    if (info['control_id'] != null) {
-      String controlId = info['control_id'];
-      if (info['channels'] != null && info['channels'][controlId] != null) {
-        if (info['channels'][controlId] == 'webserver') {
-          zoneName = controlId;
-        } else {
-          zoneName = info['channels'][controlId];
-        }
-      }
-    }
-
-    return zoneName;
   }
 
   // ==================== //
@@ -1779,6 +1397,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   void getLog({required String ip, required int hours}) {
     add(GetLog(ip: ip, hours: hours));
+  }
+
+  void setPing({required String ip, required bool ping}) {
+    add(SetPing(ip: ip, ping: ping));
+  }
+
+  void setConnected({required String ip, required bool connected}) {
+    add(SetConnected(ip: ip, connected: connected));
   }
 
   void zoneControl(

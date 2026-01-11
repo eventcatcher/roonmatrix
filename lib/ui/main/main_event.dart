@@ -4,6 +4,13 @@ abstract class MainEvent extends Equatable {
   const MainEvent([List props = const []]);
 }
 
+class MainStateLoadDefaults extends MainEvent {
+  const MainStateLoadDefaults();
+
+  @override
+  List<Object> get props => [];
+}
+
 class RestartPollingTimer extends MainEvent {
   const RestartPollingTimer();
 
@@ -144,9 +151,22 @@ class SetIpRange extends MainEvent {
   }
 }
 
-class MainStateLoadDefaults extends MainEvent {
-  const MainStateLoadDefaults();
+class SetPing extends MainEvent {
+  final String ip;
+  final bool ping;
+
+  const SetPing({required this.ip, required this.ping});
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [ip, ping];
+}
+
+class SetConnected extends MainEvent {
+  final String ip;
+  final bool connected;
+
+  const SetConnected({required this.ip, required this.connected});
+
+  @override
+  List<Object> get props => [ip, connected];
 }
