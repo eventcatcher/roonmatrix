@@ -35,6 +35,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   };
   final List<String> allowedDeviceTypes = ['roonmatrix', 'coverplayer'];
   final int pollingIntervalInSeconds = 30;
+  final int reconnectDelayInSeconds = 3;
   final int port = 8000;
 
   http.Client client = http.Client();
@@ -118,37 +119,81 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         ));
       }
 
+      if (event is AddWebSocketService) {
+        String ip = event.ip;
+        String url = 'ws://$ip:$port/ws';
+        bool exist = false;
+
+        for (WebSocketService service in services) {
+          if (url == service.url) {
+            exist = true;
+            if (kDebugMode) {
+              debugPrint(
+                  'ws123 WebSocketService @ ${DateTime.now().toLocal()}: ${service.url} => found and therefore not added again');
+            }
+
+            break;
+          }
+        }
+
+        if (!exist) {
+          WebSocketService service =
+              WebSocketService(url, onMessage: (String jsonStr) {
+            if (jsonStr.isNotEmpty &&
+                jsonStr.startsWith('{') &&
+                jsonStr.endsWith('}')) {
+              dynamic info = jsonDecode(jsonStr);
+              if (kDebugMode) {
+                debugPrint(
+                    'WebSocketService received data @ ${DateTime.now().toLocal()} from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
+              }
+              add(LoadInfo(ip: ip, info: info));
+            }
+          }, onPing: () {
+            setPing(ip: ip, ping: true);
+          }, onConnect: (bool connected) {
+            setConnected(ip: ip, connected: connected);
+            if (!connected) {
+              List<WebSocketService> servicesToRemove = [];
+              for (WebSocketService service in services) {
+                if (url == service.url) {
+                  if (kDebugMode) {
+                    debugPrint(
+                        'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}');
+                  }
+                  service.dispose();
+                  servicesToRemove.add(service);
+                }
+              }
+              if (servicesToRemove.isNotEmpty) {
+                for (WebSocketService service in servicesToRemove) {
+                  services.remove(service);
+                }
+              }
+
+              Future.delayed(Duration(seconds: reconnectDelayInSeconds),
+                  () => addWebSocketService(ip: ip));
+            }
+          });
+
+          services.add(service..connect());
+        }
+      }
+
       if (event is LoadDevices) {
         List<String> existingServiceUrls =
             services.map((WebSocketService el) => el.url).toList();
 
         for (String ip in event.devices) {
           String url = 'ws://$ip:$port/ws';
-          // WebSocketService service =
-          //     services.firstWhere((WebSocketService el) => el.url == url);
 
           if (!existingServiceUrls.contains(url)) {
             if (kDebugMode) {
               debugPrint(
                   'add WebSocketService @ ${DateTime.now().toLocal()}: $url');
             }
-            services.add(WebSocketService(url, onMessage: (String jsonStr) {
-              if (jsonStr.isNotEmpty &&
-                  jsonStr.startsWith('{') &&
-                  jsonStr.endsWith('}')) {
-                dynamic info = jsonDecode(jsonStr);
-                if (kDebugMode) {
-                  debugPrint(
-                      'WebSocketService received data @ ${DateTime.now().toLocal()} from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
-                }
-                add(LoadInfo(ip: ip, info: info));
-              }
-            }, onPing: () {
-              setPing(ip: ip, ping: true);
-            }, onConnect: (bool connected) {
-              setConnected(ip: ip, connected: connected);
-            })
-              ..connect());
+
+            addWebSocketService(ip: ip);
             getInfo(ip: ip);
           }
         }
@@ -160,7 +205,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (!newWebSocketUrls.contains(service.url)) {
             if (kDebugMode) {
               debugPrint(
-                  'remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}');
+                  'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}');
             }
             service.dispose();
             servicesToRemove.add(service);
@@ -1369,6 +1414,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   void restartPollingTimer() {
     add(RestartPollingTimer());
+  }
+
+  void addWebSocketService({required String ip}) {
+    add(AddWebSocketService(ip: ip));
   }
 
   void resetWebSocketServices() {

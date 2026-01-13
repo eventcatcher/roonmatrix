@@ -26,7 +26,7 @@ class WebSocketService {
   void connect() async {
     if (kDebugMode) {
       debugPrint(
-          "WebSocketService @ ${DateTime.now().toLocal()} => connect to $url");
+          "ws123 WebSocketService @ ${DateTime.now().toLocal()} => connect to $url");
     }
     final Uri wsUrl = Uri.parse(url);
     _channel = WebSocketChannel.connect(wsUrl);
@@ -35,14 +35,18 @@ class WebSocketService {
     } on SocketException catch (e) {
       if (kDebugMode) {
         debugPrint(
-            "WebSocketService @ ${DateTime.now().toLocal()} => connect error $e, url: $url");
+            "ws123 WebSocketService @ ${DateTime.now().toLocal()} => SocketException => connect error $e, url: $url");
       }
+
+      onConnect(false);
       return;
     } on WebSocketChannelException catch (e) {
       if (kDebugMode) {
         debugPrint(
-            "WebSocketService @ ${DateTime.now().toLocal()} => connect error $e, url: $url");
+            "ws123 WebSocketService @ ${DateTime.now().toLocal()} => WebSocketChannelException => connect error $e, url: $url");
       }
+
+      onConnect(false);
       return;
     }
     onConnect(true);
@@ -59,13 +63,12 @@ class WebSocketService {
             "WebSocketService @ ${DateTime.now().toLocal()} => timeout check: $timeout");
       }
       if (timeout) {
-        onConnect(false);
+        timer.cancel();
         if (kDebugMode) {
           debugPrint(
               "WebSocketService @ ${DateTime.now().toLocal()} => => => timeout from $url");
         }
-        timer.cancel();
-        _reconnect();
+        onConnect(false);
       }
     });
 
@@ -94,35 +97,28 @@ class WebSocketService {
         }
       },
       onDone: () {
-        onConnect(false);
+        timer.cancel();
         if (kDebugMode) {
           debugPrint(
-              "WebSocketService @ ${DateTime.now().toLocal()} => disconnected from $url. try again to connect...");
+              "ws123 WebSocketService @ ${DateTime.now().toLocal()} => disconnected from $url. try again to connect...");
         }
-        timer.cancel();
-        _reconnect();
+        onConnect(false);
       },
       onError: (error) {
-        onConnect(false);
+        timer.cancel();
         if (kDebugMode) {
           debugPrint(
               "WebSocketService @ ${DateTime.now().toLocal()} => error for $url: ${error.toString()}");
         }
-        timer.cancel();
-        _reconnect();
+        onConnect(false);
       },
       cancelOnError: true,
     );
   }
 
-  void _reconnect() {
-    _subscription?.cancel();
-    _channel = null;
-    Future.delayed(reconnectDelay, connect);
-  }
-
   void dispose() {
     _subscription?.cancel();
     _channel?.sink.close();
+    _channel = null;
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/ripple_ping.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class DeviceInfo extends StatelessWidget {
   final String ip;

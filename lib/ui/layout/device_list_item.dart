@@ -114,6 +114,8 @@ class DeviceListItemState extends State<DeviceListItem> {
     info = widget.info;
     scrollSpeedScrollMatrix = widget.scrollSpeedScrollMatrix;
     scrollSpeedDevice = widget.scrollSpeedDevice;
+
+    //print('ip: $ip, scrollText: ${info[ip]['app_displaystr'] ?? ''}');
   }
 
   @override
@@ -163,6 +165,7 @@ class DeviceListItemState extends State<DeviceListItem> {
       ),
       child: Stack(
         children: [
+          //Text('scrollText: $scrollText'),
           ListTile(
             contentPadding: EdgeInsets.all(0),
             tileColor: Colors.lightBlueAccent,

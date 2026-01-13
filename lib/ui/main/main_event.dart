@@ -18,6 +18,15 @@ class RestartPollingTimer extends MainEvent {
   List<Object> get props => [];
 }
 
+class AddWebSocketService extends MainEvent {
+  final String ip;
+
+  const AddWebSocketService({required this.ip});
+
+  @override
+  List<Object> get props => [ip];
+}
+
 class ResetWebSocketServices extends MainEvent {
   const ResetWebSocketServices();
 
