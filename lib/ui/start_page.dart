@@ -211,7 +211,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                   children: <Widget>[
                                     // if (devices.isNotEmpty) // && kDebugMode
                                     //   Text(
-                                    //       'new info @ ${DateTime.now().toLocal()}): ${mainBloc.replaceIllegalCharsInTickerString(info[devices[0]]['app_displaystr'] ?? 'empty')}',
+                                    //       'new info @ ${DateTime.now().toLocal()}): ${mainBloc.replaceIllegalCharsInTickerString(str: info[devices[0]]['app_displaystr'] ?? 'empty')}',
                                     //       style: TextStyle(fontSize: 10.0)),
 
                                     // searchfield area
@@ -310,6 +310,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         translations: translations,
                                         devices: devices,
                                         info: info,
+                                        connected: connected,
                                         appBarHeight: appBarHeight,
                                         coverRowArtist: coverRowArtist,
                                         coverRowAlbum: coverRowAlbum,
@@ -334,6 +335,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             translations: translations,
                                             devices: devices,
                                             info: info,
+                                            connected: connected,
                                             appBarHeight: appBarHeight,
                                             coverRowArtist: coverRowArtist,
                                             coverRowAlbum: coverRowAlbum,

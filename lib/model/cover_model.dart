@@ -1,4 +1,5 @@
 class CoverModel {
+  String hash;
   String controlId;
   String coverUrl;
   String zoneName;
@@ -8,6 +9,7 @@ class CoverModel {
   String status;
 
   CoverModel({
+    required this.hash,
     required this.controlId,
     required this.coverUrl,
     required this.zoneName,

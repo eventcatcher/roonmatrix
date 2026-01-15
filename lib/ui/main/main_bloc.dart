@@ -137,44 +137,48 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
 
         if (!exist) {
-          WebSocketService service =
-              WebSocketService(url, onMessage: (String jsonStr) {
-            if (jsonStr.isNotEmpty &&
-                jsonStr.startsWith('{') &&
-                jsonStr.endsWith('}')) {
-              dynamic info = jsonDecode(jsonStr);
-              if (kDebugMode) {
-                debugPrint(
-                    'WebSocketService received data @ ${DateTime.now().toLocal()} from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
-              }
-              add(LoadInfo(ip: ip, info: info));
-            }
-          }, onPing: () {
-            setPing(ip: ip, ping: true);
-          }, onConnect: (bool connected) {
-            setConnected(ip: ip, connected: connected);
-            if (!connected) {
-              List<WebSocketService> servicesToRemove = [];
-              for (WebSocketService service in services) {
-                if (url == service.url) {
+          WebSocketService service = WebSocketService(
+              ip: ip,
+              port: port,
+              onMessage: (String jsonStr) {
+                if (jsonStr.isNotEmpty &&
+                    jsonStr.startsWith('{') &&
+                    jsonStr.endsWith('}')) {
+                  dynamic info = jsonDecode(jsonStr);
                   if (kDebugMode) {
                     debugPrint(
-                        'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}');
+                        'WebSocketService received data @ ${DateTime.now().toLocal()} from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
                   }
-                  service.dispose();
-                  servicesToRemove.add(service);
+                  add(LoadInfo(ip: ip, info: info));
                 }
-              }
-              if (servicesToRemove.isNotEmpty) {
-                for (WebSocketService service in servicesToRemove) {
-                  services.remove(service);
-                }
-              }
+              },
+              onPing: () {
+                setPing(ip: ip, ping: true);
+              },
+              onConnect: (bool connected) {
+                setConnected(ip: ip, connected: connected);
+                if (!connected) {
+                  List<WebSocketService> servicesToRemove = [];
+                  for (WebSocketService service in services) {
+                    if (url == service.url) {
+                      if (kDebugMode) {
+                        debugPrint(
+                            'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}');
+                      }
+                      service.dispose();
+                      servicesToRemove.add(service);
+                    }
+                  }
+                  if (servicesToRemove.isNotEmpty) {
+                    for (WebSocketService service in servicesToRemove) {
+                      services.remove(service);
+                    }
+                  }
 
-              Future.delayed(Duration(seconds: reconnectDelayInSeconds),
-                  () => addWebSocketService(ip: ip));
-            }
-          });
+                  Future.delayed(Duration(seconds: reconnectDelayInSeconds),
+                      () => addWebSocketService(ip: ip));
+                }
+              });
 
           services.add(service..connect());
         }

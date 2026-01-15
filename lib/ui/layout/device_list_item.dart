@@ -122,8 +122,10 @@ class DeviceListItemState extends State<DeviceListItem> {
   Widget build(BuildContext context) {
     Map<String, dynamic> i = info[ip];
 
-    String scrollText = mainRepository
-        .replaceIllegalCharsInTickerString(i['app_displaystr'] ?? '');
+    String scrollText = mainRepository.replaceIllegalCharsInTickerString(
+      str: i['app_displaystr'] ?? '',
+      replaceActiveZoneMarker: true,
+    );
     String hash = md5.convert(utf8.encode(scrollText)).toString();
     if (kDebugMode) {
       debugPrint(

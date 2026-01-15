@@ -160,8 +160,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   String displaystrNew = mainState.info[ip]['app_displaystr'];
 
                   if (displaystrNew != displaystr) {
-                    scrollText = mainRepository
-                        .replaceIllegalCharsInTickerString(displaystrNew);
+                    scrollText =
+                        mainRepository.replaceIllegalCharsInTickerString(
+                            str: displaystrNew, replaceActiveZoneMarker: true);
                     if (kDebugMode) {
                       debugPrint('==> new scrollText: $scrollText');
                     }

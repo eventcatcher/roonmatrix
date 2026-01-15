@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/model/cover_model.dart';
+import 'package:roonmatrix/ui/helper/cover_transition.dart';
+import 'package:roonmatrix/ui/helper/cover_transition_preset.dart';
 import 'package:roonmatrix/ui/layout/cover_widget.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -110,15 +112,21 @@ class _CoverRowState extends State<CoverRow> {
           const BouncingScrollPhysics(), // PageScrollPhysics <-- pagewide scrolling
       initialItemCount: coverList.length,
       itemBuilder: (context, index, animation) {
-        return FadeTransition(
-          opacity: animation,
-          child: SizeTransition(
-            sizeFactor: animation,
-            axis: Axis.horizontal,
+        final coverModelItem = coverList[index];
+
+        return SizeTransition(
+          sizeFactor: animation,
+          axis: Axis.horizontal,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 1000),
+            transitionBuilder: CoverTransition.presets(
+              CoverTransitionPreset.fadeScale,
+            ),
             child: CoverWidget(
+              key: ValueKey('CoverWidget${coverModelItem.hash}'),
               translations: translations,
               devices: devices,
-              coverModel: coverList[index],
+              coverModel: coverModelItem,
               coverSize: coverSize,
               coverRowDynamicSize: coverRowDynamicSize,
               showExportButton: showExportButton,

@@ -5,9 +5,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 //import 'package:web_socket_channel/status.dart' as status;
 
 class WebSocketService {
-  final String url;
+  final String ip;
+  final int port;
   final int pingSecondsPeriodic = 15;
   final int pingSecondTimeout = 5;
+
+  String get url => 'ws://$ip:$port/ws';
 
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
@@ -16,14 +19,16 @@ class WebSocketService {
   VoidCallback onPing;
   Function(bool connected) onConnect;
 
-  WebSocketService(
-    this.url, {
+  WebSocketService({
+    required this.ip,
+    required this.port,
     required this.onMessage,
     required this.onPing,
     required this.onConnect,
   });
 
   void connect() async {
+    String url = 'ws://$ip:$port/ws';
     if (kDebugMode) {
       debugPrint(
           "ws123 WebSocketService @ ${DateTime.now().toLocal()} => connect to $url");

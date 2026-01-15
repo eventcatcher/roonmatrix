@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -116,12 +117,19 @@ class MainRepository {
         ),
       );
 
-  String replaceIllegalCharsInTickerString(String str) {
+  String replaceIllegalCharsInTickerString({
+    required String str,
+    bool replaceActiveZoneMarker = false,
+  }) {
     if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
       str = jsonDecode(str.replaceAll("'", '"')).join(
           ' '); // maybe troublemaker (should be replaced in python part on device)
       str = str.replaceAll('< ', ', ');
       str = str.replaceAll(' >', ': ');
+    }
+    if (replaceActiveZoneMarker) {
+      str = str.replaceAll('[*]', '\u2736');
+      str = str.replaceAll('=>', '\u21E2');
     }
 
     return str;
@@ -270,7 +278,13 @@ class MainRepository {
             (idle == true && zone['status'] != 'playing'))) {
       String controlId =
           channels.keys.firstWhere((el) => channels[el] == zoneName);
+      String hash = md5
+          .convert(utf8.encode(
+              '$controlId-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))
+          .toString();
+
       CoverModel coverModel = CoverModel(
+        hash: hash,
         controlId: controlId,
         zoneName: zoneName,
         coverUrl: coverUrl ?? '',
@@ -302,7 +316,12 @@ class MainRepository {
             (idle == true &&
                 showWebCoverNotRunning == true &&
                 zone['status'] == 'not running'))) {
+      String hash = md5
+          .convert(utf8.encode(
+              '$zoneName-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))
+          .toString();
       CoverModel coverModel = CoverModel(
+        hash: hash,
         controlId: zoneName,
         zoneName: zoneName,
         coverUrl: coverUrl ?? '',
@@ -318,17 +337,44 @@ class MainRepository {
     return null;
   }
 
+  String? getFirstDeviceConnectedIp(
+      {required Map<String, dynamic>? info,
+      required Map<String, bool> connected}) {
+    if (info == null || info.keys.isEmpty) {
+      return null;
+    }
+
+    for (String ip in info.keys) {
+      if (connected.containsKey(ip) && connected[ip] == true) {
+        return ip;
+      }
+    }
+
+    return info.keys.first;
+  }
+
   List<CoverModel> getCoversModel({
     required Map<String, dynamic>? info,
+    required Map<String, bool> connected,
     required bool showWebCoverNotRunning,
   }) {
     List<CoverModel> covers = [];
 
     if (info != null && info != {}) {
       if (info.keys.isNotEmpty) {
+        String? deviceConnectedIp =
+            getFirstDeviceConnectedIp(info: info, connected: connected);
+        if (deviceConnectedIp == null) {
+          return [];
+        }
+
+        if (kDebugMode) {
+          debugPrint(
+              'getCoversModel from connected device with ip: $deviceConnectedIp');
+        }
         Map<String, dynamic> roonPlayouts =
-            info[info.keys.first]['roon_playouts'];
-        Map<String, dynamic> channels = info[info.keys.first]['channels'];
+            info[deviceConnectedIp]['roon_playouts'];
+        Map<String, dynamic> channels = info[deviceConnectedIp]['channels'];
 
         for (String zoneName in roonPlayouts.keys) {
           CoverModel? coverModel = getRoonCoverModel(
@@ -343,7 +389,7 @@ class MainRepository {
         }
 
         Map<String, dynamic> webPlayouts =
-            info[info.keys.first]['web_playouts'];
+            info[deviceConnectedIp]['web_playouts'];
         for (String serverName in webPlayouts.keys) {
           List<dynamic> zones = webPlayouts[serverName];
           for (dynamic zone in zones) {
