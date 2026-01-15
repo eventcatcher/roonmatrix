@@ -172,6 +172,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                             );
                           }
 
+                          String? activeDeviceIp = mainState.activeDeviceIp;
                           List<String> devices = mainBloc.getFilteredDevices();
                           Map<String, dynamic> info = mainState.info;
                           Map<String, dynamic> spotifyAuthUrls =
@@ -309,6 +310,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         orientation: orientation,
                                         translations: translations,
                                         devices: devices,
+                                        activeDeviceIp: activeDeviceIp,
                                         info: info,
                                         connected: connected,
                                         appBarHeight: appBarHeight,
@@ -334,6 +336,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             orientation: orientation,
                                             translations: translations,
                                             devices: devices,
+                                            activeDeviceIp: activeDeviceIp,
                                             info: info,
                                             connected: connected,
                                             appBarHeight: appBarHeight,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:crypto/crypto.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +11,7 @@ import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
+import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/ui/helper/websocket_service.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -113,9 +115,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         Map<String, bool> connectedList = Map.from(state.connected);
         connectedList[ip] = connected;
+
+        String? activeDeviceIp = getFirstDeviceConnectedIp(
+            activeDeviceIp: state.activeDeviceIp ?? ip,
+            info: state.info,
+            connected: connectedList);
+        if (kDebugMode && activeDeviceIp != state.activeDeviceIp) {
+          debugPrint('activeDeviceIp: $activeDeviceIp');
+        }
+
         emit(state.copyWith(
           update: DateTime.now(),
           connected: connectedList,
+          activeDeviceIp: activeDeviceIp,
         ));
       }
 
@@ -310,11 +322,20 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
               info[ip] = json;
 
+              String? activeDeviceIp = getFirstDeviceConnectedIp(
+                  activeDeviceIp: state.activeDeviceIp ?? ip,
+                  info: info,
+                  connected: state.connected);
+              if (kDebugMode && activeDeviceIp != state.activeDeviceIp) {
+                debugPrint('activeDeviceIp: $activeDeviceIp');
+              }
+
               emit(state.copyWith(
                 update: DateTime.now(),
                 info: info,
                 subPageIdle: false,
                 spotifyAuthUrls: spotifyAuthUrls,
+                activeDeviceIp: activeDeviceIp,
               ));
             }
           }
@@ -1299,6 +1320,191 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         isScanning = false;
       }
     }
+  }
+
+  CoverModel? getRoonCoverModel({
+    required Map<String, dynamic> channels,
+    required String zoneName,
+    required dynamic zone,
+    required bool idle,
+  }) {
+    String? coverUrl = zone['cover'];
+    if (channels.values.contains(zoneName) &&
+        ((!idle && zone['status'] == 'playing') ||
+            (idle == true && zone['status'] != 'playing'))) {
+      String controlId =
+          channels.keys.firstWhere((el) => channels[el] == zoneName);
+      String hash = md5
+          .convert(utf8.encode(
+              '$controlId-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))
+          .toString();
+
+      CoverModel coverModel = CoverModel(
+        hash: hash,
+        controlId: controlId,
+        zoneName: zoneName,
+        coverUrl: coverUrl ?? '',
+        artist: zone['artist'] ?? '',
+        album: zone['album'] ?? '',
+        track: zone['track'] ?? '',
+        status: zone['status'],
+      );
+
+      return coverModel;
+    }
+
+    return null;
+  }
+
+  CoverModel? getWebCoverModel({
+    required Map<String, dynamic> channels,
+    required String zoneName,
+    required dynamic zone,
+    required bool idle,
+    required bool showWebCoverNotRunning,
+  }) {
+    String? coverUrl = zone['cover'];
+    // debugPrint(
+    //     'showWebCoverNotRunning: $showWebCoverNotRunning, idle: $idle, status: ${zone['status']}');
+    if (channels.keys.contains(zoneName) &&
+        ((!idle && zone['status'] == 'playing') ||
+            (idle == true && zone['status'] == 'paused') ||
+            (idle == true &&
+                showWebCoverNotRunning == true &&
+                zone['status'] == 'not running'))) {
+      String hash = md5
+          .convert(utf8.encode(
+              '$zoneName-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))
+          .toString();
+      CoverModel coverModel = CoverModel(
+        hash: hash,
+        controlId: zoneName,
+        zoneName: zoneName,
+        coverUrl: coverUrl ?? '',
+        artist: zone['artist'] ?? '',
+        album: zone['album'] ?? '',
+        track: zone['track'] ?? '',
+        status: zone['status'] ?? '',
+      );
+
+      return coverModel;
+    }
+
+    return null;
+  }
+
+  List<CoverModel> getCoversModel({required bool showWebCoverNotRunning}) {
+    Map<String, dynamic> info = state.info;
+    String? activeDeviceIp = state.activeDeviceIp;
+
+    List<CoverModel> covers = [];
+
+    if (info != {}) {
+      if (info.keys.isNotEmpty) {
+        if (activeDeviceIp == null) {
+          return [];
+        }
+
+        if (kDebugMode) {
+          debugPrint(
+              'getCoversModel from connected device with ip: $activeDeviceIp');
+        }
+        Map<String, dynamic> roonPlayouts =
+            info[activeDeviceIp]['roon_playouts'];
+        Map<String, dynamic> channels = info[activeDeviceIp]['channels'];
+
+        for (String zoneName in roonPlayouts.keys) {
+          CoverModel? coverModel = getRoonCoverModel(
+            channels: channels,
+            zoneName: zoneName,
+            zone: roonPlayouts[zoneName],
+            idle: false,
+          );
+          if (coverModel != null) {
+            covers.add(coverModel);
+          }
+        }
+
+        Map<String, dynamic> webPlayouts = info[activeDeviceIp]['web_playouts'];
+        for (String serverName in webPlayouts.keys) {
+          List<dynamic> zones = webPlayouts[serverName];
+          for (dynamic zone in zones) {
+            if (zone != null) {
+              String zoneName = '$serverName-${zone['zone']}';
+
+              CoverModel? coverModel = getWebCoverModel(
+                channels: channels,
+                zoneName: zoneName,
+                zone: zone,
+                idle: false,
+                showWebCoverNotRunning: showWebCoverNotRunning,
+              );
+              if (coverModel != null) {
+                covers.add(coverModel);
+              }
+            }
+          }
+        }
+
+        for (String zoneName in roonPlayouts.keys) {
+          CoverModel? coverModel = getRoonCoverModel(
+            channels: channels,
+            zoneName: zoneName,
+            zone: roonPlayouts[zoneName],
+            idle: true,
+          );
+          if (coverModel != null) {
+            covers.add(coverModel);
+          }
+        }
+
+        for (String serverName in webPlayouts.keys) {
+          List<dynamic> zones = webPlayouts[serverName];
+          for (dynamic zone in zones) {
+            if (zone != null) {
+              String zoneName = '$serverName-${zone['zone']}';
+
+              CoverModel? coverModel = getWebCoverModel(
+                channels: channels,
+                zoneName: zoneName,
+                zone: zone,
+                idle: true,
+                showWebCoverNotRunning: showWebCoverNotRunning,
+              );
+              if (coverModel != null) {
+                covers.add(coverModel);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return covers;
+  }
+
+  String? getFirstDeviceConnectedIp({
+    required String? activeDeviceIp,
+    required Map<String, dynamic>? info,
+    required Map<String, bool> connected,
+  }) {
+    if (info == null || info.keys.isEmpty) {
+      return null;
+    }
+
+    if (activeDeviceIp != null &&
+        connected.containsKey(activeDeviceIp) &&
+        connected[activeDeviceIp] == true) {
+      return activeDeviceIp;
+    }
+
+    for (String ip in info.keys) {
+      if (connected.containsKey(ip) && connected[ip] == true) {
+        return ip;
+      }
+    }
+
+    return info.keys.first;
   }
 
   TextEditingController getSearchController({required String type}) =>

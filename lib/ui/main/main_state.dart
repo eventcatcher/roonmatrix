@@ -7,6 +7,7 @@ abstract class MainState extends Equatable {
   final String? ipEnd;
   final Map<String, String> searchFilter;
   final List<String> devices;
+  final String? activeDeviceIp;
   final Map<String, bool> connected;
   final Map<String, bool> ping;
   final Map<String, dynamic> info;
@@ -31,6 +32,7 @@ abstract class MainState extends Equatable {
         "log": ""
       },
       this.devices = const [],
+      this.activeDeviceIp,
       this.connected = const {},
       this.ping = const {},
       this.info = const {},
@@ -50,6 +52,7 @@ abstract class MainState extends Equatable {
     String? ipEnd,
     Map<String, String>? searchFilter,
     List<String>? devices,
+    String? activeDeviceIp,
     Map<String, bool>? connected,
     Map<String, bool>? ping,
     Map<String, dynamic>? info,
@@ -69,6 +72,7 @@ abstract class MainState extends Equatable {
       ipEnd: ipEnd ?? this.ipEnd,
       searchFilter: searchFilter ?? this.searchFilter,
       devices: devices ?? this.devices,
+      activeDeviceIp: activeDeviceIp ?? this.activeDeviceIp,
       connected: connected ?? this.connected,
       ping: ping ?? this.ping,
       info: info ?? this.info,
@@ -108,6 +112,9 @@ abstract class MainState extends Equatable {
     if (ipEnd != null) {
       props.add(ipEnd!);
     }
+    if (activeDeviceIp != null) {
+      props.add(activeDeviceIp!);
+    }
     if (definitions != null) {
       props.add(definitions!);
     }
@@ -136,6 +143,7 @@ class MainStateLoaded extends MainState {
     required super.ipEnd,
     required super.searchFilter,
     required super.devices,
+    required super.activeDeviceIp,
     required super.connected,
     required super.ping,
     required super.info,

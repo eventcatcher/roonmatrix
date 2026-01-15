@@ -18,6 +18,7 @@ class CoverRowAnimation extends StatefulWidget {
   final Orientation orientation;
   final Map<String, dynamic> translations;
   final List<String> devices;
+  final String? activeDeviceIp;
   final Map<String, dynamic> info;
   final Map<String, bool> connected;
   final double? appBarHeight;
@@ -36,6 +37,7 @@ class CoverRowAnimation extends StatefulWidget {
     required this.orientation,
     required this.translations,
     required this.devices,
+    required this.activeDeviceIp,
     required this.info,
     required this.connected,
     required this.appBarHeight,
@@ -76,6 +78,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   Map<String, dynamic> info = {};
   Map<String, bool> connected = {};
   List<String> devices = [];
+  String? activeDeviceIp;
   List<CoverModel> coverList = [];
   double itemListHeight = 84;
 
@@ -90,6 +93,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     info = widget.info;
     connected = widget.connected;
     devices = widget.devices;
+    activeDeviceIp = widget.activeDeviceIp;
     refreshCovers();
 
     super.initState();
@@ -102,14 +106,13 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     info = widget.info;
     connected = widget.connected;
     devices = widget.devices;
+    activeDeviceIp = widget.activeDeviceIp;
     refreshCovers();
   }
 
   void refreshCovers() {
-    List<CoverModel> coverListNew = mainRepository.getCoversModel(
-        info: info,
-        connected: connected,
-        showWebCoverNotRunning: showWebCoverNotRunning);
+    List<CoverModel> coverListNew =
+        mainBloc.getCoversModel(showWebCoverNotRunning: showWebCoverNotRunning);
     if (kDebugMode) {
       debugPrint(
           'CoverRowAnimation/refreshCovers => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
