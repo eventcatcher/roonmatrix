@@ -117,6 +117,8 @@ class SharedWidgets {
     return Theme.of(context).colorScheme.inverseSurface;
   }
 
+  static final Color hoverButtonBackground = Color.fromARGB(170, 200, 200, 200);
+
   static Color iconColor({
     required BuildContext context,
   }) {

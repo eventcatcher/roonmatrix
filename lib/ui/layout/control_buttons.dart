@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class ControlButtons extends StatefulWidget {
@@ -98,11 +99,13 @@ class ControlButtonsState extends State<ControlButtons> {
                                   : translations['controlButtonRepeatText'] ??
                                       'repeat',
                               triggerMode: TooltipTriggerMode.manual,
+                              waitDuration: Duration(seconds: 3),
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor:
-                                    isRadio ? Colors.transparent : Colors.blue,
+                                hoverColor: isRadio
+                                    ? Colors.transparent
+                                    : SharedWidgets.hoverButtonBackground,
                                 onPressed: isRadio
                                     ? null
                                     : () {
@@ -140,11 +143,14 @@ class ControlButtonsState extends State<ControlButtons> {
                                   : translations['controlButtonPreviousText'] ??
                                       'previous track',
                               triggerMode: TooltipTriggerMode.manual,
+                              waitDuration: Duration(seconds: 3),
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor:
-                                    isRadio ? Colors.transparent : Colors.blue,
+                                hoverColor: isRadio
+                                    ? Colors.transparent
+                                    : SharedWidgets.hoverButtonBackground,
+                                color: Colors.blue.shade900,
                                 onPressed: isRadio
                                     ? null
                                     : () {
@@ -170,10 +176,12 @@ class ControlButtonsState extends State<ControlButtons> {
                                   translations['controlButtonPlaymodeText'] ??
                                       'pause/play',
                               triggerMode: TooltipTriggerMode.manual,
+                              waitDuration: Duration(seconds: 3),
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor: Colors.blue,
+                                hoverColor: SharedWidgets.hoverButtonBackground,
+                                color: Colors.blue.shade900,
                                 onPressed: () {
                                   if (!readOnly) {
                                     mainBloc.zoneControl(
@@ -205,11 +213,14 @@ class ControlButtonsState extends State<ControlButtons> {
                                   : translations['controlButtonNextText'] ??
                                       'next track',
                               triggerMode: TooltipTriggerMode.manual,
+                              waitDuration: Duration(seconds: 3),
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor:
-                                    isRadio ? Colors.transparent : Colors.blue,
+                                hoverColor: isRadio
+                                    ? Colors.transparent
+                                    : SharedWidgets.hoverButtonBackground,
+                                color: Colors.blue.shade900,
                                 onPressed: isRadio
                                     ? null
                                     : () {
@@ -246,11 +257,13 @@ class ControlButtonsState extends State<ControlButtons> {
                                   : translations['controlButtonShuffleText'] ??
                                       'shuffle',
                               triggerMode: TooltipTriggerMode.manual,
+                              waitDuration: Duration(seconds: 3),
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor:
-                                    isRadio ? Colors.transparent : Colors.blue,
+                                hoverColor: isRadio
+                                    ? Colors.transparent
+                                    : SharedWidgets.hoverButtonBackground,
                                 onPressed: isRadio
                                     ? null
                                     : () {

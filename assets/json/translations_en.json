@@ -61,6 +61,8 @@
     "controlButtonRepeatText": "repeat",
     "paused": "paused",
     "controlButtonPlaymodeText": "pause/play",
+    "controlButtonPauseText": "pause",
+    "controlButtonPlayText": "play",
     "zoneSelectionLabel": "Zone",
     "zoneSelectionPlaceholder": "Select zone",
     "searchfieldHint": "search",

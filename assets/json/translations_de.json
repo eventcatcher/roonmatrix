@@ -61,6 +61,8 @@
     "controlButtonRepeatText": "wiederholen",
     "paused": "pausiert",
     "controlButtonPlaymodeText": "Pause/Wiedergabe",
+    "controlButtonPauseText": "Pause",
+    "controlButtonPlayText": "Wiedergabe",
     "zoneSelectionLabel": "Zone",
     "zoneSelectionPlaceholder": "Bitte Zone auswählen",
     "searchfieldHint": "suche",

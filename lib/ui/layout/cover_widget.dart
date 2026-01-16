@@ -61,8 +61,7 @@ class _CoverWidgetState extends State<CoverWidget> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
 
-  final Color playingHoverButtonaBackground = Color.fromARGB(70, 255, 255, 255);
-
+  double minPlayControlCoverSize = 150;
   bool skipPreviousButtonHovered = false;
   bool skipNextButtonHovered = false;
   bool playButtonHovered = false;
@@ -201,45 +200,58 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                   : 0.0,
                                               duration: const Duration(
                                                   milliseconds: 200),
-                                              child: IconButton(
-                                                style: coverModel.status ==
+                                              child: Tooltip(
+                                                message: coverModel.status ==
                                                         'playing'
-                                                    ? IconButton.styleFrom(
-                                                        backgroundColor:
-                                                            playingHoverButtonaBackground,
-                                                      )
-                                                    : null,
-                                                icon: coverModel.status ==
-                                                        'playing'
-                                                    ? const Icon(Icons.pause)
-                                                    : const Icon(
-                                                        Icons.play_arrow),
-                                                iconSize: coverWidth / 4,
-                                                color: coverModel.status ==
-                                                        'playing'
-                                                    ? Colors.blue.shade900
-                                                    : Colors.black,
-                                                onPressed: SharedWidgets
-                                                        .isDesktopDevice()
-                                                    ? () {
-                                                        mainBloc.zoneControl(
-                                                          ip: mainBloc.state
-                                                              .activeDeviceIp!,
-                                                          controlId: coverModel
-                                                              .controlId,
-                                                          cmd: 'playmode',
-                                                          enable: coverModel
-                                                                  .status !=
-                                                              'playing',
-                                                        );
-                                                      }
-                                                    : null,
+                                                    ? translations[
+                                                            'controlButtonPauseText'] ??
+                                                        'pause'
+                                                    : translations[
+                                                            'controlButtonPlayText'] ??
+                                                        'play',
+                                                triggerMode:
+                                                    TooltipTriggerMode.manual,
+                                                waitDuration:
+                                                    Duration(seconds: 3),
+                                                verticalOffset: coverWidth / 8,
+                                                child: IconButton(
+                                                  style: IconButton.styleFrom(
+                                                    backgroundColor: SharedWidgets
+                                                        .hoverButtonBackground,
+                                                  ),
+                                                  icon: coverModel.status ==
+                                                          'playing'
+                                                      ? const Icon(Icons.pause)
+                                                      : const Icon(
+                                                          Icons.play_arrow),
+                                                  iconSize: coverWidth / 4,
+                                                  color: Colors.blue.shade900,
+                                                  onPressed: SharedWidgets
+                                                              .isDesktopDevice() &&
+                                                          coverWidth >
+                                                              minPlayControlCoverSize
+                                                      ? () {
+                                                          mainBloc.zoneControl(
+                                                            ip: mainBloc.state
+                                                                .activeDeviceIp!,
+                                                            controlId:
+                                                                coverModel
+                                                                    .controlId,
+                                                            cmd: 'playmode',
+                                                            enable: coverModel
+                                                                    .status !=
+                                                                'playing',
+                                                          );
+                                                        }
+                                                      : null,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ),
                                     if (SharedWidgets.isDesktopDevice() &&
+                                        coverWidth > minPlayControlCoverSize &&
                                         coverModel.status == 'playing' &&
                                         mainBloc.state.activeDeviceIp !=
                                             null) ...[
@@ -257,24 +269,34 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                 : 0.0,
                                             duration: const Duration(
                                                 milliseconds: 200),
-                                            child: IconButton(
-                                              style: IconButton.styleFrom(
-                                                  backgroundColor:
-                                                      playingHoverButtonaBackground),
-                                              icon: const Icon(
-                                                  Icons.skip_previous),
-                                              iconSize: coverWidth / 4,
-                                              color: Colors.blue.shade900,
-                                              onPressed: () {
-                                                mainBloc.zoneControl(
-                                                  ip: mainBloc
-                                                      .state.activeDeviceIp!,
-                                                  controlId:
-                                                      coverModel.controlId,
-                                                  cmd: 'previous',
-                                                  enable: true,
-                                                );
-                                              },
+                                            child: Tooltip(
+                                              message: translations[
+                                                      'controlButtonPreviousText'] ??
+                                                  'previous track',
+                                              triggerMode:
+                                                  TooltipTriggerMode.manual,
+                                              waitDuration:
+                                                  Duration(seconds: 3),
+                                              verticalOffset: coverWidth / 8,
+                                              child: IconButton(
+                                                style: IconButton.styleFrom(
+                                                    backgroundColor: SharedWidgets
+                                                        .hoverButtonBackground),
+                                                icon: const Icon(
+                                                    Icons.skip_previous),
+                                                iconSize: coverWidth / 4,
+                                                color: Colors.blue.shade900,
+                                                onPressed: () {
+                                                  mainBloc.zoneControl(
+                                                    ip: mainBloc
+                                                        .state.activeDeviceIp!,
+                                                    controlId:
+                                                        coverModel.controlId,
+                                                    cmd: 'previous',
+                                                    enable: true,
+                                                  );
+                                                },
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -292,23 +314,34 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                 : 0.0,
                                             duration: const Duration(
                                                 milliseconds: 200),
-                                            child: IconButton(
-                                              style: IconButton.styleFrom(
-                                                  backgroundColor:
-                                                      playingHoverButtonaBackground),
-                                              icon: const Icon(Icons.skip_next),
-                                              iconSize: coverWidth / 4,
-                                              color: Colors.blue.shade900,
-                                              onPressed: () {
-                                                mainBloc.zoneControl(
-                                                  ip: mainBloc
-                                                      .state.activeDeviceIp!,
-                                                  controlId:
-                                                      coverModel.controlId,
-                                                  cmd: 'next',
-                                                  enable: true,
-                                                );
-                                              },
+                                            child: Tooltip(
+                                              message: translations[
+                                                      'controlButtonNextText'] ??
+                                                  'next track',
+                                              triggerMode:
+                                                  TooltipTriggerMode.manual,
+                                              waitDuration:
+                                                  Duration(seconds: 3),
+                                              verticalOffset: coverWidth / 8,
+                                              child: IconButton(
+                                                style: IconButton.styleFrom(
+                                                    backgroundColor: SharedWidgets
+                                                        .hoverButtonBackground),
+                                                icon:
+                                                    const Icon(Icons.skip_next),
+                                                iconSize: coverWidth / 4,
+                                                color: Colors.blue.shade900,
+                                                onPressed: () {
+                                                  mainBloc.zoneControl(
+                                                    ip: mainBloc
+                                                        .state.activeDeviceIp!,
+                                                    controlId:
+                                                        coverModel.controlId,
+                                                    cmd: 'next',
+                                                    enable: true,
+                                                  );
+                                                },
+                                              ),
                                             ),
                                           ),
                                         ),
