@@ -61,6 +61,12 @@ class _CoverWidgetState extends State<CoverWidget> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
 
+  final Color playingHoverButtonaBackground = Color.fromARGB(70, 255, 255, 255);
+
+  bool skipPreviousButtonHovered = false;
+  bool skipNextButtonHovered = false;
+  bool playButtonHovered = false;
+
   late MainRepository mainRepository;
   late MainBloc mainBloc;
   late double coverSize;
@@ -170,17 +176,144 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         ),
                                       ),
                                     ),
-                                    if (coverModel.status != 'playing')
+                                    if (mainBloc.state.activeDeviceIp != null)
                                       Positioned.fill(
                                         child: Align(
                                           alignment: Alignment.center,
-                                          child: Icon(
-                                            Icons.play_arrow,
-                                            color: Colors.black,
-                                            size: 80.0,
+                                          child: MouseRegion(
+                                            onEnter: (_) =>
+                                                SharedWidgets.isDesktopDevice()
+                                                    ? setState(() =>
+                                                        playButtonHovered =
+                                                            true)
+                                                    : null,
+                                            onExit: (_) =>
+                                                SharedWidgets.isDesktopDevice()
+                                                    ? setState(() =>
+                                                        playButtonHovered =
+                                                            false)
+                                                    : null,
+                                            child: AnimatedOpacity(
+                                              opacity: playButtonHovered ||
+                                                      coverModel.status !=
+                                                          'playing'
+                                                  ? 1.0
+                                                  : 0.0,
+                                              duration: const Duration(
+                                                  milliseconds: 200),
+                                              child: IconButton(
+                                                style: coverModel.status ==
+                                                        'playing'
+                                                    ? IconButton.styleFrom(
+                                                        backgroundColor:
+                                                            playingHoverButtonaBackground,
+                                                      )
+                                                    : null,
+                                                icon: coverModel.status ==
+                                                        'playing'
+                                                    ? const Icon(Icons.pause)
+                                                    : const Icon(
+                                                        Icons.play_arrow),
+                                                iconSize: coverWidth / 4,
+                                                color: coverModel.status ==
+                                                        'playing'
+                                                    ? Colors.blue.shade900
+                                                    : Colors.black,
+                                                onPressed: SharedWidgets
+                                                        .isDesktopDevice()
+                                                    ? () {
+                                                        mainBloc.zoneControl(
+                                                          ip: mainBloc.state
+                                                              .activeDeviceIp!,
+                                                          controlId: coverModel
+                                                              .controlId,
+                                                          cmd: 'playmode',
+                                                          enable: coverModel
+                                                                  .status !=
+                                                              'playing',
+                                                        );
+                                                      }
+                                                    : null,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
+                                    if (SharedWidgets.isDesktopDevice() &&
+                                        coverModel.status == 'playing' &&
+                                        mainBloc.state.activeDeviceIp !=
+                                            null) ...[
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: MouseRegion(
+                                          onEnter: (_) => setState(() =>
+                                              skipPreviousButtonHovered = true),
+                                          onExit: (_) => setState(() =>
+                                              skipPreviousButtonHovered =
+                                                  false),
+                                          child: AnimatedOpacity(
+                                            opacity: skipPreviousButtonHovered
+                                                ? 1.0
+                                                : 0.0,
+                                            duration: const Duration(
+                                                milliseconds: 200),
+                                            child: IconButton(
+                                              style: IconButton.styleFrom(
+                                                  backgroundColor:
+                                                      playingHoverButtonaBackground),
+                                              icon: const Icon(
+                                                  Icons.skip_previous),
+                                              iconSize: coverWidth / 4,
+                                              color: Colors.blue.shade900,
+                                              onPressed: () {
+                                                mainBloc.zoneControl(
+                                                  ip: mainBloc
+                                                      .state.activeDeviceIp!,
+                                                  controlId:
+                                                      coverModel.controlId,
+                                                  cmd: 'previous',
+                                                  enable: true,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: MouseRegion(
+                                          onEnter: (_) => setState(() =>
+                                              skipNextButtonHovered = true),
+                                          onExit: (_) => setState(() =>
+                                              skipNextButtonHovered = false),
+                                          child: AnimatedOpacity(
+                                            opacity: skipNextButtonHovered
+                                                ? 1.0
+                                                : 0.0,
+                                            duration: const Duration(
+                                                milliseconds: 200),
+                                            child: IconButton(
+                                              style: IconButton.styleFrom(
+                                                  backgroundColor:
+                                                      playingHoverButtonaBackground),
+                                              icon: const Icon(Icons.skip_next),
+                                              iconSize: coverWidth / 4,
+                                              color: Colors.blue.shade900,
+                                              onPressed: () {
+                                                mainBloc.zoneControl(
+                                                  ip: mainBloc
+                                                      .state.activeDeviceIp!,
+                                                  controlId:
+                                                      coverModel.controlId,
+                                                  cmd: 'next',
+                                                  enable: true,
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 )
                               : Stack(
