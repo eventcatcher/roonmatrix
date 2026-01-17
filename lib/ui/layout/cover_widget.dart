@@ -253,6 +253,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                     if (SharedWidgets.isDesktopDevice() &&
                                         coverWidth > minPlayControlCoverSize &&
                                         coverModel.status == 'playing' &&
+                                        !coverModel.isRadio &&
                                         mainBloc.state.activeDeviceIp !=
                                             null) ...[
                                       Align(

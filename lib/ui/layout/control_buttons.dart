@@ -138,7 +138,7 @@ class ControlButtonsState extends State<ControlButtons> {
                             width: buttonSize,
                             height: buttonSize,
                             child: Tooltip(
-                              message: isRadio
+                              message: isRadio || idle
                                   ? ''
                                   : translations['controlButtonPreviousText'] ??
                                       'previous track',
@@ -147,11 +147,11 @@ class ControlButtonsState extends State<ControlButtons> {
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor: isRadio
+                                hoverColor: isRadio || idle
                                     ? Colors.transparent
                                     : SharedWidgets.hoverButtonBackground,
                                 color: Colors.blue.shade900,
-                                onPressed: isRadio
+                                onPressed: isRadio || idle
                                     ? null
                                     : () {
                                         if (!readOnly) {
@@ -208,7 +208,7 @@ class ControlButtonsState extends State<ControlButtons> {
                             width: buttonSize,
                             height: buttonSize,
                             child: Tooltip(
-                              message: isRadio
+                              message: isRadio || idle
                                   ? ''
                                   : translations['controlButtonNextText'] ??
                                       'next track',
@@ -217,11 +217,11 @@ class ControlButtonsState extends State<ControlButtons> {
                               verticalOffset: verticalOffset,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                hoverColor: isRadio
+                                hoverColor: isRadio || idle
                                     ? Colors.transparent
                                     : SharedWidgets.hoverButtonBackground,
                                 color: Colors.blue.shade900,
-                                onPressed: isRadio
+                                onPressed: isRadio || idle
                                     ? null
                                     : () {
                                         if (!readOnly) {

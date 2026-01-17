@@ -1338,11 +1338,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           .convert(utf8.encode(
               '$controlId-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))
           .toString();
-
+      bool isRadio = zone['total'] == null;
       CoverModel coverModel = CoverModel(
         hash: hash,
         controlId: controlId,
         zoneName: zoneName,
+        isRadio: isRadio,
         coverUrl: coverUrl ?? '',
         artist: zone['artist'] ?? '',
         album: zone['album'] ?? '',
@@ -1372,6 +1373,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             (idle == true &&
                 showWebCoverNotRunning == true &&
                 zone['status'] == 'not running'))) {
+      bool isRadio = zone['zone'] == 'Apple Music' &&
+          zone['sourcetype'] == 'stream' &&
+          zone['position'] ==
+              '0'; // if this is a radio stream, set this prop to true (at the moment a radio stream is recognized by sourcetype is stream and playpos is 0, because playpos is not counting on radio streams)
       String hash = md5
           .convert(utf8.encode(
               '$zoneName-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))
@@ -1380,6 +1385,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         hash: hash,
         controlId: zoneName,
         zoneName: zoneName,
+        isRadio: isRadio,
         coverUrl: coverUrl ?? '',
         artist: zone['artist'] ?? '',
         album: zone['album'] ?? '',

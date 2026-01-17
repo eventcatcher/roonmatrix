@@ -184,7 +184,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           if (zone != null) {
             zone['zone'] = zoneName;
             zone['server'] = 'roon';
-            isRadio = false;
+            isRadio = zone['total'] == null;
             zone['is_radio'] = isRadio;
           }
         }

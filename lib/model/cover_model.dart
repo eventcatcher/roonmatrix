@@ -3,6 +3,7 @@ class CoverModel {
   String controlId;
   String coverUrl;
   String zoneName;
+  bool isRadio;
   String artist;
   String album;
   String track;
@@ -13,6 +14,7 @@ class CoverModel {
     required this.controlId,
     required this.coverUrl,
     required this.zoneName,
+    required this.isRadio,
     required this.artist,
     required this.album,
     required this.track,
