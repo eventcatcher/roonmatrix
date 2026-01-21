@@ -32,7 +32,7 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
             await generateLogHours(translations);
         String aboutAppMessage = await getAboutMessage(translations);
 
-        //await Future.delayed(const Duration(seconds: 5));
+        //await Future.delayed(const Duration(seconds: 5)); // enable to test long running loading from API
 
         emit(TranslationsStateLoaded(
           languageCode: languageCode,
@@ -51,7 +51,9 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
   // public methods //
   // ============== //
 
-  Future<String> getAboutMessage(Map<String, dynamic> translations) async {
+  Future<String> getAboutMessage(
+    Map<String, dynamic> translations,
+  ) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String appVersionAndBuildNumber =
         '${packageInfo.version}+${packageInfo.buildNumber}';
@@ -60,7 +62,8 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
   }
 
   Future<Map<String, dynamic>> generateLogHours(
-      Map<String, dynamic> translations) async {
+    Map<String, dynamic> translations,
+  ) async {
     Map<String, dynamic> logHoursOptions = {};
 
     for (int i = 1; i <= 24; i++) {
@@ -91,8 +94,9 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
     return languageCode;
   }
 
-  Future<String> getTranslationFromServer(
-      {required String languageCode}) async {
+  Future<String> getTranslationFromServer({
+    required String languageCode,
+  }) async {
     Directory? appDir = await fileRepository.fetchAppDataPath();
     if (appDir != null) {
       String fileName = 'translations_$languageCode.json';
@@ -129,8 +133,9 @@ class TranslationsBloc extends Bloc<TranslationsEvent, TranslationsState> {
     return '';
   }
 
-  Future<Map<String, dynamic>> getTranslations(
-      {required String languageCode}) async {
+  Future<Map<String, dynamic>> getTranslations({
+    required String languageCode,
+  }) async {
     Map<String, dynamic> translations = {};
     String? translationsJsonString;
 

@@ -51,14 +51,23 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
 
 class _PageWithToolbarFlutterStyleState
     extends State<PageWithToolbarFlutterStyle> with WindowListener {
+  GlobalKey<ScaffoldState> get scaffoldKey => widget.scaffoldKey;
+  String get title => widget.title;
   bool get withTabController => widget.withTabController;
+  int get tabLength => widget.tabLength;
+  PreferredSizeWidget? get tabBar => widget.tabBar;
+  List<Widget>? get actions => widget.actions;
   bool get showExpandableSpeedSlider => widget.showExpandableSpeedSlider;
   Size get standardDesktopSize => widget.standardDesktopSize;
   double get scrollSpeedDevice => widget.scrollSpeedDevice;
-  Function({required double speed})? get sliderUpdateValue =>
-      widget.sliderUpdateValue;
+  Widget? get drawer => widget.drawer;
+  Widget get body => widget.body;
+  VoidCallback? get backButtonPressed => widget.backButtonPressed;
+  VoidCallback get resizeToFullWidth => widget.resizeToFullWidth;
   Function({required double height})? get setAppBarHeight =>
       widget.setAppBarHeight;
+  Function({required double speed})? get sliderUpdateValue =>
+      widget.sliderUpdateValue;
 
   bool isFullscreen = false;
 
@@ -121,13 +130,13 @@ class _PageWithToolbarFlutterStyleState
   }
 
   PreferredSizeWidget getAppBar() => AppBar(
-        title: Text(widget.title),
-        leading: widget.title == 'RoonMatrix'
+        title: Text(title),
+        leading: title == SharedWidgets.mainWindowTitle
             ? null
             : BackButton(
                 onPressed: () {
-                  if (widget.backButtonPressed != null) {
-                    widget.backButtonPressed!();
+                  if (backButtonPressed != null) {
+                    backButtonPressed!();
                   }
                   Navigator.pop(context);
                 },
@@ -135,14 +144,14 @@ class _PageWithToolbarFlutterStyleState
         actions: [
           Row(
             children: [
-              if (widget.actions != null) ...widget.actions!,
+              if (actions != null) ...actions!,
               if (SharedWidgets.isDesktopDevice() && !isFullscreen) ...[
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
                   child: IconButton(
                     iconSize: 16.0,
                     padding: EdgeInsets.zero,
-                    onPressed: () => widget.resizeToFullWidth(),
+                    onPressed: () => resizeToFullWidth(),
                     icon: Icon(
                       FontAwesomeIcons.arrowsLeftRight,
                       color: SharedWidgets.toolbarResizeButtonColor(
@@ -202,27 +211,25 @@ class _PageWithToolbarFlutterStyleState
                     ),
             ),
         ],
-        bottom: widget.withTabController == true && widget.tabBar != null
-            ? widget.tabBar
-            : null,
+        bottom: withTabController == true && tabBar != null ? tabBar : null,
       );
 
   @override
   Widget build(BuildContext context) => withTabController
       ? DefaultTabController(
           initialIndex: 0,
-          length: widget.tabLength,
+          length: tabLength,
           child: Scaffold(
-            key: widget.scaffoldKey,
+            key: scaffoldKey,
             appBar: appBarWithActions,
-            drawer: widget.drawer,
-            body: SafeArea(child: widget.body),
+            drawer: drawer,
+            body: SafeArea(child: body),
           ),
         )
       : Scaffold(
-          key: widget.scaffoldKey,
+          key: scaffoldKey,
           appBar: appBarWithActions,
-          drawer: widget.drawer,
-          body: SafeArea(child: widget.body),
+          drawer: drawer,
+          body: SafeArea(child: body),
         );
 }

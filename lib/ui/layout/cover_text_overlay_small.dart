@@ -25,6 +25,8 @@ class CoverTextOverlaySmall extends StatefulWidget {
 }
 
 class _CoverTextOverlaySmallState extends State<CoverTextOverlaySmall> {
+  final double fontSizeBigMinHeightAbove = 250.0;
+
   late CoverModel coverModel;
 
   @override
@@ -45,7 +47,7 @@ class _CoverTextOverlaySmallState extends State<CoverTextOverlaySmall> {
   Widget build(BuildContext context) => Text(
         '${widget.translations['zoneSelectionLabel'] ?? 'Zone'}: ${SharedWidgets.getZoneNameWithoutType(zoneName: coverModel.zoneName)}${widget.coverRowTrack == true && coverModel.track.isNotEmpty && widget.constraints.maxHeight > 169 ? ', ${widget.translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
         style: TextStyle(
-          fontSize: widget.constraints.maxHeight > 250
+          fontSize: widget.constraints.maxHeight > fontSizeBigMinHeightAbove
               ? widget.fontSizeBig
               : widget.fontSizeSmall,
           color: Colors.white,

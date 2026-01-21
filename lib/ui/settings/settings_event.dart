@@ -15,7 +15,10 @@ class SetIpRange extends SettingsEvent {
   final String ipStart;
   final String ipEnd;
 
-  const SetIpRange({required this.ipStart, required this.ipEnd});
+  const SetIpRange({
+    required this.ipStart,
+    required this.ipEnd,
+  });
 
   @override
   List<Object> get props => [ipStart, ipEnd];
@@ -24,7 +27,9 @@ class SetIpRange extends SettingsEvent {
 class SetMoreInfoMode extends SettingsEvent {
   final bool enabled;
 
-  const SetMoreInfoMode({required this.enabled});
+  const SetMoreInfoMode({
+    required this.enabled,
+  });
 
   @override
   List<Object> get props => [enabled];
@@ -33,7 +38,9 @@ class SetMoreInfoMode extends SettingsEvent {
 class SetCoverRowActiveMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowActiveMode({required this.enabled});
+  const SetCoverRowActiveMode({
+    required this.enabled,
+  });
 
   @override
   List<Object> get props => [enabled];
@@ -42,7 +49,9 @@ class SetCoverRowActiveMode extends SettingsEvent {
 class SetCoverRowArtistMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowArtistMode({required this.enabled});
+  const SetCoverRowArtistMode({
+    required this.enabled,
+  });
 
   @override
   List<Object> get props => [enabled];
@@ -51,7 +60,9 @@ class SetCoverRowArtistMode extends SettingsEvent {
 class SetCoverRowAlbumMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowAlbumMode({required this.enabled});
+  const SetCoverRowAlbumMode({
+    required this.enabled,
+  });
 
   @override
   List<Object> get props => [enabled];
@@ -60,7 +71,9 @@ class SetCoverRowAlbumMode extends SettingsEvent {
 class SetCoverRowTrackMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowTrackMode({required this.enabled});
+  const SetCoverRowTrackMode({
+    required this.enabled,
+  });
 
   @override
   List<Object> get props => [enabled];
@@ -69,7 +82,9 @@ class SetCoverRowTrackMode extends SettingsEvent {
 class SetCoverRowDynamicSizeMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowDynamicSizeMode({required this.enabled});
+  const SetCoverRowDynamicSizeMode({
+    required this.enabled,
+  });
 
   @override
   List<Object> get props => [enabled];
@@ -78,7 +93,9 @@ class SetCoverRowDynamicSizeMode extends SettingsEvent {
 class SetScrollSpeedDevice extends SettingsEvent {
   final double speed;
 
-  const SetScrollSpeedDevice({required this.speed});
+  const SetScrollSpeedDevice({
+    required this.speed,
+  });
 
   @override
   List<Object> get props => [speed];
@@ -87,7 +104,9 @@ class SetScrollSpeedDevice extends SettingsEvent {
 class SetScrollSpeedScrollMatrix extends SettingsEvent {
   final double speed;
 
-  const SetScrollSpeedScrollMatrix({required this.speed});
+  const SetScrollSpeedScrollMatrix({
+    required this.speed,
+  });
 
   @override
   List<Object> get props => [speed];

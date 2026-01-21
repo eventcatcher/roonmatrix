@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -26,13 +27,13 @@ import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> _configureMacosWindowUtils() async {
-  const config = MacosWindowUtilsConfig(
+  const MacosWindowUtilsConfig config = MacosWindowUtilsConfig(
     makeTitlebarTransparent: true,
     toolbarStyle: NSWindowToolbarStyle.automatic,
   );
 
-  final macosVersion = await SharedWidgets.getMacosVersion();
-  final macosVersionMajor = int.parse(macosVersion.split('.').first);
+  final String macosVersion = await SharedWidgets.getMacosVersion();
+  final int macosVersionMajor = int.parse(macosVersion.split('.').first);
   if (macosVersionMajor >= 13) {
     await config.apply(); // crashing on older macs with macos version < 13.0
   }
@@ -94,7 +95,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final FileRepository fileRepository = FileRepository();
-  final String title = 'RoonMatrix';
+  final String title = SharedWidgets.mainWindowTitle;
 
   Map<String, dynamic> translations = {};
   String aboutAppMessage = '';
@@ -108,7 +109,6 @@ class RoonMatrixState extends State<RoonMatrix> {
   late SettingsBloc settingsBloc;
   late ConnectionStatusBloc connectionStatusBloc;
   late MainBloc mainBloc;
-  late String appVersionAndBuildNumber;
 
   PlatformMenuBar menubar(BuildContext context) => PlatformMenuBar(
         menus: <PlatformMenuItem>[
@@ -141,9 +141,6 @@ class RoonMatrixState extends State<RoonMatrix> {
                           return SettingsPage(
                             minDesktopSize: minDesktopSize,
                             standardDesktopSize: standardDesktopSize,
-                            close: () {
-                              Navigator.pop(context);
-                            },
                           );
                         },
                       );
@@ -364,18 +361,23 @@ class RoonMatrixState extends State<RoonMatrix> {
       return;
     }
 
-    SharedWidgets.showSnackBar(
-        // ignore: use_build_context_synchronously
-        context: context,
-        doneMessage:
-            translations['exportDoneMessage'] ?? 'export successfully done',
-        failMessage: translations['exportFailedMessage'] ?? 'export failed!',
-        valid: valid);
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        SharedWidgets.showSnackBar(
+            context: context,
+            doneMessage:
+                translations['exportDoneMessage'] ?? 'export successfully done',
+            failMessage:
+                translations['exportFailedMessage'] ?? 'export failed!',
+            valid: valid);
+      }
+    });
   }
 
-  List<BarButton> menuBarButtons(
-      {required BuildContext context,
-      required Map<String, dynamic> translations}) {
+  List<BarButton> menuBarButtons({
+    required BuildContext context,
+    required Map<String, dynamic> translations,
+  }) {
     return [
       BarButton(
         text: const Text(
@@ -397,8 +399,6 @@ class RoonMatrixState extends State<RoonMatrix> {
             MenuButton(
               onTap: () => showGeneralDialog(
                 context: context,
-                // barrierColor:
-                //     Colors.black12.withOpacity(0.6), // Background color
                 barrierDismissible: false,
                 barrierLabel: 'Dialog',
                 transitionDuration: const Duration(milliseconds: 0),
@@ -406,9 +406,6 @@ class RoonMatrixState extends State<RoonMatrix> {
                   return SettingsPage(
                     minDesktopSize: minDesktopSize,
                     standardDesktopSize: standardDesktopSize,
-                    close: () {
-                      Navigator.pop(context);
-                    },
                   );
                 },
               ),
@@ -454,7 +451,8 @@ class RoonMatrixState extends State<RoonMatrix> {
                   aboutAppMessage: aboutAppMessage,
                   translations: translations),
               icon: const Icon(Icons.info),
-              text: Text(translations['menuEntryAbout'] ?? 'About RoonMatrix'),
+              text: Text(translations['menuEntryAbout'] ??
+                  'About ${SharedWidgets.mainWindowTitle}'),
             ),
           ],
         ),
@@ -470,7 +468,9 @@ class RoonMatrixState extends State<RoonMatrix> {
       indicator: UnderlineTabIndicator(
           borderSide: BorderSide(width: 2, color: Colors.red)));
 
-  translationsLoadingWindow({required String title}) {
+  Widget translationsLoadingWindow({
+    required String title,
+  }) {
     if (SharedWidgets.inIosStyle()) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
@@ -504,15 +504,18 @@ class RoonMatrixState extends State<RoonMatrix> {
           );
   }
 
-  ThemeData materialThemeData({required TabBarThemeData tabBarThemeData}) =>
+  ThemeData materialThemeData({
+    required TabBarThemeData tabBarThemeData,
+  }) =>
       ThemeData(
         useMaterial3: false,
         tabBarTheme: tabBarThemeData,
       );
 
-  MenuBarWidget windowsLinuxMenuBar(
-          {required BuildContext context,
-          required Map<String, dynamic> translations}) =>
+  MenuBarWidget windowsLinuxMenuBar({
+    required BuildContext context,
+    required Map<String, dynamic> translations,
+  }) =>
       MenuBarWidget(
         // Add a list of [BarButton]. The buttons in this List are
         // displayed as the buttons on the bar itself
@@ -551,35 +554,38 @@ class RoonMatrixState extends State<RoonMatrix> {
         ),
       );
 
-  Widget home({required TranslationsBloc translationsBloc}) => BlocBuilder(
-      bloc: translationsBloc,
-      builder: (context, TranslationsState translationsState) {
-        if (translationsState is TranslationsStateLoaded) {
-          translations = translationsState.translations;
-          aboutAppMessage = translationsState.aboutAppMessage;
-          translationsLoaded = translationsState.translationsLoaded;
-        }
+  Widget home({
+    required TranslationsBloc translationsBloc,
+  }) =>
+      BlocBuilder(
+          bloc: translationsBloc,
+          builder: (context, TranslationsState translationsState) {
+            if (translationsState is TranslationsStateLoaded) {
+              translations = translationsState.translations;
+              aboutAppMessage = translationsState.aboutAppMessage;
+              translationsLoaded = translationsState.translationsLoaded;
+            }
 
-        if (translationsState is! TranslationsStateLoaded ||
-            !translationsLoaded) {
-          return translationsLoadingWindow(title: title);
-        }
+            if (translationsState is! TranslationsStateLoaded ||
+                !translationsLoaded) {
+              return translationsLoadingWindow(title: title);
+            }
 
-        if (Platform.isMacOS) {
-          return menubar(context);
-        }
+            if (Platform.isMacOS) {
+              return menubar(context);
+            }
 
-        if (Platform.isWindows || Platform.isLinux) {
-          return windowsLinuxMenuBar(
-              context: context, translations: translations);
-        }
+            if (Platform.isWindows || Platform.isLinux) {
+              return windowsLinuxMenuBar(
+                  context: context, translations: translations);
+            }
 
-        return StartPage(
-          minDesktopSize: minDesktopSize,
-          standardDesktopSize: standardDesktopSize,
-          title: title,
-        );
-      });
+            return StartPage(
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
+              title: title,
+            );
+          });
 
   // This widget is the root of the application.
   @override

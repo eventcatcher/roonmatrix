@@ -2,7 +2,7 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/details/searchfield.dart';
+import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/rich_parser.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
@@ -24,7 +24,6 @@ class LogPage extends StatefulWidget {
   final String ip;
   final Size minDesktopSize;
   final Size standardDesktopSize;
-  final VoidCallback close;
 
   const LogPage({
     super.key,
@@ -32,7 +31,6 @@ class LogPage extends StatefulWidget {
     required this.ip,
     required this.minDesktopSize,
     required this.standardDesktopSize,
-    required this.close,
   });
 
   @override
@@ -44,7 +42,6 @@ class LogPageState extends State<LogPage> {
   String get ip => widget.ip;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  VoidCallback get close => widget.close;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -76,7 +73,10 @@ class LogPageState extends State<LogPage> {
     super.initState();
   }
 
-  List<Widget> logfilePartSelection({required String logstr}) => [
+  List<Widget> logfilePartSelection({
+    required String logstr,
+  }) =>
+      [
         AnimatedOpacity(
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: const Duration(milliseconds: 2000),

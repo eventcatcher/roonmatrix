@@ -4,7 +4,7 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 abstract class RoonmatrixStyles {
   static dynamic boxDecoration = ({Color? fillColor}) => BoxDecoration(
         color: fillColor ?? Colors.white,
-        borderRadius: BorderRadius.circular(SharedWidgets.inIosStyle() ? 8 : 5),
+        borderRadius: SharedWidgets.borderRadius(),
         border: Border.all(
             color: Colors.grey.shade300, width: 0, style: BorderStyle.solid),
         boxShadow: [

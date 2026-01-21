@@ -20,7 +20,6 @@ class CoverRowAnimation extends StatefulWidget {
   final List<String> devices;
   final String? activeDeviceIp;
   final Map<String, dynamic> info;
-  final Map<String, bool> connected;
   final double? appBarHeight;
   final bool coverRowArtist;
   final bool coverRowAlbum;
@@ -39,7 +38,6 @@ class CoverRowAnimation extends StatefulWidget {
     required this.devices,
     required this.activeDeviceIp,
     required this.info,
-    required this.connected,
     required this.appBarHeight,
     required this.coverRowArtist,
     required this.coverRowAlbum,
@@ -71,12 +69,18 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
 
   final GlobalKey<AnimatedListState> coverListKey =
       GlobalKey<AnimatedListState>();
-
   final bool showWebCoverNotRunning =
       false; // true: show covers for inactive zones too
+  final Duration coverInserDuration = const Duration(milliseconds: 1000);
+  final Duration coverRemoveDuration = const Duration(milliseconds: 2000);
+  final Duration coverAnimatedSwitcherDuration =
+      const Duration(milliseconds: 500);
+  final AnimatedSwitcherTransitionBuilder coverAnimatedSwitcherPreset =
+      CoverTransition.presets(
+    CoverTransitionPreset.fadeScale,
+  );
 
   Map<String, dynamic> info = {};
-  Map<String, bool> connected = {};
   List<String> devices = [];
   String? activeDeviceIp;
   List<CoverModel> coverList = [];
@@ -91,7 +95,6 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     mainBloc = BlocProvider.of<MainBloc>(context);
 
     info = widget.info;
-    connected = widget.connected;
     devices = widget.devices;
     activeDeviceIp = widget.activeDeviceIp;
     refreshCovers();
@@ -104,7 +107,6 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     super.didUpdateWidget(oldWidget);
 
     info = widget.info;
-    connected = widget.connected;
     devices = widget.devices;
     activeDeviceIp = widget.activeDeviceIp;
     refreshCovers();
@@ -121,7 +123,9 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     updateInCoverlist(newList: coverListNew);
   }
 
-  void updateInCoverlist({required List<CoverModel> newList}) {
+  void updateInCoverlist({
+    required List<CoverModel> newList,
+  }) {
     double coverSize = mainRepository.getCoverSize(
       viewData: viewData,
       mediaQueryData: mediaQueryData,
@@ -149,7 +153,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
         itemList: coverList,
         startIndex: coverList.length,
         newItems: indexesToAdd.map((int idx) => newList[idx]).toList(),
-        duration: const Duration(milliseconds: 500),
+        duration: coverInserDuration,
       );
     }
 
@@ -170,14 +174,13 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
           axis: Axis.horizontal,
           sizeFactor: animation,
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 1000),
-            transitionBuilder: CoverTransition.presets(
-              CoverTransitionPreset.fadeScale,
-            ),
+            duration: coverAnimatedSwitcherDuration,
+            transitionBuilder: coverAnimatedSwitcherPreset,
             child: CoverWidget(
               key: ValueKey('CoverWidget${item.hash}'),
               translations: translations,
               devices: devices,
+              activeDeviceIp: activeDeviceIp,
               coverModel: item,
               coverSize: coverSize,
               coverRowDynamicSize: coverRowDynamicSize,
@@ -193,7 +196,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
             ),
           ),
         ),
-        duration: const Duration(seconds: 2),
+        duration: coverRemoveDuration,
       );
     }
   }
@@ -206,6 +209,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       translations: translations,
       info: info,
       devices: devices,
+      activeDeviceIp: activeDeviceIp,
       coverList: coverList,
       coverRowDynamicSize: coverRowDynamicSize,
       showExportButton: showExportButton,

@@ -11,7 +11,6 @@ class PageWithToolbarIosStyle extends StatefulWidget {
   final AnimationController animationController;
   final bool isDrawerOpen;
   final Widget body;
-  final VoidCallback resizeToFullWidth;
   final Function({required double height}) setAppBarHeight;
   final Function({required double speed}) sliderUpdateValue;
   final Function({required bool open}) setDrawerState;
@@ -24,7 +23,6 @@ class PageWithToolbarIosStyle extends StatefulWidget {
     required this.animationController,
     required this.isDrawerOpen,
     required this.body,
-    required this.resizeToFullWidth,
     required this.setAppBarHeight,
     required this.sliderUpdateValue,
     required this.setDrawerState,
@@ -36,13 +34,15 @@ class PageWithToolbarIosStyle extends StatefulWidget {
 }
 
 class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
+  String get title => widget.title;
   bool get showExpandableSpeedSlider => widget.showExpandableSpeedSlider;
   double get scrollSpeedDevice => widget.scrollSpeedDevice;
   AnimationController get animationController => widget.animationController;
-  Function({required double speed}) get sliderUpdateValue =>
-      widget.sliderUpdateValue;
+  Widget get body => widget.body;
   Function({required double height}) get setAppBarHeight =>
       widget.setAppBarHeight;
+  Function({required double speed}) get sliderUpdateValue =>
+      widget.sliderUpdateValue;
   Function({required bool open}) get setDrawerState => widget.setDrawerState;
 
   late ObstructingPreferredSizeWidget appBarWithActions;
@@ -71,7 +71,7 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
   ObstructingPreferredSizeWidget getAppBar() => CupertinoNavigationBar(
         key: ValueKey('navigationBar-$isDrawerOpen'),
         brightness: SharedWidgets.brightness(),
-        middle: Text(widget.title),
+        middle: Text(title),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: AnimatedIcon(
@@ -112,7 +112,7 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
   Widget build(BuildContext context) => Material(
         child: CupertinoPageScaffold(
           navigationBar: appBarWithActions,
-          child: widget.body,
+          child: body,
         ),
       );
 }

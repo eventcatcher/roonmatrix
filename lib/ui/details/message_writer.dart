@@ -11,12 +11,11 @@ import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/switch_element.dart';
+import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/layout/vertical_radio_selector.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class MessageWriter extends StatefulWidget {
-  final String name;
   final String ip;
   final String customMessage;
   final Map<String, dynamic> translations;
@@ -24,7 +23,6 @@ class MessageWriter extends StatefulWidget {
 
   const MessageWriter({
     super.key,
-    required this.name,
     required this.ip,
     required this.customMessage,
     required this.translations,
@@ -36,9 +34,11 @@ class MessageWriter extends StatefulWidget {
 }
 
 class MessageWriterState extends State<MessageWriter> {
-  String get name => widget.name;
   String get ip => widget.ip;
+  String get customMessage => widget.customMessage;
   Map<String, dynamic> get translations => widget.translations;
+  Widget? get firstRowChild => widget.firstRowChild;
+
   TextEditingController nameTextController = TextEditingController();
   TextEditingController messageTextController = TextEditingController();
 
@@ -61,13 +61,6 @@ class MessageWriterState extends State<MessageWriter> {
     super.initState();
   }
 
-  Future<void> getCustomMessages() async {
-    options = await mainRepository.getCustomMessages();
-    setState(() {
-      optionsLoaded = true;
-    });
-  }
-
   @override
   void dispose() {
     nameTextController.dispose();
@@ -75,21 +68,11 @@ class MessageWriterState extends State<MessageWriter> {
     super.dispose();
   }
 
-  String getSelectedOptionKey(String option) {
-    if (option == translations['sendOptionForce'] ||
-        option == 'Force Playout') {
-      return 'force';
-    }
-    if (option == translations['sendOptionNextPlayout'] ||
-        option == 'On next Playout') {
-      return 'playout';
-    }
-    if (option == translations['sendOptionExclusive'] ||
-        option == 'Exclusive Playout') {
-      return 'exclusive';
-    }
-
-    return 'playout';
+  Future<void> getCustomMessages() async {
+    options = await mainRepository.getCustomMessages();
+    setState(() {
+      optionsLoaded = true;
+    });
   }
 
   Widget selectbox() => Padding(
@@ -129,35 +112,11 @@ class MessageWriterState extends State<MessageWriter> {
             : Container(),
       );
 
-  Widget switchButton({
-    required bool value,
-    required String label,
-    required Function(bool value) onChanged,
-  }) =>
-      Container(
-        margin: const EdgeInsets.all(0),
-        alignment: Alignment.topLeft,
-        transform: Matrix4.translationValues(-9.0, -0.0, 0.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              transform: Matrix4.translationValues(10.0, -0.0, 0.0),
-              child: SwitchElement(
-                value: value,
-                onChanged: onChanged,
-              ),
-            ),
-            labelWidget(label, null)
-          ],
-        ),
-      );
-
   Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
         padding: EdgeInsets.only(
             top: SharedWidgets.inMacosStyle()
                 ? 15.0
-                : widget.firstRowChild == null
+                : firstRowChild == null
                     ? 19.0
                     : 0,
             right: 16.0),
@@ -174,7 +133,7 @@ class MessageWriterState extends State<MessageWriter> {
           label: desktopLandscapeWide
               ? translations['breakMessageButtonLabel'] ?? 'stop message'
               : translations['breakMessageShortButtonLabel'] ?? 'stop',
-          onPressed: widget.customMessage.isEmpty
+          onPressed: customMessage.isEmpty
               ? null
               : () async {
                   if (Platform.isIOS || Platform.isAndroid) {
@@ -195,31 +154,25 @@ class MessageWriterState extends State<MessageWriter> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               const SizedBox(height: 48.0),
-                              switchButton(
-                                value: allDevices,
-                                label: translations[
-                                        'allDevicesRemoveSwitchLabel'] ??
-                                    'remove from all devices',
-                                onChanged: (bool value) {
-                                  if (mounted) {
-                                    setState(() => allDevices = value);
-                                  }
-                                },
-                              ),
-
-                              // SwitchButton(
-                              //   label: translations[
-                              //           'allDevicesRemoveSwitchLabel'] ??
-                              //       'remove from all devices',
-                              //   labelColor: Colors.black,
-                              //   reverse: true,
-                              //   enabled: allDevices,
-                              //   onChanged: (bool value) {
-                              //     if (mounted) {
-                              //       setState(() => allDevices = value);
-                              //     }
-                              //   },
-                              // ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: SharedWidgets.inMacosStyle()
+                                        ? 8.0
+                                        : 0.0),
+                                child: SwitchButton(
+                                  aligned: 'inline',
+                                  reverse: true,
+                                  label: translations[
+                                          'allDevicesRemoveSwitchLabel'] ??
+                                      'remove from all devices',
+                                  enabled: allDevices,
+                                  onChanged: (bool value) {
+                                    if (mounted) {
+                                      setState(() => allDevices = value);
+                                    }
+                                  },
+                                ),
+                              )
                             ],
                           ),
                         ),
@@ -301,7 +254,7 @@ class MessageWriterState extends State<MessageWriter> {
         padding: EdgeInsets.only(
             top: SharedWidgets.inMacosStyle()
                 ? 15.0
-                : widget.firstRowChild == null
+                : firstRowChild == null
                     ? 19.0
                     : 0,
             right: 16.0),
@@ -317,8 +270,8 @@ class MessageWriterState extends State<MessageWriter> {
           ),
           label: translations['sendButtonLabel'] ?? 'send',
           onPressed: messageTextController.text.isEmpty ||
-                  (widget.customMessage.isNotEmpty &&
-                      widget.customMessage == messageTextController.text)
+                  (customMessage.isNotEmpty &&
+                      customMessage == messageTextController.text)
               ? null
               : () async {
                   if (Platform.isIOS || Platform.isAndroid) {
@@ -358,31 +311,23 @@ class MessageWriterState extends State<MessageWriter> {
                               const SizedBox(height: 48.0),
                               Center(
                                 child: Padding(
-                                  padding: const EdgeInsets.only(left: 0.0),
-                                  child: switchButton(
-                                    value: allDevices,
+                                  padding: EdgeInsets.only(
+                                      left: SharedWidgets.inMacosStyle()
+                                          ? 8.0
+                                          : 0.0),
+                                  child: SwitchButton(
+                                    aligned: 'inline',
+                                    reverse: true,
                                     label:
                                         translations['allDevicesSwitchLabel'] ??
                                             'send to all devices',
+                                    enabled: allDevices,
                                     onChanged: (bool value) {
                                       if (mounted) {
                                         setState(() => allDevices = value);
                                       }
                                     },
                                   ),
-
-                                  //     SwitchButton(
-                                  //   label: translations[
-                                  //           'allDevicesSwitchLabel'] ??
-                                  //       'send to all devices',
-                                  //   reverse: true,
-                                  //   enabled: allDevices,
-                                  //   onChanged: (bool value) {
-                                  //     if (mounted) {
-                                  //       setState(() => allDevices = value);
-                                  //     }
-                                  //   },
-                                  // ),
                                 ),
                               ),
                             ],
@@ -394,35 +339,6 @@ class MessageWriterState extends State<MessageWriter> {
                         onPressed2: selectedOption.isNotEmpty
                             ? () => Navigator.of(context).pop(true)
                             : null,
-                        // actions: [
-                        //   Padding(
-                        //     padding: const EdgeInsets.only(bottom: 16.0),
-                        //     child: ElevatedButton(
-                        //         style: ButtonStyle(
-                        //           backgroundColor: WidgetStateProperty
-                        //               .resolveWith<Color>(
-                        //             (Set<WidgetState> states) {
-                        //               return Colors.blueGrey;
-                        //             },
-                        //           ),
-                        //         ),
-                        //         onPressed: () =>
-                        //             Navigator.of(context).pop(false),
-                        //         child: Text(
-                        //             translations['dialogNo'] ?? 'No')),
-                        //   ),
-                        //   Padding(
-                        //     padding: const EdgeInsets.only(
-                        //         bottom: 16.0, left: 16.0, right: 16.0),
-                        //     child: ElevatedButton(
-                        //         key: ValueKey('SendOption$selectedOption'),
-                        //         onPressed: selectedOption.isNotEmpty
-                        //             ? () => Navigator.of(context).pop(true)
-                        //             : null,
-                        //         child: Text(translations['dialogYes'] ??
-                        //             'Yes')),
-                        //   ),
-                        // ],
                       );
                     }),
                   );
@@ -440,7 +356,10 @@ class MessageWriterState extends State<MessageWriter> {
                         valid = await mainBloc.setCustomMessage(
                             ip: device,
                             message: messageTextController.text,
-                            option: getSelectedOptionKey(selectedOption));
+                            option: mainRepository.getSelectedPlayoutOptionKey(
+                              option: selectedOption,
+                              translations: translations,
+                            ));
                         mainBloc.getInfo(ip: ip);
 
                         String name = info[device]?['name'] ?? device;
@@ -467,7 +386,10 @@ class MessageWriterState extends State<MessageWriter> {
                       valid = await mainBloc.setCustomMessage(
                           ip: ip,
                           message: messageTextController.text,
-                          option: getSelectedOptionKey(selectedOption));
+                          option: mainRepository.getSelectedPlayoutOptionKey(
+                            option: selectedOption,
+                            translations: translations,
+                          ));
                       mainBloc.getInfo(ip: ip);
 
                       String name = info[ip]?['name'] ?? ip;
@@ -538,11 +460,10 @@ class MessageWriterState extends State<MessageWriter> {
                 ),
               if (!desktopLandscapeWide) ...[
                 Row(mainAxisSize: MainAxisSize.max, children: [
-                  if (widget.firstRowChild != null)
-                    Expanded(child: widget.firstRowChild!),
+                  if (firstRowChild != null) Expanded(child: firstRowChild!),
                   selectbox(),
                 ]),
-                if (widget.firstRowChild != null) const SizedBox(height: 16.0),
+                if (firstRowChild != null) const SizedBox(height: 16.0),
                 Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -594,8 +515,7 @@ class MessageWriterState extends State<MessageWriter> {
                                     : Colors.blue.shade600
                                 : Colors.grey,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(
-                                  SharedWidgets.inIosStyle() ? 8 : 5)),
+                              borderRadius: SharedWidgets.borderRadius(),
                             ),
                           ),
                           child: SharedWidgets.addIconButton(
@@ -651,8 +571,7 @@ class MessageWriterState extends State<MessageWriter> {
                                     : Colors.blue.shade600
                                 : Colors.grey,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(
-                                  SharedWidgets.inIosStyle() ? 8 : 5)),
+                              borderRadius: SharedWidgets.borderRadius(),
                             ),
                           ),
                           child: SharedWidgets.removeIconButton(

@@ -3,15 +3,14 @@ import 'package:flutter/scheduler.dart';
 
 /// A widget to display animated gradient.
 class RoonmatrixAnimatedGradient extends StatefulWidget {
+  final Widget? child;
+  final List<Color> colors;
+
   const RoonmatrixAnimatedGradient({
     super.key,
     this.child,
     this.colors = const [Colors.red, Colors.blue, Colors.green, Colors.yellow],
   });
-
-  final Widget? child;
-
-  final List<Color> colors;
 
   @override
   RoonmatrixAnimatedGradientState createState() =>
@@ -20,6 +19,8 @@ class RoonmatrixAnimatedGradient extends StatefulWidget {
 
 class RoonmatrixAnimatedGradientState
     extends State<RoonmatrixAnimatedGradient> {
+  List<Color> get colors => widget.colors;
+
   List<Alignment> alignmentList = [
     Alignment.bottomLeft,
     Alignment.bottomRight,
@@ -39,8 +40,8 @@ class RoonmatrixAnimatedGradientState
       if (mounted) {
         setState(
           () {
-            topColor = widget.colors.first;
-            bottomColor = widget.colors.last;
+            topColor = colors.first;
+            bottomColor = colors.last;
           },
         );
       }
@@ -58,8 +59,8 @@ class RoonmatrixAnimatedGradientState
           () {
             index = index + 1;
             // animate the color
-            bottomColor = widget.colors[index % widget.colors.length];
-            topColor = widget.colors[(index + 1) % widget.colors.length];
+            bottomColor = colors[index % colors.length];
+            topColor = colors[(index + 1) % colors.length];
 
             // animate the alignment
             begin = alignmentList[index % alignmentList.length];

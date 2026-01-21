@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/layout/macos_page_wrapper.dart';
+import 'package:roonmatrix/ui/helper/macos_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/macos_tappable_icon_back_button.dart';
 import 'package:roonmatrix/ui/layout/macos_tappable_text_back_button.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -37,10 +37,18 @@ class PageWithToolbarMacStyle extends StatefulWidget {
 
 class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
     with WindowListener {
+  String get title => widget.title;
   Size get standardDesktopSize => widget.standardDesktopSize;
+  String get macosVersion => widget.macosVersion;
   List<ToolbarItem>? get actions => widget.actions;
   Widget? get additionalFullscreenTitleContent =>
       widget.additionalFullscreenTitleContent;
+  Widget get body => widget.body;
+  VoidCallback? get backButtonPressed => widget.backButtonPressed;
+  VoidCallback get resizeToFullWidth => widget.resizeToFullWidth;
+
+  final double extendedTitleWidth = 500.0;
+  final double iconSize = 16.0;
 
   bool isFullscreen = false;
 
@@ -58,9 +66,8 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
     });
 
     windowManager.addListener(this);
-    macosVersionMajor = widget.macosVersion.isNotEmpty
-        ? int.parse(widget.macosVersion.split('.').first)
-        : 0;
+    macosVersionMajor =
+        macosVersion.isNotEmpty ? int.parse(macosVersion.split('.').first) : 0;
 
     super.initState();
   }
@@ -92,20 +99,20 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
 
   @override
   Widget build(BuildContext context) => MacosPageWrapper(
-        name: widget.title == 'RoonMatrix' ? null : widget.title,
-        macosVersion: widget.macosVersion,
+        name: title == SharedWidgets.mainWindowTitle ? null : title,
+        macosVersion: macosVersion,
         toolBar: ToolBar(
-          titleWidth: 500.0,
-          title: widget.title == 'RoonMatrix'
-              ? Text(widget.title)
+          titleWidth: extendedTitleWidth,
+          title: title == SharedWidgets.mainWindowTitle
+              ? Text(title)
               : MacosTappableTextBackButton(
-                  text: widget.title,
-                  onPressed: widget.backButtonPressed,
+                  text: title,
+                  onPressed: backButtonPressed,
                 ),
-          leading: widget.title == 'RoonMatrix'
+          leading: title == SharedWidgets.mainWindowTitle
               ? null
               : MacosTappableIconBackButton(
-                  onPressed: widget.backButtonPressed,
+                  onPressed: backButtonPressed,
                 ),
           actions: [
             if (actions != null && actions!.isNotEmpty) ...[
@@ -115,21 +122,21 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
             if (!isFullscreen) ...[
               const ToolBarSpacer(),
               ToolBarIconButton(
-                label: "",
+                label: "full width",
                 icon: Icon(
                   FontAwesomeIcons.arrowsLeftRight,
-                  size: 16.0,
+                  size: iconSize,
                   color:
                       SharedWidgets.toolbarResizeButtonColor(context: context),
                 ),
-                onPressed: () => widget.resizeToFullWidth(),
+                onPressed: () => resizeToFullWidth(),
                 showLabel: false,
               ),
               ToolBarIconButton(
-                label: "",
+                label: "minimize",
                 icon: Icon(
                   FontAwesomeIcons.minimize,
-                  size: 16.0,
+                  size: iconSize,
                   color:
                       SharedWidgets.toolbarResizeButtonColor(context: context),
                 ),
@@ -138,10 +145,10 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
                 showLabel: false,
               ),
               ToolBarIconButton(
-                label: "",
+                label: "maximize",
                 icon: Icon(
                   FontAwesomeIcons.maximize,
-                  size: 16.0,
+                  size: iconSize,
                   color:
                       SharedWidgets.toolbarResizeButtonColor(context: context),
                 ),
@@ -153,6 +160,6 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
           ],
         ),
         additionalFullscreenTitleContent: additionalFullscreenTitleContent,
-        body: widget.body,
+        body: body,
       );
 }

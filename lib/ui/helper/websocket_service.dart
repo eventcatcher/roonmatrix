@@ -2,22 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-//import 'package:web_socket_channel/status.dart' as status;
 
 class WebSocketService {
   final String ip;
   final int port;
-  final int pingSecondsPeriodic = 15;
-  final int pingSecondTimeout = 5;
-
-  String get url => 'ws://$ip:$port/ws';
-
-  WebSocketChannel? _channel;
-  StreamSubscription? _subscription;
-  Duration reconnectDelay = Duration(seconds: 3);
-  Function(String message) onMessage;
-  VoidCallback onPing;
-  Function(bool connected) onConnect;
+  final Function(String message) onMessage;
+  final VoidCallback onPing;
+  final Function(bool connected) onConnect;
 
   WebSocketService({
     required this.ip,
@@ -27,7 +18,15 @@ class WebSocketService {
     required this.onConnect,
   });
 
-  void connect() async {
+  final int pingSecondsPeriodic = 15;
+  final int pingSecondTimeout = 5;
+
+  String get url => 'ws://$ip:$port/ws';
+
+  WebSocketChannel? _channel;
+  StreamSubscription? _subscription;
+
+  Future<void> connect() async {
     String url = 'ws://$ip:$port/ws';
     if (kDebugMode) {
       debugPrint(

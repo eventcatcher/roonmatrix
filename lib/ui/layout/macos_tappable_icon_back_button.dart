@@ -12,7 +12,6 @@ class MacosTappableIconBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MacosBackButton(
-      //hoverColor: MacosColors.systemBlueColor,
       fillColor: Colors.transparent,
       hoverColor: Colors.transparent,
       mouseCursor: SystemMouseCursors.click,

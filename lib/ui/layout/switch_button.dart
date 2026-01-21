@@ -20,6 +20,9 @@ class SwitchButton extends StatelessWidget {
     required this.onChanged,
   });
 
+  final double labelFontSize = 12.0;
+  final Color iosActiveTrackColor = const Color.fromARGB(255, 20, 106, 237);
+
   Widget labelWidget(context) => Expanded(
         child: label != null
             ? Text(
@@ -28,7 +31,7 @@ class SwitchButton extends StatelessWidget {
                   color: SharedWidgets.brightness() == Brightness.dark
                       ? SharedWidgets.textColor(context: context)
                       : labelColor ?? SharedWidgets.textColor(context: context),
-                  fontSize: 12.0,
+                  fontSize: labelFontSize,
                 ),
               )
             : Container(),
@@ -44,9 +47,8 @@ class SwitchButton extends StatelessWidget {
           onChanged: (bool value) {
             onChanged(value);
           },
-          activeTrackColor: SharedWidgets.inIosStyle()
-              ? null
-              : const Color.fromARGB(255, 20, 106, 237),
+          activeTrackColor:
+              SharedWidgets.inIosStyle() ? null : iosActiveTrackColor,
           activeColor: SharedWidgets.inIosStyle() ? null : Colors.white,
         ),
       );

@@ -33,6 +33,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
   Map<String, dynamic> get translations => widget.translations;
   String get ip => widget.ip;
   double get width => widget.width;
+  double get scrollSpeed => widget.scrollSpeed;
   Function(double speed) get speedChanged => widget.speedChanged;
   Function(double size) get sizeChanged => widget.sizeChanged;
 
@@ -41,17 +42,21 @@ class _MobileSpeedSliderAndFontsizeControlsState
   final double mobileFontSizeSmall = 32.0;
   final double mobileFontSizeMedium = 64.0;
   final double mobileFontSizeBig = 128.0;
+  final double sliderWidthBig = 200.0;
+  final double sliderWidthSmall = 120.0;
+  final double sliderMinValue = 0.1;
+  final double sliderMaxValue = 5.0;
+  final int sliderDivisions = 100;
 
   double sliderValue = 1.0;
   double fontSize = 48.0;
-  String macosVersion = '';
 
   late MainBloc mainBloc;
 
   @override
   void initState() {
     mainBloc = BlocProvider.of<MainBloc>(context);
-    sliderValue = widget.scrollSpeed;
+    sliderValue = scrollSpeed;
 
     super.initState();
   }
@@ -74,12 +79,13 @@ class _MobileSpeedSliderAndFontsizeControlsState
             child: Padding(
               padding: const EdgeInsets.only(top: 4.0),
               child: SizedBox(
-                width: width > sliderMobileMin ? 200 : 120,
+                width:
+                    width > sliderMobileMin ? sliderWidthBig : sliderWidthSmall,
                 child: Slider(
                   value: sliderValue,
-                  min: 0.1,
-                  max: 5,
-                  divisions: 100,
+                  min: sliderMinValue,
+                  max: sliderMaxValue,
+                  divisions: sliderDivisions,
                   thumbColor: Colors.red.shade700,
                   activeColor: Colors.green.shade200,
                   inactiveColor: Colors.grey.shade700,

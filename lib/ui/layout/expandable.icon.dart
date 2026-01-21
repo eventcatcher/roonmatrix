@@ -31,8 +31,8 @@ class ExpandableIcon extends StatefulWidget {
     required this.width,
     required this.height,
     required this.iconColor,
-    this.animationSpeed = 500,
     this.controller,
+    this.animationSpeed = 500,
   });
 
   @override
@@ -41,8 +41,22 @@ class ExpandableIcon extends StatefulWidget {
 
 class ExpandableIconState extends State<ExpandableIcon>
     with TickerProviderStateMixin {
+  Function get onClicked => widget.onClicked;
+  double get width => widget.width;
+  double get height => widget.height;
+  Color get iconColor => widget.iconColor;
+  ExpandableIconController? get controller => widget.controller;
+  int get animationSpeed => widget.animationSpeed;
+
   /// This private property declare hamburger animation progress value.
   double _hamburgerProgress = 0.0;
+
+  /// This private property declare arrow animation progress value.
+  double _arrowProgress = 0.0;
+
+  /// This private property presents running state of all animations
+  /// in [ExpandableMenu].
+  bool _isAnimating = false;
 
   /// This private property declare hamburger animation.
   late Animation<double> _hamburgerAnimation;
@@ -50,18 +64,11 @@ class ExpandableIconState extends State<ExpandableIcon>
   /// This private property declare hamburger controller.
   late AnimationController _hamburgerAnimationController;
 
-  /// This private property declare arrow animation progress value.
-  double _arrowProgress = 0.0;
-
   /// This private property declare arrow animation.
   late Animation<double> _arrowAnimation;
 
   /// This private property declare arrow controller.
   late AnimationController _arrowAnimationController;
-
-  /// This private property presents running state of all animations
-  /// in [ExpandableMenu].
-  bool _isAnimating = false;
 
   /// This property declare width of
   /// icons(Hamburger icon and arrow icon) in widget.
@@ -79,18 +86,18 @@ class ExpandableIconState extends State<ExpandableIcon>
   @override
   void initState() {
     //Use external controller if set
-    if (widget.controller != null) {
-      _expandableIconController = widget.controller!;
+    if (controller != null) {
+      _expandableIconController = controller!;
     } else {
       _expandableIconController = ExpandableIconController();
     }
     _expandableIconController.setControllerState(this);
 
-    iconWidth = widget.width * 0.7;
-    iconHeight = widget.height * 0.7;
+    iconWidth = width * 0.7;
+    iconHeight = height * 0.7;
 
     _hamburgerAnimationController = AnimationController(
-      duration: Duration(milliseconds: (widget.animationSpeed * 0.4).toInt()),
+      duration: Duration(milliseconds: (animationSpeed * 0.4).toInt()),
       vsync: this,
     );
 
@@ -107,7 +114,7 @@ class ExpandableIconState extends State<ExpandableIcon>
       });
 
     _arrowAnimationController = AnimationController(
-      duration: Duration(milliseconds: (widget.animationSpeed * 0.2).toInt()),
+      duration: Duration(milliseconds: (animationSpeed * 0.2).toInt()),
       vsync: this,
     );
 
@@ -122,8 +129,8 @@ class ExpandableIconState extends State<ExpandableIcon>
 
     _expandableIconController.addListener(() {
       if (_expandableIconController.isExpanded) {
-        Future.delayed(
-            Duration(milliseconds: (widget.animationSpeed * 0.4).toInt()), () {
+        Future.delayed(Duration(milliseconds: (animationSpeed * 0.4).toInt()),
+            () {
           _arrowAnimationController.forward();
         });
       } else {
@@ -152,7 +159,7 @@ class ExpandableIconState extends State<ExpandableIcon>
           child: InkWell(
             highlightColor: Colors.black.withValues(alpha: 0.2),
             splashColor: Colors.black.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.all(Radius.circular(widget.width)),
+            borderRadius: BorderRadius.all(Radius.circular(width)),
             onTap: () {
               onClickInternal();
             },
@@ -163,7 +170,7 @@ class ExpandableIconState extends State<ExpandableIcon>
                 iconWidth: iconWidth,
                 iconHeight: iconHeight,
                 arrowProgress: _arrowProgress,
-                iconColor: widget.iconColor,
+                iconColor: iconColor,
               ),
             ),
           ),
@@ -177,17 +184,17 @@ class ExpandableIconState extends State<ExpandableIcon>
       if (_hamburgerAnimationController.isCompleted) {
         _animationLocker();
         _expandableIconController.setExpandStatus();
-        widget.onClicked();
-        Future.delayed(
-            Duration(milliseconds: (widget.animationSpeed * 0.4).toInt()), () {
+        onClicked();
+        Future.delayed(Duration(milliseconds: (animationSpeed * 0.4).toInt()),
+            () {
           _hamburgerAnimationController.reverse();
         });
       } else {
         _animationLocker();
         _hamburgerAnimationController.forward();
-        Future.delayed(
-            Duration(milliseconds: (widget.animationSpeed * 0.4).toInt()), () {
-          widget.onClicked();
+        Future.delayed(Duration(milliseconds: (animationSpeed * 0.4).toInt()),
+            () {
+          onClicked();
         });
       }
     }
@@ -199,8 +206,8 @@ class ExpandableIconState extends State<ExpandableIcon>
     _isAnimating = true;
     Future.delayed(
         Duration(
-            milliseconds: (widget.animationSpeed * 0.4).toInt() +
-                (widget.animationSpeed * 0.25).toInt() * 2), () {
+            milliseconds: (animationSpeed * 0.4).toInt() +
+                (animationSpeed * 0.25).toInt() * 2), () {
       _isAnimating = false;
     });
   }

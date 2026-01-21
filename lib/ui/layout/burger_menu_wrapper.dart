@@ -32,8 +32,17 @@ class BurgerMenuWrapper extends StatefulWidget {
 }
 
 class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
+  GlobalKey<ScaffoldState> get scaffoldKey => widget.scaffoldKey;
+  AnimationController get animationController => widget.animationController;
+  double? get navigationTop => widget.navigationTop;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
+  Function({required bool visibility}) get setDrawerVisibility =>
+      widget.setDrawerVisibility;
+
+  final double navigationTopFallback = 84.0;
+  final double navigationTopOffset = -40.0;
+  final double navigationLeftOffset = 16.0;
 
   Map<String, dynamic> translations = {};
   String aboutAppMessage = '';
@@ -59,7 +68,10 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
     isDrawerOpen = widget.isDrawerOpen;
   }
 
-  openBurgerMenuItem({required String? key, required BuildContext context}) {
+  void openBurgerMenuItem({
+    required String? key,
+    required BuildContext context,
+  }) {
     if (key == 'about') {
       SharedWidgets.openAboutModal(
           context: context,
@@ -75,16 +87,19 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
     }
   }
 
-  Widget burgerMenuRaw({required bool noPop, required BuildContext context}) =>
+  Widget burgerMenuRaw({
+    required bool noPop,
+    required BuildContext context,
+  }) =>
       BurgerMenu(
         translations: translations,
         noPop: noPop,
-        navigationTop: widget.navigationTop,
+        navigationTop: navigationTop,
         onClose: (String? key) {
           setState(() {
             isDrawerOpen = false;
-            widget.setDrawerVisibility(visibility: isDrawerOpen);
-            widget.animationController.reverse();
+            setDrawerVisibility(visibility: isDrawerOpen);
+            animationController.reverse();
           });
           return openBurgerMenuItem(key: key, context: context);
         },
@@ -107,21 +122,21 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
 
         return SharedWidgets.inIosStyle()
             ? burgerMenuRaw(
-                noPop: true,
-                context: widget.scaffoldKey.currentContext ?? context)
+                noPop: true, context: scaffoldKey.currentContext ?? context)
             : Drawer(
                 child: Stack(
                   children: [
                     burgerMenuRaw(
                         noPop: false,
-                        context: widget.scaffoldKey.currentContext ?? context),
+                        context: scaffoldKey.currentContext ?? context),
                     Positioned(
-                      top: (widget.navigationTop ?? 84.0) - 40,
-                      left: 16.0,
+                      top: (navigationTop ?? navigationTopFallback) +
+                          navigationTopOffset,
+                      left: navigationLeftOffset,
                       child: InkWell(
                         onTap: () => setState(() {
                           isDrawerOpen = false;
-                          widget.scaffoldKey.currentState?.openEndDrawer();
+                          scaffoldKey.currentState?.openEndDrawer();
                         }),
                         child: Icon(
                           CupertinoIcons.clear,

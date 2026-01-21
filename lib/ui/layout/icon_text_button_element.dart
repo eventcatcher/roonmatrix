@@ -4,6 +4,13 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class IconTextButtonElement extends StatelessWidget {
+  final bool onMacAsText;
+  final bool secondaryStyle;
+  final Widget icon;
+  final String label;
+  final ButtonStyle? style;
+  final VoidCallback? onPressed;
+
   const IconTextButtonElement({
     super.key,
     this.onMacAsText = false,
@@ -13,13 +20,6 @@ class IconTextButtonElement extends StatelessWidget {
     this.style,
     this.onPressed,
   });
-
-  final Widget icon;
-  final bool onMacAsText;
-  final bool secondaryStyle;
-  final String label;
-  final ButtonStyle? style;
-  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {

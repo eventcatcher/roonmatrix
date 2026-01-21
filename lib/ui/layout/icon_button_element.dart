@@ -4,26 +4,26 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class IconButtonElement extends StatelessWidget {
-  const IconButtonElement({
-    super.key,
-    required this.icon,
-    required this.onPressed,
-    this.label,
-    this.noBackground = false,
-    this.withCircle = false,
-    this.moreInfo = false,
-    this.size = 48,
-    this.readOnly = false,
-  });
-
   final Icon icon;
+  final String? label;
   final bool noBackground;
   final bool withCircle;
   final bool moreInfo;
   final bool readOnly;
-  final String? label;
   final double size;
   final VoidCallback onPressed;
+
+  const IconButtonElement({
+    super.key,
+    required this.icon,
+    this.label,
+    this.noBackground = false,
+    this.withCircle = false,
+    this.moreInfo = false,
+    this.readOnly = false,
+    this.size = 48,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +127,7 @@ class IconButtonElement extends StatelessWidget {
                                     ? Colors.orange.shade600
                                     : Colors.blue.shade600,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+                      borderRadius: SharedWidgets.borderRadius(),
                     )),
                 child: IconButton(
                   padding: EdgeInsets.zero,

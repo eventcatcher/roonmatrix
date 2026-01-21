@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:roonmatrix/ui/details/searchfield.dart';
+import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/lifecycle_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu_wrapper.dart';
 import 'package:roonmatrix/ui/layout/cover_row_animation.dart';
@@ -10,7 +10,7 @@ import 'package:roonmatrix/ui/layout/device_list_item.dart';
 import 'package:roonmatrix/ui/layout/devices_reload_button.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
-import 'package:roonmatrix/ui/layout/loading_indicator.dart';
+import 'package:roonmatrix/ui/layout/loading_indicator_big.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_ios_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -25,15 +25,15 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 
 class StartPage extends StatefulWidget {
+  final String title;
   final Size minDesktopSize;
   final Size standardDesktopSize;
-  final String title;
 
   const StartPage({
     super.key,
+    required this.title,
     required this.minDesktopSize,
     required this.standardDesktopSize,
-    required this.title,
   });
 
   @override
@@ -41,15 +41,13 @@ class StartPage extends StatefulWidget {
 }
 
 class StartPageState extends State<StartPage> with TickerProviderStateMixin {
+  String get title => widget.title;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  String get title => widget.title;
-  bool showExportButton = true;
 
   final GlobalKey windowKey = GlobalKey();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey itemListKey = GlobalKey();
-
   final double exportButtonPaddingIos = 14.0;
   final bool showExpandableSpeedSlider = false;
 
@@ -67,6 +65,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   bool saveIdle = false;
   bool settingsPageLoaded = false;
   bool isDrawerOpen = false;
+  bool showExportButton = true;
 
   late SettingsBloc settingsBloc;
   late TranslationsBloc translationsBloc;
@@ -103,7 +102,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     // }
   }
 
-  body() => AppLifecyclePageWrapper(
+  Widget body() => AppLifecyclePageWrapper(
         onResume: () {
           if (kDebugMode) {
             debugPrint('AppLifecycle => onResume');
@@ -172,8 +171,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                             );
                           }
 
-                          String? activeDeviceIp = mainState.activeDeviceIp;
                           List<String> devices = mainBloc.getFilteredDevices();
+                          String? activeDeviceIp = mainState.activeDeviceIp;
                           Map<String, dynamic> info = mainState.info;
                           Map<String, dynamic> spotifyAuthUrls =
                               mainState.spotifyAuthUrls;
@@ -312,7 +311,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         devices: devices,
                                         activeDeviceIp: activeDeviceIp,
                                         info: info,
-                                        connected: connected,
                                         appBarHeight: appBarHeight,
                                         coverRowArtist: coverRowArtist,
                                         coverRowAlbum: coverRowAlbum,
@@ -338,7 +336,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             devices: devices,
                                             activeDeviceIp: activeDeviceIp,
                                             info: info,
-                                            connected: connected,
                                             appBarHeight: appBarHeight,
                                             coverRowArtist: coverRowArtist,
                                             coverRowAlbum: coverRowAlbum,
@@ -468,7 +465,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             }),
       );
 
-  bodyWithMenuDrawerOverlay(BuildContext context) => Stack(
+  Widget bodyWithMenuDrawerOverlay(BuildContext context) => Stack(
         children: [
           SafeArea(
             child: body(),
@@ -546,10 +543,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               animationController: animationController,
               isDrawerOpen: isDrawerOpen,
               body: bodyWithMenuDrawerOverlay(context),
-              resizeToFullWidth: () {
-                mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                    minDesktopSize: minDesktopSize);
-              },
               sliderUpdateValue: ({required double speed}) {
                 setState(() {
                   scrollSpeedDevice = speed;

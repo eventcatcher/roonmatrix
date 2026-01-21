@@ -7,7 +7,7 @@ class SliderMobile extends StatefulWidget {
   final double max;
   final int divisions;
   final double value;
-  final Function(double speed) updateValue;
+  final Function(double value) updateValue;
 
   const SliderMobile({
     super.key,
@@ -23,7 +23,10 @@ class SliderMobile extends StatefulWidget {
 }
 
 class _SliderMobileState extends State<SliderMobile> {
+  final double height = 38.0;
+
   double value = 1.0;
+
   late SettingsBloc settingsBloc;
 
   @override
@@ -44,7 +47,7 @@ class _SliderMobileState extends State<SliderMobile> {
   @override
   Widget build(BuildContext context) => Container(
         padding: EdgeInsets.only(top: 2.0),
-        height: 38.0,
+        height: height,
         child: Slider(
           value: value,
           min: widget.min,

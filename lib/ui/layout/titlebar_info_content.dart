@@ -23,7 +23,8 @@ class _TitlebarInfoContentState extends State<TitlebarInfoContent> {
   String get ip => widget.ip;
   Map<String, dynamic> get translations => widget.translations;
 
-  String macosVersion = '';
+  final double minWidth = 350.0;
+  final double fontSize = 12.0;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -45,40 +46,32 @@ class _TitlebarInfoContentState extends State<TitlebarInfoContent> {
             return SizedBox();
           }
 
-          macosVersion = mainState.macosVersion;
           String zoneName = '';
           if (mainState.devices.isNotEmpty && mainState.info.containsKey(ip)) {
-            dynamic info = mainState.info[ip];
-
-            if (info != null && info['control_id'] != null) {
-              String controlId = info['control_id'];
-              if (info['channels'] != null &&
-                  info['channels'][controlId] != null) {
-                if (info['channels'][controlId] == 'webserver' ||
-                    info['channels'][controlId] == 'spotifyconnect') {
-                  zoneName = controlId;
-                } else {
-                  zoneName = info['channels'][controlId];
-                }
-              }
-            }
+            Map<String, dynamic> info = mainState.info[ip];
+            zoneName = mainRepository.getZoneName(info: info);
 
             return Container(
-              constraints: BoxConstraints(minWidth: 350.0),
+              constraints: BoxConstraints(minWidth: minWidth),
               child: Text(
-                'IP: $ip  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName\n${translations['deviceListTime'] ?? 'time'}: ${mainRepository.getFormattedDateString(date: info['time'])}  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ',
+                mainRepository.getTimeZonePlaycountText(
+                    translations: translations,
+                    info: info,
+                    zoneName: zoneName,
+                    ip: ip,
+                    withLineBreak: true),
                 style: TextStyle(
                   color:
                       SharedWidgets.inMacosStyle() || SharedWidgets.inIosStyle()
                           ? SharedWidgets.textColor(context: context)
                           : Colors.white,
-                  fontSize: 12.0,
+                  fontSize: fontSize,
                 ),
               ),
             );
           }
 
-          return Text('');
+          return SizedBox();
         });
   }
 }

@@ -3,8 +3,15 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class Headline extends StatelessWidget {
   final String text;
+  final double fontSize;
+  final FontWeight fontWeight;
 
-  const Headline({super.key, required this.text});
+  const Headline({
+    super.key,
+    required this.text,
+    this.fontSize = 24.0,
+    this.fontWeight = FontWeight.w600,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +22,8 @@ class Headline extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontSize: 24.0,
-          fontWeight: FontWeight.w600,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
           color: SharedWidgets.textColor(context: context),
         ),
       ),

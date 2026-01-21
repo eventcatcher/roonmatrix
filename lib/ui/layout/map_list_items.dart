@@ -40,7 +40,13 @@ class MapListItems extends StatefulWidget {
 
 class MapListItemsState extends State<MapListItems> {
   String? get label => widget.label;
+  Color? get labelColor => widget.labelColor;
   ConfigDefinitionItem get fieldDefinition => widget.fieldDefinition;
+  bool? get noVerticalSpace => widget.noVerticalSpace;
+  void Function(String value) get onChanged => widget.onChanged;
+
+  final double minDesktopWidth = 1024.0;
+  final double defaultPadding = 16.0;
 
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
@@ -52,22 +58,23 @@ class MapListItemsState extends State<MapListItems> {
 
   @override
   void initState() {
-    fieldValues = widget.fieldValues;
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
+
+    fieldValues = widget.fieldValues;
     super.initState();
   }
 
   void returnJson(List<dynamic> fieldValues) {
     String json = jsonEncode(fieldValues).replaceAll('"', "'");
-    widget.onChanged(json);
+    onChanged(json);
   }
 
   List<Widget> getWidgets() {
     List<Widget> colWidgets = [];
     double width = MediaQuery.of(context).size.width;
 
-    String deviceType = width < 1024 ? 'mobile' : 'desktop';
+    String deviceType = width < minDesktopWidth ? 'mobile' : 'desktop';
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
       Map<String, dynamic> map = fieldValues[idx];
@@ -145,7 +152,7 @@ class MapListItemsState extends State<MapListItems> {
           Padding(
             padding: EdgeInsets.only(
               top: Platform.isLinux ? 28.0 : 31.0,
-              right: 16.0,
+              right: defaultPadding,
             ),
             child: IconButtonElement(
               label: translations['openLinkButtonText'] ?? 'open link',
@@ -177,7 +184,7 @@ class MapListItemsState extends State<MapListItems> {
           Padding(
             padding: EdgeInsets.only(
               top: Platform.isLinux ? 28.0 : 31.0,
-              right: 16.0,
+              right: defaultPadding,
             ),
             child: IconButtonElement(
                 label: translations['removeButtonText'] ?? 'remove',
@@ -223,8 +230,11 @@ class MapListItemsState extends State<MapListItems> {
             flex: 1,
             fit: FlexFit.tight,
             child: Padding(
-              padding:
-                  const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0),
+              padding: EdgeInsets.only(
+                left: defaultPadding,
+                right: defaultPadding,
+                bottom: defaultPadding,
+              ),
               child: SharedWidgets.linkButton(
                 link: link,
                 translations: translations,
@@ -247,7 +257,10 @@ class MapListItemsState extends State<MapListItems> {
             flex: 1,
             fit: FlexFit.tight,
             child: Padding(
-              padding: const EdgeInsets.only(right: 16.0, bottom: 16.0),
+              padding: EdgeInsets.only(
+                right: defaultPadding,
+                bottom: defaultPadding,
+              ),
               child: SharedWidgets.removeButton(
                 context: context,
                 translations: translations,
@@ -263,8 +276,11 @@ class MapListItemsState extends State<MapListItems> {
               .add(Row(mainAxisSize: MainAxisSize.max, children: buttonRow));
         } else {
           colWidgets.add(Padding(
-            padding:
-                const EdgeInsets.only(right: 16.0, left: 16.0, bottom: 16.0),
+            padding: EdgeInsets.only(
+              right: defaultPadding,
+              left: defaultPadding,
+              bottom: defaultPadding,
+            ),
             child: SharedWidgets.removeButton(
               context: context,
               translations: translations,
@@ -284,7 +300,7 @@ class MapListItemsState extends State<MapListItems> {
     colWidgets.add(Align(
       alignment: Alignment.topRight,
       child: Padding(
-        padding: const EdgeInsets.only(right: 16.0),
+        padding: EdgeInsets.only(right: defaultPadding),
         child: SharedWidgets.addButton(
             context: context,
             textController: null,
@@ -324,19 +340,17 @@ class MapListItemsState extends State<MapListItems> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ...SharedWidgets.labelWidget(
-                  label: widget.label,
+                  label: label,
                   labelColor: SharedWidgets.brightness() == Brightness.dark
                       ? SharedWidgets.textColor(context: context)
-                      : widget.labelColor ??
-                          SharedWidgets.textColor(context: context),
+                      : labelColor ?? SharedWidgets.textColor(context: context),
                 ),
                 Container(
-                  margin: EdgeInsets.only(
-                      bottom: widget.noVerticalSpace == true ? 0 : 10),
+                  margin:
+                      EdgeInsets.only(bottom: noVerticalSpace == true ? 0 : 10),
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+                      borderRadius: SharedWidgets.borderRadius(),
                     ),
                     color: SharedWidgets.areaBackgroundColor(context: context),
                     child: Column(

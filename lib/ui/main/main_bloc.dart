@@ -44,9 +44,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Map<String, dynamic> translations = {};
   List<WebSocketService> services = [];
 
+  bool isScanning = false;
+
   String? ipStart;
   String? ipEnd;
-  bool isScanning = false;
   Timer? timer;
   Display? primaryDisplay;
 
@@ -300,7 +301,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         try {
           Uri uri = Uri.parse(url);
 
-          var response = await client.get(uri);
+          http.Response response = await client.get(uri);
           if (response.statusCode == 200) {
             if (response.body.substring(0, 1) == '{') {
               Map<String, dynamic> json = jsonDecode(
@@ -362,7 +363,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         try {
           Uri uri = Uri.parse(url);
 
-          var response = await client.get(uri);
+          http.Response response = await client.get(uri);
           if (response.statusCode == 200) {
             if (response.body.substring(0, 1) == '{') {
               Map<String, dynamic> json =
@@ -421,7 +422,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (kDebugMode) {
             debugPrint('websocket log request @ ${DateTime.now().toLocal()}');
           }
-          var response = await client.post(uri,
+          http.Response response = await client.post(uri,
               headers: headers, body: json.encode(payload));
           if (kDebugMode) {
             debugPrint(
@@ -481,7 +482,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (kDebugMode) {
             debugPrint('send zone_control => payload: $payload');
           }
-          var response = await client.post(uri,
+          http.Response response = await client.post(uri,
               headers: headers, body: json.encode(payload));
 
           if (response.statusCode == 200) {
@@ -527,7 +528,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (kDebugMode) {
             debugPrint('send spotify_auth_redirect_url => payload: $payload');
           }
-          var response = await client.post(uri,
+          http.Response response = await client.post(uri,
               headers: headers, body: json.encode(payload));
 
           if (response.statusCode == 200) {
@@ -597,8 +598,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
   }
 
-  Future<bool?> exportData(
-      {required String name, required String ip, required String type}) async {
+  Future<bool?> exportData({
+    required String name,
+    required String ip,
+    required String type,
+  }) async {
     if (state.devices.isNotEmpty) {
       String search = state.searchFilter[type] as String;
       String fileStr = '';
@@ -674,7 +678,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return Future.value(null);
   }
 
-  String? getFieldType({required ConfigDefinitionItem fieldDefinition}) {
+  String? getFieldType({
+    required ConfigDefinitionItem fieldDefinition,
+  }) {
     String? fieldType;
 
     if (fieldDefinition.editable == true) {
@@ -715,8 +721,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return fieldType;
   }
 
-  Map getFieldValues(
-      {required ConfigDefinition defs, required Map<String, dynamic> json}) {
+  Map getFieldValues({
+    required ConfigDefinition defs,
+    required Map<String, dynamic> json,
+  }) {
     Map fieldValues = {};
 
     for (String areaKey in json.keys) {
@@ -759,7 +767,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return fieldValues;
   }
 
-  bool validateUrl({required String text, required String type}) {
+  bool validateUrl({
+    required String text,
+    required String type,
+  }) {
     bool valid = true;
 
     if (type.startsWith('url(')) {
@@ -780,7 +791,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return valid;
   }
 
-  bool validateNumber({required int num, required String type}) {
+  bool validateNumber({
+    required int num,
+    required String type,
+  }) {
     bool valid = true;
 
     if (type.startsWith('int(')) {
@@ -797,10 +811,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return valid;
   }
 
-  bool validateText(
-      {required String text,
-      ConfigDefinitionItem? fieldDefinition,
-      required String type}) {
+  bool validateText({
+    required String text,
+    ConfigDefinitionItem? fieldDefinition,
+    required String type,
+  }) {
     bool valid = true;
 
     if (text == '') {
@@ -931,16 +946,20 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return valid;
   }
 
-  String filterIllegalCharsFromJsonStr(
-      {required String text, String messageHeader = '*'}) {
+  String filterIllegalCharsFromJsonStr({
+    required String text,
+    String messageHeader = '*',
+  }) {
     String filtered = text;
     //filtered = filtered.replaceAll(r'\\\"', "'");
 
     return filtered;
   }
 
-  bool validateAll(
-      {required ConfigDefinition definitions, required Map fieldValues}) {
+  bool validateAll({
+    required ConfigDefinition definitions,
+    required Map fieldValues,
+  }) {
     bool validData = false;
     bool test = true;
     outerLoop:
@@ -995,17 +1014,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
     }
 
-    // if (type.startsWith('url')) {
-    //   unit = ' (url)';
-    // }
-
     return unit;
   }
 
-  Future<bool> setCustomMessage(
-      {required String ip,
-      required String message,
-      required String option}) async {
+  Future<bool> setCustomMessage({
+    required String ip,
+    required String message,
+    required String option,
+  }) async {
     Map<String, String> headers = {
       "Content-Type": 'application/json',
       "Accept": 'application/json',
@@ -1020,7 +1036,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     try {
       Uri uri = Uri.parse(url);
 
-      var response =
+      http.Response response =
           await client.post(uri, headers: headers, body: json.encode(payload));
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -1039,8 +1055,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return Future.value(false);
   }
 
-  Future<bool> saveConfig(
-      {required String name, required String ip, required dynamic data}) async {
+  Future<bool> saveConfig({
+    required String name,
+    required String ip,
+    required dynamic data,
+  }) async {
     if (state.devices.isNotEmpty) {
       Map<String, String> headers = {
         "Content-Type": 'application/json; charset=utf-8',
@@ -1067,7 +1086,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           "data": jsonStr,
         };
 
-        var response = await client.post(uri,
+        http.Response response = await client.post(uri,
             headers: headers, body: json.encode(payload));
 
         if (response.statusCode == 200) {
@@ -1086,10 +1105,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return Future.value(false);
   }
 
-  Future<bool> saveLiveControl(
-      {required String ip,
-      required String control,
-      required String value}) async {
+  Future<bool> saveLiveControl({
+    required String ip,
+    required String control,
+    required String value,
+  }) async {
     Map<String, String> headers = {
       "Content-Type": 'application/json',
       "Accept": 'application/json',
@@ -1104,7 +1124,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     try {
       Uri uri = Uri.parse(url);
 
-      var response =
+      http.Response response =
           await client.post(uri, headers: headers, body: json.encode(payload));
       if (response.statusCode == 200) {
         if (kDebugMode) {
@@ -1191,7 +1211,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   Future<bool> isPortOpen(String ip, int port, Duration timeout) async {
     try {
-      final socket = await Socket.connect(ip, port, timeout: timeout);
+      final Socket socket = await Socket.connect(ip, port, timeout: timeout);
       socket.destroy();
       return true;
     } catch (_) {
@@ -1269,7 +1289,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               debugPrint('test rest-api route: $url');
             }
             try {
-              var response = await client.get(uri);
+              http.Response response = await client.get(uri);
               if (response.statusCode == 200) {
                 if (response.body.substring(0, 1) == '{') {
                   Map<String, dynamic> json = jsonDecode(
@@ -1299,7 +1319,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
           if (devices.isNotEmpty && state.info.isEmpty) {
             List<String> iplist = state.info.keys.toList();
-            for (var device in devices) {
+            for (String device in devices) {
               if (!iplist.contains(device)) {
                 if (kDebugMode) {
                   debugPrint('get missing info data at start: $device');
@@ -1399,7 +1419,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return null;
   }
 
-  List<CoverModel> getCoversModel({required bool showWebCoverNotRunning}) {
+  List<CoverModel> getCoversModel({
+    required bool showWebCoverNotRunning,
+  }) {
     Map<String, dynamic> info = state.info;
     String? activeDeviceIp = state.activeDeviceIp;
 
@@ -1523,7 +1545,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return jsonStr;
   }
 
-  setPollingTimer() {
+  void setPollingTimer() {
     if (kDebugMode) {
       debugPrint(
           'setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds');
@@ -1534,8 +1556,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     });
   }
 
-  String getNumberFieldErrorMessage(
-      {required String value, required Map<String, dynamic> translations}) {
+  String getNumberFieldErrorMessage({
+    required String value,
+    required Map<String, dynamic> translations,
+  }) {
     if (value == '') {
       return translations['configNumberFieldEmptyError'] ??
           'Number field cannot be empty';
@@ -1544,10 +1568,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         'Number field is out of valid range';
   }
 
-  String getFieldErrorMessage(
-      {required String value,
-      required String type,
-      required Map<String, dynamic> translations}) {
+  String getFieldErrorMessage({
+    required String value,
+    required String type,
+    required Map<String, dynamic> translations,
+  }) {
     if (type.startsWith('int')) {
       return getNumberFieldErrorMessage(
           value: value, translations: translations);
@@ -1580,8 +1605,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Future<Display> getPrimaryDisplay() async =>
       primaryDisplay ??= await screenRetriever.getPrimaryDisplay();
 
-  Future<void> windowResizeToFullWidthAndMinimumHeight(
-      {required Size minDesktopSize}) async {
+  Future<void> windowResizeToFullWidthAndMinimumHeight({
+    required Size minDesktopSize,
+  }) async {
     Display primaryDisplay = await getPrimaryDisplay();
     Size newSize = Size(primaryDisplay.size.width, minDesktopSize.height + 10);
 
@@ -1589,16 +1615,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     windowManager.setSize(newSize, animate: true);
   }
 
-  Future<void> windowResize({required Size size, Offset? position}) async {
+  Future<void> windowResize({
+    required Size size,
+    Offset? position,
+  }) async {
     Size newSize = Size(size.width, size.height);
 
     await windowManager.setPosition(position ?? Offset.zero);
     windowManager.setSize(newSize, animate: true);
   }
 
-  String decompressZlib(Uint8List data) {
-    return utf8.decode(ZLibCodec().decode(data));
-  }
+  String decompressZlib(Uint8List data) =>
+      utf8.decode(ZLibCodec().decode(data));
 
   List<String> getFilteredDevices() {
     if (state.devices.isEmpty) {
@@ -1632,7 +1660,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(RestartPollingTimer());
   }
 
-  void addWebSocketService({required String ip}) {
+  void addWebSocketService({
+    required String ip,
+  }) {
     add(AddWebSocketService(ip: ip));
   }
 
@@ -1640,43 +1670,64 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(ResetWebSocketServices());
   }
 
-  void setIpRange({required String? ipStart, required String? ipEnd}) {
+  void setIpRange({
+    required String? ipStart,
+    required String? ipEnd,
+  }) {
     add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
   }
 
-  void setLogMessage({required String msg}) {
+  void setLogMessage({
+    required String msg,
+  }) {
     add(SetLogMessage(msg: msg));
   }
 
-  void searching({bool? idle}) {
+  void searching({
+    bool? idle,
+  }) {
     add(Searching(idle: idle));
   }
 
-  void getInfo({required String ip}) {
+  void getInfo({
+    required String ip,
+  }) {
     add(GetInfo(ip: ip));
   }
 
-  void getConfig({required String ip}) {
+  void getConfig({
+    required String ip,
+  }) {
     add(GetConfig(ip: ip));
   }
 
-  void getLog({required String ip, required int hours}) {
+  void getLog({
+    required String ip,
+    required int hours,
+  }) {
     add(GetLog(ip: ip, hours: hours));
   }
 
-  void setPing({required String ip, required bool ping}) {
+  void setPing({
+    required String ip,
+    required bool ping,
+  }) {
     add(SetPing(ip: ip, ping: ping));
   }
 
-  void setConnected({required String ip, required bool connected}) {
+  void setConnected({
+    required String ip,
+    required bool connected,
+  }) {
     add(SetConnected(ip: ip, connected: connected));
   }
 
-  void zoneControl(
-      {required String ip,
-      required String controlId,
-      required String cmd,
-      bool enable = false}) {
+  void zoneControl({
+    required String ip,
+    required String controlId,
+    required String cmd,
+    bool enable = false,
+  }) {
     add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd, enable: enable));
   }
 
@@ -1690,7 +1741,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(SetSpotifyAuthRedirectUrl(ip: ip, url: url));
   }
 
-  void setSearchFilter({required String type, required String filter}) {
+  void setSearchFilter({
+    required String type,
+    required String filter,
+  }) {
     add(SetSearchFilter(type: type, filter: filter));
   }
 

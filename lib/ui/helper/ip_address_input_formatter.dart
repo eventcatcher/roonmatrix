@@ -3,15 +3,17 @@ import 'package:flutter/services.dart';
 class IpAddressInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    var text = newValue.text;
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    String text = newValue.text;
 
     if (newValue.selection.baseOffset == 0) {
       return newValue;
     }
 
     int dotCounter = 0;
-    var buffer = StringBuffer();
+    StringBuffer buffer = StringBuffer();
     String ipField = "";
 
     for (int i = 0; i < text.length; i++) {
@@ -49,7 +51,7 @@ class IpAddressInputFormatter extends TextInputFormatter {
       }
     }
 
-    var string = buffer.toString();
+    String string = buffer.toString();
     return newValue.copyWith(
         text: string,
         selection: TextSelection.collapsed(offset: string.length));

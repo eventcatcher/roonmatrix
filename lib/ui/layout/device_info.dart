@@ -19,6 +19,10 @@ class DeviceInfo extends StatelessWidget {
     required this.onFinishedPing,
   });
 
+  final double widthNameAndIpArea = 150;
+  final double fontSizeName = 14.0;
+  final double fontSizeIp = 11.0;
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -29,7 +33,7 @@ class DeviceInfo extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: 150.0,
+              width: widthNameAndIpArea,
               height: deviceListCoverSize + 1,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -39,13 +43,13 @@ class DeviceInfo extends StatelessWidget {
                     info[ip]['name'],
                     softWrap: false,
                     maxLines: 1,
-                    style: const TextStyle(fontSize: 14.0),
+                    style: TextStyle(fontSize: fontSizeName),
                   ),
                   Text(
                     ip,
                     softWrap: false,
                     maxLines: 1,
-                    style: const TextStyle(fontSize: 11.0),
+                    style: TextStyle(fontSize: fontSizeIp),
                   )
                 ],
               ),

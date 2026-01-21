@@ -5,6 +5,20 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class TextFieldElement extends StatelessWidget {
+  final String? placeholder;
+  final Widget? prefixIcon;
+  final bool readOnly;
+  final int? maxLength;
+  final InputCounterWidgetBuilder? buildCounter;
+  final TextInputType? keyboardType;
+  final InputDecoration? decoration;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextEditingController controller;
+  final dynamic suffixIcon;
+  final bool autofocus;
+  final TextStyle? style;
+  final Function(String value)? onChanged;
+
   const TextFieldElement({
     super.key,
     this.placeholder,
@@ -15,30 +29,12 @@ class TextFieldElement extends StatelessWidget {
     this.keyboardType,
     this.decoration,
     this.inputFormatters,
-    this.borderColor = Colors.transparent,
-    this.fillColor,
+    required this.controller,
     this.suffixIcon,
     this.autofocus = false,
-    required this.controller,
     this.style,
     this.onChanged,
   });
-
-  final String? placeholder;
-  final Widget? prefixIcon;
-  final bool readOnly;
-  final int? maxLength;
-  final InputCounterWidgetBuilder? buildCounter;
-  final TextInputType? keyboardType;
-  final InputDecoration? decoration;
-  final List<TextInputFormatter>? inputFormatters;
-  final TextEditingController controller;
-  final Color borderColor;
-  final Color? fillColor;
-  final dynamic suffixIcon;
-  final bool autofocus;
-  final TextStyle? style;
-  final Function(String value)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -96,9 +92,7 @@ class TextFieldElement extends StatelessWidget {
               color: SharedWidgets.textFieldBackgroundColor(context: context),
             ),
             focusedDecoration: BoxDecoration(
-              borderRadius: BorderRadius.all(
-                Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5),
-              ),
+              borderRadius: SharedWidgets.borderRadius(),
             ),
             onChanged: onChanged,
           )

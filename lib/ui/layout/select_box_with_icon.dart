@@ -40,13 +40,30 @@ class SelectBoxWithIcon extends StatefulWidget {
 }
 
 class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
-  late EdgeInsetsGeometry margin;
+  Map<String, dynamic> get translations => widget.translations;
+  Map<String, dynamic>? get options => widget.options;
+  String? get aligned => widget.aligned;
+  String? get label => widget.label;
+  Color? get labelColor => widget.labelColor;
+  String? get placeholder => widget.placeholder;
+  String? get selected => widget.selected;
+  bool? get inRow => widget.inRow;
+  bool? get noVerticalSpace => widget.noVerticalSpace;
+  bool? get readOnly => widget.readOnly;
+  bool? get optionsWithVerticalSpace => widget.optionsWithVerticalSpace;
+  void Function(String? value) get onChanged => widget.onChanged;
+
+  final double fontSize = 16.0;
+  final double timeIconSize = 16.0;
 
   int selectedItem = -1;
+  BuildContext? modalContext;
+
+  late EdgeInsetsGeometry margin;
 
   @override
   void initState() {
-    switch (widget.aligned) {
+    switch (aligned) {
       case "left":
         margin = const EdgeInsets.only(
             left: 16.0, right: 8.0, top: 16.0, bottom: 5.0);
@@ -77,49 +94,31 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
     super.initState();
   }
 
-  void _showDialog(Widget child) {
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (BuildContext context) => Container(
-        height: 216,
-        padding: const EdgeInsets.only(top: 6.0),
-        // The Bottom margin is provided to align the popup above the system navigation bar.
-        margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        // Provide a background color for the popup.
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        // Use a SafeArea widget to avoid system overlaps.
-        child: SafeArea(
-          top: false,
-          child: child,
-        ),
-      ),
-    );
-  }
-
-  Widget dropdownReadonlyElement() {
+  Widget dropdownReadonlyElement({
+    required BuildContext context,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Text(
-        (widget.options != null &&
-                widget.selected != null &&
-                widget.options![widget.selected!] != null)
-            ? widget.options![widget.selected]['name']!
+        (options != null && selected != null && options![selected!] != null)
+            ? options![selected]['name']!
             : "",
         style: TextStyle(
           color: SharedWidgets.textColor(context: context),
-          fontSize: 16.0,
+          fontSize: fontSize,
         ),
       ),
     );
   }
 
-  Widget dropdownElement({required bool expanded}) {
+  Widget dropdownElement({
+    required BuildContext context,
+    required bool expanded,
+  }) {
     if (SharedWidgets.inIosStyle()) {
-      return widget.options!.keys.toList().isEmpty
-          ? Text(widget.translations['zonePickerOptionsEmpty'] ?? 'none')
+      return options!.keys.toList().isEmpty
+          ? Text(translations['zonePickerOptionsEmpty'] ?? 'none')
           : Container(
               decoration: BoxDecoration(
                 boxShadow: const [
@@ -131,8 +130,7 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                   )
                 ],
                 color: SharedWidgets.elementBackgroundColor(context: context),
-                borderRadius: BorderRadius.all(
-                    Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+                borderRadius: SharedWidgets.borderRadius(),
               ),
               child: CupertinoButton(
                 padding: EdgeInsets.only(
@@ -147,93 +145,46 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                       padding: EdgeInsetsDirectional.only(end: 6.0),
                       child: Icon(
                         CupertinoIcons.time,
-                        size: 16.0,
+                        size: timeIconSize,
                         color: SharedWidgets.iconColor(context: context),
                       ),
                     ),
                     Text(
-                      widget.selected != null
-                          ? widget.options!.values.toList()[widget.options!.keys
-                              .toList()
-                              .indexOf(widget.selected!)]['name']
-                          : widget.translations['zonePickerSelectionEmpty'] ??
+                      selected != null
+                          ? options!.values.toList()[
+                              options!.keys.toList().indexOf(selected!)]['name']
+                          : translations['zonePickerSelectionEmpty'] ??
                               'Please Select',
                     ),
                   ],
                 ),
-                onPressed: () => _showDialog(
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          CupertinoButton(
-                            child: Text(
-                                widget.translations['dialogCancelButtonText'] ??
-                                    'Cancel'),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          Expanded(
-                            child: SizedBox(),
-                          ),
-                          CupertinoButton(
-                            child: Text(
-                                widget.translations['okButtonText'] ?? 'OK'),
-                            onPressed: () {
-                              widget.onChanged(widget.options!.keys.toList()[
-                                  selectedItem >= 0 ? selectedItem : 0]);
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ],
-                      ),
-                      Expanded(
-                        child: CupertinoPicker(
-                          magnification: 1.22,
-                          squeeze: 1.2,
-                          useMagnifier: true,
-                          itemExtent: 48,
-                          scrollController: FixedExtentScrollController(
-                            initialItem: widget.selected != null
-                                ? widget.options!.values
-                                    .toList()
-                                    .indexOf(widget.selected!)
-                                : 0,
-                          ),
-                          onSelectedItemChanged: (int index) {
-                            selectedItem = index;
-                          },
-                          children: List<Widget>.generate(
-                              widget.options!.length, (int index) {
-                            return Center(
-                              child: Text(
-                                widget.options!.values.toList()[index]['name'],
-                                style: TextStyle(fontSize: 16.0),
-                              ),
-                            );
-                          }),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                onPressed: () => options != null
+                    ? SharedWidgets.showIosPickerDialog(
+                        translations: translations,
+                        context: context,
+                        options: options!,
+                        selected: selected,
+                        showValue: true,
+                        isObject: true,
+                        onApproved: () => onChanged(options!.keys
+                            .toList()[selectedItem >= 0 ? selectedItem : 0]),
+                        onSelectedItemChanged: (int index) {
+                          selectedItem = index;
+                        },
+                      )
+                    : null,
               ),
             );
     }
 
     return SharedWidgets.selectBoxInMacStyle()
         ? SizedBox(
-            // width: double.infinity,
             child: MacosPopupButton<String>(
-              value: widget.selected,
+              value: selected,
               onChanged: (String? value) {
-                widget.onChanged(value);
+                onChanged(value);
               },
-              selectedItemBuilder: (context) => widget.options!.keys
+              selectedItemBuilder: (context) => options!.keys
                   .map(
                     (String key) => Row(
                       children: [
@@ -241,40 +192,39 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                           padding: EdgeInsetsDirectional.only(end: 6.0),
                           child: Icon(
                             CupertinoIcons.time,
-                            size: 16.0,
+                            size: timeIconSize,
                             color: SharedWidgets.iconColor(context: context),
                           ),
                         ),
                         Text(
-                          widget.options![key]['name'],
+                          options![key]['name'],
                           overflow: TextOverflow.fade,
                           style: TextStyle(
                               color: SharedWidgets.textColor(context: context),
-                              fontSize: 16.0,
+                              fontSize: fontSize,
                               decorationStyle: TextDecorationStyle.double),
                         ),
                       ],
                     ),
                   )
                   .toList(),
-              items: (widget.options != null && widget.options!.isNotEmpty)
-                  ? widget.options!.keys
+              items: (options != null && options!.isNotEmpty)
+                  ? options!.keys
                       .map<MacosPopupMenuItem<String>>(
                         (String key) => MacosPopupMenuItem<String>(
                           value: key,
                           child: Padding(
                             padding: EdgeInsets.symmetric(
-                                vertical:
-                                    widget.optionsWithVerticalSpace == true
-                                        ? 8.0
-                                        : 0.0),
+                                vertical: optionsWithVerticalSpace == true
+                                    ? 8.0
+                                    : 0.0),
                             child: Text(
-                              widget.options![key]['name'],
+                              options![key]['name'],
                               overflow: TextOverflow.fade,
                               style: TextStyle(
                                   color:
                                       SharedWidgets.textColor(context: context),
-                                  fontSize: 16.0,
+                                  fontSize: fontSize,
                                   decorationStyle: TextDecorationStyle.double),
                             ),
                           ),
@@ -285,7 +235,7 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
             ),
           )
         : DropdownButtonFormField<String>(
-            value: widget.selected,
+            value: selected,
             decoration: InputDecoration(
               prefixIconConstraints: BoxConstraints(
                 minWidth: 16.0,
@@ -295,7 +245,7 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                 padding: EdgeInsetsDirectional.only(end: 6.0),
                 child: Icon(
                   CupertinoIcons.time,
-                  size: 16.0,
+                  size: timeIconSize,
                   color: SharedWidgets.iconColor(context: context),
                 ),
               ),
@@ -304,12 +254,12 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
               focusedBorder: InputBorder.none,
             ),
             isExpanded: expanded,
-            hint: widget.placeholder != null
+            hint: placeholder != null
                 ? Text(
-                    widget.placeholder!,
+                    placeholder!,
                     style: TextStyle(
                       color: SharedWidgets.textColor(context: context),
-                      fontSize: 16.0,
+                      fontSize: fontSize,
                     ),
                   )
                 : null,
@@ -335,30 +285,27 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                   context: context), // option text color
             ),
             onChanged: (String? value) {
-              widget.onChanged(value);
+              onChanged(value);
             },
-            items: (widget.options != null && widget.options!.isNotEmpty)
-                ? widget.options!.keys
-                    .map<DropdownMenuItem<String>>((String key) {
+            items: (options != null && options!.isNotEmpty)
+                ? options!.keys.map<DropdownMenuItem<String>>((String key) {
                     return DropdownMenuItem<String>(
                       value: key,
                       child: Row(
                         children: [
-                          if (widget.options![key]['icon'] != null)
+                          if (options![key]['icon'] != null)
                             Padding(
                               padding: const EdgeInsets.only(right: 8.0),
-                              child: Icon(widget.options![key]['icon'],
-                                  size: 19.0),
+                              child: Icon(options![key]['icon'], size: 19.0),
                             ),
                           Text(
-                            widget.options![key]['name'],
+                            options![key]['name'],
                             overflow: TextOverflow.fade,
                             style: (TextStyle(
                                 color:
                                     SharedWidgets.textColor(context: context),
-                                fontSize: 16.0,
-                                fontWeight: widget.options![key]
-                                        ['fontWeight'] ??
+                                fontSize: fontSize,
+                                fontWeight: options![key]['fontWeight'] ??
                                     FontWeight.normal)),
                           ),
                         ],
@@ -385,19 +332,19 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
             ? null
             : BoxDecoration(
                 boxShadow: const [
-                    BoxShadow(
-                      color: Colors.grey,
-                      offset: Offset(0.1, 0.5),
-                      blurRadius: 0.1,
-                      blurStyle: BlurStyle.normal,
-                    )
-                  ],
+                  BoxShadow(
+                    color: Colors.grey,
+                    offset: Offset(0.1, 0.5),
+                    blurRadius: 0.1,
+                    blurStyle: BlurStyle.normal,
+                  )
+                ],
                 color: SharedWidgets.elementBackgroundColor(context: context),
-                borderRadius: BorderRadius.all(
-                    Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5))),
-        child: widget.readOnly == true
-            ? dropdownReadonlyElement()
-            : dropdownElement(expanded: expanded),
+                borderRadius: SharedWidgets.borderRadius(),
+              ),
+        child: readOnly == true
+            ? dropdownReadonlyElement(context: context)
+            : dropdownElement(context: context, expanded: expanded),
       );
 
   @override
@@ -406,18 +353,17 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
       margin: margin,
       alignment: Alignment.topLeft,
       child: Container(
-        margin:
-            EdgeInsets.only(bottom: widget.noVerticalSpace == true ? 0 : 10),
-        child: widget.inRow != null && widget.inRow == true
+        margin: EdgeInsets.only(bottom: noVerticalSpace == true ? 0 : 10),
+        child: inRow != null && inRow == true
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  if (widget.label != null)
+                  if (label != null)
                     Text(
-                      widget.label!,
+                      label!,
                       style: TextStyle(
                         color: SharedWidgets.textColor(context: context),
-                        fontSize: 16.0,
+                        fontSize: fontSize,
                       ),
                     ),
                   dropdown(expanded: false),
@@ -426,13 +372,13 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (widget.label != null) ...[
+                  if (label != null) ...[
                     Text(
-                      widget.label!,
+                      label!,
                       style: TextStyle(
-                        color: widget.labelColor ??
+                        color: labelColor ??
                             SharedWidgets.textColor(context: context),
-                        fontSize: 16.0,
+                        fontSize: fontSize,
                       ),
                     ),
                     const SizedBox(
@@ -444,10 +390,5 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
               ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

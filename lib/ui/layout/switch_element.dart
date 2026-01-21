@@ -4,6 +4,12 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class SwitchElement extends StatelessWidget {
+  final MaterialTapTargetSize? materialTapTargetSize;
+  final Color? activeTrackColor;
+  final Color? activeColor;
+  final bool value;
+  final dynamic Function(bool value) onChanged;
+
   const SwitchElement({
     super.key,
     this.materialTapTargetSize,
@@ -12,12 +18,6 @@ class SwitchElement extends StatelessWidget {
     required this.value,
     required this.onChanged,
   });
-
-  final MaterialTapTargetSize? materialTapTargetSize;
-  final Color? activeTrackColor;
-  final Color? activeColor;
-  final bool value;
-  final dynamic Function(bool value) onChanged;
 
   @override
   Widget build(BuildContext context) {

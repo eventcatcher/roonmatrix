@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class HorizontalSlider extends StatefulWidget {
@@ -12,18 +14,17 @@ class HorizontalSlider extends StatefulWidget {
   final double sliderValue;
   final String valueType;
   final Orientation orientation;
-
   final Function(double value) onChanged;
 
   const HorizontalSlider({
     super.key,
     required this.label,
+    this.labelWidth,
     required this.min,
     required this.max,
     required this.divisions,
     required this.sliderValue,
     required this.valueType,
-    this.labelWidth,
     required this.orientation,
     required this.onChanged,
   });
@@ -33,10 +34,33 @@ class HorizontalSlider extends StatefulWidget {
 }
 
 class _HorizontalSliderState extends State<HorizontalSlider> {
+  String get label => widget.label;
+  double? get labelWidth => widget.labelWidth;
+  double get min => widget.min;
+  double get max => widget.max;
+  int get divisions => widget.divisions;
+  String get valueType => widget.valueType;
+  Orientation get orientation => widget.orientation;
+  Function(double value) get onChanged => widget.onChanged;
+
+  final double labelWidthFallback = 200.0;
+  final double sliderPercentTextWidth = 100.0;
+  final double labelAndSliderInRowMinWidth = 600;
+  final double flex3MinWidth = 1200.0;
+  final double flex2MinWidth = 800.0;
+
+  final Color thumbColor = Colors.red.shade700;
+  final Color activeColor = Colors.green.shade200;
+  final Color inactiveColor = Colors.grey.shade700;
+
   double sliderValue = 1.0;
+
+  late MainRepository mainRepository;
 
   @override
   void initState() {
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
+
     sliderValue = widget.sliderValue;
 
     super.initState();
@@ -49,13 +73,13 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
       child: Container(
         margin: EdgeInsets.only(
             bottom: (Platform.isIOS || Platform.isAndroid) &&
-                    widget.orientation == Orientation.landscape
+                    orientation == Orientation.landscape
                 ? 4.0
                 : 8.0),
         padding: EdgeInsets.symmetric(
             horizontal: 8.0,
             vertical: (Platform.isIOS || Platform.isAndroid) &&
-                    widget.orientation == Orientation.landscape
+                    orientation == Orientation.landscape
                 ? 0.0
                 : 8.0),
         decoration: BoxDecoration(
@@ -68,8 +92,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                 : Colors.grey.shade400,
             width: 5.0,
           ),
-          borderRadius: BorderRadius.all(
-              Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+          borderRadius: SharedWidgets.borderRadius(),
           boxShadow: [
             BoxShadow(
               color: Colors.deepOrange.withValues(alpha: 0.15),
@@ -78,39 +101,39 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
             ),
           ],
         ),
-        child: MediaQuery.of(context).size.width > 600
+        child: MediaQuery.of(context).size.width > labelAndSliderInRowMinWidth
             ? Row(
                 children: [
                   Flexible(
                       flex: 1,
                       fit: FlexFit.tight,
                       child: Text(
-                        '${widget.label}: ',
+                        '$label: ',
                         style: TextStyle(
                           color: SharedWidgets.textColor(context: context),
                         ),
                       )),
                   Flexible(
-                    flex: MediaQuery.of(context).size.width > 1200
+                    flex: MediaQuery.of(context).size.width > flex3MinWidth
                         ? 3
-                        : MediaQuery.of(context).size.width > 800
+                        : MediaQuery.of(context).size.width > flex2MinWidth
                             ? 2
                             : 1,
                     fit: FlexFit.tight,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 4.0, top: 4.0),
                       child: SizedBox(
-                        width: widget.labelWidth ?? 200,
+                        width: labelWidth ?? labelWidthFallback,
                         child: Slider(
-                          value: widget.sliderValue,
-                          min: widget.min,
-                          max: widget.max,
-                          divisions: widget.divisions,
-                          thumbColor: Colors.red.shade700,
-                          activeColor: Colors.green.shade200,
-                          inactiveColor: Colors.grey.shade700,
+                          value: sliderValue,
+                          min: min,
+                          max: max,
+                          divisions: divisions,
+                          thumbColor: thumbColor,
+                          activeColor: activeColor,
+                          inactiveColor: inactiveColor,
                           onChanged: (double value) {
-                            widget.onChanged(value);
+                            onChanged(value);
                             setState(() {
                               sliderValue = value;
                             });
@@ -120,11 +143,15 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                     ),
                   ),
                   SizedBox(
-                    width: 100,
+                    width: sliderPercentTextWidth,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 4.0, top: 4.0),
                       child: Text(
-                        '${widget.valueType == '%' ? (sliderValue / widget.max * 100).round() : sliderValue.floor()} ${widget.valueType}',
+                        mainRepository.getPercentText(
+                          valueType: valueType,
+                          sliderValue: sliderValue,
+                          max: max,
+                        ),
                         style: TextStyle(
                           color: SharedWidgets.textColor(context: context),
                         ),
@@ -136,24 +163,24 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.label),
+                  Text(label),
                   Row(
                     children: [
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.only(left: 4.0, top: 4.0),
                           child: SizedBox(
-                            width: widget.labelWidth ?? 200,
+                            width: labelWidth ?? labelWidthFallback,
                             child: Slider(
-                              value: widget.sliderValue,
-                              min: widget.min,
-                              max: widget.max,
-                              divisions: widget.divisions,
-                              thumbColor: Colors.red.shade700,
-                              activeColor: Colors.green.shade200,
-                              inactiveColor: Colors.grey.shade700,
+                              value: sliderValue,
+                              min: min,
+                              max: max,
+                              divisions: divisions,
+                              thumbColor: thumbColor,
+                              activeColor: activeColor,
+                              inactiveColor: inactiveColor,
                               onChanged: (double value) {
-                                widget.onChanged(value);
+                                onChanged(value);
                                 setState(() {
                                   sliderValue = value;
                                 });
@@ -163,11 +190,16 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                         ),
                       ),
                       SizedBox(
-                        width: 100,
+                        width: sliderPercentTextWidth,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 4.0, top: 4.0),
                           child: Text(
-                              '${widget.valueType == '%' ? (sliderValue / widget.max * 100).round() : sliderValue.floor()} ${widget.valueType}'),
+                            mainRepository.getPercentText(
+                              valueType: valueType,
+                              sliderValue: sliderValue,
+                              max: max,
+                            ),
+                          ),
                         ),
                       ),
                     ],

@@ -23,16 +23,18 @@ class RipplePing extends StatefulWidget {
 
 class _RipplePingState extends State<RipplePing>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
+  final Duration animationDuration = const Duration(milliseconds: 2000);
 
-  bool _lastTrigger = false;
+  bool lastTrigger = false;
+
+  late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: animationDuration,
     )..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           _controller.reset();
@@ -45,10 +47,10 @@ class _RipplePingState extends State<RipplePing>
   void didUpdateWidget(covariant RipplePing oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (!_lastTrigger && widget.trigger) {
+    if (!lastTrigger && widget.trigger) {
       _controller.forward(from: 0);
     }
-    _lastTrigger = widget.trigger;
+    lastTrigger = widget.trigger;
   }
 
   @override

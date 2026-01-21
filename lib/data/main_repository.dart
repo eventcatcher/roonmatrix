@@ -9,17 +9,18 @@ import 'package:intl/intl.dart';
 import 'package:roonmatrix/ui/helper/triangle_painter.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class MainRepository {
   MainRepository();
 
-  isRoonZone(String zoneName) {
+  bool isRoonZone(String zoneName) {
     return !zoneName.endsWith('-Apple Music') &&
         !zoneName.endsWith('-SpotifyConnect') &&
         !zoneName.endsWith('-Spotify');
   }
 
-  getFormattedDateString(
+  String getFormattedDateString(
       {required String date,
       String languageCode = 'de',
       String format = 'dd.MM.yyyy HH:mm:ss'}) {
@@ -40,21 +41,6 @@ class MainRepository {
     return Colors.blue.shade300;
   }
 
-  Offset getZoneIconPosition({required String zoneName}) {
-    if (zoneName.endsWith('-Apple Music')) {
-      return Offset(-9.0, -2.0);
-    }
-    if (zoneName.endsWith('-SpotifyConnect')) {
-      return Offset(0, 5.0);
-    }
-
-    if (zoneName.endsWith('-Spotify')) {
-      return Offset(2.0, 5.0);
-    }
-
-    return Offset(4.0, 5.0);
-  }
-
   Offset getZoneIconPositionBySize(
       {required double size, required String zoneName}) {
     if (zoneName.endsWith('-Apple Music')) {
@@ -69,21 +55,6 @@ class MainRepository {
     }
 
     return Offset(4.0, 5.0);
-  }
-
-  double getZoneIconStaticSize({required String zoneName}) {
-    if (zoneName.endsWith('-Apple Music')) {
-      return 56.0;
-    }
-    if (zoneName.endsWith('-SpotifyConnect')) {
-      return 44.0;
-    }
-
-    if (zoneName.endsWith('-Spotify')) {
-      return 44.0;
-    }
-
-    return 40.0;
   }
 
   double getZoneIconDynamicSize(
@@ -103,7 +74,7 @@ class MainRepository {
     return factor * 40.0;
   }
 
-  statusCorner({required Color color, double? size}) => SizedBox(
+  Widget statusCorner({required Color color, double? size}) => SizedBox(
         width: size != null && size < 200 ? 56 : 84,
         height: size != null && size < 200 ? 56 : 84,
         child: ClipRRect(
@@ -253,7 +224,8 @@ class MainRepository {
     if (info['control_id'] != null) {
       String controlId = info['control_id'];
       if (info['channels'] != null && info['channels'][controlId] != null) {
-        if (info['channels'][controlId] == 'webserver') {
+        if (info['channels'][controlId] == 'webserver' ||
+            info['channels'][controlId] == 'spotifyconnect') {
           zoneName = controlId;
         } else {
           zoneName = info['channels'][controlId];
@@ -276,7 +248,7 @@ class MainRepository {
     return customMessages;
   }
 
-  setCustomMessages({required Map<String, String> messages}) async {
+  void setCustomMessages({required Map<String, String> messages}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('customMessages', jsonEncode(messages));
   }
@@ -312,4 +284,66 @@ class MainRepository {
 
     return zone;
   }
+
+  String getSelectedPlayoutOptionKey({
+    required String option,
+    required Map<String, dynamic> translations,
+  }) {
+    if (option == translations['sendOptionForce'] ||
+        option == 'Force Playout') {
+      return 'force';
+    }
+    if (option == translations['sendOptionNextPlayout'] ||
+        option == 'On next Playout') {
+      return 'playout';
+    }
+    if (option == translations['sendOptionExclusive'] ||
+        option == 'Exclusive Playout') {
+      return 'exclusive';
+    }
+
+    return 'playout';
+  }
+
+  String getDebounceTag({required String? label}) {
+    String tag = "";
+
+    if (label != null) {
+      tag = label.replaceAll(" ", "-");
+    } else {
+      Uuid uuid = const Uuid();
+      tag = uuid.v4();
+    }
+
+    return tag;
+  }
+
+  String? getCoverUrl({required Map<String, dynamic>? zone}) => zone != null &&
+          zone['cover'] != null &&
+          (zone['cover'] as String).isNotEmpty
+      ? zone['cover']
+      : null;
+
+  String getTimeZonePlaycountText({
+    required Map<String, dynamic> translations,
+    required Map<String, dynamic> info,
+    required String zoneName,
+    String? ip,
+    bool withLineBreak = false,
+  }) {
+    String text =
+        '${translations['deviceListTime'] ?? 'time'}: ${getFormattedDateString(date: info['time'])}${withLineBreak ? '\n' : '  |  '}${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${info['playcount']}  ';
+    if (ip != null) {
+      text = 'IP: $ip  |  $text';
+    }
+
+    return text;
+  }
+
+  String getPercentText({
+    required String valueType,
+    required double sliderValue,
+    required double max,
+  }) =>
+      '${valueType == '%' ? (sliderValue / max * 100).round() : sliderValue.floor()} $valueType';
 }

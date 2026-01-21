@@ -19,19 +19,6 @@ class AppLifecyclePageWrapper extends StatefulWidget {
 class _AppLifecyclePageWrapperState extends State<AppLifecyclePageWrapper>
     with WidgetsBindingObserver {
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (kDebugMode) {
-      debugPrint(
-        'AppLifecyclePageWrapper/didChangeAppLifecycleState =>  => change to $state',
-      );
-    }
-
-    if (state == AppLifecycleState.resumed) {
-      widget.onResume();
-    }
-  }
-
-  @override
   void initState() {
     super.initState();
 
@@ -52,6 +39,19 @@ class _AppLifecyclePageWrapperState extends State<AppLifecyclePageWrapper>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (kDebugMode) {
+      debugPrint(
+        'AppLifecyclePageWrapper/didChangeAppLifecycleState =>  => change to $state',
+      );
+    }
+
+    if (state == AppLifecycleState.resumed) {
+      widget.onResume();
+    }
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -26,6 +27,16 @@ class SearchFieldState extends State<SearchField> {
   TextEditingController get controller => widget.controller;
   String get type => widget.type;
 
+  final double minWidth = 200.0;
+  final double minHeight = 36.0;
+  final Duration debounceDuration = Duration(milliseconds: 500);
+  final BoxShadow boxShadow = BoxShadow(
+    color: Colors.grey,
+    offset: Offset(0.1, 0.5),
+    blurRadius: 0.1,
+    blurStyle: BlurStyle.normal,
+  );
+
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
 
@@ -37,13 +48,6 @@ class SearchFieldState extends State<SearchField> {
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     super.initState();
-  }
-
-  String escapeForRegex(String text) {
-    return text.replaceAllMapped(
-      RegExp(r'[-\/\\^$*+?.()|[\]{}]'),
-      (m) => '\\${m[0]}',
-    );
   }
 
   @override
@@ -60,22 +64,13 @@ class SearchFieldState extends State<SearchField> {
             padding: const EdgeInsets.only(left: 8.0),
             child: ConstrainedBox(
               constraints:
-                  const BoxConstraints(minWidth: 200.0, minHeight: 36.0),
+                  BoxConstraints(minWidth: minWidth, minHeight: minHeight),
               child: Container(
                 decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.grey,
-                      offset: Offset(0.1, 0.5),
-                      blurRadius: 0.1,
-                      blurStyle: BlurStyle.normal,
-                    )
-                  ],
+                  boxShadow: [boxShadow],
                   color:
                       SharedWidgets.textFieldBackgroundColor(context: context),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5),
-                  ),
+                  borderRadius: SharedWidgets.borderRadius(),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
@@ -105,7 +100,7 @@ class SearchFieldState extends State<SearchField> {
                               translations['searchfieldHint'] ?? 'search',
                           controller: controller,
                           onChanged: (String value) {
-                            value = escapeForRegex(value);
+                            value = value.escapeAllSpecialChars();
                             if (value == '') {
                               setState(() {
                                 controller.text = '';
@@ -115,7 +110,7 @@ class SearchFieldState extends State<SearchField> {
                             } else {
                               EasyDebounce.debounce(
                                 'searchfield-debouncer',
-                                const Duration(milliseconds: 500),
+                                debounceDuration,
                                 () {
                                   if (controller.text.isNotEmpty) {
                                     mainBloc.setSearchFilter(

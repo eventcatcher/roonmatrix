@@ -20,7 +20,9 @@ class SetConnectionStatusStateLoadDefaults extends ConnectionStatusEvent {
 class ConnectionStatusChanged extends ConnectionStatusEvent {
   final bool connected;
 
-  const ConnectionStatusChanged({required this.connected});
+  const ConnectionStatusChanged({
+    required this.connected,
+  });
 
   @override
   List<Object> get props => [connected];

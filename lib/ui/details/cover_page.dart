@@ -13,6 +13,7 @@ import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart'
     show MainState, MainStateLoaded;
@@ -51,7 +52,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   final double fontSize = SharedWidgets.isDesktopDevice() ? 20.0 : 16.0;
 
   Map<String, dynamic> info = {};
-  Map<String, dynamic> optionschannels = {};
   Map<String, String> options = {};
   Map<String, dynamic> webPlayoutsRaw = {};
   Map<String, dynamic> roonPlayoutsRaw = {};
@@ -77,11 +77,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     mainBloc.getInfo(ip: ip);
 
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   Map<String, String> generateOptionsAndPreselect() {
@@ -544,11 +539,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                         child: AnimatedSwitcher(
                                           duration:
                                               Duration(milliseconds: 2000),
-                                          // transitionBuilder: (Widget child,
-                                          //     Animation<double> animation) {
-                                          //   return ScaleTransition(
-                                          //       scale: animation, child: child);
-                                          // },
                                           child: selectedZone != null &&
                                                   selectedZone!['cover'] !=
                                                       null &&
@@ -564,7 +554,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                   height: double.infinity,
                                                 )
                                               : SvgPicture.asset(
-                                                  'assets/svg/8-8-led-matrix-display-unit.svg',
+                                                  SharedWidgets
+                                                      .placeholderAssetPath(),
                                                   allowDrawingOutsideViewBox:
                                                       false,
                                                   width: double.infinity,
@@ -641,33 +632,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                 ),
               ],
             ),
-            SizedBox(
-              child: Align(
-                alignment: Alignment.topRight,
-                child: mainRepository.statusCorner(
-                    color: mainRepository
-                        .getZoneColor('-${selectedZone?['zone'] ?? name}')),
-              ),
-            ),
-            Positioned(
-              right: mainRepository
-                  .getZoneIconPosition(
-                      zoneName: '-${selectedZone?['zone'] ?? name}')
-                  .dx,
-              top: mainRepository
-                  .getZoneIconPosition(
-                      zoneName: '-${selectedZone?['zone'] ?? name}')
-                  .dy,
-              child: Image(
-                image: AssetImage(
-                  SharedWidgets.getZoneIcon(
-                      zoneName: '-${selectedZone?['zone'] ?? name}'),
-                ),
-                width: mainRepository.getZoneIconStaticSize(
-                    zoneName: '-${selectedZone?['zone'] ?? name}'),
-                height: mainRepository.getZoneIconStaticSize(
-                    zoneName: '-${selectedZone?['zone'] ?? name}'),
-              ),
+            ZoneCornerLabel(
+              zoneName: '-${selectedZone?['zone'] ?? name}',
+              coverWidth: 200,
             ),
           ],
         ),

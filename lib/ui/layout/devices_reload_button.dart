@@ -19,6 +19,7 @@ class DevicesReloadButton extends StatefulWidget {
 
 class DevicesReloadButtonState extends State<DevicesReloadButton> {
   Map<String, dynamic> get translations => widget.translations;
+  double get noDevicesFoundRectSize => widget.noDevicesFoundRectSize;
 
   late MainBloc mainBloc;
 
@@ -28,6 +29,9 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
 
     super.initState();
   }
+
+  Color borderColor({required double alpha}) =>
+      Colors.deepOrange.withValues(alpha: alpha);
 
   @override
   Widget build(BuildContext context) {
@@ -41,18 +45,17 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
             mainBloc.searching(idle: true);
           },
           child: Container(
-            width: widget.noDevicesFoundRectSize,
-            height: widget.noDevicesFoundRectSize,
+            width: noDevicesFoundRectSize,
+            height: noDevicesFoundRectSize,
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.deepOrange,
+                color: borderColor(alpha: 1.0),
                 width: 5.0,
               ),
-              borderRadius: BorderRadius.all(
-                  Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+              borderRadius: SharedWidgets.borderRadius(),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.deepOrange.withValues(alpha: 0.15),
+                  color: borderColor(alpha: 0.15),
                   spreadRadius: 0,
                   blurRadius: 0,
                 ),

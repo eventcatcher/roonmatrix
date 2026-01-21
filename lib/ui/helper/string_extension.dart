@@ -15,9 +15,9 @@ extension StringCasingExtension on String {
 
 extension FileFormatter on num {
   String readableFileSize({bool base1024 = true}) {
-    final base = base1024 ? 1024 : 1000;
+    final int base = base1024 ? 1024 : 1000;
     if (this <= 0) return "0";
-    final units = ["B", "kB", "MB", "GB", "TB"];
+    final List<String> units = ["B", "kB", "MB", "GB", "TB"];
     int digitGroups = (log(this) / log(base)).round();
     return '${NumberFormat("#,##0.#").format(this / pow(base, digitGroups))} ${units[digitGroups]}';
   }
@@ -37,5 +37,36 @@ extension EmptyBracketFilter on String {
     return replaceAll(RegExp(r'\[\s*\]'), '')
         .replaceAll(RegExp(r'\s{2,}'), ' ')
         .trim();
+  }
+}
+
+extension ReplaceDoubleQuotesWithSingleQuotesFilter on String {
+  String replaceDoubleQuotesWithSingleQuotes() {
+    return replaceAll('"', "'");
+  }
+}
+
+extension ReplaceQuotesWithSpecialTagsFilter on String {
+  String replaceQuotesWithSpecialTags() {
+    return replaceAll('\'', '[q]')
+        .replaceAll('\\"', '[dq]')
+        .replaceAll('"', "'");
+  }
+}
+
+extension ReplaceSpecialTagsWithQuotesFilter on String {
+  String replaceSpecialTagsWithQuotes() {
+    return replaceAll("'", '"')
+        .replaceAll('[q]', "'")
+        .replaceAll('[dq]', "\\\"");
+  }
+}
+
+extension EscapeAllSpecialChars on String {
+  String escapeAllSpecialChars() {
+    return replaceAllMapped(
+      RegExp(r'[-\/\\^$*+?.()|[\]{}]'),
+      (m) => '\\${m[0]}',
+    );
   }
 }

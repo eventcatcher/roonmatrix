@@ -10,7 +10,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     // ====================== //
     on<SettingsEvent>((event, emit) async {
       if (event is SettingsStateLoadDefaults) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         String? ipStart = prefs.getString('ipStart');
         String? ipEnd = prefs.getString('ipEnd');
         bool validIp = validateIp(ip: ipStart) && validateIp(ip: ipEnd);
@@ -43,7 +43,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         String ipStart = event.ipStart;
         String ipEnd = event.ipEnd;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         if (validateIp(ip: ipStart) && validateIp(ip: ipEnd)) {
           prefs.setString('ipStart', ipStart);
           prefs.setString('ipEnd', ipEnd);
@@ -58,7 +58,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetMoreInfoMode) {
         bool enabled = event.enabled;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('moreInfo', enabled);
 
         emit(state.copyWith(
@@ -69,7 +69,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetScrollSpeedDevice) {
         double scrollSpeedDevice = event.speed;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setDouble('scrollSpeedDevice', scrollSpeedDevice);
 
         emit(state.copyWith(
@@ -80,7 +80,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetScrollSpeedScrollMatrix) {
         double scrollSpeedScrollMatrix = event.speed;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setDouble('scrollSpeedScrollMatrix', scrollSpeedScrollMatrix);
 
         emit(state.copyWith(
@@ -91,7 +91,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetCoverRowActiveMode) {
         bool enabled = event.enabled;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowActiv', enabled);
 
         emit(state.copyWith(
@@ -102,7 +102,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetCoverRowArtistMode) {
         bool enabled = event.enabled;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowArtist', enabled);
 
         emit(state.copyWith(
@@ -112,7 +112,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetCoverRowAlbumMode) {
         bool enabled = event.enabled;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowAlbum', enabled);
 
         emit(state.copyWith(
@@ -123,7 +123,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetCoverRowTrackMode) {
         bool enabled = event.enabled;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowTrack', enabled);
 
         emit(state.copyWith(
@@ -134,7 +134,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetCoverRowDynamicSizeMode) {
         bool enabled = event.enabled;
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('coverRowDynamicSize', enabled);
 
         emit(state.copyWith(
@@ -151,26 +151,36 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   // ============== //
 
   Future<void> deletePrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove("ipStart");
-    await prefs.remove("ipEnd");
-    await prefs.remove("moreInfo");
-    await prefs.remove("coverRowActiv");
-    await prefs.remove("coverRowArtist");
-    await prefs.remove("coverRowAlbum");
-    await prefs.remove("coverRowTrack");
-    await prefs.remove("coverRowDynamicSize");
-    await prefs.remove("scrollSpeedDevice");
-    await prefs.remove("scrollSpeedScrollMatrix");
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> prefsToRemoveList = [
+      'ipStart',
+      'ipEnd',
+      'moreInfo',
+      'coverRowActiv',
+      'coverRowArtist',
+      'coverRowAlbum',
+      'coverRowTrack',
+      'coverRowDynamicSize',
+      'scrollSpeedDevice',
+      'scrollSpeedScrollMatrix',
+    ];
+    for (String key in prefsToRemoveList) {
+      await prefs.remove(key);
+    }
   }
 
-  bool validateIp({required String? ip}) =>
+  bool validateIp({
+    required String? ip,
+  }) =>
       ip != null &&
       ip.isNotEmpty &&
       ip.split('.').length == 4 &&
       ip.split('.').every((String el) => el.isNotEmpty && el.length <= 3);
 
-  bool validateIpRange({required String? ipStart, required String? ipEnd}) {
+  bool validateIpRange({
+    required String? ipStart,
+    required String? ipEnd,
+  }) {
     if (validateIp(ip: ipStart) && validateIp(ip: ipEnd)) {
       int lastDot = ipStart!.lastIndexOf('.');
       String firstPart = ipStart.substring(0, lastDot + 1);
@@ -186,8 +196,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     return false;
   }
 
-  String getIpFieldErrorMessage(
-      {required String value, required Map<String, dynamic> translations}) {
+  String getIpFieldErrorMessage({
+    required String value,
+    required Map<String, dynamic> translations,
+  }) {
     if (value.isEmpty) {
       return translations['settingsIpFieldEmptyError'] ??
           'IP field cannot be empty';
@@ -208,39 +220,58 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     add(SettingsStateLoadDefaults());
   }
 
-  void setIpRange({required String ipStart, required String ipEnd}) {
+  void setIpRange({
+    required String ipStart,
+    required String ipEnd,
+  }) {
     add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
   }
 
-  void setMoreInfoMode({required bool enabled}) {
+  void setMoreInfoMode({
+    required bool enabled,
+  }) {
     add(SetMoreInfoMode(enabled: enabled));
   }
 
-  void setCoverRowActiveMode({required bool enabled}) {
+  void setCoverRowActiveMode({
+    required bool enabled,
+  }) {
     add(SetCoverRowActiveMode(enabled: enabled));
   }
 
-  void setCoverRowArtistMode({required bool enabled}) {
+  void setCoverRowArtistMode({
+    required bool enabled,
+  }) {
     add(SetCoverRowArtistMode(enabled: enabled));
   }
 
-  void setCoverRowAlbumMode({required bool enabled}) {
+  void setCoverRowAlbumMode({
+    required bool enabled,
+  }) {
     add(SetCoverRowAlbumMode(enabled: enabled));
   }
 
-  void setCoverRowTrackMode({required bool enabled}) {
+  void setCoverRowTrackMode({
+    required bool enabled,
+  }) {
     add(SetCoverRowTrackMode(enabled: enabled));
   }
 
-  void setCoverRowDynamicSizeMode({required bool enabled}) {
+  void setCoverRowDynamicSizeMode({
+    required bool enabled,
+  }) {
     add(SetCoverRowDynamicSizeMode(enabled: enabled));
   }
 
-  void setScrollSpeedDevice({required double speed}) {
+  void setScrollSpeedDevice({
+    required double speed,
+  }) {
     add(SetScrollSpeedDevice(speed: speed));
   }
 
-  void setScrollSpeedScrollMatrix({required double speed}) {
+  void setScrollSpeedScrollMatrix({
+    required double speed,
+  }) {
     add(SetScrollSpeedScrollMatrix(speed: speed));
   }
 }

@@ -11,6 +11,8 @@ class MacosTappableTextBackButton extends StatelessWidget {
     this.onPressed,
   });
 
+  final double fontSize = 14.0;
+
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -31,7 +33,7 @@ class MacosTappableTextBackButton extends StatelessWidget {
             text,
             style: TextStyle(
               color: SharedWidgets.textColor(context: context),
-              fontSize: 14.0,
+              fontSize: fontSize,
               fontWeight: FontWeight.bold,
             ),
           ),

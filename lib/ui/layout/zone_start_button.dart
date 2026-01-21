@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
-class ZoneStartButton extends StatefulWidget {
+class ZoneStartButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
 
@@ -14,11 +14,6 @@ class ZoneStartButton extends StatefulWidget {
     required this.onPressed,
   });
 
-  @override
-  State<ZoneStartButton> createState() => _ZoneStartButtonState();
-}
-
-class _ZoneStartButtonState extends State<ZoneStartButton> {
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(left: 4.0),
@@ -38,8 +33,8 @@ class _ZoneStartButtonState extends State<ZoneStartButton> {
                     size: 20.0,
                   ),
                 ),
-                label: widget.label,
-                onPressed: () => widget.onPressed(),
+                label: label,
+                onPressed: () => onPressed(),
               )
             : ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -55,8 +50,8 @@ class _ZoneStartButtonState extends State<ZoneStartButton> {
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                onPressed: () => widget.onPressed(),
-                child: Text(widget.label),
+                onPressed: () => onPressed(),
+                child: Text(label),
               ),
       );
 }

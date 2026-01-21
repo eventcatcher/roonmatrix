@@ -18,9 +18,7 @@ class SpotifyConnectWebAuthPage extends StatefulWidget {
   final String url;
   final Size minDesktopSize;
   final Size standardDesktopSize;
-
   final Function({required String url}) callbackUrl;
-  final VoidCallback close;
 
   const SpotifyConnectWebAuthPage({
     super.key,
@@ -30,7 +28,6 @@ class SpotifyConnectWebAuthPage extends StatefulWidget {
     required this.minDesktopSize,
     required this.standardDesktopSize,
     required this.callbackUrl,
-    required this.close,
   });
 
   @override
@@ -41,9 +38,10 @@ class SpotifyConnectWebAuthPage extends StatefulWidget {
 class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
   String get name => widget.name;
   String get ip => widget.ip;
+  String get url => widget.url;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  VoidCallback get close => widget.close;
+  Function({required String url}) get callbackUrl => widget.callbackUrl;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -82,7 +80,7 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                     title: 'URL: $url',
                     url: url,
                     translations: translations,
-                    callbackUrl: widget.callbackUrl),
+                    callbackUrl: callbackUrl),
           ),
           if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
           if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
@@ -164,9 +162,7 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                     ),
                     child: SafeArea(
                       child: body(
-                          context: context,
-                          mainState: mainState,
-                          url: widget.url),
+                          context: context, mainState: mainState, url: url),
                     ),
                   );
                 }
@@ -177,9 +173,7 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                         standardDesktopSize: standardDesktopSize,
                         macosVersion: macosVersion,
                         body: body(
-                            context: context,
-                            mainState: mainState,
-                            url: widget.url),
+                            context: context, mainState: mainState, url: url),
                         resizeToFullWidth: () {
                           mainBloc.windowResizeToFullWidthAndMinimumHeight(
                               minDesktopSize: minDesktopSize);
@@ -192,9 +186,7 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                         scrollSpeedDevice: 1.0,
                         standardDesktopSize: standardDesktopSize,
                         body: body(
-                            context: context,
-                            mainState: mainState,
-                            url: widget.url),
+                            context: context, mainState: mainState, url: url),
                         resizeToFullWidth: () {
                           mainBloc.windowResizeToFullWidthAndMinimumHeight(
                               minDesktopSize: minDesktopSize);

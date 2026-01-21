@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/model/cover_model.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class CoverTextOverlayExtended extends StatefulWidget {
   final CoverModel coverModel;
@@ -25,6 +26,12 @@ class CoverTextOverlayExtended extends StatefulWidget {
 }
 
 class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
+  double get fontSize => widget.fontSize;
+  Map<String, dynamic> get translations => widget.translations;
+  bool get coverRowArtist => widget.coverRowArtist;
+  bool get coverRowAlbum => widget.coverRowAlbum;
+  bool get coverRowTrack => widget.coverRowTrack;
+
   late CoverModel coverModel;
 
   @override
@@ -45,110 +52,29 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   Widget build(BuildContext context) => Table(
         columnWidths: {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
         children: [
-          TableRow(children: [
-            TableCell(
-              child: Container(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  '${widget.translations['coverZoneHeader'] ?? 'Zone'}: ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: widget.fontSize,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+          SharedWidgets.getTableRowInnerCentered(
+            label: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
+            text: coverModel.zoneName,
+            fontSize: fontSize,
+          ),
+          if (coverRowArtist == true)
+            SharedWidgets.getTableRowInnerCentered(
+              label: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
+              text: coverModel.artist,
+              fontSize: fontSize,
             ),
-            TableCell(
-              child: Text(
-                coverModel.zoneName,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: widget.fontSize,
-                  color: Colors.white,
-                ),
-              ),
+          if (coverRowAlbum == true)
+            SharedWidgets.getTableRowInnerCentered(
+              label: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
+              text: coverModel.album,
+              fontSize: fontSize,
             ),
-          ]),
-          if (widget.coverRowArtist == true)
-            TableRow(children: [
-              TableCell(
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${widget.translations['coverArtistHeader'] ?? 'Artist'}: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: widget.fontSize,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Text(
-                  coverModel.artist,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: widget.fontSize,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ]),
-          if (widget.coverRowAlbum == true)
-            TableRow(children: [
-              TableCell(
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${widget.translations['coverAlbumHeader'] ?? 'Album'}: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: widget.fontSize,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Text(
-                  coverModel.album,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: widget.fontSize,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ]),
-          if (widget.coverRowTrack == true && coverModel.track.isNotEmpty)
-            TableRow(children: [
-              TableCell(
-                child: Container(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '${widget.translations['coverTrackHeader'] ?? 'Track'}: ',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: widget.fontSize,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              TableCell(
-                child: Text(
-                  coverModel.track,
-                  softWrap: true,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: widget.fontSize,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ]),
+          if (coverRowTrack == true && coverModel.track.isNotEmpty)
+            SharedWidgets.getTableRowInnerCentered(
+              label: '${translations['coverTrackHeader'] ?? 'Track'}: ',
+              text: coverModel.track,
+              fontSize: fontSize,
+            ),
         ],
       );
 }

@@ -3,33 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class RichParser extends SpecialTextSpanBuilder {
-  // erlaubte Tag-Namen:
-  // Wörter: a-z, A-Z, Zahlen, -, _
-  // mehrere Wörter erlaubt: "bold red"
-  static final _startTagRegex = RegExp(r'^[a-zA-Z0-9_-]+(\s+[a-zA-Z0-9_-]+)*$');
+  // allowed tag names:
+  // Words: a-z, A-Z, Numbers, -, _
+  // multiple words allowed: "bold red"
+  static final RegExp _startTagRegex =
+      RegExp(r'^[a-zA-Z0-9_-]+(\s+[a-zA-Z0-9_-]+)*$');
 
-  static final _endTagRegex = RegExp(r'^/[a-zA-Z0-9_-]+(\s+[a-zA-Z0-9_-]+)*$');
+  static final RegExp _endTagRegex =
+      RegExp(r'^/[a-zA-Z0-9_-]+(\s+[a-zA-Z0-9_-]+)*$');
 
   @override
-  SpecialText? createSpecialText(String flag,
-      {required int index,
-      TextStyle? textStyle,
-      SpecialTextGestureTapCallback? onTap}) {
+  SpecialText? createSpecialText(
+    String flag, {
+    required int index,
+    TextStyle? textStyle,
+    SpecialTextGestureTapCallback? onTap,
+  }) {
     return null; // unused
   }
 
   @override
-  TextSpan build(String data,
-      {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap}) {
-    final baseStyle = textStyle ?? const TextStyle();
-    final stack = <_Frame>[];
+  TextSpan build(
+    String data, {
+    TextStyle? textStyle,
+    SpecialTextGestureTapCallback? onTap,
+  }) {
+    final TextStyle baseStyle = textStyle ?? const TextStyle();
+    final List<_Frame> stack = <_Frame>[];
     stack.add(_Frame(tagName: null, style: baseStyle));
 
     int i = 0;
 
     while (i < data.length) {
       if (data[i] == '[') {
-        final close = data.indexOf(']', i + 1);
+        final int close = data.indexOf(']', i + 1);
 
         if (close == -1) {
           // Kein schließendes ']', treat as normal text.
@@ -38,15 +45,15 @@ class RichParser extends SpecialTextSpanBuilder {
           continue;
         }
 
-        final inside = data.substring(i + 1, close).trim();
+        final String inside = data.substring(i + 1, close).trim();
 
         // **END TAG**
         if (_endTagRegex.hasMatch(inside)) {
-          final tagName = inside.substring(1).trim();
+          final String tagName = inside.substring(1).trim();
 
           if (stack.length > 1 && stack.last.tagName == tagName) {
-            final popped = stack.removeLast();
-            final built =
+            final _Frame popped = stack.removeLast();
+            final TextSpan built =
                 TextSpan(children: popped.children, style: popped.style);
             stack.last.children.add(built);
           } else {
@@ -61,7 +68,7 @@ class RichParser extends SpecialTextSpanBuilder {
 
         // **START TAG**
         if (_startTagRegex.hasMatch(inside)) {
-          final parts = inside
+          final List<String> parts = inside
               .split(RegExp(r'\s+'))
               .map((s) => s.trim())
               .where((s) => s.isNotEmpty)
@@ -75,25 +82,25 @@ class RichParser extends SpecialTextSpanBuilder {
           }
         }
 
-        // nicht als Tag erkennbar → raw
+        // not recognizable as a tag → raw
         stack.last.children.add(TextSpan(
             text: data.substring(i, close + 1), style: stack.last.style));
         i = close + 1;
         continue;
       }
 
-      // Normales Zeichenblock
-      final next = data.indexOf('[', i);
-      final end = next == -1 ? data.length : next;
-      final segment = data.substring(i, end);
+      // Standard character block
+      final int next = data.indexOf('[', i);
+      final int end = next == -1 ? data.length : next;
+      final String segment = data.substring(i, end);
       stack.last.children.add(TextSpan(text: segment, style: stack.last.style));
       i = end;
     }
 
-    // Ungeschlossene Tags sauber beenden
+    // close unclosed tags
     while (stack.length > 1) {
-      final popped = stack.removeLast();
-      final literalStart = "[${popped.tagName}]";
+      final _Frame popped = stack.removeLast();
+      final String literalStart = "[${popped.tagName}]";
 
       stack.last.children.add(TextSpan(
         children: [
@@ -112,9 +119,9 @@ class RichParser extends SpecialTextSpanBuilder {
   // --------------------------------------------------
 
   TextStyle _styleFromParts(TextStyle base, List<String> parts) {
-    var result = base;
+    TextStyle result = base;
 
-    for (final p in parts) {
+    for (final String p in parts) {
       switch (p.toLowerCase()) {
         case 'bold':
         case 'b':
@@ -142,7 +149,7 @@ class RichParser extends SpecialTextSpanBuilder {
           result = result.merge(const TextStyle(color: Colors.grey));
           break;
 
-        // Farben
+        // Colors
         case 'red':
         case 'orange':
         case 'green':
@@ -151,13 +158,13 @@ class RichParser extends SpecialTextSpanBuilder {
         case 'blue':
         case 'bright_magenta':
         case 'magenta':
-          final c = _colorFromName(p);
+          final Color? c = _colorFromName(p);
           if (c != null) result = result.merge(TextStyle(color: c));
           break;
 
         default:
           if (p.startsWith('bg-')) {
-            final c = _colorFromName(p.substring(3));
+            final Color? c = _colorFromName(p.substring(3));
             if (c != null) {
               result = result.merge(TextStyle(backgroundColor: c));
             }

@@ -9,7 +9,8 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
-import 'package:roonmatrix/ui/details/searchfield.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
+import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/headline.dart';
@@ -91,7 +92,26 @@ class ConfigPageState extends State<ConfigPage> {
     super.initState();
   }
 
-  List<Widget> getFormFields({required ConfigDefinition defs}) {
+  String getFieldLabel({
+    required ConfigDefinitionItem fieldDefinition,
+    required String fieldType,
+  }) {
+    String label = (translations['config']?[fieldDefinition.name] ??
+        fieldDefinition.label);
+    if (!fieldType.startsWith('list') &&
+        fieldType != 'list' &&
+        fieldType != 'keyValItems') {
+      label += (fieldDefinition.unit != ''
+          ? ' (${translations['config']?[fieldDefinition.unit] ?? fieldDefinition.unit})'
+          : '');
+    }
+
+    return label;
+  }
+
+  List<Widget> getFormFields({
+    required ConfigDefinition defs,
+  }) {
     List<Widget> widgets = [];
 
     for (ConfigDefinitionArea area in defs.area) {
@@ -108,15 +128,10 @@ class ConfigPageState extends State<ConfigPage> {
 
           Widget? widgetField;
 
-          String label = (translations['config']?[fieldDefinition.name] ??
-              fieldDefinition.label);
-          if (!fieldType.startsWith('list') &&
-              fieldType != 'list' &&
-              fieldType != 'keyValItems') {
-            label += (fieldDefinition.unit != ''
-                ? ' (${translations['config']?[fieldDefinition.unit] ?? fieldDefinition.unit})'
-                : '');
-          }
+          String label = getFieldLabel(
+            fieldDefinition: fieldDefinition,
+            fieldType: fieldType,
+          );
 
           if (fieldType == 'text' && fieldDefinition.type.options != null) {
             widgetField = Padding(
@@ -321,9 +336,7 @@ class ConfigPageState extends State<ConfigPage> {
           if (fieldType.startsWith('listItems')) {
             List<dynamic> json = jsonDecode(
                 (fieldValues[area.name][fieldDefinition.name] as String)
-                    .replaceAll("'", '"')
-                    .replaceAll('[q]', "'")
-                    .replaceAll('[dq]', "\\\""));
+                    .replaceSpecialTagsWithQuotes());
             widgetField = ListItems(
               label: label,
               fieldValues: json,
@@ -424,8 +437,7 @@ class ConfigPageState extends State<ConfigPage> {
       }
       Widget widgetArea = Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-              Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+          borderRadius: SharedWidgets.borderRadius(),
         ),
         color: SharedWidgets.windowBackgroundColor(context: context),
         child: Column(
@@ -523,7 +535,7 @@ class ConfigPageState extends State<ConfigPage> {
         ),
       );
 
-  tabView({
+  Widget tabView({
     required BuildContext widgetContext,
     required ColorScheme defaultColorScheme,
     required MainState mainState,
@@ -711,8 +723,8 @@ class ConfigPageState extends State<ConfigPage> {
                   return Container();
                 }
 
-                macosVersion = mainState.macosVersion;
                 String search = mainState.searchFilter['config']!;
+                macosVersion = mainState.macosVersion;
                 jsonStr = mainBloc.getPrettyJSONString(mainState.config);
 
                 if (search.isNotEmpty) {

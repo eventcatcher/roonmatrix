@@ -19,7 +19,6 @@ class MessagePage extends StatefulWidget {
   final String ip;
   final Size minDesktopSize;
   final Size standardDesktopSize;
-  final VoidCallback close;
 
   const MessagePage({
     super.key,
@@ -27,7 +26,6 @@ class MessagePage extends StatefulWidget {
     required this.ip,
     required this.minDesktopSize,
     required this.standardDesktopSize,
-    required this.close,
   });
 
   @override
@@ -39,11 +37,8 @@ class MessagePageState extends State<MessagePage> {
   String get ip => widget.ip;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  VoidCallback get close => widget.close;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final double buttonSize = SharedWidgets.isDesktopDevice() ? 128.0 : 88.0;
-  final bool showButtonUp = false;
 
   Map<String, dynamic> translations = {};
   String title = '';
@@ -69,8 +64,10 @@ class MessagePageState extends State<MessagePage> {
     super.initState();
   }
 
-  Map<String, String> generateOptionsAndPreselect(
-      {required List<String> devices, required Map<String, dynamic> infos}) {
+  Map<String, String> generateOptionsAndPreselect({
+    required List<String> devices,
+    required Map<String, dynamic> infos,
+  }) {
     Map<String, String> options = {};
 
     for (String ip in devices) {
@@ -84,25 +81,28 @@ class MessagePageState extends State<MessagePage> {
     return options;
   }
 
-  Widget selectBox(options) => SelectBox(
-      translations: translations,
-      aligned: 'horizontal',
-      label: '${translations['deviceName'] ?? 'device name'}:',
-      placeholder:
-          '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-      inRow: false,
-      noVerticalSpace: false,
-      readOnly: false,
-      selected: selectedDeviceName,
-      options: options,
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          setState(() {
-            selectedDeviceName = newValue;
-            selectedDeviceIp = options[newValue]!;
+  Widget selectBox({
+    required Map<String, String> options,
+  }) =>
+      SelectBox(
+          translations: translations,
+          aligned: 'horizontal',
+          label: '${translations['deviceName'] ?? 'device name'}:',
+          placeholder:
+              '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+          inRow: false,
+          noVerticalSpace: false,
+          readOnly: false,
+          selected: selectedDeviceName,
+          options: options,
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              setState(() {
+                selectedDeviceName = newValue;
+                selectedDeviceIp = options[newValue]!;
+              });
+            }
           });
-        }
-      });
 
   Widget body({
     required Orientation orientation,
@@ -119,11 +119,10 @@ class MessagePageState extends State<MessagePage> {
                   // portrait view
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    selectBox(options),
+                    selectBox(options: options),
                     Padding(
                       padding: const EdgeInsets.only(top: 16.0),
                       child: MessageWriter(
-                        name: name,
                         ip: selectedDeviceIp,
                         customMessage: customMessage,
                         translations: translations,
@@ -141,14 +140,13 @@ class MessagePageState extends State<MessagePage> {
                       child: Column(
                         children: [
                           MessageWriter(
-                            name: name,
                             ip: selectedDeviceIp,
                             customMessage: customMessage,
                             translations: translations,
                             firstRowChild: Platform.isIOS ||
                                     Platform.isAndroid ||
                                     Platform.isFuchsia
-                                ? selectBox(options)
+                                ? selectBox(options: options)
                                 : null,
                           ),
                         ],

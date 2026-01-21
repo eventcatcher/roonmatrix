@@ -21,7 +21,9 @@ class RestartPollingTimer extends MainEvent {
 class AddWebSocketService extends MainEvent {
   final String ip;
 
-  const AddWebSocketService({required this.ip});
+  const AddWebSocketService({
+    required this.ip,
+  });
 
   @override
   List<Object> get props => [ip];
@@ -37,7 +39,9 @@ class ResetWebSocketServices extends MainEvent {
 class SetLogMessage extends MainEvent {
   final String msg;
 
-  const SetLogMessage({required this.msg});
+  const SetLogMessage({
+    required this.msg,
+  });
 
   @override
   List<Object> get props => [msg];
@@ -46,7 +50,9 @@ class SetLogMessage extends MainEvent {
 class Searching extends MainEvent {
   final bool? idle;
 
-  const Searching({this.idle});
+  const Searching({
+    this.idle,
+  });
 
   @override
   List<Object> get props => [idle ?? false];
@@ -56,7 +62,10 @@ class SetSearchFilter extends MainEvent {
   final String type;
   final String filter;
 
-  const SetSearchFilter({required this.type, required this.filter});
+  const SetSearchFilter({
+    required this.type,
+    required this.filter,
+  });
 
   @override
   List<Object> get props => [type, filter];
@@ -65,7 +74,9 @@ class SetSearchFilter extends MainEvent {
 class LoadDevices extends MainEvent {
   final List<String> devices;
 
-  const LoadDevices({required this.devices});
+  const LoadDevices({
+    required this.devices,
+  });
 
   @override
   List<Object> get props => [devices];
@@ -75,7 +86,10 @@ class LoadInfo extends MainEvent {
   final String ip;
   final dynamic info;
 
-  const LoadInfo({required this.ip, required this.info});
+  const LoadInfo({
+    required this.ip,
+    required this.info,
+  });
 
   @override
   List<Object> get props => [ip, info];
@@ -84,7 +98,9 @@ class LoadInfo extends MainEvent {
 class GetInfo extends MainEvent {
   final String ip;
 
-  const GetInfo({required this.ip});
+  const GetInfo({
+    required this.ip,
+  });
 
   @override
   List<Object> get props => [ip];
@@ -93,7 +109,9 @@ class GetInfo extends MainEvent {
 class GetConfig extends MainEvent {
   final String ip;
 
-  const GetConfig({required this.ip});
+  const GetConfig({
+    required this.ip,
+  });
 
   @override
   List<Object> get props => [ip];
@@ -103,7 +121,10 @@ class GetLog extends MainEvent {
   final String ip;
   final int hours;
 
-  const GetLog({required this.ip, required this.hours});
+  const GetLog({
+    required this.ip,
+    required this.hours,
+  });
 
   @override
   List<Object> get props => [ip, hours];
@@ -144,7 +165,10 @@ class SetIpRange extends MainEvent {
   final String? ipStart;
   final String? ipEnd;
 
-  const SetIpRange({required this.ipStart, required this.ipEnd});
+  const SetIpRange({
+    required this.ipStart,
+    required this.ipEnd,
+  });
 
   @override
   List<Object> get props {
@@ -164,7 +188,10 @@ class SetPing extends MainEvent {
   final String ip;
   final bool ping;
 
-  const SetPing({required this.ip, required this.ping});
+  const SetPing({
+    required this.ip,
+    required this.ping,
+  });
 
   @override
   List<Object> get props => [ip, ping];
@@ -174,7 +201,10 @@ class SetConnected extends MainEvent {
   final String ip;
   final bool connected;
 
-  const SetConnected({required this.ip, required this.connected});
+  const SetConnected({
+    required this.ip,
+    required this.connected,
+  });
 
   @override
   List<Object> get props => [ip, connected];

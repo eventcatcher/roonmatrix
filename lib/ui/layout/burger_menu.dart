@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
@@ -8,18 +7,28 @@ class BurgerMenu extends StatefulWidget {
   final bool noPop;
   final Function(String? key) onClose;
 
-  const BurgerMenu(
-      {super.key,
-      required this.translations,
-      required this.navigationTop,
-      this.noPop = false,
-      required this.onClose});
+  const BurgerMenu({
+    super.key,
+    required this.translations,
+    required this.navigationTop,
+    this.noPop = false,
+    required this.onClose,
+  });
 
   @override
   BurgerMenuState createState() => BurgerMenuState();
 }
 
 class BurgerMenuState extends State<BurgerMenu> {
+  Map<String, dynamic> get translations => widget.translations;
+  double? get navigationTop => widget.navigationTop;
+  bool get noPop => widget.noPop;
+  Function(String? key) get onClose => widget.onClose;
+
+  final double navigationTopFallback = 84.0;
+  final double navigationTopIos = 32.0;
+  final double fontSize = 16.0;
+
   List<dynamic> popupData = [];
 
   @override
@@ -34,12 +43,13 @@ class BurgerMenuState extends State<BurgerMenu> {
 
     popupData.add(BurgerMenuItemData(
       key: "about",
-      name: widget.translations['menuEntryAbout'] ?? "About RoonMatrix",
+      name: translations['menuEntryAbout'] ??
+          "About ${SharedWidgets.mainWindowTitle}",
     ));
 
     popupData.add(BurgerMenuItemData(
       key: "settings",
-      name: widget.translations['menuEntrySettings'] ?? "Settings",
+      name: translations['menuEntrySettings'] ?? "Settings",
     ));
   }
 
@@ -47,35 +57,34 @@ class BurgerMenuState extends State<BurgerMenu> {
         mainAxisSize: MainAxisSize.max,
         children: [
           SizedBox(
-            height:
-                SharedWidgets.inIosStyle() ? 32 : widget.navigationTop ?? 84.0,
+            height: SharedWidgets.inIosStyle()
+                ? navigationTopIos
+                : navigationTop ?? navigationTopFallback,
             child: SharedWidgets.inIosStyle()
                 ? Container(
                     decoration: BoxDecoration(
-                      color: SharedWidgets.inIosStyle()
-                          ? CupertinoColors.systemGrey
-                          : Colors.blue,
+                      color: SharedWidgets.bugerMenuHeadlineColor(
+                          context: context),
                     ),
                     margin: EdgeInsets.zero,
                     padding: EdgeInsets.zero,
                     child: Center(
                         child: Text(
-                      widget.translations['mainMenuHeader'] ?? 'Main menu',
-                      style: TextStyle(color: Colors.white, fontSize: 16.0),
+                      translations['mainMenuHeader'] ?? 'Main menu',
+                      style: TextStyle(color: Colors.white, fontSize: fontSize),
                     )),
                   )
                 : DrawerHeader(
                     decoration: BoxDecoration(
-                      color: SharedWidgets.inIosStyle()
-                          ? CupertinoColors.systemGrey
-                          : Colors.blue,
+                      color: SharedWidgets.bugerMenuHeadlineColor(
+                          context: context),
                     ),
                     margin: EdgeInsets.zero,
                     padding: EdgeInsets.zero,
                     child: Center(
                         child: Text(
-                      widget.translations['mainMenuHeader'] ?? 'Main menu',
-                      style: TextStyle(color: Colors.white, fontSize: 16.0),
+                      translations['mainMenuHeader'] ?? 'Main menu',
+                      style: TextStyle(color: Colors.white, fontSize: fontSize),
                     )),
                   ),
           ),
@@ -93,13 +102,13 @@ class BurgerMenuState extends State<BurgerMenu> {
                   title: Text(
                     popupData[index].name,
                     style: TextStyle(
-                      fontSize: 16.0,
+                      fontSize: fontSize,
                       color: SharedWidgets.textColor(context: context),
                     ),
                   ),
                   onTap: () {
-                    widget.onClose(popupData[index].key);
-                    if (!widget.noPop) {
+                    onClose(popupData[index].key);
+                    if (!noPop) {
                       Navigator.pop(context);
                     }
                   },

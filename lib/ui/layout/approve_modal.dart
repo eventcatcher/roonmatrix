@@ -13,17 +13,17 @@ class ApproveModal {
   final VoidCallback? onCanceled;
   final VoidCallback? onApproved;
 
-  ApproveModal(
-      {required this.context,
-      required this.question,
-      this.landscape = false,
-      this.icon,
-      this.title = 'Löschen',
-      this.okText = 'OK',
-      this.cancelText = 'Abbrechen',
-      VoidCallback? onCanceled,
-      VoidCallback? onApproved})
-      : onCanceled = onCanceled ?? (() {}),
+  ApproveModal({
+    required this.context,
+    required this.question,
+    this.landscape = false,
+    this.icon,
+    this.title = 'Löschen',
+    this.okText = 'OK',
+    this.cancelText = 'Abbrechen',
+    VoidCallback? onCanceled,
+    VoidCallback? onApproved,
+  })  : onCanceled = onCanceled ?? (() {}),
         onApproved = onApproved ?? (() {});
 
   Future<dynamic> show() {

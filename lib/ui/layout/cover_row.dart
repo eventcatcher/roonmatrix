@@ -15,6 +15,7 @@ class CoverRow extends StatefulWidget {
   final Map<String, dynamic> translations;
   final Map<String, dynamic> info;
   final List<String> devices;
+  final String? activeDeviceIp;
   final List<CoverModel> coverList;
   final bool coverRowDynamicSize;
   final bool showExportButton;
@@ -34,6 +35,7 @@ class CoverRow extends StatefulWidget {
     required this.translations,
     required this.info,
     required this.devices,
+    required this.activeDeviceIp,
     required this.coverList,
     required this.coverRowDynamicSize,
     required this.showExportButton,
@@ -54,9 +56,9 @@ class CoverRow extends StatefulWidget {
 class _CoverRowState extends State<CoverRow> {
   GlobalKey<AnimatedListState> get coverListKey => widget.coverListKey;
   MediaQueryData get mediaQueryData => widget.mediaQueryData;
-  List<String> get devices => widget.devices;
   Map<String, dynamic> get translations => widget.translations;
   Map<String, dynamic> get info => widget.info;
+  List<String> get devices => widget.devices;
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
   bool get showExportButton => widget.showExportButton;
   double? get appBarHeight => widget.appBarHeight;
@@ -69,10 +71,17 @@ class _CoverRowState extends State<CoverRow> {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final int flexCoverRow = 1;
+  final Duration coverAnimatedSwitcherDuration =
+      const Duration(milliseconds: 1000);
+  final AnimatedSwitcherTransitionBuilder coverAnimatedSwitcherPreset =
+      CoverTransition.presets(
+    CoverTransitionPreset.fadeScale,
+  );
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
   late List<CoverModel> coverList;
+  late String? activeDeviceIp;
 
   @override
   void initState() {
@@ -81,6 +90,7 @@ class _CoverRowState extends State<CoverRow> {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     coverList = widget.coverList;
+    activeDeviceIp = widget.activeDeviceIp;
   }
 
   @override
@@ -88,6 +98,7 @@ class _CoverRowState extends State<CoverRow> {
     super.didUpdateWidget(oldWidget);
 
     coverList = widget.coverList;
+    activeDeviceIp = widget.activeDeviceIp;
   }
 
   Widget getCoverRow({required Map<String, dynamic> info}) {
@@ -118,14 +129,13 @@ class _CoverRowState extends State<CoverRow> {
           sizeFactor: animation,
           axis: Axis.horizontal,
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 1000),
-            transitionBuilder: CoverTransition.presets(
-              CoverTransitionPreset.fadeScale,
-            ),
+            duration: coverAnimatedSwitcherDuration,
+            transitionBuilder: coverAnimatedSwitcherPreset,
             child: CoverWidget(
               key: ValueKey('CoverWidget${coverModelItem.hash}'),
               translations: translations,
               devices: devices,
+              activeDeviceIp: activeDeviceIp,
               coverModel: coverModelItem,
               coverSize: coverSize,
               coverRowDynamicSize: coverRowDynamicSize,

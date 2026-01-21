@@ -38,20 +38,34 @@ class EditableMultilineText extends StatefulWidget {
 }
 
 class EditableMultilineTextState extends State<EditableMultilineText> {
+  Map<String, dynamic> get translations => widget.translations;
+  String? get label => widget.label;
+  int get maxLines => widget.maxLines;
+  double? get height => widget.height;
+  String get text => widget.text;
+  String? get placeholder => widget.placeholder;
+  TextEditingController? get textController => widget.textController;
+  void Function(String value)? get onChanged => widget.onChanged;
+  String Function(String text)? get filter => widget.filter;
+  void Function(Function func)? get getTextCallback => widget.getTextCallback;
+  bool Function(String text)? get validation => widget.validation;
+  String Function(String text)? get errorMessageHandler =>
+      widget.errorMessageHandler;
+
   final TextEditingController _userTextController = TextEditingController();
-  late EdgeInsetsGeometry margin;
-  int debounceTime = 2500; // textfield debounce time in milliseconds
+  final int debounceTime = 2500; // textfield debounce time in milliseconds
+
   bool valid = true;
   String? errorMessage = '';
 
   @override
   void initState() {
-    TextEditingController c = widget.textController ?? _userTextController;
+    TextEditingController c = textController ?? _userTextController;
 
-    c.text = widget.text;
+    c.text = text;
 
-    if (widget.getTextCallback != null) {
-      widget.getTextCallback!(getText);
+    if (getTextCallback != null) {
+      getTextCallback!(getText);
     }
 
     super.initState();
@@ -59,20 +73,20 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
 
   @override
   void didUpdateWidget(EditableMultilineText oldWidget) {
-    TextEditingController c = widget.textController ?? _userTextController;
+    TextEditingController c = textController ?? _userTextController;
 
-    if (widget.validation != null) {
-      valid = widget.validation!(c.text);
+    if (validation != null) {
+      valid = validation!(c.text);
     }
-    if (widget.errorMessageHandler != null) {
-      errorMessage = widget.errorMessageHandler!(c.text);
+    if (errorMessageHandler != null) {
+      errorMessage = errorMessageHandler!(c.text);
     }
 
     super.didUpdateWidget(oldWidget);
   }
 
   String getText() {
-    TextEditingController c = widget.textController ?? _userTextController;
+    TextEditingController c = textController ?? _userTextController;
 
     return c.text;
   }
@@ -85,11 +99,11 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.label != null)
+          if (label != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 4.0),
               child: Text(
-                widget.label!,
+                label!,
                 textAlign: TextAlign.start,
                 style: TextStyle(
                   color: SharedWidgets.textColor(context: context),
@@ -101,31 +115,29 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
             children: [
               Expanded(
                 child: Container(
-                  height: widget.height,
+                  height: height,
                   decoration:
                       SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
                           ? null
                           : BoxDecoration(
                               boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.grey,
-                                    offset: Offset(0.1, 0.5),
-                                    blurRadius: 0.1,
-                                    blurStyle: BlurStyle.normal,
-                                  )
-                                ],
+                                BoxShadow(
+                                  color: Colors.grey,
+                                  offset: Offset(0.1, 0.5),
+                                  blurRadius: 0.1,
+                                  blurStyle: BlurStyle.normal,
+                                )
+                              ],
                               color: SharedWidgets.elementBackgroundColor(
                                   context: context),
-                              borderRadius: BorderRadius.all(Radius.circular(
-                                  SharedWidgets.inIosStyle() ? 8 : 5))),
+                              borderRadius: SharedWidgets.borderRadius(),
+                            ),
                   child: SharedWidgets.inIosStyle() ||
                           SharedWidgets.inMacosStyle()
                       ? CupertinoTextField(
-                          controller:
-                              widget.textController ?? _userTextController,
-                          placeholder: widget.placeholder ??
-                              widget.translations[
-                                  'pleaseTypeMessagePlaceholder'] ??
+                          controller: textController ?? _userTextController,
+                          placeholder: placeholder ??
+                              translations['pleaseTypeMessagePlaceholder'] ??
                               'Please write message here',
                           textAlign: TextAlign.start,
                           textAlignVertical: TextAlignVertical.top,
@@ -134,22 +146,21 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                               color:
                                   SharedWidgets.borderColor(context: context),
                             ),
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                SharedWidgets.inIosStyle() ? 8 : 5)),
+                            borderRadius: SharedWidgets.borderRadius(),
                           ),
                           style: TextStyle(
                             color: SharedWidgets.textColor(context: context),
                             fontSize: 16.0,
                           ),
-                          maxLines: widget.maxLines,
+                          maxLines: maxLines,
                           maxLength: null,
                           keyboardType: TextInputType.multiline,
                           onChanged: (String value) {
                             bool doTextCorrection = false;
 
-                            if (widget.filter != null) {
+                            if (filter != null) {
                               String unfilteredValue = value;
-                              value = widget.filter!(value);
+                              value = filter!(value);
                               if (unfilteredValue != value) {
                                 doTextCorrection = true;
                               }
@@ -157,32 +168,30 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
 
                             if (doTextCorrection == true) {
                               TextEditingController c =
-                                  widget.textController ?? _userTextController;
+                                  textController ?? _userTextController;
                               c.text = value;
                               c.selection = TextSelection.fromPosition(
                                   TextPosition(offset: c.text.length));
                             }
 
-                            if (mounted && widget.validation != null) {
+                            if (mounted && validation != null) {
                               setState(() {
-                                valid = widget.validation!(value);
-                                if (widget.errorMessageHandler != null) {
-                                  errorMessage =
-                                      widget.errorMessageHandler!(value);
+                                valid = validation!(value);
+                                if (errorMessageHandler != null) {
+                                  errorMessage = errorMessageHandler!(value);
                                 }
                               });
                             }
 
-                            if (widget.onChanged != null) {
+                            if (onChanged != null) {
                               return EasyDebounce.debounce(
-                                  '${widget.label}-debouncer',
+                                  '$label-debouncer',
                                   Duration(milliseconds: debounceTime),
-                                  () => widget.onChanged!(value));
+                                  () => onChanged!(value));
                             }
                           })
                       : TextField(
-                          controller:
-                              widget.textController ?? _userTextController,
+                          controller: textController ?? _userTextController,
                           textAlign: TextAlign.start,
                           textAlignVertical: TextAlignVertical.top,
                           style: TextStyle(
@@ -190,20 +199,20 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                             fontSize: 14.0,
                           ),
                           decoration: InputDecoration(
-                            hintText: widget.translations[
-                                    'pleaseTypeMessagePlaceholder'] ??
-                                'Please write message here',
+                            hintText:
+                                translations['pleaseTypeMessagePlaceholder'] ??
+                                    'Please write message here',
                             contentPadding: EdgeInsets.all(9.0),
                           ),
-                          maxLines: widget.maxLines,
+                          maxLines: maxLines,
                           maxLength: null,
                           keyboardType: TextInputType.multiline,
                           onChanged: (String value) {
                             bool doTextCorrection = false;
 
-                            if (widget.filter != null) {
+                            if (filter != null) {
                               String unfilteredValue = value;
-                              value = widget.filter!(value);
+                              value = filter!(value);
                               if (unfilteredValue != value) {
                                 doTextCorrection = true;
                               }
@@ -211,17 +220,17 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
 
                             if (doTextCorrection == true) {
                               TextEditingController c =
-                                  widget.textController ?? _userTextController;
+                                  textController ?? _userTextController;
                               c.text = value;
                               c.selection = TextSelection.fromPosition(
                                   TextPosition(offset: c.text.length));
                             }
 
-                            if (widget.onChanged != null) {
+                            if (onChanged != null) {
                               EasyDebounce.debounce(
-                                  '${widget.label}-debouncer',
+                                  '$label-debouncer',
                                   Duration(milliseconds: debounceTime),
-                                  () => widget.onChanged!(value));
+                                  () => onChanged!(value));
                             }
                           },
                         ),

@@ -19,7 +19,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 // ============================ style config============================
 
-final bool showMacStyle = true; // show app in macos ui style (running on macos)
+final bool showMacStyle =
+    false; // show app in macos ui style (running on macos)
 final bool showIosStyle =
     true; // show app in iOS ui style (running on macos or iOS)
 final bool showSelectBoxInMacStyle = true;
@@ -27,6 +28,14 @@ final bool showSelectBoxInMacStyle = true;
 // =====================================================================
 
 class SharedWidgets {
+  static String mainWindowTitle = 'RoonMatrix';
+
+  static BorderRadius borderRadius() =>
+      BorderRadius.all(Radius.circular(SharedWidgets.inIosStyle() ? 8.0 : 5.0));
+
+  static String placeholderAssetPath() =>
+      'assets/svg/8-8-led-matrix-display-unit.svg';
+
   static bool isMobileDevice() {
     return Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
   }
@@ -347,6 +356,14 @@ class SharedWidgets {
         : Colors.white;
   }
 
+  static Color bugerMenuHeadlineColor({
+    required BuildContext context,
+  }) {
+    return SharedWidgets.inIosStyle()
+        ? CupertinoColors.systemGrey
+        : Colors.blue;
+  }
+
   static AlertElement addItemWithNameDialog({
     required BuildContext context,
     required TextEditingController textController,
@@ -583,7 +600,7 @@ class SharedWidgets {
     );
   }
 
-  static showSnackBar({
+  static void showSnackBar({
     required BuildContext context,
     required String doneMessage,
     required String failMessage,
@@ -626,7 +643,7 @@ class SharedWidgets {
                 width: 64,
                 height: 64,
                 child: SvgPicture.asset(
-                  'assets/svg/8-8-led-matrix-display-unit.svg',
+                  placeholderAssetPath(),
                   allowDrawingOutsideViewBox: false,
                   fit: BoxFit.cover,
                   clipBehavior: Clip.hardEdge,
@@ -661,9 +678,6 @@ class SharedWidgets {
               return SettingsPage(
                 minDesktopSize: minDesktopSize,
                 standardDesktopSize: standardDesktopSize,
-                close: () {
-                  Navigator.pop(context);
-                },
               );
             },
           );
@@ -676,5 +690,147 @@ class SharedWidgets {
     final version = macosInfo.osRelease.replaceFirst('Version', '').trim();
 
     return version;
+  }
+
+  static TableRow getTableRowInnerCentered({
+    required String label,
+    required String text,
+    required double fontSize,
+  }) =>
+      TableRow(children: [
+        TableCell(
+          child: Container(
+            alignment: Alignment.centerRight,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        TableCell(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ]);
+
+  static double measureTextSize({
+    required BuildContext context,
+    required String text,
+    required TextStyle style,
+  }) {
+    if (text.isEmpty) return 0;
+
+    final TextScaler textScaler = MediaQuery.of(context).textScaler;
+
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+      textScaler: textScaler,
+    )..layout();
+
+    return tp.width;
+  }
+
+  static void showIosPickerDialog({
+    required BuildContext context,
+    required Map<String, dynamic> translations,
+    required Map<String, dynamic> options,
+    required String? selected,
+    required bool showValue,
+    required bool isObject,
+    required VoidCallback onApproved,
+    required Function(int index) onSelectedItemChanged,
+  }) {
+    final double height = 216.0;
+
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) {
+        final BuildContext modalContext = context;
+        return Container(
+          height: height,
+          padding: const EdgeInsets.only(top: 6.0),
+          // The Bottom margin is provided to align the popup above the system navigation bar.
+          margin: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          // Provide a background color for the popup.
+          color: CupertinoColors.systemBackground.resolveFrom(context),
+          // Use a SafeArea widget to avoid system overlaps.
+          child: SafeArea(
+            top: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    CupertinoButton(
+                      child: Text(
+                          translations['dialogCancelButtonText'] ?? 'Cancel'),
+                      onPressed: () {
+                        Navigator.pop(modalContext);
+                      },
+                    ),
+                    Expanded(
+                      child: SizedBox(),
+                    ),
+                    CupertinoButton(
+                      child: Text(translations['okButtonText'] ?? 'OK'),
+                      onPressed: () {
+                        onApproved();
+                        Navigator.pop(modalContext);
+                      },
+                    ),
+                  ],
+                ),
+                Expanded(
+                  child: CupertinoPicker(
+                    magnification: 1.22,
+                    squeeze: 1.2,
+                    useMagnifier: true,
+                    itemExtent: 48,
+                    scrollController: FixedExtentScrollController(
+                      initialItem: selected != null
+                          ? isObject
+                              ? options.values.toList().indexOf(selected)
+                              : options.keys.toList().indexOf(selected)
+                          : 0,
+                    ),
+                    onSelectedItemChanged: (int index) =>
+                        onSelectedItemChanged(index),
+                    children:
+                        List<Widget>.generate(options.length, (int index) {
+                      return Center(
+                        child: Text(
+                          showValue
+                              ? isObject
+                                  ? options.values.toList()[index]['name']
+                                  : options.values.toList()[index]
+                              : options.keys.toList()[index],
+                          style: TextStyle(fontSize: 13.0),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

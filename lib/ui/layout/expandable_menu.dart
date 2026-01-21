@@ -42,11 +42,11 @@ class ExpandableMenu extends StatefulWidget {
     super.key,
     this.width = 70.0,
     this.height = 70.0,
-    this.animationSpeed = 800,
     required this.items,
     this.backgroundColor = const Color(0xFF4B5042),
     this.iconColor = Colors.white,
     this.itemContainerColor,
+    this.animationSpeed = 800,
     this.controller,
     this.getController,
     this.isExpanded,
@@ -58,34 +58,19 @@ class ExpandableMenu extends StatefulWidget {
 
 class ExpandableMenuState extends State<ExpandableMenu>
     with TickerProviderStateMixin {
-  /// This private property declare to width of widget.
-  late double _width;
+  double get width => widget.width;
+  double get height => widget.height;
+  List<Widget> get items => widget.items;
+  Color get backgroundColor => widget.backgroundColor;
+  Color get iconColor => widget.iconColor;
+  Color? get itemContainerColor => widget.itemContainerColor;
+  int get animationSpeed => widget.animationSpeed;
+  ExpandableMenuController? get controller => widget.controller;
+  Function? get getController => widget.getController;
+  Function(bool mode)? get isExpanded => widget.isExpanded;
 
   /// This private property declare for measure expanded state of widget.
   final _spacerKey = GlobalKey();
-
-  /// This private property declare list widget.
-  double _listWidth = 0;
-
-  /// This private property declare items in widgets.
-  List<Widget> _listWidget = <Widget>[];
-
-  /// This private property declare expand status of widget.
-  /// If [_isExpanded] equals true it's meaning widget is expanded and
-  /// if [_isExpanded] equals false it's meaning widget is not expanded.
-  bool _isExpanded = false;
-
-  /// This private property declare main container animation
-  late Animation<double> _containerAnimation;
-
-  /// This private property declare main container animation controller
-  late AnimationController _containerAnimationController;
-
-  /// This private property declare main container animation progress value.
-  double _containerProgress = 0.0;
-
-  /// This private property declare list timer for build every 60 millisecond [buildContainer].
-  Timer? _listTimer;
 
   /// This private property is for controlling icons animation
   final ExpandableIconController _iconController = ExpandableIconController();
@@ -93,21 +78,47 @@ class ExpandableMenuState extends State<ExpandableMenu>
   final ExpandableMenuController expandableMenuController =
       ExpandableMenuController();
 
+  /// This private property declare items in widgets.
+  List<Widget> _listWidget = <Widget>[];
+
+  /// This private property declare list widget.
+  double _listWidth = 0;
+
+  /// This private property declare expand status of widget.
+  /// If [_isExpanded] equals true it's meaning widget is expanded and
+  /// if [_isExpanded] equals false it's meaning widget is not expanded.
+  bool _isExpanded = false;
+
+  /// This private property declare main container animation progress value.
+  double _containerProgress = 0.0;
+
+  /// This private property declare list timer for build every 60 millisecond [buildContainer].
+  Timer? _listTimer;
+
+  /// This private property declare main container animation
+  late Animation<double> _containerAnimation;
+
+  /// This private property declare main container animation controller
+  late AnimationController _containerAnimationController;
+
+  /// This private property declare to width of widget.
+  late double _width;
+
   @override
   void initState() {
     if (kDebugMode) {
-      debugPrint('ExpandableMenu initState (items: ${widget.items.length})');
+      debugPrint('ExpandableMenu initState (items: ${items.length})');
     }
     //Set state controller if set
-    if (widget.controller != null) {
-      widget.controller!.setControllerState(this, _iconController);
+    if (controller != null) {
+      controller!.setControllerState(this, _iconController);
     } else {
       expandableMenuController.setControllerState(this, _iconController);
     }
 
-    _width = widget.width;
+    _width = width;
     _containerAnimationController = AnimationController(
-      duration: Duration(milliseconds: widget.animationSpeed),
+      duration: Duration(milliseconds: animationSpeed),
       vsync: this,
     );
 
@@ -121,7 +132,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
           _containerProgress = _containerAnimation.value;
           if (kDebugMode) {
             debugPrint(
-                'ExpandableMenu containerAnimation (items: ${widget.items.length}), _containerProgress: $_containerProgress');
+                'ExpandableMenu containerAnimation (items: ${items.length}), _containerProgress: $_containerProgress');
           }
           if (!_isExpanded && _containerProgress == 0.0) {
             _listWidget = [];
@@ -135,7 +146,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
       if (_spacerKey.currentContext != null &&
           _spacerKey.currentContext!.size != null) {
         _width = _spacerKey.currentContext!.size!.width;
-        _listWidth = _width - widget.width;
+        _listWidth = _width - width;
       }
     });
   }
@@ -143,17 +154,16 @@ class ExpandableMenuState extends State<ExpandableMenu>
   @override
   void didUpdateWidget(ExpandableMenu oldWidget) {
     if (kDebugMode) {
-      debugPrint(
-          'ExpandableMenu didUpdateWidget (items: ${widget.items.length})');
+      debugPrint('ExpandableMenu didUpdateWidget (items: ${items.length})');
     }
-    _listWidget = widget.items;
+    _listWidget = items;
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
     if (kDebugMode) {
-      debugPrint('ExpandableMenu dispose (items: ${widget.items.length})');
+      debugPrint('ExpandableMenu dispose (items: ${items.length})');
     }
     _containerAnimationController.dispose();
     super.dispose();
@@ -162,10 +172,10 @@ class ExpandableMenuState extends State<ExpandableMenu>
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) {
-      debugPrint('ExpandableMenu build (items: ${widget.items.length})');
+      debugPrint('ExpandableMenu build (items: ${items.length})');
     }
-    if (widget.getController != null) {
-      widget.getController!(expandableMenuController);
+    if (getController != null) {
+      getController!(expandableMenuController);
     }
 
     return Row(
@@ -177,26 +187,23 @@ class ExpandableMenuState extends State<ExpandableMenu>
         Container(
           clipBehavior: Clip.antiAlias,
           width: _width * _containerProgress,
-          constraints:
-              BoxConstraints(minWidth: widget.width, minHeight: widget.height),
+          constraints: BoxConstraints(minWidth: width, minHeight: height),
           decoration: BoxDecoration(
-              color: widget.backgroundColor,
-              borderRadius: BorderRadius.all(Radius.circular(
-                  widget.width >= widget.height
-                      ? widget.width
-                      : widget.height))),
+              color: backgroundColor,
+              borderRadius: BorderRadius.all(
+                  Radius.circular(width >= height ? width : height))),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
-                width: widget.width * .15,
+                width: width * .15,
               ),
               ExpandableIcon(
-                width: widget.width,
-                height: widget.height,
-                iconColor: widget.iconColor,
-                animationSpeed: widget.animationSpeed,
+                width: width,
+                height: height,
+                iconColor: iconColor,
+                animationSpeed: animationSpeed,
                 controller: _iconController,
                 onClicked: () {
                   onExpandableIconClicked();
@@ -206,7 +213,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
                 width: _containerProgress < 0.9
                     ? 0
                     : _listWidth * _containerProgress,
-                height: widget.height - 8,
+                height: height - 8,
                 child: Directionality(
                   textDirection: _listWidget.length > 1
                       ? Directionality.of(context) == TextDirection.rtl
@@ -233,8 +240,8 @@ class ExpandableMenuState extends State<ExpandableMenu>
   /// In [onExpandableIconClicked] method container animation will run.
   void onExpandableIconClicked() {
     _isExpanded = !_isExpanded;
-    if (widget.isExpanded != null) {
-      widget.isExpanded!(_isExpanded);
+    if (isExpanded != null) {
+      isExpanded!(_isExpanded);
     }
 
     setState(() {
@@ -243,15 +250,15 @@ class ExpandableMenuState extends State<ExpandableMenu>
         if (_listWidget.isEmpty) {
           Timer.periodic(const Duration(milliseconds: 60), (timer) {
             _listTimer = timer;
-            final allWidgets = widget.items;
+            final allWidgets = items;
             if (_listWidget.length < allWidgets.length) {
               if (_listWidget.isEmpty) {
-                final item = widget.items[0];
+                final item = items[0];
                 _listWidget.add(item);
               } else {
-                final item = widget.items[_listWidget.length];
+                final item = items[_listWidget.length];
                 _listWidget.add(item);
-                if (_listWidget.length == widget.items.length) {
+                if (_listWidget.length == items.length) {
                   timer.cancel();
                 }
               }
@@ -266,7 +273,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
   }
 
   /// This method will return size of item.
-  double itemSize() => widget.height * .75;
+  double itemSize() => height * .75;
 }
 
 /// Controller [ExpandableMenuController] makes it possible to toggle states

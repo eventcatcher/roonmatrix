@@ -31,12 +31,15 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
   Map<String, dynamic> get translations => widget.translations;
   Orientation get orientation => widget.orientation;
 
-  List<Widget> buttons = [];
-
-  double? zoneNotRunningButtonsWidth;
-
   final GlobalKey keyZoneNotRunningButtonsKey = GlobalKey();
   final double notRunningButtonsExpandableMenuWidthStandardAddon = 42;
+
+  final double expandableSize = 38.0;
+  final double buttonsWidthDefault = 200.0;
+  final int animationSpeed = 400;
+
+  List<Widget> buttons = [];
+  double? zoneNotRunningButtonsWidth;
 
   late MainBloc mainBloc;
   late double deviceWidth;
@@ -45,8 +48,8 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
   @override
   void initState() {
     mainBloc = BlocProvider.of<MainBloc>(context);
-    info = widget.info;
     deviceWidth = widget.deviceWidth;
+    info = widget.info;
     buttons = getZonesNotRunningStartButtons();
 
     super.initState();
@@ -56,8 +59,8 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
   void didUpdateWidget(ZoneStartButtons oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    info = widget.info;
     deviceWidth = widget.deviceWidth;
+    info = widget.info;
     buttons = getZonesNotRunningStartButtons();
   }
 
@@ -72,27 +75,6 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
       Map<String, dynamic> channels = info![info!.keys.first]['channels'];
       Map<String, dynamic> webPlayouts =
           info![info!.keys.first]['web_playouts'];
-
-      //  Map<String, dynamic> roonPlayouts =
-      //     info[info.keys.first]['roon_playouts'];
-      // for (String channelId in channels.keys) {
-      //   String channelName = channels[channelId];
-      //   if (channels[channelId] != 'webserver' &&
-      //       channels[channelId] != 'spotifyconnect' &&
-      //       !roonPlayouts.keys.contains(channelName)) {
-      //     buttons.add(ZoneStartButton(
-      //       label: channelName,
-      //       onPressed: () {
-      //         mainBloc.zoneControl(
-      //           ip: info.keys.first,
-      //           controlId: channelId,
-      //           cmd: 'playmode',
-      //           enable: true,
-      //         );
-      //       },
-      //     ));
-      //   }
-      // }
 
       for (String serverName in webPlayouts.keys) {
         List<dynamic> zones = webPlayouts[serverName];
@@ -184,14 +166,14 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
     }
     return SharedWidgets.isMobileDevice()
         ? SizedBox(
-            width: zoneNotRunningButtonsWidth ?? 200,
-            height: 38.0,
+            width: zoneNotRunningButtonsWidth ?? buttonsWidthDefault,
+            height: expandableSize,
             child: ExpandableMenu(
               key: ValueKey(
                   'ExpandableMenuZoneButtons-$zoneNotRunningButtonsWidth'), // zone button menu in cover area
-              width: 38.0,
-              height: 38.0,
-              animationSpeed: 400,
+              width: expandableSize,
+              height: expandableSize,
+              animationSpeed: animationSpeed,
               backgroundColor:
                   SharedWidgets.buttonRowBackgroundColor(context: context),
               items: [
@@ -225,7 +207,7 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
         : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(width: 8),
+              const SizedBox(width: 8.0),
               Text(translations['startZone'] ?? 'start',
                   style: TextStyle(
                       color: SharedWidgets.textColor(context: context))),

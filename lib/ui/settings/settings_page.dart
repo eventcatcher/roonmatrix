@@ -25,13 +25,11 @@ import 'package:roonmatrix/ui/translations/translations_state.dart';
 class SettingsPage extends StatefulWidget {
   final Size minDesktopSize;
   final Size standardDesktopSize;
-  final VoidCallback close;
 
   const SettingsPage({
     super.key,
     required this.minDesktopSize,
     required this.standardDesktopSize,
-    required this.close,
   });
 
   @override
@@ -41,13 +39,12 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  VoidCallback get close => widget.close;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final TextEditingController ipStart = TextEditingController();
+  final TextEditingController ipEnd = TextEditingController();
 
   Map<String, dynamic> translations = {};
-  TextEditingController ipStart = TextEditingController();
-  TextEditingController ipEnd = TextEditingController();
   String title = '';
   String macosVersion = '';
   bool moreInfo = false;
@@ -66,13 +63,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void initState() {
-    title = 'Settings';
-    ipStart.text = '';
-    ipEnd.text = '';
-
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
+
+    title = 'Settings';
+    ipStart.text = '';
+    ipEnd.text = '';
 
     super.initState();
   }

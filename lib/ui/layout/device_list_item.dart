@@ -76,10 +76,26 @@ class DeviceListItemState extends State<DeviceListItem> {
   String get spotifyAuthUrl => widget.spotifyAuthUrl;
   bool get isSmallDeviceWidth => widget.isSmallDeviceWidth;
   bool get moreInfo => widget.moreInfo;
+  void Function(String caller) get updateSizes => widget.updateSizes;
+
+  final double deviceListCoverSize = 40.0;
+  final double mobileInfoPaddingRight = 40.0;
+  final Color tileColor = Colors.lightBlueAccent;
+  final Duration coverSwitchAnimationDuration =
+      const Duration(milliseconds: 2000);
+  final Duration animatedOpacityForTimeZonePlaycountText =
+      const Duration(milliseconds: 400);
+
+  final double tickerTopOffset = 60.0;
+  final double tickerAreaHeight = 24.0;
+  final String tickerFontFamily = 'whiteCupertino subtitle';
+  final double tickerFontSize = 14.0;
+  final double tickerPixelPerSecondFactor = 50.0;
+  final String tickerSeparator = '    ////    ';
+  final double tickerSpeedSliderWidth = 120.0;
 
   double infoOpacityLevel = 1.0;
   double itemListHeight = 84;
-  final double deviceListCoverSize = 40.0;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -96,26 +112,28 @@ class DeviceListItemState extends State<DeviceListItem> {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
-    ip = widget.ip;
-    connected = widget.connected;
-    ping = widget.ping;
-    info = widget.info;
-    scrollSpeedScrollMatrix = widget.scrollSpeedScrollMatrix;
-    scrollSpeedDevice = widget.scrollSpeedDevice;
+
+    updateProps();
+
     super.initState();
   }
 
   @override
   void didUpdateWidget(DeviceListItem oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    updateProps();
+
+    //print('ip: $ip, scrollText: ${info[ip]['app_displaystr'] ?? ''}');
+  }
+
+  void updateProps() {
     ip = widget.ip;
     connected = widget.connected;
     ping = widget.ping;
     info = widget.info;
     scrollSpeedScrollMatrix = widget.scrollSpeedScrollMatrix;
     scrollSpeedDevice = widget.scrollSpeedDevice;
-
-    //print('ip: $ip, scrollText: ${info[ip]['app_displaystr'] ?? ''}');
   }
 
   @override
@@ -135,11 +153,7 @@ class DeviceListItemState extends State<DeviceListItem> {
     String zoneName = mainRepository.getZoneName(info: i);
 
     Map<String, dynamic>? zone = mainRepository.getZoneDataForControlId(i);
-    String? coverUrl = zone != null &&
-            zone['cover'] != null &&
-            (zone['cover'] as String).isNotEmpty
-        ? zone['cover']
-        : null;
+    String? coverUrl = mainRepository.getCoverUrl(zone: zone);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -158,7 +172,7 @@ class DeviceListItemState extends State<DeviceListItem> {
     });
 
     return Container(
-      key: index == 0 ? itemListKey : null,
+      key: index == 0 ? itemListKey : null, // only first item with key
       color: SharedWidgets.tileBackgroundColor(context: context),
       height: itemListHeight - 1,
       padding: EdgeInsets.only(
@@ -170,7 +184,7 @@ class DeviceListItemState extends State<DeviceListItem> {
           //Text('scrollText: $scrollText'),
           ListTile(
             contentPadding: EdgeInsets.all(0),
-            tileColor: Colors.lightBlueAccent,
+            tileColor: tileColor,
             iconColor: Colors.black,
             textColor: SharedWidgets.textColor(context: context),
             title: Row(
@@ -184,10 +198,6 @@ class DeviceListItemState extends State<DeviceListItem> {
                     padding: EdgeInsets.zero,
                     onPressed: () => showGeneralDialog(
                       context: context,
-                      // barrierColor: Colors
-                      //     .black12
-                      //     .withOpacity(
-                      //         0.6), // Background color
                       barrierDismissible: false,
                       barrierLabel: 'Dialog',
                       transitionDuration: const Duration(milliseconds: 0),
@@ -202,7 +212,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                       },
                     ),
                     icon: AnimatedSwitcher(
-                      duration: Duration(milliseconds: 2000),
+                      duration: coverSwitchAnimationDuration,
                       switchInCurve: Curves.easeIn,
                       switchOutCurve: Curves.easeOut,
                       child: coverUrl != null
@@ -213,7 +223,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                               key: ValueKey('DeviceCover$index$coverUrl'),
                             )
                           : SvgPicture.asset(
-                              'assets/svg/8-8-led-matrix-display-unit.svg',
+                              SharedWidgets.placeholderAssetPath(),
                               allowDrawingOutsideViewBox: false,
                               fit: BoxFit.cover,
                               clipBehavior: Clip.hardEdge,
@@ -241,7 +251,11 @@ class DeviceListItemState extends State<DeviceListItem> {
                           children: [
                             Flexible(
                               child: Text(
-                                '${translations['deviceListTime'] ?? 'time'}: ${mainRepository.getFormattedDateString(date: i['time'])}  |  ${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
+                                mainRepository.getTimeZonePlaycountText(
+                                  translations: translations,
+                                  info: i,
+                                  zoneName: zoneName,
+                                ),
                                 softWrap: true,
                                 maxLines: 2,
                                 overflow: TextOverflow.fade,
@@ -275,16 +289,22 @@ class DeviceListItemState extends State<DeviceListItem> {
                               if (!isSmallDeviceWidth)
                                 AnimatedOpacity(
                                   opacity: infoOpacityLevel,
-                                  duration: const Duration(milliseconds: 400),
+                                  duration:
+                                      animatedOpacityForTimeZonePlaycountText,
                                   child: Text(
-                                    '${translations['deviceListTime'] ?? 'time'}: ${mainRepository.getFormattedDateString(date: i['time'])}\n${translations['deviceListZone'] ?? 'zone'}: $zoneName  |  ${translations['deviceListPlaycount'] ?? 'playcount'}: ${i['playcount']}  ',
+                                    mainRepository.getTimeZonePlaycountText(
+                                      translations: translations,
+                                      info: i,
+                                      zoneName: zoneName,
+                                      withLineBreak: true,
+                                    ),
                                     softWrap: true,
                                     maxLines: 2,
                                     overflow: TextOverflow.fade,
                                     style: const TextStyle(fontSize: 11),
                                   ),
                                 ),
-                              SizedBox(width: 40.0)
+                              SizedBox(width: mobileInfoPaddingRight)
                             ],
                           ),
                         ),
@@ -316,14 +336,10 @@ class DeviceListItemState extends State<DeviceListItem> {
               ),
             ),
           Positioned(
-              top: 60,
+              top: tickerTopOffset,
               child: InkWell(
                 onTap: () => showGeneralDialog(
                   context: context,
-                  // barrierColor: Colors
-                  //     .black12
-                  //     .withOpacity(
-                  //         0.6), // Background color
                   barrierDismissible: false,
                   barrierLabel: 'Dialog',
                   transitionDuration: const Duration(milliseconds: 0),
@@ -344,7 +360,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                 ),
                 child: NotificationListener<SizeChangedLayoutNotification>(
                   onNotification: (notification) {
-                    widget.updateSizes('NotificationListener');
+                    updateSizes('NotificationListener');
                     build(context);
                     return false;
                   },
@@ -353,21 +369,22 @@ class DeviceListItemState extends State<DeviceListItem> {
                       key: ValueKey(
                           'UpdatableTickerWrapper-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                       width: MediaQuery.of(context).size.width - 16,
-                      height: 24.0,
+                      height: tickerAreaHeight,
                       child: UpdatableTicker(
                         key: ValueKey(
                             'UpdatableTickerStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                         updatableText: scrollText,
                         style: TextStyle(
-                          fontFamily: 'whiteCupertino subtitle',
-                          fontSize: 14.0,
+                          fontFamily: tickerFontFamily,
+                          fontSize: tickerFontSize,
                           color: SharedWidgets.textColor(
                             context: context,
                           ),
                         ),
-                        pixelsPerSecond: 50 * scrollSpeedDevice,
+                        pixelsPerSecond:
+                            tickerPixelPerSecondFactor * scrollSpeedDevice,
                         forceUpdate: false,
-                        separator: '    ////    ',
+                        separator: tickerSeparator,
                       ),
                     ),
                   ),
@@ -378,8 +395,8 @@ class DeviceListItemState extends State<DeviceListItem> {
               bottom: -10,
               right: 0,
               child: SliderHoverOverlay(
-                translations: translations,
-                width: 120,
+                label: '${translations['speed'] ?? 'speed:'}:',
+                width: tickerSpeedSliderWidth,
                 value: scrollSpeedDevice,
                 updateValue: (double value) {
                   setState(() {

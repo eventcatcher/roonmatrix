@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart'
     show IconButtonElement;
@@ -30,10 +31,14 @@ class KeyValItems extends StatefulWidget {
 
 class KeyValItemsState extends State<KeyValItems> {
   String? get label => widget.label;
-  Map<String, dynamic> get fieldValues => widget.fieldValues;
+  Color? get labelColor => widget.labelColor;
+  bool? get noVerticalSpace => widget.noVerticalSpace;
+  void Function(String value) get onChanged => widget.onChanged;
 
   Map<String, dynamic> translations = {};
   TextEditingController textController = TextEditingController();
+  Map<String, dynamic> fieldValues = {};
+  List<Widget> widgets = [];
   bool translationsLoaded = false;
 
   late TranslationsBloc translationsBloc;
@@ -41,7 +46,18 @@ class KeyValItemsState extends State<KeyValItems> {
   @override
   void initState() {
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
+
+    fieldValues = widget.fieldValues;
+
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(KeyValItems oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    fieldValues = widget.fieldValues;
+    widgets = getFields();
   }
 
   @override
@@ -50,13 +66,12 @@ class KeyValItemsState extends State<KeyValItems> {
     super.dispose();
   }
 
-  returnJson(fieldValues) {
-    String json = jsonEncode(fieldValues).replaceAll('"', "'");
-    widget.onChanged(json);
+  void returnJson(fieldValues) {
+    String json = jsonEncode(fieldValues).replaceDoubleQuotesWithSingleQuotes();
+    onChanged(json);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> getFields() {
     List<Widget> widgets = [];
 
     for (String key in fieldValues.keys) {
@@ -115,70 +130,79 @@ class KeyValItemsState extends State<KeyValItems> {
       widgets.add(widget);
     }
 
-    return BlocBuilder(
-        bloc: translationsBloc,
-        builder: (context, TranslationsState translationsState) {
-          if (translationsState is TranslationsStateLoaded) {
-            translations = translationsState.translations;
-            translationsLoaded = translationsState.translationsLoaded;
-          }
+    return widgets;
+  }
 
-          return Container(
-            margin: const EdgeInsets.only(
-                left: 12.0, right: 12.0, top: 16.0, bottom: 5.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...SharedWidgets.labelWidget(
-                  label: widget.label,
-                  labelColor: SharedWidgets.brightness() == Brightness.dark
-                      ? SharedWidgets.textColor(context: context)
-                      : widget.labelColor ??
-                          SharedWidgets.textColor(context: context),
-                ),
-                Container(
-                  margin: EdgeInsets.only(
-                      bottom: widget.noVerticalSpace == true ? 0 : 10),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
-                    ),
-                    color: SharedWidgets.areaBackgroundColor(context: context),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...widgets,
-                        const SizedBox(height: 6.0),
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 16.0),
-                            child: translationsLoaded
-                                ? SharedWidgets.addButton(
-                                    context: context,
-                                    textController: textController,
-                                    translations: translations,
-                                    onAccepted: (dynamic newKey) {
-                                      if (newKey is String && newKey != '') {
-                                        setState(() {
-                                          fieldValues.putIfAbsent(
-                                              newKey, () => '');
-                                          returnJson(fieldValues);
-                                        });
-                                      }
-                                    })
-                                : const SizedBox(),
-                          ),
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder(
+      bloc: translationsBloc,
+      builder: (context, TranslationsState translationsState) {
+        if (translationsState is TranslationsStateLoaded) {
+          translations = translationsState.translations;
+          translationsLoaded = translationsState.translationsLoaded;
+        }
+
+        if (!translationsLoaded) {
+          return SizedBox();
+        }
+        widgets = getFields();
+
+        return Container(
+          margin: const EdgeInsets.only(
+              left: 12.0, right: 12.0, top: 16.0, bottom: 5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...SharedWidgets.labelWidget(
+                label: label,
+                labelColor: SharedWidgets.brightness() == Brightness.dark
+                    ? SharedWidgets.textColor(context: context)
+                    : labelColor ?? SharedWidgets.textColor(context: context),
+              ),
+              Container(
+                margin:
+                    EdgeInsets.only(bottom: noVerticalSpace == true ? 0 : 10),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: SharedWidgets.borderRadius(),
+                  ),
+                  color: SharedWidgets.areaBackgroundColor(context: context),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...widgets,
+                      const SizedBox(height: 6.0),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
+                          child: translationsLoaded
+                              ? SharedWidgets.addButton(
+                                  context: context,
+                                  textController: textController,
+                                  translations: translations,
+                                  onAccepted: (dynamic newKey) {
+                                    if (newKey is String && newKey != '') {
+                                      setState(() {
+                                        fieldValues.putIfAbsent(
+                                            newKey, () => '');
+                                        returnJson(fieldValues);
+                                      });
+                                    }
+                                  })
+                              : const SizedBox(),
                         ),
-                        const SizedBox(height: 12.0),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 12.0),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          );
-        });
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

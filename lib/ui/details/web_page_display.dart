@@ -28,7 +28,7 @@ class WebPageDisplay extends StatefulWidget {
 
 class _WebPageDisplayState extends State<WebPageDisplay> {
   final GlobalKey webViewKey = GlobalKey();
-  InAppWebViewSettings inAppWebViewSettings = InAppWebViewSettings(
+  final InAppWebViewSettings inAppWebViewSettings = InAppWebViewSettings(
     isInspectable: kDebugMode,
     mediaPlaybackRequiresUserGesture: false,
     allowsInlineMediaPlayback: true,
@@ -37,6 +37,7 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
     iframeAllowFullscreen: true,
   );
   final urlController = TextEditingController();
+
   String get title => widget.title;
   Map<String, dynamic> get translations => widget.translations;
   Function({required String url}) get callbackUrl => widget.callbackUrl;
@@ -45,9 +46,11 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
   double progress = 0;
   bool doReload = false;
   bool reloadDone = false;
+
   InAppWebViewController? webViewController;
   PullToRefreshController? pullToRefreshController;
   WebViewEnvironment? webViewEnvironment;
+
   late WebPageBloc webPageBloc;
 
   @override

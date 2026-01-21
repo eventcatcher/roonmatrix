@@ -4,16 +4,16 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class ButtonElement extends StatelessWidget {
+  final String label;
+  final Icon? icon;
+  final Function() onPressed;
+
   const ButtonElement({
     super.key,
     required this.label,
     this.icon,
     required this.onPressed,
   });
-
-  final String label;
-  final Icon? icon;
-  final Function() onPressed;
 
   @override
   Widget build(BuildContext context) {

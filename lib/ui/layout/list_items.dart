@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
@@ -31,11 +32,15 @@ class ListItems extends StatefulWidget {
 }
 
 class ListItemsState extends State<ListItems> {
-  List<dynamic> get fieldValues => widget.fieldValues;
   String? get label => widget.label;
+  Color? get labelColor => widget.labelColor;
   bool get predefinedLength => widget.predefinedLength;
+  bool? get noVerticalSpace => widget.noVerticalSpace;
+  void Function(String value) get onChanged => widget.onChanged;
 
   Map<String, dynamic> translations = {};
+  List<dynamic> fieldValues = [];
+  List<Widget> widgets = [];
   TextEditingController textController = TextEditingController();
   bool translationsLoaded = false;
 
@@ -45,7 +50,18 @@ class ListItemsState extends State<ListItems> {
   @override
   void initState() {
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
+
+    fieldValues = widget.fieldValues;
+
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(ListItems oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    fieldValues = widget.fieldValues;
+    widgets = getFields();
   }
 
   @override
@@ -54,17 +70,13 @@ class ListItemsState extends State<ListItems> {
     super.dispose();
   }
 
-  returnJson(fieldValues) {
-    String json = jsonEncode(fieldValues)
-        .replaceAll('\'', '[q]')
-        .replaceAll('\\"', '[dq]')
-        .replaceAll('"', "'");
+  void returnJson(fieldValues) {
+    String json = jsonEncode(fieldValues).replaceQuotesWithSpecialTags();
 
-    widget.onChanged(json);
+    onChanged(json);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> getFields() {
     List<Widget> widgets = [];
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
@@ -116,6 +128,11 @@ class ListItemsState extends State<ListItems> {
       widgets.add(widget);
     }
 
+    return widgets;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder(
         bloc: translationsBloc,
         builder: (context, TranslationsState translationsState) {
@@ -123,6 +140,11 @@ class ListItemsState extends State<ListItems> {
             translations = translationsState.translations;
             translationsLoaded = translationsState.translationsLoaded;
           }
+
+          if (!translationsLoaded) {
+            return SizedBox();
+          }
+          widgets = getFields();
 
           return Container(
             margin: const EdgeInsets.only(
@@ -134,16 +156,14 @@ class ListItemsState extends State<ListItems> {
                   label: label,
                   labelColor: SharedWidgets.brightness() == Brightness.dark
                       ? SharedWidgets.textColor(context: context)
-                      : widget.labelColor ??
-                          SharedWidgets.textColor(context: context),
+                      : labelColor ?? SharedWidgets.textColor(context: context),
                 ),
                 Container(
-                  margin: EdgeInsets.only(
-                      bottom: widget.noVerticalSpace == true ? 0 : 10),
+                  margin:
+                      EdgeInsets.only(bottom: noVerticalSpace == true ? 0 : 10),
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+                      borderRadius: SharedWidgets.borderRadius(),
                     ),
                     color: SharedWidgets.areaBackgroundColor(context: context),
                     child: Column(

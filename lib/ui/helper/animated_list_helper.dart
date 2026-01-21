@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AnimatedListHelper {
-  /// Fügt ein einzelnes Item animiert ein.
+  /// insert item with animation
   static void insertItem<T>({
     required GlobalKey<AnimatedListState> listKey,
     required List<T> itemList,
@@ -19,7 +19,7 @@ class AnimatedListHelper {
     );
   }
 
-  /// Entfernt ein einzelnes Item animiert.
+  /// remove item with animation
   static void removeItem<T>({
     required GlobalKey<AnimatedListState> listKey,
     required List<T> itemList,
@@ -40,7 +40,7 @@ class AnimatedListHelper {
     itemList.removeAt(index);
   }
 
-  /// Fügt mehrere Items nacheinander animiert ein.
+  /// insert multiple items one after the other with animation
   static void insertMultipleAnimatedItems<T>({
     required GlobalKey<AnimatedListState> listKey,
     required List<T> itemList,
@@ -61,7 +61,7 @@ class AnimatedListHelper {
     }
   }
 
-  /// Entfernt mehrere Items nacheinander animiert.
+  /// remove multiple items one after the other with animation
   static void removeMultipleAnimatedItems<T>({
     required GlobalKey<AnimatedListState> listKey,
     required List<T> itemList,
@@ -69,7 +69,7 @@ class AnimatedListHelper {
     required Widget Function(T item, Animation<double> animation) buildItem,
     Duration duration = const Duration(milliseconds: 300),
   }) {
-    // Indizes sortieren (von hinten nach vorne löschen!)
+    // Sort indexes (delete from back to front)
     indexesToRemove.sort((a, b) => b.compareTo(a));
 
     for (final index in indexesToRemove) {

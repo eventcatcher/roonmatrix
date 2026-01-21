@@ -18,6 +18,9 @@ class DebugMessageCard extends StatefulWidget {
 class DebugMessageCardState extends State<DebugMessageCard> {
   Map<String, dynamic> get translations => widget.translations;
 
+  final double cardHeight = 300.0;
+  final double fontSize = 16.0;
+
   late String logMessage;
 
   @override
@@ -35,13 +38,12 @@ class DebugMessageCardState extends State<DebugMessageCard> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 300.0,
+      height: cardHeight,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Card(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-                Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5)),
+            borderRadius: SharedWidgets.borderRadius(),
           ),
           color: Colors.lightBlueAccent,
           child: Padding(
@@ -53,8 +55,10 @@ class DebugMessageCardState extends State<DebugMessageCard> {
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text(
                     translations['debugMessage'] ?? 'Debug Messages:',
-                    style: const TextStyle(
-                        fontSize: 16.0, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 Expanded(

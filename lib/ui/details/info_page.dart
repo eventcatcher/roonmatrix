@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/details/searchfield.dart';
+import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
@@ -18,7 +18,6 @@ class InfoPage extends StatefulWidget {
   final String ip;
   final Size minDesktopSize;
   final Size standardDesktopSize;
-  final VoidCallback close;
 
   const InfoPage({
     super.key,
@@ -26,7 +25,6 @@ class InfoPage extends StatefulWidget {
     required this.ip,
     required this.minDesktopSize,
     required this.standardDesktopSize,
-    required this.close,
   });
 
   @override
@@ -38,7 +36,6 @@ class InfoPageState extends State<InfoPage> {
   String get ip => widget.ip;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  VoidCallback get close => widget.close;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 

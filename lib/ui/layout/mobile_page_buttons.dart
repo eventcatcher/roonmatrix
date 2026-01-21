@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
@@ -8,6 +7,7 @@ import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
+import 'package:roonmatrix/ui/layout/page_button.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class MobilePageButtons extends StatefulWidget {
@@ -19,7 +19,6 @@ class MobilePageButtons extends StatefulWidget {
   final Map<String, dynamic> zoneData;
   final Size minDesktopSize;
   final Size standardDesktopSize;
-  //final Function getExpandableMenuController;
   final Function({required bool mode}) isExpanded;
   final Function({required String url}) setSpotifyAuthRedirectUrl;
 
@@ -33,7 +32,6 @@ class MobilePageButtons extends StatefulWidget {
     required this.zoneData,
     required this.minDesktopSize,
     required this.standardDesktopSize,
-    //required this.getExpandableMenuController,
     required this.isExpanded,
     required this.setSpotifyAuthRedirectUrl,
   });
@@ -51,11 +49,13 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
   Map<String, dynamic> get zoneData => widget.zoneData;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  // Function get getExpandableMenuController =>
-  //     widget.getExpandableMenuController;
   Function({required bool mode}) get isExpanded => widget.isExpanded;
   Function({required String url}) get setSpotifyAuthRedirectUrl =>
       widget.setSpotifyAuthRedirectUrl;
+
+  final double baseWidth = 100.0;
+  final double buttonSize = 38.0;
+  final int animationSpeed = 400;
 
   List<Widget> mobileButtonsList = [];
   ExpandableMenuController? expandableMenuController;
@@ -100,223 +100,77 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
   }) =>
       [
         if (spotifyAuthUrl != '*')
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeOrange.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel:
-                                  translations['spotifyConnectAuthText'] ??
-                                      'Spotify Connect Authorize',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return SpotifyConnectWebAuthPage(
-                                  name: zoneData['name'],
-                                  ip: ip,
-                                  url: spotifyAuthUrl,
-                                  minDesktopSize: minDesktopSize,
-                                  standardDesktopSize: standardDesktopSize,
-                                  callbackUrl: ({required String url}) =>
-                                      setSpotifyAuthRedirectUrl(url: url),
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.phone_enabled,
-                  color: Colors.white,
-                ),
-              ),
+          PageButton(
+            label: translations['spotifyConnectAuthText'] ??
+                'Spotify Connect Authorize',
+            icon: Icons.phone_enabled,
+            moreInfo: true,
+            page: SpotifyConnectWebAuthPage(
+              name: zoneData['name'],
+              ip: ip,
+              url: spotifyAuthUrl,
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
+              callbackUrl: ({required String url}) =>
+                  setSpotifyAuthRedirectUrl(url: url),
             ),
+            expandableMenuController: expandableMenuController,
           ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: CupertinoColors.activeBlue.color,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                if (expandableMenuController != null) {
-                  expandableMenuController.close();
-                }
-                Future<void>.delayed(Duration(milliseconds: 500))
-                    .then((value) => mounted
-                        ? showGeneralDialog(
-                            context: context,
-                            // barrierColor: Colors
-                            //     .black12
-                            //     .withOpacity(0.6), // Background color
-                            barrierDismissible: false,
-                            barrierLabel: 'Dialog',
-                            transitionDuration: const Duration(milliseconds: 0),
-                            pageBuilder: (_, __, ___) {
-                              return ConfigPage(
-                                name: zoneData['name'],
-                                ip: ip,
-                                minDesktopSize: minDesktopSize,
-                                standardDesktopSize: standardDesktopSize,
-                                close: () {
-                                  Navigator.pop(context);
-                                },
-                              );
-                            },
-                          )
-                        : null);
-              },
-              icon: const Icon(
-                Icons.settings_outlined,
-                color: Colors.white,
-              ),
-            ),
+        PageButton(
+          label: translations['configButtonText'] ?? 'Config',
+          icon: Icons.settings_outlined,
+          moreInfo: false,
+          page: ConfigPage(
+            name: zoneData['name'],
+            ip: ip,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+            close: () {
+              Navigator.pop(context);
+            },
           ),
+          expandableMenuController: expandableMenuController,
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: CircleAvatar(
-            radius: 15,
-            backgroundColor: CupertinoColors.activeBlue.color,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                if (expandableMenuController != null) {
-                  expandableMenuController.close();
-                }
-                Future<void>.delayed(Duration(milliseconds: 500))
-                    .then((value) => mounted
-                        ? showGeneralDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            barrierLabel: 'Dialog',
-                            transitionDuration: const Duration(milliseconds: 0),
-                            pageBuilder: (_, __, ___) {
-                              return CoverPage(
-                                name: zoneData['name'],
-                                ip: ip,
-                                translations: translations,
-                                minDesktopSize: minDesktopSize,
-                                standardDesktopSize: standardDesktopSize,
-                              );
-                            },
-                          )
-                        : null);
-              },
-              icon: const Icon(
-                Icons.control_camera,
-                color: Colors.white,
-              ),
-            ),
+        PageButton(
+          label: translations['controlButtonText'] ?? 'Control',
+          icon: Icons.control_camera,
+          moreInfo: false,
+          page: CoverPage(
+            name: zoneData['name'],
+            ip: ip,
+            translations: translations,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
           ),
+          expandableMenuController: expandableMenuController,
         ),
         if (!zoneData.containsKey('display_cover') ||
             zoneData['display_cover'] == false)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeBlue.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return MessagePage(
-                                  ip: ip,
-                                  name: zoneData['name'],
-                                  minDesktopSize: minDesktopSize,
-                                  standardDesktopSize: standardDesktopSize,
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.message_outlined,
-                  color: Colors.white,
-                  size: 19.0,
-                ),
-              ),
+          PageButton(
+            label: translations['messageButtonText'] ?? 'Message',
+            icon: Icons.message_outlined,
+            moreInfo: false,
+            page: MessagePage(
+              ip: ip,
+              name: zoneData['name'],
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
             ),
+            expandableMenuController: expandableMenuController,
           ),
         if (!zoneData.containsKey('display_cover') ||
             zoneData['display_cover'] == false)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeBlue.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return LiveControlPage(
-                                  ip: ip,
-                                  name: zoneData['name'],
-                                  minDesktopSize: minDesktopSize,
-                                  standardDesktopSize: standardDesktopSize,
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.visibility_outlined,
-                  color: Colors.white,
-                ),
-              ),
+          PageButton(
+            label: translations['liveControlButtonText'] ?? 'Live Control',
+            icon: Icons.visibility_outlined,
+            moreInfo: false,
+            page: LiveControlPage(
+              ip: ip,
+              name: zoneData['name'],
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
             ),
+            expandableMenuController: expandableMenuController,
           ),
       ];
 
@@ -328,100 +182,38 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     required ExpandableMenuController? expandableMenuController,
   }) =>
       [
-        if (moreInfo == true)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeOrange.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return InfoPage(
-                                  name: zoneData['name'],
-                                  ip: ip,
-                                  minDesktopSize: minDesktopSize,
-                                  standardDesktopSize: standardDesktopSize,
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.info_outline,
-                  color: Colors.white,
-                ),
-              ),
+        if (moreInfo == true) ...[
+          PageButton(
+            label: translations['infoButtonText'] ?? 'Monitoring',
+            icon: Icons.info_outline,
+            moreInfo: true,
+            page: InfoPage(
+              name: zoneData['name'],
+              ip: ip,
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
             ),
+            expandableMenuController: expandableMenuController,
           ),
-        if (moreInfo == true)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: CupertinoColors.activeOrange.color,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  if (expandableMenuController != null) {
-                    expandableMenuController.close();
-                  }
-                  Future<void>.delayed(Duration(milliseconds: 500))
-                      .then((value) => mounted
-                          ? showGeneralDialog(
-                              context: context,
-                              // barrierColor: Colors
-                              //     .black12
-                              //     .withOpacity(0.6), // Background color
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return LogPage(
-                                  name: zoneData['name'],
-                                  ip: ip,
-                                  minDesktopSize: minDesktopSize,
-                                  standardDesktopSize: standardDesktopSize,
-                                  close: () {
-                                    Navigator.pop(context);
-                                  },
-                                );
-                              },
-                            )
-                          : null);
-                },
-                icon: const Icon(
-                  Icons.terminal,
-                  color: Colors.white,
-                ),
-              ),
+          PageButton(
+            label: translations['logButtonText'] ?? 'Log',
+            icon: Icons.terminal,
+            moreInfo: true,
+            page: LogPage(
+              name: zoneData['name'],
+              ip: ip,
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
             ),
+            expandableMenuController: expandableMenuController,
           ),
+        ],
       ];
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: 100.0 + 38.0 * mobileButtonsList.length,
-        height: 38.0,
+        width: baseWidth + buttonSize * mobileButtonsList.length,
+        height: buttonSize,
         child: Stack(
           children: [
             Positioned(
@@ -431,9 +223,9 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
               child: ExpandableMenu(
                 key: ValueKey(
                     'ExpandableMenu$ip-$moreInfo'), // main item expandable for mobile
-                width: 38.0,
-                height: 38.0,
-                animationSpeed: 400,
+                width: buttonSize,
+                height: buttonSize,
+                animationSpeed: animationSpeed,
                 backgroundColor:
                     SharedWidgets.buttonRowBackgroundColor(context: context),
                 items: mobileButtonsList,

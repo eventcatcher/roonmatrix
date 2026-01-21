@@ -5,12 +5,12 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/data/main_repository.dart';
-import 'package:roonmatrix/ui/layout/mobile_speedslider_and_fontsize_controls.dart';
+import 'package:roonmatrix/ui/layout/mobile_speed_slider_and_fontsize_controls.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/speed_slider_overlay.dart';
+import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
 import 'package:roonmatrix/ui/layout/titlebar_info_content.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -65,7 +65,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   double mobileFontSize = 64.0;
   double pixelsPerSecond = 200 + 64.0 / 2.25;
   double sliderValue = 1.0;
-  double opacityLevel = 0;
   bool isFullscreen = false;
 
   late MainRepository mainRepository;
@@ -91,7 +90,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     super.initState();
   }
 
-  asynInitDesktopDevice() async {
+  Future<void> asynInitDesktopDevice() async {
     bool isFullscreenStatus = await windowManager.isFullScreen();
     Offset position = await windowManager.getPosition();
     Size size = await windowManager.getSize();
@@ -132,7 +131,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     super.dispose();
   }
 
-  updateSizes(String caller) {
+  void updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     fontSize = SharedWidgets.isDesktopDevice()
@@ -254,15 +253,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                 if (SharedWidgets.isDesktopDevice())
                   Positioned(
                     bottom: -10,
-                    right: 0,
-                    child: SpeedSliderOverlay(
-                      translations: translations,
-                      width: width,
-                      scrollSpeed: widget.scrollSpeed,
-                      speedChanged: (double speed) {
-                        speedChanged(speed);
+                    right: 10,
+                    child: SliderHoverOverlay(
+                      label: '${translations['speed'] ?? 'speed:'}:',
+                      width: width > 300 ? 300 : width,
+                      min: 0.1,
+                      value: sliderValue,
+                      updateValue: (double value) {
+                        speedChanged(value);
                         setState(() {
-                          sliderValue = speed;
+                          sliderValue = value;
                         });
                       },
                     ),
@@ -312,15 +312,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       body(),
                       Positioned(
                         bottom: -10,
-                        right: 0,
-                        child: SpeedSliderOverlay(
-                          translations: translations,
-                          width: width,
-                          scrollSpeed: widget.scrollSpeed,
-                          speedChanged: (double speed) {
-                            speedChanged(speed);
+                        right: 10,
+                        child: SliderHoverOverlay(
+                          label: '${translations['speed'] ?? 'speed:'}:',
+                          width: width > 300 ? 300 : width,
+                          min: 0.1,
+                          value: sliderValue,
+                          updateValue: (double value) {
+                            speedChanged(value);
                             setState(() {
-                              sliderValue = speed;
+                              sliderValue = value;
                             });
                           },
                         ),
@@ -373,15 +374,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       if (SharedWidgets.isDesktopDevice())
                         Positioned(
                           bottom: -10,
-                          right: 0,
-                          child: SpeedSliderOverlay(
-                            translations: translations,
-                            width: width,
-                            scrollSpeed: widget.scrollSpeed,
-                            speedChanged: (double speed) {
-                              speedChanged(speed);
+                          right: 10,
+                          child: SliderHoverOverlay(
+                            label: '${translations['speed'] ?? 'speed:'}:',
+                            width: width > 300 ? 300 : width,
+                            min: 0.1,
+                            value: sliderValue,
+                            updateValue: (double value) {
+                              speedChanged(value);
                               setState(() {
-                                sliderValue = speed;
+                                sliderValue = value;
                               });
                             },
                           ),

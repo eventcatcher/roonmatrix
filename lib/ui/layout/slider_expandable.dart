@@ -8,15 +8,15 @@ class SliderExpandable extends StatefulWidget {
   final double min;
   final double max;
   final int divisions;
-  final Function(double speed) updateValue;
+  final Function(double value) updateValue;
 
   const SliderExpandable({
     super.key,
     required this.width,
+    this.value = 1.0,
     this.min = 0.75,
     this.max = 5,
     this.divisions = 100,
-    this.value = 1.0,
     required this.updateValue,
   });
 
@@ -25,6 +25,9 @@ class SliderExpandable extends StatefulWidget {
 }
 
 class _SliderExpandableState extends State<SliderExpandable> {
+  final double size = 38.0;
+  final int animationSpeed = 400;
+
   double value = 1.0;
 
   @override
@@ -52,12 +55,12 @@ class _SliderExpandableState extends State<SliderExpandable> {
               children: [
                 SizedBox(
                     width: widget.width,
-                    height: 38.0,
+                    height: size,
                     child: ExpandableMenu(
-                      key: ValueKey('ExpandableMenuSpeed'), // speed slider
-                      width: 38.0,
-                      height: 38.0,
-                      animationSpeed: 400,
+                      key: ValueKey('SliderExpandable'),
+                      width: size,
+                      height: size,
+                      animationSpeed: animationSpeed,
                       backgroundColor: SharedWidgets.buttonRowBackgroundColor(
                           context: context),
                       items: [

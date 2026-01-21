@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:roonmatrix/data/storage_folder_type.dart';
@@ -91,7 +90,7 @@ class FileRepository {
   }
 
   Future<File> _localFile(String fileName, String subFolder) async {
-    final path = await _localPath(subFolder);
+    final String path = await _localPath(subFolder);
     return File('$path/$fileName');
   }
 
@@ -116,28 +115,10 @@ class FileRepository {
     return "./$subFolder";
   }
 
-  Future<void> removeAllLocalFiles() async {
-    final Directory dir = Directory(localPath);
-    List<FileSystemEntity> list = dir.listSync();
-    // ignore:avoid_function_literals_in_foreach_calls
-    list.forEach((FileSystemEntity f) => f.deleteSync(recursive: true));
-  }
-
   bool isFileExist({required String localFileName}) {
     bool existinLocalPath = File("$localPath/$localFileName").existsSync();
 
     return existinLocalPath;
-  }
-
-  int getFileSize({required String localFileName}) {
-    int length = -1;
-
-    bool existinLocalPath = File("$localPath/$localFileName").existsSync();
-    if (existinLocalPath) {
-      length = File("$localPath/$localFileName").lengthSync();
-    }
-
-    return length;
   }
 
   List<Permission> getListOfPermissionsWeNeed(
@@ -181,18 +162,6 @@ class FileRepository {
 
     return statusMap;
   }
-
-  Future<bool> setStopAskingForPermissions() async {
-    return prefs.setString('stopAskingForPermissions',
-        DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()));
-  }
-
-  Future<bool> removeStopAskingForPermissions() async {
-    return prefs.remove('stopAskingForPermissions');
-  }
-
-  bool isStopAskingForPermissions() =>
-      prefs.containsKey('stopAskingForPermissions');
 
   Future<Directory>? fetchAppDataPath(
       {StorageFolderType storageFolderType = StorageFolderType.APP}) async {

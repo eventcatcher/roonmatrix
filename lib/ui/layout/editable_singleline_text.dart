@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:roonmatrix/ui/layout/roonmatrix_styles.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/ui/helper/roonmatrix_styles.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/text_field_element.dart';
-import 'package:uuid/uuid.dart';
 
 class EditableSinglelineText extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -43,7 +44,6 @@ class EditableSinglelineText extends StatefulWidget {
     this.placeholder,
     required this.text,
     this.controller,
-    this.errorMessageHandler,
     this.prefixIcon,
     this.suffixIcon,
     this.maxLength,
@@ -58,6 +58,7 @@ class EditableSinglelineText extends StatefulWidget {
     this.onChanged,
     this.getTextCallback,
     this.validation,
+    this.errorMessageHandler,
   });
 
   @override
@@ -65,18 +66,49 @@ class EditableSinglelineText extends StatefulWidget {
 }
 
 class EditableSinglelineTextState extends State<EditableSinglelineText> {
+  Map<String, dynamic> get translations => widget.translations;
+  TextInputType get inputType => widget.inputType;
+  List<TextInputFormatter>? get formatters => widget.formatters;
+  String? get aligned => widget.aligned;
+  String? get label => widget.label;
+  Color? get labelColor => widget.labelColor;
+  String? get placeholder => widget.placeholder;
+  String get text => widget.text;
+  TextEditingController? get controller => widget.controller;
+  dynamic get prefixIcon => widget.prefixIcon;
+  dynamic get suffixIcon => widget.suffixIcon;
+  int? get maxLength => widget.maxLength;
+  bool get readOnly => widget.readOnly;
+  bool get noCounter => widget.noCounter;
+  bool get decoupled => widget.decoupled;
+  bool get debounce => widget.debounce;
+  bool get noDecoration => widget.noDecoration;
+  bool get filled => widget.filled;
+  Color? get fillColorForValidationError => widget.fillColorForValidationError;
+  String Function(String text)? get filter => widget.filter;
+  void Function(String text)? get onChanged => widget.onChanged;
+  void Function(Function func)? get getTextCallback => widget.getTextCallback;
+  bool Function(String text)? get validation => widget.validation;
+  String Function(String text)? get errorMessageHandler =>
+      widget.errorMessageHandler;
+
   final TextEditingController _userTextController = TextEditingController();
-  late EdgeInsetsGeometry margin;
-  Color readOnlyColor = Colors.grey.shade500;
-  int debounceTime = 800; // textfield debounce time in milliseconds
+  final Color readOnlyColor = Colors.grey.shade500;
+  final int debounceTime = 800; // textfield debounce time in milliseconds
+
   bool valid = true;
   bool withCents =
       false; // value has dot with 2 cent columns (or more which we need to cut)
   String? errorMessage = '';
 
+  late MainRepository mainRepository;
+  late EdgeInsetsGeometry margin;
+
   @override
   void initState() {
-    switch (widget.aligned) {
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
+
+    switch (aligned) {
       case "left":
         margin = const EdgeInsets.only(
             left: 16.0, right: 8.0, top: 16.0, bottom: 5.0);
@@ -95,14 +127,13 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
         margin = const EdgeInsets.only(
             left: 16.0, right: 16.0, top: 6.0, bottom: 6.0);
     }
-    if (widget.inputType ==
-        const TextInputType.numberWithOptions(decimal: true)) {
+    if (inputType == const TextInputType.numberWithOptions(decimal: true)) {
       withCents = true;
     }
-    _userTextController.text = widget.text;
+    _userTextController.text = text;
 
-    if (widget.getTextCallback != null) {
-      widget.getTextCallback!(getText);
+    if (getTextCallback != null) {
+      getTextCallback!(getText);
     }
 
     super.initState();
@@ -110,39 +141,29 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
 
   @override
   void didUpdateWidget(EditableSinglelineText oldWidget) {
-    if (widget.decoupled == false && _userTextController.text != widget.text) {
-      _userTextController.text = widget
-          .text; // fix: delete a dokument -> results in update with another text
+    if (decoupled == false && _userTextController.text != text) {
+      _userTextController.text = widget.text;
       _userTextController.selection = TextSelection.fromPosition(
           TextPosition(offset: _userTextController.text.length));
     }
 
-    if (widget.validation != null) {
-      valid = widget.validation!(_userTextController.text);
+    if (validation != null) {
+      valid = validation!(_userTextController.text);
     }
-    if (widget.errorMessageHandler != null) {
-      errorMessage = widget.errorMessageHandler!(_userTextController.text);
+    if (errorMessageHandler != null) {
+      errorMessage = errorMessageHandler!(_userTextController.text);
     }
 
     super.didUpdateWidget(oldWidget);
   }
 
-  String getDebounceTag() {
-    String tag = "";
-
-    if (widget.label != null) {
-      tag = widget.label!.replaceAll(" ", "-");
-    } else {
-      Uuid uuid = const Uuid();
-      tag = uuid.v4();
-    }
-
-    return tag;
+  @override
+  void dispose() {
+    _userTextController.dispose();
+    super.dispose();
   }
 
-  String getText() {
-    return _userTextController.text;
-  }
+  String getText() => _userTextController.text;
 
   @override
   Widget build(BuildContext context) {
@@ -152,9 +173,9 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (widget.label != null) ...[
+          if (label != null) ...[
             Text(
-              widget.label!,
+              label!,
               overflow: TextOverflow
                   .ellipsis, // fade is maybe the better alternative, because you see more of the text
               maxLines: 1,
@@ -162,8 +183,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
               style: TextStyle(
                 color: SharedWidgets.brightness() == Brightness.dark
                     ? SharedWidgets.textColor(context: context)
-                    : widget.labelColor ??
-                        SharedWidgets.textColor(context: context),
+                    : labelColor ?? SharedWidgets.textColor(context: context),
                 fontSize: 12.0,
               ),
             ),
@@ -174,7 +194,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
           ConstrainedBox(
             constraints: const BoxConstraints.tightFor(height: 36),
             child: Container(
-              decoration: widget.noDecoration == true
+              decoration: noDecoration == true
                   ? null
                   : BoxDecoration(
                       boxShadow: const [
@@ -187,51 +207,51 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                       ],
                       color: SharedWidgets.textFieldBackgroundColor(
                           context: context),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(SharedWidgets.inIosStyle() ? 8 : 5),
-                      ),
+                      borderRadius: SharedWidgets.borderRadius(),
                     ),
               padding: EdgeInsets.only(
-                  top: widget.maxLength != null && widget.placeholder == null
-                      ? widget.noCounter
+                  top: maxLength != null && placeholder == null
+                      ? noCounter
                           ? 4.0
                           : 12.0
                       : 0.0),
               child: TextFieldElement(
-                readOnly: widget.readOnly,
-                placeholder: widget.placeholder ??
-                    widget.translations['pleaseTypeSettingPlaceholder'] ??
+                readOnly: readOnly,
+                placeholder: placeholder ??
+                    translations['pleaseTypeSettingPlaceholder'] ??
                     'Please enter here',
-                maxLength: widget.maxLength,
-                prefixIcon: widget.prefixIcon,
-                suffixIcon: widget.suffixIcon,
-                buildCounter: widget.maxLength != null
-                    ? (context,
-                        {required currentLength,
+                maxLength: maxLength,
+                prefixIcon: prefixIcon,
+                suffixIcon: suffixIcon,
+                buildCounter: maxLength != null
+                    ? (
+                        context, {
+                        required currentLength,
                         required isFocused,
-                        maxLength}) {
+                        maxLength,
+                      }) {
                         return Container(
                           transform: Matrix4.translationValues(0, -42, 0),
                           child: Text(
-                            widget.noCounter ? "" : "$currentLength/$maxLength",
+                            noCounter ? "" : "$currentLength/$maxLength",
                             style: const TextStyle(fontSize: 10.0),
                           ),
                         );
                       }
                     : null,
-                keyboardType: widget.inputType,
-                inputFormatters: widget.formatters,
+                keyboardType: inputType,
+                inputFormatters: formatters,
                 decoration: RoonmatrixStyles.inputDecoration(
-                  placeholder: widget.placeholder ??
-                      widget.translations['pleaseTypeSettingPlaceholder'] ??
+                  placeholder: placeholder ??
+                      translations['pleaseTypeSettingPlaceholder'] ??
                       'Please enter here',
-                  prefixIcon: widget.prefixIcon,
-                  suffixIcon: widget.suffixIcon ??
+                  prefixIcon: prefixIcon,
+                  suffixIcon: suffixIcon ??
                       InkWell(
                         onTap: () {
                           _userTextController.clear();
-                          if (widget.onChanged != null) {
-                            widget.onChanged!('');
+                          if (onChanged != null) {
+                            onChanged!('');
                           }
                         },
                         child: Icon(
@@ -239,19 +259,18 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                           size: 24,
                         ),
                       ),
-                  noCounter: widget.noCounter,
-                  fillColor:
-                      (widget.fillColorForValidationError != null && !valid)
-                          ? widget.fillColorForValidationError
-                          : SharedWidgets.brightness() == Brightness.dark
-                              ? SharedWidgets.elementBackgroundColorLighter(
-                                  context: context)
-                              : Colors.white,
+                  noCounter: noCounter,
+                  fillColor: (fillColorForValidationError != null && !valid)
+                      ? fillColorForValidationError
+                      : SharedWidgets.brightness() == Brightness.dark
+                          ? SharedWidgets.elementBackgroundColorLighter(
+                              context: context)
+                          : Colors.white,
                   borderColor: Colors.transparent,
-                  filled: widget.filled,
+                  filled: filled,
                 ),
                 style: TextStyle(
-                  color: widget.readOnly
+                  color: readOnly
                       ? readOnlyColor
                       : SharedWidgets.textColor(context: context),
                   fontSize: 16.0,
@@ -259,9 +278,9 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 controller: _userTextController,
                 onChanged: (String value) {
                   bool doTextCorrection = false;
-                  if (widget.filter != null) {
+                  if (filter != null) {
                     String unfilteredValue = value;
-                    value = widget.filter!(value);
+                    value = filter!(value);
                     if (unfilteredValue != value) {
                       doTextCorrection = true;
                     }
@@ -286,27 +305,27 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                     _userTextController.selection = TextSelection.fromPosition(
                         TextPosition(offset: _userTextController.text.length));
                   }
-                  if (mounted && widget.validation != null) {
+                  if (mounted && validation != null) {
                     setState(() {
-                      valid = widget.validation!(value);
-                      if (widget.errorMessageHandler != null) {
-                        errorMessage = widget.errorMessageHandler!(value);
+                      valid = validation!(value);
+                      if (errorMessageHandler != null) {
+                        errorMessage = errorMessageHandler!(value);
                       }
                     });
                   }
 
-                  if (widget.controller != null) {
-                    widget.controller!.text = value;
+                  if (controller != null) {
+                    controller!.text = value;
                   }
 
-                  if (widget.onChanged != null) {
-                    if (widget.debounce == true) {
+                  if (onChanged != null) {
+                    if (debounce == true) {
                       EasyDebounce.debounce(
-                          getDebounceTag(),
+                          mainRepository.getDebounceTag(label: label),
                           Duration(milliseconds: debounceTime),
-                          () => widget.onChanged!(value));
+                          () => onChanged!(value));
                     } else {
-                      widget.onChanged!(value);
+                      onChanged!(value);
                     }
                   }
                 },
@@ -334,11 +353,5 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _userTextController.dispose();
-    super.dispose();
   }
 }

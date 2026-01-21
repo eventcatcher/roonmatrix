@@ -23,7 +23,6 @@ class LiveControlPage extends StatefulWidget {
   final String ip;
   final Size minDesktopSize;
   final Size standardDesktopSize;
-  final VoidCallback close;
 
   const LiveControlPage({
     super.key,
@@ -31,7 +30,6 @@ class LiveControlPage extends StatefulWidget {
     required this.ip,
     required this.minDesktopSize,
     required this.standardDesktopSize,
-    required this.close,
   });
 
   @override
@@ -43,14 +41,13 @@ class LiveControlPageState extends State<LiveControlPage> {
   String get ip => widget.ip;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  VoidCallback get close => widget.close;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   Map<String, dynamic> translations = {};
   Map<String, String> options = {};
   List<ConfigDefinitionItem> fieldDefinition = [];
-  List<Widget> sliders = [];
+  List<HorizontalSlider> sliders = [];
   String title = '';
   String macosVersion = '';
   bool translationsLoaded = false;
@@ -76,7 +73,6 @@ class LiveControlPageState extends State<LiveControlPage> {
   bool controlVarInit = false;
 
   String selectedDeviceName = '';
-  String? controlId;
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -95,8 +91,10 @@ class LiveControlPageState extends State<LiveControlPage> {
     super.initState();
   }
 
-  Map<String, String> generateOptionsAndPreselect(
-      {required List<String> devices, required Map<String, dynamic> infos}) {
+  Map<String, String> generateOptionsAndPreselect({
+    required List<String> devices,
+    required Map<String, dynamic> infos,
+  }) {
     Map<String, String> options = {};
 
     for (String ip in devices) {
@@ -110,8 +108,10 @@ class LiveControlPageState extends State<LiveControlPage> {
     return options;
   }
 
-  buildSliders(
-      {required String selectedDeviceIp, required Orientation orientation}) {
+  List<HorizontalSlider> buildSliders({
+    required String selectedDeviceIp,
+    required Orientation orientation,
+  }) {
     return [
       if (verticalOutput == true)
         HorizontalSlider(
@@ -211,7 +211,7 @@ class LiveControlPageState extends State<LiveControlPage> {
     required Map<String, dynamic> infos,
     required ConfigDefinition? definitions,
     required Map<String, String> options,
-    required List<Widget> sliders,
+    required List<HorizontalSlider> sliders,
     required Orientation orientation,
   }) =>
       SingleChildScrollView(
@@ -252,7 +252,7 @@ class LiveControlPageState extends State<LiveControlPage> {
         )),
       );
 
-  updateVars({
+  void updateVars({
     required List<String> devices,
     required Map<String, dynamic> infos,
     required ConfigDefinition? definitions,

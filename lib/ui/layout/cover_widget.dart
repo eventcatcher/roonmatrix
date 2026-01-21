@@ -4,14 +4,17 @@ import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
+import 'package:roonmatrix/ui/layout/cover_overlay_button.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_small.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverWidget extends StatefulWidget {
   final Map<String, dynamic> translations;
   final List<String> devices;
+  final String? activeDeviceIp;
   final CoverModel coverModel;
   final double coverSize;
   final bool coverRowDynamicSize;
@@ -29,6 +32,7 @@ class CoverWidget extends StatefulWidget {
     super.key,
     required this.translations,
     required this.devices,
+    required this.activeDeviceIp,
     required this.coverModel,
     required this.coverSize,
     required this.coverRowDynamicSize,
@@ -48,8 +52,8 @@ class CoverWidget extends StatefulWidget {
 }
 
 class _CoverWidgetState extends State<CoverWidget> {
-  List<String> get devices => widget.devices;
   Map<String, dynamic> get translations => widget.translations;
+  List<String> get devices => widget.devices;
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
   bool get showExportButton => widget.showExportButton;
   double? get appBarHeight => widget.appBarHeight;
@@ -61,15 +65,20 @@ class _CoverWidgetState extends State<CoverWidget> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
 
-  double minPlayControlCoverSize = 150;
-  bool skipPreviousButtonHovered = false;
-  bool skipNextButtonHovered = false;
-  bool playButtonHovered = false;
+  final double minPlayControlCoverSize = 150;
+  final double extendedTextMinCoverHeight = 400.0;
+  final Color coverBackgroundColor = const Color(0xff7c94b6);
+  final Color textAreaBackgroundColor = Color.fromARGB(200, 0, 0, 0);
+  final double zoneCornerLabelOpacity = 0.7;
+  final ColorFilter idleZoneColorFilter =
+      ColorFilter.mode(Colors.black.withValues(alpha: 0.2), BlendMode.dstATop);
+  final Duration coverSwitchingDuration = Duration(milliseconds: 2000);
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
   late double coverSize;
   late CoverModel coverModel;
+  late String? activeDeviceIp;
 
   @override
   void initState() {
@@ -78,16 +87,18 @@ class _CoverWidgetState extends State<CoverWidget> {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
 
-    coverSize = widget.coverSize;
     coverModel = widget.coverModel;
+    coverSize = widget.coverSize;
+    activeDeviceIp = widget.activeDeviceIp;
   }
 
   @override
   void didUpdateWidget(CoverWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    coverSize = widget.coverSize;
     coverModel = widget.coverModel;
+    coverSize = widget.coverSize;
+    activeDeviceIp = widget.activeDeviceIp;
   }
 
   @override
@@ -118,7 +129,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                         pageBuilder: (_, __, ___) {
                           return CoverPage(
                             name: coverModel.zoneName,
-                            ip: devices[0],
+                            ip: activeDeviceIp ?? devices[0],
                             controlId: coverModel.controlId,
                             translations: translations,
                             minDesktopSize: minDesktopSize,
@@ -129,23 +140,14 @@ class _CoverWidgetState extends State<CoverWidget> {
                     },
                     child: Container(
                       margin: EdgeInsets.only(left: 1.0),
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(
-                      //     color: Colors.white,
-                      //     width: 1.0,
-                      //   ),
-                      // ),
                       width: coverWidth,
                       height: coverHeight,
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(0),
                         child: AnimatedSwitcher(
-                          duration: Duration(milliseconds: 2000),
+                          duration: coverSwitchingDuration,
                           switchInCurve: Curves.easeIn,
                           switchOutCurve: Curves.easeOut,
-                          // transitionBuilder: (Widget child, Animation<double> animation) {
-                          //   return ScaleTransition(scale: animation, child: child);
-                          // },
                           child: coverModel.coverUrl.isNotEmpty
                               ? Stack(
                                   children: [
@@ -159,192 +161,84 @@ class _CoverWidgetState extends State<CoverWidget> {
                                           ? double.infinity
                                           : null,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xff7c94b6),
+                                        color: coverBackgroundColor,
                                         image: DecorationImage(
                                           fit: BoxFit.cover,
-                                          colorFilter: coverModel.status !=
-                                                  'playing'
-                                              ? ColorFilter.mode(
-                                                  Colors.black
-                                                      .withValues(alpha: 0.2),
-                                                  BlendMode.dstATop)
-                                              : null,
+                                          colorFilter:
+                                              coverModel.status != 'playing'
+                                                  ? idleZoneColorFilter
+                                                  : null,
                                           image: NetworkImage(
                                             coverModel.coverUrl,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    if (mainBloc.state.activeDeviceIp != null)
+                                    if (activeDeviceIp != null)
                                       Positioned.fill(
-                                        child: Align(
+                                        child: CoverOverlayButton(
                                           alignment: Alignment.center,
-                                          child: MouseRegion(
-                                            onEnter: (_) =>
-                                                SharedWidgets.isDesktopDevice()
-                                                    ? setState(() =>
-                                                        playButtonHovered =
-                                                            true)
-                                                    : null,
-                                            onExit: (_) =>
-                                                SharedWidgets.isDesktopDevice()
-                                                    ? setState(() =>
-                                                        playButtonHovered =
-                                                            false)
-                                                    : null,
-                                            child: AnimatedOpacity(
-                                              opacity: playButtonHovered ||
-                                                      coverModel.status !=
-                                                          'playing'
-                                                  ? 1.0
-                                                  : 0.0,
-                                              duration: const Duration(
-                                                  milliseconds: 200),
-                                              child: Tooltip(
-                                                message: coverModel.status ==
-                                                        'playing'
-                                                    ? translations[
-                                                            'controlButtonPauseText'] ??
-                                                        'pause'
-                                                    : translations[
-                                                            'controlButtonPlayText'] ??
-                                                        'play',
-                                                triggerMode:
-                                                    TooltipTriggerMode.manual,
-                                                waitDuration:
-                                                    Duration(seconds: 3),
-                                                verticalOffset: coverWidth / 8,
-                                                child: IconButton(
-                                                  style: IconButton.styleFrom(
-                                                    backgroundColor: SharedWidgets
-                                                        .hoverButtonBackground,
-                                                  ),
-                                                  icon: coverModel.status ==
-                                                          'playing'
-                                                      ? const Icon(Icons.pause)
-                                                      : const Icon(
-                                                          Icons.play_arrow),
-                                                  iconSize: coverWidth / 4,
-                                                  color: Colors.blue.shade900,
-                                                  onPressed: SharedWidgets
-                                                              .isDesktopDevice() &&
-                                                          coverWidth >
-                                                              minPlayControlCoverSize
-                                                      ? () {
-                                                          mainBloc.zoneControl(
-                                                            ip: mainBloc.state
-                                                                .activeDeviceIp!,
-                                                            controlId:
-                                                                coverModel
-                                                                    .controlId,
-                                                            cmd: 'playmode',
-                                                            enable: coverModel
-                                                                    .status !=
-                                                                'playing',
-                                                          );
-                                                        }
-                                                      : null,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                                          coverWidth: coverWidth,
+                                          additionalVisibility:
+                                              coverModel.status != 'playing',
+                                          icon: coverModel.status == 'playing'
+                                              ? const Icon(Icons.pause)
+                                              : const Icon(Icons.play_arrow),
+                                          message: coverModel.status ==
+                                                  'playing'
+                                              ? translations[
+                                                      'controlButtonPauseText'] ??
+                                                  'pause'
+                                              : translations[
+                                                      'controlButtonPlayText'] ??
+                                                  'play',
+                                          onPressed: () => SharedWidgets
+                                                      .isDesktopDevice() &&
+                                                  coverWidth >
+                                                      minPlayControlCoverSize
+                                              ? mainBloc.zoneControl(
+                                                  ip: mainBloc
+                                                      .state.activeDeviceIp!,
+                                                  controlId:
+                                                      coverModel.controlId,
+                                                  cmd: 'playmode',
+                                                  enable: coverModel.status !=
+                                                      'playing',
+                                                )
+                                              : null,
                                         ),
                                       ),
                                     if (SharedWidgets.isDesktopDevice() &&
                                         coverWidth > minPlayControlCoverSize &&
                                         coverModel.status == 'playing' &&
                                         !coverModel.isRadio &&
-                                        mainBloc.state.activeDeviceIp !=
-                                            null) ...[
-                                      Align(
+                                        activeDeviceIp != null) ...[
+                                      CoverOverlayButton(
                                         alignment: Alignment.centerLeft,
-                                        child: MouseRegion(
-                                          onEnter: (_) => setState(() =>
-                                              skipPreviousButtonHovered = true),
-                                          onExit: (_) => setState(() =>
-                                              skipPreviousButtonHovered =
-                                                  false),
-                                          child: AnimatedOpacity(
-                                            opacity: skipPreviousButtonHovered
-                                                ? 1.0
-                                                : 0.0,
-                                            duration: const Duration(
-                                                milliseconds: 200),
-                                            child: Tooltip(
-                                              message: translations[
-                                                      'controlButtonPreviousText'] ??
-                                                  'previous track',
-                                              triggerMode:
-                                                  TooltipTriggerMode.manual,
-                                              waitDuration:
-                                                  Duration(seconds: 3),
-                                              verticalOffset: coverWidth / 8,
-                                              child: IconButton(
-                                                style: IconButton.styleFrom(
-                                                    backgroundColor: SharedWidgets
-                                                        .hoverButtonBackground),
-                                                icon: const Icon(
-                                                    Icons.skip_previous),
-                                                iconSize: coverWidth / 4,
-                                                color: Colors.blue.shade900,
-                                                onPressed: () {
-                                                  mainBloc.zoneControl(
-                                                    ip: mainBloc
-                                                        .state.activeDeviceIp!,
-                                                    controlId:
-                                                        coverModel.controlId,
-                                                    cmd: 'previous',
-                                                    enable: true,
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
+                                        coverWidth: coverWidth,
+                                        icon: const Icon(Icons.skip_previous),
+                                        message: translations[
+                                                'controlButtonPreviousText'] ??
+                                            'previous track',
+                                        onPressed: () => mainBloc.zoneControl(
+                                          ip: activeDeviceIp!,
+                                          controlId: coverModel.controlId,
+                                          cmd: 'previous',
+                                          enable: true,
                                         ),
                                       ),
-                                      Align(
+                                      CoverOverlayButton(
                                         alignment: Alignment.centerRight,
-                                        child: MouseRegion(
-                                          onEnter: (_) => setState(() =>
-                                              skipNextButtonHovered = true),
-                                          onExit: (_) => setState(() =>
-                                              skipNextButtonHovered = false),
-                                          child: AnimatedOpacity(
-                                            opacity: skipNextButtonHovered
-                                                ? 1.0
-                                                : 0.0,
-                                            duration: const Duration(
-                                                milliseconds: 200),
-                                            child: Tooltip(
-                                              message: translations[
-                                                      'controlButtonNextText'] ??
-                                                  'next track',
-                                              triggerMode:
-                                                  TooltipTriggerMode.manual,
-                                              waitDuration:
-                                                  Duration(seconds: 3),
-                                              verticalOffset: coverWidth / 8,
-                                              child: IconButton(
-                                                style: IconButton.styleFrom(
-                                                    backgroundColor: SharedWidgets
-                                                        .hoverButtonBackground),
-                                                icon:
-                                                    const Icon(Icons.skip_next),
-                                                iconSize: coverWidth / 4,
-                                                color: Colors.blue.shade900,
-                                                onPressed: () {
-                                                  mainBloc.zoneControl(
-                                                    ip: mainBloc
-                                                        .state.activeDeviceIp!,
-                                                    controlId:
-                                                        coverModel.controlId,
-                                                    cmd: 'next',
-                                                    enable: true,
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
+                                        coverWidth: coverWidth,
+                                        icon: const Icon(Icons.skip_next),
+                                        message: translations[
+                                                'controlButtonNextText'] ??
+                                            'next track',
+                                        onPressed: () => mainBloc.zoneControl(
+                                          ip: activeDeviceIp!,
+                                          controlId: coverModel.controlId,
+                                          cmd: 'next',
+                                          enable: true,
                                         ),
                                       ),
                                     ],
@@ -353,10 +247,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                               : Stack(
                                   children: [
                                     SvgPicture.asset(
-                                      'assets/svg/8-8-led-matrix-display-unit.svg',
-                                      colorFilter: ColorFilter.mode(
-                                          Colors.black.withValues(alpha: 0.2),
-                                          BlendMode.dstATop),
+                                      SharedWidgets.placeholderAssetPath(),
+                                      colorFilter: idleZoneColorFilter,
                                       allowDrawingOutsideViewBox: false,
                                       width: double.infinity,
                                       height: double.infinity,
@@ -378,44 +270,14 @@ class _CoverWidgetState extends State<CoverWidget> {
                     ),
                   ),
                   Opacity(
-                    opacity: 0.7,
+                    opacity: zoneCornerLabelOpacity,
                     child: SizedBox(
                       width: coverWidth,
                       child: Align(
                         alignment: Alignment.topRight,
-                        child: Stack(
-                          children: [
-                            mainRepository.statusCorner(
-                                size: coverWidth,
-                                color: mainRepository
-                                    .getZoneColor(coverModel.zoneName)),
-                            Positioned(
-                              right: mainRepository
-                                  .getZoneIconPositionBySize(
-                                      size: coverWidth,
-                                      zoneName: coverModel.zoneName)
-                                  .dx,
-                              top: mainRepository
-                                  .getZoneIconPositionBySize(
-                                      size: coverWidth,
-                                      zoneName: coverModel.zoneName)
-                                  .dy,
-                              child: Center(
-                                child: Image(
-                                  image: AssetImage(
-                                    SharedWidgets.getZoneIcon(
-                                        zoneName: coverModel.zoneName),
-                                  ),
-                                  width: mainRepository.getZoneIconDynamicSize(
-                                      size: coverWidth,
-                                      zoneName: coverModel.zoneName),
-                                  height: mainRepository.getZoneIconDynamicSize(
-                                      size: coverWidth,
-                                      zoneName: coverModel.zoneName),
-                                ),
-                              ),
-                            ),
-                          ],
+                        child: ZoneCornerLabel(
+                          zoneName: coverModel.zoneName,
+                          coverWidth: coverWidth,
                         ),
                       ),
                     ),
@@ -430,13 +292,13 @@ class _CoverWidgetState extends State<CoverWidget> {
                         ),
                         padding: EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                          color: Color.fromARGB(200, 0, 0, 0),
+                          borderRadius: SharedWidgets.borderRadius(),
+                          color: textAreaBackgroundColor,
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 4.0, vertical: 2.0),
-                          child: coverHeight > 400 &&
+                          child: coverHeight >= extendedTextMinCoverHeight &&
                                   (coverRowArtist == true ||
                                       coverRowAlbum == true)
                               ? CoverTextOverlayExtended(

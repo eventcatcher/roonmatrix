@@ -3,10 +3,16 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class LoadingIndicatorBig extends StatelessWidget {
   final String? message;
+  final double? size;
+  final double? scale;
+  final double? strokeWidth;
 
   const LoadingIndicatorBig({
     super.key,
     this.message,
+    this.size = 200.0,
+    this.scale = 5.0,
+    this.strokeWidth = 1.0,
   });
 
   @override
@@ -14,20 +20,20 @@ class LoadingIndicatorBig extends StatelessWidget {
         child: Stack(
           children: <Widget>[
             SizedBox(
-              height: 200.0,
-              width: 200.0,
+              height: size,
+              width: size,
               child: Center(
                   child: Transform.scale(
-                scale: 5,
-                child: const Center(
+                scale: scale,
+                child: Center(
                     child: CircularProgressIndicator(
-                  strokeWidth: 1,
+                  strokeWidth: strokeWidth,
                 )),
               )),
             ),
             SizedBox(
-              height: 200.0,
-              width: 200.0,
+              height: size,
+              width: size,
               child: Center(
                 child: Text(
                   message!,
