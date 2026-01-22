@@ -55,14 +55,6 @@ class KeyValItemsState extends State<KeyValItems> {
   }
 
   @override
-  void didUpdateWidget(KeyValItems oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    fieldValues = widget.fieldValues;
-    widgets = getFields();
-  }
-
-  @override
   void dispose() {
     textController.dispose();
     super.dispose();
