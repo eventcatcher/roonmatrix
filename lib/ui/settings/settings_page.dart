@@ -44,6 +44,8 @@ class _SettingsPageState extends State<SettingsPage> {
   final TextEditingController ipStart = TextEditingController();
   final TextEditingController ipEnd = TextEditingController();
 
+  final double minIpFieldsInRowWidth = 400.0;
+
   Map<String, dynamic> translations = {};
   String title = '';
   String macosVersion = '';
@@ -169,7 +171,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
-              MediaQuery.of(context).size.width > 400
+              MediaQuery.of(context).size.width > minIpFieldsInRowWidth
                   ? Row(
                       children: [
                         Flexible(
@@ -432,7 +434,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: 1000.0,
+                      titleWidth: SharedWidgets.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,

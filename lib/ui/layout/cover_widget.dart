@@ -72,7 +72,6 @@ class _CoverWidgetState extends State<CoverWidget> {
   final double zoneCornerLabelOpacity = 0.7;
   final ColorFilter idleZoneColorFilter =
       ColorFilter.mode(Colors.black.withValues(alpha: 0.2), BlendMode.dstATop);
-  final Duration coverSwitchingDuration = Duration(milliseconds: 2000);
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -145,7 +144,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(0),
                         child: AnimatedSwitcher(
-                          duration: coverSwitchingDuration,
+                          duration: SharedWidgets
+                              .coverSwitchDefaultFadeAnimationDuration,
                           switchInCurve: Curves.easeIn,
                           switchOutCurve: Curves.easeOut,
                           child: coverModel.coverUrl.isNotEmpty

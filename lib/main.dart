@@ -41,15 +41,7 @@ Future<void> _configureMacosWindowUtils() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  double minHeight = Platform.isWindows ? 392 : 320;
-  if (Platform.isLinux) {
-    minHeight = 456;
-  }
-  if (Platform.isMacOS &&
-      SharedWidgets.inMacosStyle() == false &&
-      SharedWidgets.inIosStyle() == false) {
-    minHeight = 364;
-  }
+  double minHeight = SharedWidgets.getWindowMinHeight();
   Size minDesktopSize = Size(1280, minHeight);
   Size standardDesktopSize = const Size(1280, 768);
 
@@ -110,7 +102,41 @@ class RoonMatrixState extends State<RoonMatrix> {
   late ConnectionStatusBloc connectionStatusBloc;
   late MainBloc mainBloc;
 
-  PlatformMenuBar menubar(BuildContext context) => PlatformMenuBar(
+  @override
+  void initState() {
+    fileRepository.init();
+
+    initializeDateFormatting('de_DE', null);
+
+    translationsBloc = TranslationsBloc(fileRepository: fileRepository);
+    settingsBloc = SettingsBloc();
+    connectionStatusBloc = ConnectionStatusBloc();
+    connectionStatusBloc.init();
+    mainBloc = MainBloc(fileRepository: fileRepository);
+    mainBloc.loadDefaults();
+
+    connectionStatusStreamSubscription = connectionStatusBloc.stream.listen((
+      ConnectionStatusState connectionStatusState,
+    ) {
+      if (connectionStatusState is ConnectionStatusStateLoaded &&
+          connectionStatusState.connected) {
+        if (SharedWidgets.isMobileDevice() == true) {
+          mainBloc.resetWebSocketServices();
+        }
+
+        WidgetsBinding.instance.addPostFrameCallback((timestamp) {
+          mainBloc.restartPollingTimer();
+          mainBloc.searching(idle: SharedWidgets.isMobileDevice());
+        });
+      }
+    });
+
+    super.initState();
+  }
+
+  PlatformMenuBar macosMenubar(
+          {required BuildContext context, required Widget child}) =>
+      PlatformMenuBar(
         menus: <PlatformMenuItem>[
           PlatformMenu(
             label: title,
@@ -310,71 +336,49 @@ class RoonMatrixState extends State<RoonMatrix> {
             ],
           ),
         ],
-        child: StartPage(
-          minDesktopSize: minDesktopSize,
-          standardDesktopSize: standardDesktopSize,
-          title: title,
-        ),
+        child: child,
       );
 
-  @override
-  void initState() {
-    fileRepository.init();
+  MenuBarWidget windowsLinuxMenuBar({
+    required BuildContext context,
+    required Map<String, dynamic> translations,
+    required Widget child,
+  }) =>
+      MenuBarWidget(
+        // Add a list of [BarButton]. The buttons in this List are
+        // displayed as the buttons on the bar itself
+        barButtons: windowsLinuxMenuBarButtons(
+            context: context, translations: translations),
 
-    initializeDateFormatting('de_DE', null);
+        // Style the menu bar itself. Hover over [MenuStyle] for all the options
+        barStyle: const MenuStyle(
+          padding: WidgetStatePropertyAll(EdgeInsets.zero),
+          backgroundColor: WidgetStatePropertyAll(Color(0xFF2b2b2b)),
+          maximumSize: WidgetStatePropertyAll(Size(double.infinity, 28.0)),
+        ),
 
-    translationsBloc = TranslationsBloc(fileRepository: fileRepository);
-    settingsBloc = SettingsBloc();
-    connectionStatusBloc = ConnectionStatusBloc();
-    connectionStatusBloc.init();
-    mainBloc = MainBloc(fileRepository: fileRepository);
-    mainBloc.loadDefaults();
+        // Style the menu bar buttons. Hover over [ButtonStyle] for all the options
+        barButtonStyle: const ButtonStyle(
+          padding:
+              WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 6.0)),
+          minimumSize: WidgetStatePropertyAll(Size(0.0, 32.0)),
+        ),
 
-    connectionStatusStreamSubscription = connectionStatusBloc.stream.listen((
-      ConnectionStatusState connectionStatusState,
-    ) {
-      if (connectionStatusState is ConnectionStatusStateLoaded &&
-          connectionStatusState.connected) {
-        if (SharedWidgets.isMobileDevice() == true) {
-          mainBloc.resetWebSocketServices();
-        }
+        // Style the menu and submenu buttons. Hover over [ButtonStyle] for all the options
+        menuButtonStyle: const ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size.fromHeight(36.0)),
+          padding: WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0)),
+        ),
 
-        WidgetsBinding.instance.addPostFrameCallback((timestamp) {
-          mainBloc.restartPollingTimer();
-          mainBloc.searching(idle: SharedWidgets.isMobileDevice());
-        });
-      }
-    });
+        // Enable or disable the bar
+        enabled: true,
 
-    super.initState();
-  }
+        // Set the child, i.e. the application under the menu bar
+        child: child,
+      );
 
-  Future<void> exportDeviceList(BuildContext context) async {
-    setState(() {
-      saveIdle = true;
-    });
-    bool? valid = await mainBloc.exportDevicesData();
-    setState(() {
-      saveIdle = false;
-    });
-    if (valid == null) {
-      return;
-    }
-
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      if (mounted) {
-        SharedWidgets.showSnackBar(
-            context: context,
-            doneMessage:
-                translations['exportDoneMessage'] ?? 'export successfully done',
-            failMessage:
-                translations['exportFailedMessage'] ?? 'export failed!',
-            valid: valid);
-      }
-    });
-  }
-
-  List<BarButton> menuBarButtons({
+  List<BarButton> windowsLinuxMenuBarButtons({
     required BuildContext context,
     required Map<String, dynamic> translations,
   }) {
@@ -468,6 +472,39 @@ class RoonMatrixState extends State<RoonMatrix> {
       indicator: UnderlineTabIndicator(
           borderSide: BorderSide(width: 2, color: Colors.red)));
 
+  ThemeData materialThemeData({
+    required TabBarThemeData tabBarThemeData,
+  }) =>
+      ThemeData(
+        useMaterial3: false,
+        tabBarTheme: tabBarThemeData,
+      );
+
+  Future<void> exportDeviceList(BuildContext context) async {
+    setState(() {
+      saveIdle = true;
+    });
+    bool? valid = await mainBloc.exportDevicesData();
+    setState(() {
+      saveIdle = false;
+    });
+    if (valid == null) {
+      return;
+    }
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        SharedWidgets.showSnackBar(
+            context: context,
+            doneMessage:
+                translations['exportDoneMessage'] ?? 'export successfully done',
+            failMessage:
+                translations['exportFailedMessage'] ?? 'export failed!',
+            valid: valid);
+      }
+    });
+  }
+
   Widget translationsLoadingWindow({
     required String title,
   }) {
@@ -504,56 +541,6 @@ class RoonMatrixState extends State<RoonMatrix> {
           );
   }
 
-  ThemeData materialThemeData({
-    required TabBarThemeData tabBarThemeData,
-  }) =>
-      ThemeData(
-        useMaterial3: false,
-        tabBarTheme: tabBarThemeData,
-      );
-
-  MenuBarWidget windowsLinuxMenuBar({
-    required BuildContext context,
-    required Map<String, dynamic> translations,
-  }) =>
-      MenuBarWidget(
-        // Add a list of [BarButton]. The buttons in this List are
-        // displayed as the buttons on the bar itself
-        barButtons:
-            menuBarButtons(context: context, translations: translations),
-
-        // Style the menu bar itself. Hover over [MenuStyle] for all the options
-        barStyle: const MenuStyle(
-          padding: WidgetStatePropertyAll(EdgeInsets.zero),
-          backgroundColor: WidgetStatePropertyAll(Color(0xFF2b2b2b)),
-          maximumSize: WidgetStatePropertyAll(Size(double.infinity, 28.0)),
-        ),
-
-        // Style the menu bar buttons. Hover over [ButtonStyle] for all the options
-        barButtonStyle: const ButtonStyle(
-          padding:
-              WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 6.0)),
-          minimumSize: WidgetStatePropertyAll(Size(0.0, 32.0)),
-        ),
-
-        // Style the menu and submenu buttons. Hover over [ButtonStyle] for all the options
-        menuButtonStyle: const ButtonStyle(
-          minimumSize: WidgetStatePropertyAll(Size.fromHeight(36.0)),
-          padding: WidgetStatePropertyAll(
-              EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0)),
-        ),
-
-        // Enable or disable the bar
-        enabled: true,
-
-        // Set the child, i.e. the application under the menu bar
-        child: StartPage(
-          minDesktopSize: minDesktopSize,
-          standardDesktopSize: standardDesktopSize,
-          title: title,
-        ),
-      );
-
   Widget home({
     required TranslationsBloc translationsBloc,
   }) =>
@@ -572,12 +559,26 @@ class RoonMatrixState extends State<RoonMatrix> {
             }
 
             if (Platform.isMacOS) {
-              return menubar(context);
+              return macosMenubar(
+                context: context,
+                child: StartPage(
+                  minDesktopSize: minDesktopSize,
+                  standardDesktopSize: standardDesktopSize,
+                  title: title,
+                ),
+              );
             }
 
             if (Platform.isWindows || Platform.isLinux) {
               return windowsLinuxMenuBar(
-                  context: context, translations: translations);
+                context: context,
+                translations: translations,
+                child: StartPage(
+                  minDesktopSize: minDesktopSize,
+                  standardDesktopSize: standardDesktopSize,
+                  title: title,
+                ),
+              );
             }
 
             return StartPage(

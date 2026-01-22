@@ -49,7 +49,6 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
   String title = '';
   String macosVersion = '';
   bool translationsLoaded = false;
-  bool saveIdle = false;
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -114,7 +113,7 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: 200.0,
+                      titleWidth: SharedWidgets.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,

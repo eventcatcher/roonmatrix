@@ -170,7 +170,7 @@ class InfoPageState extends State<InfoPage> {
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: 200.0,
+                      titleWidth: SharedWidgets.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,

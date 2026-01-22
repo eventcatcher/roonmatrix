@@ -83,11 +83,6 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
     reloadDone = false;
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
   Future<NavigationActionPolicy?> shouldOverrideUrlLoading(
     String url,
     NavigationAction navigationAction,
@@ -209,17 +204,6 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                                       )) {
                                 doReload = true;
                               }
-                            }
-                            if (doReload &&
-                                url.toString().contains(
-                                      '/contracts',
-                                    )) {
-                              await Future.delayed(
-                                Duration(milliseconds: 2000),
-                              );
-                              webViewController?.reload();
-                              doReload = false;
-                              reloadDone = true;
                             }
                           },
                           onDidReceiveServerRedirectForProvisionalNavigation: (

@@ -1,6 +1,6 @@
 # RoonMatrix
 
-This app is the frontend for the RoonMatrix LED-Matrix Hardware.
+This app is the frontend for the RoonMatrix LED-Matrix an CoverPlayer Hardware.
 The RoonMatrix is a LED display with multiple 8x8 LED matrix modules in a row, controlled by a raspberry zero 2w controller, with a few additional hardware buttons.
 
 With this RoonMatrix device its possible to control the playout, and display on the LED-Matrix what is playing on Apple Music or Spotify (via local running Webserver of the Computer, the Music Software is running on) or a Roon Server.

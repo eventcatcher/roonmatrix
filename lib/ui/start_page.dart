@@ -50,6 +50,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   final GlobalKey itemListKey = GlobalKey();
   final double exportButtonPaddingIos = 14.0;
   final bool showExpandableSpeedSlider = false;
+  final drawerOffsetToHide = -240.0;
 
   Map<String, dynamic> translations = {};
 
@@ -487,7 +488,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             curve: Curves.easeIn,
             top: navigationTop,
             bottom: 0.0,
-            left: isDrawerOpen ? 0 : -240,
+            left: isDrawerOpen ? 0 : drawerOffsetToHide,
             child: Container(
               width: 230,
               height: double.infinity,

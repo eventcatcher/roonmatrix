@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/model/cover_model.dart';
-import 'package:roonmatrix/ui/helper/cover_transition.dart';
-import 'package:roonmatrix/ui/helper/cover_transition_preset.dart';
 import 'package:roonmatrix/ui/layout/cover_widget.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -71,12 +69,6 @@ class _CoverRowState extends State<CoverRow> {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final int flexCoverRow = 1;
-  final Duration coverAnimatedSwitcherDuration =
-      const Duration(milliseconds: 1000);
-  final AnimatedSwitcherTransitionBuilder coverAnimatedSwitcherPreset =
-      CoverTransition.presets(
-    CoverTransitionPreset.fadeScale,
-  );
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -129,8 +121,8 @@ class _CoverRowState extends State<CoverRow> {
           sizeFactor: animation,
           axis: Axis.horizontal,
           child: AnimatedSwitcher(
-            duration: coverAnimatedSwitcherDuration,
-            transitionBuilder: coverAnimatedSwitcherPreset,
+            duration: SharedWidgets.coverSwitchAnimatedPresetDuration,
+            transitionBuilder: SharedWidgets.coverSwitchAnimatedPreset,
             child: CoverWidget(
               key: ValueKey('CoverWidget${coverModelItem.hash}'),
               translations: translations,

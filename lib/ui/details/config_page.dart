@@ -1,30 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/model/config_definition.dart';
-import 'package:roonmatrix/model/config_definition_area.dart';
-import 'package:roonmatrix/model/config_definition_item.dart';
-import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
-import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
-import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
-import 'package:roonmatrix/ui/layout/headline.dart';
-import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
-import 'package:roonmatrix/ui/layout/key_val_items.dart';
-import 'package:roonmatrix/ui/layout/list_items.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
-import 'package:roonmatrix/ui/layout/map_list_items.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
-import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
-import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +17,6 @@ import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:styled_text/tags/styled_text_tag.dart';
 import 'package:styled_text/widgets/styled_text.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:validators/validators.dart' show isURL;
 
 class ConfigPage extends StatefulWidget {
   final String name;
@@ -73,6 +55,7 @@ class ConfigPageState extends State<ConfigPage> {
   Map fieldValues = {};
   List<Widget> formFields = [];
   String title = '';
+  String jsonStr = '';
   String macosVersion = '';
   bool translationsLoaded = false;
   bool saveIdle = false;
@@ -90,369 +73,6 @@ class ConfigPageState extends State<ConfigPage> {
     mainBloc.getConfig(ip: ip);
 
     super.initState();
-  }
-
-  String getFieldLabel({
-    required ConfigDefinitionItem fieldDefinition,
-    required String fieldType,
-  }) {
-    String label = (translations['config']?[fieldDefinition.name] ??
-        fieldDefinition.label);
-    if (!fieldType.startsWith('list') &&
-        fieldType != 'list' &&
-        fieldType != 'keyValItems') {
-      label += (fieldDefinition.unit != ''
-          ? ' (${translations['config']?[fieldDefinition.unit] ?? fieldDefinition.unit})'
-          : '');
-    }
-
-    return label;
-  }
-
-  List<Widget> getFormFields({
-    required ConfigDefinition defs,
-  }) {
-    List<Widget> widgets = [];
-
-    for (ConfigDefinitionArea area in defs.area) {
-      List<Widget> fields = [];
-
-      for (ConfigDefinitionItem fieldDefinition in area.items) {
-        String? fieldType =
-            mainBloc.getFieldType(fieldDefinition: fieldDefinition);
-        if (fieldType != null && fieldDefinition.editable == true) {
-          if (kDebugMode) {
-            debugPrint(
-                'area: ${area.name}, field: ${fieldDefinition.name}, value: ${fieldValues[area.name][fieldDefinition.name]}, fieldType: $fieldType');
-          }
-
-          Widget? widgetField;
-
-          String label = getFieldLabel(
-            fieldDefinition: fieldDefinition,
-            fieldType: fieldType,
-          );
-
-          if (fieldType == 'text' && fieldDefinition.type.options != null) {
-            widgetField = Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
-              child: SelectBox(
-                translations: translations,
-                aligned: 'horizontal',
-                label: label,
-                showValue: true,
-                inRow: false,
-                noVerticalSpace: false,
-                readOnly: false,
-                selected:
-                    fieldValues[area.name][fieldDefinition.name].toString(),
-                options: fieldDefinition.type.options!.toMap(),
-                onChanged: (String? value) {
-                  if (mounted) {
-                    try {
-                      setState(() => fieldValues[area.name]
-                          [fieldDefinition.name] = value!);
-                    } catch (e) {
-                      setState(() {
-                        fieldValues[area.name][fieldDefinition.name] = '';
-                      });
-                    }
-                  }
-                },
-              ),
-            );
-          }
-          if (fieldType == 'text' && fieldDefinition.type.options == null) {
-            widgetField = Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
-              child: EditableSinglelineText(
-                translations: translations,
-                inputType: TextInputType.text,
-                noCounter: true,
-                label: label,
-                text: fieldValues[area.name][fieldDefinition.name],
-                filter: (String text) {
-                  if (text == '') {
-                    setState(() {
-                      fieldValues[area.name][fieldDefinition.name] = '';
-                    });
-                  }
-                  return text;
-                },
-                errorMessageHandler: (String newValue) {
-                  return mainBloc.getFieldErrorMessage(
-                      value: newValue,
-                      type: fieldDefinition.type.type,
-                      translations: translations);
-                },
-                validation: (String text) =>
-                    fieldDefinition.noValidation == true
-                        ? true
-                        : mainBloc.validateText(
-                            text: text,
-                            fieldDefinition: fieldDefinition,
-                            type: fieldDefinition.type.type),
-                onChanged: (value) {
-                  if (mounted) {
-                    setState(() =>
-                        fieldValues[area.name][fieldDefinition.name] = value);
-                  }
-                },
-              ),
-            );
-          }
-          if (fieldType == 'multiline-text') {
-            widgetField = Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
-              child: EditableMultilineText(
-                translations: translations,
-                label: label,
-                maxLines: 6,
-                placeholder: translations['pleaseTypeSettingPlaceholder'] ??
-                    'Please insert secret here',
-                text: fieldValues[area.name][fieldDefinition.name],
-                filter: (String text) {
-                  if (text == '') {
-                    setState(() {
-                      fieldValues[area.name][fieldDefinition.name] = '';
-                    });
-                  }
-                  return text;
-                },
-                errorMessageHandler: (String newValue) {
-                  return mainBloc.getFieldErrorMessage(
-                      value: newValue,
-                      type: fieldDefinition.type.type,
-                      translations: translations);
-                },
-                validation: (String text) =>
-                    fieldDefinition.noValidation == true
-                        ? true
-                        : mainBloc.validateText(
-                            text: text,
-                            fieldDefinition: fieldDefinition,
-                            type: fieldDefinition.type.type),
-                onChanged: (value) {
-                  if (mounted) {
-                    setState(() =>
-                        fieldValues[area.name][fieldDefinition.name] = value);
-                  }
-                },
-              ),
-            );
-          }
-          if (fieldType == 'int' && fieldDefinition.type.options != null) {
-            widgetField = Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
-              child: SelectBox(
-                translations: translations,
-                aligned: 'horizontal',
-                label: label,
-                inRow: false,
-                showValue: true,
-                noVerticalSpace: false,
-                readOnly: false,
-                selected:
-                    fieldValues[area.name][fieldDefinition.name].toString(),
-                options: fieldDefinition.type.options!.toMap(),
-                onChanged: (String? value) {
-                  if (mounted) {
-                    try {
-                      setState(() => fieldValues[area.name]
-                          [fieldDefinition.name] = int.parse(value!));
-                    } catch (e) {
-                      setState(() {
-                        fieldValues[area.name][fieldDefinition.name] = '';
-                      });
-                    }
-                  }
-                },
-              ),
-            );
-          }
-          if (fieldType == 'int' && fieldDefinition.type.options == null) {
-            widgetField = Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
-              child: EditableSinglelineText(
-                translations: translations,
-                inputType: TextInputType.number,
-                formatters: [FilteringTextInputFormatter.digitsOnly],
-                noCounter: true,
-                label: label,
-                text: fieldValues[area.name][fieldDefinition.name].toString(),
-                filter: (String text) {
-                  if (text == '') {
-                    setState(() {
-                      fieldValues[area.name][fieldDefinition.name] = '';
-                    });
-                  }
-                  return text;
-                },
-                errorMessageHandler: (String newValue) {
-                  return mainBloc.getFieldErrorMessage(
-                      value: newValue,
-                      type: fieldType,
-                      translations: translations);
-                },
-                validation: (String text) {
-                  int? num = int.tryParse(text);
-                  if (num == null) {
-                    return false;
-                  }
-                  return mainBloc.validateNumber(
-                      num: num, type: fieldDefinition.type.type);
-                },
-                onChanged: (value) {
-                  if (mounted) {
-                    try {
-                      setState(() => fieldValues[area.name]
-                          [fieldDefinition.name] = int.parse(value));
-                    } catch (e) {
-                      setState(() {
-                        fieldValues[area.name][fieldDefinition.name] = '';
-                      });
-                    }
-                  }
-                },
-              ),
-            );
-          }
-          if (fieldType == 'bool') {
-            widgetField = Padding(
-              padding:
-                  const EdgeInsets.only(top: 6.0, bottom: 6.0, right: 10.0),
-              child: SwitchButton(
-                label: label,
-                enabled: fieldValues[area.name][fieldDefinition.name],
-                onChanged: (value) {
-                  if (mounted) {
-                    setState(() =>
-                        fieldValues[area.name][fieldDefinition.name] = value);
-                  }
-                },
-              ),
-            );
-          }
-          if (fieldType.startsWith('listItems')) {
-            List<dynamic> json = jsonDecode(
-                (fieldValues[area.name][fieldDefinition.name] as String)
-                    .replaceSpecialTagsWithQuotes());
-            widgetField = ListItems(
-              label: label,
-              fieldValues: json,
-              predefinedLength: fieldType.endsWith('PredefinedLength'),
-              onChanged: (String value) {
-                setState(
-                    () => fieldValues[area.name][fieldDefinition.name] = value);
-              },
-            );
-          }
-          if (fieldType == 'keyValItems') {
-            Map<String, dynamic> json = jsonDecode(
-                (fieldValues[area.name][fieldDefinition.name] as String)
-                    .replaceAll("'", '"'));
-            widgetField = KeyValItems(
-              label: label,
-              fieldValues: json,
-              onChanged: (String value) {
-                setState(
-                    () => fieldValues[area.name][fieldDefinition.name] = value);
-              },
-            );
-          }
-          if (fieldType == 'list') {
-            List<dynamic> json = jsonDecode(
-                (fieldValues[area.name][fieldDefinition.name] as String)
-                    .replaceAll("'", '"'));
-            widgetField = MapListItems(
-              label: label,
-              fieldDefinition: fieldDefinition,
-              fieldValues: json,
-              onChanged: (String value) {
-                setState(
-                    () => fieldValues[area.name][fieldDefinition.name] = value);
-              },
-            );
-          }
-          if (widgetField != null) {
-            if (fieldDefinition.link != '') {
-              fields.add(Row(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: widgetField),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: SharedWidgets.inMacosStyle()
-                          ? 37.0
-                          : SharedWidgets.inIosStyle() || Platform.isWindows
-                              ? 36
-                              : 34.0,
-                      right: 16.0,
-                    ),
-                    child: IconButtonElement(
-                      label: translations['openLinkButtonText'] ?? 'open link',
-                      noBackground: false,
-                      withCircle: false,
-                      readOnly: ((fieldDefinition.link == '*'
-                                  ? fieldValues[area.name][fieldDefinition.name]
-                                  : fieldDefinition.link.toString()) as String)
-                              .isEmpty ||
-                          !isURL(
-                              (fieldDefinition.link == '*'
-                                  ? fieldValues[area.name][fieldDefinition.name]
-                                  : fieldDefinition.link.toString()) as String,
-                              requireTld: true,
-                              requireProtocol: true),
-                      size: 30,
-                      icon: Icon(Icons.link, color: Colors.white, size: 12),
-                      onPressed: ((fieldDefinition.link == '*'
-                                  ? fieldValues[area.name][fieldDefinition.name]
-                                  : fieldDefinition.link.toString()) as String)
-                              .isNotEmpty
-                          ? () async {
-                              final Uri url = Uri.parse(fieldDefinition.link ==
-                                      '*'
-                                  ? fieldValues[area.name][fieldDefinition.name]
-                                  : fieldDefinition.link.toString());
-                              if (!await launchUrl(
-                                url,
-                                mode: LaunchMode.externalApplication,
-                              )) {
-                                if (kDebugMode) {
-                                  debugPrint('Could not launch url: $url');
-                                }
-                              }
-                            }
-                          : () {},
-                    ),
-                  ),
-                ],
-              ));
-            } else {
-              fields.add(widgetField);
-            }
-          }
-        }
-      }
-      Widget widgetArea = Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: SharedWidgets.borderRadius(),
-        ),
-        color: SharedWidgets.windowBackgroundColor(context: context),
-        child: Column(
-          children: [
-            Headline(
-              text: translations['config']?[area.name] ?? area.name,
-            ),
-            ...fields
-          ],
-        ),
-      );
-      widgets.add(widgetArea);
-    }
-
-    return widgets;
   }
 
   Widget tabEdit({
@@ -638,28 +258,6 @@ class ConfigPageState extends State<ConfigPage> {
     );
   }
 
-  Widget body({
-    required BuildContext widgetContext,
-    required ColorScheme defaultColorScheme,
-    required MainState mainState,
-    required String jsonStr,
-  }) =>
-      TabBarView(
-        children: <Widget>[
-          tabEdit(
-              widgetContext: widgetContext,
-              defaultColorScheme: defaultColorScheme,
-              mainState: mainState),
-          tabView(
-              widgetContext: widgetContext,
-              defaultColorScheme: defaultColorScheme,
-              mainState: mainState,
-              jsonStr: jsonStr),
-        ],
-      );
-
-  String jsonStr = '';
-
   @override
   Widget build(BuildContext context) {
     final BuildContext widgetContext = context;
@@ -690,7 +288,7 @@ class ConfigPageState extends State<ConfigPage> {
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: 200.0,
+                      titleWidth: SharedWidgets.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -742,7 +340,21 @@ class ConfigPageState extends State<ConfigPage> {
                 fieldValues = mainState.fieldValues;
                 validData = mainBloc.validateAll(
                     definitions: defs, fieldValues: fieldValues);
-                formFields = getFormFields(defs: defs);
+                formFields = mainBloc.getConfigFormFields(
+                    context: context,
+                    translations: translations,
+                    fieldValues: fieldValues,
+                    defs: defs,
+                    updateFieldValues: ({
+                      required String areaName,
+                      required String fieldName,
+                      required dynamic value,
+                    }) {
+                      if (mounted) {
+                        setState(
+                            () => fieldValues[areaName][fieldName] = value);
+                      }
+                    });
 
                 if (SharedWidgets.inIosStyle()) {
                   return CupertinoPageScaffold(
@@ -883,11 +495,19 @@ class ConfigPageState extends State<ConfigPage> {
                         scrollSpeedDevice: 1.0,
                         standardDesktopSize: standardDesktopSize,
                         drawer: null,
-                        body: body(
-                            widgetContext: widgetContext,
-                            defaultColorScheme: defaultColorScheme,
-                            mainState: mainState,
-                            jsonStr: jsonStr),
+                        body: TabBarView(
+                          children: <Widget>[
+                            tabEdit(
+                                widgetContext: widgetContext,
+                                defaultColorScheme: defaultColorScheme,
+                                mainState: mainState),
+                            tabView(
+                                widgetContext: widgetContext,
+                                defaultColorScheme: defaultColorScheme,
+                                mainState: mainState,
+                                jsonStr: jsonStr),
+                          ],
+                        ),
                         resizeToFullWidth: () {
                           mainBloc.windowResizeToFullWidthAndMinimumHeight(
                               minDesktopSize: minDesktopSize);

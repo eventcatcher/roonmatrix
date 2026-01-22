@@ -2,6 +2,7 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/rich_parser.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
@@ -44,6 +45,8 @@ class LogPageState extends State<LogPage> {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final int logfileSliceSize = 500000;
+  final int dateTimeLength = 17;
 
   Map<String, dynamic> translations = {};
   List<int> logfilePartOffset = [];
@@ -51,7 +54,6 @@ class LogPageState extends State<LogPage> {
   String title = '';
   String macosVersion = '';
   int hours = 1;
-  int logfileSliceSize = 500000;
   int logfileParts = 1;
   int logfilePart = 1;
   bool translationsLoaded = false;
@@ -60,6 +62,7 @@ class LogPageState extends State<LogPage> {
   bool filterLog = false;
 
   late TranslationsBloc translationsBloc;
+  late MainRepository mainRepository;
   late MainBloc mainBloc;
 
   @override
@@ -67,6 +70,7 @@ class LogPageState extends State<LogPage> {
     title = '$name : Log';
 
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
+    mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getLog(ip: ip, hours: hours);
 
@@ -75,14 +79,17 @@ class LogPageState extends State<LogPage> {
 
   List<Widget> logfilePartSelection({
     required String logstr,
+    double splashRadius = 16.0,
+    double fontSize = 16.0,
+    Duration visibilityAnimation = const Duration(milliseconds: 2000),
   }) =>
       [
         AnimatedOpacity(
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 2000),
+          duration: visibilityAnimation,
           child: IconButton(
             padding: const EdgeInsets.only(bottom: 2.0),
-            splashRadius: 16.0,
+            splashRadius: splashRadius,
             hoverColor: Colors.transparent,
             onPressed: () {
               setState(() {
@@ -98,13 +105,13 @@ class LogPageState extends State<LogPage> {
         ),
         AnimatedOpacity(
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 2000),
+          duration: visibilityAnimation,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 2.0),
             child: Text(
               '${translations['filesize'] ?? 'filesize'}: ${logstr.length.readableFileSize(base1024: true)}',
               style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: fontSize,
                   color: SharedWidgets.textColor(context: context)),
             ),
           ),
@@ -112,10 +119,10 @@ class LogPageState extends State<LogPage> {
         SizedBox(width: 8.0),
         AnimatedOpacity(
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 2000),
+          duration: visibilityAnimation,
           child: IconButton(
             padding: EdgeInsets.zero,
-            splashRadius: 16.0,
+            splashRadius: splashRadius,
             hoverColor: Colors.transparent,
             onPressed: () {
               if (logfilePart > 1) {
@@ -134,23 +141,23 @@ class LogPageState extends State<LogPage> {
         ),
         AnimatedOpacity(
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 2000),
+          duration: visibilityAnimation,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Text(
               '$logfilePart / $logfileParts',
               style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: fontSize,
                   color: SharedWidgets.textColor(context: context)),
             ),
           ),
         ),
         AnimatedOpacity(
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 2000),
+          duration: visibilityAnimation,
           child: IconButton(
             padding: EdgeInsets.zero,
-            splashRadius: 16.0,
+            splashRadius: splashRadius,
             hoverColor: Colors.transparent,
             onPressed: () {
               if (logfilePart < logfileParts) {
@@ -297,56 +304,6 @@ class LogPageState extends State<LogPage> {
         ],
       );
 
-  int generateLogParts(String logstr) {
-    String fullLog = logstr;
-    int part = 1;
-    int offset = 0;
-    logfilePartOffset = [];
-    if (logstr.isNotEmpty) {
-      logfilePartOffset = [0];
-      part = 0;
-      do {
-        part++;
-        if (fullLog.length > logfileSliceSize) {
-          offset = logfilePartOffset[part - 1];
-          logstr = fullLog.substring(offset);
-          if (logstr.length > logfileSliceSize) {
-            int endOfLine = 0;
-            if ((logfileSliceSize) < logstr.length) {
-              endOfLine = logstr.substring(logfileSliceSize).indexOf('\n');
-            }
-            int partlen =
-                logfileSliceSize + (endOfLine == -1 ? 0 : (endOfLine + 1));
-            logstr = logstr.substring(0, partlen);
-          }
-
-          if (logfilePartOffset.length <= part) {
-            logfilePartOffset.add(offset + logstr.length);
-          }
-        }
-      } while (fullLog.length > logfileSliceSize &&
-          fullLog.length > (offset + logstr.length));
-    }
-
-    return part;
-  }
-
-  String showOnlyMatchedLines(String logstr) {
-    if (!filterLog || logstr.isEmpty) {
-      return logstr;
-    }
-
-    List<String> matchedLines = [];
-    List<String> lines = logstr.split('\n');
-    for (String line in lines) {
-      if (line.contains('[bg-orange]')) {
-        matchedLines.add(line);
-      }
-    }
-
-    return matchedLines.join('\n');
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
@@ -373,7 +330,7 @@ class LogPageState extends State<LogPage> {
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: 200.0,
+                      titleWidth: SharedWidgets.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -426,16 +383,21 @@ class LogPageState extends State<LogPage> {
                       return '[bg-orange]${match.group(0)}[/bg-orange]';
                     });
                   }
-                  logstr = showOnlyMatchedLines(logstr);
+                  logstr = logstr.onlyMatchedLinesFilter(
+                    logstr: logstr,
+                    filterLog: filterLog,
+                    match: '[bg-orange]',
+                  );
 
-                  if (logstr.isNotEmpty &&
-                      lastLog.length != logstr.length &&
-                      (lastLog.isEmpty ||
-                          (lastLog.length > 17 &&
-                              logstr.length > 17 &&
-                              lastLog.substring(0, 17) !=
-                                  logstr.substring(0, 17)))) {
-                    int newLogfileParts = generateLogParts(logstr);
+                  if (mainRepository.dateTimeHeadHasChanged(
+                      newLog: logstr, lastLog: lastLog)) {
+                    Map<String, dynamic> data = mainRepository.generateLogParts(
+                      logstr: logstr,
+                      logfileSliceSize: logfileSliceSize,
+                    );
+                    int newLogfileParts = data['parts'];
+                    logfilePartOffset = data['logfilePartOffset'];
+
                     if (newLogfileParts != logfileParts &&
                         logfilePart > newLogfileParts) {
                       logfilePart = 1;

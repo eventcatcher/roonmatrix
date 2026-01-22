@@ -52,22 +52,22 @@ class LiveControlPageState extends State<LiveControlPage> {
   String macosVersion = '';
   bool translationsLoaded = false;
 
+  final double verticalScrollMin = 1;
+  final double verticalScrollMax = 10;
+  final int verticalScrollDivisions = 9;
   double verticalScrollDelay = 5;
-  double verticalScrollMin = 1;
-  double verticalScrollMax = 10;
-  int verticalScrollDivisions = 9;
   String? verticalScrollDelayUnit;
 
-  double scrollSpeed = 50;
-  double scrollMin = 1;
+  final double scrollMin = 1;
   double scrollMax = 200;
   int scrollDivisions = 199;
+  double scrollSpeed = 50;
   String? ledScrollDelayUnit;
 
+  final double contrastMin = 0;
+  final double contrastMax = 255;
+  final int contrastDivisions = 99;
   double contrast = 32;
-  double contrastMin = 0;
-  double contrastMax = 255;
-  int contrastDivisions = 99;
 
   bool verticalOutput = false;
   bool controlVarInit = false;
@@ -91,26 +91,10 @@ class LiveControlPageState extends State<LiveControlPage> {
     super.initState();
   }
 
-  Map<String, String> generateOptionsAndPreselect({
-    required List<String> devices,
-    required Map<String, dynamic> infos,
-  }) {
-    Map<String, String> options = {};
-
-    for (String ip in devices) {
-      String name = infos[ip]['name'];
-      bool isCoverPlayer = infos[ip]['display_cover'];
-      if (!isCoverPlayer) {
-        options.putIfAbsent(name, () => ip);
-      }
-    }
-
-    return options;
-  }
-
   List<HorizontalSlider> buildSliders({
     required String selectedDeviceIp,
     required Orientation orientation,
+    double labelWidth = 300,
   }) {
     return [
       if (verticalOutput == true)
@@ -119,7 +103,7 @@ class LiveControlPageState extends State<LiveControlPage> {
           label: translations['config']?['vertical_scroll_delay'] ??
               'Vertical scroll delay',
           sliderValue: verticalScrollDelay,
-          labelWidth: 300,
+          labelWidth: labelWidth,
           min: verticalScrollMin,
           max: verticalScrollMax,
           divisions: verticalScrollDivisions,
@@ -155,7 +139,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                     .replaceAll('LED ', '')
                 : 'Horizontal scroll delay (line by line)',
         sliderValue: scrollSpeed,
-        labelWidth: 300,
+        labelWidth: labelWidth,
         min: scrollMin,
         max: scrollMax,
         divisions: scrollDivisions,
@@ -185,7 +169,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                 .replaceAll('LED ', '')
             : 'contrast',
         sliderValue: contrast,
-        labelWidth: 300,
+        labelWidth: labelWidth,
         min: contrastMin,
         max: contrastMax,
         divisions: contrastDivisions,
@@ -281,7 +265,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                 : 'led_scroll_delay'))
         ?.unit;
 
-    options = generateOptionsAndPreselect(devices: devices, infos: infos);
+    options = mainBloc.generateDeviceOptions(devices: devices, infos: infos);
 
     if (!controlVarInit) {
       verticalOutput = info['vertical_output'];
@@ -332,7 +316,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                           color: SharedWidgets.textColor(context: context),
                         ),
                       ),
-                      titleWidth: 1000.0,
+                      titleWidth: SharedWidgets.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,

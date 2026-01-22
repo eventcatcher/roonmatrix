@@ -20,10 +20,11 @@ class MainRepository {
         !zoneName.endsWith('-Spotify');
   }
 
-  String getFormattedDateString(
-      {required String date,
-      String languageCode = 'de',
-      String format = 'dd.MM.yyyy HH:mm:ss'}) {
+  String getFormattedDateString({
+    required String date,
+    String languageCode = 'de',
+    String format = 'dd.MM.yyyy HH:mm:ss',
+  }) {
     String formattedDate =
         DateFormat(format, languageCode).format(DateTime.parse(date));
 
@@ -41,25 +42,31 @@ class MainRepository {
     return Colors.blue.shade300;
   }
 
-  Offset getZoneIconPositionBySize(
-      {required double size, required String zoneName}) {
+  Offset getZoneIconPositionBySize({
+    required double size,
+    required String zoneName,
+  }) {
     if (zoneName.endsWith('-Apple Music')) {
-      return Offset(size < 200 ? -2.0 : -5.0, size < 200 ? -2.0 : -3.0);
+      return Offset(size < SharedWidgets.zoneCornerFullSize ? -2.0 : -5.0,
+          size < SharedWidgets.zoneCornerFullSize ? -2.0 : -3.0);
     }
     if (zoneName.endsWith('-SpotifyConnect')) {
-      return Offset(size < 200 ? 2.0 : 0, size < 200 ? 4.0 : 5.0);
+      return Offset(size < SharedWidgets.zoneCornerFullSize ? 2.0 : 0,
+          size < SharedWidgets.zoneCornerFullSize ? 4.0 : 5.0);
     }
 
     if (zoneName.endsWith('-Spotify')) {
-      return Offset(2.0, size < 200 ? 4.0 : 5.0);
+      return Offset(2.0, size < SharedWidgets.zoneCornerFullSize ? 4.0 : 5.0);
     }
 
     return Offset(4.0, 5.0);
   }
 
-  double getZoneIconDynamicSize(
-      {required double size, required String zoneName}) {
-    double factor = size < 200 ? 0.65 : 1.0;
+  double getZoneIconDynamicSize({
+    required double size,
+    required String zoneName,
+  }) {
+    double factor = size < SharedWidgets.zoneCornerFullSize ? 0.65 : 1.0;
     if (zoneName.endsWith('-Apple Music')) {
       return factor * 54.0;
     }
@@ -74,9 +81,15 @@ class MainRepository {
     return factor * 40.0;
   }
 
-  Widget statusCorner({required Color color, double? size}) => SizedBox(
-        width: size != null && size < 200 ? 56 : 84,
-        height: size != null && size < 200 ? 56 : 84,
+  Widget statusCorner({
+    required Color color,
+    double? size,
+  }) =>
+      SizedBox(
+        width:
+            size != null && size < SharedWidgets.zoneCornerFullSize ? 56 : 84,
+        height:
+            size != null && size < SharedWidgets.zoneCornerFullSize ? 56 : 84,
         child: ClipRRect(
           child: CustomPaint(
             painter: TrianglePainter(
@@ -104,7 +117,9 @@ class MainRepository {
     return str;
   }
 
-  double getSafeHeight({required FlutterView viewData}) {
+  double getSafeHeight({
+    required FlutterView viewData,
+  }) {
     //Safe area paddings in logical pixels
     double paddingTop = viewData.padding.top / viewData.devicePixelRatio;
     double paddingBottom = viewData.padding.bottom / viewData.devicePixelRatio;
@@ -219,7 +234,9 @@ class MainRepository {
     return coverSize;
   }
 
-  String getZoneName({required Map<String, dynamic> info}) {
+  String getZoneName({
+    required Map<String, dynamic> info,
+  }) {
     String zoneName = '';
     if (info['control_id'] != null) {
       String controlId = info['control_id'];
@@ -248,7 +265,9 @@ class MainRepository {
     return customMessages;
   }
 
-  void setCustomMessages({required Map<String, String> messages}) async {
+  void setCustomMessages({
+    required Map<String, String> messages,
+  }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('customMessages', jsonEncode(messages));
   }
@@ -305,7 +324,9 @@ class MainRepository {
     return 'playout';
   }
 
-  String getDebounceTag({required String? label}) {
+  String getDebounceTag({
+    required String? label,
+  }) {
     String tag = "";
 
     if (label != null) {
@@ -318,11 +339,14 @@ class MainRepository {
     return tag;
   }
 
-  String? getCoverUrl({required Map<String, dynamic>? zone}) => zone != null &&
-          zone['cover'] != null &&
-          (zone['cover'] as String).isNotEmpty
-      ? zone['cover']
-      : null;
+  String? getCoverUrl({
+    required Map<String, dynamic>? zone,
+  }) =>
+      zone != null &&
+              zone['cover'] != null &&
+              (zone['cover'] as String).isNotEmpty
+          ? zone['cover']
+          : null;
 
   String getTimeZonePlaycountText({
     required Map<String, dynamic> translations,
@@ -346,4 +370,59 @@ class MainRepository {
     required double max,
   }) =>
       '${valueType == '%' ? (sliderValue / max * 100).round() : sliderValue.floor()} $valueType';
+
+  bool coverExistInZone({
+    required Map<String, dynamic>? zone,
+  }) =>
+      zone?['cover'] != null && (zone!['cover'] as String).isNotEmpty;
+
+  Map<String, dynamic> generateLogParts({
+    required String logstr,
+    required int logfileSliceSize,
+  }) {
+    String fullLog = logstr;
+    int parts = 1;
+    int offset = 0;
+    List<int> logfilePartOffset = [];
+    if (logstr.isNotEmpty) {
+      logfilePartOffset = [0];
+      parts = 0;
+      do {
+        parts++;
+        if (fullLog.length > logfileSliceSize) {
+          offset = logfilePartOffset[parts - 1];
+          logstr = fullLog.substring(offset);
+          if (logstr.length > logfileSliceSize) {
+            int endOfLine = 0;
+            if ((logfileSliceSize) < logstr.length) {
+              endOfLine = logstr.substring(logfileSliceSize).indexOf('\n');
+            }
+            int partlen =
+                logfileSliceSize + (endOfLine == -1 ? 0 : (endOfLine + 1));
+            logstr = logstr.substring(0, partlen);
+          }
+
+          if (logfilePartOffset.length <= parts) {
+            logfilePartOffset.add(offset + logstr.length);
+          }
+        }
+      } while (fullLog.length > logfileSliceSize &&
+          fullLog.length > (offset + logstr.length));
+    }
+
+    return {"parts": parts, "logfilePartOffset": logfilePartOffset};
+  }
+
+  bool dateTimeHeadHasChanged({
+    required String newLog,
+    required String lastLog,
+    int dateTimeLength = 17,
+  }) =>
+      newLog.isNotEmpty &&
+      lastLog.length != newLog.length &&
+      (lastLog.isEmpty ||
+          (lastLog.length > dateTimeLength &&
+              newLog.length > dateTimeLength &&
+              lastLog.substring(0, dateTimeLength) !=
+                  newLog.substring(0, dateTimeLength)));
 }

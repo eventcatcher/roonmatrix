@@ -40,13 +40,13 @@ extension EmptyBracketFilter on String {
   }
 }
 
-extension ReplaceDoubleQuotesWithSingleQuotesFilter on String {
+extension ReplaceDoubleQuotesWithSingleQuotes on String {
   String replaceDoubleQuotesWithSingleQuotes() {
     return replaceAll('"', "'");
   }
 }
 
-extension ReplaceQuotesWithSpecialTagsFilter on String {
+extension ReplaceQuotesWithSpecialTags on String {
   String replaceQuotesWithSpecialTags() {
     return replaceAll('\'', '[q]')
         .replaceAll('\\"', '[dq]')
@@ -54,7 +54,7 @@ extension ReplaceQuotesWithSpecialTagsFilter on String {
   }
 }
 
-extension ReplaceSpecialTagsWithQuotesFilter on String {
+extension ReplaceSpecialTagsWithQuotes on String {
   String replaceSpecialTagsWithQuotes() {
     return replaceAll("'", '"')
         .replaceAll('[q]', "'")
@@ -68,5 +68,27 @@ extension EscapeAllSpecialChars on String {
       RegExp(r'[-\/\\^$*+?.()|[\]{}]'),
       (m) => '\\${m[0]}',
     );
+  }
+}
+
+extension OnlyMatchedLinesFilter on String {
+  String onlyMatchedLinesFilter({
+    required String logstr,
+    required bool filterLog,
+    required String match,
+  }) {
+    if (!filterLog || logstr.isEmpty) {
+      return logstr;
+    }
+
+    List<String> matchedLines = [];
+    List<String> lines = logstr.split('\n');
+    for (String line in lines) {
+      if (line.contains(match)) {
+        matchedLines.add(line);
+      }
+    }
+
+    return matchedLines.join('\n');
   }
 }

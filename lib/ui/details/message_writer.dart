@@ -75,7 +75,7 @@ class MessageWriterState extends State<MessageWriter> {
     });
   }
 
-  Widget selectbox() => Padding(
+  Widget messageSelectbox() => Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: SelectBox(
             translations: translations,
@@ -92,24 +92,6 @@ class MessageWriterState extends State<MessageWriter> {
                 messageTextController.text = options[selectedMessageId]!;
               });
             }),
-      );
-
-  Widget labelWidget(String? label, Color? labelColor) => Expanded(
-        child: label != null
-            ? Padding(
-                padding: const EdgeInsets.only(left: 16.0),
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: SharedWidgets.brightness() == Brightness.dark
-                        ? SharedWidgets.textColor(context: context)
-                        : labelColor ??
-                            SharedWidgets.textColor(context: context),
-                    fontSize: 12.0,
-                  ),
-                ),
-              )
-            : Container(),
       );
 
   Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
@@ -422,21 +404,72 @@ class MessageWriterState extends State<MessageWriter> {
         ),
       );
 
+  void onAddMessagePreset({required String key}) => options.containsKey(key)
+      ? ApproveModal(
+          context: context,
+          title:
+              translations['removeMessageNameExistTitle'] ?? "Remove message",
+          question:
+              '${translations['removeMessageNameExistQuestion'] ?? 'This message name is in use'}!',
+          okText: translations['okButtonText'] ?? 'OK',
+          cancelText: '',
+          onApproved: () => setState(() {
+            nameTextController.text = '';
+          }),
+          onCanceled: () => setState(() {
+            nameTextController.text = '';
+          }),
+        ).show()
+      : setState(() {
+          options.putIfAbsent(key, () => messageTextController.text);
+          nameTextController.text = '';
+          messageTextController.text = '';
+          mainRepository.setCustomMessages(messages: options);
+          mainBloc.getInfo(ip: ip);
+        });
+
+  Future<void> onRemoveMessagePreset() async {
+    if (selectedMessageId != null && options.containsKey(selectedMessageId)) {
+      bool value = await SharedWidgets.showPlatformSpecificDialog(
+        context: context,
+        child: (BuildContext context) =>
+            StatefulBuilder(builder: (context, setState) {
+          return AlertElement(
+            title: translations['dialogRemoveMessageQuestion'] ??
+                'Do you really want to delete this message?',
+            button1Label: translations['dialogNo'] ?? 'No',
+            onPressed1: () => Navigator.of(context).pop(false),
+            button2Label: translations['dialogYes'] ?? 'Yes',
+            onPressed2: () => Navigator.of(context).pop(true),
+          );
+        }),
+      );
+      if (value == true) {
+        setState(() {
+          String key = selectedMessageId!;
+          nameTextController.text = '';
+          messageTextController.text = '';
+          selectedMessageId = null;
+          options.remove(key);
+          mainRepository.setCustomMessages(messages: options);
+          mainBloc.getInfo(ip: ip);
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    bool desktopLandscapeWide = SharedWidgets.isDesktopDevice() && width >= 800;
-
     return optionsLoaded == true
         ? Column(
             children: [
-              if (desktopLandscapeWide == true)
+              if (SharedWidgets.isDesktopDevice())
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SharedWidgets.inMacosStyle()
-                        ? selectbox()
-                        : Expanded(child: selectbox()),
+                        ? messageSelectbox()
+                        : Expanded(child: messageSelectbox()),
                     Padding(
                       padding: EdgeInsets.only(
                           top: SharedWidgets.inMacosStyle()
@@ -445,7 +478,8 @@ class MessageWriterState extends State<MessageWriter> {
                                   ? 12.0
                                   : 0.0),
                       child: stopMessageButton(
-                          desktopLandscapeWide: desktopLandscapeWide),
+                          desktopLandscapeWide:
+                              SharedWidgets.isDesktopDevice()),
                     ),
                     Padding(
                       padding: EdgeInsets.only(
@@ -458,10 +492,10 @@ class MessageWriterState extends State<MessageWriter> {
                     ),
                   ],
                 ),
-              if (!desktopLandscapeWide) ...[
+              if (SharedWidgets.isMobileDevice()) ...[
                 Row(mainAxisSize: MainAxisSize.max, children: [
                   if (firstRowChild != null) Expanded(child: firstRowChild!),
-                  selectbox(),
+                  messageSelectbox(),
                 ]),
                 if (firstRowChild != null) const SizedBox(height: 16.0),
                 Row(
@@ -471,7 +505,8 @@ class MessageWriterState extends State<MessageWriter> {
                     Padding(
                       padding: const EdgeInsets.only(left: 16.0),
                       child: stopMessageButton(
-                          desktopLandscapeWide: desktopLandscapeWide),
+                          desktopLandscapeWide:
+                              SharedWidgets.isDesktopDevice()),
                     ),
                     sendMessageButton(),
                   ],
@@ -528,35 +563,7 @@ class MessageWriterState extends State<MessageWriter> {
                                   }),
                               onAccepted: (dynamic newKey) {
                                 if (newKey is String && newKey.isNotEmpty) {
-                                  if (options.containsKey(newKey)) {
-                                    ApproveModal(
-                                      context: context,
-                                      title: translations[
-                                              'removeMessageNameExistTitle'] ??
-                                          "Remove message",
-                                      question:
-                                          '${translations['removeMessageNameExistQuestion'] ?? 'This message name is in use'}!',
-                                      okText:
-                                          translations['okButtonText'] ?? 'OK',
-                                      cancelText: '',
-                                      onApproved: () => setState(() {
-                                        nameTextController.text = '';
-                                      }),
-                                      onCanceled: () => setState(() {
-                                        nameTextController.text = '';
-                                      }),
-                                    ).show();
-                                  } else {
-                                    setState(() {
-                                      options.putIfAbsent(newKey,
-                                          () => messageTextController.text);
-                                      nameTextController.text = '';
-                                      messageTextController.text = '';
-                                      mainRepository.setCustomMessages(
-                                          messages: options);
-                                      mainBloc.getInfo(ip: ip);
-                                    });
-                                  }
+                                  onAddMessagePreset(key: newKey);
                                 }
                               }),
                         ),
@@ -579,44 +586,7 @@ class MessageWriterState extends State<MessageWriter> {
                             textController: nameTextController,
                             disabled: selectedMessageId == null,
                             translations: translations,
-                            onPressed: () async {
-                              if (selectedMessageId != null &&
-                                  options.containsKey(selectedMessageId)) {
-                                bool value = await SharedWidgets
-                                    .showPlatformSpecificDialog(
-                                  context: context,
-                                  child: (BuildContext context) =>
-                                      StatefulBuilder(
-                                          builder: (context, setState) {
-                                    return AlertElement(
-                                      title: translations[
-                                              'dialogRemoveMessageQuestion'] ??
-                                          'Do you really want to delete this message?',
-                                      button1Label:
-                                          translations['dialogNo'] ?? 'No',
-                                      onPressed1: () =>
-                                          Navigator.of(context).pop(false),
-                                      button2Label:
-                                          translations['dialogYes'] ?? 'Yes',
-                                      onPressed2: () =>
-                                          Navigator.of(context).pop(true),
-                                    );
-                                  }),
-                                );
-                                if (value == true) {
-                                  setState(() {
-                                    String key = selectedMessageId!;
-                                    nameTextController.text = '';
-                                    messageTextController.text = '';
-                                    selectedMessageId = null;
-                                    options.remove(key);
-                                    mainRepository.setCustomMessages(
-                                        messages: options);
-                                    mainBloc.getInfo(ip: ip);
-                                  });
-                                }
-                              }
-                            },
+                            onPressed: () => onRemoveMessagePreset(),
                           ),
                         ),
                       ],

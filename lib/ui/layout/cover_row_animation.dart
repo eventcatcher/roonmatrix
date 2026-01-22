@@ -6,10 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/helper/animated_list_helper.dart';
-import 'package:roonmatrix/ui/helper/cover_transition.dart';
-import 'package:roonmatrix/ui/helper/cover_transition_preset.dart';
 import 'package:roonmatrix/ui/layout/cover_row.dart';
 import 'package:roonmatrix/ui/layout/cover_widget.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverRowAnimation extends StatefulWidget {
@@ -73,12 +72,6 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       false; // true: show covers for inactive zones too
   final Duration coverInserDuration = const Duration(milliseconds: 1000);
   final Duration coverRemoveDuration = const Duration(milliseconds: 2000);
-  final Duration coverAnimatedSwitcherDuration =
-      const Duration(milliseconds: 500);
-  final AnimatedSwitcherTransitionBuilder coverAnimatedSwitcherPreset =
-      CoverTransition.presets(
-    CoverTransitionPreset.fadeScale,
-  );
 
   Map<String, dynamic> info = {};
   List<String> devices = [];
@@ -174,8 +167,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
           axis: Axis.horizontal,
           sizeFactor: animation,
           child: AnimatedSwitcher(
-            duration: coverAnimatedSwitcherDuration,
-            transitionBuilder: coverAnimatedSwitcherPreset,
+            duration: SharedWidgets.coverSwitchAnimatedPresetDuration,
+            transitionBuilder: SharedWidgets.coverSwitchAnimatedPreset,
             child: CoverWidget(
               key: ValueKey('CoverWidget${item.hash}'),
               translations: translations,

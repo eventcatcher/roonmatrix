@@ -47,7 +47,6 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
   VoidCallback? get backButtonPressed => widget.backButtonPressed;
   VoidCallback get resizeToFullWidth => widget.resizeToFullWidth;
 
-  final double extendedTitleWidth = 500.0;
   final double iconSize = 16.0;
 
   bool isFullscreen = false;
@@ -102,7 +101,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
         name: title == SharedWidgets.mainWindowTitle ? null : title,
         macosVersion: macosVersion,
         toolBar: ToolBar(
-          titleWidth: extendedTitleWidth,
+          titleWidth: SharedWidgets.extendedTitleWidth,
           title: title == SharedWidgets.mainWindowTitle
               ? Text(title)
               : MacosTappableTextBackButton(

@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/model/config_definition.dart';
@@ -13,8 +14,18 @@ import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/helper/websocket_service.dart';
+import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
+import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
+import 'package:roonmatrix/ui/layout/headline.dart';
+import 'package:roonmatrix/ui/layout/icon_button_element.dart';
+import 'package:roonmatrix/ui/layout/key_val_items.dart';
+import 'package:roonmatrix/ui/layout/list_items.dart';
+import 'package:roonmatrix/ui/layout/map_list_items.dart';
+import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/main/main_event.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +34,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:validators/validators.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -1646,6 +1658,525 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               .toLowerCase()
               .compareTo((state.info[b]['name'] as String).toLowerCase())
           : a.compareTo(b));
+  }
+
+  String getConfigFieldLabel({
+    required Map<String, dynamic> translations,
+    required ConfigDefinitionItem fieldDefinition,
+    required String fieldType,
+  }) {
+    String label = (translations['config']?[fieldDefinition.name] ??
+        fieldDefinition.label);
+    if (!fieldType.startsWith('list') &&
+        fieldType != 'list' &&
+        fieldType != 'keyValItems') {
+      label += (fieldDefinition.unit != ''
+          ? ' (${translations['config']?[fieldDefinition.unit] ?? fieldDefinition.unit})'
+          : '');
+    }
+
+    return label;
+  }
+
+  List<Widget> getConfigFormFields({
+    required BuildContext context,
+    required Map<String, dynamic> translations,
+    required Map fieldValues,
+    required ConfigDefinition defs,
+    required void Function({
+      required String areaName,
+      required String fieldName,
+      required dynamic value,
+    }) updateFieldValues,
+  }) {
+    List<Widget> widgets = [];
+
+    for (ConfigDefinitionArea area in defs.area) {
+      List<Widget> fields = [];
+
+      for (ConfigDefinitionItem fieldDefinition in area.items) {
+        String? fieldType = getFieldType(fieldDefinition: fieldDefinition);
+        if (fieldType != null && fieldDefinition.editable == true) {
+          if (kDebugMode) {
+            debugPrint(
+                'area: ${area.name}, field: ${fieldDefinition.name}, value: ${fieldValues[area.name][fieldDefinition.name]}, fieldType: $fieldType');
+          }
+
+          Widget? widgetField;
+
+          String label = getConfigFieldLabel(
+            translations: translations,
+            fieldDefinition: fieldDefinition,
+            fieldType: fieldType,
+          );
+
+          if (fieldType == 'text' && fieldDefinition.type.options != null) {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: SelectBox(
+                translations: translations,
+                aligned: 'horizontal',
+                label: label,
+                showValue: true,
+                inRow: false,
+                noVerticalSpace: false,
+                readOnly: false,
+                selected:
+                    fieldValues[area.name][fieldDefinition.name].toString(),
+                options: fieldDefinition.type.options!.toMap(),
+                onChanged: (String? value) {
+                  try {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: value!);
+                  } catch (e) {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: '');
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'text' && fieldDefinition.type.options == null) {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: EditableSinglelineText(
+                translations: translations,
+                inputType: TextInputType.text,
+                noCounter: true,
+                label: label,
+                text: fieldValues[area.name][fieldDefinition.name],
+                filter: (String text) {
+                  if (text == '') {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: '');
+                  }
+                  return text;
+                },
+                errorMessageHandler: (String newValue) {
+                  return getFieldErrorMessage(
+                      value: newValue,
+                      type: fieldDefinition.type.type,
+                      translations: translations);
+                },
+                validation: (String text) =>
+                    fieldDefinition.noValidation == true
+                        ? true
+                        : validateText(
+                            text: text,
+                            fieldDefinition: fieldDefinition,
+                            type: fieldDefinition.type.type),
+                onChanged: (value) {
+                  updateFieldValues(
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: value);
+                },
+              ),
+            );
+          }
+          if (fieldType == 'multiline-text') {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: EditableMultilineText(
+                translations: translations,
+                label: label,
+                maxLines: 6,
+                placeholder: translations['pleaseTypeSettingPlaceholder'] ??
+                    'Please insert secret here',
+                text: fieldValues[area.name][fieldDefinition.name],
+                filter: (String text) {
+                  if (text == '') {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: '');
+                  }
+                  return text;
+                },
+                errorMessageHandler: (String newValue) {
+                  return getFieldErrorMessage(
+                      value: newValue,
+                      type: fieldDefinition.type.type,
+                      translations: translations);
+                },
+                validation: (String text) =>
+                    fieldDefinition.noValidation == true
+                        ? true
+                        : validateText(
+                            text: text,
+                            fieldDefinition: fieldDefinition,
+                            type: fieldDefinition.type.type),
+                onChanged: (value) {
+                  updateFieldValues(
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: value);
+                },
+              ),
+            );
+          }
+          if (fieldType == 'int' && fieldDefinition.type.options != null) {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: SelectBox(
+                translations: translations,
+                aligned: 'horizontal',
+                label: label,
+                inRow: false,
+                showValue: true,
+                noVerticalSpace: false,
+                readOnly: false,
+                selected:
+                    fieldValues[area.name][fieldDefinition.name].toString(),
+                options: fieldDefinition.type.options!.toMap(),
+                onChanged: (String? value) {
+                  try {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: int.parse(value!));
+                  } catch (e) {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: '');
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'int' && fieldDefinition.type.options == null) {
+            widgetField = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: EditableSinglelineText(
+                translations: translations,
+                inputType: TextInputType.number,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
+                noCounter: true,
+                label: label,
+                text: fieldValues[area.name][fieldDefinition.name].toString(),
+                filter: (String text) {
+                  if (text == '') {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: '');
+                  }
+                  return text;
+                },
+                errorMessageHandler: (String newValue) {
+                  return getFieldErrorMessage(
+                      value: newValue,
+                      type: fieldType,
+                      translations: translations);
+                },
+                validation: (String text) {
+                  int? num = int.tryParse(text);
+                  if (num == null) {
+                    return false;
+                  }
+                  return validateNumber(
+                      num: num, type: fieldDefinition.type.type);
+                },
+                onChanged: (value) {
+                  try {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: int.parse(value));
+                  } catch (e) {
+                    updateFieldValues(
+                        areaName: area.name,
+                        fieldName: fieldDefinition.name,
+                        value: '');
+                  }
+                },
+              ),
+            );
+          }
+          if (fieldType == 'bool') {
+            widgetField = Padding(
+              padding:
+                  const EdgeInsets.only(top: 6.0, bottom: 6.0, right: 10.0),
+              child: SwitchButton(
+                label: label,
+                enabled: fieldValues[area.name][fieldDefinition.name],
+                onChanged: (value) {
+                  updateFieldValues(
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: value);
+                },
+              ),
+            );
+          }
+          if (fieldType.startsWith('listItems')) {
+            List<dynamic> json = jsonDecode(
+                (fieldValues[area.name][fieldDefinition.name] as String)
+                    .replaceSpecialTagsWithQuotes());
+            widgetField = ListItems(
+              label: label,
+              fieldValues: json,
+              predefinedLength: fieldType.endsWith('PredefinedLength'),
+              onChanged: (String value) {
+                updateFieldValues(
+                    areaName: area.name,
+                    fieldName: fieldDefinition.name,
+                    value: value);
+              },
+            );
+          }
+          if (fieldType == 'keyValItems') {
+            Map<String, dynamic> json = jsonDecode(
+                (fieldValues[area.name][fieldDefinition.name] as String)
+                    .replaceAll("'", '"'));
+            widgetField = KeyValItems(
+              label: label,
+              fieldValues: json,
+              onChanged: (String value) {
+                updateFieldValues(
+                    areaName: area.name,
+                    fieldName: fieldDefinition.name,
+                    value: value);
+              },
+            );
+          }
+          if (fieldType == 'list') {
+            List<dynamic> json = jsonDecode(
+                (fieldValues[area.name][fieldDefinition.name] as String)
+                    .replaceAll("'", '"'));
+            widgetField = MapListItems(
+              label: label,
+              fieldDefinition: fieldDefinition,
+              fieldValues: json,
+              onChanged: (String value) {
+                updateFieldValues(
+                    areaName: area.name,
+                    fieldName: fieldDefinition.name,
+                    value: value);
+              },
+            );
+          }
+          if (widgetField != null) {
+            if (fieldDefinition.link != '') {
+              fields.add(Row(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: widgetField),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: SharedWidgets.inMacosStyle()
+                          ? 37.0
+                          : SharedWidgets.inIosStyle() || Platform.isWindows
+                              ? 36
+                              : 34.0,
+                      right: 16.0,
+                    ),
+                    child: IconButtonElement(
+                      label: translations['openLinkButtonText'] ?? 'open link',
+                      noBackground: false,
+                      withCircle: false,
+                      readOnly: ((fieldDefinition.link == '*'
+                                  ? fieldValues[area.name][fieldDefinition.name]
+                                  : fieldDefinition.link.toString()) as String)
+                              .isEmpty ||
+                          !isURL(
+                              (fieldDefinition.link == '*'
+                                  ? fieldValues[area.name][fieldDefinition.name]
+                                  : fieldDefinition.link.toString()) as String,
+                              requireTld: true,
+                              requireProtocol: true),
+                      size: 30,
+                      icon: Icon(Icons.link, color: Colors.white, size: 12),
+                      onPressed: ((fieldDefinition.link == '*'
+                                  ? fieldValues[area.name][fieldDefinition.name]
+                                  : fieldDefinition.link.toString()) as String)
+                              .isNotEmpty
+                          ? () async {
+                              final Uri url = Uri.parse(fieldDefinition.link ==
+                                      '*'
+                                  ? fieldValues[area.name][fieldDefinition.name]
+                                  : fieldDefinition.link.toString());
+                              if (!await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              )) {
+                                if (kDebugMode) {
+                                  debugPrint('Could not launch url: $url');
+                                }
+                              }
+                            }
+                          : () {},
+                    ),
+                  ),
+                ],
+              ));
+            } else {
+              fields.add(widgetField);
+            }
+          }
+        }
+      }
+      Widget widgetArea = Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: SharedWidgets.borderRadius(),
+        ),
+        color: SharedWidgets.windowBackgroundColor(context: context),
+        child: Column(
+          children: [
+            Headline(
+              text: translations['config']?[area.name] ?? area.name,
+            ),
+            ...fields
+          ],
+        ),
+      );
+      widgets.add(widgetArea);
+    }
+
+    return widgets;
+  }
+
+  Map<String, String> generateDeviceOptions({
+    required List<String> devices,
+    required Map<String, dynamic> infos,
+  }) {
+    Map<String, String> options = {};
+
+    for (String ip in devices) {
+      String name = infos[ip]['name'];
+      bool isCoverPlayer = infos[ip]['display_cover'];
+      if (!isCoverPlayer) {
+        options.putIfAbsent(name, () => ip);
+      }
+    }
+
+    return options;
+  }
+
+  Map<String, String> generateZoneSelectionOptionsAndPreselect({
+    required Map<String, dynamic> info,
+    required String? controlId,
+    required void Function({required String zoneId}) setZoneId,
+  }) {
+    Map<String, String> options = {};
+
+    if (info == {}) {
+      return {};
+    }
+
+    Map<String, dynamic> channels = info['channels'];
+
+    if (info['control_id'] != null) {
+      if (controlId == null && info['control_id'] != null) {
+        controlId = info['control_id'];
+      }
+
+      if (controlId != null && channels.containsKey(controlId)) {
+        if (channels[controlId] == 'webserver' ||
+            channels[controlId] == 'spotifyconnect') {
+          setZoneId(zoneId: controlId);
+        } else {
+          setZoneId(zoneId: channels[controlId]!);
+        }
+      }
+    }
+
+    Map<String, String> roonOptions = {};
+    for (String key in channels.keys) {
+      if (channels[key] != 'webserver' && channels[key] != 'spotifyconnect') {
+        String zoneName = channels[key]!;
+        if ((info['roon_playouts'] as Map).containsKey(zoneName)) {
+          roonOptions.putIfAbsent(zoneName, () => key);
+        }
+      }
+    }
+    options.addAll(Map.fromEntries(
+        roonOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key))));
+
+    Map<String, String> webOptions = {};
+    for (String key in channels.keys) {
+      if (channels[key] == 'webserver' || channels[key] == 'spotifyconnect') {
+        List<String> controlIdParts = key.split('-');
+        String serverName = controlIdParts[0];
+        String zoneName = controlIdParts[1];
+        if (info['web_playouts'][serverName] != null) {
+          List<dynamic> zones = info['web_playouts'][serverName];
+          Map<String, dynamic>? zone = zones.firstWhereOrNull(
+              (dynamic el) => (el['zone'] as String) == zoneName);
+          if (zone != null) {
+            webOptions.putIfAbsent(key, () => channels[key]);
+          }
+        }
+      }
+    }
+    options.addAll(Map.fromEntries(
+        webOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key))));
+
+    return options;
+  }
+
+  Map<String, dynamic> getZoneDataForControlId({
+    required Map<String, dynamic> info,
+    required String? controlId,
+    required bool isRadio,
+  }) {
+    Map<String, dynamic>? zone;
+
+    if (info == {}) {
+      return {"zone": {}, "isRadio": isRadio};
+    }
+
+    Map<String, dynamic> channels = info['channels'];
+
+    if (controlId != null &&
+        controlId.isNotEmpty &&
+        channels.keys.contains(controlId)) {
+      if (channels[controlId] == 'webserver' ||
+          channels[controlId] == 'spotifyconnect') {
+        List<String> controlIdParts = controlId.split('-');
+        String serverName = controlIdParts[0];
+        String zoneName = controlIdParts[1];
+        if (info['web_playouts'][serverName] != null) {
+          List<dynamic> zones = info['web_playouts'][serverName];
+          zone = zones.firstWhereOrNull(
+              (dynamic el) => (el['zone'] as String) == zoneName);
+
+          if (zone != null) {
+            zone['server'] = serverName;
+            isRadio = zone['zone'] == 'Apple Music' &&
+                zone['sourcetype'] == 'stream' &&
+                zone['position'] ==
+                    '0'; // if this is a radio stream, set this prop to true (at the moment a radio stream is recognized by sourcetype is stream and playpos is 0, because playpos is not counting on radio streams)
+            zone['is_radio'] = isRadio;
+            if (kDebugMode) {
+              debugPrint(
+                  'zone: ${zone['zone']}, sourcetype: ${zone['sourcetype']}, playpos: ${zone['position']} => is_radio: $isRadio');
+            }
+          }
+        }
+      } else {
+        String zoneName = channels[controlId];
+        if (info['roon_playouts'][zoneName] != null) {
+          zone = info['roon_playouts'][zoneName];
+          if (zone != null) {
+            zone['zone'] = zoneName;
+            zone['server'] = 'roon';
+            isRadio = zone['total'] == null;
+            zone['is_radio'] = isRadio;
+          }
+        }
+      }
+    }
+
+    return {"zone": zone, "isRadio": isRadio};
   }
 
   // ==================== //

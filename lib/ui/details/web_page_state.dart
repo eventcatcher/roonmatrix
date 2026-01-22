@@ -4,7 +4,10 @@ abstract class WebPageState extends Equatable {
   final String url;
   final double progress;
 
-  const WebPageState({this.url = '', this.progress = 0.0});
+  const WebPageState({
+    this.url = '',
+    this.progress = 0.0,
+  });
 
   @override
   List<Object> get props => [url, progress];
@@ -21,7 +24,10 @@ class WebPageStateInitial extends WebPageState {
 }
 
 class WebPageStateLoaded extends WebPageState {
-  const WebPageStateLoaded({required super.url, required super.progress});
+  const WebPageStateLoaded({
+    required super.url,
+    required super.progress,
+  });
 
   @override
   String toString() => 'WebPageStateLoaded';

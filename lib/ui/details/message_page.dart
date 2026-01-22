@@ -64,23 +64,6 @@ class MessagePageState extends State<MessagePage> {
     super.initState();
   }
 
-  Map<String, String> generateOptionsAndPreselect({
-    required List<String> devices,
-    required Map<String, dynamic> infos,
-  }) {
-    Map<String, String> options = {};
-
-    for (String ip in devices) {
-      String name = infos[ip]['name'];
-      bool isCoverPlayer = infos[ip]['display_cover'];
-      if (!isCoverPlayer) {
-        options.putIfAbsent(name, () => ip);
-      }
-    }
-
-    return options;
-  }
-
   Widget selectBox({
     required Map<String, String> options,
   }) =>
@@ -89,7 +72,7 @@ class MessagePageState extends State<MessagePage> {
           aligned: 'horizontal',
           label: '${translations['deviceName'] ?? 'device name'}:',
           placeholder:
-              '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+              '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
           inRow: false,
           noVerticalSpace: false,
           readOnly: false,
@@ -189,7 +172,7 @@ class MessagePageState extends State<MessagePage> {
                           color: SharedWidgets.textColor(context: context),
                         ),
                       ),
-                      titleWidth: 1000.0,
+                      titleWidth: SharedWidgets.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -228,8 +211,10 @@ class MessagePageState extends State<MessagePage> {
                 Map<String, dynamic> info = infos[selectedDeviceIp] ?? {};
                 selectedDeviceName = info['name'];
                 customMessage = info['custom_message'];
-                Map<String, String> options =
-                    generateOptionsAndPreselect(devices: devices, infos: infos);
+                Map<String, String> options = mainBloc.generateDeviceOptions(
+                  devices: devices,
+                  infos: infos,
+                );
 
                 return OrientationBuilder(
                     builder: (BuildContext context, Orientation orientation) {

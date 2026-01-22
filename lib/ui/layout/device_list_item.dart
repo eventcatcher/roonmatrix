@@ -81,17 +81,13 @@ class DeviceListItemState extends State<DeviceListItem> {
   final double deviceListCoverSize = 40.0;
   final double mobileInfoPaddingRight = 40.0;
   final Color tileColor = Colors.lightBlueAccent;
-  final Duration coverSwitchAnimationDuration =
-      const Duration(milliseconds: 2000);
   final Duration animatedOpacityForTimeZonePlaycountText =
       const Duration(milliseconds: 400);
 
   final double tickerTopOffset = 60.0;
   final double tickerAreaHeight = 24.0;
-  final String tickerFontFamily = 'whiteCupertino subtitle';
   final double tickerFontSize = 14.0;
   final double tickerPixelPerSecondFactor = 50.0;
-  final String tickerSeparator = '    ////    ';
   final double tickerSpeedSliderWidth = 120.0;
 
   double infoOpacityLevel = 1.0;
@@ -212,7 +208,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                       },
                     ),
                     icon: AnimatedSwitcher(
-                      duration: coverSwitchAnimationDuration,
+                      duration:
+                          SharedWidgets.coverSwitchDefaultFadeAnimationDuration,
                       switchInCurve: Curves.easeIn,
                       switchOutCurve: Curves.easeOut,
                       child: coverUrl != null
@@ -375,7 +372,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                             'UpdatableTickerStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                         updatableText: scrollText,
                         style: TextStyle(
-                          fontFamily: tickerFontFamily,
+                          fontFamily: SharedWidgets.tickerFontFamily,
                           fontSize: tickerFontSize,
                           color: SharedWidgets.textColor(
                             context: context,
@@ -384,7 +381,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                         pixelsPerSecond:
                             tickerPixelPerSecondFactor * scrollSpeedDevice,
                         forceUpdate: false,
-                        separator: tickerSeparator,
+                        separator: SharedWidgets.tickerSeparator,
                       ),
                     ),
                   ),

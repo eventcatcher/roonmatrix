@@ -5,6 +5,7 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 class CoverTextOverlayExtended extends StatefulWidget {
   final CoverModel coverModel;
   final double fontSize;
+  final Color color;
   final Map<String, dynamic> translations;
   final bool coverRowArtist;
   final bool coverRowAlbum;
@@ -14,6 +15,7 @@ class CoverTextOverlayExtended extends StatefulWidget {
     super.key,
     required this.coverModel,
     this.fontSize = 12.0,
+    this.color = Colors.white,
     required this.translations,
     required this.coverRowArtist,
     required this.coverRowAlbum,
@@ -27,6 +29,7 @@ class CoverTextOverlayExtended extends StatefulWidget {
 
 class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   double get fontSize => widget.fontSize;
+  Color get color => widget.color;
   Map<String, dynamic> get translations => widget.translations;
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
@@ -56,24 +59,28 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
             label: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
             text: coverModel.zoneName,
             fontSize: fontSize,
+            color: color,
           ),
           if (coverRowArtist == true)
             SharedWidgets.getTableRowInnerCentered(
               label: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
               text: coverModel.artist,
               fontSize: fontSize,
+              color: color,
             ),
           if (coverRowAlbum == true)
             SharedWidgets.getTableRowInnerCentered(
               label: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
               text: coverModel.album,
               fontSize: fontSize,
+              color: color,
             ),
           if (coverRowTrack == true && coverModel.track.isNotEmpty)
             SharedWidgets.getTableRowInnerCentered(
               label: '${translations['coverTrackHeader'] ?? 'Track'}: ',
               text: coverModel.track,
               fontSize: fontSize,
+              color: color,
             ),
         ],
       );

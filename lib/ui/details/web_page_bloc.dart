@@ -26,15 +26,21 @@ class WebPageBloc extends Bloc<WebPageEvent, WebPageState> {
   // public event methods //
   // ==================== //
 
-  void loadDefaults({required String url}) {
+  void loadDefaults({
+    required String url,
+  }) {
     add(SetWebPageStateLoadDefaults(url: url));
   }
 
-  void setUrl({required String url}) {
+  void setUrl({
+    required String url,
+  }) {
     add(SetUrl(url: url));
   }
 
-  void setProgress({required double progress}) {
+  void setProgress({
+    required double progress,
+  }) {
     add(SetProgress(progress: progress));
   }
 }

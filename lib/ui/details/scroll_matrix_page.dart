@@ -51,6 +51,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   Function(double speed) get speedChanged => widget.speedChanged;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final double sliderOverlayMaxWidth = 300.0;
 
   Orientation orientation = Orientation.portrait;
   Offset actualPosition = Offset(0, 0);
@@ -63,7 +64,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   double height = 768;
   double fontSize = 64.0;
   double mobileFontSize = 64.0;
-  double pixelsPerSecond = 200 + 64.0 / 2.25;
+  double pixelsPerSecond = 0;
   double sliderValue = 1.0;
   bool isFullscreen = false;
 
@@ -73,6 +74,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   @override
   void initState() {
     title = '$name : ${translations['tickerPageHeaderText'] ?? 'Ticker'}';
+    pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
     width = minDesktopSize.width;
     height = minDesktopSize.height;
 
@@ -131,13 +133,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     super.dispose();
   }
 
+  getPixelsPerSecond({required double fontSize}) =>
+      pixelsPerSecond = 200 + fontSize / 2.25;
+
   void updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     fontSize = SharedWidgets.isDesktopDevice()
         ? height - 60 - height / 6
         : mobileFontSize;
-    pixelsPerSecond = 200 + fontSize / 2.25;
+    pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
     // if (kDebugMode) {
     //   debugPrint(
     //       'xxx123 ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
@@ -196,14 +201,14 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                               'UpdatableTickerMatrixPage${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
                           updatableText: scrollText,
                           style: TextStyle(
-                            fontFamily: 'Arial',
+                            fontFamily: SharedWidgets.tickerFontFamily,
                             fontSize: fontSize / 1.2,
                             color: Colors.black,
                           ),
                           pixelsPerSecond: pixelsPerSecond * sliderValue,
                           forceUpdate: false,
                           center: true,
-                          separator: '    ////    ',
+                          separator: SharedWidgets.tickerSeparator,
                         ),
                       ),
                     ),
@@ -222,16 +227,13 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
             brightness: SharedWidgets.brightness(),
-            middle: SharedWidgets.inIosStyle() ? null : Text(title),
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               child: CupertinoNavigationBarBackButton(),
               onPressed: () => Navigator.pop(context),
             ),
             trailing: SizedBox(
-              width: SharedWidgets.inIosStyle()
-                  ? MediaQuery.of(context).size.width - 100
-                  : 900.0,
+              width: MediaQuery.of(context).size.width - 100,
               child: MobileSpeedSliderAndFontsizeControls(
                 translations: translations,
                 ip: ip,
@@ -256,7 +258,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     right: 10,
                     child: SliderHoverOverlay(
                       label: '${translations['speed'] ?? 'speed:'}:',
-                      width: width > 300 ? 300 : width,
+                      width: width > sliderOverlayMaxWidth
+                          ? sliderOverlayMaxWidth
+                          : width,
                       min: 0.1,
                       value: sliderValue,
                       updateValue: (double value) {
@@ -315,7 +319,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                         right: 10,
                         child: SliderHoverOverlay(
                           label: '${translations['speed'] ?? 'speed:'}:',
-                          width: width > 300 ? 300 : width,
+                          width: width > sliderOverlayMaxWidth
+                              ? sliderOverlayMaxWidth
+                              : width,
                           min: 0.1,
                           value: sliderValue,
                           updateValue: (double value) {
@@ -377,7 +383,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                           right: 10,
                           child: SliderHoverOverlay(
                             label: '${translations['speed'] ?? 'speed:'}:',
-                            width: width > 300 ? 300 : width,
+                            width: width > sliderOverlayMaxWidth
+                                ? sliderOverlayMaxWidth
+                                : width,
                             min: 0.1,
                             value: sliderValue,
                             updateValue: (double value) {

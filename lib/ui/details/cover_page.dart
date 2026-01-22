@@ -1,13 +1,16 @@
-import 'package:collection/collection.dart';
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/control_buttons.dart';
+import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
@@ -50,6 +53,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final double fontSize = SharedWidgets.isDesktopDevice() ? 20.0 : 16.0;
+  final double coveraPadding = 24.0;
 
   Map<String, dynamic> info = {};
   Map<String, String> options = {};
@@ -77,116 +81,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     mainBloc.getInfo(ip: ip);
 
     super.initState();
-  }
-
-  Map<String, String> generateOptionsAndPreselect() {
-    Map<String, String> options = {};
-
-    if (info == {}) {
-      return {};
-    }
-
-    Map<String, dynamic> channels = info['channels'];
-
-    if (info['control_id'] != null) {
-      if (controlId == null && info['control_id'] != null) {
-        controlId = info['control_id'];
-      }
-
-      if (controlId != null && channels.containsKey(controlId)) {
-        if (channels[controlId] == 'webserver' ||
-            channels[controlId] == 'spotifyconnect') {
-          selectedZoneId = controlId;
-        } else {
-          selectedZoneId = channels[controlId]!;
-        }
-      }
-    }
-
-    Map<String, String> roonOptions = {};
-    for (String key in channels.keys) {
-      if (channels[key] != 'webserver' && channels[key] != 'spotifyconnect') {
-        String zoneName = channels[key]!;
-        if ((info['roon_playouts'] as Map).containsKey(zoneName)) {
-          roonOptions.putIfAbsent(zoneName, () => key);
-        }
-      }
-    }
-    options.addAll(Map.fromEntries(
-        roonOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key))));
-
-    Map<String, String> webOptions = {};
-    for (String key in channels.keys) {
-      if (channels[key] == 'webserver' || channels[key] == 'spotifyconnect') {
-        List<String> controlIdParts = key.split('-');
-        String serverName = controlIdParts[0];
-        String zoneName = controlIdParts[1];
-        if (info['web_playouts'][serverName] != null) {
-          List<dynamic> zones = info['web_playouts'][serverName];
-          Map<String, dynamic>? zone = zones.firstWhereOrNull(
-              (dynamic el) => (el['zone'] as String) == zoneName);
-          if (zone != null) {
-            webOptions.putIfAbsent(key, () => channels[key]);
-          }
-        }
-      }
-    }
-    options.addAll(Map.fromEntries(
-        webOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key))));
-
-    return options;
-  }
-
-  Map<String, dynamic>? getZoneDataForControlId(String? controlId) {
-    Map<String, dynamic>? zone;
-
-    if (info == {}) {
-      return {};
-    }
-
-    Map<String, dynamic> channels = info['channels'];
-
-    if (controlId != null &&
-        controlId.isNotEmpty &&
-        channels.keys.contains(controlId)) {
-      if (channels[controlId] == 'webserver' ||
-          channels[controlId] == 'spotifyconnect') {
-        List<String> controlIdParts = controlId.split('-');
-        String serverName = controlIdParts[0];
-        String zoneName = controlIdParts[1];
-        if (info['web_playouts'][serverName] != null) {
-          List<dynamic> zones = info['web_playouts'][serverName];
-          zone = zones.firstWhereOrNull(
-              (dynamic el) => (el['zone'] as String) == zoneName);
-
-          if (zone != null) {
-            zone['server'] = serverName;
-            isRadio = zone['zone'] == 'Apple Music' &&
-                zone['sourcetype'] == 'stream' &&
-                zone['position'] ==
-                    '0'; // if this is a radio stream, set this prop to true (at the moment a radio stream is recognized by sourcetype is stream and playpos is 0, because playpos is not counting on radio streams)
-            zone['is_radio'] = isRadio;
-            if (kDebugMode) {
-              debugPrint(
-                  'zone: ${zone['zone']}, sourcetype: ${zone['sourcetype']}, playpos: ${zone['position']} => is_radio: $isRadio');
-            }
-          }
-        }
-      } else {
-        String zoneName = channels[controlId];
-        if (info['roon_playouts'][zoneName] != null) {
-          zone = info['roon_playouts'][zoneName];
-          if (zone != null) {
-            zone['zone'] = zoneName;
-            zone['server'] = 'roon';
-            isRadio = zone['total'] == null;
-            zone['is_radio'] = isRadio;
-          }
-        }
-      }
-    }
-
-    return zone;
   }
 
   Widget getTextArea() {
@@ -226,6 +120,27 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     if (selectedZone != null &&
         selectedZone!.isNotEmpty &&
         selectedZone!['artist'] != null) {
+      String zoneName = selectedZone!['zone'] != null
+          ? '${(selectedZone!['server'] == 'roon' ? selectedZone!['zone'] : selectedZone!['server']).toString().toFirstUpper} ${idle ? ' (${translations['paused'] ?? 'paused'})' : ''}'
+          : '';
+
+      String hash = md5
+          .convert(utf8.encode(
+              '$zoneName-${selectedZone!['artist']}-${selectedZone!['album']}-${selectedZone!['track']}-${selectedZone!['status']}'))
+          .toString();
+
+      CoverModel coverModel = CoverModel(
+        hash: hash,
+        controlId: zoneName,
+        zoneName: zoneName,
+        isRadio: false,
+        coverUrl: '',
+        artist: selectedZone!['artist'],
+        album: selectedZone!['album'],
+        track: selectedZone!['track'],
+        status: selectedZone!['status'],
+      );
+
       return IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,123 +149,14 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
               child: Padding(
                 padding:
                     const EdgeInsets.only(left: 8.0, right: 16.0, bottom: 16.0),
-                child: Table(
-                  columnWidths: {
-                    0: IntrinsicColumnWidth(),
-                    1: FlexColumnWidth()
-                  },
-                  children: [
-                    TableRow(children: [
-                      Table(columnWidths: {
-                        0: IntrinsicColumnWidth(),
-                        1: FlexColumnWidth()
-                      }, children: [
-                        TableRow(children: [
-                          TableCell(
-                            child: Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                '${translations['coverZoneHeader'] ?? 'Zone'}: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Text(
-                              selectedZone!['zone'] != null
-                                  ? '${(selectedZone!['server'] == 'roon' ? selectedZone!['zone'] : selectedZone!['server']).toString().toFirstUpper} ${idle ? ' (${translations['paused'] ?? 'paused'})' : ''}'
-                                  : '',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: fontSize,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ]),
-                        TableRow(children: [
-                          TableCell(
-                            child: Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                '${translations['coverArtistHeader'] ?? 'Artist'}: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Text(
-                              selectedZone!['artist'],
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: fontSize,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ]),
-                        TableRow(children: [
-                          TableCell(
-                            child: Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                '${translations['coverAlbumHeader'] ?? 'Album'}: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Text(
-                              selectedZone!['album'],
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: fontSize,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ]),
-                        TableRow(children: [
-                          TableCell(
-                            child: Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                '${translations['coverTrackHeader'] ?? 'Track'}: ',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSize,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Text(
-                              selectedZone!['track'],
-                              softWrap: true,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: fontSize,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ]),
-                      ]),
-                    ]),
-                  ],
+                child: CoverTextOverlayExtended(
+                  coverModel: coverModel,
+                  fontSize: fontSize,
+                  color: Colors.black,
+                  translations: translations,
+                  coverRowArtist: true,
+                  coverRowAlbum: true,
+                  coverRowTrack: true,
                 ),
               ),
             ),
@@ -394,8 +200,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   mainBloc.zoneControl(
                       ip: ip, controlId: selectedControlId, cmd: 'switch');
 
-                  Map<String, dynamic>? zone =
-                      getZoneDataForControlId(selectedControlId);
+                  Map<String, dynamic> data = mainBloc.getZoneDataForControlId(
+                    info: info,
+                    controlId: selectedControlId,
+                    isRadio: isRadio,
+                  );
+                  Map<String, dynamic>? zone = data['zone'];
+                  isRadio = data['isRadio'];
                   if (zone != null) {
                     setState(() {
                       controlId = selectedControlId;
@@ -426,10 +237,20 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                         info = mainState.info[ip] ?? {};
                         macosVersion = mainState.macosVersion;
 
-                        //channels = (info['channels'] ?? {});
                         if (widget.controlId == null) {
                           Map<String, String> optionsUpdated =
-                              generateOptionsAndPreselect();
+                              mainBloc.generateZoneSelectionOptionsAndPreselect(
+                            info: info,
+                            controlId: controlId,
+                            setZoneId: ({required String zoneId}) {
+                              SchedulerBinding.instance
+                                  .addPostFrameCallback((_) async {
+                                if (mounted) {
+                                  setState(() => selectedZoneId = zoneId);
+                                }
+                              });
+                            },
+                          );
 
                           if (options.keys.join(',') !=
                                   optionsUpdated.keys.join(',') ||
@@ -454,8 +275,15 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                               info['roon_playouts_raw'] != roonPlayoutsRaw ||
                               controlId == null ||
                               controlIdUpdated != controlId) {
-                            Map<String, dynamic>? zone =
-                                getZoneDataForControlId(controlIdUpdated);
+                            Map<String, dynamic> data =
+                                mainBloc.getZoneDataForControlId(
+                              info: info,
+                              controlId: controlIdUpdated,
+                              isRadio: isRadio,
+                            );
+                            Map<String, dynamic>? zone = data['zone'];
+                            isRadio = data['isRadio'];
+
                             if (zone != null) {
                               selectedZone = zone;
                             }
@@ -501,17 +329,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                         }
                       }
 
-                      return const SizedBox(height: 0.0);
+                      return const SizedBox();
                     }),
                 Expanded(
                   child: RoonmatrixAnimatedGradient(
                     child: OrientationBuilder(builder:
                         (BuildContext context, Orientation orientation) {
-                      bool portraitMode = (SharedWidgets.isMobileDevice() &&
-                              orientation == Orientation.portrait) ||
-                          (SharedWidgets.isDesktopDevice() &&
-                              MediaQuery.of(context).size.height > 800);
-                      bool dektopMode = !portraitMode;
+                      final bool portraitMode =
+                          (SharedWidgets.isMobileDevice() &&
+                                  orientation == Orientation.portrait) ||
+                              (SharedWidgets.isDesktopDevice() &&
+                                  MediaQuery.of(context).size.height >
+                                      MediaQuery.of(context).size.width);
 
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -535,38 +364,35 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                     },
                                     child: SizeChangedLayoutNotifier(
                                       child: Container(
-                                        padding: EdgeInsets.all(24.0),
+                                        padding: EdgeInsets.all(coveraPadding),
                                         child: AnimatedSwitcher(
-                                          duration:
-                                              Duration(milliseconds: 2000),
-                                          child: selectedZone != null &&
-                                                  selectedZone!['cover'] !=
-                                                      null &&
-                                                  (selectedZone!['cover']
-                                                          as String)
-                                                      .isNotEmpty
-                                              ? Image.network(
-                                                  selectedZone!['cover'],
-                                                  key: ValueKey(
-                                                      'BigCover${selectedZone!['cover']}'),
-                                                  fit: BoxFit.contain,
-                                                  width: double.infinity,
-                                                  height: double.infinity,
-                                                )
-                                              : SvgPicture.asset(
-                                                  SharedWidgets
-                                                      .placeholderAssetPath(),
-                                                  allowDrawingOutsideViewBox:
-                                                      false,
-                                                  width: double.infinity,
-                                                  height: double.infinity,
-                                                ),
+                                          duration: SharedWidgets
+                                              .coverSwitchDefaultFadeAnimationDuration,
+                                          child:
+                                              mainRepository.coverExistInZone(
+                                                      zone: selectedZone)
+                                                  ? Image.network(
+                                                      selectedZone!['cover'],
+                                                      key: ValueKey(
+                                                          'BigCover${selectedZone!['cover']}'),
+                                                      fit: BoxFit.contain,
+                                                      width: double.infinity,
+                                                      height: double.infinity,
+                                                    )
+                                                  : SvgPicture.asset(
+                                                      SharedWidgets
+                                                          .placeholderAssetPath(),
+                                                      allowDrawingOutsideViewBox:
+                                                          false,
+                                                      width: double.infinity,
+                                                      height: double.infinity,
+                                                    ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                                if (dektopMode == true)
+                                if (portraitMode == false)
                                   Flexible(
                                     fit: FlexFit.tight,
                                     child: Column(
@@ -634,7 +460,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             ),
             ZoneCornerLabel(
               zoneName: '-${selectedZone?['zone'] ?? name}',
-              coverWidth: 200,
+              coverWidth: SharedWidgets.zoneCornerFullSize,
             ),
           ],
         ),

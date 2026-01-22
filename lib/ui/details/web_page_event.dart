@@ -9,7 +9,9 @@ abstract class WebPageEvent extends Equatable {
 class SetWebPageStateLoadDefaults extends WebPageEvent {
   final String url;
 
-  const SetWebPageStateLoadDefaults({required this.url});
+  const SetWebPageStateLoadDefaults({
+    required this.url,
+  });
 
   @override
   List<Object> get props => [url];
@@ -18,7 +20,9 @@ class SetWebPageStateLoadDefaults extends WebPageEvent {
 class SetUrl extends WebPageEvent {
   final String url;
 
-  const SetUrl({required this.url});
+  const SetUrl({
+    required this.url,
+  });
 
   @override
   List<Object> get props => [url];
@@ -27,7 +31,9 @@ class SetUrl extends WebPageEvent {
 class SetProgress extends WebPageEvent {
   final double progress;
 
-  const SetProgress({required this.progress});
+  const SetProgress({
+    required this.progress,
+  });
 
   @override
   List<Object> get props => [progress];

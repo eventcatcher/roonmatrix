@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/ui/helper/cover_transition.dart';
+import 'package:roonmatrix/ui/helper/cover_transition_preset.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
@@ -19,8 +21,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 // ============================ style config============================
 
-final bool showMacStyle =
-    false; // show app in macos ui style (running on macos)
+final bool showMacStyle = true; // show app in macos ui style (running on macos)
 final bool showIosStyle =
     true; // show app in iOS ui style (running on macos or iOS)
 final bool showSelectBoxInMacStyle = true;
@@ -36,32 +37,59 @@ class SharedWidgets {
   static String placeholderAssetPath() =>
       'assets/svg/8-8-led-matrix-display-unit.svg';
 
-  static bool isMobileDevice() {
-    return Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
+  static bool isMobileDevice() =>
+      Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
+
+  static bool isDesktopDevice() =>
+      Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+
+  static bool isLinux() => Platform.isLinux;
+
+  static bool inIosStyle() =>
+      (showIosStyle == true && Platform.isIOS) ||
+      (!showMacStyle && showIosStyle == true && Platform.isMacOS);
+
+  static bool inMacosStyle() => showMacStyle == true && Platform.isMacOS;
+
+  static final String tickerFontFamily = 'Arial';
+
+  static final String tickerSeparator = '    ////    ';
+
+  static final double extendedTitleWidth = 500.0;
+
+  static final double zoneCornerFullSize = 200.0;
+
+  static final Duration coverSwitchDefaultFadeAnimationDuration =
+      Duration(milliseconds: 2000);
+
+  static final Duration coverSwitchAnimatedPresetDuration =
+      const Duration(milliseconds: 1000);
+
+  static final AnimatedSwitcherTransitionBuilder coverSwitchAnimatedPreset =
+      CoverTransition.presets(
+    CoverTransitionPreset.fadeScale,
+  );
+
+  static bool selectBoxInMacStyle() =>
+      showSelectBoxInMacStyle == true && inMacosStyle();
+
+  static double getWindowMinHeight() {
+    double minHeight = Platform.isWindows ? 392 : 320;
+    if (Platform.isLinux) {
+      minHeight = 456;
+    }
+    if (Platform.isMacOS &&
+        SharedWidgets.inMacosStyle() == false &&
+        SharedWidgets.inIosStyle() == false) {
+      minHeight = 364;
+    }
+
+    return minHeight;
   }
 
-  static bool isDesktopDevice() {
-    return Platform.isMacOS || Platform.isWindows || Platform.isLinux;
-  }
-
-  static bool isLinux() {
-    return Platform.isLinux;
-  }
-
-  static bool inIosStyle() {
-    return (showIosStyle == true && Platform.isIOS) ||
-        (!showMacStyle && showIosStyle == true && Platform.isMacOS);
-  }
-
-  static bool inMacosStyle() {
-    return showMacStyle == true && Platform.isMacOS;
-  }
-
-  static bool selectBoxInMacStyle() {
-    return showSelectBoxInMacStyle == true && inMacosStyle();
-  }
-
-  static String getZoneIcon({required String zoneName}) {
+  static String getZoneIcon({
+    required String zoneName,
+  }) {
     if (zoneName.endsWith('-SpotifyConnect')) {
       return 'assets/icon/spotifyconnect.png';
     }
@@ -75,15 +103,18 @@ class SharedWidgets {
     return 'assets/icon/roon.png';
   }
 
-  static String getZoneNameWithoutType({required String zoneName}) {
-    return zoneName
-        .replaceFirst('-SpotifyConnect', '')
-        .replaceFirst('-Spotify', '')
-        .replaceFirst('-Apple Music', '');
-  }
+  static String getZoneNameWithoutType({
+    required String zoneName,
+  }) =>
+      zoneName
+          .replaceFirst('-SpotifyConnect', '')
+          .replaceFirst('-Spotify', '')
+          .replaceFirst('-Apple Music', '');
 
-  static List<Widget> labelWidget(
-          {required String? label, Color? labelColor}) =>
+  static List<Widget> labelWidget({
+    required String? label,
+    Color? labelColor,
+  }) =>
       label != null
           ? [
               Padding(
@@ -106,9 +137,8 @@ class SharedWidgets {
             ]
           : [];
 
-  static Brightness brightness() {
-    return WidgetsBinding.instance.platformDispatcher.platformBrightness;
-  }
+  static Brightness brightness() =>
+      WidgetsBinding.instance.platformDispatcher.platformBrightness;
 
   static Color textColor({
     required BuildContext context,
@@ -130,9 +160,8 @@ class SharedWidgets {
 
   static Color iconColor({
     required BuildContext context,
-  }) {
-    return textColor(context: context);
-  }
+  }) =>
+      textColor(context: context);
 
   static Color hintColor({
     required BuildContext context,
@@ -196,17 +225,15 @@ class SharedWidgets {
 
   static Color elementBackgroundColor({
     required BuildContext context,
-  }) {
-    return windowBackgroundColor(context: context);
-  }
+  }) =>
+      windowBackgroundColor(context: context);
 
   static Color selectboxBackgroundColor({
     required BuildContext context,
-  }) {
-    return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.grey.shade800
-        : MacosColors.white;
-  }
+  }) =>
+      SharedWidgets.brightness() == Brightness.dark
+          ? Colors.grey.shade800
+          : MacosColors.white;
 
   static Color areaBackgroundColor({
     required BuildContext context,
@@ -318,11 +345,10 @@ class SharedWidgets {
 
   static Color buttonRowBackgroundColor({
     required BuildContext context,
-  }) {
-    return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.grey.shade600
-        : Colors.blue.shade300;
-  }
+  }) =>
+      SharedWidgets.brightness() == Brightness.dark
+          ? Colors.grey.shade600
+          : Colors.blue.shade300;
 
   static Color textFieldBackgroundColor({
     required BuildContext context,
@@ -415,21 +441,20 @@ class SharedWidgets {
     required BuildContext context,
     required Function(BuildContext context) child,
     bool barrierDismissible = true,
-  }) async {
-    return SharedWidgets.inIosStyle()
-        ? await showCupertinoDialog(
-            context: context,
-            barrierDismissible: barrierDismissible,
-            builder: (context) {
-              return child(context);
-            })
-        : await showDialog(
-            context: context,
-            barrierDismissible: barrierDismissible,
-            builder: (context) {
-              return child(context);
-            });
-  }
+  }) async =>
+      SharedWidgets.inIosStyle()
+          ? await showCupertinoDialog(
+              context: context,
+              barrierDismissible: barrierDismissible,
+              builder: (context) {
+                return child(context);
+              })
+          : await showDialog(
+              context: context,
+              barrierDismissible: barrierDismissible,
+              builder: (context) {
+                return child(context);
+              });
 
   static IconTextButtonElement addButton({
     required BuildContext context,
@@ -570,35 +595,34 @@ class SharedWidgets {
     required String link,
     required Map<String, dynamic> translations,
     required VoidCallback onPressed,
-  }) {
-    return IconTextButtonElement(
-      onMacAsText: true,
-      style: ButtonStyle(
-        minimumSize:
-            WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),
-      ),
-      icon: const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.0),
-        child: Icon(
-          Icons.link,
-          color: Colors.white,
-          size: 20.0,
+  }) =>
+      IconTextButtonElement(
+        onMacAsText: true,
+        style: ButtonStyle(
+          minimumSize:
+              WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),
         ),
-      ),
-      label: translations['openLinkButtonText'] ?? 'open link',
-      onPressed: () async {
-        final Uri url = Uri.parse(link);
-        if (!await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication,
-        )) {
-          if (kDebugMode) {
-            debugPrint('Could not launch url: $url');
+        icon: const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          child: Icon(
+            Icons.link,
+            color: Colors.white,
+            size: 20.0,
+          ),
+        ),
+        label: translations['openLinkButtonText'] ?? 'open link',
+        onPressed: () async {
+          final Uri url = Uri.parse(link);
+          if (!await launchUrl(
+            url,
+            mode: LaunchMode.externalApplication,
+          )) {
+            if (kDebugMode) {
+              debugPrint('Could not launch url: $url');
+            }
           }
-        }
-      },
-    );
-  }
+        },
+      );
 
   static void showSnackBar({
     required BuildContext context,
@@ -629,10 +653,11 @@ class SharedWidgets {
     }
   }
 
-  static void openAboutModal(
-          {required BuildContext context,
-          required String aboutAppMessage,
-          required Map<String, dynamic> translations}) async =>
+  static void openAboutModal({
+    required BuildContext context,
+    required String aboutAppMessage,
+    required Map<String, dynamic> translations,
+  }) async =>
       SchedulerBinding.instance.addPostFrameCallback((_) async {
         if (context.mounted) {
           ApproveModal(
@@ -696,6 +721,7 @@ class SharedWidgets {
     required String label,
     required String text,
     required double fontSize,
+    required Color color,
   }) =>
       TableRow(children: [
         TableCell(
@@ -706,7 +732,7 @@ class SharedWidgets {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: fontSize,
-                color: Colors.white,
+                color: color,
               ),
             ),
           ),
@@ -717,7 +743,7 @@ class SharedWidgets {
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: fontSize,
-              color: Colors.white,
+              color: color,
             ),
           ),
         ),
