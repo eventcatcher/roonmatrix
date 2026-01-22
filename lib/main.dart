@@ -11,6 +11,7 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
@@ -32,7 +33,7 @@ Future<void> _configureMacosWindowUtils() async {
     toolbarStyle: NSWindowToolbarStyle.automatic,
   );
 
-  final String macosVersion = await SharedWidgets.getMacosVersion();
+  final String macosVersion = await Globals.getMacosVersion();
   final int macosVersionMajor = int.parse(macosVersion.split('.').first);
   if (macosVersionMajor >= 13) {
     await config.apply(); // crashing on older macs with macos version < 13.0
@@ -41,11 +42,11 @@ Future<void> _configureMacosWindowUtils() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  double minHeight = SharedWidgets.getWindowMinHeight();
+  double minHeight = Globals.getWindowMinHeight();
   Size minDesktopSize = Size(1280, minHeight);
   Size standardDesktopSize = const Size(1280, 768);
 
-  if (SharedWidgets.inMacosStyle()) {
+  if (Globals.inMacosStyle()) {
     await _configureMacosWindowUtils();
   }
 
@@ -57,7 +58,7 @@ void main() async {
   Bloc.transformer = sequential<
       dynamic>(); // all bloc events strictly sequential (like mapEventToState in bloc prior v8)
 
-  if (SharedWidgets.isDesktopDevice()) {
+  if (Globals.isDesktopDevice()) {
     doWhenWindowReady(() {
       appWindow.minSize = minDesktopSize;
       appWindow.size = standardDesktopSize;
@@ -87,7 +88,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final FileRepository fileRepository = FileRepository();
-  final String title = SharedWidgets.mainWindowTitle;
+  final String title = Globals.mainWindowTitle;
 
   Map<String, dynamic> translations = {};
   String aboutAppMessage = '';
@@ -120,13 +121,13 @@ class RoonMatrixState extends State<RoonMatrix> {
     ) {
       if (connectionStatusState is ConnectionStatusStateLoaded &&
           connectionStatusState.connected) {
-        if (SharedWidgets.isMobileDevice() == true) {
+        if (Globals.isMobileDevice() == true) {
           mainBloc.resetWebSocketServices();
         }
 
         WidgetsBinding.instance.addPostFrameCallback((timestamp) {
           mainBloc.restartPollingTimer();
-          mainBloc.searching(idle: SharedWidgets.isMobileDevice());
+          mainBloc.searching(idle: Globals.isMobileDevice());
         });
       }
     });
@@ -456,7 +457,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                   translations: translations),
               icon: const Icon(Icons.info),
               text: Text(translations['menuEntryAbout'] ??
-                  'About ${SharedWidgets.mainWindowTitle}'),
+                  'About ${Globals.mainWindowTitle}'),
             ),
           ],
         ),
@@ -508,17 +509,17 @@ class RoonMatrixState extends State<RoonMatrix> {
   Widget translationsLoadingWindow({
     required String title,
   }) {
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          brightness: SharedWidgets.brightness(),
+          brightness: Globals.brightness(),
           middle: Text(title),
         ),
         child: SizedBox(),
       );
     }
 
-    return SharedWidgets.inMacosStyle()
+    return Globals.inMacosStyle()
         ? MacosScaffold(
             children: [
               ContentArea(
@@ -615,7 +616,7 @@ class RoonMatrixState extends State<RoonMatrix> {
             create: (BuildContext context) => mainBloc,
           ),
         ],
-        child: SharedWidgets.inMacosStyle()
+        child: Globals.inMacosStyle()
             ? MacosApp(
                 title: title,
                 theme: MacosThemeData.light(isMainWindow: true),
@@ -623,14 +624,14 @@ class RoonMatrixState extends State<RoonMatrix> {
                 themeMode: ThemeMode.system,
                 home: home(translationsBloc: translationsBloc),
               )
-            : SharedWidgets.inIosStyle()
+            : Globals.inIosStyle()
                 ? Builder(builder: (context) {
                     brightnessValue = MediaQuery.of(context).platformBrightness;
 
                     return CupertinoApp(
                       title: title,
                       theme: CupertinoThemeData(
-                        brightness: SharedWidgets.brightness(),
+                        brightness: Globals.brightness(),
                         //primaryColor: CupertinoColors.systemBlue,
                       ),
                       home: home(translationsBloc: translationsBloc),

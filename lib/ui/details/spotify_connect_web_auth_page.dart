@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/web_page_display.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
@@ -81,8 +81,8 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                     translations: translations,
                     callbackUrl: callbackUrl),
           ),
-          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
-          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
+          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
         ],
       );
 
@@ -100,20 +100,20 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (SharedWidgets.inIosStyle()) {
+            if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  brightness: SharedWidgets.brightness(),
+                  brightness: Globals.brightness(),
                   middle: Text(title),
                 ),
                 child: SizedBox(),
               );
             }
-            return SharedWidgets.inMacosStyle()
+            return Globals.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: SharedWidgets.extendedTitleWidth,
+                      titleWidth: Globals.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -148,10 +148,10 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
 
                 macosVersion = mainState.macosVersion;
 
-                if (SharedWidgets.inIosStyle()) {
+                if (Globals.inIosStyle()) {
                   return CupertinoPageScaffold(
                     navigationBar: CupertinoNavigationBar(
-                      brightness: SharedWidgets.brightness(),
+                      brightness: Globals.brightness(),
                       middle: Text(title),
                       leading: CupertinoButton(
                         padding: EdgeInsets.zero,
@@ -166,7 +166,7 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                   );
                 }
 
-                return SharedWidgets.inMacosStyle()
+                return Globals.inMacosStyle()
                     ? PageWithToolbarMacStyle(
                         title: title,
                         standardDesktopSize: standardDesktopSize,

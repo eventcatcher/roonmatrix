@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/layout/cover_widget.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverRow extends StatefulWidget {
@@ -121,8 +122,8 @@ class _CoverRowState extends State<CoverRow> {
           sizeFactor: animation,
           axis: Axis.horizontal,
           child: AnimatedSwitcher(
-            duration: SharedWidgets.coverSwitchAnimatedPresetDuration,
-            transitionBuilder: SharedWidgets.coverSwitchAnimatedPreset,
+            duration: Globals.coverSwitchAnimatedPresetDuration,
+            transitionBuilder: Globals.coverSwitchAnimatedPreset,
             child: CoverWidget(
               key: ValueKey('CoverWidget${coverModelItem.hash}'),
               translations: translations,
@@ -150,7 +151,7 @@ class _CoverRowState extends State<CoverRow> {
         ? Expanded(
             flex: flexCoverRow,
             child: Container(
-              color: SharedWidgets.coverRowBackgroundColor(context: context),
+              color: ColorDefs.coverRowBackgroundColor(context: context),
               child: coverRowList,
             ))
         : ConstrainedBox(
@@ -165,8 +166,8 @@ class _CoverRowState extends State<CoverRow> {
                   Flexible(
                     fit: FlexFit.loose,
                     child: Container(
-                      color: SharedWidgets.coverRowBackgroundColor(
-                          context: context),
+                      color:
+                          ColorDefs.coverRowBackgroundColor(context: context),
                       child: coverRowList,
                     ),
                   ),

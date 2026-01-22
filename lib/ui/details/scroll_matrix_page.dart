@@ -5,11 +5,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/mobile_speed_slider_and_fontsize_controls.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
 import 'package:roonmatrix/ui/layout/titlebar_info_content.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -83,7 +83,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
     sliderValue = widget.scrollSpeed;
 
-    if (SharedWidgets.isDesktopDevice()) {
+    if (Globals.isDesktopDevice()) {
       asynInitDesktopDevice();
     }
 
@@ -139,9 +139,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   void updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
-    fontSize = SharedWidgets.isDesktopDevice()
-        ? height - 60 - height / 6
-        : mobileFontSize;
+    fontSize =
+        Globals.isDesktopDevice() ? height - 60 - height / 6 : mobileFontSize;
     pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
     // if (kDebugMode) {
     //   debugPrint(
@@ -201,14 +200,14 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                               'UpdatableTickerMatrixPage${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
                           updatableText: scrollText,
                           style: TextStyle(
-                            fontFamily: SharedWidgets.tickerFontFamily,
+                            fontFamily: Globals.tickerFontFamily,
                             fontSize: fontSize / 1.2,
                             color: Colors.black,
                           ),
                           pixelsPerSecond: pixelsPerSecond * sliderValue,
                           forceUpdate: false,
                           center: true,
-                          separator: SharedWidgets.tickerSeparator,
+                          separator: Globals.tickerSeparator,
                         ),
                       ),
                     ),
@@ -222,11 +221,11 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   Widget build(BuildContext context) {
     updateSizes('build');
 
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return Material(
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-            brightness: SharedWidgets.brightness(),
+            brightness: Globals.brightness(),
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               child: CupertinoNavigationBarBackButton(),
@@ -252,7 +251,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
             child: Stack(
               children: [
                 body(),
-                if (SharedWidgets.isDesktopDevice())
+                if (Globals.isDesktopDevice())
                   Positioned(
                     bottom: -10,
                     right: 10,
@@ -287,7 +286,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
           macosVersion = mainState.macosVersion;
 
-          return SharedWidgets.inMacosStyle()
+          return Globals.inMacosStyle()
               ? PageWithToolbarMacStyle(
                   title: title,
                   standardDesktopSize: standardDesktopSize,
@@ -335,7 +334,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     ],
                   ),
                   backButtonPressed: () {
-                    if (SharedWidgets.isDesktopDevice() && !isFullscreen) {
+                    if (Globals.isDesktopDevice() && !isFullscreen) {
                       mainBloc.windowResize(
                           size: actualSize, position: actualPosition);
                     }
@@ -352,7 +351,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   scrollSpeedDevice: 1.0,
                   standardDesktopSize: standardDesktopSize,
                   actions: [
-                    if (SharedWidgets.isDesktopDevice())
+                    if (Globals.isDesktopDevice())
                       Padding(
                         padding: const EdgeInsets.only(right: 24.0),
                         child: TitlebarInfoContent(
@@ -360,7 +359,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                           translations: translations,
                         ),
                       ),
-                    if (SharedWidgets.isMobileDevice())
+                    if (Globals.isMobileDevice())
                       MobileSpeedSliderAndFontsizeControls(
                         translations: translations,
                         ip: ip,
@@ -377,7 +376,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   body: Stack(
                     children: [
                       body(),
-                      if (SharedWidgets.isDesktopDevice())
+                      if (Globals.isDesktopDevice())
                         Positioned(
                           bottom: -10,
                           right: 10,
@@ -399,7 +398,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     ],
                   ),
                   backButtonPressed: () {
-                    if (SharedWidgets.isDesktopDevice() && !isFullscreen) {
+                    if (Globals.isDesktopDevice() && !isFullscreen) {
                       mainBloc.windowResize(
                           size: actualSize, position: actualPosition);
                     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
@@ -8,7 +9,6 @@ import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/page_button.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class MobilePageButtons extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -227,7 +227,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
                 height: buttonSize,
                 animationSpeed: animationSpeed,
                 backgroundColor:
-                    SharedWidgets.buttonRowBackgroundColor(context: context),
+                    ColorDefs.buttonRowBackgroundColor(context: context),
                 items: mobileButtonsList,
                 getController: (ExpandableMenuController controller) {
                   expandableMenuController = controller;

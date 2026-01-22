@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class HorizontalSlider extends StatefulWidget {
   final String label;
@@ -83,16 +84,16 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                 ? 0.0
                 : 8.0),
         decoration: BoxDecoration(
-          color: SharedWidgets.brightness() == Brightness.dark
+          color: Globals.brightness() == Brightness.dark
               ? Colors.grey.shade900
               : Colors.grey.shade300,
           border: Border.all(
-            color: SharedWidgets.brightness() == Brightness.dark
+            color: Globals.brightness() == Brightness.dark
                 ? Colors.grey.shade800
                 : Colors.grey.shade400,
             width: 5.0,
           ),
-          borderRadius: SharedWidgets.borderRadius(),
+          borderRadius: Globals.borderRadius(),
           boxShadow: [
             BoxShadow(
               color: Colors.deepOrange.withValues(alpha: 0.15),
@@ -110,7 +111,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                       child: Text(
                         '$label: ',
                         style: TextStyle(
-                          color: SharedWidgets.textColor(context: context),
+                          color: ColorDefs.textColor(context: context),
                         ),
                       )),
                   Flexible(
@@ -153,7 +154,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                           max: max,
                         ),
                         style: TextStyle(
-                          color: SharedWidgets.textColor(context: context),
+                          color: ColorDefs.textColor(context: context),
                         ),
                       ),
                     ),

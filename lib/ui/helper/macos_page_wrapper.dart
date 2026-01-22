@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:window_manager/window_manager.dart';
 
 class MacosPageWrapper extends StatefulWidget {
@@ -118,7 +118,7 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
                                   macosVersionMajor >= 13
                               ? Container(
                                   padding: EdgeInsets.only(left: 16.0),
-                                  color: SharedWidgets.toolbarBackgroundColor(
+                                  color: ColorDefs.toolbarBackgroundColor(
                                       context: context),
                                   height: 40.0,
                                   child: Row(
@@ -137,7 +137,7 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
                                         child: Text(
                                           name!,
                                           style: TextStyle(
-                                            color: SharedWidgets.textColor(
+                                            color: ColorDefs.textColor(
                                                 context: context),
                                             fontSize: 14.0,
                                             fontWeight: FontWeight.bold,

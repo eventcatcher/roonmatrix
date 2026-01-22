@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
@@ -341,18 +343,18 @@ class MapListItemsState extends State<MapListItems> {
               children: [
                 ...SharedWidgets.labelWidget(
                   label: label,
-                  labelColor: SharedWidgets.brightness() == Brightness.dark
-                      ? SharedWidgets.textColor(context: context)
-                      : labelColor ?? SharedWidgets.textColor(context: context),
+                  labelColor: Globals.brightness() == Brightness.dark
+                      ? ColorDefs.textColor(context: context)
+                      : labelColor ?? ColorDefs.textColor(context: context),
                 ),
                 Container(
                   margin:
                       EdgeInsets.only(bottom: noVerticalSpace == true ? 0 : 10),
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: SharedWidgets.borderRadius(),
+                      borderRadius: Globals.borderRadius(),
                     ),
-                    color: SharedWidgets.areaBackgroundColor(context: context),
+                    color: ColorDefs.areaBackgroundColor(context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

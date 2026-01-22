@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -102,10 +104,10 @@ class ListItemsState extends State<ListItems> {
                     returnJson(fieldValues);
                   }
                 },
-                icon: SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
+                icon: Globals.inIosStyle() || Globals.inMacosStyle()
                     ? Icon(
                         CupertinoIcons.clear_circled_solid,
-                        color: SharedWidgets.resetIconColor(context: context),
+                        color: ColorDefs.resetIconColor(context: context),
                         size: 18.0,
                       )
                     : const Icon(Icons.clear),
@@ -154,18 +156,18 @@ class ListItemsState extends State<ListItems> {
               children: [
                 ...SharedWidgets.labelWidget(
                   label: label,
-                  labelColor: SharedWidgets.brightness() == Brightness.dark
-                      ? SharedWidgets.textColor(context: context)
-                      : labelColor ?? SharedWidgets.textColor(context: context),
+                  labelColor: Globals.brightness() == Brightness.dark
+                      ? ColorDefs.textColor(context: context)
+                      : labelColor ?? ColorDefs.textColor(context: context),
                 ),
                 Container(
                   margin:
                       EdgeInsets.only(bottom: noVerticalSpace == true ? 0 : 10),
                   child: Card(
                     shape: RoundedRectangleBorder(
-                      borderRadius: SharedWidgets.borderRadius(),
+                      borderRadius: Globals.borderRadius(),
                     ),
-                    color: SharedWidgets.areaBackgroundColor(context: context),
+                    color: ColorDefs.areaBackgroundColor(context: context),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class IconButtonElement extends StatelessWidget {
   final Icon icon;
@@ -27,7 +27,7 @@ class IconButtonElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return CupertinoButton.filled(
         disabledColor: CupertinoColors.systemGrey,
         padding: EdgeInsets.all(10),
@@ -63,7 +63,7 @@ class IconButtonElement extends StatelessWidget {
           mouseCursor: SystemMouseCursors.click,
         );
 
-    return SharedWidgets.inMacosStyle()
+    return Globals.inMacosStyle()
         ? withCircle
             ? CircleAvatar(
                 radius: 20,
@@ -98,7 +98,7 @@ class IconButtonElement extends StatelessWidget {
                             ? CupertinoColors.activeOrange.color
                             : CupertinoColors.activeBlue.color,
                 child: IconButton(
-                  color: SharedWidgets.brightness() == Brightness.dark
+                  color: Globals.brightness() == Brightness.dark
                       ? moreInfo
                           ? Colors.orange.shade800
                           : Colors.blue.shade800
@@ -119,7 +119,7 @@ class IconButtonElement extends StatelessWidget {
                         ? null
                         : readOnly
                             ? Colors.grey
-                            : SharedWidgets.brightness() == Brightness.dark
+                            : Globals.brightness() == Brightness.dark
                                 ? moreInfo
                                     ? Colors.orange.shade800
                                     : Colors.blue.shade800
@@ -127,7 +127,7 @@ class IconButtonElement extends StatelessWidget {
                                     ? Colors.orange.shade600
                                     : Colors.blue.shade600,
                     shape: RoundedRectangleBorder(
-                      borderRadius: SharedWidgets.borderRadius(),
+                      borderRadius: Globals.borderRadius(),
                     )),
                 child: IconButton(
                   padding: EdgeInsets.zero,

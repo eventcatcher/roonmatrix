@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/roonmatrix_styles.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
@@ -111,7 +113,7 @@ class SelectBoxState extends State<SelectBox> {
         style: TextStyle(
           color: readOnlyColoredGrey == true
               ? Colors.grey
-              : SharedWidgets.textColor(context: context),
+              : ColorDefs.textColor(context: context),
           fontSize: 13.0,
         ),
       ),
@@ -122,7 +124,7 @@ class SelectBoxState extends State<SelectBox> {
     required BuildContext context,
     required bool expanded,
   }) {
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return options!.keys.toList().isEmpty
           ? Text(translations['zonePickerOptionsEmpty'] ?? 'none')
           : CupertinoButton(
@@ -152,7 +154,7 @@ class SelectBoxState extends State<SelectBox> {
             );
     }
 
-    return SharedWidgets.inMacosStyle()
+    return Globals.inMacosStyle()
         ? MacosPopupButton<String>(
             value: selected,
             onChanged: (String? value) {
@@ -182,7 +184,7 @@ class SelectBoxState extends State<SelectBox> {
                 ? Text(
                     placeholder!,
                     style: TextStyle(
-                      color: SharedWidgets.textColor(context: context),
+                      color: ColorDefs.textColor(context: context),
                       fontSize: 12.0,
                     ),
                   )
@@ -190,12 +192,12 @@ class SelectBoxState extends State<SelectBox> {
             //dropdownColor: Colors.white,
             icon: Icon(
               Icons.arrow_drop_down,
-              color: SharedWidgets.iconColor(context: context),
+              color: ColorDefs.iconColor(context: context),
             ),
             iconSize: 32,
             elevation: 16,
             style: TextStyle(
-              color: SharedWidgets.textColor(context: context),
+              color: ColorDefs.textColor(context: context),
             ),
             underline: Container(
               height: 0,
@@ -228,19 +230,18 @@ class SelectBoxState extends State<SelectBox> {
     required BuildContext context,
   }) =>
       Container(
-        height: SharedWidgets.inIosStyle()
+        height: Globals.inIosStyle()
             ? 56.0
-            : SharedWidgets.selectBoxInMacStyle()
+            : Globals.selectBoxInMacStyle()
                 ? null
                 : 36.0,
-        padding: SharedWidgets.inMacosStyle()
+        padding: Globals.inMacosStyle()
             ? null
             : const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-        decoration: SharedWidgets.inMacosStyle()
+        decoration: Globals.inMacosStyle()
             ? null
             : RoonmatrixStyles.boxDecoration(
-                fillColor:
-                    SharedWidgets.elementBackgroundColor(context: context),
+                fillColor: ColorDefs.elementBackgroundColor(context: context),
               ),
         child: readOnly == true
             ? dropdownReadonlyElement(context: context)
@@ -263,7 +264,7 @@ class SelectBoxState extends State<SelectBox> {
                     Text(
                       label!,
                       style: TextStyle(
-                        color: SharedWidgets.textColor(context: context),
+                        color: ColorDefs.textColor(context: context),
                         fontSize: labelFontSize,
                       ),
                     ),
@@ -277,8 +278,8 @@ class SelectBoxState extends State<SelectBox> {
                     Text(
                       label!,
                       style: TextStyle(
-                        color: labelColor ??
-                            SharedWidgets.textColor(context: context),
+                        color:
+                            labelColor ?? ColorDefs.textColor(context: context),
                         fontSize: labelFontSize,
                       ),
                     ),

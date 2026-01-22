@@ -1,6 +1,6 @@
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class RichParser extends SpecialTextSpanBuilder {
   // allowed tag names:
@@ -180,29 +180,29 @@ class RichParser extends SpecialTextSpanBuilder {
       case 'red':
         return Colors.red;
       case 'orange':
-        return SharedWidgets.brightness() == Brightness.dark
+        return Globals.brightness() == Brightness.dark
             ? const Color.fromARGB(186, 255, 174, 0)
             : const Color(0xFFffaf00);
       case 'green':
-        return SharedWidgets.brightness() == Brightness.dark
+        return Globals.brightness() == Brightness.dark
             ? const Color.fromARGB(255, 78, 151, 74)
             : const Color(0xFF146710);
       case 'green4':
-        return SharedWidgets.brightness() == Brightness.dark
+        return Globals.brightness() == Brightness.dark
             ? const Color.fromARGB(255, 136, 200, 133)
             : const Color(0xFF008700);
       case 'deep_sky_blue4':
-        return SharedWidgets.brightness() == Brightness.dark
+        return Globals.brightness() == Brightness.dark
             ? Color.fromARGB(255, 51, 133, 200)
             : const Color(0xFF005faf);
       case 'blue':
-        return SharedWidgets.brightness() == Brightness.dark
+        return Globals.brightness() == Brightness.dark
             ? const Color.fromARGB(255, 63, 60, 249)
             : const Color(0xFF080767);
       case 'bright_magenta':
         return const Color(0xFFFF01FF);
       case 'magenta':
-        return SharedWidgets.brightness() == Brightness.dark
+        return Globals.brightness() == Brightness.dark
             ? const Color.fromARGB(255, 221, 27, 221)
             : const Color(0xFF680d68);
     }

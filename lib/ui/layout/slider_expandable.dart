@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class SliderExpandable extends StatefulWidget {
   final double width;
@@ -61,8 +61,8 @@ class _SliderExpandableState extends State<SliderExpandable> {
                       width: size,
                       height: size,
                       animationSpeed: animationSpeed,
-                      backgroundColor: SharedWidgets.buttonRowBackgroundColor(
-                          context: context),
+                      backgroundColor:
+                          ColorDefs.buttonRowBackgroundColor(context: context),
                       items: [
                         SizedBox(
                           width: widget.width - 84.0,

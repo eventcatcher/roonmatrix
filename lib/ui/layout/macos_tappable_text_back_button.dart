@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
 
 class MacosTappableTextBackButton extends StatelessWidget {
   final String text;
@@ -32,7 +32,7 @@ class MacosTappableTextBackButton extends StatelessWidget {
           child: Text(
             text,
             style: TextStyle(
-              color: SharedWidgets.textColor(context: context),
+              color: ColorDefs.textColor(context: context),
               fontSize: fontSize,
               fontWeight: FontWeight.bold,
             ),

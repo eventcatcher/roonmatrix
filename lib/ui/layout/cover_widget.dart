@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/layout/cover_overlay_button.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_small.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
@@ -144,8 +144,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(0),
                         child: AnimatedSwitcher(
-                          duration: SharedWidgets
-                              .coverSwitchDefaultFadeAnimationDuration,
+                          duration:
+                              Globals.coverSwitchDefaultFadeAnimationDuration,
                           switchInCurve: Curves.easeIn,
                           switchOutCurve: Curves.easeOut,
                           child: coverModel.coverUrl.isNotEmpty
@@ -192,7 +192,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                               : translations[
                                                       'controlButtonPlayText'] ??
                                                   'play',
-                                          onPressed: () => SharedWidgets
+                                          onPressed: () => Globals
                                                       .isDesktopDevice() &&
                                                   coverWidth >
                                                       minPlayControlCoverSize
@@ -208,7 +208,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                               : null,
                                         ),
                                       ),
-                                    if (SharedWidgets.isDesktopDevice() &&
+                                    if (Globals.isDesktopDevice() &&
                                         coverWidth > minPlayControlCoverSize &&
                                         coverModel.status == 'playing' &&
                                         !coverModel.isRadio &&
@@ -247,7 +247,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                               : Stack(
                                   children: [
                                     SvgPicture.asset(
-                                      SharedWidgets.placeholderAssetPath(),
+                                      Globals.placeholderAssetPath(),
                                       colorFilter: idleZoneColorFilter,
                                       allowDrawingOutsideViewBox: false,
                                       width: double.infinity,
@@ -292,7 +292,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                         ),
                         padding: EdgeInsets.all(2),
                         decoration: BoxDecoration(
-                          borderRadius: SharedWidgets.borderRadius(),
+                          borderRadius: Globals.borderRadius(),
                           color: textAreaBackgroundColor,
                         ),
                         child: Padding(

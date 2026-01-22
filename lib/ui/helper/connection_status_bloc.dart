@@ -7,9 +7,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/connection_status_event.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class ConnectionStatusBloc
     extends Bloc<ConnectionStatusEvent, ConnectionStatusState> {
@@ -31,7 +31,7 @@ class ConnectionStatusBloc
 
   void init() async {
     if (isInitialized == false) {
-      if (!SharedWidgets.isLinux()) {
+      if (!Globals.isLinux()) {
         connectivity = Connectivity();
       }
       restartConnectivityCheck();
@@ -146,7 +146,7 @@ class ConnectionStatusBloc
       );
     }
 
-    if (!SharedWidgets.isLinux()) {
+    if (!Globals.isLinux()) {
       await readConnectivityAndUpdateConnectionStatus();
       restartConnectivitySubscription();
     }
@@ -206,7 +206,7 @@ class ConnectionStatusBloc
         'ConnectionStatusBloc/getConnectivityResultAndUpdateConnectionStatus => running code @ ${DateTime.now().toLocal()}',
       );
     }
-    if (SharedWidgets.isLinux()) {
+    if (Globals.isLinux()) {
       bool connected = await checkInternetStatus();
       connectionStatusChanged(connected: connected);
     } else {
@@ -238,7 +238,7 @@ class ConnectionStatusBloc
       },
     );
 
-    if (SharedWidgets.isMobileDevice()) {
+    if (Globals.isMobileDevice()) {
       await networkStatusSubscription?.cancel();
       networkStatusSubscription = _connectionNetworkTypePlugin
           .onNetworkStateChanged
@@ -266,7 +266,7 @@ class ConnectionStatusBloc
     if (connected == true) {
       connected = false;
 
-      if (SharedWidgets.isMobileDevice()) {
+      if (Globals.isMobileDevice()) {
         NetworkStatus networkStatus = await getNetworkStatus();
         if (networkStatus == NetworkStatus.mobile2G) {
           if (kDebugMode) {

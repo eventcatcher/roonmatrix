@@ -2,7 +2,8 @@ import 'package:flutter/cupertino.dart' as cup;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 
 class TextFieldElement extends StatelessWidget {
   final String? placeholder;
@@ -38,7 +39,7 @@ class TextFieldElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return cup.CupertinoTextField(
         placeholder: placeholder,
         prefix: prefixIcon != null
@@ -56,24 +57,22 @@ class TextFieldElement extends StatelessWidget {
         maxLength: maxLength,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
-        style: SharedWidgets.inMacosStyle() || SharedWidgets.inIosStyle()
-            ? null
-            : style,
-        decoration: SharedWidgets.inIosStyle()
+        style: Globals.inMacosStyle() || Globals.inIosStyle() ? null : style,
+        decoration: Globals.inIosStyle()
             ? null
             : BoxDecoration(
-                color: SharedWidgets.textFieldBackgroundColor(context: context),
+                color: ColorDefs.textFieldBackgroundColor(context: context),
               ),
         controller: controller,
         onChanged: onChanged,
       );
     }
 
-    return SharedWidgets.inMacosStyle()
+    return Globals.inMacosStyle()
         ? MacosTextField(
             placeholder: placeholder,
             placeholderStyle:
-                TextStyle(color: SharedWidgets.hintColor(context: context)),
+                TextStyle(color: ColorDefs.hintColor(context: context)),
             prefix: prefixIcon,
             padding: EdgeInsets.symmetric(
                 horizontal: prefixIcon != null ? 0.0 : 8.0, vertical: 4.0),
@@ -89,10 +88,10 @@ class TextFieldElement extends StatelessWidget {
             style: style,
             controller: controller,
             decoration: BoxDecoration(
-              color: SharedWidgets.textFieldBackgroundColor(context: context),
+              color: ColorDefs.textFieldBackgroundColor(context: context),
             ),
             focusedDecoration: BoxDecoration(
-              borderRadius: SharedWidgets.borderRadius(),
+              borderRadius: Globals.borderRadius(),
             ),
             onChanged: onChanged,
           )

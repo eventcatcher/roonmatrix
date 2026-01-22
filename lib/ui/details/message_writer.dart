@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
@@ -96,7 +97,7 @@ class MessageWriterState extends State<MessageWriter> {
 
   Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
         padding: EdgeInsets.only(
-            top: SharedWidgets.inMacosStyle()
+            top: Globals.inMacosStyle()
                 ? 15.0
                 : firstRowChild == null
                     ? 19.0
@@ -138,9 +139,7 @@ class MessageWriterState extends State<MessageWriter> {
                               const SizedBox(height: 48.0),
                               Padding(
                                 padding: EdgeInsets.only(
-                                    left: SharedWidgets.inMacosStyle()
-                                        ? 8.0
-                                        : 0.0),
+                                    left: Globals.inMacosStyle() ? 8.0 : 0.0),
                                 child: SwitchButton(
                                   aligned: 'inline',
                                   reverse: true,
@@ -234,7 +233,7 @@ class MessageWriterState extends State<MessageWriter> {
 
   Widget sendMessageButton() => Padding(
         padding: EdgeInsets.only(
-            top: SharedWidgets.inMacosStyle()
+            top: Globals.inMacosStyle()
                 ? 15.0
                 : firstRowChild == null
                     ? 19.0
@@ -294,9 +293,7 @@ class MessageWriterState extends State<MessageWriter> {
                               Center(
                                 child: Padding(
                                   padding: EdgeInsets.only(
-                                      left: SharedWidgets.inMacosStyle()
-                                          ? 8.0
-                                          : 0.0),
+                                      left: Globals.inMacosStyle() ? 8.0 : 0.0),
                                   child: SwitchButton(
                                     aligned: 'inline',
                                     reverse: true,
@@ -463,36 +460,35 @@ class MessageWriterState extends State<MessageWriter> {
     return optionsLoaded == true
         ? Column(
             children: [
-              if (SharedWidgets.isDesktopDevice())
+              if (Globals.isDesktopDevice())
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SharedWidgets.inMacosStyle()
+                    Globals.inMacosStyle()
                         ? messageSelectbox()
                         : Expanded(child: messageSelectbox()),
                     Padding(
                       padding: EdgeInsets.only(
-                          top: SharedWidgets.inMacosStyle()
+                          top: Globals.inMacosStyle()
                               ? 6.0
-                              : SharedWidgets.inIosStyle()
+                              : Globals.inIosStyle()
                                   ? 12.0
                                   : 0.0),
                       child: stopMessageButton(
-                          desktopLandscapeWide:
-                              SharedWidgets.isDesktopDevice()),
+                          desktopLandscapeWide: Globals.isDesktopDevice()),
                     ),
                     Padding(
                       padding: EdgeInsets.only(
-                          top: SharedWidgets.inMacosStyle()
+                          top: Globals.inMacosStyle()
                               ? 6.0
-                              : SharedWidgets.inIosStyle()
+                              : Globals.inIosStyle()
                                   ? 12.0
                                   : 0.0),
                       child: sendMessageButton(),
                     ),
                   ],
                 ),
-              if (SharedWidgets.isMobileDevice()) ...[
+              if (Globals.isMobileDevice()) ...[
                 Row(mainAxisSize: MainAxisSize.max, children: [
                   if (firstRowChild != null) Expanded(child: firstRowChild!),
                   messageSelectbox(),
@@ -505,8 +501,7 @@ class MessageWriterState extends State<MessageWriter> {
                     Padding(
                       padding: const EdgeInsets.only(left: 16.0),
                       child: stopMessageButton(
-                          desktopLandscapeWide:
-                              SharedWidgets.isDesktopDevice()),
+                          desktopLandscapeWide: Globals.isDesktopDevice()),
                     ),
                     sendMessageButton(),
                   ],
@@ -522,7 +517,7 @@ class MessageWriterState extends State<MessageWriter> {
                       label:
                           '${translations['messageNewLabel'] ?? 'New message'}:',
                       maxLines: 5,
-                      height: SharedWidgets.inIosStyle() || Platform.isAndroid
+                      height: Globals.inIosStyle() || Platform.isAndroid
                           ? 101.0
                           : 86.0,
                       textController: messageTextController,
@@ -535,8 +530,7 @@ class MessageWriterState extends State<MessageWriter> {
                   ),
                   Container(
                     margin: EdgeInsets.only(
-                        top: SharedWidgets.inIosStyle() ||
-                                SharedWidgets.inMacosStyle()
+                        top: Globals.inIosStyle() || Globals.inMacosStyle()
                             ? 22.0
                             : 18.0),
                     padding: const EdgeInsets.only(right: 16.0, left: 4.0),
@@ -545,12 +539,12 @@ class MessageWriterState extends State<MessageWriter> {
                         Ink(
                           decoration: ShapeDecoration(
                             color: messageTextController.text.isNotEmpty
-                                ? SharedWidgets.brightness() == Brightness.dark
+                                ? Globals.brightness() == Brightness.dark
                                     ? Colors.blue.shade800
                                     : Colors.blue.shade600
                                 : Colors.grey,
                             shape: RoundedRectangleBorder(
-                              borderRadius: SharedWidgets.borderRadius(),
+                              borderRadius: Globals.borderRadius(),
                             ),
                           ),
                           child: SharedWidgets.addIconButton(
@@ -573,12 +567,12 @@ class MessageWriterState extends State<MessageWriter> {
                           decoration: ShapeDecoration(
                             color: selectedMessageId != null &&
                                     options.containsKey(selectedMessageId)
-                                ? SharedWidgets.brightness() == Brightness.dark
+                                ? Globals.brightness() == Brightness.dark
                                     ? Colors.blue.shade800
                                     : Colors.blue.shade600
                                 : Colors.grey,
                             shape: RoundedRectangleBorder(
-                              borderRadius: SharedWidgets.borderRadius(),
+                              borderRadius: Globals.borderRadius(),
                             ),
                           ),
                           child: SharedWidgets.removeIconButton(

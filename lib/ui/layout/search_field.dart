@@ -2,9 +2,10 @@ import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
@@ -68,9 +69,8 @@ class SearchFieldState extends State<SearchField> {
               child: Container(
                 decoration: BoxDecoration(
                   boxShadow: [boxShadow],
-                  color:
-                      SharedWidgets.textFieldBackgroundColor(context: context),
-                  borderRadius: SharedWidgets.borderRadius(),
+                  color: ColorDefs.textFieldBackgroundColor(context: context),
+                  borderRadius: Globals.borderRadius(),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
@@ -78,8 +78,7 @@ class SearchFieldState extends State<SearchField> {
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.only(
-                          left: SharedWidgets.inIosStyle() ||
-                                  SharedWidgets.inMacosStyle()
+                          left: Globals.inIosStyle() || Globals.inMacosStyle()
                               ? 0.0
                               : 4.0,
                         ),
@@ -87,15 +86,14 @@ class SearchFieldState extends State<SearchField> {
                           translations: translations,
                           text: controller.text,
                           aligned: 'inline',
-                          filled: SharedWidgets.inIosStyle() ||
-                                  SharedWidgets.inMacosStyle()
+                          filled: Globals.inIosStyle() || Globals.inMacosStyle()
                               ? true
                               : false,
                           decoupled: false,
                           noDecoration: true,
                           prefixIcon: Icon(CupertinoIcons.search,
                               size: 18.0,
-                              color: SharedWidgets.iconColor(context: context)),
+                              color: ColorDefs.iconColor(context: context)),
                           placeholder:
                               translations['searchfieldHint'] ?? 'search',
                           controller: controller,

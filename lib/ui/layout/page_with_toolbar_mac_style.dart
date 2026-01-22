@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/macos_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/macos_tappable_icon_back_button.dart';
 import 'package:roonmatrix/ui/layout/macos_tappable_text_back_button.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:window_manager/window_manager.dart';
 
 class PageWithToolbarMacStyle extends StatefulWidget {
@@ -98,17 +99,17 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
 
   @override
   Widget build(BuildContext context) => MacosPageWrapper(
-        name: title == SharedWidgets.mainWindowTitle ? null : title,
+        name: title == Globals.mainWindowTitle ? null : title,
         macosVersion: macosVersion,
         toolBar: ToolBar(
-          titleWidth: SharedWidgets.extendedTitleWidth,
-          title: title == SharedWidgets.mainWindowTitle
+          titleWidth: Globals.extendedTitleWidth,
+          title: title == Globals.mainWindowTitle
               ? Text(title)
               : MacosTappableTextBackButton(
                   text: title,
                   onPressed: backButtonPressed,
                 ),
-          leading: title == SharedWidgets.mainWindowTitle
+          leading: title == Globals.mainWindowTitle
               ? null
               : MacosTappableIconBackButton(
                   onPressed: backButtonPressed,
@@ -125,8 +126,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
                 icon: Icon(
                   FontAwesomeIcons.arrowsLeftRight,
                   size: iconSize,
-                  color:
-                      SharedWidgets.toolbarResizeButtonColor(context: context),
+                  color: ColorDefs.toolbarResizeButtonColor(context: context),
                 ),
                 onPressed: () => resizeToFullWidth(),
                 showLabel: false,
@@ -136,8 +136,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
                 icon: Icon(
                   FontAwesomeIcons.minimize,
                   size: iconSize,
-                  color:
-                      SharedWidgets.toolbarResizeButtonColor(context: context),
+                  color: ColorDefs.toolbarResizeButtonColor(context: context),
                 ),
                 onPressed: () =>
                     windowManager.setSize(standardDesktopSize, animate: true),
@@ -148,8 +147,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
                 icon: Icon(
                   FontAwesomeIcons.maximize,
                   size: iconSize,
-                  color:
-                      SharedWidgets.toolbarResizeButtonColor(context: context),
+                  color: ColorDefs.toolbarResizeButtonColor(context: context),
                 ),
                 onPressed: () => windowManager.maximize(),
                 showLabel: false,

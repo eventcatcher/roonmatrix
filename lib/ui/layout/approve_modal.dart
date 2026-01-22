@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
@@ -43,7 +44,7 @@ class ApproveModal {
                 softWrap: true,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: SharedWidgets.textColor(context: context),
+                  color: ColorDefs.textColor(context: context),
                 ),
               ),
               button1Label: cancelText,

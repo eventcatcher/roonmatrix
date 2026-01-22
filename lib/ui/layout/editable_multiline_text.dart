@@ -1,7 +1,8 @@
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 
 class EditableMultilineText extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -106,7 +107,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                 label!,
                 textAlign: TextAlign.start,
                 style: TextStyle(
-                  color: SharedWidgets.textColor(context: context),
+                  color: ColorDefs.textColor(context: context),
                   fontSize: 12.0,
                 ),
               ),
@@ -116,24 +117,22 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
               Expanded(
                 child: Container(
                   height: height,
-                  decoration:
-                      SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
-                          ? null
-                          : BoxDecoration(
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.grey,
-                                  offset: Offset(0.1, 0.5),
-                                  blurRadius: 0.1,
-                                  blurStyle: BlurStyle.normal,
-                                )
-                              ],
-                              color: SharedWidgets.elementBackgroundColor(
-                                  context: context),
-                              borderRadius: SharedWidgets.borderRadius(),
-                            ),
-                  child: SharedWidgets.inIosStyle() ||
-                          SharedWidgets.inMacosStyle()
+                  decoration: Globals.inIosStyle() || Globals.inMacosStyle()
+                      ? null
+                      : BoxDecoration(
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(0.1, 0.5),
+                              blurRadius: 0.1,
+                              blurStyle: BlurStyle.normal,
+                            )
+                          ],
+                          color: ColorDefs.elementBackgroundColor(
+                              context: context),
+                          borderRadius: Globals.borderRadius(),
+                        ),
+                  child: Globals.inIosStyle() || Globals.inMacosStyle()
                       ? CupertinoTextField(
                           controller: textController ?? _userTextController,
                           placeholder: placeholder ??
@@ -143,13 +142,12 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           textAlignVertical: TextAlignVertical.top,
                           decoration: BoxDecoration(
                             border: Border.all(
-                              color:
-                                  SharedWidgets.borderColor(context: context),
+                              color: ColorDefs.borderColor(context: context),
                             ),
-                            borderRadius: SharedWidgets.borderRadius(),
+                            borderRadius: Globals.borderRadius(),
                           ),
                           style: TextStyle(
-                            color: SharedWidgets.textColor(context: context),
+                            color: ColorDefs.textColor(context: context),
                             fontSize: 16.0,
                           ),
                           maxLines: maxLines,
@@ -195,7 +193,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           textAlign: TextAlign.start,
                           textAlignVertical: TextAlignVertical.top,
                           style: TextStyle(
-                            color: SharedWidgets.textColor(context: context),
+                            color: ColorDefs.textColor(context: context),
                             fontSize: 14.0,
                           ),
                           decoration: InputDecoration(
@@ -249,7 +247,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                 maxLines: 1,
                 softWrap: false,
                 style: TextStyle(
-                  color: SharedWidgets.brightness() == Brightness.dark
+                  color: Globals.brightness() == Brightness.dark
                       ? Colors.red.shade200
                       : Colors.red,
                   fontSize: 10.0,

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
@@ -91,10 +93,10 @@ class ConfigPageState extends State<ConfigPage> {
                       children: [...formFields],
                     ),
             ),
-            if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+            if (Globals.inIosStyle()) const SizedBox(height: 14.0),
             Padding(
               padding: EdgeInsets.symmetric(
-                  vertical: SharedWidgets.isDesktopDevice() ? 16.0 : 0),
+                  vertical: Globals.isDesktopDevice() ? 16.0 : 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
@@ -150,7 +152,7 @@ class ConfigPageState extends State<ConfigPage> {
                 ],
               ),
             ),
-            if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+            if (Globals.inIosStyle()) const SizedBox(height: 14.0),
           ],
         ),
       );
@@ -163,9 +165,7 @@ class ConfigPageState extends State<ConfigPage> {
   }) {
     return Container(
       padding: EdgeInsets.only(
-          top: SharedWidgets.inIosStyle() || SharedWidgets.inMacosStyle()
-              ? 20.0
-              : 0.0),
+          top: Globals.inIosStyle() || Globals.inMacosStyle() ? 20.0 : 0.0),
       child: Column(
         children: [
           Padding(
@@ -186,14 +186,13 @@ class ConfigPageState extends State<ConfigPage> {
                         child: StyledText(
                           text: jsonStr,
                           style: TextStyle(
-                            color:
-                                SharedWidgets.textColor(context: widgetContext),
+                            color: ColorDefs.textColor(context: widgetContext),
                           ),
                           tags: {
                             'b': StyledTextTag(
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  backgroundColor: SharedWidgets.brightness() ==
+                                  backgroundColor: Globals.brightness() ==
                                           Brightness.dark
                                       ? const Color.fromARGB(255, 135, 94, 6)
                                       : const Color(0xFFffaf00)),
@@ -204,10 +203,10 @@ class ConfigPageState extends State<ConfigPage> {
                     ],
                   ),
           ),
-          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
-                vertical: SharedWidgets.isDesktopDevice() ? 16.0 : 0),
+                vertical: Globals.isDesktopDevice() ? 16.0 : 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -252,7 +251,7 @@ class ConfigPageState extends State<ConfigPage> {
               ],
             ),
           ),
-          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
         ],
       ),
     );
@@ -275,20 +274,20 @@ class ConfigPageState extends State<ConfigPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (SharedWidgets.inIosStyle()) {
+            if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  brightness: SharedWidgets.brightness(),
+                  brightness: Globals.brightness(),
                   middle: Text(title),
                 ),
                 child: SizedBox(),
               );
             }
-            return SharedWidgets.inMacosStyle()
+            return Globals.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: SharedWidgets.extendedTitleWidth,
+                      titleWidth: Globals.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -356,10 +355,10 @@ class ConfigPageState extends State<ConfigPage> {
                       }
                     });
 
-                if (SharedWidgets.inIosStyle()) {
+                if (Globals.inIosStyle()) {
                   return CupertinoPageScaffold(
                     navigationBar: CupertinoNavigationBar(
-                      brightness: SharedWidgets.brightness(),
+                      brightness: Globals.brightness(),
                       middle: Text(title),
                       leading: CupertinoButton(
                         padding: EdgeInsets.zero,
@@ -423,7 +422,7 @@ class ConfigPageState extends State<ConfigPage> {
                   );
                 }
 
-                return SharedWidgets.inMacosStyle()
+                return Globals.inMacosStyle()
                     ? PageWithToolbarMacStyle(
                         title: title,
                         standardDesktopSize: standardDesktopSize,
@@ -472,7 +471,7 @@ class ConfigPageState extends State<ConfigPage> {
                         tabBar: PreferredSize(
                           preferredSize: const Size.fromHeight(48.0),
                           child: Material(
-                            color: SharedWidgets.brightness() == Brightness.dark
+                            color: Globals.brightness() == Brightness.dark
                                 ? Colors.blue.shade800
                                 : Colors.blue.shade400,
                             child: TabBar(

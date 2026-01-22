@@ -1,14 +1,9 @@
-import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/helper/cover_transition.dart';
-import 'package:roonmatrix/ui/helper/cover_transition_preset.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
@@ -19,98 +14,7 @@ import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// ============================ style config============================
-
-final bool showMacStyle = true; // show app in macos ui style (running on macos)
-final bool showIosStyle =
-    true; // show app in iOS ui style (running on macos or iOS)
-final bool showSelectBoxInMacStyle = true;
-
-// =====================================================================
-
 class SharedWidgets {
-  static String mainWindowTitle = 'RoonMatrix';
-
-  static BorderRadius borderRadius() =>
-      BorderRadius.all(Radius.circular(SharedWidgets.inIosStyle() ? 8.0 : 5.0));
-
-  static String placeholderAssetPath() =>
-      'assets/svg/8-8-led-matrix-display-unit.svg';
-
-  static bool isMobileDevice() =>
-      Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
-
-  static bool isDesktopDevice() =>
-      Platform.isMacOS || Platform.isWindows || Platform.isLinux;
-
-  static bool isLinux() => Platform.isLinux;
-
-  static bool inIosStyle() =>
-      (showIosStyle == true && Platform.isIOS) ||
-      (!showMacStyle && showIosStyle == true && Platform.isMacOS);
-
-  static bool inMacosStyle() => showMacStyle == true && Platform.isMacOS;
-
-  static final String tickerFontFamily = 'Arial';
-
-  static final String tickerSeparator = '    ////    ';
-
-  static final double extendedTitleWidth = 500.0;
-
-  static final double zoneCornerFullSize = 200.0;
-
-  static final Duration coverSwitchDefaultFadeAnimationDuration =
-      Duration(milliseconds: 2000);
-
-  static final Duration coverSwitchAnimatedPresetDuration =
-      const Duration(milliseconds: 1000);
-
-  static final AnimatedSwitcherTransitionBuilder coverSwitchAnimatedPreset =
-      CoverTransition.presets(
-    CoverTransitionPreset.fadeScale,
-  );
-
-  static bool selectBoxInMacStyle() =>
-      showSelectBoxInMacStyle == true && inMacosStyle();
-
-  static double getWindowMinHeight() {
-    double minHeight = Platform.isWindows ? 392 : 320;
-    if (Platform.isLinux) {
-      minHeight = 456;
-    }
-    if (Platform.isMacOS &&
-        SharedWidgets.inMacosStyle() == false &&
-        SharedWidgets.inIosStyle() == false) {
-      minHeight = 364;
-    }
-
-    return minHeight;
-  }
-
-  static String getZoneIcon({
-    required String zoneName,
-  }) {
-    if (zoneName.endsWith('-SpotifyConnect')) {
-      return 'assets/icon/spotifyconnect.png';
-    }
-    if (zoneName.endsWith('-Spotify')) {
-      return 'assets/icon/spotify.png';
-    }
-    if (zoneName.endsWith('-Apple Music')) {
-      return 'assets/icon/applemusic.png';
-    }
-
-    return 'assets/icon/roon.png';
-  }
-
-  static String getZoneNameWithoutType({
-    required String zoneName,
-  }) =>
-      zoneName
-          .replaceFirst('-SpotifyConnect', '')
-          .replaceFirst('-Spotify', '')
-          .replaceFirst('-Apple Music', '');
-
   static List<Widget> labelWidget({
     required String? label,
     Color? labelColor,
@@ -136,259 +40,6 @@ class SharedWidgets {
               ),
             ]
           : [];
-
-  static Brightness brightness() =>
-      WidgetsBinding.instance.platformDispatcher.platformBrightness;
-
-  static Color textColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? CupertinoColors.white
-          : CupertinoColors.black;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.white
-          : MacosColors.black;
-    }
-    return Theme.of(context).colorScheme.inverseSurface;
-  }
-
-  static final Color hoverButtonBackground = Color.fromARGB(170, 200, 200, 200);
-
-  static Color iconColor({
-    required BuildContext context,
-  }) =>
-      textColor(context: context);
-
-  static Color hintColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return CupertinoColors.systemGrey;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return MacosColors.systemGrayColor;
-    }
-    return Theme.of(context).hintColor;
-  }
-
-  static Color windowBackgroundColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.underPageBackgroundColor
-          : CupertinoColors.white;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.underPageBackgroundColor
-          : MacosColors.white;
-    }
-    return Theme.of(context).colorScheme.surface;
-  }
-
-  static Color borderColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? const Color.fromARGB(255, 60, 60, 60)
-          : MacosColors.tickBackgroundColor;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.systemGrayColor
-          : MacosColors.tickBackgroundColor;
-    }
-    return Theme.of(context).colorScheme.surface;
-  }
-
-  static Color elementBackgroundColorLighter({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? Theme.of(context).primaryColorLight
-          : CupertinoColors.white;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? Theme.of(context).primaryColorLight
-          : Colors.white;
-    }
-    return Theme.of(context).colorScheme.surface;
-  }
-
-  static Color elementBackgroundColor({
-    required BuildContext context,
-  }) =>
-      windowBackgroundColor(context: context);
-
-  static Color selectboxBackgroundColor({
-    required BuildContext context,
-  }) =>
-      SharedWidgets.brightness() == Brightness.dark
-          ? Colors.grey.shade800
-          : MacosColors.white;
-
-  static Color areaBackgroundColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : Colors.grey.shade100;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : Colors.grey.shade100;
-    }
-    return SharedWidgets.brightness() == Brightness.dark
-        ? Color.fromARGB(255, 57, 55, 60)
-        : Colors.grey.shade100;
-  }
-
-  static Color toolbarBackgroundColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.controlColor
-          : const Color.fromARGB(255, 195, 219, 239);
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.controlColor
-          : const Color.fromARGB(255, 195, 219, 239);
-    }
-    return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.black26
-        : const Color.fromARGB(255, 195, 219, 239);
-  }
-
-  static Color coverRowBackgroundColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : Colors.grey.shade200;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : Colors.grey.shade200;
-    }
-    return SharedWidgets.brightness() == Brightness.dark
-        ? const Color.fromARGB(255, 57, 55, 60)
-        : Colors.grey.shade200;
-  }
-
-  static Color resetIconColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? const Color.fromARGB(255, 171, 39, 32)
-          : CupertinoColors.systemRed;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? const Color.fromARGB(255, 171, 39, 32)
-          : MacosColors.appleRed;
-    }
-    return SharedWidgets.brightness() == Brightness.dark
-        ? const Color.fromARGB(255, 171, 39, 32)
-        : Colors.red.shade700;
-  }
-
-  static Color tileBackgroundColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : Colors.blue.shade100;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : Colors.blue.shade100; // MacosColors.systemTealColor;
-    }
-    return SharedWidgets.brightness() == Brightness.dark
-        ? const Color.fromARGB(255, 57, 55, 60)
-        : Colors.blue.shade100;
-  }
-
-  static Color buttonBlueColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : CupertinoColors.systemBlue;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.gridColor
-          : MacosColors.systemBlueColor; // MacosColors.systemTealColor;
-    }
-    return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.grey.shade700
-        : Colors.blue.shade700;
-  }
-
-  static Color buttonRowBackgroundColor({
-    required BuildContext context,
-  }) =>
-      SharedWidgets.brightness() == Brightness.dark
-          ? Colors.grey.shade600
-          : Colors.blue.shade300;
-
-  static Color textFieldBackgroundColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      //return windowBackgroundColor(context: context);
-      return SharedWidgets.brightness() == Brightness.dark
-          ? CupertinoColors.darkBackgroundGray
-          : CupertinoColors.systemBackground;
-    }
-    //alternatingContentBackgroundColor, underPageBackgroundColor
-    if (SharedWidgets.inMacosStyle()) {
-      return SharedWidgets.brightness() == Brightness.dark
-          ? MacosColors.alternatingContentBackgroundColor
-          : Color(0xffefefef);
-    }
-    return windowBackgroundColor(context: context);
-  }
-
-  static Color toolbarResizeButtonColor({
-    required BuildContext context,
-  }) {
-    if (SharedWidgets.inIosStyle()) {
-      return CupertinoColors.systemGrey;
-    }
-    if (SharedWidgets.inMacosStyle()) {
-      return MacosColors.systemGrayColor;
-    }
-    return SharedWidgets.brightness() == Brightness.dark
-        ? Colors.grey.shade300
-        : Colors.white;
-  }
-
-  static Color bugerMenuHeadlineColor({
-    required BuildContext context,
-  }) {
-    return SharedWidgets.inIosStyle()
-        ? CupertinoColors.systemGrey
-        : Colors.blue;
-  }
 
   static AlertElement addItemWithNameDialog({
     required BuildContext context,
@@ -442,7 +93,7 @@ class SharedWidgets {
     required Function(BuildContext context) child,
     bool barrierDismissible = true,
   }) async =>
-      SharedWidgets.inIosStyle()
+      Globals.inIosStyle()
           ? await showCupertinoDialog(
               context: context,
               barrierDismissible: barrierDismissible,
@@ -668,7 +319,7 @@ class SharedWidgets {
                 width: 64,
                 height: 64,
                 child: SvgPicture.asset(
-                  placeholderAssetPath(),
+                  Globals.placeholderAssetPath(),
                   allowDrawingOutsideViewBox: false,
                   fit: BoxFit.cover,
                   clipBehavior: Clip.hardEdge,
@@ -708,14 +359,6 @@ class SharedWidgets {
           );
         }
       });
-
-  static Future<String> getMacosVersion() async {
-    final deviceInfo = DeviceInfoPlugin();
-    final macosInfo = await deviceInfo.macOsInfo;
-    final version = macosInfo.osRelease.replaceFirst('Version', '').trim();
-
-    return version;
-  }
 
   static TableRow getTableRowInnerCentered({
     required String label,

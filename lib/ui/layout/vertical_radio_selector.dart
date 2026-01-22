@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 
 class VerticalRadioSelector extends StatefulWidget {
   final List<String> options;
@@ -35,8 +36,7 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
                 SizedBox(
                   width: 20.0,
                   child: Center(
-                    child: SharedWidgets.inMacosStyle() ||
-                            SharedWidgets.inIosStyle()
+                    child: Globals.inMacosStyle() || Globals.inIosStyle()
                         ? Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
                             child: CupertinoRadio(
@@ -74,7 +74,7 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
                       softWrap: true,
                       style: TextStyle(
                         fontSize: 12.0,
-                        color: SharedWidgets.textColor(context: context),
+                        color: ColorDefs.textColor(context: context),
                       ),
                     ),
                   ),

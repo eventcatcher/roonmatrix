@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/slider_expandable.dart';
 import 'package:roonmatrix/ui/layout/slider_mobile.dart';
 
@@ -70,7 +70,7 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
 
   ObstructingPreferredSizeWidget getAppBar() => CupertinoNavigationBar(
         key: ValueKey('navigationBar-$isDrawerOpen'),
-        brightness: SharedWidgets.brightness(),
+        brightness: Globals.brightness(),
         middle: Text(title),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
@@ -86,7 +86,7 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
             });
           },
         ),
-        trailing: SharedWidgets.inIosStyle()
+        trailing: Globals.inIosStyle()
             ? Container(
                 width: showExpandableSpeedSlider ? 188.0 : 150.0,
                 padding: showExpandableSpeedSlider

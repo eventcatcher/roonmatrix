@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/control_buttons.dart';
@@ -15,7 +16,6 @@ import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart'
@@ -52,7 +52,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final double fontSize = SharedWidgets.isDesktopDevice() ? 20.0 : 16.0;
+  final double fontSize = Globals.isDesktopDevice() ? 20.0 : 16.0;
   final double coveraPadding = 24.0;
 
   Map<String, dynamic> info = {};
@@ -335,12 +335,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   child: RoonmatrixAnimatedGradient(
                     child: OrientationBuilder(builder:
                         (BuildContext context, Orientation orientation) {
-                      final bool portraitMode =
-                          (SharedWidgets.isMobileDevice() &&
-                                  orientation == Orientation.portrait) ||
-                              (SharedWidgets.isDesktopDevice() &&
-                                  MediaQuery.of(context).size.height >
-                                      MediaQuery.of(context).size.width);
+                      final bool portraitMode = (Globals.isMobileDevice() &&
+                              orientation == Orientation.portrait) ||
+                          (Globals.isDesktopDevice() &&
+                              MediaQuery.of(context).size.height >
+                                  MediaQuery.of(context).size.width);
 
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -366,7 +365,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                       child: Container(
                                         padding: EdgeInsets.all(coveraPadding),
                                         child: AnimatedSwitcher(
-                                          duration: SharedWidgets
+                                          duration: Globals
                                               .coverSwitchDefaultFadeAnimationDuration,
                                           child:
                                               mainRepository.coverExistInZone(
@@ -380,7 +379,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                       height: double.infinity,
                                                     )
                                                   : SvgPicture.asset(
-                                                      SharedWidgets
+                                                      Globals
                                                           .placeholderAssetPath(),
                                                       allowDrawingOutsideViewBox:
                                                           false,
@@ -460,7 +459,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             ),
             ZoneCornerLabel(
               zoneName: '-${selectedZone?['zone'] ?? name}',
-              coverWidth: SharedWidgets.zoneCornerFullSize,
+              coverWidth: Globals.zoneCornerFullSize,
             ),
           ],
         ),
@@ -468,11 +467,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   @override
   Widget build(BuildContext context) {
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return Material(
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
-            brightness: SharedWidgets.brightness(),
+            brightness: Globals.brightness(),
             middle: Text(
               title,
             ),
@@ -484,7 +483,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
       );
     }
 
-    return SharedWidgets.inMacosStyle()
+    return Globals.inMacosStyle()
         ? PageWithToolbarMacStyle(
             title: title,
             standardDesktopSize: standardDesktopSize,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 abstract class RoonmatrixStyles {
   static dynamic boxDecoration = ({Color? fillColor}) => BoxDecoration(
         color: fillColor ?? Colors.white,
-        borderRadius: SharedWidgets.borderRadius(),
+        borderRadius: Globals.borderRadius(),
         border: Border.all(
             color: Colors.grey.shade300, width: 0, style: BorderStyle.solid),
         boxShadow: [

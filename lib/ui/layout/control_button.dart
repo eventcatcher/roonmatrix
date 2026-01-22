@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class ControlButton extends StatelessWidget {
   final double buttonSize;
@@ -34,9 +34,8 @@ class ControlButton extends StatelessWidget {
         child: IconButton(
           padding: EdgeInsets.zero,
           color: color,
-          hoverColor: readOnly
-              ? Colors.transparent
-              : SharedWidgets.hoverButtonBackground,
+          hoverColor:
+              readOnly ? Colors.transparent : Globals.hoverButtonBackground,
           onPressed: readOnly ? null : () => onPressed(),
           icon: icon,
         ),

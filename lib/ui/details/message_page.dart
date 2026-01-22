@@ -4,11 +4,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/message_writer.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
@@ -154,25 +155,25 @@ class MessagePageState extends State<MessagePage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (SharedWidgets.inIosStyle()) {
+            if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  brightness: SharedWidgets.brightness(),
+                  brightness: Globals.brightness(),
                   middle: Text(title),
                 ),
                 child: SizedBox(),
               );
             }
-            return SharedWidgets.inMacosStyle()
+            return Globals.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(
                         title,
                         style: TextStyle(
-                          color: SharedWidgets.textColor(context: context),
+                          color: ColorDefs.textColor(context: context),
                         ),
                       ),
-                      titleWidth: SharedWidgets.extendedTitleWidth,
+                      titleWidth: Globals.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -218,11 +219,11 @@ class MessagePageState extends State<MessagePage> {
 
                 return OrientationBuilder(
                     builder: (BuildContext context, Orientation orientation) {
-                  if (SharedWidgets.inIosStyle()) {
+                  if (Globals.inIosStyle()) {
                     return Material(
                       child: CupertinoPageScaffold(
                         navigationBar: CupertinoNavigationBar(
-                          brightness: SharedWidgets.brightness(),
+                          brightness: Globals.brightness(),
                           middle: Text(title),
                           leading: CupertinoButton(
                             padding: EdgeInsets.zero,
@@ -238,7 +239,7 @@ class MessagePageState extends State<MessagePage> {
                     );
                   }
 
-                  return SharedWidgets.inMacosStyle()
+                  return Globals.inMacosStyle()
                       ? PageWithToolbarMacStyle(
                           title: title,
                           standardDesktopSize: standardDesktopSize,

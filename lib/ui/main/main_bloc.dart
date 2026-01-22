@@ -8,7 +8,9 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/file_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
@@ -24,7 +26,6 @@ import 'package:roonmatrix/ui/layout/key_val_items.dart';
 import 'package:roonmatrix/ui/layout/list_items.dart';
 import 'package:roonmatrix/ui/layout/map_list_items.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/main/main_event.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -69,8 +70,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     // ====================== //
     on<MainEvent>((event, emit) async {
       if (event is MainStateLoadDefaults) {
-        if (SharedWidgets.inMacosStyle()) {
-          String macosVersion = await SharedWidgets.getMacosVersion();
+        if (Globals.inMacosStyle()) {
+          String macosVersion = await Globals.getMacosVersion();
 
           emit(state.copyWith(
             update: DateTime.now(),
@@ -587,7 +588,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       FileSaveLocation? result;
       String fileName =
           'stringExport-${DateFormat('yyyyMMddTHHmmss').format(DateTime.now())}.txt';
-      if (SharedWidgets.isDesktopDevice()) {
+      if (Globals.isDesktopDevice()) {
         result = await getSaveLocation(suggestedName: fileName);
         if (result == null) {
           // Operation was canceled by the user.
@@ -657,7 +658,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       FileSaveLocation? result;
       String fileName =
           'roonmatrix-$name-$type-${DateFormat('yyyyMMddTHHmmss').format(DateTime.now())}.txt';
-      if (SharedWidgets.isDesktopDevice()) {
+      if (Globals.isDesktopDevice()) {
         result = await getSaveLocation(suggestedName: fileName);
         if (result == null) {
           // Operation was canceled by the user.
@@ -672,7 +673,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           XFile.fromData(fileData, mimeType: mimeType, name: fileName);
 
       try {
-        if (SharedWidgets.isDesktopDevice()) {
+        if (Globals.isDesktopDevice()) {
           await textFile.saveTo(result!.path);
         } else {
           await fileRepository.write(
@@ -1187,7 +1188,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       if (fileStr.isNotEmpty) {
         FileSaveLocation? result;
-        if (SharedWidgets.isDesktopDevice()) {
+        if (Globals.isDesktopDevice()) {
           result = await getSaveLocation(suggestedName: fileName);
           if (result == null) {
             // Operation was canceled by the user.
@@ -1202,7 +1203,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             XFile.fromData(fileData, mimeType: mimeType, name: fileName);
 
         try {
-          if (SharedWidgets.isDesktopDevice()) {
+          if (Globals.isDesktopDevice()) {
             await textFile.saveTo(result!.path);
           } else {
             await fileRepository.write(
@@ -1972,9 +1973,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   Expanded(child: widgetField),
                   Padding(
                     padding: EdgeInsets.only(
-                      top: SharedWidgets.inMacosStyle()
+                      top: Globals.inMacosStyle()
                           ? 37.0
-                          : SharedWidgets.inIosStyle() || Platform.isWindows
+                          : Globals.inIosStyle() || Platform.isWindows
                               ? 36
                               : 34.0,
                       right: 16.0,
@@ -2026,9 +2027,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
       Widget widgetArea = Card(
         shape: RoundedRectangleBorder(
-          borderRadius: SharedWidgets.borderRadius(),
+          borderRadius: Globals.borderRadius(),
         ),
-        color: SharedWidgets.windowBackgroundColor(context: context),
+        color: ColorDefs.windowBackgroundColor(context: context),
         child: Column(
           children: [
             Headline(

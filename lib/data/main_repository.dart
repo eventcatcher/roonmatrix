@@ -6,8 +6,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/triangle_painter.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -47,16 +47,16 @@ class MainRepository {
     required String zoneName,
   }) {
     if (zoneName.endsWith('-Apple Music')) {
-      return Offset(size < SharedWidgets.zoneCornerFullSize ? -2.0 : -5.0,
-          size < SharedWidgets.zoneCornerFullSize ? -2.0 : -3.0);
+      return Offset(size < Globals.zoneCornerFullSize ? -2.0 : -5.0,
+          size < Globals.zoneCornerFullSize ? -2.0 : -3.0);
     }
     if (zoneName.endsWith('-SpotifyConnect')) {
-      return Offset(size < SharedWidgets.zoneCornerFullSize ? 2.0 : 0,
-          size < SharedWidgets.zoneCornerFullSize ? 4.0 : 5.0);
+      return Offset(size < Globals.zoneCornerFullSize ? 2.0 : 0,
+          size < Globals.zoneCornerFullSize ? 4.0 : 5.0);
     }
 
     if (zoneName.endsWith('-Spotify')) {
-      return Offset(2.0, size < SharedWidgets.zoneCornerFullSize ? 4.0 : 5.0);
+      return Offset(2.0, size < Globals.zoneCornerFullSize ? 4.0 : 5.0);
     }
 
     return Offset(4.0, 5.0);
@@ -66,7 +66,7 @@ class MainRepository {
     required double size,
     required String zoneName,
   }) {
-    double factor = size < SharedWidgets.zoneCornerFullSize ? 0.65 : 1.0;
+    double factor = size < Globals.zoneCornerFullSize ? 0.65 : 1.0;
     if (zoneName.endsWith('-Apple Music')) {
       return factor * 54.0;
     }
@@ -86,10 +86,8 @@ class MainRepository {
     double? size,
   }) =>
       SizedBox(
-        width:
-            size != null && size < SharedWidgets.zoneCornerFullSize ? 56 : 84,
-        height:
-            size != null && size < SharedWidgets.zoneCornerFullSize ? 56 : 84,
+        width: size != null && size < Globals.zoneCornerFullSize ? 56 : 84,
+        height: size != null && size < Globals.zoneCornerFullSize ? 56 : 84,
         child: ClipRRect(
           child: CustomPaint(
             painter: TrianglePainter(
@@ -162,11 +160,11 @@ class MainRepository {
                       boxSizeHeight > minNumberOfCoversInRow * midCoverSize
                   ? midCoverSize
                   : smallCoverSize;
-      if (SharedWidgets.isDesktopDevice()) {
+      if (Globals.isDesktopDevice()) {
         coverSize = preferredCoverSize;
       }
 
-      if (SharedWidgets.isMobileDevice()) {
+      if (Globals.isMobileDevice()) {
         double safeHeight = getSafeHeight(viewData: viewData);
         boxSizeHeight = safeHeight;
 

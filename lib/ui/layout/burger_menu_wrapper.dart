@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -120,7 +121,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
           return const SizedBox();
         }
 
-        return SharedWidgets.inIosStyle()
+        return Globals.inIosStyle()
             ? burgerMenuRaw(
                 noPop: true, context: scaffoldKey.currentContext ?? context)
             : Drawer(

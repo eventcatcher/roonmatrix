@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/switch_element.dart';
 
 class SwitchButton extends StatelessWidget {
@@ -28,9 +29,9 @@ class SwitchButton extends StatelessWidget {
             ? Text(
                 label!,
                 style: TextStyle(
-                  color: SharedWidgets.brightness() == Brightness.dark
-                      ? SharedWidgets.textColor(context: context)
-                      : labelColor ?? SharedWidgets.textColor(context: context),
+                  color: Globals.brightness() == Brightness.dark
+                      ? ColorDefs.textColor(context: context)
+                      : labelColor ?? ColorDefs.textColor(context: context),
                   fontSize: labelFontSize,
                 ),
               )
@@ -40,16 +41,14 @@ class SwitchButton extends StatelessWidget {
   Widget switchWidget({bool noSpace = true}) => Container(
         transform: noSpace ? Matrix4.translationValues(10.0, -0.0, 0.0) : null,
         child: SwitchElement(
-          materialTapTargetSize: SharedWidgets.inIosStyle()
-              ? null
-              : MaterialTapTargetSize.shrinkWrap,
+          materialTapTargetSize:
+              Globals.inIosStyle() ? null : MaterialTapTargetSize.shrinkWrap,
           value: enabled,
           onChanged: (bool value) {
             onChanged(value);
           },
-          activeTrackColor:
-              SharedWidgets.inIosStyle() ? null : iosActiveTrackColor,
-          activeColor: SharedWidgets.inIosStyle() ? null : Colors.white,
+          activeTrackColor: Globals.inIosStyle() ? null : iosActiveTrackColor,
+          activeColor: Globals.inIosStyle() ? null : Colors.white,
         ),
       );
 

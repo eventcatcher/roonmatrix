@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 
@@ -61,10 +62,9 @@ class _TitlebarInfoContentState extends State<TitlebarInfoContent> {
                     ip: ip,
                     withLineBreak: true),
                 style: TextStyle(
-                  color:
-                      SharedWidgets.inMacosStyle() || SharedWidgets.inIosStyle()
-                          ? SharedWidgets.textColor(context: context)
-                          : Colors.white,
+                  color: Globals.inMacosStyle() || Globals.inIosStyle()
+                      ? ColorDefs.textColor(context: context)
+                      : Colors.white,
                   fontSize: fontSize,
                 ),
               ),

@@ -7,13 +7,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/ip_address_input_formatter.dart';
 import 'package:roonmatrix/ui/helper/ip_input_formatter.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/switch_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -167,7 +168,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       'IP range to scan for devices',
                   style: TextStyle(
                     fontSize: 18.0,
-                    color: SharedWidgets.textColor(context: context),
+                    color: ColorDefs.textColor(context: context),
                   ),
                 ),
               ),
@@ -231,8 +232,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                               maxLines: 1,
                                               softWrap: false,
                                               style: TextStyle(
-                                                color: SharedWidgets
-                                                            .brightness() ==
+                                                color: Globals.brightness() ==
                                                         Brightness.dark
                                                     ? Colors.red.shade200
                                                     : Colors.red,
@@ -295,7 +295,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   translations['settingsPageExtended'] ?? 'Extended Settings',
                   style: TextStyle(
                     fontSize: 18.0,
-                    color: SharedWidgets.textColor(context: context),
+                    color: ColorDefs.textColor(context: context),
                   ),
                 ),
               ),
@@ -328,7 +328,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       style: TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.w400,
-                        color: SharedWidgets.textColor(context: context),
+                        color: ColorDefs.textColor(context: context),
                       )),
                 ),
               ),
@@ -388,7 +388,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ),
-              if (SharedWidgets.isDesktopDevice())
+              if (Globals.isDesktopDevice())
                 Padding(
                   padding: const EdgeInsets.only(
                     right: 10.0,
@@ -421,20 +421,20 @@ class _SettingsPageState extends State<SettingsPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (SharedWidgets.inIosStyle()) {
+            if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  brightness: SharedWidgets.brightness(),
+                  brightness: Globals.brightness(),
                   middle: Text(title),
                 ),
                 child: SizedBox(),
               );
             }
-            return SharedWidgets.inMacosStyle()
+            return Globals.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: SharedWidgets.extendedTitleWidth,
+                      titleWidth: Globals.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -503,10 +503,10 @@ class _SettingsPageState extends State<SettingsPage> {
                           });
                         }
 
-                        if (SharedWidgets.inIosStyle()) {
+                        if (Globals.inIosStyle()) {
                           return CupertinoPageScaffold(
                             navigationBar: CupertinoNavigationBar(
-                              brightness: SharedWidgets.brightness(),
+                              brightness: Globals.brightness(),
                               middle: Text(title),
                               leading: CupertinoButton(
                                 padding: EdgeInsets.zero,
@@ -524,7 +524,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           );
                         }
 
-                        return SharedWidgets.inMacosStyle()
+                        return Globals.inMacosStyle()
                             ? PageWithToolbarMacStyle(
                                 title: title,
                                 standardDesktopSize: standardDesktopSize,

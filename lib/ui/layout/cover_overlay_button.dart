@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class CoverOverlayButton extends StatefulWidget {
   final Alignment alignment;
@@ -41,12 +41,10 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
     return Align(
       alignment: alignment,
       child: MouseRegion(
-        onEnter: (_) => SharedWidgets.isDesktopDevice()
-            ? setState(() => hovered = true)
-            : null,
-        onExit: (_) => SharedWidgets.isDesktopDevice()
-            ? setState(() => hovered = false)
-            : null,
+        onEnter: (_) =>
+            Globals.isDesktopDevice() ? setState(() => hovered = true) : null,
+        onExit: (_) =>
+            Globals.isDesktopDevice() ? setState(() => hovered = false) : null,
         child: AnimatedOpacity(
           opacity: hovered || additionalVisibility ? 1.0 : 0.0,
           duration: opacityDuration,
@@ -57,7 +55,7 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
             verticalOffset: coverWidth / 8,
             child: IconButton(
               style: IconButton.styleFrom(
-                backgroundColor: SharedWidgets.hoverButtonBackground,
+                backgroundColor: Globals.hoverButtonBackground,
               ),
               icon: icon,
               iconSize: coverWidth / 4,

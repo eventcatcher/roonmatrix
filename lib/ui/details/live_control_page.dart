@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
@@ -12,7 +14,6 @@ import 'package:roonmatrix/ui/layout/horizontal_slider.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
@@ -298,25 +299,25 @@ class LiveControlPageState extends State<LiveControlPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (SharedWidgets.inIosStyle()) {
+            if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  brightness: SharedWidgets.brightness(),
+                  brightness: Globals.brightness(),
                   middle: Text(title),
                 ),
                 child: SizedBox(),
               );
             }
-            return SharedWidgets.inMacosStyle()
+            return Globals.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(
                         title,
                         style: TextStyle(
-                          color: SharedWidgets.textColor(context: context),
+                          color: ColorDefs.textColor(context: context),
                         ),
                       ),
-                      titleWidth: SharedWidgets.extendedTitleWidth,
+                      titleWidth: Globals.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -367,11 +368,11 @@ class LiveControlPageState extends State<LiveControlPage> {
                       selectedDeviceIp: selectedDeviceIp,
                       orientation: orientation);
 
-                  if (SharedWidgets.inIosStyle()) {
+                  if (Globals.inIosStyle()) {
                     return Material(
                       child: CupertinoPageScaffold(
                         navigationBar: CupertinoNavigationBar(
-                          brightness: SharedWidgets.brightness(),
+                          brightness: Globals.brightness(),
                           middle: Text(title),
                           leading: CupertinoButton(
                             padding: EdgeInsets.zero,
@@ -393,7 +394,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                     );
                   }
 
-                  return SharedWidgets.inMacosStyle()
+                  return Globals.inMacosStyle()
                       ? PageWithToolbarMacStyle(
                           title: title,
                           standardDesktopSize: standardDesktopSize,

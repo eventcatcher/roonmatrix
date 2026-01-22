@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/roonmatrix_styles.dart';
 import 'package:easy_debounce/easy_debounce.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/text_field_element.dart';
 
 class EditableSinglelineText extends StatefulWidget {
@@ -181,9 +182,9 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
               maxLines: 1,
               softWrap: false,
               style: TextStyle(
-                color: SharedWidgets.brightness() == Brightness.dark
-                    ? SharedWidgets.textColor(context: context)
-                    : labelColor ?? SharedWidgets.textColor(context: context),
+                color: Globals.brightness() == Brightness.dark
+                    ? ColorDefs.textColor(context: context)
+                    : labelColor ?? ColorDefs.textColor(context: context),
                 fontSize: 12.0,
               ),
             ),
@@ -205,9 +206,9 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                           blurStyle: BlurStyle.normal,
                         )
                       ],
-                      color: SharedWidgets.textFieldBackgroundColor(
-                          context: context),
-                      borderRadius: SharedWidgets.borderRadius(),
+                      color:
+                          ColorDefs.textFieldBackgroundColor(context: context),
+                      borderRadius: Globals.borderRadius(),
                     ),
               padding: EdgeInsets.only(
                   top: maxLength != null && placeholder == null
@@ -262,8 +263,8 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                   noCounter: noCounter,
                   fillColor: (fillColorForValidationError != null && !valid)
                       ? fillColorForValidationError
-                      : SharedWidgets.brightness() == Brightness.dark
-                          ? SharedWidgets.elementBackgroundColorLighter(
+                      : Globals.brightness() == Brightness.dark
+                          ? ColorDefs.elementBackgroundColorLighter(
                               context: context)
                           : Colors.white,
                   borderColor: Colors.transparent,
@@ -272,7 +273,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 style: TextStyle(
                   color: readOnly
                       ? readOnlyColor
-                      : SharedWidgets.textColor(context: context),
+                      : ColorDefs.textColor(context: context),
                   fontSize: 16.0,
                 ),
                 controller: _userTextController,
@@ -343,7 +344,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 maxLines: 1,
                 softWrap: false,
                 style: TextStyle(
-                  color: SharedWidgets.brightness() == Brightness.dark
+                  color: Globals.brightness() == Brightness.dark
                       ? Colors.red.shade200
                       : Colors.red,
                   fontSize: 10.0,

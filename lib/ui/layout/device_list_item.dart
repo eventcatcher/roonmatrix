@@ -6,12 +6,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/layout/desktop_page_buttons.dart';
 import 'package:roonmatrix/ui/layout/mobile_page_buttons.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
 import 'package:roonmatrix/ui/layout/device_info.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -169,7 +170,7 @@ class DeviceListItemState extends State<DeviceListItem> {
 
     return Container(
       key: index == 0 ? itemListKey : null, // only first item with key
-      color: SharedWidgets.tileBackgroundColor(context: context),
+      color: ColorDefs.tileBackgroundColor(context: context),
       height: itemListHeight - 1,
       padding: EdgeInsets.only(
         left: 8.0,
@@ -182,7 +183,7 @@ class DeviceListItemState extends State<DeviceListItem> {
             contentPadding: EdgeInsets.all(0),
             tileColor: tileColor,
             iconColor: Colors.black,
-            textColor: SharedWidgets.textColor(context: context),
+            textColor: ColorDefs.textColor(context: context),
             title: Row(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,8 +209,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                       },
                     ),
                     icon: AnimatedSwitcher(
-                      duration:
-                          SharedWidgets.coverSwitchDefaultFadeAnimationDuration,
+                      duration: Globals.coverSwitchDefaultFadeAnimationDuration,
                       switchInCurve: Curves.easeIn,
                       switchOutCurve: Curves.easeOut,
                       child: coverUrl != null
@@ -220,7 +220,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                               key: ValueKey('DeviceCover$index$coverUrl'),
                             )
                           : SvgPicture.asset(
-                              SharedWidgets.placeholderAssetPath(),
+                              Globals.placeholderAssetPath(),
                               allowDrawingOutsideViewBox: false,
                               fit: BoxFit.cover,
                               clipBehavior: Clip.hardEdge,
@@ -240,7 +240,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                   },
                 ),
                 Expanded(
-                  child: SharedWidgets.isDesktopDevice()
+                  child: Globals.isDesktopDevice()
                       ? Row(
                           // desktop variant
                           mainAxisSize: MainAxisSize.min,
@@ -309,7 +309,7 @@ class DeviceListItemState extends State<DeviceListItem> {
               ],
             ),
           ),
-          if (SharedWidgets.isMobileDevice())
+          if (Globals.isMobileDevice())
             Positioned(
               top: Platform.isAndroid ? 4.0 : 7.0,
               right: 0.0,
@@ -372,22 +372,22 @@ class DeviceListItemState extends State<DeviceListItem> {
                             'UpdatableTickerStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                         updatableText: scrollText,
                         style: TextStyle(
-                          fontFamily: SharedWidgets.tickerFontFamily,
+                          fontFamily: Globals.tickerFontFamily,
                           fontSize: tickerFontSize,
-                          color: SharedWidgets.textColor(
+                          color: ColorDefs.textColor(
                             context: context,
                           ),
                         ),
                         pixelsPerSecond:
                             tickerPixelPerSecondFactor * scrollSpeedDevice,
                         forceUpdate: false,
-                        separator: SharedWidgets.tickerSeparator,
+                        separator: Globals.tickerSeparator,
                       ),
                     ),
                   ),
                 ),
               )),
-          if (SharedWidgets.isDesktopDevice())
+          if (Globals.isDesktopDevice())
             Positioned(
               bottom: -10,
               right: 0,

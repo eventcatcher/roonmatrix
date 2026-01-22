@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
@@ -84,17 +86,17 @@ class InfoPageState extends State<InfoPage> {
                         child: Text(
                           infoStr,
                           style: TextStyle(
-                            color: SharedWidgets.textColor(context: context),
+                            color: ColorDefs.textColor(context: context),
                           ),
                         ),
                       ),
                     ],
                   ),
           ),
-          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
-                vertical: SharedWidgets.isDesktopDevice() ? 16.0 : 0),
+                vertical: Globals.isDesktopDevice() ? 16.0 : 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -139,7 +141,7 @@ class InfoPageState extends State<InfoPage> {
               ],
             ),
           ),
-          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
         ],
       );
 
@@ -157,20 +159,20 @@ class InfoPageState extends State<InfoPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (SharedWidgets.inIosStyle()) {
+            if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  brightness: SharedWidgets.brightness(),
+                  brightness: Globals.brightness(),
                   middle: Text(title),
                 ),
                 child: SizedBox(),
               );
             }
-            return SharedWidgets.inMacosStyle()
+            return Globals.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: SharedWidgets.extendedTitleWidth,
+                      titleWidth: Globals.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -220,10 +222,10 @@ class InfoPageState extends State<InfoPage> {
                     .toList()
                     .join('\n');
 
-                if (SharedWidgets.inIosStyle()) {
+                if (Globals.inIosStyle()) {
                   return CupertinoPageScaffold(
                     navigationBar: CupertinoNavigationBar(
-                      brightness: SharedWidgets.brightness(),
+                      brightness: Globals.brightness(),
                       middle: Text(title),
                       leading: CupertinoButton(
                         padding: EdgeInsets.zero,
@@ -240,7 +242,7 @@ class InfoPageState extends State<InfoPage> {
                   );
                 }
 
-                return SharedWidgets.inMacosStyle()
+                return Globals.inMacosStyle()
                     ? PageWithToolbarMacStyle(
                         title: title,
                         standardDesktopSize: standardDesktopSize,

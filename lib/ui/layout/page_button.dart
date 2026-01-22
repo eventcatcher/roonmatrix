@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class PageButton extends StatefulWidget {
   final String label;
@@ -41,7 +41,7 @@ class PageButtonState extends State<PageButton> {
 
   @override
   Widget build(BuildContext context) {
-    return SharedWidgets.isDesktopDevice()
+    return Globals.isDesktopDevice()
         ? Padding(
             padding: EdgeInsets.only(left: paddingLeft),
             child: IconButtonElement(

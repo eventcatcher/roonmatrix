@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/slider_expandable.dart';
 import 'package:roonmatrix/ui/layout/slider_mobile.dart';
 import 'package:window_manager/window_manager.dart';
@@ -131,7 +132,7 @@ class _PageWithToolbarFlutterStyleState
 
   PreferredSizeWidget getAppBar() => AppBar(
         title: Text(title),
-        leading: title == SharedWidgets.mainWindowTitle
+        leading: title == Globals.mainWindowTitle
             ? null
             : BackButton(
                 onPressed: () {
@@ -145,7 +146,7 @@ class _PageWithToolbarFlutterStyleState
           Row(
             children: [
               if (actions != null) ...actions!,
-              if (SharedWidgets.isDesktopDevice() && !isFullscreen) ...[
+              if (Globals.isDesktopDevice() && !isFullscreen) ...[
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
                   child: IconButton(
@@ -154,8 +155,8 @@ class _PageWithToolbarFlutterStyleState
                     onPressed: () => resizeToFullWidth(),
                     icon: Icon(
                       FontAwesomeIcons.arrowsLeftRight,
-                      color: SharedWidgets.toolbarResizeButtonColor(
-                          context: context),
+                      color:
+                          ColorDefs.toolbarResizeButtonColor(context: context),
                     ),
                   ),
                 ),
@@ -169,8 +170,8 @@ class _PageWithToolbarFlutterStyleState
                         animate: true),
                     icon: Icon(
                       FontAwesomeIcons.minimize,
-                      color: SharedWidgets.toolbarResizeButtonColor(
-                          context: context),
+                      color:
+                          ColorDefs.toolbarResizeButtonColor(context: context),
                     ),
                   ),
                 ),
@@ -183,7 +184,7 @@ class _PageWithToolbarFlutterStyleState
                       onPressed: () => windowManager.maximize(),
                       icon: Icon(
                         FontAwesomeIcons.maximize,
-                        color: SharedWidgets.toolbarResizeButtonColor(
+                        color: ColorDefs.toolbarResizeButtonColor(
                             context: context),
                       ),
                     ),
@@ -191,7 +192,7 @@ class _PageWithToolbarFlutterStyleState
               ]
             ],
           ),
-          if (SharedWidgets.isMobileDevice() && sliderUpdateValue != null)
+          if (Globals.isMobileDevice() && sliderUpdateValue != null)
             Container(
               width: showExpandableSpeedSlider ? 188.0 : 150.0,
               padding: showExpandableSpeedSlider

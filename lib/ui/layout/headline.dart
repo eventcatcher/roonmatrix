@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
 
 class Headline extends StatelessWidget {
   final String text;
@@ -24,7 +24,7 @@ class Headline extends StatelessWidget {
         style: TextStyle(
           fontSize: fontSize,
           fontWeight: fontWeight,
-          color: SharedWidgets.textColor(context: context),
+          color: ColorDefs.textColor(context: context),
         ),
       ),
     );

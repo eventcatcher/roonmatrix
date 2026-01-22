@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 
 class BurgerMenu extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -43,8 +44,8 @@ class BurgerMenuState extends State<BurgerMenu> {
 
     popupData.add(BurgerMenuItemData(
       key: "about",
-      name: translations['menuEntryAbout'] ??
-          "About ${SharedWidgets.mainWindowTitle}",
+      name:
+          translations['menuEntryAbout'] ?? "About ${Globals.mainWindowTitle}",
     ));
 
     popupData.add(BurgerMenuItemData(
@@ -57,14 +58,13 @@ class BurgerMenuState extends State<BurgerMenu> {
         mainAxisSize: MainAxisSize.max,
         children: [
           SizedBox(
-            height: SharedWidgets.inIosStyle()
+            height: Globals.inIosStyle()
                 ? navigationTopIos
                 : navigationTop ?? navigationTopFallback,
-            child: SharedWidgets.inIosStyle()
+            child: Globals.inIosStyle()
                 ? Container(
                     decoration: BoxDecoration(
-                      color: SharedWidgets.bugerMenuHeadlineColor(
-                          context: context),
+                      color: ColorDefs.bugerMenuHeadlineColor(context: context),
                     ),
                     margin: EdgeInsets.zero,
                     padding: EdgeInsets.zero,
@@ -76,8 +76,7 @@ class BurgerMenuState extends State<BurgerMenu> {
                   )
                 : DrawerHeader(
                     decoration: BoxDecoration(
-                      color: SharedWidgets.bugerMenuHeadlineColor(
-                          context: context),
+                      color: ColorDefs.bugerMenuHeadlineColor(context: context),
                     ),
                     margin: EdgeInsets.zero,
                     padding: EdgeInsets.zero,
@@ -103,7 +102,7 @@ class BurgerMenuState extends State<BurgerMenu> {
                     popupData[index].name,
                     style: TextStyle(
                       fontSize: fontSize,
-                      color: SharedWidgets.textColor(context: context),
+                      color: ColorDefs.textColor(context: context),
                     ),
                   ),
                   onTap: () {

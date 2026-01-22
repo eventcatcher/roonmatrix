@@ -2,7 +2,9 @@ import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/rich_parser.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
@@ -112,7 +114,7 @@ class LogPageState extends State<LogPage> {
               '${translations['filesize'] ?? 'filesize'}: ${logstr.length.readableFileSize(base1024: true)}',
               style: TextStyle(
                   fontSize: fontSize,
-                  color: SharedWidgets.textColor(context: context)),
+                  color: ColorDefs.textColor(context: context)),
             ),
           ),
         ),
@@ -148,7 +150,7 @@ class LogPageState extends State<LogPage> {
               '$logfilePart / $logfileParts',
               style: TextStyle(
                   fontSize: fontSize,
-                  color: SharedWidgets.textColor(context: context)),
+                  color: ColorDefs.textColor(context: context)),
             ),
           ),
         ),
@@ -218,7 +220,7 @@ class LogPageState extends State<LogPage> {
                   },
                 ),
               ),
-              if (SharedWidgets.isDesktopDevice())
+              if (Globals.isDesktopDevice())
                 Flexible(
                   flex: 1,
                   child: SizedBox(
@@ -229,7 +231,7 @@ class LogPageState extends State<LogPage> {
                 ),
             ],
           ),
-          if (SharedWidgets.isMobileDevice())
+          if (Globals.isMobileDevice())
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: logfilePartSelection(logstr: mainState.log),
@@ -246,16 +248,16 @@ class LogPageState extends State<LogPage> {
                           logstr,
                           specialTextSpanBuilder: RichParser(),
                           style: TextStyle(
-                              color: SharedWidgets.textColor(context: context)),
+                              color: ColorDefs.textColor(context: context)),
                         ),
                       ),
                     ],
                   ),
           ),
-          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
-                vertical: SharedWidgets.isDesktopDevice() ? 16.0 : 0),
+                vertical: Globals.isDesktopDevice() ? 16.0 : 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -300,7 +302,7 @@ class LogPageState extends State<LogPage> {
               ],
             ),
           ),
-          if (SharedWidgets.inIosStyle()) const SizedBox(height: 14.0),
+          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
         ],
       );
 
@@ -317,20 +319,20 @@ class LogPageState extends State<LogPage> {
 
           if (translationsState is! TranslationsStateLoaded ||
               !translationsLoaded) {
-            if (SharedWidgets.inIosStyle()) {
+            if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
-                  brightness: SharedWidgets.brightness(),
+                  brightness: Globals.brightness(),
                   middle: Text(title),
                 ),
                 child: SizedBox(),
               );
             }
-            return SharedWidgets.inMacosStyle()
+            return Globals.inMacosStyle()
                 ? MacosScaffold(
                     toolBar: ToolBar(
                       title: Text(title),
-                      titleWidth: SharedWidgets.extendedTitleWidth,
+                      titleWidth: Globals.extendedTitleWidth,
                       leading: MacosBackButton(
                         onPressed: () => Navigator.pop(context),
                         fillColor: Colors.transparent,
@@ -421,10 +423,10 @@ class LogPageState extends State<LogPage> {
                   }
                 }
 
-                if (SharedWidgets.inIosStyle()) {
+                if (Globals.inIosStyle()) {
                   return CupertinoPageScaffold(
                     navigationBar: CupertinoNavigationBar(
-                      brightness: SharedWidgets.brightness(),
+                      brightness: Globals.brightness(),
                       middle: Text(title),
                       leading: CupertinoButton(
                         padding: EdgeInsets.zero,
@@ -440,7 +442,7 @@ class LogPageState extends State<LogPage> {
                   );
                 }
 
-                return SharedWidgets.inMacosStyle()
+                return Globals.inMacosStyle()
                     ? PageWithToolbarMacStyle(
                         title: title,
                         standardDesktopSize: standardDesktopSize,

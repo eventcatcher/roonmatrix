@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/cover_model.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class CoverTextOverlaySmall extends StatefulWidget {
   final CoverModel coverModel;
@@ -45,7 +45,7 @@ class _CoverTextOverlaySmallState extends State<CoverTextOverlaySmall> {
 
   @override
   Widget build(BuildContext context) => Text(
-        '${widget.translations['zoneSelectionLabel'] ?? 'Zone'}: ${SharedWidgets.getZoneNameWithoutType(zoneName: coverModel.zoneName)}${widget.coverRowTrack == true && coverModel.track.isNotEmpty && widget.constraints.maxHeight > 169 ? ', ${widget.translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
+        '${widget.translations['zoneSelectionLabel'] ?? 'Zone'}: ${Globals.getZoneNameWithoutType(zoneName: coverModel.zoneName)}${widget.coverRowTrack == true && coverModel.track.isNotEmpty && widget.constraints.maxHeight > 169 ? ', ${widget.translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
         style: TextStyle(
           fontSize: widget.constraints.maxHeight > fontSizeBigMinHeightAbove
               ? widget.fontSizeBig

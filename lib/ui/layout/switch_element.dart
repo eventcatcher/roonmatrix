@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class SwitchElement extends StatelessWidget {
   final MaterialTapTargetSize? materialTapTargetSize;
@@ -21,14 +21,14 @@ class SwitchElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return CupertinoSwitch(
         value: value,
         onChanged: onChanged,
       );
     }
 
-    return SharedWidgets.inMacosStyle()
+    return Globals.inMacosStyle()
         ? MacosSwitch(
             value: value,
             onChanged: onChanged,

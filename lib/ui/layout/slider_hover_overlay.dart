@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:hovering/hovering.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class SliderHoverOverlay extends StatefulWidget {
@@ -80,7 +81,7 @@ class _SliderHoverOverlayState extends State<SliderHoverOverlay> {
                   opacity: opacity,
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: SharedWidgets.borderRadius(),
+                      borderRadius: Globals.borderRadius(),
                       color: backgroundColor,
                     ),
                     child: Row(

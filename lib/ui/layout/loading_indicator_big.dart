@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
 
 class LoadingIndicatorBig extends StatelessWidget {
   final String? message;
@@ -38,7 +38,7 @@ class LoadingIndicatorBig extends StatelessWidget {
                 child: Text(
                   message!,
                   style: TextStyle(
-                    color: SharedWidgets.textColor(context: context),
+                    color: ColorDefs.textColor(context: context),
                   ),
                 ),
               ),

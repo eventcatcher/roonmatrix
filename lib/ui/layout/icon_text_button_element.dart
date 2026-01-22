@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class IconTextButtonElement extends StatelessWidget {
   final bool onMacAsText;
@@ -23,7 +23,7 @@ class IconTextButtonElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return CupertinoButton.filled(
         disabledColor: CupertinoColors.inactiveGray,
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
@@ -45,7 +45,7 @@ class IconTextButtonElement extends StatelessWidget {
       );
     }
 
-    return SharedWidgets.inMacosStyle()
+    return Globals.inMacosStyle()
         ? onMacAsText
             ? PushButton(
                 controlSize: ControlSize.regular,
@@ -85,10 +85,10 @@ class IconTextButtonElement extends StatelessWidget {
             style: style ??
                 ElevatedButton.styleFrom(
                     backgroundColor: secondaryStyle == true
-                        ? SharedWidgets.brightness() == Brightness.dark
+                        ? Globals.brightness() == Brightness.dark
                             ? Colors.orange.shade800
                             : Colors.orange.shade600
-                        : SharedWidgets.brightness() == Brightness.dark
+                        : Globals.brightness() == Brightness.dark
                             ? Colors.blue.shade800
                             : Colors.blue.shade600),
             onPressed: onPressed,

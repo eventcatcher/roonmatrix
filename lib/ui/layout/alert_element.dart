@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart' as cup;
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class AlertElement extends StatelessWidget {
   const AlertElement({
@@ -24,7 +24,7 @@ class AlertElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SharedWidgets.inMacosStyle() || SharedWidgets.inIosStyle()
+    return Globals.inMacosStyle() || Globals.inIosStyle()
         ? cup.CupertinoAlertDialog(
             title: icon != null
                 ? Column(children: [icon!, Text(title)])

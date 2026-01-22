@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class DevicesReloadButton extends StatefulWidget {
@@ -52,7 +53,7 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
                 color: borderColor(alpha: 1.0),
                 width: 5.0,
               ),
-              borderRadius: SharedWidgets.borderRadius(),
+              borderRadius: Globals.borderRadius(),
               boxShadow: [
                 BoxShadow(
                   color: borderColor(alpha: 0.15),
@@ -66,7 +67,7 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
               child: Text(
                 translations['scanNoFoundMessage'] ?? 'no devices found',
                 style: TextStyle(
-                  color: SharedWidgets.textColor(context: context),
+                  color: ColorDefs.textColor(context: context),
                 ),
               ),
             ),

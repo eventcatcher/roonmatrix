@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class ButtonElement extends StatelessWidget {
   final String label;
@@ -17,7 +17,7 @@ class ButtonElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return CupertinoButton.filled(
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
         minSize: 8,
@@ -26,7 +26,7 @@ class ButtonElement extends StatelessWidget {
       );
     }
 
-    return SharedWidgets.inMacosStyle()
+    return Globals.inMacosStyle()
         ? PushButton(
             controlSize: ControlSize.regular,
             onPressed: onPressed,

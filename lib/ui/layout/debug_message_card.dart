@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class DebugMessageCard extends StatefulWidget {
   final Map<String, dynamic> translations;
@@ -43,7 +43,7 @@ class DebugMessageCardState extends State<DebugMessageCard> {
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Card(
           shape: RoundedRectangleBorder(
-            borderRadius: SharedWidgets.borderRadius(),
+            borderRadius: Globals.borderRadius(),
           ),
           color: Colors.lightBlueAccent,
           child: Padding(

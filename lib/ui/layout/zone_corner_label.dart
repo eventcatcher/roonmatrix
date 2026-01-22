@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/data/main_repository.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 
 class ZoneCornerLabel extends StatefulWidget {
   final String zoneName;
@@ -51,7 +51,7 @@ class _ZoneCornerLabelState extends State<ZoneCornerLabel> {
           child: Center(
             child: Image(
               image: AssetImage(
-                SharedWidgets.getZoneIcon(zoneName: zoneName),
+                Globals.getZoneIcon(zoneName: zoneName),
               ),
               width: mainRepository.getZoneIconDynamicSize(
                   size: coverWidth, zoneName: zoneName),

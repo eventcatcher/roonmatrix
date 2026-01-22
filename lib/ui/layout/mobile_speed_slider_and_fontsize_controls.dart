@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/titlebar_info_content.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
@@ -66,7 +66,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        if (SharedWidgets.isMobileDevice()) ...[
+        if (Globals.isMobileDevice()) ...[
           if (width > sliderTextMobileMin)
             Text(
               '${translations['speed'] ?? 'speed:'}:',
@@ -126,7 +126,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
             icon: const Icon(FontAwesomeIcons.font),
           ),
         ],
-        if (SharedWidgets.isDesktopDevice())
+        if (Globals.isDesktopDevice())
           TitlebarInfoContent(
             ip: ip,
             translations: translations,

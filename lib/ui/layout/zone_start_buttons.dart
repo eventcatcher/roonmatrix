@@ -4,8 +4,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/zone_start_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
@@ -164,7 +165,7 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
     if (buttons.isEmpty) {
       return SizedBox();
     }
-    return SharedWidgets.isMobileDevice()
+    return Globals.isMobileDevice()
         ? SizedBox(
             width: zoneNotRunningButtonsWidth ?? buttonsWidthDefault,
             height: expandableSize,
@@ -175,7 +176,7 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
               height: expandableSize,
               animationSpeed: animationSpeed,
               backgroundColor:
-                  SharedWidgets.buttonRowBackgroundColor(context: context),
+                  ColorDefs.buttonRowBackgroundColor(context: context),
               items: [
                 Wrap(
                   direction: Axis.horizontal,
@@ -209,8 +210,8 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
             children: [
               const SizedBox(width: 8.0),
               Text(translations['startZone'] ?? 'start',
-                  style: TextStyle(
-                      color: SharedWidgets.textColor(context: context))),
+                  style:
+                      TextStyle(color: ColorDefs.textColor(context: context))),
               Flexible(
                 fit: FlexFit.loose,
                 child: SingleChildScrollView(

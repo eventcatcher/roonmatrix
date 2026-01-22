@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/lifecycle_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu_wrapper.dart';
@@ -93,10 +95,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   void updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
-    showExportButton = (SharedWidgets.isMobileDevice() &&
+    showExportButton = (Globals.isMobileDevice() &&
             orientation == Orientation.portrait) ||
-        (SharedWidgets.isDesktopDevice() &&
-            height > (minDesktopSize.height + 75));
+        (Globals.isDesktopDevice() && height > (minDesktopSize.height + 75));
     // if (kDebugMode) {
     //   debugPrint(
     //       'StartPage/updateSizes => caller: $caller, width: $width, height: $height');
@@ -108,12 +109,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           if (kDebugMode) {
             debugPrint('AppLifecycle => onResume');
           }
-          if (SharedWidgets.isMobileDevice() == true) {
+          if (Globals.isMobileDevice() == true) {
             mainBloc.resetWebSocketServices();
           }
           WidgetsBinding.instance.addPostFrameCallback((timestamp) {
             mainBloc.restartPollingTimer();
-            mainBloc.searching(idle: SharedWidgets.isMobileDevice());
+            mainBloc.searching(idle: Globals.isMobileDevice());
           });
         },
         child: BlocBuilder(
@@ -205,7 +206,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
                             return Container(
                               key: windowKey,
-                              color: SharedWidgets.windowBackgroundColor(
+                              color: ColorDefs.windowBackgroundColor(
                                   context: context),
                               child: Center(
                                 child: Column(
@@ -301,7 +302,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   }),
                                     ),
 
-                                    if (SharedWidgets.isDesktopDevice() &&
+                                    if (Globals.isDesktopDevice() &&
                                         devices.isNotEmpty &&
                                         coverRowActiv == true)
                                       CoverRowAnimation(
@@ -323,7 +324,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         standardDesktopSize:
                                             standardDesktopSize,
                                       ),
-                                    if (SharedWidgets.isMobileDevice() &&
+                                    if (Globals.isMobileDevice() &&
                                         devices.isNotEmpty &&
                                         coverRowActiv == true)
                                       Stack(
@@ -363,17 +364,16 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                           ),
                                         ],
                                       ),
-                                    if (SharedWidgets.inIosStyle() &&
+                                    if (Globals.inIosStyle() &&
                                         orientation == Orientation.portrait)
                                       SizedBox(height: exportButtonPaddingIos),
 
                                     Padding(
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 8.0,
-                                          vertical:
-                                              SharedWidgets.isDesktopDevice()
-                                                  ? 16.0
-                                                  : 0),
+                                          vertical: Globals.isDesktopDevice()
+                                              ? 16.0
+                                              : 0),
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
@@ -432,7 +432,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                           },
                                               ),
                                             ),
-                                          if (SharedWidgets.isDesktopDevice() &&
+                                          if (Globals.isDesktopDevice() &&
                                               devices.isNotEmpty &&
                                               coverRowActiv == true)
                                             Expanded(
@@ -453,7 +453,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         ],
                                       ),
                                     ),
-                                    if (SharedWidgets.inIosStyle() &&
+                                    if (Globals.inIosStyle() &&
                                         orientation == Orientation.portrait)
                                       SizedBox(height: exportButtonPaddingIos),
                                   ],
@@ -493,7 +493,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               width: 230,
               height: double.infinity,
               decoration: BoxDecoration(
-                color: SharedWidgets.windowBackgroundColor(context: context),
+                color: ColorDefs.windowBackgroundColor(context: context),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.3),
@@ -527,7 +527,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     updateSizes('build');
 
-    if (SharedWidgets.inIosStyle()) {
+    if (Globals.inIosStyle()) {
       return BlocBuilder(
           bloc: settingsBloc,
           builder: (context, SettingsState settingsState) {
@@ -564,7 +564,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           });
     }
 
-    if (SharedWidgets.inMacosStyle()) {
+    if (Globals.inMacosStyle()) {
       return BlocBuilder(
           bloc: mainBloc,
           builder: (context, MainState mainState) {
@@ -600,22 +600,21 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             showExpandableSpeedSlider: showExpandableSpeedSlider,
             scrollSpeedDevice: scrollSpeedDevice,
             standardDesktopSize: standardDesktopSize,
-            drawer: SharedWidgets.inIosStyle() ||
-                    Platform.isAndroid ||
-                    Platform.isFuchsia
-                ? BurgerMenuWrapper(
-                    scaffoldKey: scaffoldKey,
-                    animationController: animationController,
-                    navigationTop: navigationTop,
-                    isDrawerOpen: isDrawerOpen,
-                    minDesktopSize: minDesktopSize,
-                    standardDesktopSize: standardDesktopSize,
-                    setDrawerVisibility: ({required bool visibility}) {
-                      setState(() {
-                        isDrawerOpen = visibility;
-                      });
-                    })
-                : null,
+            drawer:
+                Globals.inIosStyle() || Platform.isAndroid || Platform.isFuchsia
+                    ? BurgerMenuWrapper(
+                        scaffoldKey: scaffoldKey,
+                        animationController: animationController,
+                        navigationTop: navigationTop,
+                        isDrawerOpen: isDrawerOpen,
+                        minDesktopSize: minDesktopSize,
+                        standardDesktopSize: standardDesktopSize,
+                        setDrawerVisibility: ({required bool visibility}) {
+                          setState(() {
+                            isDrawerOpen = visibility;
+                          });
+                        })
+                    : null,
             body: body(),
             resizeToFullWidth: () {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
