@@ -194,10 +194,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                                               : translations[
                                                       'controlButtonPlayText'] ??
                                                   'play',
-                                          onPressed: () => Globals
-                                                      .isDesktopDevice() &&
-                                                  coverWidth >
-                                                      minPlayControlCoverSize
+                                          onPressed: () => coverWidth >
+                                                  minPlayControlCoverSize
                                               ? mainBloc.zoneControl(
                                                   ip: mainBloc
                                                       .state.activeDeviceIp!,
