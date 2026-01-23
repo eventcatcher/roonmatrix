@@ -174,7 +174,9 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         ),
                                       ),
                                     ),
-                                    if (activeDeviceIp != null)
+                                    if (activeDeviceIp != null &&
+                                        (Globals.isDesktopDevice() ||
+                                            coverModel.status != 'playing'))
                                       Positioned.fill(
                                         child: CoverOverlayButton(
                                           alignment: Alignment.center,

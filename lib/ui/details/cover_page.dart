@@ -178,6 +178,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             translations: translations,
             aligned: 'horizontal',
             label: '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
+            labelColor: Colors.black,
             placeholder:
                 '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
             inRow: false,

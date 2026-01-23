@@ -264,7 +264,8 @@ class SelectBoxState extends State<SelectBox> {
                     Text(
                       label!,
                       style: TextStyle(
-                        color: ColorDefs.textColor(context: context),
+                        color:
+                            labelColor ?? ColorDefs.textColor(context: context),
                         fontSize: labelFontSize,
                       ),
                     ),
