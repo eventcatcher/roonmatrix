@@ -59,10 +59,9 @@ https://github.com/eventcatcher/roonmatrix/releases/latest
 
 ### Website-Link
 
-de:
-https://www.wilhelm-devblog.de/de/projekte/roonmatrix
-en:
-https://www.wilhelm-devblog.de/en/projects/roonmatrix
+de: https://www.wilhelm-devblog.de/de/projekte/roonmatrix
+
+en: https://www.wilhelm-devblog.de/en/projects/roonmatrix
 
 
 
