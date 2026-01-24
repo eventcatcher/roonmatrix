@@ -85,7 +85,7 @@ jobs:
 
 
       - name: Build Flutter Linux release
-        run: flutter build linux --release --target-platform ${{ FLUTTER_TARGET }}
+        run: flutter build linux --release --target-platform $FLUTTER_TARGET
 
       - name: Install FUSE for AppImage
         run: |
