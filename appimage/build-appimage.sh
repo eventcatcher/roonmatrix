@@ -17,7 +17,8 @@ FLUTTER_LIB_DIR="$PROJECT_ROOT/build/linux/x64/release/bundle/lib"
 
 # Extract version from pubspec.yaml
 VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | awk '{print $2}' | cut -d+ -f1)
-APPIMAGE_NAME="RoonMatrix-${VERSION}-x86_64.AppImage"
+ARCH=${1:-x86_64}
+APPIMAGE_NAME="RoonMatrix-${VERSION}-$ARCH.AppImage"
 
 echo "Building RoonMatrix AppImage version $VERSION"
 

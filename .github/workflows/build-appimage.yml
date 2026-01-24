@@ -1,5 +1,8 @@
 name: Build AppImage
 
+# Trigger:
+# - Push on Tag (Release / Beta)
+# - manual trigger
 on:
   workflow_dispatch:
   push:
@@ -15,7 +18,13 @@ permissions:
 
 jobs:
   build:
+    # Matrix: x86_64 und ARM64
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
+
     runs-on: ubuntu-22.04
+
     env:
       APPIMAGE_DIR: appimage
       APPDIR_NAME: RoonMatrix.AppDir
@@ -75,7 +84,7 @@ jobs:
 
 
       - name: Build Flutter Linux release
-        run: flutter build linux --release
+        run: flutter build linux --release --target-platform linux-${{ matrix.arch }}
 
       - name: Install FUSE for AppImage
         run: |
@@ -91,7 +100,7 @@ jobs:
       - name: Build AppImage
         run: |
           chmod +x $APPIMAGE_DIR/build-appimage.sh
-          ./appimage/build-appimage.sh
+          ./appimage/build-appimage.sh ${{ matrix.arch }}
 
       # Upload AppImage only for release / pre-release
       - name: Upload AppImage to GitHub Release
