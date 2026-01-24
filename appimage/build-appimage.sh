@@ -161,7 +161,15 @@ linuxdeploy \
   --plugin gtk \
   --output appimage
 
-# set rights
-chmod +x "$PROJECT_ROOT"/appimage/RoonMatrix-x86_64.AppImage
+APPIMAGE=$(ls *.AppImage | head -n 1)
 
-echo "✅ AppImage created: $PROJECT_ROOT/RoonMatrix-x86_64.AppImage"
+if [ -z "$APPIMAGE" ]; then
+  echo "ERROR: No AppImage generated"
+  exit 1
+fi
+
+# set rights
+chmod +x "$APPIMAGE"
+mv "$APPIMAGE" "$PROJECT_ROOT/appimage/"
+
+echo "✅ AppImage created: $PROJECT_ROOT/appimage/$APPIMAGE"
