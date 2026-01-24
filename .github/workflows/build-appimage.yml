@@ -112,7 +112,7 @@ jobs:
       # Store nightly build as artifact
       - name: Upload Nightly Build
         if: ${{ env.BUILD_TYPE == 'nightly' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: RoonMatrix-nightly
           path: appimage/*.AppImage
