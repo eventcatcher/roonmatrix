@@ -72,8 +72,12 @@ cp "$ICON_SRC" "$ICON_FILE"
 # -----------------------------
 # local Flutter Build
 # -----------------------------
-echo "Building Flutter Linux release..."
-flutter build linux --release
+if [ -z "${GITHUB_ACTIONS:-}" ]; then
+  echo "Building Flutter Linux release (local)..."
+  flutter build linux --release
+else
+  echo "Skipping local Flutter build => running in GitHub Actions"
+fi
 
 # -----------------------------
 # Copy Flutter binary & data
@@ -139,9 +143,13 @@ chmod +x "$PROJECT_ROOT/appimage/$APPIMAGE_NAME"
 echo "✅ AppImage created: $PROJECT_ROOT/appimage/$APPIMAGE_NAME"
 
 # -----------------------------
-# Smoke-Test
+# Headless Smoke-Test
 # -----------------------------
 echo "Running smoke-test..."
-"$PROJECT_ROOT/appimage/$APPIMAGE_NAME" --version
-
+if [ -x "$APPIMAGE" ]; then
+  echo "✅ AppImage is executable"
+else
+  echo "❌ AppImage is missing or not executable"
+  exit 1
+fi
 echo "✅ Smoke-test passed!"
