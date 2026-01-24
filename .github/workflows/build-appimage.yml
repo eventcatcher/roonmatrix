@@ -5,23 +5,28 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - main
   release:
     types: [created]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
+    env:
+      APPIMAGE_DIR: appimage
+      APPDIR_NAME: RoonMatrix.AppDir
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install system deps
+      - name: Install system dependencies
         run: |
           sudo apt update
           sudo apt install -y \
             clang cmake ninja-build pkg-config \
-            libgtk-3-dev liblzma-dev
+            libgtk-3-dev liblzma-dev libfuse2 wget
 
       - name: Install linuxdeploy
         run: |
@@ -38,11 +43,35 @@ jobs:
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.2'   # oder aktuelle stabile Flutter-Version
+          flutter-version: '3.29.2'   # or actual stable flutter version
           channel: stable
           cache: true
 
-      - name: Flutter build
+      - name: Extract version from pubspec.yaml
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version extracted: $VERSION"
+
+      - name: Determine build type
+        id: buildtype
+        run: |
+          if [[ "${GITHUB_REF}" =~ ^refs/tags/v ]]; then
+            if [[ "${GITHUB_REF}" == *"-beta"* ]]; then
+              echo "BUILD_TYPE=pre-release" >> $GITHUB_ENV
+            else
+              echo "BUILD_TYPE=release" >> $GITHUB_ENV
+            fi
+          else
+            DATE=$(date +%Y%m%d-%H%M)
+            echo "VERSION=${VERSION}-nightly-${DATE}" >> $GITHUB_ENV
+            echo "BUILD_TYPE=nightly" >> $GITHUB_ENV
+          fi
+          echo "Build type: $BUILD_TYPE, version: $VERSION"
+
+
+      - name: Build Flutter Linux release
         run: flutter build linux --release
 
       - name: Install FUSE for AppImage
@@ -58,16 +87,37 @@ jobs:
 
       - name: Build AppImage
         run: |
-          chmod +x appimage/build-appimage.sh
+          chmod +x $APPIMAGE_DIR/build-appimage.sh
           ./appimage/build-appimage.sh
+          APPIMAGE_FILE="$APPIMAGE_DIR/RoonMatrix-x86_64.AppImage"
+          if [ ! -f "$APPIMAGE_FILE" ]; then
+            echo "ERROR: AppImage not created!"
+            exit 1
+          fi
+          echo "✅ AppImage created: $APPIMAGE_FILE"
+          # Smoke-Test
+          chmod +x "$APPIMAGE_FILE"
+          "$APPIMAGE_FILE" --version
 
-      - name: Upload AppImage to Release
-        if: "!startsWith(github.ref, 'refs/tags/')"
+      # Upload AppImage only for release / pre-release
+      - name: Upload AppImage to GitHub Release
+        if: ${{ env.BUILD_TYPE != 'nightly' }}
         uses: softprops/action-gh-release@v2
         with:
           files: |
             appimage/*.AppImage
+          prerelease: ${{ env.BUILD_TYPE == 'pre-release' }}
 
-      - name: Skip release upload (no tag)
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        run: echo "No git tag → skipping GitHub Release upload"
+      # -----------------------------
+      # Store nightly build as artifact
+      - name: Upload Nightly Build
+        if: ${{ env.BUILD_TYPE == 'nightly' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: RoonMatrix-nightly
+          path: appimage/*.AppImage
+
+      - name: Summary
+        run: |
+          echo "Build type: $BUILD_TYPE"
+          echo "AppImage created: $(ls $APPIMAGE_DIR/*.AppImage)"
