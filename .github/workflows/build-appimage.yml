@@ -29,11 +29,11 @@ jobs:
           chmod +x linuxdeploy
           sudo mv linuxdeploy /usr/local/bin/linuxdeploy
 
-      - name: Install linuxdeploy GTK plugin
+      - name: Install linuxdeploy-plugin-gtk script
         run: |
-          wget -O linuxdeploy-plugin-gtk https://github.com/linuxdeploy/linuxdeploy-plugin-gtk/releases/download/continuous/linuxdeploy-plugin-gtk-x86_64.AppImage
-          chmod +x linuxdeploy-plugin-gtk
-          sudo mv linuxdeploy-plugin-gtk /usr/local/bin/linuxdeploy-plugin-gtk
+          wget -O linuxdeploy-plugin-gtk.sh https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh
+          chmod +x linuxdeploy-plugin-gtk.sh
+          sudo mv linuxdeploy-plugin-gtk.sh /usr/local/bin/linuxdeploy-plugin-gtk
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
