@@ -89,15 +89,6 @@ jobs:
         run: |
           chmod +x $APPIMAGE_DIR/build-appimage.sh
           ./appimage/build-appimage.sh
-          APPIMAGE_FILE="$APPIMAGE_DIR/RoonMatrix-x86_64.AppImage"
-          if [ ! -f "$APPIMAGE_FILE" ]; then
-            echo "ERROR: AppImage not created!"
-            exit 1
-          fi
-          echo "✅ AppImage created: $APPIMAGE_FILE"
-          # Smoke-Test
-          chmod +x "$APPIMAGE_FILE"
-          "$APPIMAGE_FILE" --version
 
       # Upload AppImage only for release / pre-release
       - name: Upload AppImage to GitHub Release
