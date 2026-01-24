@@ -146,7 +146,7 @@ echo "✅ AppImage created: $PROJECT_ROOT/appimage/$APPIMAGE_NAME"
 # Headless Smoke-Test
 # -----------------------------
 echo "Running smoke-test..."
-if [ -x "$APPIMAGE" ]; then
+if [ -x "$PROJECT_ROOT/appimage/$APPIMAGE_NAME" ]; then
   echo "✅ AppImage is executable"
 else
   echo "❌ AppImage is missing or not executable"
