@@ -20,6 +20,7 @@ jobs:
   build:
     # Matrix: x86_64 und ARM64
     strategy:
+      fail-fast: false
       matrix:
         arch: [x86_64, aarch64]
 
@@ -28,7 +29,6 @@ jobs:
     env:
       APPIMAGE_DIR: appimage
       APPDIR_NAME: RoonMatrix.AppDir
-      FLUTTER_TARGET: ${{ matrix.arch == 'x86_64' && 'linux-x64' || 'linux-arm64' }}
 
     steps:
       - name: Checkout repository
@@ -85,6 +85,8 @@ jobs:
 
 
       - name: Build Flutter Linux release
+        env:
+          FLUTTER_TARGET: ${{ matrix.arch == 'x86_64' && 'linux-x64' || 'linux-arm64' }}
         run: flutter build linux --release --target-platform $FLUTTER_TARGET
 
       - name: Install FUSE for AppImage
