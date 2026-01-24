@@ -149,12 +149,17 @@ echo "AppRun executable?"
 [ -x "$APPDIR/AppRun" ] && echo "AppRun OK" || echo "AppRun missing or not executable"
 
 echo "Building AppImage..."
-#if [ -z "${GITHUB_WORKSPACE:-}" ]; then
-#    appimagetool "$APPDIR"
-#else
-#    linuxdeploy --appdir "$APPDIR" --output appimage
-#fi
-linuxdeploy --appdir "$APPDIR" --output appimage
+export GTK_USE_PORTAL=1
+
+if ! command -v linuxdeploy >/dev/null; then
+  echo "ERROR: linuxdeploy not installed"
+  exit 1
+fi
+
+linuxdeploy \
+  --appdir "$APPDIR" \
+  --plugin gtk \
+  --output appimage
 
 # set rights
 chmod +x "$PROJECT_ROOT"/appimage/RoonMatrix-x86_64.AppImage
