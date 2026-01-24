@@ -4,23 +4,14 @@ set -euo pipefail
 # -----------------------------
 # Build RoonMatrix AppImage
 # -----------------------------
-# Local: FVM
-# CI: Flutter Action using flutter
-# -----------------------------
-
-# -----------------------------
-# Variables
-# -----------------------------
 PROJECT_ROOT="${GITHUB_WORKSPACE:-$(dirname "$(realpath "$0")")/..}"
 APPDIR="$PROJECT_ROOT/appimage/RoonMatrix.AppDir"
-FLUTTER_LIB_DIR="$PROJECT_ROOT/build/linux/x64/release/bundle/lib"
 
-# Extract version from pubspec.yaml
-VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | awk '{print $2}' | cut -d+ -f1)
+# Detect architecture
 ARCH=${1:-x86_64}
-APPIMAGE_NAME="RoonMatrix-${VERSION}-$ARCH.AppImage"
+APPIMAGE_NAME="RoonMatrix-${VERSION:-unknown}-$ARCH.AppImage"
 
-echo "Building RoonMatrix AppImage version $VERSION"
+echo "Building RoonMatrix AppImage for $ARCH"
 
 # -----------------------------
 # Clean AppDir
@@ -32,24 +23,33 @@ mkdir -p "$APPDIR/usr/share/applications"
 mkdir -p "$APPDIR/usr/bin/lib"
 
 # -----------------------------
+# Extract version
+# -----------------------------
+if [ -f "$PROJECT_ROOT/pubspec.yaml" ]; then
+  VERSION=$(grep '^version:' "$PROJECT_ROOT/pubspec.yaml" | awk '{print $2}' | cut -d+ -f1)
+else
+  VERSION="0.0.0"
+fi
+echo "Version: $VERSION"
+APPIMAGE_NAME="RoonMatrix-${VERSION}-$ARCH.AppImage"
+
+# -----------------------------
 # Copy Flutter shared libraries
 # -----------------------------
-if [ -d "$FLUTTER_LIB_DIR" ]; then
-  echo "Copying Flutter shared libraries..."
-  cp -r "$FLUTTER_LIB_DIR/"* "$APPDIR/usr/bin/lib/"
+FLUTTER_LIB_DIR_X64="$PROJECT_ROOT/build/linux/x64/release/bundle/lib"
+FLUTTER_LIB_DIR_GENERIC="$PROJECT_ROOT/build/linux/release/bundle/lib"
+
+if [ -d "$FLUTTER_LIB_DIR_X64" ]; then
+  echo "Copying Flutter shared libraries from x64..."
+  cp -r "$FLUTTER_LIB_DIR_X64/"* "$APPDIR/usr/bin/lib/"
+elif [ -d "$FLUTTER_LIB_DIR_GENERIC" ]; then
+  echo "Copying Flutter shared libraries from generic path..."
+  cp -r "$FLUTTER_LIB_DIR_GENERIC/"* "$APPDIR/usr/bin/lib/"
 else
   echo "WARNING: No Flutter lib directory found"
 fi
 
-echo "PROJECT_ROOT: $PROJECT_ROOT"
-echo "APPDIR: $APPDIR"
-
-if [ ! -d "$APPDIR/usr/share/applications" ]; then
-    echo "ERROR: Applications folder missing at $APPDIR/usr/share/applications"
-    exit 1
-fi
-
-## -----------------------------
+# -----------------------------
 # Desktop entry
 # -----------------------------
 DESKTOP_FILE="$APPDIR/usr/share/applications/RoonMatrix.desktop"
@@ -71,10 +71,10 @@ ICON_FILE="$APPDIR/usr/share/icons/hicolor/256x256/apps/RoonMatrix.png"
 cp "$ICON_SRC" "$ICON_FILE"
 
 # -----------------------------
-# local Flutter Build
+# Local Flutter build
 # -----------------------------
 if [ -z "${GITHUB_ACTIONS:-}" ]; then
-  echo "Building Flutter Linux release (local)..."
+  echo "Running local Flutter build..."
   flutter build linux --release
 else
   echo "Skipping local Flutter build => running in GitHub Actions"
@@ -89,7 +89,7 @@ if [ ! -f "$BINARY" ]; then
 fi
 
 if [ ! -f "$BINARY" ]; then
-  echo "ERROR: Flutter binary not found at $BINARY"
+  echo "ERROR: Flutter binary not found"
   ls -R "$PROJECT_ROOT/build/linux"
   exit 1
 fi
@@ -98,8 +98,12 @@ cp "$BINARY" "$APPDIR/usr/bin/"
 
 DATA_SRC="$PROJECT_ROOT/build/linux/x64/release/bundle/data"
 DATA_DST="$APPDIR/usr/bin/data"
-mkdir -p "$DATA_DST"
-cp -r "$DATA_SRC/"* "$DATA_DST/"
+if [ -d "$DATA_SRC" ]; then
+  mkdir -p "$DATA_DST"
+  cp -r "$DATA_SRC/"* "$DATA_DST/"
+else
+  echo "WARNING: No data folder found at $DATA_SRC"
+fi
 
 # -----------------------------
 # AppRun
@@ -110,9 +114,6 @@ HERE="$(dirname "$(readlink -f "${0}")")"
 exec "$HERE/usr/bin/roonmatrix" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"
-
-echo "AppRun executable?"
-[ -x "$APPDIR/AppRun" ] && echo "AppRun OK" || echo "AppRun missing or not executable"
 
 # -----------------------------
 # Build AppImage
@@ -137,14 +138,13 @@ if [ -z "$APPIMAGE" ]; then
   exit 1
 fi
 
-# Move AppImage to versioned name
 mv "$APPIMAGE" "$PROJECT_ROOT/appimage/$APPIMAGE_NAME"
 chmod +x "$PROJECT_ROOT/appimage/$APPIMAGE_NAME"
 
 echo "✅ AppImage created: $PROJECT_ROOT/appimage/$APPIMAGE_NAME"
 
 # -----------------------------
-# Headless Smoke-Test
+# Smoke-Test
 # -----------------------------
 echo "Running smoke-test..."
 if [ -x "$PROJECT_ROOT/appimage/$APPIMAGE_NAME" ]; then
@@ -153,4 +153,3 @@ else
   echo "❌ AppImage is missing or not executable"
   exit 1
 fi
-echo "✅ Smoke-test passed!"
