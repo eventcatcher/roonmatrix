@@ -1624,7 +1624,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required Size minDesktopSize,
   }) async {
     Display primaryDisplay = await getPrimaryDisplay();
-    Size newSize = Size(primaryDisplay.size.width, minDesktopSize.height + 10);
+    Size newSize = Size(
+        primaryDisplay.size.width / (primaryDisplay.scaleFactor ?? 1),
+        minDesktopSize.height + 10);
 
     await windowManager.setPosition(Offset.zero);
     windowManager.setSize(newSize, animate: true);
