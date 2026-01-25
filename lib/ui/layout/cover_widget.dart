@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +11,6 @@ import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/layout/cover_overlay_button.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_small.dart';
-import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
@@ -74,7 +75,9 @@ class _CoverWidgetState extends State<CoverWidget> {
   final double zoneCornerLabelOpacity = 0.7;
   final ColorFilter idleZoneColorFilter =
       ColorFilter.mode(Colors.black.withValues(alpha: 0.2), BlendMode.dstATop);
+  final int buttonStatusSwitchTimeoutInSeconds = 10;
 
+  Timer? statusInProgressTimer;
   String statusInProgress = '';
 
   late MainRepository mainRepository;
@@ -105,6 +108,10 @@ class _CoverWidgetState extends State<CoverWidget> {
         if (mounted) {
           setState(() {
             statusInProgress = '';
+            if (statusInProgressTimer != null &&
+                statusInProgressTimer!.isActive) {
+              statusInProgressTimer!.cancel();
+            }
           });
         }
       });
@@ -115,6 +122,24 @@ class _CoverWidgetState extends State<CoverWidget> {
 
   bool get statusUpdateInProgress =>
       statusInProgress.isNotEmpty && statusInProgress != coverModel.status;
+
+  Alignment getProgressIndicatorAlignment(String status) {
+    if (status == 'previous') {
+      return Alignment.centerLeft;
+    }
+    if (status == 'next') {
+      return Alignment.centerRight;
+    }
+    return Alignment.center;
+  }
+
+  void setButtonStatusSwitchInProgressTimer() {
+    statusInProgressTimer = Timer.periodic(
+        Duration(seconds: buttonStatusSwitchTimeoutInSeconds), (Timer timer) {
+      statusInProgress = '';
+      statusInProgressTimer!.cancel();
+    });
+  }
 
   @override
   Widget build(BuildContext context) => Align(
@@ -190,14 +215,43 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         ),
                                       ),
                                     ),
-                                    if (statusUpdateInProgress)
-                                      Positioned.fill(
-                                        child: Align(
-                                            alignment: Alignment.center,
-                                            child: LoadingIndicatorSmall()),
+                                    if (Globals.isDesktopDevice() &&
+                                        coverWidth > minPlayControlCoverSize &&
+                                        !coverModel.isRadio &&
+                                        activeDeviceIp != null &&
+                                        statusUpdateInProgress)
+                                      Padding(
+                                        padding:
+                                            statusInProgress == 'previous' ||
+                                                    statusInProgress == 'next'
+                                                ? statusInProgress == 'previous'
+                                                    ? const EdgeInsets.only(
+                                                        left: 4.0)
+                                                    : const EdgeInsets.only(
+                                                        right: 4.0)
+                                                : EdgeInsets.zero,
+                                        child: Positioned.fill(
+                                          child: Align(
+                                            alignment:
+                                                getProgressIndicatorAlignment(
+                                              statusInProgress,
+                                            ),
+                                            child: SizedBox(
+                                              width: 16 +
+                                                  coverWidth *
+                                                      Globals
+                                                          .overlyPlayoutButtonSizeFactor,
+                                              height: 16 +
+                                                  coverWidth *
+                                                      Globals
+                                                          .overlyPlayoutButtonSizeFactor,
+                                              child: CircularProgressIndicator(
+                                                  color: Colors.blue.shade900),
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     if (activeDeviceIp != null &&
-                                        !statusUpdateInProgress &&
                                         (Globals.isDesktopDevice() ||
                                             coverModel.status != 'playing'))
                                       Positioned.fill(
@@ -205,10 +259,26 @@ class _CoverWidgetState extends State<CoverWidget> {
                                           alignment: Alignment.center,
                                           coverWidth: coverWidth,
                                           additionalVisibility:
-                                              coverModel.status != 'playing',
+                                              (statusUpdateInProgress &&
+                                                      (statusInProgress ==
+                                                              'playing' ||
+                                                          statusInProgress ==
+                                                              'pause')) ||
+                                                  coverModel.status !=
+                                                      'playing',
                                           icon: coverModel.status == 'playing'
-                                              ? const Icon(Icons.pause)
-                                              : const Icon(Icons.play_arrow),
+                                              ? Icon(
+                                                  Icons.pause,
+                                                  color: statusUpdateInProgress
+                                                      ? Colors.grey.shade700
+                                                      : null,
+                                                )
+                                              : Icon(
+                                                  Icons.play_arrow,
+                                                  color: statusUpdateInProgress
+                                                      ? Colors.grey.shade700
+                                                      : null,
+                                                ),
                                           message: coverModel.status ==
                                                   'playing'
                                               ? translations[
@@ -219,7 +289,9 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                   'play',
                                           onPressed: () {
                                             if (coverWidth >
-                                                minPlayControlCoverSize) {
+                                                    minPlayControlCoverSize &&
+                                                !statusUpdateInProgress) {
+                                              setButtonStatusSwitchInProgressTimer();
                                               setState(() {
                                                 statusInProgress =
                                                     coverModel.status == 'pause'
@@ -240,45 +312,81 @@ class _CoverWidgetState extends State<CoverWidget> {
                                       ),
                                     if (Globals.isDesktopDevice() &&
                                         coverWidth > minPlayControlCoverSize &&
-                                        coverModel.status == 'playing' &&
                                         !coverModel.isRadio &&
+                                        coverModel.status == 'playing' &&
                                         activeDeviceIp != null) ...[
-                                      CoverOverlayButton(
-                                          alignment: Alignment.centerLeft,
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 4.0),
+                                        child: CoverOverlayButton(
+                                            alignment: Alignment.centerLeft,
+                                            coverWidth: coverWidth,
+                                            additionalVisibility:
+                                                statusUpdateInProgress &&
+                                                    statusInProgress ==
+                                                        'previous',
+                                            icon: Icon(
+                                              Icons.skip_previous,
+                                              color: statusUpdateInProgress
+                                                  ? Colors.grey.shade700
+                                                  : null,
+                                            ),
+                                            message: translations[
+                                                    'controlButtonPreviousText'] ??
+                                                'previous track',
+                                            onPressed: () {
+                                              if (!statusUpdateInProgress &&
+                                                  coverModel.status ==
+                                                      'playing') {
+                                                setButtonStatusSwitchInProgressTimer();
+                                                setState(() {
+                                                  statusInProgress = 'previous';
+                                                });
+                                                mainBloc.zoneControl(
+                                                  ip: activeDeviceIp!,
+                                                  controlId:
+                                                      coverModel.controlId,
+                                                  cmd: 'previous',
+                                                  enable: true,
+                                                );
+                                              }
+                                            }),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 4.0),
+                                        child: CoverOverlayButton(
+                                          alignment: Alignment.centerRight,
                                           coverWidth: coverWidth,
-                                          icon: const Icon(Icons.skip_previous),
+                                          additionalVisibility:
+                                              statusUpdateInProgress &&
+                                                  statusInProgress == 'next',
+                                          icon: Icon(
+                                            Icons.skip_next,
+                                            color: statusUpdateInProgress
+                                                ? Colors.grey.shade700
+                                                : null,
+                                          ),
                                           message: translations[
-                                                  'controlButtonPreviousText'] ??
-                                              'previous track',
+                                                  'controlButtonNextText'] ??
+                                              'next track',
                                           onPressed: () {
-                                            setState(() {
-                                              statusInProgress = 'previous';
-                                            });
-                                            mainBloc.zoneControl(
-                                              ip: activeDeviceIp!,
-                                              controlId: coverModel.controlId,
-                                              cmd: 'previous',
-                                              enable: true,
-                                            );
-                                          }),
-                                      CoverOverlayButton(
-                                        alignment: Alignment.centerRight,
-                                        coverWidth: coverWidth,
-                                        icon: const Icon(Icons.skip_next),
-                                        message: translations[
-                                                'controlButtonNextText'] ??
-                                            'next track',
-                                        onPressed: () {
-                                          setState(() {
-                                            statusInProgress = 'next';
-                                          });
-                                          mainBloc.zoneControl(
-                                            ip: activeDeviceIp!,
-                                            controlId: coverModel.controlId,
-                                            cmd: 'next',
-                                            enable: true,
-                                          );
-                                        },
+                                            if (!statusUpdateInProgress &&
+                                                coverModel.status ==
+                                                    'playing') {
+                                              setButtonStatusSwitchInProgressTimer();
+                                              setState(() {
+                                                statusInProgress = 'next';
+                                              });
+                                              mainBloc.zoneControl(
+                                                ip: activeDeviceIp!,
+                                                controlId: coverModel.controlId,
+                                                cmd: 'next',
+                                                enable: true,
+                                              );
+                                            }
+                                          },
+                                        ),
                                       ),
                                     ],
                                   ],

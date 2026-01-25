@@ -50,6 +50,8 @@ class Globals {
 
   static final double zoneCornerFullSize = 200.0;
 
+  static final double overlyPlayoutButtonSizeFactor = 0.22;
+
   static final Duration coverSwitchDefaultFadeAnimationDuration =
       Duration(milliseconds: 2000);
 

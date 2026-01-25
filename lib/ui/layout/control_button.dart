@@ -31,13 +31,16 @@ class ControlButton extends StatelessWidget {
         triggerMode: TooltipTriggerMode.manual,
         waitDuration: Duration(seconds: 3),
         verticalOffset: verticalOffset,
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          color: color,
-          hoverColor:
-              readOnly ? Colors.transparent : Globals.hoverButtonBackground,
-          onPressed: readOnly ? null : () => onPressed(),
-          icon: icon,
+        child: Material(
+          color: Colors.transparent,
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            color: color,
+            hoverColor:
+                readOnly ? Colors.transparent : Globals.hoverButtonBackground,
+            onPressed: readOnly ? null : () => onPressed(),
+            icon: icon,
+          ),
         ),
       ),
     );

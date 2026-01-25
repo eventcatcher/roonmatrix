@@ -58,7 +58,7 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
                 backgroundColor: Globals.hoverButtonBackground,
               ),
               icon: icon,
-              iconSize: coverWidth / 4,
+              iconSize: coverWidth * Globals.overlyPlayoutButtonSizeFactor,
               color: iconColor,
               onPressed: () => onPressed(),
             ),

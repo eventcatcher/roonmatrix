@@ -1410,6 +1410,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           zone['sourcetype'] == 'stream' &&
           zone['position'] ==
               '0'; // if this is a radio stream, set this prop to true (at the moment a radio stream is recognized by sourcetype is stream and playpos is 0, because playpos is not counting on radio streams)
+      isRadio =
+          false; // fix for AppleMusic because the delay is too big (every stream with position:0 will be disabling the prev/next button for isRadio == true, but the next infodata update will be loaded 10-15sec later)
       String hash = md5
           .convert(utf8.encode(
               '$zoneName-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))

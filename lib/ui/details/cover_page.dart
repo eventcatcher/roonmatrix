@@ -208,6 +208,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   );
                   Map<String, dynamic>? zone = data['zone'];
                   isRadio = data['isRadio'];
+                  if (zone?['zone'] == 'Apple Music') {
+                    isRadio =
+                        false; // fix for AppleMusic because the delay is too big (every stream with position:0 will be disabling the prev/next button for isRadio == true, but the next infodata update will be loaded 10-15sec later)
+                  }
                   if (zone != null) {
                     setState(() {
                       controlId = selectedControlId;
@@ -284,6 +288,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                             );
                             Map<String, dynamic>? zone = data['zone'];
                             isRadio = data['isRadio'];
+
+                            if (selectedZone?['zone'] == 'Apple Music') {
+                              isRadio =
+                                  false; // fix for AppleMusic because the delay is too big (every stream with position:0 will be disabling the prev/next button for isRadio == true, but the next infodata update will be loaded 10-15sec later)
+                            }
 
                             if (zone != null) {
                               selectedZone = zone;
