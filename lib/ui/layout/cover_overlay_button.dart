@@ -53,14 +53,17 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
             triggerMode: TooltipTriggerMode.manual,
             waitDuration: Duration(seconds: 3),
             verticalOffset: coverWidth / 8,
-            child: IconButton(
-              style: IconButton.styleFrom(
-                backgroundColor: Globals.hoverButtonBackground,
+            child: Material(
+              color: Colors.transparent,
+              shape: const CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: IconButton(
+                icon: icon,
+                iconSize: coverWidth * Globals.overlyPlayoutButtonSizeFactor,
+                hoverColor: Globals.hoverButtonBackground,
+                color: iconColor,
+                onPressed: () => onPressed(),
               ),
-              icon: icon,
-              iconSize: coverWidth * Globals.overlyPlayoutButtonSizeFactor,
-              color: iconColor,
-              onPressed: () => onPressed(),
             ),
           ),
         ),

@@ -33,6 +33,8 @@ class ControlButton extends StatelessWidget {
         verticalOffset: verticalOffset,
         child: Material(
           color: Colors.transparent,
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
           child: IconButton(
             padding: EdgeInsets.zero,
             color: color,
@@ -40,6 +42,7 @@ class ControlButton extends StatelessWidget {
                 readOnly ? Colors.transparent : Globals.hoverButtonBackground,
             onPressed: readOnly ? null : () => onPressed(),
             icon: icon,
+            iconSize: buttonSize * 0.5,
           ),
         ),
       ),
