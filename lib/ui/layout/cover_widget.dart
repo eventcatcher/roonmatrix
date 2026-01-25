@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/data/main_repository.dart';
@@ -8,6 +9,7 @@ import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/layout/cover_overlay_button.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_small.dart';
+import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
@@ -73,6 +75,8 @@ class _CoverWidgetState extends State<CoverWidget> {
   final ColorFilter idleZoneColorFilter =
       ColorFilter.mode(Colors.black.withValues(alpha: 0.2), BlendMode.dstATop);
 
+  String statusInProgress = '';
+
   late MainRepository mainRepository;
   late MainBloc mainBloc;
   late double coverSize;
@@ -96,9 +100,21 @@ class _CoverWidgetState extends State<CoverWidget> {
     super.didUpdateWidget(oldWidget);
 
     coverModel = widget.coverModel;
+    if (statusInProgress == coverModel.status) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        if (mounted) {
+          setState(() {
+            statusInProgress = '';
+          });
+        }
+      });
+    }
     coverSize = widget.coverSize;
     activeDeviceIp = widget.activeDeviceIp;
   }
+
+  bool get statusUpdateInProgress =>
+      statusInProgress.isNotEmpty && statusInProgress != coverModel.status;
 
   @override
   Widget build(BuildContext context) => Align(
@@ -174,7 +190,14 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         ),
                                       ),
                                     ),
+                                    if (statusUpdateInProgress)
+                                      Positioned.fill(
+                                        child: Align(
+                                            alignment: Alignment.center,
+                                            child: LoadingIndicatorSmall()),
+                                      ),
                                     if (activeDeviceIp != null &&
+                                        !statusUpdateInProgress &&
                                         (Globals.isDesktopDevice() ||
                                             coverModel.status != 'playing'))
                                       Positioned.fill(
@@ -194,18 +217,25 @@ class _CoverWidgetState extends State<CoverWidget> {
                                               : translations[
                                                       'controlButtonPlayText'] ??
                                                   'play',
-                                          onPressed: () => coverWidth >
-                                                  minPlayControlCoverSize
-                                              ? mainBloc.zoneControl(
-                                                  ip: mainBloc
-                                                      .state.activeDeviceIp!,
-                                                  controlId:
-                                                      coverModel.controlId,
-                                                  cmd: 'playmode',
-                                                  enable: coverModel.status !=
-                                                      'playing',
-                                                )
-                                              : null,
+                                          onPressed: () {
+                                            if (coverWidth >
+                                                minPlayControlCoverSize) {
+                                              setState(() {
+                                                statusInProgress =
+                                                    coverModel.status == 'pause'
+                                                        ? 'playing'
+                                                        : 'pause';
+                                              });
+                                              mainBloc.zoneControl(
+                                                ip: mainBloc
+                                                    .state.activeDeviceIp!,
+                                                controlId: coverModel.controlId,
+                                                cmd: 'playmode',
+                                                enable: coverModel.status !=
+                                                    'playing',
+                                              );
+                                            }
+                                          },
                                         ),
                                       ),
                                     if (Globals.isDesktopDevice() &&
@@ -214,19 +244,23 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         !coverModel.isRadio &&
                                         activeDeviceIp != null) ...[
                                       CoverOverlayButton(
-                                        alignment: Alignment.centerLeft,
-                                        coverWidth: coverWidth,
-                                        icon: const Icon(Icons.skip_previous),
-                                        message: translations[
-                                                'controlButtonPreviousText'] ??
-                                            'previous track',
-                                        onPressed: () => mainBloc.zoneControl(
-                                          ip: activeDeviceIp!,
-                                          controlId: coverModel.controlId,
-                                          cmd: 'previous',
-                                          enable: true,
-                                        ),
-                                      ),
+                                          alignment: Alignment.centerLeft,
+                                          coverWidth: coverWidth,
+                                          icon: const Icon(Icons.skip_previous),
+                                          message: translations[
+                                                  'controlButtonPreviousText'] ??
+                                              'previous track',
+                                          onPressed: () {
+                                            setState(() {
+                                              statusInProgress = 'previous';
+                                            });
+                                            mainBloc.zoneControl(
+                                              ip: activeDeviceIp!,
+                                              controlId: coverModel.controlId,
+                                              cmd: 'previous',
+                                              enable: true,
+                                            );
+                                          }),
                                       CoverOverlayButton(
                                         alignment: Alignment.centerRight,
                                         coverWidth: coverWidth,
@@ -234,12 +268,17 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         message: translations[
                                                 'controlButtonNextText'] ??
                                             'next track',
-                                        onPressed: () => mainBloc.zoneControl(
-                                          ip: activeDeviceIp!,
-                                          controlId: coverModel.controlId,
-                                          cmd: 'next',
-                                          enable: true,
-                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            statusInProgress = 'next';
+                                          });
+                                          mainBloc.zoneControl(
+                                            ip: activeDeviceIp!,
+                                            controlId: coverModel.controlId,
+                                            cmd: 'next',
+                                            enable: true,
+                                          );
+                                        },
                                       ),
                                     ],
                                   ],
