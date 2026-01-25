@@ -112,9 +112,16 @@ cat > "$APPDIR/AppRun" <<'EOF'
 #!/bin/bash
 HERE="$(dirname "$(readlink -f "${0}")")"
 export GTK_USE_PORTAL=1
+
+# NVIDIA + Flutter Linux Stabilisierung
 export __GL_SYNC_TO_VBLANK=0
 export __GL_YIELD="USLEEP"
+
+# GTK / GDK Stabilisierung
 export GDK_BACKEND=x11
+export GDK_GL=gles
+export GDK_FRAME_CLOCK=stable
+
 exec "$HERE/usr/bin/roonmatrix" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"
