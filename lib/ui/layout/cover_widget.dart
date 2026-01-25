@@ -250,6 +250,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         ),
                                       ),
                                     if (activeDeviceIp != null &&
+                                        coverWidth > minPlayControlCoverSize &&
                                         (Globals.isDesktopDevice() ||
                                             coverModel.status != 'playing'))
                                       CoverOverlayButton(
@@ -283,9 +284,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                     'controlButtonPlayText'] ??
                                                 'play',
                                         onPressed: () {
-                                          if (coverWidth >
-                                                  minPlayControlCoverSize &&
-                                              !statusUpdateInProgress) {
+                                          if (!statusUpdateInProgress) {
                                             setButtonStatusSwitchInProgressTimer();
                                             setState(() {
                                               statusInProgress =
