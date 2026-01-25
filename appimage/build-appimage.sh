@@ -111,6 +111,10 @@ fi
 cat > "$APPDIR/AppRun" <<'EOF'
 #!/bin/bash
 HERE="$(dirname "$(readlink -f "${0}")")"
+export GTK_USE_PORTAL=1
+export __GL_SYNC_TO_VBLANK=0
+export __GL_YIELD="USLEEP"
+export GDK_BACKEND=x11
 exec "$HERE/usr/bin/roonmatrix" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"
@@ -118,7 +122,6 @@ chmod +x "$APPDIR/AppRun"
 # -----------------------------
 # Build AppImage
 # -----------------------------
-export GTK_USE_PORTAL=1
 
 if ! command -v linuxdeploy >/dev/null; then
   echo "ERROR: linuxdeploy not installed"
