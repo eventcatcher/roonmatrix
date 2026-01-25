@@ -230,85 +230,79 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                     : const EdgeInsets.only(
                                                         right: 4.0)
                                                 : EdgeInsets.zero,
-                                        child: Positioned.fill(
-                                          child: Align(
-                                            alignment:
-                                                getProgressIndicatorAlignment(
-                                              statusInProgress,
-                                            ),
-                                            child: SizedBox(
-                                              width: 16 +
-                                                  coverWidth *
-                                                      Globals
-                                                          .overlyPlayoutButtonSizeFactor,
-                                              height: 16 +
-                                                  coverWidth *
-                                                      Globals
-                                                          .overlyPlayoutButtonSizeFactor,
-                                              child: CircularProgressIndicator(
-                                                  color: Colors.blue.shade900),
-                                            ),
+                                        child: Align(
+                                          alignment:
+                                              getProgressIndicatorAlignment(
+                                            statusInProgress,
+                                          ),
+                                          child: SizedBox(
+                                            width: 16 +
+                                                coverWidth *
+                                                    Globals
+                                                        .overlyPlayoutButtonSizeFactor,
+                                            height: 16 +
+                                                coverWidth *
+                                                    Globals
+                                                        .overlyPlayoutButtonSizeFactor,
+                                            child: CircularProgressIndicator(
+                                                color: Colors.blue.shade900),
                                           ),
                                         ),
                                       ),
                                     if (activeDeviceIp != null &&
                                         (Globals.isDesktopDevice() ||
                                             coverModel.status != 'playing'))
-                                      Positioned.fill(
-                                        child: CoverOverlayButton(
-                                          alignment: Alignment.center,
-                                          coverWidth: coverWidth,
-                                          additionalVisibility:
-                                              (statusUpdateInProgress &&
-                                                      (statusInProgress ==
-                                                              'playing' ||
-                                                          statusInProgress ==
-                                                              'pause')) ||
-                                                  coverModel.status !=
-                                                      'playing',
-                                          icon: coverModel.status == 'playing'
-                                              ? Icon(
-                                                  Icons.pause,
-                                                  color: statusUpdateInProgress
-                                                      ? Colors.grey.shade700
-                                                      : null,
-                                                )
-                                              : Icon(
-                                                  Icons.play_arrow,
-                                                  color: statusUpdateInProgress
-                                                      ? Colors.grey.shade700
-                                                      : null,
-                                                ),
-                                          message: coverModel.status ==
-                                                  'playing'
-                                              ? translations[
-                                                      'controlButtonPauseText'] ??
-                                                  'pause'
-                                              : translations[
-                                                      'controlButtonPlayText'] ??
-                                                  'play',
-                                          onPressed: () {
-                                            if (coverWidth >
-                                                    minPlayControlCoverSize &&
-                                                !statusUpdateInProgress) {
-                                              setButtonStatusSwitchInProgressTimer();
-                                              setState(() {
-                                                statusInProgress =
-                                                    coverModel.status == 'pause'
-                                                        ? 'playing'
-                                                        : 'pause';
-                                              });
-                                              mainBloc.zoneControl(
-                                                ip: mainBloc
-                                                    .state.activeDeviceIp!,
-                                                controlId: coverModel.controlId,
-                                                cmd: 'playmode',
-                                                enable: coverModel.status !=
-                                                    'playing',
-                                              );
-                                            }
-                                          },
-                                        ),
+                                      CoverOverlayButton(
+                                        alignment: Alignment.center,
+                                        coverWidth: coverWidth,
+                                        additionalVisibility:
+                                            (statusUpdateInProgress &&
+                                                    (statusInProgress ==
+                                                            'playing' ||
+                                                        statusInProgress ==
+                                                            'pause')) ||
+                                                coverModel.status != 'playing',
+                                        icon: coverModel.status == 'playing'
+                                            ? Icon(
+                                                Icons.pause,
+                                                color: statusUpdateInProgress
+                                                    ? Colors.grey.shade700
+                                                    : null,
+                                              )
+                                            : Icon(
+                                                Icons.play_arrow,
+                                                color: statusUpdateInProgress
+                                                    ? Colors.grey.shade700
+                                                    : null,
+                                              ),
+                                        message: coverModel.status == 'playing'
+                                            ? translations[
+                                                    'controlButtonPauseText'] ??
+                                                'pause'
+                                            : translations[
+                                                    'controlButtonPlayText'] ??
+                                                'play',
+                                        onPressed: () {
+                                          if (coverWidth >
+                                                  minPlayControlCoverSize &&
+                                              !statusUpdateInProgress) {
+                                            setButtonStatusSwitchInProgressTimer();
+                                            setState(() {
+                                              statusInProgress =
+                                                  coverModel.status == 'pause'
+                                                      ? 'playing'
+                                                      : 'pause';
+                                            });
+                                            mainBloc.zoneControl(
+                                              ip: mainBloc
+                                                  .state.activeDeviceIp!,
+                                              controlId: coverModel.controlId,
+                                              cmd: 'playmode',
+                                              enable: coverModel.status !=
+                                                  'playing',
+                                            );
+                                          }
+                                        },
                                       ),
                                     if (Globals.isDesktopDevice() &&
                                         coverWidth > minPlayControlCoverSize &&
