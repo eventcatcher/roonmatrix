@@ -118,7 +118,6 @@ chmod +x "$APPDIR/AppRun"
 # -----------------------------
 # Build AppImage
 # -----------------------------
-export GTK_USE_PORTAL=1
 
 if ! command -v linuxdeploy >/dev/null; then
   echo "ERROR: linuxdeploy not installed"
@@ -128,7 +127,6 @@ fi
 echo "Running linuxdeploy..."
 linuxdeploy \
   --appdir "$APPDIR" \
-  --plugin gtk \
   --output appimage
 
 APPIMAGE=$(ls *.AppImage | head -n 1)
