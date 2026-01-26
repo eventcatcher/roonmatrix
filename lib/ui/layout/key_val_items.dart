@@ -84,8 +84,10 @@ class KeyValItemsState extends State<KeyValItems> {
               onChanged: (value) {
                 if (mounted) {
                   try {
-                    setState(() => fieldValues[key] = value);
-                    returnJson(fieldValues);
+                    setState(() {
+                      fieldValues[key] = value;
+                      returnJson(fieldValues);
+                    });
                   } catch (e) {
                     setState(() {
                       fieldValues[key] = '';
@@ -114,8 +116,10 @@ class KeyValItemsState extends State<KeyValItems> {
                     ),
                   );
                   if (valid == true) {
-                    setState(() => fieldValues.remove(key));
-                    returnJson(fieldValues);
+                    setState(() {
+                      fieldValues.remove(key);
+                      returnJson(fieldValues);
+                    });
                   }
                 }),
           ),

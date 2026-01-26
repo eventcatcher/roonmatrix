@@ -209,13 +209,15 @@ class LogPageState extends State<LogPage> {
                       'Please Select',
                   selected: hours.toString(),
                   onChanged: (String? value) {
-                    if (mounted && value != null) {
-                      setState(() {
-                        hours = int.parse(value);
-                        logfilePart = 1;
-                        logfilePartOffset = [];
-                      });
-                      mainBloc.getLog(ip: ip, hours: hours);
+                    if (value != null) {
+                      mainBloc.getLog(ip: ip, hours: int.parse(value));
+                      if (mounted) {
+                        setState(() {
+                          hours = int.parse(value);
+                          logfilePart = 1;
+                          logfilePartOffset = [];
+                        });
+                      }
                     }
                   },
                 ),

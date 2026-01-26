@@ -92,8 +92,10 @@ class ListItemsState extends State<ListItems> {
                     ),
                   );
                   if (valid == true) {
-                    setState(() => fieldValues.removeAt(idx));
-                    returnJson(fieldValues);
+                    setState(() {
+                      fieldValues.removeAt(idx);
+                      returnJson(fieldValues);
+                    });
                   }
                 },
                 icon: Globals.inIosStyle() || Globals.inMacosStyle()
@@ -108,8 +110,10 @@ class ListItemsState extends State<ListItems> {
         onChanged: (value) {
           if (mounted) {
             try {
-              setState(() => fieldValues[idx] = value);
-              returnJson(fieldValues);
+              setState(() {
+                fieldValues[idx] = value;
+                returnJson(fieldValues);
+              });
             } catch (e) {
               setState(() {
                 fieldValues[idx] = '';

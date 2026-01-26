@@ -23,6 +23,7 @@ class MacosTappableTextBackButton extends StatelessWidget {
           splashFactory: NoSplash.splashFactory,
         ),
         child: InkWell(
+          hoverColor: Colors.transparent,
           onTap: () {
             if (onPressed != null) {
               onPressed!();

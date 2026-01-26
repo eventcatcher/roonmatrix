@@ -100,11 +100,8 @@ class SearchFieldState extends State<SearchField> {
                           onChanged: (String value) {
                             value = value.escapeAllSpecialChars();
                             if (value == '') {
-                              setState(() {
-                                controller.text = '';
-                                mainBloc.setSearchFilter(
-                                    type: type, filter: '');
-                              });
+                              mainBloc.setSearchFilter(type: type, filter: '');
+                              setState(() => controller.text = '');
                             } else {
                               EasyDebounce.debounce(
                                 'searchfield-debouncer',

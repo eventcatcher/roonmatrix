@@ -130,12 +130,14 @@ class MapListItemsState extends State<MapListItems> {
           onChanged: (String value) {
             if (mounted) {
               try {
-                setState(() => fieldValues[idx][key] =
-                    (fieldType.startsWith('int') ? int.parse(value) : value));
                 if (key == 'url') {
                   link = value;
                 }
-                returnJson(fieldValues);
+                setState(() {
+                  fieldValues[idx][key] =
+                      (fieldType.startsWith('int') ? int.parse(value) : value);
+                  returnJson(fieldValues);
+                });
               } catch (e) {
                 setState(() {
                   fieldValues[idx][key] = '';
@@ -204,8 +206,10 @@ class MapListItemsState extends State<MapListItems> {
                     ),
                   );
                   if (valid == true) {
-                    setState(() => fieldValues.removeAt(idx));
-                    returnJson(fieldValues);
+                    setState(() {
+                      fieldValues.removeAt(idx);
+                      returnJson(fieldValues);
+                    });
                   }
                 }),
           ),
@@ -267,8 +271,10 @@ class MapListItemsState extends State<MapListItems> {
                 context: context,
                 translations: translations,
                 onAccepted: () {
-                  setState(() => fieldValues.removeAt(idx));
-                  returnJson(fieldValues);
+                  setState(() {
+                    fieldValues.removeAt(idx);
+                    returnJson(fieldValues);
+                  });
                 },
               ),
             ),
@@ -287,8 +293,10 @@ class MapListItemsState extends State<MapListItems> {
               context: context,
               translations: translations,
               onAccepted: () {
-                setState(() => fieldValues.removeAt(idx));
-                returnJson(fieldValues);
+                setState(() {
+                  fieldValues.removeAt(idx);
+                  returnJson(fieldValues);
+                });
               },
             ),
           ));
@@ -314,8 +322,10 @@ class MapListItemsState extends State<MapListItems> {
                     in fieldDefinition.type.structure.toList()) {
                   props.putIfAbsent(typeStruct.name, () => '');
                 }
-                setState(() => fieldValues.add(props));
-                returnJson(fieldValues);
+                setState(() {
+                  fieldValues.add(props);
+                  returnJson(fieldValues);
+                });
               }
             }),
       ),

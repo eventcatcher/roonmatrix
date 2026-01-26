@@ -114,14 +114,14 @@ class LiveControlPageState extends State<LiveControlPage> {
               'seconds',
           orientation: orientation,
           onChanged: (double value) {
+            mainBloc.saveLiveControl(
+              ip: selectedDeviceIp,
+              control: 'vertical_scroll_delay',
+              value: value.floor().toString(),
+            );
+            mainBloc.getInfo(ip: selectedDeviceIp);
             setState(() {
               verticalScrollDelay = value;
-              mainBloc.saveLiveControl(
-                ip: selectedDeviceIp,
-                control: 'vertical_scroll_delay',
-                value: verticalScrollDelay.floor().toString(),
-              );
-              mainBloc.getInfo(ip: selectedDeviceIp);
             });
           },
         ),
@@ -150,16 +150,16 @@ class LiveControlPageState extends State<LiveControlPage> {
             'ms',
         orientation: orientation,
         onChanged: (double value) {
+          mainBloc.saveLiveControl(
+            ip: selectedDeviceIp,
+            control: verticalOutput == true
+                ? 'led_vertical_scroll_delay'
+                : 'led_scroll_delay',
+            value: value.floor().toString(),
+          );
+          mainBloc.getInfo(ip: selectedDeviceIp);
           setState(() {
             scrollSpeed = value;
-            mainBloc.saveLiveControl(
-              ip: selectedDeviceIp,
-              control: verticalOutput == true
-                  ? 'led_vertical_scroll_delay'
-                  : 'led_scroll_delay',
-              value: scrollSpeed.floor().toString(),
-            );
-            mainBloc.getInfo(ip: selectedDeviceIp);
           });
         },
       ),
@@ -177,14 +177,14 @@ class LiveControlPageState extends State<LiveControlPage> {
         valueType: '%',
         orientation: orientation,
         onChanged: (double value) {
+          mainBloc.saveLiveControl(
+            ip: selectedDeviceIp,
+            control: 'led_contrast',
+            value: value.floor().toString(),
+          );
+          mainBloc.getInfo(ip: selectedDeviceIp);
           setState(() {
             contrast = value;
-            mainBloc.saveLiveControl(
-              ip: selectedDeviceIp,
-              control: 'led_contrast',
-              value: contrast.floor().toString(),
-            );
-            mainBloc.getInfo(ip: selectedDeviceIp);
           });
         },
       ),
@@ -218,11 +218,11 @@ class LiveControlPageState extends State<LiveControlPage> {
               options: options,
               onChanged: (String? newValue) {
                 if (newValue != null) {
+                  mainBloc.getConfig(ip: options[newValue]!);
                   setState(() {
                     selectedDeviceName = newValue;
                     selectedDeviceIp = options[newValue]!;
                     controlVarInit = false;
-                    mainBloc.getConfig(ip: selectedDeviceIp);
                   });
                 }
               },

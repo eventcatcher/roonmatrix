@@ -43,9 +43,7 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
                               value: el,
                               groupValue: selectedOption,
                               onChanged: (String? value) {
-                                setState(() {
-                                  selectedOption = value ?? '';
-                                });
+                                setState(() => selectedOption = value ?? '');
                                 if (value != null) {
                                   widget.onChanged(el);
                                 }
@@ -56,9 +54,7 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
                             value: el,
                             groupValue: selectedOption,
                             onChanged: (String? value) {
-                              setState(() {
-                                selectedOption = value ?? '';
-                              });
+                              setState(() => selectedOption = value ?? '');
                               if (value != null) {
                                 widget.onChanged(el);
                               }

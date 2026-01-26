@@ -396,9 +396,9 @@ class DeviceListItemState extends State<DeviceListItem> {
                 width: tickerSpeedSliderWidth,
                 value: scrollSpeedDevice,
                 updateValue: (double value) {
+                  settingsBloc.setScrollSpeedDevice(speed: value);
                   setState(() {
                     scrollSpeedDevice = value;
-                    settingsBloc.setScrollSpeedDevice(speed: value);
                   });
                 },
               ),
