@@ -197,7 +197,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         }
         if (zone != null) {
           // print(
-          //     'getSelectBoxArea selected now => selectedZoneId: $newValue, controlId: $selectedControlId, selectedZone: $zone');
+          //  'getSelectBoxArea selected now => selectedZoneId: $newValue, controlId: $selectedControlId, selectedZone: $zone');
+          //   object examples:
           //   getSelectBoxArea selected now => selectedZoneId: MacStudio-Apple Music, controlId: MacStudio-Apple Music, selectedZone: {zone: Apple Music, status: playing, artist: Oliver Sim, album: Telephone Games - Single, track: Telephone Games, shuffle: false, repeat: off, position: 3, total: 206, sourcetype: stream, id: 183112, cover: http://192.168.0.107/roonmatrix/covers/coverAppleMusic_6acc8951d35c8d321dc4cc9b9f4cfa31.jpg, server: MacStudio, is_radio: false}
           //   getSelectBoxArea selected now => selectedZoneId: MINI-I Pro, controlId: 16012dba88c8251185467b25cdabf32f684a, selectedZone: {status: paused, artist: Bicep, album: CHROMA 000, track: CHROMA 012 TANGZ II, shuffle: false, repeat: false, position: 134, total: 282, cover: http://192.168.0.200:9330/api/image/1ca35a9f3f61164115b3eacdc3b683ff?scale=fit&width=500&height=500, zone: MINI-I Pro, server: roon, is_radio: false}
 
@@ -218,26 +219,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   }
 
   Widget getSelectBoxArea({required Map<String, String> options}) {
-    if (options[selectedZoneId] == null) {
-      Map<String, dynamic> updateData = updateZoneSelection(
-          newValue: options.keys.isNotEmpty ? options.keys.first : null);
-      selectedZoneId = updateData['selectedZoneId'] ?? selectedZoneId;
-      controlId = updateData['controlId'] ?? controlId;
-      selectedZone = updateData['selectedZone'] ?? selectedZone;
-
-      if (updateData.keys.isNotEmpty) {
-        SchedulerBinding.instance.addPostFrameCallback((_) async {
-          if (mounted) {
-            setState(() {
-              selectedZoneId = updateData['selectedZoneId'] ?? selectedZoneId;
-              controlId = updateData['controlId'] ?? controlId;
-              selectedZone = updateData['selectedZone'] ?? selectedZone;
-            });
-          }
-        });
-      }
-    }
-
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: Padding(
@@ -253,7 +234,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             inRow: false,
             noVerticalSpace: false,
             readOnly: false,
-            selected: selectedZoneId,
+            selected: options[selectedZoneId] != null ? selectedZoneId : null,
             options: options,
             onChanged: (String? newValue) {
               Map<String, dynamic> updateData =
@@ -436,14 +417,19 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                   ? Image.network(
                                                       selectedZone!['cover'],
                                                       key: ValueKey(
-                                                          'BigCover${selectedZone!['cover']}'),
+                                                          'BigCover$selectedZone-${selectedZone!['cover']}'),
                                                       fit: BoxFit.contain,
                                                       width: double.infinity,
                                                       height: double.infinity,
+                                                      errorBuilder: (context,
+                                                          error, stackTrace) {
+                                                        return Image.asset(Globals
+                                                            .placeholderPngAssetPath());
+                                                      },
                                                     )
                                                   : SvgPicture.asset(
                                                       Globals
-                                                          .placeholderAssetPath(),
+                                                          .placeholderSvgAssetPath(),
                                                       allowDrawingOutsideViewBox:
                                                           false,
                                                       width: double.infinity,
@@ -464,8 +450,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                           children: [
                                             if (widget.controlId == null)
                                               getSelectBoxArea(
-                                                options: options,
-                                              ),
+                                                  options: options),
                                             Expanded(
                                               child: ControlButtons(
                                                 key: ValueKey(

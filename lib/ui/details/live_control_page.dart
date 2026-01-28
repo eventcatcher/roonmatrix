@@ -1,8 +1,11 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/color_defs.dart';
@@ -53,27 +56,29 @@ class LiveControlPageState extends State<LiveControlPage> {
   String macosVersion = '';
   bool translationsLoaded = false;
 
-  final double verticalScrollMin = 1;
-  final double verticalScrollMax = 10;
-  final int verticalScrollDivisions = 9;
+  double verticalScrollMin = 1;
+  double verticalScrollMax = 10;
+  int verticalScrollDivisions = 9;
   double verticalScrollDelay = 5;
   String? verticalScrollDelayUnit;
 
-  final double scrollMin = 1;
-  double scrollMax = 200;
-  int scrollDivisions = 199;
-  double scrollSpeed = 50;
+  double scrollMin = 12;
+  double scrollMax = 50;
+  int scrollDivisions = 38;
+  double scrollSpeed = 30;
   String? ledScrollDelayUnit;
 
-  final double contrastMin = 0;
-  final double contrastMax = 255;
-  final int contrastDivisions = 99;
+  double contrastMin = 0;
+  double contrastMax = 255;
+  final int contrastDivisions = 100;
+  final Duration debounceSetLiveControlDuration = Duration(milliseconds: 200);
+  final Duration debounceGetInfoDuration = Duration(milliseconds: 1000);
   double contrast = 32;
 
   bool verticalOutput = false;
   bool controlVarInit = false;
 
-  String selectedDeviceName = '';
+  String? selectedDeviceName;
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -105,8 +110,12 @@ class LiveControlPageState extends State<LiveControlPage> {
               'Vertical scroll delay',
           sliderValue: verticalScrollDelay,
           labelWidth: labelWidth,
-          min: verticalScrollMin,
-          max: verticalScrollMax,
+          min: verticalScrollDelay < verticalScrollMin
+              ? verticalScrollDelay
+              : verticalScrollMin,
+          max: verticalScrollDelay > verticalScrollMax
+              ? verticalScrollDelay
+              : verticalScrollMax,
           divisions: verticalScrollDivisions,
           valueType: translations['config']?[verticalScrollDelayUnit] ??
               verticalScrollDelayUnit ??
@@ -114,12 +123,24 @@ class LiveControlPageState extends State<LiveControlPage> {
               'seconds',
           orientation: orientation,
           onChanged: (double value) {
-            mainBloc.saveLiveControl(
-              ip: selectedDeviceIp,
-              control: 'vertical_scroll_delay',
-              value: value.floor().toString(),
+            EasyDebounce.debounce(
+              'livecontrol-vScrollSetLiveControl-debouncer',
+              debounceSetLiveControlDuration,
+              () {
+                mainBloc.saveLiveControl(
+                  ip: selectedDeviceIp,
+                  control: 'vertical_scroll_delay',
+                  value: value.floor().toString(),
+                );
+              },
             );
-            mainBloc.getInfo(ip: selectedDeviceIp);
+            EasyDebounce.debounce(
+              'livecontrol-vScrollGetinfo-debouncer',
+              debounceGetInfoDuration,
+              () {
+                mainBloc.getInfo(ip: selectedDeviceIp);
+              },
+            );
             setState(() {
               verticalScrollDelay = value;
             });
@@ -141,8 +162,8 @@ class LiveControlPageState extends State<LiveControlPage> {
                 : 'Horizontal scroll delay (line by line)',
         sliderValue: scrollSpeed,
         labelWidth: labelWidth,
-        min: scrollMin,
-        max: scrollMax,
+        min: scrollSpeed < scrollMin ? scrollSpeed : scrollMin,
+        max: scrollSpeed > scrollMax ? scrollSpeed : scrollMax,
         divisions: scrollDivisions,
         valueType: translations['config']?[ledScrollDelayUnit] ??
             ledScrollDelayUnit ??
@@ -150,14 +171,26 @@ class LiveControlPageState extends State<LiveControlPage> {
             'ms',
         orientation: orientation,
         onChanged: (double value) {
-          mainBloc.saveLiveControl(
-            ip: selectedDeviceIp,
-            control: verticalOutput == true
-                ? 'led_vertical_scroll_delay'
-                : 'led_scroll_delay',
-            value: value.floor().toString(),
+          EasyDebounce.debounce(
+            'livecontrol-scrollSpeedSetLiveControl-debouncer',
+            debounceSetLiveControlDuration,
+            () {
+              mainBloc.saveLiveControl(
+                ip: selectedDeviceIp,
+                control: verticalOutput == true
+                    ? 'led_vertical_scroll_delay'
+                    : 'led_scroll_delay',
+                value: value.floor().toString(),
+              );
+            },
           );
-          mainBloc.getInfo(ip: selectedDeviceIp);
+          EasyDebounce.debounce(
+            'livecontrol-scrollSpeedGetinfo-debouncer',
+            debounceGetInfoDuration,
+            () {
+              mainBloc.getInfo(ip: selectedDeviceIp);
+            },
+          );
           setState(() {
             scrollSpeed = value;
           });
@@ -171,18 +204,30 @@ class LiveControlPageState extends State<LiveControlPage> {
             : 'contrast',
         sliderValue: contrast,
         labelWidth: labelWidth,
-        min: contrastMin,
-        max: contrastMax,
+        min: contrast < contrastMin ? contrast : contrastMin,
+        max: contrast > contrastMax ? contrast : contrastMax,
         divisions: contrastDivisions,
         valueType: '%',
         orientation: orientation,
         onChanged: (double value) {
-          mainBloc.saveLiveControl(
-            ip: selectedDeviceIp,
-            control: 'led_contrast',
-            value: value.floor().toString(),
+          EasyDebounce.debounce(
+            'livecontrol-contrastSetLiveControl-debouncer',
+            debounceSetLiveControlDuration,
+            () {
+              mainBloc.saveLiveControl(
+                ip: selectedDeviceIp,
+                control: 'led_contrast',
+                value: value.floor().toString(),
+              );
+            },
           );
-          mainBloc.getInfo(ip: selectedDeviceIp);
+          EasyDebounce.debounce(
+            'livecontrol-contrastGetinfo-debouncer',
+            debounceGetInfoDuration,
+            () {
+              mainBloc.getInfo(ip: selectedDeviceIp);
+            },
+          );
           setState(() {
             contrast = value;
           });
@@ -198,44 +243,54 @@ class LiveControlPageState extends State<LiveControlPage> {
     required Map<String, String> options,
     required List<HorizontalSlider> sliders,
     required Orientation orientation,
-  }) =>
-      SingleChildScrollView(
-        padding: const EdgeInsets.all(8),
-        child: Center(
-            child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            SelectBox(
-              translations: translations,
-              aligned: 'horizontal',
-              label: '${translations['deviceName'] ?? 'device name'}:',
-              placeholder:
-                  '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
-              inRow: false,
-              noVerticalSpace: false,
-              readOnly: false,
-              selected: selectedDeviceName,
-              options: options,
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  mainBloc.getConfig(ip: options[newValue]!);
-                  setState(() {
-                    selectedDeviceName = newValue;
-                    selectedDeviceIp = options[newValue]!;
-                    controlVarInit = false;
-                  });
-                }
-              },
-            ),
-            SizedBox(
-                height: (Platform.isIOS || Platform.isAndroid) &&
-                        orientation == Orientation.landscape
-                    ? 0
-                    : 48.0),
-            ...sliders,
-          ],
-        )),
-      );
+  }) {
+    if (selectedDeviceName == null || options[selectedDeviceName] == null) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      });
+      return SizedBox();
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(8),
+      child: Center(
+          child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          SelectBox(
+            translations: translations,
+            aligned: 'horizontal',
+            label: '${translations['deviceName'] ?? 'device name'}:',
+            placeholder:
+                '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
+            inRow: false,
+            noVerticalSpace: false,
+            readOnly: false,
+            selected: selectedDeviceName,
+            options: options,
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                mainBloc.getConfig(ip: options[newValue]!);
+                setState(() {
+                  selectedDeviceName = newValue;
+                  selectedDeviceIp = options[newValue]!;
+                  controlVarInit = false;
+                });
+              }
+            },
+          ),
+          SizedBox(
+              height: (Platform.isIOS || Platform.isAndroid) &&
+                      orientation == Orientation.landscape
+                  ? 0
+                  : 48.0),
+          ...sliders,
+        ],
+      )),
+    );
+  }
 
   void updateVars({
     required List<String> devices,
@@ -243,8 +298,8 @@ class LiveControlPageState extends State<LiveControlPage> {
     required ConfigDefinition? definitions,
     required String selectedDeviceIp,
   }) {
-    Map<String, dynamic> info = infos[selectedDeviceIp] ?? {};
-    selectedDeviceName = info['name'];
+    Map<String, dynamic>? info = infos[selectedDeviceIp];
+    selectedDeviceName = info?['name'];
 
     fieldDefinition = definitions != null
         ? definitions.area
@@ -253,34 +308,89 @@ class LiveControlPageState extends State<LiveControlPage> {
             .toList()
         : [];
 
-    verticalScrollDelayUnit = fieldDefinition
-        .firstWhereOrNull(
-            (ConfigDefinitionItem el) => el.name == 'vertical_scroll_delay')
-        ?.unit;
+    ConfigDefinitionItem? verticalScrollDelayDef =
+        fieldDefinition.firstWhereOrNull(
+            (ConfigDefinitionItem el) => el.name == 'vertical_scroll_delay');
+    verticalScrollDelayUnit = verticalScrollDelayDef?.unit;
+    if (verticalScrollDelayUnit != null &&
+        verticalScrollDelayUnit!.contains('-')) {
+      verticalScrollDelayUnit = '($verticalScrollDelayUnit)';
+    }
+    String? verticalScrollDelayType = verticalScrollDelayDef?.type.type;
+    if (verticalScrollDelayType != null &&
+        verticalScrollDelayType.startsWith('int(') &&
+        verticalScrollDelayType.endsWith(')')) {
+      List<String> verticalScrollDelayTypeParts = verticalScrollDelayType
+          .replaceAll('int(', '')
+          .replaceAll(')', '')
+          .split(',');
+      verticalScrollMin = double.parse(verticalScrollDelayTypeParts[0]);
+      verticalScrollMax = double.parse(verticalScrollDelayTypeParts[1]);
+      verticalScrollDivisions = (verticalScrollMax - verticalScrollMin).toInt();
+    }
 
-    ledScrollDelayUnit = fieldDefinition
-        .firstWhereOrNull((ConfigDefinitionItem el) =>
+    ConfigDefinitionItem? scrollDelayDef = fieldDefinition.firstWhereOrNull(
+        (ConfigDefinitionItem el) =>
             el.name ==
             (verticalOutput == true
                 ? 'led_vertical_scroll_delay'
-                : 'led_scroll_delay'))
-        ?.unit;
+                : 'led_scroll_delay'));
+    ledScrollDelayUnit = scrollDelayDef?.unit;
+    if (ledScrollDelayUnit != null && ledScrollDelayUnit!.contains('-')) {
+      ledScrollDelayUnit = '($ledScrollDelayUnit)';
+    }
+    String? scrollDelayType = scrollDelayDef?.type.type;
+    if (scrollDelayType != null &&
+        scrollDelayType.startsWith('int(') &&
+        scrollDelayType.endsWith(')')) {
+      List<String> scrollDelayTypeParts =
+          scrollDelayType.replaceAll('int(', '').replaceAll(')', '').split(',');
+      scrollMin = double.parse(scrollDelayTypeParts[0]);
+      scrollMax = double.parse(scrollDelayTypeParts[1]);
+      scrollDivisions = (scrollMax - scrollMin).toInt();
+    }
+
+    ConfigDefinitionItem? contrastDef = fieldDefinition.firstWhereOrNull(
+        (ConfigDefinitionItem el) => el.name == 'led_contrast');
+    String? contrastType = contrastDef?.type.type;
+    if (contrastType != null &&
+        contrastType.startsWith('int(') &&
+        contrastType.endsWith(')')) {
+      List<String> contrastTypeParts =
+          contrastType.replaceAll('int(', '').replaceAll(')', '').split(',');
+      contrastMin = double.parse(contrastTypeParts[0]);
+      contrastMax = double.parse(contrastTypeParts[1]);
+    }
 
     options = mainBloc.generateDeviceOptions(devices: devices, infos: infos);
 
     if (!controlVarInit) {
-      verticalOutput = info['vertical_output'];
+      if (info == null) {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } else {
+        try {
+          verticalOutput = info['vertical_output'] ?? false;
 
-      verticalScrollDelay =
-          double.parse(info['vertical_scroll_delay'].toString());
-      scrollSpeed = verticalOutput == true
-          ? double.parse(info['led_vertical_scroll_delay'].toString())
-          : double.parse(info['led_scroll_delay'].toString());
-      scrollMax = verticalOutput == true ? 100 : 200;
-      scrollDivisions = verticalOutput == true ? 100 : 200;
+          verticalScrollDelay =
+              double.parse(info['vertical_scroll_delay'].toString());
+          scrollSpeed = verticalOutput == true
+              ? double.parse(info['led_vertical_scroll_delay'].toString())
+              : double.parse(info['led_scroll_delay'].toString());
 
-      contrast = double.parse(info['led_contrast'].toString());
-
+          contrast = double.parse(info['led_contrast'].toString());
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('LiveControlPage/updateVars => error: $e');
+          }
+          SchedulerBinding.instance.addPostFrameCallback((_) async {
+            if (mounted) {
+              Navigator.pop(context);
+            }
+          });
+        }
+      }
       controlVarInit = true;
     }
   }

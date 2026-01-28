@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/color_defs.dart';
@@ -46,7 +47,7 @@ class MessagePageState extends State<MessagePage> {
   String macosVersion = '';
   bool translationsLoaded = false;
 
-  String selectedDeviceName = '';
+  String? selectedDeviceName;
   String customMessage = '';
 
   late TranslationsBloc translationsBloc;
@@ -67,26 +68,36 @@ class MessagePageState extends State<MessagePage> {
 
   Widget selectBox({
     required Map<String, String> options,
-  }) =>
-      SelectBox(
-          translations: translations,
-          aligned: 'horizontal',
-          label: '${translations['deviceName'] ?? 'device name'}:',
-          placeholder:
-              '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
-          inRow: false,
-          noVerticalSpace: false,
-          readOnly: false,
-          selected: selectedDeviceName,
-          options: options,
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              setState(() {
-                selectedDeviceName = newValue;
-                selectedDeviceIp = options[newValue]!;
-              });
-            }
-          });
+  }) {
+    if (selectedDeviceName == null || options[selectedDeviceName] == null) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      });
+      return SizedBox();
+    }
+
+    return SelectBox(
+        translations: translations,
+        aligned: 'horizontal',
+        label: '${translations['deviceName'] ?? 'device name'}:',
+        placeholder:
+            '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
+        inRow: false,
+        noVerticalSpace: false,
+        readOnly: false,
+        selected: selectedDeviceName,
+        options: options,
+        onChanged: (String? newValue) {
+          if (newValue != null) {
+            setState(() {
+              selectedDeviceName = newValue;
+              selectedDeviceIp = options[newValue]!;
+            });
+          }
+        });
+  }
 
   Widget body({
     required Orientation orientation,

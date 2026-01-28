@@ -319,7 +319,7 @@ class SharedWidgets {
                 width: 64,
                 height: 64,
                 child: SvgPicture.asset(
-                  Globals.placeholderAssetPath(),
+                  Globals.placeholderSvgAssetPath(),
                   allowDrawingOutsideViewBox: false,
                   fit: BoxFit.cover,
                   clipBehavior: Clip.hardEdge,

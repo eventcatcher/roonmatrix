@@ -39,8 +39,10 @@ class Globals {
     return version;
   }
 
-  static String placeholderAssetPath() =>
+  static String placeholderSvgAssetPath() =>
       'assets/svg/8-8-led-matrix-display-unit.svg';
+
+  static String placeholderPngAssetPath() => 'assets/icon/icon.png';
 
   static final String tickerFontFamily = 'Arial';
 

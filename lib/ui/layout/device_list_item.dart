@@ -218,9 +218,17 @@ class DeviceListItemState extends State<DeviceListItem> {
                               width: deviceListCoverSize,
                               height: deviceListCoverSize,
                               key: ValueKey('DeviceCover$index$coverUrl'),
+                              errorBuilder: (context, error, stackTrace) {
+                                return SvgPicture.asset(
+                                  Globals.placeholderSvgAssetPath(),
+                                  allowDrawingOutsideViewBox: false,
+                                  fit: BoxFit.cover,
+                                  clipBehavior: Clip.hardEdge,
+                                );
+                              },
                             )
                           : SvgPicture.asset(
-                              Globals.placeholderAssetPath(),
+                              Globals.placeholderSvgAssetPath(),
                               allowDrawingOutsideViewBox: false,
                               fit: BoxFit.cover,
                               clipBehavior: Clip.hardEdge,

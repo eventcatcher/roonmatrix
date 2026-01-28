@@ -159,6 +159,7 @@ flutter:
   # svg
     - assets/svg/8-8-led-matrix-display-unit.svg
   # png
+    - assets/icon/icon.png
     - assets/icon/roon.png
     - assets/icon/spotify.png
     - assets/icon/spotifyconnect.png

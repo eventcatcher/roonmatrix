@@ -144,7 +144,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
     // if (kDebugMode) {
     //   debugPrint(
-    //       'xxx123 ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
+    //       'ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
     // }
   }
 

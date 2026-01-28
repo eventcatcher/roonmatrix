@@ -45,7 +45,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
   Function(double value) get onChanged => widget.onChanged;
 
   final double labelWidthFallback = 200.0;
-  final double sliderPercentTextWidth = 100.0;
+  final double sliderPercentTextWidth = 124.0;
   final double labelAndSliderInRowMinWidth = 600;
   final double flex3MinWidth = 1200.0;
   final double flex2MinWidth = 800.0;
@@ -146,13 +146,15 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                   SizedBox(
                     width: sliderPercentTextWidth,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 4.0, top: 4.0),
+                      padding: const EdgeInsets.only(
+                          left: 4.0, top: 4.0, right: 2.0),
                       child: Text(
                         mainRepository.getPercentText(
                           valueType: valueType,
                           sliderValue: sliderValue,
                           max: max,
                         ),
+                        textAlign: TextAlign.end,
                         style: TextStyle(
                           color: ColorDefs.textColor(context: context),
                         ),

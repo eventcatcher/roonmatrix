@@ -79,6 +79,7 @@ class _CoverWidgetState extends State<CoverWidget> {
 
   Timer? statusInProgressTimer;
   String statusInProgress = '';
+  dynamic img;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -96,6 +97,10 @@ class _CoverWidgetState extends State<CoverWidget> {
     coverModel = widget.coverModel;
     coverSize = widget.coverSize;
     activeDeviceIp = widget.activeDeviceIp;
+
+    img = NetworkImage(
+      coverModel.coverUrl,
+    );
   }
 
   @override
@@ -103,6 +108,7 @@ class _CoverWidgetState extends State<CoverWidget> {
     super.didUpdateWidget(oldWidget);
 
     coverModel = widget.coverModel;
+
     if (statusInProgress == coverModel.status) {
       SchedulerBinding.instance.addPostFrameCallback((_) async {
         if (mounted) {
@@ -209,9 +215,14 @@ class _CoverWidgetState extends State<CoverWidget> {
                                               coverModel.status != 'playing'
                                                   ? idleZoneColorFilter
                                                   : null,
-                                          image: NetworkImage(
-                                            coverModel.coverUrl,
-                                          ),
+                                          image: img,
+                                          onError: (Object errDetails,
+                                              StackTrace? trace) {
+                                            setState(() {
+                                              img = AssetImage(Globals
+                                                  .placeholderPngAssetPath());
+                                            });
+                                          },
                                         ),
                                       ),
                                     ),
@@ -387,7 +398,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                               : Stack(
                                   children: [
                                     SvgPicture.asset(
-                                      Globals.placeholderAssetPath(),
+                                      Globals.placeholderSvgAssetPath(),
                                       colorFilter: idleZoneColorFilter,
                                       allowDrawingOutsideViewBox: false,
                                       width: double.infinity,
