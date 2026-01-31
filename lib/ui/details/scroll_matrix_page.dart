@@ -15,6 +15,7 @@ import 'package:roonmatrix/ui/layout/titlebar_info_content.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:updatable_ticker/updatable_ticker.dart';
+import 'package:updatable_vertical_ticker/updatable_vertical_ticker.dart';
 import 'package:window_manager/window_manager.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
@@ -52,6 +53,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final double sliderOverlayMaxWidth = 300.0;
+
+  final bool verticalTickerEnabled = true;
 
   Orientation orientation = Orientation.portrait;
   Offset actualPosition = Offset(0, 0);
@@ -158,9 +161,18 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   return SizedBox();
                 }
 
+                bool verticalOutput = false;
+                double tickerWidth = double.infinity;
+                List<String> texts = [];
+
                 if (mainState.devices.isNotEmpty &&
                     mainState.info.containsKey(ip)) {
                   String displaystrNew = mainState.info[ip]['app_displaystr'];
+                  verticalOutput =
+                      mainState.info[ip]['vertical_output'] ?? false;
+                  tickerWidth = mainState.info[ip]['led_modules'] * fontSize;
+                  texts =
+                      List<String>.from(mainState.info[ip]['vert_strlines']);
 
                   if (displaystrNew != displaystr) {
                     scrollText =
@@ -195,20 +207,44 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 20.0),
                         height: height - 52,
-                        child: UpdatableTicker(
-                          key: ValueKey(
-                              'UpdatableTickerMatrixPage${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                          updatableText: scrollText,
-                          style: TextStyle(
-                            fontFamily: Globals.tickerFontFamily,
-                            fontSize: fontSize / 1.2,
-                            color: Colors.black,
-                          ),
-                          pixelsPerSecond: pixelsPerSecond * sliderValue,
-                          forceUpdate: false,
-                          center: true,
-                          separator: Globals.tickerSeparator,
-                        ),
+                        child: verticalOutput && verticalTickerEnabled
+                            ? Container(
+                                width: tickerWidth,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    left: BorderSide(
+                                      color: Colors.grey.shade800,
+                                    ),
+                                    right: BorderSide(
+                                      color: Colors.grey.shade800,
+                                    ),
+                                  ),
+                                ),
+                                child: UpdatableVerticalTicker(
+                                  texts: texts,
+                                  scrollDuration: Duration(milliseconds: 400),
+                                  linePause: Duration(seconds: 1),
+                                  cyclePause: Duration(seconds: 2),
+                                  textStyle: TextStyle(
+                                    fontSize: fontSize / 1.2,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              )
+                            : UpdatableTicker(
+                                key: ValueKey(
+                                    'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                                updatableText: scrollText,
+                                style: TextStyle(
+                                  fontFamily: Globals.tickerFontFamily,
+                                  fontSize: fontSize / 1.2,
+                                  color: Colors.black,
+                                ),
+                                pixelsPerSecond: pixelsPerSecond * sliderValue,
+                                forceUpdate: false,
+                                center: true,
+                                separator: Globals.tickerSeparator,
+                              ),
                       ),
                     ),
                   );

@@ -18,6 +18,7 @@ import 'package:roonmatrix/ui/layout/device_info.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:updatable_ticker/updatable_ticker.dart';
+import 'package:updatable_vertical_ticker/updatable_vertical_ticker.dart';
 
 class DeviceListItem extends StatefulWidget {
   final GlobalKey itemListKey;
@@ -85,11 +86,14 @@ class DeviceListItemState extends State<DeviceListItem> {
   final Duration animatedOpacityForTimeZonePlaycountText =
       const Duration(milliseconds: 400);
 
-  final double tickerTopOffset = 60.0;
+  final double tickerTopOffset = 58.0;
+  final double verticalTickerTopOffset = 54.0;
   final double tickerAreaHeight = 24.0;
   final double tickerFontSize = 14.0;
   final double tickerPixelPerSecondFactor = 50.0;
   final double tickerSpeedSliderWidth = 120.0;
+
+  final bool verticalTickerEnabled = true;
 
   double infoOpacityLevel = 1.0;
   double itemListHeight = 84;
@@ -148,6 +152,7 @@ class DeviceListItemState extends State<DeviceListItem> {
     }
 
     String zoneName = mainRepository.getZoneName(info: i);
+    bool verticalOutput = i['vertical_output'] ?? false;
 
     Map<String, dynamic>? zone = mainRepository.getZoneDataForControlId(i);
     String? coverUrl = mainRepository.getCoverUrl(zone: zone);
@@ -217,7 +222,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                               coverUrl,
                               width: deviceListCoverSize,
                               height: deviceListCoverSize,
-                              key: ValueKey('DeviceCover$index$coverUrl'),
+                              key: ValueKey(
+                                  'DeviceCover-${widget.ip}-$coverUrl'),
                               errorBuilder: (context, error, stackTrace) {
                                 return SvgPicture.asset(
                                   Globals.placeholderSvgAssetPath(),
@@ -341,7 +347,9 @@ class DeviceListItemState extends State<DeviceListItem> {
               ),
             ),
           Positioned(
-              top: tickerTopOffset,
+              top: verticalOutput && verticalTickerEnabled
+                  ? verticalTickerTopOffset
+                  : tickerTopOffset,
               child: InkWell(
                 onTap: () => showGeneralDialog(
                   context: context,
@@ -370,27 +378,54 @@ class DeviceListItemState extends State<DeviceListItem> {
                     return false;
                   },
                   child: SizeChangedLayoutNotifier(
-                    child: SizedBox(
+                    child: Container(
+                      alignment: verticalOutput && verticalTickerEnabled
+                          ? Alignment.centerLeft
+                          : Alignment.center,
                       key: ValueKey(
-                          'UpdatableTickerWrapper-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                          'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                       width: MediaQuery.of(context).size.width - 16,
                       height: tickerAreaHeight,
-                      child: UpdatableTicker(
-                        key: ValueKey(
-                            'UpdatableTickerStartPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                        updatableText: scrollText,
-                        style: TextStyle(
-                          fontFamily: Globals.tickerFontFamily,
-                          fontSize: tickerFontSize,
-                          color: ColorDefs.textColor(
-                            context: context,
-                          ),
-                        ),
-                        pixelsPerSecond:
-                            tickerPixelPerSecondFactor * scrollSpeedDevice,
-                        forceUpdate: false,
-                        separator: Globals.tickerSeparator,
-                      ),
+                      child: verticalOutput && verticalTickerEnabled
+                          ? Container(
+                              width: i['led_modules'] * tickerFontSize * 0.80,
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  left: BorderSide(
+                                    color: Colors.grey.shade800,
+                                  ),
+                                  right: BorderSide(
+                                    color: Colors.grey.shade800,
+                                  ),
+                                ),
+                              ),
+                              child: UpdatableVerticalTicker(
+                                texts: List<String>.from(i['vert_strlines']),
+                                scrollDuration: Duration(milliseconds: 400),
+                                linePause: Duration(seconds: 1),
+                                cyclePause: Duration(seconds: 2),
+                                textStyle: TextStyle(
+                                  fontSize: tickerFontSize,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            )
+                          : UpdatableTicker(
+                              key: ValueKey(
+                                  'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                              updatableText: scrollText,
+                              style: TextStyle(
+                                fontFamily: Globals.tickerFontFamily,
+                                fontSize: tickerFontSize,
+                                color: ColorDefs.textColor(
+                                  context: context,
+                                ),
+                              ),
+                              pixelsPerSecond: tickerPixelPerSecondFactor *
+                                  scrollSpeedDevice,
+                              forceUpdate: false,
+                              separator: Globals.tickerSeparator,
+                            ),
                     ),
                   ),
                 ),
