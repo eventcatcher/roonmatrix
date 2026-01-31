@@ -80,11 +80,10 @@ class DeviceListItemState extends State<DeviceListItem> {
   bool get moreInfo => widget.moreInfo;
   void Function(String caller) get updateSizes => widget.updateSizes;
 
+  final int cyclePause = 2;
   final double deviceListCoverSize = 40.0;
   final double mobileInfoPaddingRight = 40.0;
   final Color tileColor = Colors.lightBlueAccent;
-  final Duration animatedOpacityForTimeZonePlaycountText =
-      const Duration(milliseconds: 400);
 
   final double tickerTopOffset = 58.0;
   final double verticalTickerTopOffset = 54.0;
@@ -95,6 +94,9 @@ class DeviceListItemState extends State<DeviceListItem> {
 
   final bool verticalTickerEnabled = true;
 
+  List<String> verticalTextLines = [];
+  int scrollDuration = 0;
+  int linePause = 0;
   double infoOpacityLevel = 1.0;
   double itemListHeight = 84;
 
@@ -141,10 +143,28 @@ class DeviceListItemState extends State<DeviceListItem> {
   Widget build(BuildContext context) {
     Map<String, dynamic> i = info[ip];
 
-    String scrollText = mainRepository.replaceIllegalCharsInTickerString(
-      str: i['app_displaystr'] ?? '',
-      replaceActiveZoneMarker: true,
-    );
+    bool verticalOutput = i['vertical_output'] ?? false;
+
+    String scrollText = verticalOutput
+        ? ''
+        : mainRepository.replaceIllegalCharsInTickerString(
+            str: i['app_displaystr'] ?? '',
+            replaceActiveZoneMarker: true,
+          );
+
+    if (verticalOutput && verticalTickerEnabled) {
+      List<String> lines = [];
+      for (String line in List<String>.from(i['vert_strlines'])) {
+        lines.add(
+          mainRepository.replaceIllegalCharsInTickerString(
+            str: line,
+            replaceActiveZoneMarker: true,
+          ),
+        );
+      }
+      verticalTextLines = lines;
+    }
+
     String hash = md5.convert(utf8.encode(scrollText)).toString();
     if (kDebugMode) {
       debugPrint(
@@ -152,7 +172,6 @@ class DeviceListItemState extends State<DeviceListItem> {
     }
 
     String zoneName = mainRepository.getZoneName(info: i);
-    bool verticalOutput = i['vertical_output'] ?? false;
 
     Map<String, dynamic>? zone = mainRepository.getZoneDataForControlId(i);
     String? coverUrl = mainRepository.getCoverUrl(zone: zone);
@@ -300,8 +319,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                               if (!isSmallDeviceWidth)
                                 AnimatedOpacity(
                                   opacity: infoOpacityLevel,
-                                  duration:
-                                      animatedOpacityForTimeZonePlaycountText,
+                                  duration: Duration(milliseconds: 400),
                                   child: Text(
                                     mainRepository.getTimeZonePlaycountText(
                                       translations: translations,
@@ -400,10 +418,14 @@ class DeviceListItemState extends State<DeviceListItem> {
                                 ),
                               ),
                               child: UpdatableVerticalTicker(
-                                texts: List<String>.from(i['vert_strlines']),
-                                scrollDuration: Duration(milliseconds: 400),
-                                linePause: Duration(seconds: 1),
-                                cyclePause: Duration(seconds: 2),
+                                texts: verticalTextLines,
+                                scrollDuration: Duration(
+                                    milliseconds:
+                                        i['led_vertical_scroll_delay'].floor() *
+                                            8),
+                                linePause: Duration(
+                                    seconds: i['vertical_scroll_delay']),
+                                cyclePause: Duration(seconds: cyclePause),
                                 textStyle: TextStyle(
                                   fontSize: tickerFontSize,
                                   color: Colors.black,

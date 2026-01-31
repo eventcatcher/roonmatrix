@@ -55,10 +55,12 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   final double sliderOverlayMaxWidth = 300.0;
 
   final bool verticalTickerEnabled = true;
+  final int cyclePause = 2;
 
   Orientation orientation = Orientation.portrait;
   Offset actualPosition = Offset(0, 0);
   Size actualSize = Size(1280, 768);
+  List<String> verticalTextLines = [];
   String macosVersion = '';
   String displaystr = '';
   String scrollText = '';
@@ -69,6 +71,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   double mobileFontSize = 64.0;
   double pixelsPerSecond = 0;
   double sliderValue = 1.0;
+  int scrollDuration = 0;
+  int linePause = 0;
   bool isFullscreen = false;
 
   late MainRepository mainRepository;
@@ -163,16 +167,32 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
                 bool verticalOutput = false;
                 double tickerWidth = double.infinity;
-                List<String> texts = [];
 
                 if (mainState.devices.isNotEmpty &&
                     mainState.info.containsKey(ip)) {
-                  String displaystrNew = mainState.info[ip]['app_displaystr'];
-                  verticalOutput =
-                      mainState.info[ip]['vertical_output'] ?? false;
-                  tickerWidth = mainState.info[ip]['led_modules'] * fontSize;
-                  texts =
-                      List<String>.from(mainState.info[ip]['vert_strlines']);
+                  Map<String, dynamic> i = mainState.info[ip];
+
+                  verticalOutput = i['vertical_output'] ?? false;
+
+                  String displaystrNew =
+                      verticalOutput ? '' : i['app_displaystr'];
+
+                  if (verticalOutput && verticalTickerEnabled) {
+                    List<String> lines = [];
+                    for (String line in List<String>.from(i['vert_strlines'])) {
+                      lines.add(
+                        mainRepository.replaceIllegalCharsInTickerString(
+                          str: line,
+                          replaceActiveZoneMarker: true,
+                        ),
+                      );
+                    }
+                    verticalTextLines = lines;
+                  }
+
+                  tickerWidth = i['led_modules'] * fontSize;
+                  scrollDuration = i['led_vertical_scroll_delay'].floor() * 8;
+                  linePause = i['vertical_scroll_delay'];
 
                   if (displaystrNew != displaystr) {
                     scrollText =
@@ -221,10 +241,11 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                   ),
                                 ),
                                 child: UpdatableVerticalTicker(
-                                  texts: texts,
-                                  scrollDuration: Duration(milliseconds: 400),
-                                  linePause: Duration(seconds: 1),
-                                  cyclePause: Duration(seconds: 2),
+                                  texts: verticalTextLines,
+                                  scrollDuration:
+                                      Duration(milliseconds: scrollDuration),
+                                  linePause: Duration(seconds: linePause),
+                                  cyclePause: Duration(seconds: cyclePause),
                                   textStyle: TextStyle(
                                     fontSize: fontSize / 1.2,
                                     color: Colors.black,
