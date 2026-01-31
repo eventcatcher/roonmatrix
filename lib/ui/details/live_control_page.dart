@@ -105,7 +105,7 @@ class LiveControlPageState extends State<LiveControlPage> {
     return [
       if (verticalOutput == true)
         HorizontalSlider(
-          key: ValueKey('SliderVerticalScrollDelay_$selectedDeviceIp'),
+          key: ValueKey('SliderVerticalScrollDelay-$selectedDeviceIp'),
           label: translations['config']?['vertical_scroll_delay'] ??
               'Vertical scroll delay',
           sliderValue: verticalScrollDelay,
@@ -147,7 +147,7 @@ class LiveControlPageState extends State<LiveControlPage> {
           },
         ),
       HorizontalSlider(
-        key: ValueKey('SliderScrollSpeed_$selectedDeviceIp'),
+        key: ValueKey('SliderScrollSpeed-$selectedDeviceIp'),
         label: verticalOutput == true
             ? translations['config'] != null &&
                     translations['config']['led_vertical_scroll_delay'] != null
@@ -197,7 +197,7 @@ class LiveControlPageState extends State<LiveControlPage> {
         },
       ),
       HorizontalSlider(
-        key: ValueKey('SliderContrast_$selectedDeviceIp'),
+        key: ValueKey('SliderContrast-$selectedDeviceIp'),
         label: translations['config']?['led_contrast'] != null
             ? (translations['config']?['led_contrast'] as String)
                 .replaceAll('LED ', '')

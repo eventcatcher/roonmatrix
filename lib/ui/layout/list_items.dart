@@ -75,7 +75,7 @@ class ListItemsState extends State<ListItems> {
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
       Widget widget = EditableSinglelineText(
-        key: ValueKey('$label-${fieldValues.length}-$idx'),
+        key: ValueKey('ListItem-$label-${fieldValues.length}-$idx'),
         translations: translations,
         inputType: TextInputType.text,
         noCounter: true,

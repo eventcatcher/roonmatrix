@@ -222,7 +222,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
               right: 0.0,
               child: ExpandableMenu(
                 key: ValueKey(
-                    'ExpandableMenu$ip-$moreInfo'), // main item expandable for mobile
+                    'ExpandableMenu-$ip-$moreInfo'), // main item expandable for mobile
                 width: buttonSize,
                 height: buttonSize,
                 animationSpeed: animationSpeed,

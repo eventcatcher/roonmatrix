@@ -200,7 +200,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                   children: [
                                     Container(
                                       key: ValueKey(
-                                          'CoverRow-${coverModel.zoneName}-${orientation.name}-${coverModel.coverUrl}'),
+                                          'CoverWidgetImage-${coverModel.hash}-${orientation.name}'),
                                       width: coverRowDynamicSize
                                           ? double.infinity
                                           : null,

@@ -76,7 +76,7 @@ class KeyValItemsState extends State<KeyValItems> {
           Expanded(
             child: EditableSinglelineText(
               translations: translations,
-              key: ValueKey('$label-$key'),
+              key: ValueKey('KeyValItem-$label-$key'),
               inputType: TextInputType.text,
               noCounter: true,
               label: key == ': ' ? '[: ]' : key,

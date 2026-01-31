@@ -125,7 +125,7 @@ class _CoverRowState extends State<CoverRow> {
             duration: Globals.coverSwitchAnimatedPresetDuration,
             transitionBuilder: Globals.coverSwitchAnimatedPreset,
             child: CoverWidget(
-              key: ValueKey('CoverWidget${coverModelItem.hash}'),
+              key: ValueKey('CoverWidget-${coverModelItem.hash}'),
               translations: translations,
               devices: devices,
               activeDeviceIp: activeDeviceIp,

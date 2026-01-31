@@ -91,7 +91,7 @@ class MapListItemsState extends State<MapListItems> {
             .type;
 
         Widget widget = EditableSinglelineText(
-          key: ValueKey('$label-${fieldValues.length}-$idx-$key'),
+          key: ValueKey('MapListItem-$label-${fieldValues.length}-$idx-$key'),
           translations: translations,
           inputType: fieldType.startsWith('int')
               ? TextInputType.number

@@ -254,7 +254,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                   translations: translations)
                                               : ListView.separated(
                                                   key: ValueKey(
-                                                      'deviceList${devices.length}'),
+                                                      'DeviceList-${devices.length}'),
                                                   separatorBuilder:
                                                       (context, index) =>
                                                           const Divider(

@@ -92,7 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   EditableSinglelineText fromField() => EditableSinglelineText(
-        key: ValueKey('Start-$loaded}'),
+        key: ValueKey('Setting-Start-$loaded}'),
         translations: translations,
         inputType: TextInputType.text,
         placeholder: '###.###.###.###',
@@ -119,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
       );
 
   EditableSinglelineText toField() => EditableSinglelineText(
-        key: ValueKey('End-$loaded'),
+        key: ValueKey('Setting-End-$loaded'),
         translations: translations,
         inputType: TextInputType.text,
         placeholder: '###.###.###.###',
@@ -243,7 +243,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         IconTextButtonElement(
                                           onMacAsText: true,
                                           key: ValueKey(
-                                              'save-${snapshotStart.data}-${snapshotEnd.data}'),
+                                              'Setting-Save-${snapshotStart.data}-${snapshotEnd.data}'),
                                           icon: const Padding(
                                             padding: EdgeInsets.symmetric(
                                                 vertical: 8.0),

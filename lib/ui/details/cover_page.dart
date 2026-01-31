@@ -224,7 +224,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
       child: Padding(
         padding: const EdgeInsets.only(right: 64.0),
         child: SelectBox(
-            key: ValueKey('ZoneSelectBox$selectedZoneId'),
+            key: ValueKey('ZoneSelectBox-$selectedZoneId'),
             translations: translations,
             aligned: 'horizontal',
             label: '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
@@ -417,7 +417,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                   ? Image.network(
                                                       selectedZone!['cover'],
                                                       key: ValueKey(
-                                                          'BigCover$selectedZone-${selectedZone!['cover']}'),
+                                                          'BigCover-$selectedZone-${selectedZone!['cover']}'),
                                                       fit: BoxFit.contain,
                                                       width: double.infinity,
                                                       height: double.infinity,
