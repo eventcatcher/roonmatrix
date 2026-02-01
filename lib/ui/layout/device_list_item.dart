@@ -86,7 +86,7 @@ class DeviceListItemState extends State<DeviceListItem> {
   final Color tileColor = Colors.lightBlueAccent;
 
   final double tickerTopOffset = 58.0;
-  final double verticalTickerTopOffset = 54.0;
+  final double verticalTickerTopOffset = 58.0;
   final double tickerAreaHeight = 24.0;
   final double tickerFontSize = 14.0;
   final double tickerPixelPerSecondFactor = 50.0;
@@ -406,29 +406,38 @@ class DeviceListItemState extends State<DeviceListItem> {
                       height: tickerAreaHeight,
                       child: verticalOutput && verticalTickerEnabled
                           ? Container(
-                              width: i['led_modules'] * tickerFontSize * 0.80,
+                              width: i['led_modules'] *
+                                  tickerFontSize *
+                                  Globals.verticalTickerWidthFactor,
+                              padding: EdgeInsets.only(
+                                top: 4.0,
+                                bottom: 4.0,
+                              ),
                               decoration: BoxDecoration(
-                                border: Border(
-                                  left: BorderSide(
-                                    color: Colors.grey.shade800,
+                                borderRadius: Globals.borderRadius(),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Globals.brightness() ==
+                                            Brightness.dark
+                                        ? Colors.grey.shade700
+                                            .withValues(alpha: 0.25)
+                                        : Colors.grey.withValues(alpha: 0.25),
+                                    spreadRadius: 0,
+                                    blurRadius: 0,
                                   ),
-                                  right: BorderSide(
-                                    color: Colors.grey.shade800,
-                                  ),
-                                ),
+                                ],
                               ),
                               child: UpdatableVerticalTicker(
                                 texts: verticalTextLines,
                                 scrollDuration: Duration(
                                     milliseconds:
-                                        i['led_vertical_scroll_delay'].floor() *
-                                            8),
+                                        (50 * 8 / scrollSpeedDevice).floor()),
                                 linePause: Duration(
                                     seconds: i['vertical_scroll_delay']),
                                 cyclePause: Duration(seconds: cyclePause),
                                 textStyle: TextStyle(
                                   fontSize: tickerFontSize,
-                                  color: Colors.black,
+                                  color: ColorDefs.textColor(context: context),
                                 ),
                               ),
                             )

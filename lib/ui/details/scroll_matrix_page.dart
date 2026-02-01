@@ -67,13 +67,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   String title = '';
   double width = 1280;
   double height = 768;
-  double fontSize = 64.0;
-  double mobileFontSize = 64.0;
+  double fontSize = 1.0;
+  double mobileFontSize = 1.0;
   double pixelsPerSecond = 0;
   double sliderValue = 1.0;
   int scrollDuration = 0;
   int linePause = 0;
+  int ledModules = 9;
   bool isFullscreen = false;
+  bool verticalOutput = false;
+  bool fontSizeInitialized = false;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -143,11 +146,46 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   getPixelsPerSecond({required double fontSize}) =>
       pixelsPerSecond = 200 + fontSize / 2.25;
 
+  void initMobileFontSize() {
+    if (Globals.isMobileDevice()) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        if (mounted) {
+          setState(() {
+            if (verticalOutput && verticalTickerEnabled) {
+              width = MediaQuery.of(context).size.width;
+              height = MediaQuery.of(context).size.height;
+              mobileFontSize =
+                  width / ledModules / Globals.verticalTickerWidthFactor;
+            } else {
+              mobileFontSize = Globals.mobileFontSizeMedium;
+            }
+            fontSize = mobileFontSize;
+            pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
+          });
+        }
+      });
+    }
+  }
+
   void updateSizes(String caller) {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
-    fontSize =
-        Globals.isDesktopDevice() ? height - 60 - height / 6 : mobileFontSize;
+
+    if (Globals.isDesktopDevice()) {
+      if (verticalOutput && verticalTickerEnabled) {
+        double maxFontSizeForWidth =
+            width / ledModules / Globals.verticalTickerWidthFactor;
+        double maxFontSizeForHeight = height - 60 - height / 6;
+        fontSize = maxFontSizeForHeight < maxFontSizeForWidth
+            ? maxFontSizeForHeight
+            : maxFontSizeForWidth;
+      } else {
+        fontSize = height - 60 - height / 6;
+      }
+    } else {
+      fontSize = mobileFontSize;
+    }
+
     pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
     // if (kDebugMode) {
     //   debugPrint(
@@ -165,14 +203,31 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   return SizedBox();
                 }
 
-                bool verticalOutput = false;
                 double tickerWidth = double.infinity;
 
                 if (mainState.devices.isNotEmpty &&
                     mainState.info.containsKey(ip)) {
                   Map<String, dynamic> i = mainState.info[ip];
 
-                  verticalOutput = i['vertical_output'] ?? false;
+                  if (!fontSizeInitialized ||
+                      ledModules != i['led_modules'] ||
+                      verticalOutput != i['vertical_output']) {
+                    ledModules = i['led_modules'];
+                    verticalOutput = i['vertical_output'] ?? false;
+
+                    SchedulerBinding.instance.addPostFrameCallback((_) async {
+                      if (mounted) {
+                        setState(() {
+                          ledModules = i['led_modules'];
+                          verticalOutput = i['vertical_output'] ?? false;
+                          if (!fontSizeInitialized) {
+                            initMobileFontSize();
+                            fontSizeInitialized = true;
+                          }
+                        });
+                      }
+                    });
+                  }
 
                   String displaystrNew =
                       verticalOutput ? '' : i['app_displaystr'];
@@ -190,8 +245,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     verticalTextLines = lines;
                   }
 
-                  tickerWidth = i['led_modules'] * fontSize;
-                  scrollDuration = i['led_vertical_scroll_delay'].floor() * 8;
+                  tickerWidth = ledModules * fontSize;
                   linePause = i['vertical_scroll_delay'];
 
                   if (displaystrNew != displaystr) {
@@ -215,6 +269,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                         });
                       }
                     });
+                    initMobileFontSize();
                   }
 
                   return NotificationListener<SizeChangedLayoutNotification>(
@@ -228,27 +283,20 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                         padding: EdgeInsets.symmetric(vertical: 20.0),
                         height: height - 52,
                         child: verticalOutput && verticalTickerEnabled
-                            ? Container(
-                                width: tickerWidth,
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    left: BorderSide(
-                                      color: Colors.grey.shade800,
+                            ? Center(
+                                child: SizedBox(
+                                  width: tickerWidth,
+                                  child: UpdatableVerticalTicker(
+                                    texts: verticalTextLines,
+                                    scrollDuration: Duration(
+                                        milliseconds:
+                                            (50 * 8 / sliderValue).floor()),
+                                    linePause: Duration(seconds: linePause),
+                                    cyclePause: Duration(seconds: cyclePause),
+                                    textStyle: TextStyle(
+                                      fontSize: fontSize / 1.2,
+                                      color: Colors.black,
                                     ),
-                                    right: BorderSide(
-                                      color: Colors.grey.shade800,
-                                    ),
-                                  ),
-                                ),
-                                child: UpdatableVerticalTicker(
-                                  texts: verticalTextLines,
-                                  scrollDuration:
-                                      Duration(milliseconds: scrollDuration),
-                                  linePause: Duration(seconds: linePause),
-                                  cyclePause: Duration(seconds: cyclePause),
-                                  textStyle: TextStyle(
-                                    fontSize: fontSize / 1.2,
-                                    color: Colors.black,
                                   ),
                                 ),
                               )
@@ -291,10 +339,14 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
             trailing: SizedBox(
               width: MediaQuery.of(context).size.width - 100,
               child: MobileSpeedSliderAndFontsizeControls(
+                key: ValueKey(
+                    'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput'),
                 translations: translations,
                 ip: ip,
+                ledModules: ledModules,
+                verticalOutput: verticalOutput && verticalTickerEnabled,
                 width: width,
-                scrollSpeed: widget.scrollSpeed,
+                scrollSpeed: sliderValue,
                 speedChanged: (double speed) {
                   speedChanged(speed);
                   setState(() => sliderValue = speed);
@@ -418,10 +470,14 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       ),
                     if (Globals.isMobileDevice())
                       MobileSpeedSliderAndFontsizeControls(
+                        key: ValueKey(
+                            'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput'),
                         translations: translations,
                         ip: ip,
+                        ledModules: ledModules,
+                        verticalOutput: verticalOutput && verticalTickerEnabled,
                         width: width,
-                        scrollSpeed: widget.scrollSpeed,
+                        scrollSpeed: sliderValue,
                         speedChanged: (double speed) {
                           speedChanged(speed);
                           setState(() => sliderValue = speed);

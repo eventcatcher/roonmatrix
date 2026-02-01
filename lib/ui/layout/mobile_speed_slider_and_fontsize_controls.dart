@@ -8,6 +8,8 @@ import 'package:roonmatrix/ui/main/main_bloc.dart';
 class MobileSpeedSliderAndFontsizeControls extends StatefulWidget {
   final Map<String, dynamic> translations;
   final String ip;
+  final int ledModules;
+  final bool verticalOutput;
   final double width;
   final double scrollSpeed;
   final Function(double speed) speedChanged;
@@ -17,6 +19,8 @@ class MobileSpeedSliderAndFontsizeControls extends StatefulWidget {
     super.key,
     required this.translations,
     required this.ip,
+    required this.ledModules,
+    required this.verticalOutput,
     required this.width,
     required this.scrollSpeed,
     required this.speedChanged,
@@ -32,6 +36,8 @@ class _MobileSpeedSliderAndFontsizeControlsState
     extends State<MobileSpeedSliderAndFontsizeControls> {
   Map<String, dynamic> get translations => widget.translations;
   String get ip => widget.ip;
+  int get ledModules => widget.ledModules;
+  bool get verticalOutput => widget.verticalOutput;
   double get width => widget.width;
   double get scrollSpeed => widget.scrollSpeed;
   Function(double speed) get speedChanged => widget.speedChanged;
@@ -39,22 +45,33 @@ class _MobileSpeedSliderAndFontsizeControlsState
 
   final double sliderMobileMin = 550;
   final double sliderTextMobileMin = 800;
-  final double mobileFontSizeSmall = 32.0;
-  final double mobileFontSizeMedium = 64.0;
-  final double mobileFontSizeBig = 128.0;
   final double sliderWidthBig = 200.0;
   final double sliderWidthSmall = 120.0;
   final double sliderMinValue = 0.1;
   final double sliderMaxValue = 5.0;
   final int sliderDivisions = 100;
 
+  double mobileFontSizeSmall = Globals.mobileFontSizeSmall;
+  double mobileFontSizeMedium = Globals.mobileFontSizeMedium;
+  double mobileFontSizeBig = Globals.mobileFontSizeBig;
+
   double sliderValue = 1.0;
-  double fontSize = 48.0;
+  double fontSize = 1.0;
 
   late MainBloc mainBloc;
 
   @override
   void initState() {
+    if (verticalOutput == true) {
+      double maxFontSize =
+          width / ledModules / Globals.verticalTickerWidthFactor;
+      mobileFontSizeBig = maxFontSize;
+      mobileFontSizeMedium = maxFontSize / 1.5;
+      mobileFontSizeSmall = maxFontSize / 2;
+      fontSize = mobileFontSizeBig;
+    } else {
+      fontSize = Globals.mobileFontSizeMedium;
+    }
     mainBloc = BlocProvider.of<MainBloc>(context);
     sliderValue = scrollSpeed;
 

@@ -22,7 +22,7 @@ class SliderHoverOverlay extends StatefulWidget {
     required this.width,
     this.height = 36.0,
     this.value = 1.0,
-    this.min = 0.75,
+    this.min = 0.25,
     this.max = 5,
     this.divisions = 100,
     this.onHover,

@@ -11,7 +11,7 @@ class SliderMobile extends StatefulWidget {
 
   const SliderMobile({
     super.key,
-    this.min = 0.75,
+    this.min = 0.25,
     this.max = 5,
     this.divisions = 100,
     this.value = 1.0,

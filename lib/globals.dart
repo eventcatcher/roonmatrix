@@ -48,6 +48,12 @@ class Globals {
 
   static final String tickerSeparator = '    ////    ';
 
+  static final double verticalTickerWidthFactor = 0.65;
+
+  static double mobileFontSizeSmall = 32.0;
+  static double mobileFontSizeMedium = 64.0;
+  static double mobileFontSizeBig = 128.0;
+
   static final double extendedTitleWidth = 500.0;
 
   static final double zoneCornerFullSize = 200.0;

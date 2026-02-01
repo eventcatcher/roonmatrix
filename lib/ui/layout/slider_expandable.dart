@@ -14,7 +14,7 @@ class SliderExpandable extends StatefulWidget {
     super.key,
     required this.width,
     this.value = 1.0,
-    this.min = 0.75,
+    this.min = 0.25,
     this.max = 5,
     this.divisions = 100,
     required this.updateValue,
