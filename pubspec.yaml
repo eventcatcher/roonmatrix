@@ -71,13 +71,13 @@ dependencies:
   hovering: ^1.0.4
   web_socket_channel: ^3.0.3
   crypto: ^3.0.6
-  updatable_ticker: ^1.0.5
+  updatable_ticker: ^1.0.6
   flutter_inappwebview: ^6.1.5
   extended_text: ^15.0.2
   connection_network_type: ^1.0.0
   connectivity_plus: ^6.1.5
   device_info_plus: ^12.3.0
-  updatable_vertical_ticker: ^1.0.0
+  updatable_vertical_ticker: ^1.0.1
 
 dependency_overrides:
 
