@@ -7,6 +7,8 @@ description: |
 title: roonmatrix
 website: 
   - https://www.roonmatrix.com
+source-code:
+  - https://github.com/eventcatcher/roonmatrix
 contact: 
   - support@wilhelm-devblog.de
 license: GPL-3.0+
