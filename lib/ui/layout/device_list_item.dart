@@ -93,6 +93,11 @@ class DeviceListItemState extends State<DeviceListItem> {
   final double tickerSpeedSliderWidth = 120.0;
 
   final bool verticalTickerEnabled = true;
+  final bool useLedVariant = true;
+  final double ledSize = 2.0;
+  final double ledGap = 0.2;
+  final Color ledOnColor = Colors.red.shade500;
+  final Color ledOffColor = const Color(0xFF000000);
 
   List<String> verticalTextLines = [];
   int scrollDuration = 0;
@@ -143,24 +148,28 @@ class DeviceListItemState extends State<DeviceListItem> {
   Widget build(BuildContext context) {
     Map<String, dynamic> i = info[ip];
 
+    int ledModules = i['led_modules'];
     bool verticalOutput = i['vertical_output'] ?? false;
+
+    double verticalTickerWidth = useLedVariant
+        ? ledSize * ledModules * 8 + ledGap * ledModules * 1.5
+        : ledModules * tickerFontSize * Globals.verticalTickerWidthFactor;
 
     String scrollText = verticalOutput
         ? ''
         : mainRepository.replaceIllegalCharsInTickerString(
             str: i['app_displaystr'] ?? '',
-            replaceActiveZoneMarker: true,
+            replaceActiveZoneMarker: !useLedVariant,
           );
 
     if (verticalOutput && verticalTickerEnabled) {
       List<String> lines = [];
       for (String line in List<String>.from(i['vert_strlines'])) {
-        lines.add(
-          mainRepository.replaceIllegalCharsInTickerString(
-            str: line,
-            replaceActiveZoneMarker: true,
-          ),
+        String filteredLine = mainRepository.replaceIllegalCharsInTickerString(
+          str: line,
+          replaceActiveZoneMarker: !useLedVariant,
         );
+        lines.add(filteredLine);
       }
       verticalTextLines = lines;
     }
@@ -397,7 +406,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                   },
                   child: SizeChangedLayoutNotifier(
                     child: Container(
-                      alignment: verticalOutput && verticalTickerEnabled
+                      alignment: useLedVariant ||
+                              (verticalOutput && verticalTickerEnabled)
                           ? Alignment.centerLeft
                           : Alignment.center,
                       key: ValueKey(
@@ -406,57 +416,125 @@ class DeviceListItemState extends State<DeviceListItem> {
                       height: tickerAreaHeight,
                       child: verticalOutput && verticalTickerEnabled
                           ? Container(
-                              width: i['led_modules'] *
-                                  tickerFontSize *
-                                  Globals.verticalTickerWidthFactor,
-                              padding: EdgeInsets.only(
-                                top: 4.0,
-                                bottom: 4.0,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: Globals.borderRadius(),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Globals.brightness() ==
-                                            Brightness.dark
-                                        ? Colors.grey.shade700
-                                            .withValues(alpha: 0.25)
-                                        : Colors.grey.withValues(alpha: 0.25),
-                                    spreadRadius: 0,
-                                    blurRadius: 0,
-                                  ),
-                                ],
-                              ),
-                              child: UpdatableVerticalTicker(
-                                texts: verticalTextLines,
-                                scrollDuration: Duration(
-                                    milliseconds:
-                                        (50 * 8 / scrollSpeedDevice).floor()),
-                                linePause: Duration(
-                                    seconds: i['vertical_scroll_delay']),
-                                cyclePause: Duration(seconds: cyclePause),
-                                textStyle: TextStyle(
-                                  fontSize: tickerFontSize,
-                                  color: ColorDefs.textColor(context: context),
-                                ),
-                              ),
+                              width: verticalTickerWidth,
+                              padding: useLedVariant
+                                  ? EdgeInsets.all(2.0)
+                                  : EdgeInsets.only(
+                                      top: 4.0,
+                                      bottom: 4.0,
+                                    ),
+                              decoration: useLedVariant
+                                  ? BoxDecoration(
+                                      border: Border.all(
+                                          width: 1.0, color: Colors.blue))
+                                  : BoxDecoration(
+                                      borderRadius: Globals.borderRadius(),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Globals.brightness() ==
+                                                  Brightness.dark
+                                              ? Colors.grey.shade700
+                                                  .withValues(alpha: 0.25)
+                                              : Colors.grey
+                                                  .withValues(alpha: 0.25),
+                                          spreadRadius: 0,
+                                          blurRadius: 0,
+                                        ),
+                                      ],
+                                    ),
+                              child: useLedVariant
+                                  ? Container(
+                                      color: Colors.black,
+                                      child: UpdatableVerticalLedTicker(
+                                        key: ValueKey(
+                                          'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
+                                        ),
+                                        modules: ledModules,
+                                        useProportionalFont: true,
+                                        center: true,
+                                        ledSize: ledSize,
+                                        ledGap: ledGap,
+                                        onColor: ledOnColor,
+                                        offColor: ledOffColor,
+                                        texts: verticalTextLines,
+                                        scrollDuration: Duration(
+                                            milliseconds:
+                                                (50 * 8 / scrollSpeedDevice)
+                                                    .floor()),
+                                        linePause: Duration(
+                                            seconds:
+                                                i['vertical_scroll_delay']),
+                                        cyclePause:
+                                            Duration(seconds: cyclePause),
+                                      ),
+                                    )
+                                  : UpdatableVerticalTicker(
+                                      key: ValueKey(
+                                        'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
+                                      ),
+                                      texts: verticalTextLines,
+                                      scrollDuration: Duration(
+                                          milliseconds:
+                                              (50 * 8 / scrollSpeedDevice)
+                                                  .floor()),
+                                      linePause: Duration(
+                                          seconds: i['vertical_scroll_delay']),
+                                      cyclePause: Duration(seconds: cyclePause),
+                                      textStyle: TextStyle(
+                                        fontSize: tickerFontSize,
+                                        color: ColorDefs.textColor(
+                                            context: context),
+                                      ),
+                                    ),
                             )
-                          : UpdatableTicker(
-                              key: ValueKey(
-                                  'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                              updatableText: scrollText,
-                              style: TextStyle(
-                                fontFamily: Globals.tickerFontFamily,
-                                fontSize: tickerFontSize,
-                                color: ColorDefs.textColor(
-                                  context: context,
+                          : useLedVariant
+                              ? Container(
+                                  width: ledModules * 8 * ledSize,
+                                  padding: useLedVariant
+                                      ? EdgeInsets.all(2.0)
+                                      : EdgeInsets.only(
+                                          top: 4.0,
+                                          bottom: 4.0,
+                                        ),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          width: 1.0, color: Colors.blue)),
+                                  child: Container(
+                                    color: Colors.black,
+                                    child: UpdatableLedTicker(
+                                      key: ValueKey(
+                                          'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                      updatableText: scrollText,
+                                      modules: ledModules,
+                                      useProportionalFont: true,
+                                      ledSize: ledSize,
+                                      ledGap: ledGap,
+                                      onColor: ledOnColor,
+                                      offColor: ledOffColor,
+                                      pixelsPerSecond:
+                                          tickerPixelPerSecondFactor *
+                                              scrollSpeedDevice,
+                                      forceUpdate: false,
+                                      separator: Globals.tickerSeparator,
+                                    ),
+                                  ),
+                                )
+                              : UpdatableTicker(
+                                  key: ValueKey(
+                                      'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                  updatableText: scrollText,
+                                  style: TextStyle(
+                                    fontFamily: Globals.tickerFontFamily,
+                                    fontSize: tickerFontSize,
+                                    color: ColorDefs.textColor(
+                                      context: context,
+                                    ),
+                                  ),
+                                  pixelsPerSecond: tickerPixelPerSecondFactor *
+                                      scrollSpeedDevice,
+                                  forceUpdate: false,
+                                  separator: Globals.tickerSeparator,
                                 ),
-                              ),
-                              pixelsPerSecond: tickerPixelPerSecondFactor *
-                                  scrollSpeedDevice,
-                              forceUpdate: false,
-                              separator: Globals.tickerSeparator,
-                            ),
                     ),
                   ),
                 ),
