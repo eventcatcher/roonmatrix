@@ -42,17 +42,14 @@ Future<void> _configureMacosWindowUtils() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  double minHeight = Globals.getWindowMinHeight();
-  Size minDesktopSize = Size(1280, minHeight);
-  Size standardDesktopSize = const Size(1280, 768);
 
   if (Globals.inMacosStyle()) {
     await _configureMacosWindowUtils();
   }
 
   runApp(RoonMatrix(
-    minDesktopSize: minDesktopSize,
-    standardDesktopSize: standardDesktopSize,
+    minDesktopSize: Globals.minDesktopSize,
+    standardDesktopSize: Globals.standardDesktopSize,
   ));
 
   Bloc.transformer = sequential<
@@ -60,8 +57,8 @@ void main() async {
 
   if (Globals.isDesktopDevice()) {
     doWhenWindowReady(() {
-      appWindow.minSize = minDesktopSize;
-      appWindow.size = standardDesktopSize;
+      appWindow.minSize = Globals.minDesktopSize;
+      appWindow.size = Globals.standardDesktopSize;
 
       appWindow.show();
     });

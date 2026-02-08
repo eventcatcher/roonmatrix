@@ -45,13 +45,15 @@ class ControlButtonsState extends State<ControlButtons> {
   final Color iconColor = Colors.blue.shade900;
   final Color enableIconColor = Colors.green;
   final Color disabledIconColor = Colors.grey;
+  final double controlAreaInCrossMinHeight = 150;
 
-  double getButtonSize({required double size}) => size / 3;
+  double getButtonSize({required double size}) => size / (inRow ? 6 : 3);
 
   bool idle = false;
   bool shuffle = false;
   bool repeat = false;
   bool isRadio = false;
+  bool inRow = false;
 
   late MainBloc mainBloc;
 
@@ -73,62 +75,132 @@ class ControlButtonsState extends State<ControlButtons> {
       double maxHeight = constraints.maxHeight == double.infinity
           ? MediaQuery.of(context).size.height - partsToSubtract
           : constraints.maxHeight;
-      double size = maxWidth < maxHeight ? maxWidth : maxHeight;
+      inRow = maxHeight < controlAreaInCrossMinHeight;
+      double size =
+          inRow ? maxWidth : (maxWidth < maxHeight ? maxWidth : maxHeight);
       double buttonSize = getButtonSize(size: size);
-      double verticalOffset = 60.0;
+      bool textOff = maxHeight < (buttonSize + 8);
+      if (textOff) {
+        buttonSize = maxHeight - 8;
+      }
+      double verticalTooltipOffset = buttonSize / 2;
 
       return SizedBox(
         width: size,
-        height: size,
+        height: inRow ? buttonSize : size,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 3 * buttonSize,
-                  height: 3 * buttonSize,
+                  width: (inRow ? 6 : 3) * buttonSize,
+                  height: (inRow ? 1 : 3) * buttonSize,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        children: [
-                          SizedBox(width: buttonSize),
-                          ControlButton(
-                            buttonSize: buttonSize,
-                            verticalOffset: verticalOffset,
-                            tooltipText:
-                                translations['controlButtonRepeatText'] ??
-                                    'repeat',
-                            icon: Icon(
-                              Icons.repeat,
-                              size: buttonSize * 0.5,
-                              color:
-                                  repeat ? enableIconColor : disabledIconColor,
-                            ),
-                            readOnly: isRadio,
-                            onPressed: () {
-                              if (!readOnly) {
-                                mainBloc.zoneControl(
-                                    ip: ip,
-                                    controlId: controlId,
-                                    cmd: 'repeatmode',
-                                    enable: !repeat);
-                                if (mounted) {
-                                  setState(() {
-                                    repeat = !repeat;
-                                  });
+                      if (!inRow)
+                        Row(
+                          children: [
+                            SizedBox(width: buttonSize),
+                            ControlButton(
+                              buttonSize: buttonSize,
+                              verticalTooltipOffset: verticalTooltipOffset,
+                              tooltipText:
+                                  translations['controlButtonRepeatText'] ??
+                                      'repeat',
+                              icon: Icon(
+                                Icons.repeat,
+                                size: buttonSize * 0.5,
+                                color: repeat
+                                    ? enableIconColor
+                                    : disabledIconColor,
+                              ),
+                              readOnly: isRadio,
+                              onPressed: () {
+                                if (!readOnly) {
+                                  mainBloc.zoneControl(
+                                      ip: ip,
+                                      controlId: controlId,
+                                      cmd: 'repeatmode',
+                                      enable: !repeat);
+                                  if (mounted) {
+                                    setState(() {
+                                      repeat = !repeat;
+                                    });
+                                  }
                                 }
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                              },
+                            ),
+                          ],
+                        ),
                       Row(
                         children: [
+                          if (inRow) ...[
+                            ControlButton(
+                              buttonSize: buttonSize,
+                              verticalTooltipOffset: verticalTooltipOffset,
+                              tooltipText:
+                                  translations['controlButtonShuffleText'] ??
+                                      'shuffle',
+                              icon: Icon(
+                                Icons.shuffle,
+                                size: buttonSize * 0.5,
+                                color: shuffle
+                                    ? enableIconColor
+                                    : disabledIconColor,
+                              ),
+                              readOnly: isRadio,
+                              onPressed: () {
+                                if (!readOnly) {
+                                  mainBloc.zoneControl(
+                                      ip: ip,
+                                      controlId: controlId,
+                                      cmd: 'shufflemode',
+                                      enable: !shuffle);
+                                  if (mounted) {
+                                    setState(() {
+                                      shuffle = !shuffle;
+                                    });
+                                  }
+                                }
+                              },
+                            ),
+                            ControlButton(
+                              buttonSize: buttonSize,
+                              verticalTooltipOffset: verticalTooltipOffset,
+                              tooltipText:
+                                  translations['controlButtonRepeatText'] ??
+                                      'repeat',
+                              icon: Icon(
+                                Icons.repeat,
+                                size: buttonSize * 0.5,
+                                color: repeat
+                                    ? enableIconColor
+                                    : disabledIconColor,
+                              ),
+                              readOnly: isRadio,
+                              onPressed: () {
+                                if (!readOnly) {
+                                  mainBloc.zoneControl(
+                                      ip: ip,
+                                      controlId: controlId,
+                                      cmd: 'repeatmode',
+                                      enable: !repeat);
+                                  if (mounted) {
+                                    setState(() {
+                                      repeat = !repeat;
+                                    });
+                                  }
+                                }
+                              },
+                            ),
+                            SizedBox(width: buttonSize),
+                          ],
                           ControlButton(
                             buttonSize: buttonSize,
-                            verticalOffset: verticalOffset,
+                            verticalTooltipOffset: verticalTooltipOffset,
                             tooltipText:
                                 translations['controlButtonPreviousText'] ??
                                     'previous track',
@@ -149,7 +221,7 @@ class ControlButtonsState extends State<ControlButtons> {
                           ),
                           ControlButton(
                             buttonSize: buttonSize,
-                            verticalOffset: verticalOffset,
+                            verticalTooltipOffset: verticalTooltipOffset,
                             tooltipText:
                                 translations['controlButtonPlaymodeText'] ??
                                     'pause/play',
@@ -177,7 +249,7 @@ class ControlButtonsState extends State<ControlButtons> {
                           ),
                           ControlButton(
                             buttonSize: buttonSize,
-                            verticalOffset: verticalOffset,
+                            verticalTooltipOffset: verticalTooltipOffset,
                             tooltipText:
                                 translations['controlButtonNextText'] ??
                                     'next track',
@@ -201,39 +273,41 @@ class ControlButtonsState extends State<ControlButtons> {
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          SizedBox(width: buttonSize),
-                          ControlButton(
-                            buttonSize: buttonSize,
-                            verticalOffset: verticalOffset,
-                            tooltipText:
-                                translations['controlButtonShuffleText'] ??
-                                    'shuffle',
-                            icon: Icon(
-                              Icons.shuffle,
-                              size: buttonSize * 0.5,
-                              color:
-                                  shuffle ? enableIconColor : disabledIconColor,
-                            ),
-                            readOnly: isRadio,
-                            onPressed: () {
-                              if (!readOnly) {
-                                mainBloc.zoneControl(
-                                    ip: ip,
-                                    controlId: controlId,
-                                    cmd: 'shufflemode',
-                                    enable: !shuffle);
-                                if (mounted) {
-                                  setState(() {
-                                    shuffle = !shuffle;
-                                  });
+                      if (!inRow)
+                        Row(
+                          children: [
+                            SizedBox(width: buttonSize),
+                            ControlButton(
+                              buttonSize: buttonSize,
+                              verticalTooltipOffset: verticalTooltipOffset,
+                              tooltipText:
+                                  translations['controlButtonShuffleText'] ??
+                                      'shuffle',
+                              icon: Icon(
+                                Icons.shuffle,
+                                size: buttonSize * 0.5,
+                                color: shuffle
+                                    ? enableIconColor
+                                    : disabledIconColor,
+                              ),
+                              readOnly: isRadio,
+                              onPressed: () {
+                                if (!readOnly) {
+                                  mainBloc.zoneControl(
+                                      ip: ip,
+                                      controlId: controlId,
+                                      cmd: 'shufflemode',
+                                      enable: !shuffle);
+                                  if (mounted) {
+                                    setState(() {
+                                      shuffle = !shuffle;
+                                    });
+                                  }
                                 }
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                              },
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),

@@ -93,7 +93,7 @@ class DeviceListItemState extends State<DeviceListItem> {
   final double tickerSpeedSliderWidth = 120.0;
 
   final bool verticalTickerEnabled = true;
-  final bool useLedVariant = true;
+  final bool useLedVariant = false;
   final double ledSize = 2.0;
   final double ledGap = 0.2;
   final Color ledOnColor = Colors.red.shade500;

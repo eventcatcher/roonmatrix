@@ -3,7 +3,7 @@ import 'package:roonmatrix/globals.dart';
 
 class ControlButton extends StatelessWidget {
   final double buttonSize;
-  final double verticalOffset;
+  final double verticalTooltipOffset;
   final String tooltipText;
   final Icon icon;
   final Color? color;
@@ -13,7 +13,7 @@ class ControlButton extends StatelessWidget {
   const ControlButton({
     super.key,
     required this.buttonSize,
-    required this.verticalOffset,
+    required this.verticalTooltipOffset,
     required this.tooltipText,
     required this.icon,
     this.color,
@@ -30,7 +30,7 @@ class ControlButton extends StatelessWidget {
         message: readOnly ? '' : tooltipText,
         triggerMode: TooltipTriggerMode.manual,
         waitDuration: Duration(seconds: 3),
-        verticalOffset: verticalOffset,
+        verticalOffset: verticalTooltipOffset,
         child: Material(
           color: Colors.transparent,
           shape: const CircleBorder(),

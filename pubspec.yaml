@@ -77,6 +77,7 @@ dependencies:
   connection_network_type: ^1.0.0
   connectivity_plus: ^6.1.5
   device_info_plus: ^12.3.0
+  flutter_layout_grid: ^2.0.8
   updatable_ticker:
       path: ../updatable_ticker/updatable_ticker_library
   updatable_vertical_ticker:

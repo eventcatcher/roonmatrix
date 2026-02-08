@@ -200,6 +200,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                             hintText:
                                 translations['pleaseTypeMessagePlaceholder'] ??
                                     'Please write message here',
+                            border: InputBorder.none, // removes blue focus line
                             contentPadding: EdgeInsets.all(9.0),
                           ),
                           maxLines: maxLines,

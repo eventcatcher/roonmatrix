@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
@@ -52,8 +55,20 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final double fontSize = Globals.isDesktopDevice() ? 20.0 : 16.0;
-  final double coveraPadding = 24.0;
+  final double fontSize = Globals.isDesktopDevice() ? 20.0 : 12.0;
+  final double coverPadding = 16.0;
+  final double controlAreaInCrossMinHeight = 150;
+
+  final BoxDecoration areaDecorationBorderStyle = BoxDecoration(
+    borderRadius: Globals.borderRadius(),
+    border: Border.all(color: Colors.black, width: 0, style: BorderStyle.solid),
+  );
+
+  final BoxDecoration areaDecorationFilledStyle = BoxDecoration(
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(255, 60, 60, 60),
+    // color: Color.fromARGB(160, 0, 0, 0),
+  );
 
   Map<String, dynamic> info = {};
   Map<String, String> options = {};
@@ -70,9 +85,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   bool repeat = false;
   bool isRadio = false;
   bool loaded = false;
+  double? coverWidth;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
+  late StreamSubscription mainBlocSubscription;
 
   @override
   void initState() {
@@ -80,19 +97,134 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     mainBloc.getInfo(ip: ip);
+    initSubscription();
 
     super.initState();
   }
 
-  Widget getTextArea() {
+  initSubscription() {
+    mainBlocSubscription = mainBloc.stream.listen((MainState mainState) {
+      if (mainState is MainStateLoaded) {
+        info = mainState.info[ip] ?? {};
+
+        Map<String, String> optionsUpdated = options;
+        if (widget.controlId == null) {
+          optionsUpdated = mainBloc.generateZoneSelectionOptionsAndPreselect(
+            info: info,
+            controlId: controlId,
+            setZoneId: ({required String zoneId}) {
+              if (selectedZoneId != zoneId) {
+                SchedulerBinding.instance.addPostFrameCallback((_) async {
+                  if (mounted) {
+                    setState(() => selectedZoneId = zoneId);
+                  }
+                });
+              }
+            },
+          );
+        }
+
+        if (macosVersion != mainState.macosVersion ||
+            options.keys.join(',') != optionsUpdated.keys.join(',') ||
+            options.values.join(',') != optionsUpdated.values.join(',')) {
+          SchedulerBinding.instance.addPostFrameCallback((_) async {
+            if (mounted) {
+              setState(() {
+                macosVersion = mainState.macosVersion;
+                options = optionsUpdated;
+              });
+            }
+          });
+        }
+
+        if (info != {} && info['control_id'] != null) {
+          String? controlIdUpdated = widget.controlId ?? info['control_id'];
+
+          if (info['web_playouts_raw'] != webPlayoutsRaw ||
+              info['roon_playouts_raw'] != roonPlayoutsRaw ||
+              controlId == null ||
+              controlIdUpdated != controlId) {
+            webPlayoutsRaw = info['web_playouts_raw'];
+            roonPlayoutsRaw = info['roon_playouts_raw'];
+
+            Map<String, dynamic> data = mainBloc.getZoneDataForControlId(
+              info: info,
+              controlId: controlIdUpdated,
+              isRadio: isRadio,
+            );
+            if (data['zone'] != null) {
+              (data['zone'] as Map<String, dynamic>).remove('position');
+            }
+
+            if ((data['zone'] != null && selectedZone != data['zone']) ||
+                controlIdUpdated != controlId) {
+              SchedulerBinding.instance.addPostFrameCallback((_) async {
+                if (mounted) {
+                  setState(() {
+                    Map<String, dynamic>? zone = data['zone'];
+
+                    controlId = controlIdUpdated;
+
+                    if (zone != null && selectedZone != zone) {
+                      selectedZone = zone;
+                      selectedZoneId = zone['server'] == 'roon'
+                          ? zone['zone']
+                          : '${zone['server']}-${zone['zone']}';
+                    }
+
+                    if (controlId != null) {
+                      if ((info['shufflemode'] as Map<String, dynamic>)
+                          .containsKey(controlId)) {
+                        shuffle = info['shufflemode'][controlId] == 'shuffle';
+                      }
+                      if ((info['repeatmode'] as Map<String, dynamic>)
+                          .containsKey(controlId)) {
+                        repeat = info['repeatmode'][controlId] == 'repeat';
+                      }
+                      if ((info['playmode'] as Map<String, dynamic>)
+                          .containsKey(controlId)) {
+                        idle = info['playmode'][controlId] != 'play';
+                      }
+
+                      isRadio = data['isRadio'];
+                      if (selectedZone?['zone'] == 'Apple Music') {
+                        isRadio =
+                            false; // fix for AppleMusic because the delay is too big (every stream with position:0 will be disabling the prev/next button for isRadio == true, but the next infodata update will be loaded 10-15sec later)
+                      }
+                    }
+                  });
+                }
+              });
+            }
+          }
+        }
+
+        if (!loaded) {
+          SchedulerBinding.instance.addPostFrameCallback((_) async {
+            if (mounted) {
+              setState(() => loaded = true);
+            }
+          });
+        }
+      }
+    });
+  }
+
+  Widget getTextArea({
+    required bool portraitMode,
+  }) {
     if (selectedZone == null ||
         selectedZone!.isEmpty ||
         selectedZone!['cover'] == null) {
+      // zone is inactive
       return Row(
         children: [
           Padding(
-            padding:
-                const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 104.0),
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              bottom: 2.0,
+            ), // bottom: 99.0
             child: Row(
               children: [
                 Text(
@@ -100,7 +232,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,
-                    color: Colors.black,
+                    color: Globals.brightness() == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
                   ),
                 ),
                 Text(
@@ -108,7 +242,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: fontSize,
-                    color: Colors.red.shade700,
+                    color: Globals.brightness() == Brightness.dark
+                        ? Colors.red.shade400
+                        : Colors.red.shade700,
                   ),
                 ),
               ],
@@ -148,16 +284,27 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           children: [
             Expanded(
               child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 8.0, right: 16.0, bottom: 16.0),
-                child: CoverTextOverlayExtended(
-                  coverModel: coverModel,
-                  fontSize: fontSize,
-                  color: Colors.black,
-                  translations: translations,
-                  coverRowArtist: true,
-                  coverRowAlbum: true,
-                  coverRowTrack: true,
+                padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                child: Container(
+                  padding: EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    borderRadius: Globals.borderRadius(),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 4.0, vertical: 2.0),
+                    child: CoverTextOverlayExtended(
+                      coverModel: coverModel,
+                      fontSize: fontSize,
+                      color: Globals.brightness() == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                      translations: translations,
+                      coverRowArtist: true,
+                      coverRowAlbum: true,
+                      coverRowTrack: true,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -169,7 +316,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     return SizedBox();
   }
 
-  Map<String, dynamic> updateZoneSelection({required String? newValue}) {
+  Map<String, dynamic> updateZoneSelection({
+    required String? newValue,
+  }) {
     if (newValue != null) {
       String? selectedControlId;
       if (options[newValue] != null &&
@@ -218,42 +367,170 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     return {};
   }
 
-  Widget getSelectBoxArea({required Map<String, String> options}) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+  Widget getSelectBoxArea({
+    required bool portraitMode,
+    required Map<String, String> options,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(
+        top: coverPadding,
+        right: coverPadding,
+      ),
+      decoration: Globals.brightness() == Brightness.dark
+          ? areaDecorationFilledStyle
+          : areaDecorationBorderStyle,
       child: Padding(
-        padding: const EdgeInsets.only(right: 64.0),
-        child: SelectBox(
-            key: ValueKey('ZoneSelectBox-$selectedZoneId'),
-            translations: translations,
-            aligned: 'horizontal',
-            label: '${translations['zoneSelectionLabel'] ?? 'Zone'}:',
-            labelColor: Colors.black,
-            placeholder:
-                '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-            inRow: false,
-            noVerticalSpace: false,
-            readOnly: false,
-            selected: options[selectedZoneId] != null ? selectedZoneId : null,
-            options: options,
-            onChanged: (String? newValue) {
-              Map<String, dynamic> updateData =
-                  updateZoneSelection(newValue: newValue);
-              selectedZoneId = updateData['selectedZoneId'] ?? selectedZoneId;
-              controlId = updateData['controlId'] ?? controlId;
-              selectedZone = updateData['selectedZone'] ?? selectedZone;
-              if (mounted && updateData.keys.isNotEmpty) {
-                setState(() {
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Row(
+          children: [
+            SelectBox(
+                key: ValueKey('ZoneSelectBox-$selectedZoneId'),
+                translations: translations,
+                aligned: 'horizontal',
+                label: '${translations['zoneSelectionLabel'] ?? 'Zone'}',
+                labelColor: Globals.brightness() == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+                labelFontSize: 17.0,
+                placeholder:
+                    '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                inRow: true,
+                noVerticalSpace: false,
+                readOnly: false,
+                selected:
+                    options[selectedZoneId] != null ? selectedZoneId : null,
+                options: options,
+                onChanged: (String? newValue) {
+                  Map<String, dynamic> updateData =
+                      updateZoneSelection(newValue: newValue);
                   selectedZoneId =
                       updateData['selectedZoneId'] ?? selectedZoneId;
                   controlId = updateData['controlId'] ?? controlId;
                   selectedZone = updateData['selectedZone'] ?? selectedZone;
-                });
-              }
-            }),
+                  if (mounted && updateData.keys.isNotEmpty) {
+                    setState(() {
+                      selectedZoneId =
+                          updateData['selectedZoneId'] ?? selectedZoneId;
+                      controlId = updateData['controlId'] ?? controlId;
+                      selectedZone = updateData['selectedZone'] ?? selectedZone;
+                    });
+                  }
+                }),
+          ],
+        ),
       ),
     );
   }
+
+  Widget getCoverArea({
+    required BuildContext context,
+    required bool portraitMode,
+    required Map<String, dynamic>? selectedZone,
+  }) =>
+      NotificationListener<SizeChangedLayoutNotification>(
+        onNotification: (notification) {
+          build(context);
+          return false;
+        },
+        child: SizeChangedLayoutNotifier(
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: portraitMode
+                ? EdgeInsets.only(
+                    right: coverPadding,
+                    top: coverPadding,
+                    bottom: coverPadding,
+                  )
+                : EdgeInsets.all(coverPadding),
+            child: AnimatedSwitcher(
+              duration: Globals.coverSwitchDefaultFadeAnimationDuration,
+              child: mainRepository.coverExistInZone(zone: selectedZone)
+                  ? Image.network(
+                      selectedZone!['cover'],
+                      key: ValueKey(
+                          'BigCover-$selectedZone-${selectedZone['cover']}'),
+                      fit: BoxFit.contain,
+                      alignment: portraitMode
+                          ? Alignment.topCenter
+                          : Alignment.centerLeft,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(Globals.placeholderPngAssetPath());
+                      },
+                    )
+                  : SvgPicture.asset(
+                      Globals.placeholderSvgAssetPath(),
+                      allowDrawingOutsideViewBox: false,
+                      width: double.infinity,
+                      height: double.infinity,
+                      alignment: portraitMode
+                          ? Alignment.center
+                          : Alignment.centerLeft,
+                    ),
+            ),
+          ),
+        ),
+      );
+
+  double getButtonSize({required double size}) => size / 6;
+
+  Widget getControlArea({
+    required bool portraitMode,
+    required Orientation orientation,
+    required bool idle,
+    required bool shuffle,
+    required bool repeat,
+    required bool isRadio,
+    required String? selectedZoneId,
+  }) =>
+      LayoutBuilder(builder: (context, constraints) {
+        double padding = portraitMode ? 0.0 : 16.0;
+        double height = portraitMode
+            ? (constraints.maxHeight - coverPadding + 3)
+            : (constraints.maxHeight - coverPadding * 2 - 24);
+
+        if (height < 57) {
+          return SizedBox();
+        }
+        return Container(
+          width: portraitMode ? null : double.infinity,
+          height: portraitMode ? null : double.infinity,
+          margin: portraitMode
+              ? EdgeInsets.only(
+                  right: coverPadding,
+                  bottom: coverPadding,
+                )
+              : EdgeInsets.only(
+                  right: coverPadding,
+                  top: coverPadding,
+                  bottom: coverPadding,
+                ),
+          decoration: Globals.brightness() == Brightness.dark
+              ? areaDecorationFilledStyle
+              : areaDecorationBorderStyle,
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.all(padding),
+              child: ControlButtons(
+                key: ValueKey(
+                    'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
+                orientation: orientation,
+                translations: translations,
+                partsToSubtract: portraitMode ? 0 : 355,
+                ip: ip,
+                controlId: controlId ?? widget.controlId ?? '',
+                idle: idle,
+                shuffle: shuffle,
+                repeat: repeat,
+                isRadio: isRadio,
+                readOnly: selectedZoneId == null || selectedZoneId.isEmpty,
+              ),
+            ),
+          ),
+        );
+      });
 
   Widget body({
     required BuildContext context,
@@ -264,251 +541,176 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           children: [
             Column(
               children: [
-                BlocBuilder(
-                  bloc: mainBloc,
-                  builder: (context, MainState mainState) {
-                    if (mainState is MainStateLoaded) {
-                      info = mainState.info[ip] ?? {};
-                      macosVersion = mainState.macosVersion;
+                !loaded
+                    ? SizedBox()
+                    : Expanded(
+                        child: RoonmatrixAnimatedGradient(
+                          child: OrientationBuilder(builder:
+                              (BuildContext context, Orientation orientation) {
+                            final bool portraitMode =
+                                (Globals.isMobileDevice() &&
+                                        orientation == Orientation.portrait) ||
+                                    (Globals.isDesktopDevice() &&
+                                        MediaQuery.of(context).size.height >
+                                            MediaQuery.of(context).size.width);
 
-                      if (widget.controlId == null) {
-                        Map<String, String> optionsUpdated =
-                            mainBloc.generateZoneSelectionOptionsAndPreselect(
-                          info: info,
-                          controlId: controlId,
-                          setZoneId: ({required String zoneId}) {
-                            if (selectedZoneId != zoneId) {
-                              SchedulerBinding.instance
-                                  .addPostFrameCallback((_) async {
-                                if (mounted) {
-                                  setState(() => selectedZoneId = zoneId);
-                                }
-                              });
-                            }
-                          },
-                        );
+                            return portraitMode
+                                ? Container(
+                                    margin: EdgeInsets.only(left: coverPadding),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        if (widget.controlId == null)
+                                          SizedBox(
+                                            width: coverWidth != null
+                                                ? coverWidth! -
+                                                    coverPadding +
+                                                    16
+                                                : 200,
+                                            child: getSelectBoxArea(
+                                                portraitMode: portraitMode,
+                                                options: options),
+                                          ),
+                                        Expanded(
+                                          child: LayoutBuilder(
+                                              builder: (context, constraints) {
+                                            final double coverSize =
+                                                constraints.maxWidth - 8;
+                                            final double minControlsHeight = 86;
+                                            double coverHeight = min(
+                                              coverSize,
+                                              constraints.maxHeight -
+                                                  minControlsHeight,
+                                            );
+                                            if (coverHeight <
+                                                MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    2) {
+                                              coverHeight =
+                                                  MediaQuery.of(context)
+                                                          .size
+                                                          .height /
+                                                      2;
+                                            }
 
-                        if (options.keys.join(',') !=
-                                optionsUpdated.keys.join(',') ||
-                            options.values.join(',') !=
-                                optionsUpdated.values.join(',')) {
-                          options = optionsUpdated;
-                        }
-                      }
+                                            coverWidth =
+                                                coverHeight + coverPadding - 16;
 
-                      if (info != {} && info['control_id'] != null) {
-                        String? controlIdUpdated =
-                            widget.controlId ?? info['control_id'];
-
-                        if (info['web_playouts_raw'] != webPlayoutsRaw ||
-                            info['roon_playouts_raw'] != roonPlayoutsRaw ||
-                            controlId == null ||
-                            controlIdUpdated != controlId) {
-                          Map<String, dynamic> data =
-                              mainBloc.getZoneDataForControlId(
-                            info: info,
-                            controlId: controlIdUpdated,
-                            isRadio: isRadio,
-                          );
-                          Map<String, dynamic>? zone = data['zone'];
-                          isRadio = data['isRadio'];
-
-                          if (selectedZone?['zone'] == 'Apple Music') {
-                            isRadio =
-                                false; // fix for AppleMusic because the delay is too big (every stream with position:0 will be disabling the prev/next button for isRadio == true, but the next infodata update will be loaded 10-15sec later)
-                          }
-
-                          if (zone != null) {
-                            selectedZone = zone;
-                          }
-
-                          SchedulerBinding.instance
-                              .addPostFrameCallback((_) async {
-                            if (mounted) {
-                              setState(() {
-                                webPlayoutsRaw = info['web_playouts_raw'];
-                                roonPlayoutsRaw = info['roon_playouts_raw'];
-                                if (controlIdUpdated != controlId) {
-                                  controlId = controlIdUpdated;
-                                }
-                                if (zone != null) {
-                                  selectedZone = zone;
-                                  selectedZoneId = zone['server'] == 'roon'
-                                      ? zone['zone']
-                                      : '${zone['server']}-${zone['zone']}';
-                                }
-                              });
-                            }
-                          });
-
-                          if (controlIdUpdated != null) {
-                            if ((info['shufflemode'] as Map<String, dynamic>)
-                                .containsKey(controlIdUpdated)) {
-                              shuffle = info['shufflemode'][controlIdUpdated] ==
-                                  'shuffle';
-                            }
-                            if ((info['repeatmode'] as Map<String, dynamic>)
-                                .containsKey(controlIdUpdated)) {
-                              repeat = info['repeatmode'][controlIdUpdated] ==
-                                  'repeat';
-                            }
-                            if ((info['playmode'] as Map<String, dynamic>)
-                                .containsKey(controlIdUpdated)) {
-                              idle =
-                                  info['playmode'][controlIdUpdated] != 'play';
-                            }
-                          }
-                        }
-                      }
-
-                      if (!loaded) {
-                        SchedulerBinding.instance
-                            .addPostFrameCallback((_) async {
-                          if (mounted) {
-                            setState(() => loaded = true);
-                          }
-                        });
-                      }
-                    }
-
-                    if (!loaded) return SizedBox();
-
-                    return Expanded(
-                      child: RoonmatrixAnimatedGradient(
-                        child: OrientationBuilder(builder:
-                            (BuildContext context, Orientation orientation) {
-                          final bool portraitMode = (Globals.isMobileDevice() &&
-                                  orientation == Orientation.portrait) ||
-                              (Globals.isDesktopDevice() &&
-                                  MediaQuery.of(context).size.height >
-                                      MediaQuery.of(context).size.width);
-
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (portraitMode == true &&
-                                  widget.controlId == null)
-                                getSelectBoxArea(options: options),
-                              Expanded(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Flexible(
-                                      fit: FlexFit.loose,
-                                      child: NotificationListener<
-                                          SizeChangedLayoutNotification>(
-                                        onNotification: (notification) {
-                                          build(context);
-                                          return false;
-                                        },
-                                        child: SizeChangedLayoutNotifier(
+                                            final controlsHeight = max(
+                                                  minControlsHeight,
+                                                  constraints.maxHeight -
+                                                      coverHeight,
+                                                ) -
+                                                16;
+                                            return Column(
+                                              children: [
+                                                Expanded(
+                                                  child: getCoverArea(
+                                                    context: context,
+                                                    portraitMode: portraitMode,
+                                                    selectedZone: selectedZone,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: coverWidth,
+                                                  height:
+                                                      controlsHeight.toDouble(),
+                                                  child: getControlArea(
+                                                    portraitMode: portraitMode,
+                                                    orientation: orientation,
+                                                    idle: idle,
+                                                    shuffle: shuffle,
+                                                    repeat: repeat,
+                                                    isRadio: isRadio,
+                                                    selectedZoneId:
+                                                        selectedZoneId,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                        ),
+                                        Center(
                                           child: Container(
-                                            padding:
-                                                EdgeInsets.all(coveraPadding),
-                                            child: AnimatedSwitcher(
-                                              duration: Globals
-                                                  .coverSwitchDefaultFadeAnimationDuration,
-                                              child: mainRepository
-                                                      .coverExistInZone(
-                                                          zone: selectedZone)
-                                                  ? Image.network(
-                                                      selectedZone!['cover'],
-                                                      key: ValueKey(
-                                                          'BigCover-$selectedZone-${selectedZone!['cover']}'),
-                                                      fit: BoxFit.contain,
-                                                      width: double.infinity,
-                                                      height: double.infinity,
-                                                      errorBuilder: (context,
-                                                          error, stackTrace) {
-                                                        return Image.asset(Globals
-                                                            .placeholderPngAssetPath());
-                                                      },
-                                                    )
-                                                  : SvgPicture.asset(
-                                                      Globals
-                                                          .placeholderSvgAssetPath(),
-                                                      allowDrawingOutsideViewBox:
-                                                          false,
-                                                      width: double.infinity,
-                                                      height: double.infinity,
-                                                    ),
+                                            width: coverWidth != null
+                                                ? coverWidth! - coverPadding
+                                                : 200,
+                                            margin: EdgeInsets.only(
+                                              bottom: coverPadding,
+                                              right: coverPadding,
                                             ),
+                                            decoration: Globals.brightness() ==
+                                                    Brightness.dark
+                                                ? areaDecorationFilledStyle
+                                                : areaDecorationBorderStyle,
+                                            child: getTextArea(
+                                                portraitMode: portraitMode),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                    if (portraitMode == false)
-                                      Flexible(
-                                        fit: FlexFit.tight,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            if (widget.controlId == null)
-                                              getSelectBoxArea(
-                                                  options: options),
-                                            Expanded(
-                                              child: ControlButtons(
-                                                key: ValueKey(
-                                                    'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
-                                                orientation: orientation,
-                                                translations: translations,
-                                                partsToSubtract: 275,
-                                                ip: ip,
-                                                controlId: controlId ??
-                                                    widget.controlId ??
-                                                    '',
-                                                idle: idle,
-                                                shuffle: shuffle,
-                                                repeat: repeat,
-                                                isRadio: isRadio,
-                                                readOnly:
-                                                    selectedZoneId == null ||
-                                                        selectedZoneId!.isEmpty,
-                                              ),
-                                            ),
-                                            getTextArea(),
-                                          ],
+                                  )
+                                : LayoutGrid(
+                                    areas: '''
+                                    cover select
+                                    cover controls
+                                    cover text
+                                  ''',
+                                    columnSizes: [
+                                      1.fr,
+                                      Globals.isDesktopDevice()
+                                          ? 0.75.fr
+                                          : 1.2.fr
+                                    ],
+                                    rowSizes: [
+                                      auto,
+                                      1.fr,
+                                      auto,
+                                    ],
+                                    columnGap: 2,
+                                    rowGap: 2,
+                                    children: [
+                                      getCoverArea(
+                                        context: context,
+                                        portraitMode: portraitMode,
+                                        selectedZone: selectedZone,
+                                      ).inGridArea('cover'),
+                                      widget.controlId == null
+                                          ? getSelectBoxArea(
+                                              portraitMode: portraitMode,
+                                              options: options,
+                                            ).inGridArea('select')
+                                          : SizedBox().inGridArea('select'),
+                                      getControlArea(
+                                        portraitMode: portraitMode,
+                                        orientation: orientation,
+                                        idle: idle,
+                                        shuffle: shuffle,
+                                        repeat: repeat,
+                                        isRadio: isRadio,
+                                        selectedZoneId: selectedZoneId,
+                                      ).inGridArea('controls'),
+                                      Container(
+                                        margin: EdgeInsets.only(
+                                          bottom: coverPadding,
+                                          right: coverPadding,
                                         ),
-                                      )
-                                  ],
-                                ),
-                              ),
-                              if (portraitMode == true)
-                                Row(
-                                  children: [
-                                    Expanded(child: getTextArea()),
-                                    ControlButtons(
-                                      key: ValueKey(
-                                          'ControButtonsPortrait-$idle-$shuffle-$repeat-$isRadio'),
-                                      orientation: orientation,
-                                      translations: translations,
-                                      partsToSubtract:
-                                          MediaQuery.of(context).size.height -
-                                              150,
-                                      ip: ip,
-                                      controlId:
-                                          controlId ?? widget.controlId ?? '',
-                                      idle: idle,
-                                      shuffle: shuffle,
-                                      repeat: repeat,
-                                      isRadio: isRadio,
-                                      readOnly: selectedZoneId == null ||
-                                          selectedZoneId!.isEmpty,
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          );
-                        }),
-                      ),
-                    );
-                  },
-                ),
+                                        decoration: Globals.brightness() ==
+                                                Brightness.dark
+                                            ? areaDecorationFilledStyle
+                                            : areaDecorationBorderStyle,
+                                        child: getTextArea(
+                                            portraitMode: portraitMode),
+                                      ).inGridArea('text')
+                                    ],
+                                  );
+                          }),
+                        ),
+                      )
               ],
             ),
             ZoneCornerLabel(
@@ -560,5 +762,12 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   minDesktopSize: minDesktopSize);
             },
           );
+  }
+
+  @override
+  Future<void> dispose() async {
+    mainBlocSubscription.cancel();
+
+    super.dispose();
   }
 }

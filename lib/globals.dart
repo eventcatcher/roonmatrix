@@ -12,6 +12,11 @@ class Globals {
       true; // show app in iOS ui style (running on macos or iOS)
   static final bool showSelectBoxInMacStyle = true;
 
+  static double minDesktopWidth = 1280;
+  static Size minDesktopSize =
+      Size(minDesktopWidth, Globals.getWindowMinHeight());
+  static Size standardDesktopSize = Size(minDesktopWidth, 768);
+
   static bool isMobileDevice() =>
       Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
 
@@ -98,7 +103,7 @@ class Globals {
           .replaceFirst('-Spotify', '')
           .replaceFirst('-Apple Music', '');
 
-  static final Color hoverButtonBackground = Color.fromARGB(170, 200, 200, 200);
+  static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
 
   static double getWindowMinHeight() {
     double minHeight = Platform.isWindows ? 392 : 320;

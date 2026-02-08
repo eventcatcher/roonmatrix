@@ -76,17 +76,19 @@ class _PageWithToolbarFlutterStyleState
 
   @override
   void initState() {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      bool isFullscreenStatus = await windowManager.isFullScreen();
+    if (Globals.isDesktopDevice()) {
+      SchedulerBinding.instance.addPostFrameCallback((_) async {
+        bool isFullscreenStatus = await windowManager.isFullScreen();
 
-      if (mounted) {
-        setState(() {
-          isFullscreen = isFullscreenStatus;
-        });
-      }
-    });
+        if (mounted) {
+          setState(() {
+            isFullscreen = isFullscreenStatus;
+          });
+        }
+      });
 
-    windowManager.addListener(this);
+      windowManager.addListener(this);
+    }
 
     appBarWithActions = getAppBar();
     double appBarHeight = appBarWithActions.preferredSize.height;

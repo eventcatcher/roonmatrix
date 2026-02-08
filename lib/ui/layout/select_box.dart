@@ -12,6 +12,7 @@ class SelectBox extends StatefulWidget {
   final String? aligned;
   final String? label;
   final Color? labelColor;
+  final double? labelFontSize;
   final String? placeholder;
   final String? selected;
   final bool? showValue;
@@ -29,6 +30,7 @@ class SelectBox extends StatefulWidget {
     this.aligned,
     this.label,
     this.labelColor,
+    this.labelFontSize = 12.0,
     this.placeholder,
     this.selected,
     this.showValue = false,
@@ -50,6 +52,7 @@ class SelectBoxState extends State<SelectBox> {
   String? get aligned => widget.aligned;
   String? get label => widget.label;
   Color? get labelColor => widget.labelColor;
+  double? get labelFontSize => widget.labelFontSize;
   String? get placeholder => widget.placeholder;
   String? get selected => widget.selected;
   bool? get showValue => widget.showValue;
@@ -59,8 +62,6 @@ class SelectBoxState extends State<SelectBox> {
   bool? get readOnlyColoredGrey => widget.readOnlyColoredGrey;
   bool? get optionsWithVerticalSpace => widget.optionsWithVerticalSpace;
   void Function(String? value) get onChanged => widget.onChanged;
-
-  final double labelFontSize = 12.0;
 
   int selectedItem = -1;
   BuildContext? modalContext;
@@ -261,12 +262,15 @@ class SelectBoxState extends State<SelectBox> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (label != null)
-                    Text(
-                      label!,
-                      style: TextStyle(
-                        color:
-                            labelColor ?? ColorDefs.textColor(context: context),
-                        fontSize: labelFontSize,
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        label!,
+                        style: TextStyle(
+                          color: labelColor ??
+                              ColorDefs.textColor(context: context),
+                          fontSize: labelFontSize,
+                        ),
                       ),
                     ),
                   dropdown(expanded: false, context: dropdownContext),
@@ -288,7 +292,7 @@ class SelectBoxState extends State<SelectBox> {
                       height: 4.0,
                     ),
                   ],
-                  dropdown(expanded: true, context: dropdownContext),
+                  dropdown(expanded: false, context: dropdownContext),
                 ],
               ),
       ),
