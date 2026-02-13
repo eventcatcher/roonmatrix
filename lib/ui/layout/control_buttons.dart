@@ -50,6 +50,16 @@ class ControlButtonsState extends State<ControlButtons> {
   final Color disabledIconColorDark = Colors.grey.shade300;
   final double controlAreaInCrossMinHeight = 150;
 
+  BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
+        borderRadius: Globals.borderRadius(),
+        color: Color.fromARGB(30, 70, 70, 70),
+      );
+
+  BoxDecoration areaDecorationFilledDarkStyle() => BoxDecoration(
+        borderRadius: Globals.borderRadius(),
+        color: Color.fromARGB(30, 140, 140, 140),
+      );
+
   double getButtonSize({
     required double size,
     required bool inRow,
@@ -108,10 +118,9 @@ class ControlButtonsState extends State<ControlButtons> {
                   width: width,
                   height: height,
                   decoration: inRow
-                      ? BoxDecoration(
-                          borderRadius: Globals.borderRadius(),
-                          color: Color.fromARGB(30, 70, 70, 70),
-                        )
+                      ? Globals.brightness() == Brightness.dark
+                          ? areaDecorationFilledDarkStyle()
+                          : areaDecorationFilledLightStyle()
                       : null,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -232,6 +241,11 @@ class ControlButtonsState extends State<ControlButtons> {
                             icon: Icon(
                               Icons.keyboard_arrow_left,
                               size: iconSize,
+                              color: (isRadio || idle)
+                                  ? Globals.brightness() == Brightness.dark
+                                      ? disabledIconColorDark
+                                      : disabledIconColorLight
+                                  : null,
                             ),
                             color: Globals.brightness() == Brightness.dark
                                 ? iconColorDark
@@ -287,6 +301,11 @@ class ControlButtonsState extends State<ControlButtons> {
                             icon: Icon(
                               Icons.keyboard_arrow_right,
                               size: iconSize,
+                              color: (isRadio || idle)
+                                  ? Globals.brightness() == Brightness.dark
+                                      ? disabledIconColorDark
+                                      : disabledIconColorLight
+                                  : null,
                             ),
                             color: Globals.brightness() == Brightness.dark
                                 ? iconColorDark
