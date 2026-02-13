@@ -25,6 +25,7 @@ import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 
 class StartPage extends StatefulWidget {
   final String title;
@@ -394,9 +395,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                     size: 20.0,
                                                   ),
                                                 ),
-                                                label: translations[
-                                                        'exportButtonText'] ??
-                                                    'export',
+                                                label: (translations[
+                                                            'exportButtonText'] ??
+                                                        'export')
+                                                    .toString()
+                                                    .toFirstUpper,
                                                 onPressed:
                                                     saveIdle == true ||
                                                             idle == true ||

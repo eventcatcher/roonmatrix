@@ -369,7 +369,7 @@ class SharedWidgets {
       TableRow(children: [
         TableCell(
           child: Container(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.centerLeft,
             child: Text(
               label,
               style: TextStyle(

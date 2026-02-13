@@ -5,6 +5,7 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
@@ -111,7 +112,9 @@ class ConfigPageState extends State<ConfigPage> {
                         size: 20.0,
                       ),
                     ),
-                    label: translations['saveButtonText'] ?? 'save',
+                    label: (translations['saveButtonText'] ?? 'save')
+                        .toString()
+                        .toFirstUpper,
                     onPressed: !validData ||
                             saveIdle == true ||
                             mainState.subPageIdle == true
@@ -221,7 +224,9 @@ class ConfigPageState extends State<ConfigPage> {
                       size: 20.0,
                     ),
                   ),
-                  label: translations['exportButtonText'] ?? 'export',
+                  label: (translations['exportButtonText'] ?? 'export')
+                      .toString()
+                      .toFirstUpper,
                   onPressed: saveIdle == true || mainState.subPageIdle == true
                       ? null
                       : () async {

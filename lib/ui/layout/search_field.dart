@@ -95,7 +95,9 @@ class SearchFieldState extends State<SearchField> {
                               size: 18.0,
                               color: ColorDefs.iconColor(context: context)),
                           placeholder:
-                              translations['searchfieldHint'] ?? 'search',
+                              (translations['searchfieldHint'] ?? 'search')
+                                  .toString()
+                                  .toFirstUpper,
                           controller: controller,
                           onChanged: (String value) {
                             value = value.escapeAllSpecialChars();

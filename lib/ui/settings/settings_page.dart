@@ -11,6 +11,7 @@ import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/ip_address_input_formatter.dart';
 import 'package:roonmatrix/ui/helper/ip_input_formatter.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
@@ -254,8 +255,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                             ),
                                           ),
                                           label:
-                                              translations['saveButtonText'] ??
-                                                  'save',
+                                              (translations['saveButtonText'] ??
+                                                      'save')
+                                                  .toString()
+                                                  .toFirstUpper,
                                           onPressed: ipStart.text.isNotEmpty &&
                                                   ipEnd.text.isNotEmpty &&
                                                   settingsBloc.validateIpRange(

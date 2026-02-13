@@ -53,7 +53,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
 
   @override
   Widget build(BuildContext context) => Table(
-        columnWidths: {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+        columnWidths: {0: IntrinsicColumnWidth(), 1: IntrinsicColumnWidth()},
         children: [
           SharedWidgets.getTableRowInnerCentered(
             label: '${translations['coverZoneHeader'] ?? 'Zone'}: ',

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
@@ -111,7 +112,9 @@ class InfoPageState extends State<InfoPage> {
                       size: 20.0,
                     ),
                   ),
-                  label: translations['exportButtonText'] ?? 'export',
+                  label: (translations['exportButtonText'] ?? 'export')
+                      .toString()
+                      .toFirstUpper,
                   onPressed: saveIdle == true || mainState.subPageIdle == true
                       ? null
                       : () async {

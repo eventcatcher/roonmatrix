@@ -55,7 +55,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final double fontSize = Globals.isDesktopDevice() ? 20.0 : 12.0;
   final double coverPadding = 16.0;
   final double controlAreaInCrossMinHeight = 150;
 
@@ -64,9 +63,15 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     border: Border.all(color: Colors.black, width: 0, style: BorderStyle.solid),
   );
 
-  final BoxDecoration areaDecorationFilledStyle = BoxDecoration(
+  final BoxDecoration areaDecorationFilledLightStyle = BoxDecoration(
     borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(255, 60, 60, 60),
+    color: Color.fromARGB(255, 220, 220, 220),
+    // color: Color.fromARGB(160, 0, 0, 0),
+  );
+
+  final BoxDecoration areaDecorationFilledDarkStyle = BoxDecoration(
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(255, 70, 70, 70),
     // color: Color.fromARGB(160, 0, 0, 0),
   );
 
@@ -212,7 +217,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   Widget getTextArea({
     required bool portraitMode,
+    required bool threeCols,
+    double? fontSize,
   }) {
+    final CrossAxisAlignment textAlignment = CrossAxisAlignment.center;
+    final double fontSizeFinal =
+        fontSize ?? (Globals.isDesktopDevice() ? 20.0 : 12.0);
+
     if (selectedZone == null ||
         selectedZone!.isEmpty ||
         selectedZone!['cover'] == null) {
@@ -231,7 +242,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone?['server'] == 'roon' ? selectedZone!['zone'] : selectedZone?['server'] ?? '').toString().toFirstUpper}',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
+                    fontSize: fontSizeFinal,
                     color: Globals.brightness() == Brightness.dark
                         ? Colors.white
                         : Colors.black,
@@ -241,7 +252,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   ' (${translations['inactive'] ?? 'inactive zone'})',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
+                    fontSize: fontSizeFinal,
                     color: Globals.brightness() == Brightness.dark
                         ? Colors.red.shade400
                         : Colors.red.shade700,
@@ -278,39 +289,55 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         status: selectedZone!['status'],
       );
 
-      return IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-                child: Container(
-                  padding: EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    borderRadius: Globals.borderRadius(),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 4.0, vertical: 2.0),
-                    child: CoverTextOverlayExtended(
-                      coverModel: coverModel,
-                      fontSize: fontSize,
-                      color: Globals.brightness() == Brightness.dark
-                          ? Colors.white
-                          : Colors.black,
-                      translations: translations,
-                      coverRowArtist: true,
-                      coverRowAlbum: true,
-                      coverRowTrack: true,
+      Widget inner = Row(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: textAlignment,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      borderRadius: Globals.borderRadius(),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4.0, vertical: 2.0),
+                      child: CoverTextOverlayExtended(
+                        coverModel: coverModel,
+                        fontSize: fontSizeFinal,
+                        color: Globals.brightness() == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                        translations: translations,
+                        coverRowArtist: true,
+                        coverRowAlbum: true,
+                        coverRowTrack: true,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       );
+
+      return threeCols
+          ? Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                inner,
+              ],
+            )
+          : IntrinsicHeight(
+              child: inner,
+            );
     }
 
     return SizedBox();
@@ -377,17 +404,19 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         right: coverPadding,
       ),
       decoration: Globals.brightness() == Brightness.dark
-          ? areaDecorationFilledStyle
-          : areaDecorationBorderStyle,
+          ? areaDecorationFilledDarkStyle
+          : areaDecorationFilledLightStyle,
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SelectBox(
                 key: ValueKey('ZoneSelectBox-$selectedZoneId'),
                 translations: translations,
                 aligned: 'horizontal',
                 label: '${translations['zoneSelectionLabel'] ?? 'Zone'}',
+                labelWeight: FontWeight.bold,
                 labelColor: Globals.brightness() == Brightness.dark
                     ? Colors.white
                     : Colors.black,
@@ -474,11 +503,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         ),
       );
 
-  double getButtonSize({required double size}) => size / 6;
-
   Widget getControlArea({
     required bool portraitMode,
     required Orientation orientation,
+    required bool threeCols,
     required bool idle,
     required bool shuffle,
     required bool repeat,
@@ -491,12 +519,12 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             ? (constraints.maxHeight - coverPadding + 3)
             : (constraints.maxHeight - coverPadding * 2 - 24);
 
-        if (height < 57) {
+        if (height < 57 && !threeCols) {
           return SizedBox();
         }
         return Container(
           width: portraitMode ? null : double.infinity,
-          height: portraitMode ? null : double.infinity,
+          height: portraitMode || threeCols ? null : double.infinity,
           margin: portraitMode
               ? EdgeInsets.only(
                   right: coverPadding,
@@ -508,8 +536,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   bottom: coverPadding,
                 ),
           decoration: Globals.brightness() == Brightness.dark
-              ? areaDecorationFilledStyle
-              : areaDecorationBorderStyle,
+              ? areaDecorationFilledDarkStyle
+              : areaDecorationFilledLightStyle,
           child: Center(
             child: Padding(
               padding: EdgeInsets.all(padding),
@@ -518,7 +546,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                     'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
                 orientation: orientation,
                 translations: translations,
-                partsToSubtract: portraitMode ? 0 : 355,
+                partsToSubtract: portraitMode || threeCols ? 0 : 355,
                 ip: ip,
                 controlId: controlId ?? widget.controlId ?? '',
                 idle: idle,
@@ -553,6 +581,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                     (Globals.isDesktopDevice() &&
                                         MediaQuery.of(context).size.height >
                                             MediaQuery.of(context).size.width);
+
+                            bool threeCols = MediaQuery.of(context).size.width /
+                                    MediaQuery.of(context).size.height >
+                                2.5;
+
+                            print(
+                                'fyctorrr: ${MediaQuery.of(context).size.width / MediaQuery.of(context).size.height}');
 
                             return portraitMode
                                 ? Container(
@@ -622,6 +657,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                   child: getControlArea(
                                                     portraitMode: portraitMode,
                                                     orientation: orientation,
+                                                    threeCols: threeCols,
                                                     idle: idle,
                                                     shuffle: shuffle,
                                                     repeat: repeat,
@@ -636,41 +672,51 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                         ),
                                         Center(
                                           child: Container(
-                                            width: coverWidth != null
-                                                ? coverWidth! - coverPadding
-                                                : 200,
-                                            margin: EdgeInsets.only(
-                                              bottom: coverPadding,
-                                              right: coverPadding,
-                                            ),
-                                            decoration: Globals.brightness() ==
-                                                    Brightness.dark
-                                                ? areaDecorationFilledStyle
-                                                : areaDecorationBorderStyle,
-                                            child: getTextArea(
-                                                portraitMode: portraitMode),
-                                          ),
+                                              width: coverWidth != null
+                                                  ? coverWidth! - coverPadding
+                                                  : 200,
+                                              margin: EdgeInsets.only(
+                                                bottom: coverPadding,
+                                                right: coverPadding,
+                                              ),
+                                              decoration: Globals
+                                                          .brightness() ==
+                                                      Brightness.dark
+                                                  ? areaDecorationFilledDarkStyle
+                                                  : areaDecorationFilledLightStyle,
+                                              child: getTextArea(
+                                                portraitMode: portraitMode,
+                                                threeCols: threeCols,
+                                              )),
                                         ),
                                       ],
                                     ),
                                   )
                                 : LayoutGrid(
-                                    areas: '''
+                                    areas: threeCols
+                                        ? 'cover controls text'
+                                        : '''
                                     cover select
                                     cover controls
                                     cover text
                                   ''',
-                                    columnSizes: [
-                                      1.fr,
-                                      Globals.isDesktopDevice()
-                                          ? 0.75.fr
-                                          : 1.2.fr
-                                    ],
-                                    rowSizes: [
-                                      auto,
-                                      1.fr,
-                                      auto,
-                                    ],
+                                    columnSizes: threeCols
+                                        ? [1.fr, 1.fr, 0.8.fr]
+                                        : [
+                                            1.fr,
+                                            Globals.isDesktopDevice()
+                                                ? 0.75.fr
+                                                : 1.2.fr,
+                                          ],
+                                    rowSizes: threeCols
+                                        ? [
+                                            1.fr,
+                                          ]
+                                        : [
+                                            auto,
+                                            1.fr,
+                                            auto,
+                                          ],
                                     columnGap: 2,
                                     rowGap: 2,
                                     children: [
@@ -679,15 +725,17 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                         portraitMode: portraitMode,
                                         selectedZone: selectedZone,
                                       ).inGridArea('cover'),
-                                      widget.controlId == null
-                                          ? getSelectBoxArea(
-                                              portraitMode: portraitMode,
-                                              options: options,
-                                            ).inGridArea('select')
-                                          : SizedBox().inGridArea('select'),
+                                      if (!threeCols)
+                                        widget.controlId == null
+                                            ? getSelectBoxArea(
+                                                portraitMode: portraitMode,
+                                                options: options,
+                                              ).inGridArea('select')
+                                            : SizedBox().inGridArea('select'),
                                       getControlArea(
                                         portraitMode: portraitMode,
                                         orientation: orientation,
+                                        threeCols: threeCols,
                                         idle: idle,
                                         shuffle: shuffle,
                                         repeat: repeat,
@@ -696,15 +744,61 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                       ).inGridArea('controls'),
                                       Container(
                                         margin: EdgeInsets.only(
+                                          top: threeCols ? coverPadding : 0.0,
                                           bottom: coverPadding,
                                           right: coverPadding,
                                         ),
                                         decoration: Globals.brightness() ==
                                                 Brightness.dark
-                                            ? areaDecorationFilledStyle
-                                            : areaDecorationBorderStyle,
-                                        child: getTextArea(
-                                            portraitMode: portraitMode),
+                                            ? areaDecorationFilledDarkStyle
+                                            : areaDecorationFilledLightStyle,
+                                        child: threeCols
+                                            ? LayoutBuilder(builder:
+                                                (context, constraints) {
+                                                return Padding(
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: constraints
+                                                              .maxHeight /
+                                                          12),
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        widget.controlId == null
+                                                            ? MainAxisAlignment
+                                                                .spaceBetween
+                                                            : MainAxisAlignment
+                                                                .center,
+                                                    children: [
+                                                      if (widget.controlId ==
+                                                              null &&
+                                                          threeCols)
+                                                        getSelectBoxArea(
+                                                          portraitMode:
+                                                              portraitMode,
+                                                          options: options,
+                                                        ),
+                                                      Padding(
+                                                        padding: EdgeInsets.only(
+                                                            bottom:
+                                                                coverPadding),
+                                                        child: getTextArea(
+                                                          portraitMode:
+                                                              portraitMode,
+                                                          threeCols: threeCols,
+                                                          fontSize: constraints
+                                                                      .maxHeight <
+                                                                  300
+                                                              ? 14
+                                                              : null,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              })
+                                            : getTextArea(
+                                                portraitMode: portraitMode,
+                                                threeCols: threeCols,
+                                              ),
                                       ).inGridArea('text')
                                     ],
                                   );

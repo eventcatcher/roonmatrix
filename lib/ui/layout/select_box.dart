@@ -11,6 +11,7 @@ class SelectBox extends StatefulWidget {
   final Map<String, String>? options;
   final String? aligned;
   final String? label;
+  final FontWeight? labelWeight;
   final Color? labelColor;
   final double? labelFontSize;
   final String? placeholder;
@@ -29,6 +30,7 @@ class SelectBox extends StatefulWidget {
     required this.options,
     this.aligned,
     this.label,
+    this.labelWeight,
     this.labelColor,
     this.labelFontSize = 12.0,
     this.placeholder,
@@ -51,6 +53,7 @@ class SelectBoxState extends State<SelectBox> {
   Map<String, String>? get options => widget.options;
   String? get aligned => widget.aligned;
   String? get label => widget.label;
+  FontWeight? get labelWeight => widget.labelWeight;
   Color? get labelColor => widget.labelColor;
   double? get labelFontSize => widget.labelFontSize;
   String? get placeholder => widget.placeholder;
@@ -270,6 +273,7 @@ class SelectBoxState extends State<SelectBox> {
                           color: labelColor ??
                               ColorDefs.textColor(context: context),
                           fontSize: labelFontSize,
+                          fontWeight: labelWeight,
                         ),
                       ),
                     ),

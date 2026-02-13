@@ -274,7 +274,9 @@ class LogPageState extends State<LogPage> {
                       size: 20.0,
                     ),
                   ),
-                  label: translations['exportButtonText'] ?? 'export',
+                  label: (translations['exportButtonText'] ?? 'export')
+                      .toString()
+                      .toFirstUpper,
                   onPressed: saveIdle == true || mainState.subPageIdle == true
                       ? null
                       : () async {

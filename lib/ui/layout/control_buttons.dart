@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/control_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
@@ -42,9 +43,11 @@ class ControlButtonsState extends State<ControlButtons> {
   bool get readOnly => widget.readOnly;
 
   final bool showButtonUp = false;
-  final Color iconColor = Colors.blue.shade900;
+  final Color iconColorLight = Colors.blue.shade900;
+  final Color iconColorDark = Colors.blue.shade300;
   final Color enableIconColor = Colors.green;
-  final Color disabledIconColor = Colors.grey;
+  final Color disabledIconColorLight = Colors.grey.shade600;
+  final Color disabledIconColorDark = Colors.grey.shade300;
   final double controlAreaInCrossMinHeight = 150;
 
   double getButtonSize({required double size}) => size / (inRow ? 6 : 3);
@@ -115,7 +118,9 @@ class ControlButtonsState extends State<ControlButtons> {
                                 size: buttonSize * 0.5,
                                 color: repeat
                                     ? enableIconColor
-                                    : disabledIconColor,
+                                    : Globals.brightness() == Brightness.dark
+                                        ? disabledIconColorDark
+                                        : disabledIconColorLight,
                               ),
                               readOnly: isRadio,
                               onPressed: () {
@@ -149,7 +154,9 @@ class ControlButtonsState extends State<ControlButtons> {
                                 size: buttonSize * 0.5,
                                 color: shuffle
                                     ? enableIconColor
-                                    : disabledIconColor,
+                                    : Globals.brightness() == Brightness.dark
+                                        ? disabledIconColorDark
+                                        : disabledIconColorLight,
                               ),
                               readOnly: isRadio,
                               onPressed: () {
@@ -178,7 +185,9 @@ class ControlButtonsState extends State<ControlButtons> {
                                 size: buttonSize * 0.5,
                                 color: repeat
                                     ? enableIconColor
-                                    : disabledIconColor,
+                                    : Globals.brightness() == Brightness.dark
+                                        ? disabledIconColorDark
+                                        : disabledIconColorLight,
                               ),
                               readOnly: isRadio,
                               onPressed: () {
@@ -208,7 +217,9 @@ class ControlButtonsState extends State<ControlButtons> {
                               Icons.keyboard_arrow_left,
                               size: buttonSize,
                             ),
-                            color: iconColor,
+                            color: Globals.brightness() == Brightness.dark
+                                ? iconColorDark
+                                : iconColorLight,
                             readOnly: isRadio || idle,
                             onPressed: () {
                               if (!readOnly) {
@@ -229,7 +240,9 @@ class ControlButtonsState extends State<ControlButtons> {
                               idle ? Icons.play_arrow : Icons.pause,
                               size: buttonSize / 2,
                             ),
-                            color: iconColor,
+                            color: Globals.brightness() == Brightness.dark
+                                ? iconColorDark
+                                : iconColorLight,
                             readOnly: false,
                             onPressed: () {
                               if (!readOnly) {
@@ -257,7 +270,9 @@ class ControlButtonsState extends State<ControlButtons> {
                               Icons.keyboard_arrow_right,
                               size: buttonSize,
                             ),
-                            color: iconColor,
+                            color: Globals.brightness() == Brightness.dark
+                                ? iconColorDark
+                                : iconColorLight,
                             readOnly: isRadio || idle,
                             onPressed: () {
                               if (!readOnly) {
@@ -288,7 +303,9 @@ class ControlButtonsState extends State<ControlButtons> {
                                 size: buttonSize * 0.5,
                                 color: shuffle
                                     ? enableIconColor
-                                    : disabledIconColor,
+                                    : Globals.brightness() == Brightness.dark
+                                        ? disabledIconColorDark
+                                        : disabledIconColorLight,
                               ),
                               readOnly: isRadio,
                               onPressed: () {

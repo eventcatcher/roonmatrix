@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
@@ -249,7 +250,9 @@ class MessageWriterState extends State<MessageWriter> {
               size: 20.0,
             ),
           ),
-          label: translations['sendButtonLabel'] ?? 'send',
+          label: (translations['sendButtonLabel'] ?? 'send')
+              .toString()
+              .toFirstUpper,
           onPressed: messageTextController.text.isEmpty ||
                   (customMessage.isNotEmpty &&
                       customMessage == messageTextController.text)
