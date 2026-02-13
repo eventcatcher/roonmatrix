@@ -57,23 +57,25 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final double coverPadding = 16.0;
   final double controlAreaInCrossMinHeight = 150;
+  final bool withAnimatedBackground = false;
 
   final BoxDecoration areaDecorationBorderStyle = BoxDecoration(
     borderRadius: Globals.borderRadius(),
     border: Border.all(color: Colors.black, width: 0, style: BorderStyle.solid),
   );
 
-  final BoxDecoration areaDecorationFilledLightStyle = BoxDecoration(
-    borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(255, 220, 220, 220),
-    // color: Color.fromARGB(160, 0, 0, 0),
-  );
+  BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
+        borderRadius: Globals.borderRadius(),
+        color:
+            Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
+        // color: Color.fromARGB(160, 0, 0, 0),
+      );
 
-  final BoxDecoration areaDecorationFilledDarkStyle = BoxDecoration(
-    borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(255, 70, 70, 70),
-    // color: Color.fromARGB(160, 0, 0, 0),
-  );
+  BoxDecoration areaDecorationFilledDarkStyle() => BoxDecoration(
+        borderRadius: Globals.borderRadius(),
+        color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
+        // color: Color.fromARGB(160, 0, 0, 0),
+      );
 
   Map<String, dynamic> info = {};
   Map<String, String> options = {};
@@ -404,8 +406,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         right: coverPadding,
       ),
       decoration: Globals.brightness() == Brightness.dark
-          ? areaDecorationFilledDarkStyle
-          : areaDecorationFilledLightStyle,
+          ? areaDecorationFilledDarkStyle()
+          : areaDecorationFilledLightStyle(),
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Row(
@@ -536,8 +538,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   bottom: coverPadding,
                 ),
           decoration: Globals.brightness() == Brightness.dark
-              ? areaDecorationFilledDarkStyle
-              : areaDecorationFilledLightStyle,
+              ? areaDecorationFilledDarkStyle()
+              : areaDecorationFilledLightStyle(),
           child: Center(
             child: Padding(
               padding: EdgeInsets.all(padding),
@@ -573,6 +575,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                     ? SizedBox()
                     : Expanded(
                         child: RoonmatrixAnimatedGradient(
+                          disabled: !withAnimatedBackground,
                           child: OrientationBuilder(builder:
                               (BuildContext context, Orientation orientation) {
                             final bool portraitMode =
@@ -682,8 +685,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                               decoration: Globals
                                                           .brightness() ==
                                                       Brightness.dark
-                                                  ? areaDecorationFilledDarkStyle
-                                                  : areaDecorationFilledLightStyle,
+                                                  ? areaDecorationFilledDarkStyle()
+                                                  : areaDecorationFilledLightStyle(),
                                               child: getTextArea(
                                                 portraitMode: portraitMode,
                                                 threeCols: threeCols,
@@ -750,8 +753,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                         ),
                                         decoration: Globals.brightness() ==
                                                 Brightness.dark
-                                            ? areaDecorationFilledDarkStyle
-                                            : areaDecorationFilledLightStyle,
+                                            ? areaDecorationFilledDarkStyle()
+                                            : areaDecorationFilledLightStyle(),
                                         child: threeCols
                                             ? LayoutBuilder(builder:
                                                 (context, constraints) {

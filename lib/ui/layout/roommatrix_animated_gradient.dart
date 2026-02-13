@@ -5,11 +5,13 @@ import 'package:flutter/scheduler.dart';
 class RoonmatrixAnimatedGradient extends StatefulWidget {
   final Widget? child;
   final List<Color> colors;
+  final bool disabled;
 
   const RoonmatrixAnimatedGradient({
     super.key,
     this.child,
     this.colors = const [Colors.red, Colors.blue, Colors.green, Colors.yellow],
+    this.disabled = false,
   });
 
   @override
@@ -52,27 +54,29 @@ class RoonmatrixAnimatedGradientState
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(seconds: 2),
-      onEnd: () {
-        setState(
-          () {
-            index = index + 1;
-            // animate the color
-            bottomColor = colors[index % colors.length];
-            topColor = colors[(index + 1) % colors.length];
+    return widget.disabled
+        ? widget.child ?? SizedBox()
+        : AnimatedContainer(
+            duration: const Duration(seconds: 2),
+            onEnd: () {
+              setState(
+                () {
+                  index = index + 1;
+                  // animate the color
+                  bottomColor = colors[index % colors.length];
+                  topColor = colors[(index + 1) % colors.length];
 
-            // animate the alignment
-            begin = alignmentList[index % alignmentList.length];
-            end = alignmentList[(index + 2) % alignmentList.length];
-          },
-        );
-      },
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-            begin: begin, end: end, colors: [bottomColor, topColor]),
-      ),
-      child: widget.child,
-    );
+                  // animate the alignment
+                  begin = alignmentList[index % alignmentList.length];
+                  end = alignmentList[(index + 2) % alignmentList.length];
+                },
+              );
+            },
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: begin, end: end, colors: [bottomColor, topColor]),
+            ),
+            child: widget.child,
+          );
   }
 }
