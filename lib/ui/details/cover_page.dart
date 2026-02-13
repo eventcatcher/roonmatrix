@@ -329,17 +329,33 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         ],
       );
 
-      return threeCols
-          ? Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                inner,
-              ],
-            )
-          : IntrinsicHeight(
-              child: inner,
+      return ClipRRect(
+        child: AnimatedSwitcher(
+          duration: Duration(milliseconds: 500),
+          transitionBuilder: (child, animation) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: Offset(0, 1),
+                end: Offset(0, 0),
+              ).animate(animation),
+              child: child,
             );
+          },
+          child: threeCols
+              ? Column(
+                  key: ValueKey('Text-$hash'),
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    inner,
+                  ],
+                )
+              : IntrinsicHeight(
+                  key: ValueKey('Text-$hash'),
+                  child: inner,
+                ),
+        ),
+      );
     }
 
     return SizedBox();
@@ -588,9 +604,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                             bool threeCols = MediaQuery.of(context).size.width /
                                     MediaQuery.of(context).size.height >
                                 2.5;
-
-                            print(
-                                'fyctorrr: ${MediaQuery.of(context).size.width / MediaQuery.of(context).size.height}');
 
                             return portraitMode
                                 ? Container(
