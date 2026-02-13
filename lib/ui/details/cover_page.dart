@@ -774,10 +774,16 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                       if (widget.controlId ==
                                                               null &&
                                                           threeCols)
-                                                        getSelectBoxArea(
-                                                          portraitMode:
-                                                              portraitMode,
-                                                          options: options,
+                                                        Container(
+                                                          margin: EdgeInsets.only(
+                                                              left:
+                                                                  coverPadding),
+                                                          child:
+                                                              getSelectBoxArea(
+                                                            portraitMode:
+                                                                portraitMode,
+                                                            options: options,
+                                                          ),
                                                         ),
                                                       Padding(
                                                         padding: EdgeInsets.only(
