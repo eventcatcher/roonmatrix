@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/zone_start_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -186,10 +187,12 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
                       key: keyZoneNotRunningButtonsKey,
                       children: [
                         SizedBox(
-                            height: 30.0,
-                            child: Center(
-                                child: Text(
-                                    '${translations['startZone'] ?? 'start'}: '))),
+                          height: 30.0,
+                          child: Center(
+                            child: Text(
+                                '${(translations['startZone'] ?? 'start').toString().toFirstUpper}: '),
+                          ),
+                        ),
                         ...buttons,
                         Text(
                           '$zoneNotRunningButtonsWidth-${orientation.name}',
@@ -209,9 +212,14 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(width: 8.0),
-              Text(translations['startZone'] ?? 'start',
-                  style:
-                      TextStyle(color: ColorDefs.textColor(context: context))),
+              Text(
+                (translations['startZone'] ?? 'start').toString().toFirstUpper,
+                style: TextStyle(
+                  color: ColorDefs.textColor(context: context),
+                  fontWeight: FontWeight.w400,
+                  fontSize: 19.0,
+                ),
+              ),
               Flexible(
                 fit: FlexFit.loose,
                 child: SingleChildScrollView(

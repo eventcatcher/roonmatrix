@@ -49,6 +49,7 @@ class ControlButtonsState extends State<ControlButtons> {
   final Color disabledIconColorLight = Colors.grey.shade600;
   final Color disabledIconColorDark = Colors.grey.shade300;
   final double controlAreaInCrossMinHeight = 150;
+  final int cols = 9;
 
   BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
         borderRadius: Globals.borderRadius(),
@@ -64,7 +65,7 @@ class ControlButtonsState extends State<ControlButtons> {
     required double size,
     required bool inRow,
   }) =>
-      size / (inRow ? 9 : 3);
+      (size - 16) / (inRow ? cols : 3);
 
   bool idle = false;
   bool shuffle = false;
@@ -101,7 +102,7 @@ class ControlButtonsState extends State<ControlButtons> {
         buttonSize = maxHeight - 8;
       }
       double verticalTooltipOffset = buttonSize / 2;
-      double width = (inRow ? 9 : 3) * buttonSize;
+      double width = (inRow ? cols : 3) * buttonSize;
       double height = (inRow ? 1 : 3) * buttonSize;
       double iconSize = buttonSize * 0.5;
 
@@ -117,7 +118,7 @@ class ControlButtonsState extends State<ControlButtons> {
                 Container(
                   width: width,
                   height: height,
-                  decoration: inRow
+                  decoration: inRow && width < (maxWidth - 16)
                       ? Globals.brightness() == Brightness.dark
                           ? areaDecorationFilledDarkStyle()
                           : areaDecorationFilledLightStyle()

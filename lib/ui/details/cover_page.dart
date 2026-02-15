@@ -232,35 +232,41 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
       // zone is inactive
       return Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              left: 16.0,
-              right: 16.0,
-              bottom: 2.0,
-            ), // bottom: 99.0
-            child: Row(
-              children: [
-                Text(
-                  '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone?['server'] == 'roon' ? selectedZone!['zone'] : selectedZone?['server'] ?? '').toString().toFirstUpper}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSizeFinal,
-                    color: Globals.brightness() == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: 2.0,
+              ),
+              child: Column(
+                children: [
+                  Wrap(
+                    children: [
+                      Text(
+                        '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone?['server'] == 'roon' ? selectedZone!['zone'] : selectedZone?['server'] ?? '').toString().toFirstUpper}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: fontSizeFinal,
+                          color: Globals.brightness() == Brightness.dark
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                      ),
+                      Text(
+                        ' (${translations['inactive'] ?? 'inactive zone'})',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: fontSizeFinal,
+                          color: Globals.brightness() == Brightness.dark
+                              ? Colors.red.shade400
+                              : Colors.red.shade700,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Text(
-                  ' (${translations['inactive'] ?? 'inactive zone'})',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSizeFinal,
-                    color: Globals.brightness() == Brightness.dark
-                        ? Colors.red.shade400
-                        : Colors.red.shade700,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -564,7 +570,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                     'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
                 orientation: orientation,
                 translations: translations,
-                partsToSubtract: portraitMode || threeCols ? 0 : 355,
+                //partsToSubtract: portraitMode || threeCols ? 0 : 355,
                 ip: ip,
                 controlId: controlId ?? widget.controlId ?? '',
                 idle: idle,
@@ -607,7 +613,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
                             return portraitMode
                                 ? Container(
-                                    margin: EdgeInsets.only(left: coverPadding),
+                                    //color: Colors.red,
+                                    margin: EdgeInsets.only(
+                                      left: coverPadding,
+                                    ),
                                     child: Column(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
@@ -617,9 +626,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                         if (widget.controlId == null)
                                           SizedBox(
                                             width: coverWidth != null
-                                                ? coverWidth! -
-                                                    coverPadding +
-                                                    16
+                                                ? coverWidth!
                                                 : 200,
                                             child: getSelectBoxArea(
                                                 portraitMode: portraitMode,
@@ -654,9 +661,21 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             final controlsHeight = max(
                                                   minControlsHeight,
                                                   constraints.maxHeight -
-                                                      coverHeight,
+                                                      coverSize -
+                                                      8,
                                                 ) -
-                                                16;
+                                                coverPadding;
+
+                                            final controlsWidth = min(
+                                              coverWidth! - coverPadding,
+                                              MediaQuery.of(context)
+                                                      .size
+                                                      .width -
+                                                  coverPadding * 2,
+                                            );
+                                            print(
+                                                'controlsWidth: $controlsWidth');
+
                                             return Column(
                                               children: [
                                                 Expanded(
@@ -667,7 +686,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                   ),
                                                 ),
                                                 SizedBox(
-                                                  width: coverWidth,
+                                                  width: controlsWidth +
+                                                      coverPadding,
                                                   height:
                                                       controlsHeight.toDouble(),
                                                   child: getControlArea(
@@ -689,7 +709,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                         Center(
                                           child: Container(
                                               width: coverWidth != null
-                                                  ? coverWidth! - coverPadding
+                                                  ? (coverWidth! - coverPadding)
                                                   : 200,
                                               margin: EdgeInsets.only(
                                                 bottom: coverPadding,

@@ -38,6 +38,10 @@ class DeviceListItem extends StatefulWidget {
   final bool moreInfo;
   final double scrollSpeedScrollMatrix;
   final double scrollSpeedDevice;
+  final bool verticalTickerActive;
+  final bool ledTickerInDeviceListActive;
+  final bool ledTickerOnTickerPageActive;
+
   final void Function(String caller) updateSizes;
 
   const DeviceListItem({
@@ -59,6 +63,9 @@ class DeviceListItem extends StatefulWidget {
     required this.moreInfo,
     required this.scrollSpeedScrollMatrix,
     required this.scrollSpeedDevice,
+    required this.verticalTickerActive,
+    required this.ledTickerInDeviceListActive,
+    required this.ledTickerOnTickerPageActive,
     required this.updateSizes,
   });
 
@@ -78,6 +85,9 @@ class DeviceListItemState extends State<DeviceListItem> {
   String get spotifyAuthUrl => widget.spotifyAuthUrl;
   bool get isSmallDeviceWidth => widget.isSmallDeviceWidth;
   bool get moreInfo => widget.moreInfo;
+  bool get verticalTickerActive => widget.verticalTickerActive;
+  bool get ledTickerInDeviceListActive => widget.ledTickerInDeviceListActive;
+  bool get ledTickerOnTickerPageActive => widget.ledTickerOnTickerPageActive;
   void Function(String caller) get updateSizes => widget.updateSizes;
 
   final int cyclePause = 2;
@@ -92,12 +102,12 @@ class DeviceListItemState extends State<DeviceListItem> {
   final double tickerPixelPerSecondFactor = 50.0;
   final double tickerSpeedSliderWidth = 120.0;
 
-  final bool verticalTickerEnabled = true;
-  final bool useLedVariant = true;
-  final double ledSize = 2.0;
+  final double ledSize = 3.0;
   final double ledGap = 0.2;
-  final Color ledOnColor = Colors.red.shade500;
+  final Color ledOnColor = Colors.red.shade400;
   final Color ledOffColor = const Color(0xFF000000);
+  final double ledTickerPadding = 2.0;
+  final double ledTickerBorderSize = 1.0;
 
   List<String> verticalTextLines = [];
   int scrollDuration = 0;
@@ -149,25 +159,34 @@ class DeviceListItemState extends State<DeviceListItem> {
     Map<String, dynamic> i = info[ip];
 
     int ledModules = i['led_modules'];
-    bool verticalOutput = i['vertical_output'] ?? false;
+    bool verticalOutput =
+        verticalTickerActive && (i['vertical_output'] ?? false);
 
-    double verticalTickerWidth = useLedVariant
-        ? ledSize * ledModules * 8 + ledGap * ledModules * 1.5
+    double ledSingleModuleSize = ledSize * 8 + ledGap * 8;
+
+    double tickerWidth = ledTickerInDeviceListActive
+        ? ledModules * ledSize * 8 +
+            2 * ledTickerPadding +
+            2 * ledTickerBorderSize
         : ledModules * tickerFontSize * Globals.verticalTickerWidthFactor;
+
+    double tickerHeight = ledTickerInDeviceListActive
+        ? ledSingleModuleSize + ledTickerPadding * 2 + ledTickerBorderSize * 2
+        : tickerAreaHeight;
 
     String scrollText = verticalOutput
         ? ''
         : mainRepository.replaceIllegalCharsInTickerString(
             str: i['app_displaystr'] ?? '',
-            replaceActiveZoneMarker: !useLedVariant,
+            replaceActiveZoneMarker: !ledTickerInDeviceListActive,
           );
 
-    if (verticalOutput && verticalTickerEnabled) {
+    if (verticalOutput && verticalTickerActive) {
       List<String> lines = [];
       for (String line in List<String>.from(i['vert_strlines'])) {
         String filteredLine = mainRepository.replaceIllegalCharsInTickerString(
           str: line,
-          replaceActiveZoneMarker: !useLedVariant,
+          replaceActiveZoneMarker: !ledTickerInDeviceListActive,
         );
         lines.add(filteredLine);
       }
@@ -374,9 +393,12 @@ class DeviceListItemState extends State<DeviceListItem> {
               ),
             ),
           Positioned(
-              top: verticalOutput && verticalTickerEnabled
-                  ? verticalTickerTopOffset
-                  : tickerTopOffset,
+              top: (verticalOutput && verticalTickerActive
+                      ? verticalTickerTopOffset
+                      : tickerTopOffset) +
+                  (ledTickerInDeviceListActive
+                      ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
+                      : 0),
               child: InkWell(
                 onTap: () => showGeneralDialog(
                   context: context,
@@ -391,6 +413,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                       translations: translations,
                       minDesktopSize: minDesktopSize,
                       standardDesktopSize: standardDesktopSize,
+                      verticalTickerActive: verticalTickerActive,
+                      ledTickerOnTickerPageActive: ledTickerOnTickerPageActive,
                       speedChanged: (double speed) {
                         scrollSpeedScrollMatrix = speed;
                         settingsBloc.setScrollSpeedScrollMatrix(speed: speed);
@@ -406,27 +430,29 @@ class DeviceListItemState extends State<DeviceListItem> {
                   },
                   child: SizeChangedLayoutNotifier(
                     child: Container(
-                      alignment: useLedVariant ||
-                              (verticalOutput && verticalTickerEnabled)
+                      //color: Colors.green,
+                      alignment: ledTickerInDeviceListActive ||
+                              (verticalOutput && verticalTickerActive)
                           ? Alignment.centerLeft
                           : Alignment.center,
                       key: ValueKey(
                           'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                       width: MediaQuery.of(context).size.width - 16,
-                      height: tickerAreaHeight,
-                      child: verticalOutput && verticalTickerEnabled
+                      height: tickerHeight,
+                      child: verticalOutput && verticalTickerActive
                           ? Container(
-                              width: verticalTickerWidth,
-                              padding: useLedVariant
-                                  ? EdgeInsets.all(2.0)
+                              width: tickerWidth,
+                              padding: ledTickerInDeviceListActive
+                                  ? EdgeInsets.all(ledTickerPadding)
                                   : EdgeInsets.only(
                                       top: 4.0,
                                       bottom: 4.0,
                                     ),
-                              decoration: useLedVariant
+                              decoration: ledTickerInDeviceListActive
                                   ? BoxDecoration(
                                       border: Border.all(
-                                          width: 1.0, color: Colors.blue))
+                                          width: ledTickerBorderSize,
+                                          color: Colors.blue))
                                   : BoxDecoration(
                                       borderRadius: Globals.borderRadius(),
                                       boxShadow: [
@@ -442,7 +468,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                         ),
                                       ],
                                     ),
-                              child: useLedVariant
+                              child: ledTickerInDeviceListActive
                                   ? Container(
                                       color: Colors.black,
                                       child: UpdatableVerticalLedTicker(
@@ -487,18 +513,14 @@ class DeviceListItemState extends State<DeviceListItem> {
                                       ),
                                     ),
                             )
-                          : useLedVariant
+                          : ledTickerInDeviceListActive
                               ? Container(
-                                  width: ledModules * 8 * ledSize,
-                                  padding: useLedVariant
-                                      ? EdgeInsets.all(2.0)
-                                      : EdgeInsets.only(
-                                          top: 4.0,
-                                          bottom: 4.0,
-                                        ),
+                                  width: tickerWidth,
+                                  padding: EdgeInsets.all(ledTickerPadding),
                                   decoration: BoxDecoration(
                                       border: Border.all(
-                                          width: 1.0, color: Colors.blue)),
+                                          width: ledTickerBorderSize,
+                                          color: Colors.blue)),
                                   child: Container(
                                     color: Colors.black,
                                     child: UpdatableLedTicker(

@@ -15,7 +15,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         String? ipEnd = prefs.getString('ipEnd');
         bool validIp = validateIp(ip: ipStart) && validateIp(ip: ipEnd);
         bool moreInfo = prefs.getBool('moreInfo') ?? false;
-        bool coverRowActiv = prefs.getBool('coverRowActiv') ?? true;
+        bool coverRowActive = prefs.getBool('coverRowActive') ?? true;
         bool coverRowArtist = prefs.getBool('coverRowArtist') ?? true;
         bool coverRowAlbum = prefs.getBool('coverRowAlbum') ?? true;
         bool coverRowTrack = prefs.getBool('coverRowTrack') ?? true;
@@ -24,18 +24,27 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         double scrollSpeedDevice = prefs.getDouble('scrollSpeedDevice') ?? 1.0;
         double scrollSpeedScrollMatrix =
             prefs.getDouble('scrollSpeedScrollMatrix') ?? 1.0;
+        bool verticalTickerActive =
+            prefs.getBool('verticalTickerActive') ?? true;
+        bool ledTickerInDeviceListActive =
+            prefs.getBool('ledTickerInDeviceListActive') ?? true;
+        bool ledTickerOnTickerPageActive =
+            prefs.getBool('ledTickerOnTickerPageActive') ?? true;
 
         emit(SettingsStateLoaded(
           ipStart: validIp ? ipStart! : state.ipStart,
           ipEnd: validIp ? ipEnd! : state.ipEnd,
           moreInfo: moreInfo,
-          coverRowActiv: coverRowActiv,
+          coverRowActive: coverRowActive,
           coverRowArtist: coverRowArtist,
           coverRowAlbum: coverRowAlbum,
           coverRowTrack: coverRowTrack,
           coverRowDynamicSize: coverRowDynamicSize,
           scrollSpeedDevice: scrollSpeedDevice,
           scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
+          verticalTickerActive: verticalTickerActive,
+          ledTickerInDeviceListActive: ledTickerInDeviceListActive,
+          ledTickerOnTickerPageActive: ledTickerOnTickerPageActive,
         ));
       }
 
@@ -92,10 +101,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         bool enabled = event.enabled;
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setBool('coverRowActiv', enabled);
+        prefs.setBool('coverRowActive', enabled);
 
         emit(state.copyWith(
-          coverRowActiv: enabled,
+          coverRowActive: enabled,
         ));
       }
 
@@ -141,6 +150,39 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowDynamicSize: enabled,
         ));
       }
+
+      if (event is SetVerticalTickerActiveMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('verticalTickerActive', enabled);
+
+        emit(state.copyWith(
+          verticalTickerActive: enabled,
+        ));
+      }
+
+      if (event is SetLedTickerInDeviceListActiveMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('ledTickerInDeviceListActive', enabled);
+
+        emit(state.copyWith(
+          ledTickerInDeviceListActive: enabled,
+        ));
+      }
+
+      if (event is SetLedTickerOnTickerPageActiveMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('ledTickerOnTickerPageActive', enabled);
+
+        emit(state.copyWith(
+          ledTickerOnTickerPageActive: enabled,
+        ));
+      }
     });
 
     loadDefaults();
@@ -156,13 +198,16 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       'ipStart',
       'ipEnd',
       'moreInfo',
-      'coverRowActiv',
+      'coverRowActive',
       'coverRowArtist',
       'coverRowAlbum',
       'coverRowTrack',
       'coverRowDynamicSize',
       'scrollSpeedDevice',
       'scrollSpeedScrollMatrix',
+      'verticalTickerActive',
+      'ledTickerInDeviceListActive',
+      'ledTickerOnTickerPageActive',
     ];
     for (String key in prefsToRemoveList) {
       await prefs.remove(key);
@@ -273,5 +318,23 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required double speed,
   }) {
     add(SetScrollSpeedScrollMatrix(speed: speed));
+  }
+
+  void setVerticalTickerActiveMode({
+    required bool enabled,
+  }) {
+    add(SetVerticalTickerActiveMode(enabled: enabled));
+  }
+
+  void setLedTickerInDeviceListActiveMode({
+    required bool enabled,
+  }) {
+    add(SetLedTickerInDeviceListActiveMode(enabled: enabled));
+  }
+
+  void setLedTickerOnTickerPageActiveMode({
+    required bool enabled,
+  }) {
+    add(SetLedTickerOnTickerPageActiveMode(enabled: enabled));
   }
 }

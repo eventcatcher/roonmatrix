@@ -52,11 +52,15 @@ class _SettingsPageState extends State<SettingsPage> {
   String title = '';
   String macosVersion = '';
   bool moreInfo = false;
-  bool coverRowActiv = false;
+  bool coverRowActive = false;
   bool coverRowArtist = false;
   bool coverRowAlbum = false;
   bool coverRowTrack = false;
   bool coverRowDynamicSize = false;
+  bool verticalTickerActive = false;
+  bool ledTickerInDeviceListActive = false;
+  bool ledTickerOnTickerPageActive = false;
+
   bool translationsLoaded = false;
   bool rangeValid = false;
   bool loaded = false;
@@ -343,7 +347,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: SwitchButton(
                   label: translations['zonesCoverSelectorLabel'] ??
                       'Show covers of all zones',
-                  enabled: coverRowActiv,
+                  enabled: coverRowActive,
                   onChanged: (value) {
                     settingsBloc.setCoverRowActiveMode(enabled: value);
                   },
@@ -406,6 +410,68 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                 ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  left: 16.0,
+                  top: 16.0,
+                  bottom: 16.0,
+                ),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(translations['tickerHeadline'] ?? 'Ticker',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w400,
+                        color: ColorDefs.textColor(context: context),
+                      )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label: translations['verticalTickerSelectorLabel'] ??
+                      'Display vertical ticker if device is configured accordingly',
+                  enabled: verticalTickerActive,
+                  onChanged: (value) {
+                    settingsBloc.setVerticalTickerActiveMode(enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label: translations['ledTickerInDeviceListSelectorLabel'] ??
+                      'Display LED ticker in device list',
+                  enabled: ledTickerInDeviceListActive,
+                  onChanged: (value) {
+                    settingsBloc.setLedTickerInDeviceListActiveMode(
+                        enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label: translations['ledTickerOnTickerPageSelectorLabel'] ??
+                      'Display LED ticker on the ticker page',
+                  enabled: ledTickerOnTickerPageActive,
+                  onChanged: (value) {
+                    settingsBloc.setLedTickerOnTickerPageActiveMode(
+                        enabled: value);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -486,11 +552,17 @@ class _SettingsPageState extends State<SettingsPage> {
                         }
 
                         moreInfo = settingsState.moreInfo;
-                        coverRowActiv = settingsState.coverRowActiv;
+                        coverRowActive = settingsState.coverRowActive;
                         coverRowArtist = settingsState.coverRowArtist;
                         coverRowAlbum = settingsState.coverRowAlbum;
                         coverRowTrack = settingsState.coverRowTrack;
                         coverRowDynamicSize = settingsState.coverRowDynamicSize;
+                        verticalTickerActive =
+                            settingsState.verticalTickerActive;
+                        ledTickerInDeviceListActive =
+                            settingsState.ledTickerInDeviceListActive;
+                        ledTickerOnTickerPageActive =
+                            settingsState.ledTickerOnTickerPageActive;
 
                         if (!loaded) {
                           SchedulerBinding.instance

@@ -139,12 +139,18 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     }
 
                     bool moreInfo = settingsState.moreInfo;
-                    bool coverRowActiv = settingsState.coverRowActiv;
+                    bool coverRowActive = settingsState.coverRowActive;
                     bool coverRowArtist = settingsState.coverRowArtist;
                     bool coverRowAlbum = settingsState.coverRowAlbum;
                     bool coverRowTrack = settingsState.coverRowTrack;
                     bool coverRowDynamicSize =
                         settingsState.coverRowDynamicSize;
+                    bool verticalTickerActive =
+                        settingsState.verticalTickerActive;
+                    bool ledTickerInDeviceListActive =
+                        settingsState.ledTickerInDeviceListActive;
+                    bool ledTickerOnTickerPageActive =
+                        settingsState.ledTickerOnTickerPageActive;
 
                     scrollSpeedDevice = settingsState.scrollSpeedDevice;
                     scrollSpeedScrollMatrix =
@@ -298,6 +304,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                           scrollSpeedScrollMatrix,
                                                       scrollSpeedDevice:
                                                           scrollSpeedDevice,
+                                                      verticalTickerActive:
+                                                          verticalTickerActive,
+                                                      ledTickerInDeviceListActive:
+                                                          ledTickerInDeviceListActive,
+                                                      ledTickerOnTickerPageActive:
+                                                          ledTickerOnTickerPageActive,
                                                       updateSizes: updateSizes,
                                                     );
                                                   }),
@@ -305,7 +317,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
                                     if (Globals.isDesktopDevice() &&
                                         devices.isNotEmpty &&
-                                        coverRowActiv == true)
+                                        coverRowActive == true)
                                       CoverRowAnimation(
                                         viewData: View.of(context),
                                         mediaQueryData: MediaQuery.of(context),
@@ -327,7 +339,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                       ),
                                     if (Globals.isMobileDevice() &&
                                         devices.isNotEmpty &&
-                                        coverRowActiv == true)
+                                        coverRowActive == true)
                                       Stack(
                                         children: [
                                           CoverRowAnimation(
@@ -437,7 +449,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             ),
                                           if (Globals.isDesktopDevice() &&
                                               devices.isNotEmpty &&
-                                              coverRowActiv == true)
+                                              coverRowActive == true)
                                             Expanded(
                                               child: Align(
                                                 alignment:

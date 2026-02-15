@@ -111,3 +111,36 @@ class SetScrollSpeedScrollMatrix extends SettingsEvent {
   @override
   List<Object> get props => [speed];
 }
+
+class SetVerticalTickerActiveMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetVerticalTickerActiveMode({
+    required this.enabled,
+  });
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetLedTickerInDeviceListActiveMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetLedTickerInDeviceListActiveMode({
+    required this.enabled,
+  });
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetLedTickerOnTickerPageActiveMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetLedTickerOnTickerPageActiveMode({
+    required this.enabled,
+  });
+
+  @override
+  List<Object> get props => [enabled];
+}

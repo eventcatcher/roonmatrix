@@ -25,6 +25,8 @@ class ScrollMatrixPage extends StatefulWidget {
   final Size minDesktopSize;
   final Size standardDesktopSize;
   final double scrollSpeed;
+  final bool verticalTickerActive;
+  final bool ledTickerOnTickerPageActive;
   final Function(double speed) speedChanged;
 
   const ScrollMatrixPage({
@@ -35,6 +37,8 @@ class ScrollMatrixPage extends StatefulWidget {
     required this.minDesktopSize,
     required this.standardDesktopSize,
     required this.scrollSpeed,
+    required this.verticalTickerActive,
+    required this.ledTickerOnTickerPageActive,
     required this.speedChanged,
   });
 
@@ -49,13 +53,21 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   Map<String, dynamic> get translations => widget.translations;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
+  bool get verticalTickerActive => widget.verticalTickerActive;
+  bool get ledTickerOnTickerPageActive => widget.ledTickerOnTickerPageActive;
   Function(double speed) get speedChanged => widget.speedChanged;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final double sliderOverlayMaxWidth = 300.0;
 
-  final bool verticalTickerEnabled = true;
   final int cyclePause = 2;
+
+  double ledSize = 3.0;
+  final double ledGap = 0.2;
+  final Color ledOnColor = Colors.red.shade400;
+  final Color ledOffColor = const Color(0xFF000000);
+  final double ledTickerPadding = 2.0;
+  final double ledTickerBorderSize = 1.0;
 
   Orientation orientation = Orientation.portrait;
   Offset actualPosition = Offset(0, 0);
@@ -151,7 +163,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       SchedulerBinding.instance.addPostFrameCallback((_) async {
         if (mounted) {
           setState(() {
-            if (verticalOutput && verticalTickerEnabled) {
+            if (verticalOutput && verticalTickerActive) {
               width = MediaQuery.of(context).size.width;
               height = MediaQuery.of(context).size.height;
               mobileFontSize =
@@ -172,15 +184,17 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     height = MediaQuery.of(context).size.height;
 
     if (Globals.isDesktopDevice()) {
-      if (verticalOutput && verticalTickerEnabled) {
+      if (verticalOutput && verticalTickerActive) {
         double maxFontSizeForWidth =
             width / ledModules / Globals.verticalTickerWidthFactor;
+        ledSize = width / ledModules / 1.0 / 8;
         double maxFontSizeForHeight = height - 60 - height / 6;
         fontSize = maxFontSizeForHeight < maxFontSizeForWidth
             ? maxFontSizeForHeight
             : maxFontSizeForWidth;
       } else {
         fontSize = height - 60 - height / 6;
+        ledSize = width / ledModules / 8 / 1.2;
       }
     } else {
       fontSize = mobileFontSize;
@@ -213,13 +227,19 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       ledModules != i['led_modules'] ||
                       verticalOutput != i['vertical_output']) {
                     ledModules = i['led_modules'];
-                    verticalOutput = i['vertical_output'] ?? false;
+                    verticalOutput =
+                        verticalTickerActive && (i['vertical_output'] ?? false);
+
+                    tickerWidth = ledTickerOnTickerPageActive
+                        ? ledModules * ledSize * 8
+                        : ledModules * fontSize;
 
                     SchedulerBinding.instance.addPostFrameCallback((_) async {
                       if (mounted) {
                         setState(() {
                           ledModules = i['led_modules'];
-                          verticalOutput = i['vertical_output'] ?? false;
+                          verticalOutput = verticalTickerActive &&
+                              (i['vertical_output'] ?? false);
                           if (!fontSizeInitialized) {
                             initMobileFontSize();
                             fontSizeInitialized = true;
@@ -232,26 +252,27 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   String displaystrNew =
                       verticalOutput ? '' : i['app_displaystr'];
 
-                  if (verticalOutput && verticalTickerEnabled) {
+                  if (verticalOutput && verticalTickerActive) {
                     List<String> lines = [];
                     for (String line in List<String>.from(i['vert_strlines'])) {
                       lines.add(
                         mainRepository.replaceIllegalCharsInTickerString(
                           str: line,
-                          replaceActiveZoneMarker: true,
+                          replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
                         ),
                       );
                     }
                     verticalTextLines = lines;
                   }
 
-                  tickerWidth = ledModules * fontSize;
                   linePause = i['vertical_scroll_delay'];
 
                   if (displaystrNew != displaystr) {
                     scrollText =
                         mainRepository.replaceIllegalCharsInTickerString(
-                            str: displaystrNew, replaceActiveZoneMarker: true);
+                      str: displaystrNew,
+                      replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
+                    );
                     if (kDebugMode) {
                       debugPrint('==> new scrollText: $scrollText');
                     }
@@ -282,38 +303,111 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 20.0),
                         height: height - 52,
-                        child: verticalOutput && verticalTickerEnabled
+                        child: verticalOutput && verticalTickerActive
                             ? Center(
                                 child: SizedBox(
                                   width: tickerWidth,
-                                  child: UpdatableVerticalTicker(
-                                    texts: verticalTextLines,
-                                    scrollDuration: Duration(
-                                        milliseconds:
-                                            (50 * 8 / sliderValue).floor()),
-                                    linePause: Duration(seconds: linePause),
-                                    cyclePause: Duration(seconds: cyclePause),
-                                    textStyle: TextStyle(
+                                  child: ledTickerOnTickerPageActive
+                                      ? Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: ledSize * 0.7),
+                                          color: Colors.grey.shade700,
+                                          child: Container(
+                                            color: Colors.black,
+                                            child: UpdatableVerticalLedTicker(
+                                              key: ValueKey(
+                                                  'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                                              modules: ledModules,
+                                              useProportionalFont: true,
+                                              center: true,
+                                              ledSize: ledSize,
+                                              ledGap: ledGap,
+                                              onColor: ledOnColor,
+                                              offColor: ledOffColor,
+                                              texts: verticalTextLines,
+                                              scrollDuration: Duration(
+                                                  milliseconds:
+                                                      (50 * 8 / sliderValue)
+                                                          .floor()),
+                                              linePause:
+                                                  Duration(seconds: linePause),
+                                              cyclePause:
+                                                  Duration(seconds: cyclePause),
+                                            ),
+                                          ),
+                                        )
+                                      : UpdatableVerticalTicker(
+                                          key: ValueKey(
+                                              'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                                          texts: verticalTextLines,
+                                          scrollDuration: Duration(
+                                              milliseconds:
+                                                  (50 * 8 / sliderValue)
+                                                      .floor()),
+                                          linePause:
+                                              Duration(seconds: linePause),
+                                          cyclePause:
+                                              Duration(seconds: cyclePause),
+                                          textStyle: TextStyle(
+                                            fontSize: fontSize / 1.2,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                ),
+                              )
+                            : ledTickerOnTickerPageActive
+                                ? Row(
+                                    children: [
+                                      Expanded(
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: ledSize * 0.4),
+                                          color: Colors.grey.shade700,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Container(
+                                                  color: Colors.black,
+                                                  child: UpdatableLedTicker(
+                                                    key: ValueKey(
+                                                        'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                                                    updatableText: scrollText,
+                                                    modules: ledModules,
+                                                    useProportionalFont: true,
+                                                    ledSize: ledSize,
+                                                    ledGap: ledGap,
+                                                    onColor: ledOnColor,
+                                                    offColor: ledOffColor,
+                                                    pixelsPerSecond: 100 *
+                                                        sliderValue /
+                                                        (ledSize * 0.1),
+                                                    forceUpdate: false,
+                                                    separator:
+                                                        Globals.tickerSeparator,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : UpdatableTicker(
+                                    key: ValueKey(
+                                        'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                                    updatableText: scrollText,
+                                    style: TextStyle(
+                                      fontFamily: Globals.tickerFontFamily,
                                       fontSize: fontSize / 1.2,
                                       color: Colors.black,
                                     ),
+                                    pixelsPerSecond:
+                                        pixelsPerSecond * sliderValue,
+                                    forceUpdate: false,
+                                    center: true,
+                                    separator: Globals.tickerSeparator,
                                   ),
-                                ),
-                              )
-                            : UpdatableTicker(
-                                key: ValueKey(
-                                    'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                                updatableText: scrollText,
-                                style: TextStyle(
-                                  fontFamily: Globals.tickerFontFamily,
-                                  fontSize: fontSize / 1.2,
-                                  color: Colors.black,
-                                ),
-                                pixelsPerSecond: pixelsPerSecond * sliderValue,
-                                forceUpdate: false,
-                                center: true,
-                                separator: Globals.tickerSeparator,
-                              ),
                       ),
                     ),
                   );
@@ -344,7 +438,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                 translations: translations,
                 ip: ip,
                 ledModules: ledModules,
-                verticalOutput: verticalOutput && verticalTickerEnabled,
+                verticalOutput: verticalOutput && verticalTickerActive,
                 width: width,
                 scrollSpeed: sliderValue,
                 speedChanged: (double speed) {
@@ -475,7 +569,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                         translations: translations,
                         ip: ip,
                         ledModules: ledModules,
-                        verticalOutput: verticalOutput && verticalTickerEnabled,
+                        verticalOutput: verticalOutput && verticalTickerActive,
                         width: width,
                         scrollSpeed: sliderValue,
                         speedChanged: (double speed) {
