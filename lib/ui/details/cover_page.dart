@@ -231,6 +231,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         selectedZone!['cover'] == null) {
       // zone is inactive
       return Row(
+        mainAxisSize: MainAxisSize.max,
         children: [
           Expanded(
             child: Padding(
@@ -425,7 +426,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     return Container(
       margin: EdgeInsets.only(
         top: coverPadding,
-        right: coverPadding,
+        right: portraitMode ? 0 : coverPadding,
+        bottom: portraitMode ? coverPadding : 0,
       ),
       decoration: Globals.brightness() == Brightness.dark
           ? areaDecorationFilledDarkStyle()
@@ -433,6 +435,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Row(
+          mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SelectBox(
@@ -478,6 +481,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   Widget getCoverArea({
     required BuildContext context,
     required bool portraitMode,
+    required bool noRightPadding,
     required Map<String, dynamic>? selectedZone,
   }) =>
       NotificationListener<SizeChangedLayoutNotification>(
@@ -487,13 +491,14 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         },
         child: SizeChangedLayoutNotifier(
           child: Container(
+            margin: EdgeInsets.only(
+              bottom: portraitMode ? 16.0 : 0.0,
+            ),
             width: double.infinity,
             height: double.infinity,
             padding: portraitMode
-                ? EdgeInsets.only(
-                    right: coverPadding,
-                    top: coverPadding,
-                    bottom: coverPadding,
+                ? EdgeInsets.all(
+                    0,
                   )
                 : EdgeInsets.all(coverPadding),
             child: AnimatedSwitcher(
@@ -551,7 +556,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           height: portraitMode || threeCols ? null : double.infinity,
           margin: portraitMode
               ? EdgeInsets.only(
-                  right: coverPadding,
+                  right: portraitMode ? 0 : coverPadding,
                   bottom: coverPadding,
                 )
               : EdgeInsets.only(
@@ -613,9 +618,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
                             return portraitMode
                                 ? Container(
-                                    //color: Colors.red,
-                                    margin: EdgeInsets.only(
-                                      left: coverPadding,
+                                    margin: EdgeInsets.symmetric(
+                                      horizontal: coverPadding,
                                     ),
                                     child: Column(
                                       mainAxisAlignment:
@@ -623,15 +627,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        if (widget.controlId == null)
-                                          SizedBox(
-                                            width: coverWidth != null
-                                                ? coverWidth!
-                                                : 200,
-                                            child: getSelectBoxArea(
-                                                portraitMode: portraitMode,
-                                                options: options),
-                                          ),
+                                        widget.controlId == null
+                                            ? SizedBox(
+                                                width: coverWidth != null
+                                                    ? coverWidth!
+                                                    : 200,
+                                                child: getSelectBoxArea(
+                                                    portraitMode: portraitMode,
+                                                    options: options),
+                                              )
+                                            : SizedBox(
+                                                height: 16.0,
+                                              ),
                                         Expanded(
                                           child: LayoutBuilder(
                                               builder: (context, constraints) {
@@ -655,8 +662,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                       2;
                                             }
 
-                                            coverWidth =
-                                                coverHeight + coverPadding - 16;
+                                            coverWidth = coverHeight;
 
                                             final controlsHeight = max(
                                                   minControlsHeight,
@@ -667,11 +673,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                 coverPadding;
 
                                             final controlsWidth = min(
-                                              coverWidth! - coverPadding,
-                                              MediaQuery.of(context)
-                                                      .size
-                                                      .width -
-                                                  coverPadding * 2,
+                                              coverWidth!,
+                                              MediaQuery.of(context).size.width,
                                             );
                                             print(
                                                 'controlsWidth: $controlsWidth');
@@ -682,12 +685,16 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                   child: getCoverArea(
                                                     context: context,
                                                     portraitMode: portraitMode,
+                                                    noRightPadding: true,
                                                     selectedZone: selectedZone,
                                                   ),
                                                 ),
-                                                SizedBox(
-                                                  width: controlsWidth +
-                                                      coverPadding,
+                                                Container(
+                                                  constraints: BoxConstraints(
+                                                    minWidth: controlsWidth,
+                                                    maxWidth: controlsWidth,
+                                                  ),
+                                                  width: controlsWidth,
                                                   height:
                                                       controlsHeight.toDouble(),
                                                   child: getControlArea(
@@ -706,25 +713,27 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             );
                                           }),
                                         ),
-                                        Center(
-                                          child: Container(
-                                              width: coverWidth != null
-                                                  ? (coverWidth! - coverPadding)
-                                                  : 200,
-                                              margin: EdgeInsets.only(
-                                                bottom: coverPadding,
-                                                right: coverPadding,
-                                              ),
-                                              decoration: Globals
-                                                          .brightness() ==
-                                                      Brightness.dark
-                                                  ? areaDecorationFilledDarkStyle()
-                                                  : areaDecorationFilledLightStyle(),
-                                              child: getTextArea(
-                                                portraitMode: portraitMode,
-                                                threeCols: threeCols,
-                                              )),
-                                        ),
+                                        Container(
+                                            constraints: coverWidth != null
+                                                ? BoxConstraints(
+                                                    minWidth: coverWidth!,
+                                                    maxWidth: coverWidth!,
+                                                  )
+                                                : null,
+                                            width: coverWidth != null
+                                                ? (coverWidth! - coverPadding)
+                                                : 200,
+                                            margin: EdgeInsets.only(
+                                              bottom: coverPadding,
+                                            ),
+                                            decoration: Globals.brightness() ==
+                                                    Brightness.dark
+                                                ? areaDecorationFilledDarkStyle()
+                                                : areaDecorationFilledLightStyle(),
+                                            child: getTextArea(
+                                              portraitMode: portraitMode,
+                                              threeCols: threeCols,
+                                            )),
                                       ],
                                     ),
                                   )
@@ -759,6 +768,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                       getCoverArea(
                                         context: context,
                                         portraitMode: portraitMode,
+                                        noRightPadding: false,
                                         selectedZone: selectedZone,
                                       ).inGridArea('cover'),
                                       if (!threeCols)

@@ -20,6 +20,7 @@ class SelectBox extends StatefulWidget {
   final bool? inRow;
   final bool? noVerticalSpace;
   final bool? readOnly;
+  final bool? expanded;
   final bool? readOnlyColoredGrey;
   final bool? optionsWithVerticalSpace;
   final void Function(String? value) onChanged;
@@ -39,6 +40,7 @@ class SelectBox extends StatefulWidget {
     this.inRow,
     this.noVerticalSpace,
     this.readOnly,
+    this.expanded = false,
     this.readOnlyColoredGrey = false,
     this.optionsWithVerticalSpace,
     required this.onChanged,
@@ -62,6 +64,7 @@ class SelectBoxState extends State<SelectBox> {
   bool? get inRow => widget.inRow;
   bool? get noVerticalSpace => widget.noVerticalSpace;
   bool? get readOnly => widget.readOnly;
+  bool? get expanded => widget.expanded;
   bool? get readOnlyColoredGrey => widget.readOnlyColoredGrey;
   bool? get optionsWithVerticalSpace => widget.optionsWithVerticalSpace;
   void Function(String? value) get onChanged => widget.onChanged;
@@ -234,6 +237,7 @@ class SelectBoxState extends State<SelectBox> {
     required BuildContext context,
   }) =>
       Container(
+        width: expanded ? double.infinity : null,
         height: Globals.inIosStyle()
             ? 56.0
             : Globals.selectBoxInMacStyle()
@@ -277,7 +281,7 @@ class SelectBoxState extends State<SelectBox> {
                         ),
                       ),
                     ),
-                  dropdown(expanded: false, context: dropdownContext),
+                  dropdown(expanded: expanded!, context: dropdownContext),
                 ],
               )
             : Column(
@@ -296,7 +300,7 @@ class SelectBoxState extends State<SelectBox> {
                       height: 4.0,
                     ),
                   ],
-                  dropdown(expanded: false, context: dropdownContext),
+                  dropdown(expanded: expanded!, context: dropdownContext),
                 ],
               ),
       ),

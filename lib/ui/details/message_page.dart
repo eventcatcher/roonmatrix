@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -85,8 +83,9 @@ class MessagePageState extends State<MessagePage> {
         placeholder:
             '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
         inRow: false,
-        noVerticalSpace: false,
+        noVerticalSpace: Globals.isMobileDevice(),
         readOnly: false,
+        expanded: true,
         selected: selectedDeviceName,
         options: options,
         onChanged: (String? newValue) {
@@ -100,57 +99,24 @@ class MessagePageState extends State<MessagePage> {
   }
 
   Widget body({
-    required Orientation orientation,
+    required bool isPortraitMode,
     required Map<String, String> options,
-  }) =>
-      SingleChildScrollView(
-        padding: const EdgeInsets.all(8),
-        child: Center(
-          child: orientation == Orientation.portrait ||
-                  Platform.isMacOS ||
-                  Platform.isWindows ||
-                  Platform.isLinux
-              ? Column(
-                  // portrait view
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    selectBox(options: options),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: MessageWriter(
-                        ip: selectedDeviceIp,
-                        customMessage: customMessage,
-                        translations: translations,
-                      ),
-                    ),
-                  ],
-                )
-              : Row(
-                  // landscape view
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      fit: FlexFit.loose,
-                      child: Column(
-                        children: [
-                          MessageWriter(
-                            ip: selectedDeviceIp,
-                            customMessage: customMessage,
-                            translations: translations,
-                            firstRowChild: Platform.isIOS ||
-                                    Platform.isAndroid ||
-                                    Platform.isFuchsia
-                                ? selectBox(options: options)
-                                : null,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      child: Center(
+          child: Padding(
+        padding: const EdgeInsets.only(top: 0.0),
+        child: MessageWriter(
+          ip: selectedDeviceIp,
+          isPortraitMode: isPortraitMode,
+          customMessage: customMessage,
+          translations: translations,
+          deviceSelection: selectBox(options: options),
         ),
-      );
+      )),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -230,6 +196,8 @@ class MessagePageState extends State<MessagePage> {
 
                 return OrientationBuilder(
                     builder: (BuildContext context, Orientation orientation) {
+                  bool isPortraitMode = orientation == Orientation.portrait;
+
                   if (Globals.inIosStyle()) {
                     return Material(
                       child: CupertinoPageScaffold(
@@ -243,8 +211,8 @@ class MessagePageState extends State<MessagePage> {
                           ),
                         ),
                         child: SafeArea(
-                          child:
-                              body(orientation: orientation, options: options),
+                          child: body(
+                              isPortraitMode: isPortraitMode, options: options),
                         ),
                       ),
                     );
@@ -255,8 +223,8 @@ class MessagePageState extends State<MessagePage> {
                           title: title,
                           standardDesktopSize: standardDesktopSize,
                           macosVersion: macosVersion,
-                          body:
-                              body(orientation: orientation, options: options),
+                          body: body(
+                              isPortraitMode: isPortraitMode, options: options),
                           resizeToFullWidth: () {
                             mainBloc.windowResizeToFullWidthAndMinimumHeight(
                                 minDesktopSize: minDesktopSize);
@@ -268,8 +236,8 @@ class MessagePageState extends State<MessagePage> {
                           showExpandableSpeedSlider: false,
                           scrollSpeedDevice: 1.0,
                           standardDesktopSize: standardDesktopSize,
-                          body:
-                              body(orientation: orientation, options: options),
+                          body: body(
+                              isPortraitMode: isPortraitMode, options: options),
                           resizeToFullWidth: () {
                             mainBloc.windowResizeToFullWidthAndMinimumHeight(
                                 minDesktopSize: minDesktopSize);

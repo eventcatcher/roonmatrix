@@ -7,10 +7,12 @@ import 'package:roonmatrix/globals.dart';
 class EditableMultilineText extends StatefulWidget {
   final Map<String, dynamic> translations;
   final String? label;
-  final int maxLines;
+  final int? maxLines;
+  final double? fontSize;
   final double? height;
   final String text;
   final String? placeholder;
+  final bool? withDebounce;
   final TextEditingController? textController;
   final void Function(String value)? onChanged;
   final String Function(String text)? filter;
@@ -22,10 +24,12 @@ class EditableMultilineText extends StatefulWidget {
     super.key,
     required this.translations,
     this.label,
-    this.maxLines = 5,
+    this.maxLines,
+    this.fontSize,
     this.height,
     this.text = '',
     this.placeholder,
+    this.withDebounce = true,
     this.textController,
     this.onChanged,
     this.filter,
@@ -41,10 +45,12 @@ class EditableMultilineText extends StatefulWidget {
 class EditableMultilineTextState extends State<EditableMultilineText> {
   Map<String, dynamic> get translations => widget.translations;
   String? get label => widget.label;
-  int get maxLines => widget.maxLines;
+  int? get maxLines => widget.maxLines;
+  double? get fontSize => widget.fontSize;
   double? get height => widget.height;
   String get text => widget.text;
   String? get placeholder => widget.placeholder;
+  bool? get withDebounce => widget.withDebounce;
   TextEditingController? get textController => widget.textController;
   void Function(String value)? get onChanged => widget.onChanged;
   String Function(String text)? get filter => widget.filter;
@@ -139,6 +145,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                               translations['pleaseTypeMessagePlaceholder'] ??
                               'Please write message here',
                           textAlign: TextAlign.start,
+                          expands: true,
                           textAlignVertical: TextAlignVertical.top,
                           decoration: BoxDecoration(
                             border: Border.all(
@@ -148,7 +155,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           ),
                           style: TextStyle(
                             color: ColorDefs.textColor(context: context),
-                            fontSize: 16.0,
+                            fontSize: fontSize ?? 16.0,
                           ),
                           maxLines: maxLines,
                           maxLength: null,
@@ -182,10 +189,12 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                             }
 
                             if (onChanged != null) {
-                              return EasyDebounce.debounce(
-                                  '$label-debouncer',
-                                  Duration(milliseconds: debounceTime),
-                                  () => onChanged!(value));
+                              return withDebounce!
+                                  ? EasyDebounce.debounce(
+                                      '$label-debouncer',
+                                      Duration(milliseconds: debounceTime),
+                                      () => onChanged!(value))
+                                  : onChanged!(value);
                             }
                           })
                       : TextField(
@@ -194,7 +203,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           textAlignVertical: TextAlignVertical.top,
                           style: TextStyle(
                             color: ColorDefs.textColor(context: context),
-                            fontSize: 14.0,
+                            fontSize: fontSize ?? 14.0,
                           ),
                           decoration: InputDecoration(
                             hintText:
