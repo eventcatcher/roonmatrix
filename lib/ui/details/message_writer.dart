@@ -21,6 +21,8 @@ class MessageWriter extends StatefulWidget {
   final String ip;
   final bool isPortraitMode;
   final String customMessage;
+  final TextEditingController messageTextController;
+  final ValueNotifier<String> messageTextBackup;
   final Map<String, dynamic> translations;
   final Widget? deviceSelection;
 
@@ -28,6 +30,8 @@ class MessageWriter extends StatefulWidget {
     super.key,
     required this.ip,
     required this.isPortraitMode,
+    required this.messageTextController,
+    required this.messageTextBackup,
     required this.customMessage,
     required this.translations,
     this.deviceSelection,
@@ -40,13 +44,17 @@ class MessageWriter extends StatefulWidget {
 class MessageWriterState extends State<MessageWriter> {
   String get ip => widget.ip;
   bool get isPortraitMode => widget.isPortraitMode;
+  TextEditingController get messageTextController =>
+      widget.messageTextController;
+  ValueNotifier<String> get messageTextBackup => widget.messageTextBackup;
   String get customMessage => widget.customMessage;
   Map<String, dynamic> get translations => widget.translations;
   Widget? get deviceSelection => widget.deviceSelection;
 
+  Widget get textAreaWithButtons => getTextAreaWithButtons();
+  bool get isPortraiModeChanged => isPortraitMode != isPortraitModeBefore;
+
   TextEditingController nameTextController = TextEditingController();
-  TextEditingController messageTextController = TextEditingController();
-  final ValueNotifier<String> messageTextBackup = ValueNotifier<String>('');
 
   String? selectedMessageId;
   Map<String, String> options = {};
@@ -54,26 +62,55 @@ class MessageWriterState extends State<MessageWriter> {
   bool optionsLoaded = false;
   bool setMessage = false;
   bool allDevices = false;
+  bool isPortraitModeBefore = false;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
-  late Widget textAreaWithButtons;
 
   @override
   void initState() {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
-    getCustomMessages();
 
-    textAreaWithButtons = getTextAreaWithButtons();
+    messageTextBackup.addListener(() {
+      if (messageTextController.text != messageTextBackup.value) {
+        messageTextController.text = messageTextBackup.value;
+      }
+    });
+
+    getCustomMessages();
 
     super.initState();
   }
 
   @override
+  void didUpdateWidget(MessageWriter oldWidget) {
+    print(
+        'isPortraitMode: $isPortraitMode, messageTextController: ${messageTextController.text}, messageTextBackup: ${messageTextBackup.value}');
+    if (messageTextController.text.isEmpty &&
+            messageTextBackup.value.isNotEmpty ||
+        isPortraiModeChanged) {
+      isPortraitModeBefore = isPortraitMode;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          final value = messageTextBackup.value;
+
+          messageTextController.value = messageTextController.value.copyWith(
+            text: value,
+            selection: TextSelection.collapsed(offset: value.length),
+            composing: TextRange.empty,
+          );
+        });
+      });
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   void dispose() {
     nameTextController.dispose();
-    messageTextController.dispose();
 
     super.dispose();
   }
@@ -486,48 +523,79 @@ class MessageWriterState extends State<MessageWriter> {
     }
   }
 
-  Widget getTextAreaWithButtons() => Container(
-        margin: Globals.isDesktopDevice()
-            ? EdgeInsets.only(
-                top: 16.0,
-                bottom: 16.0,
-                right: isPortraitMode ? 0.0 : 16.0,
-              )
-            : EdgeInsets.only(top: isPortraitMode ? 8.0 : 0.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: LayoutBuilder(builder: (context, constraints) {
-                double textFieldHeight =
-                    constraints.maxHeight - (Globals.isMobileDevice() ? 3 : 0);
-                double fontSize = textFieldHeight / 20 / 1.25;
-                if (messageTextController.text != messageTextBackup.value) {
-                  messageTextController.text = messageTextBackup.value;
-                }
+  Widget getTextAreaWithButtons() => Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: LayoutBuilder(builder: (context, constraints) {
+              double textFieldHeight =
+                  constraints.maxHeight - (Globals.isMobileDevice() ? 3 : 0);
+              double fontSize = textFieldHeight / 20 / 1.25;
+              //messageTextController.text = messageTextBackup.value;
+              // messageTextController.value =
+              //     messageTextController.value.copyWith(
+              //   text: messageTextBackup.value,
+              //   selection: TextSelection.collapsed(
+              //       offset: messageTextBackup.value.length),
+              //   composing: TextRange.empty,
+              // );
+              // print('messageTextController: ${messageTextController.text}');
 
-                return EditableMultilineText(
-                  translations: translations,
-                  height: textFieldHeight,
-                  fontSize: fontSize > 16 ? fontSize : 16,
-                  textController: messageTextController,
-                  withDebounce: false,
-                  onChanged: (String value) {
-                    if (messageTextBackup.value != value) {
-                      messageTextBackup.value = value;
-                    }
-                  },
-                );
-              }),
-            ),
-            ValueListenableBuilder<String>(
-                valueListenable: messageTextBackup,
-                builder: (BuildContext context, String value, child) {
-                  return Column(
-                    children: [
-                      Ink(
+              return EditableMultilineText(
+                key: const PageStorageKey("message_text_field"),
+                translations: translations,
+                height: textFieldHeight,
+                fontSize: fontSize > 16 ? fontSize : 16,
+                textController: messageTextController,
+                withDebounce: false,
+                onChanged: (String value) {
+                  if (messageTextBackup.value != value) {
+                    messageTextBackup.value = value;
+                  }
+                },
+              );
+            }),
+          ),
+          ValueListenableBuilder<String>(
+              valueListenable: messageTextBackup,
+              builder: (BuildContext context, String value, child) {
+                return Column(
+                  children: [
+                    Ink(
+                      decoration: ShapeDecoration(
+                        color: messageTextBackup.value.isNotEmpty
+                            ? Globals.brightness() == Brightness.dark
+                                ? Colors.blue.shade800
+                                : Colors.blue.shade600
+                            : Colors.grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: Globals.borderRadius(),
+                        ),
+                      ),
+                      child: SharedWidgets.addIconButton(
+                          context: context,
+                          textController: nameTextController,
+                          disabled: messageTextBackup.value.isEmpty,
+                          translations: translations,
+                          onExit: () => setState(() {
+                                nameTextController.text = '';
+                              }),
+                          onAccepted: (dynamic newKey) {
+                            if (newKey is String && newKey.isNotEmpty) {
+                              onAddMessagePreset(key: newKey);
+                            }
+                          }),
+                    ),
+                    Expanded(child: const SizedBox(height: 5.0)),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        bottom: (Globals.isDesktopDevice() ? 0.0 : 21.0) -
+                            (Globals.isMobileDevice() ? 19 : 0),
+                      ),
+                      child: Ink(
                         decoration: ShapeDecoration(
-                          color: messageTextBackup.value.isNotEmpty
+                          color: selectedMessageId != null &&
+                                  options.containsKey(selectedMessageId)
                               ? Globals.brightness() == Brightness.dark
                                   ? Colors.blue.shade800
                                   : Colors.blue.shade600
@@ -536,52 +604,19 @@ class MessageWriterState extends State<MessageWriter> {
                             borderRadius: Globals.borderRadius(),
                           ),
                         ),
-                        child: SharedWidgets.addIconButton(
-                            context: context,
-                            textController: nameTextController,
-                            disabled: messageTextBackup.value.isEmpty,
-                            translations: translations,
-                            onExit: () => setState(() {
-                                  nameTextController.text = '';
-                                }),
-                            onAccepted: (dynamic newKey) {
-                              if (newKey is String && newKey.isNotEmpty) {
-                                onAddMessagePreset(key: newKey);
-                              }
-                            }),
-                      ),
-                      Expanded(child: const SizedBox(height: 5.0)),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: (Globals.isDesktopDevice() ? 0.0 : 21.0) -
-                              (Globals.isMobileDevice() ? 19 : 0),
-                        ),
-                        child: Ink(
-                          decoration: ShapeDecoration(
-                            color: selectedMessageId != null &&
-                                    options.containsKey(selectedMessageId)
-                                ? Globals.brightness() == Brightness.dark
-                                    ? Colors.blue.shade800
-                                    : Colors.blue.shade600
-                                : Colors.grey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: Globals.borderRadius(),
-                            ),
-                          ),
-                          child: SharedWidgets.removeIconButton(
-                            context: context,
-                            textController: nameTextController,
-                            disabled: selectedMessageId == null,
-                            translations: translations,
-                            onPressed: () => onRemoveMessagePreset(),
-                          ),
+                        child: SharedWidgets.removeIconButton(
+                          context: context,
+                          textController: nameTextController,
+                          disabled: selectedMessageId == null,
+                          translations: translations,
+                          onPressed: () => onRemoveMessagePreset(),
                         ),
                       ),
-                    ],
-                  );
-                })
-          ],
-        ),
+                    ),
+                  ],
+                );
+              })
+        ],
       );
 
   @override
@@ -615,7 +650,17 @@ class MessageWriterState extends State<MessageWriter> {
                         ],
                       ),
                     ),
-                    Expanded(child: textAreaWithButtons),
+                    Expanded(
+                        child: Container(
+                      margin: Globals.isDesktopDevice()
+                          ? EdgeInsets.only(
+                              top: 16.0,
+                              bottom: 16.0,
+                              right: isPortraitMode ? 0.0 : 16.0,
+                            )
+                          : EdgeInsets.only(top: isPortraitMode ? 8.0 : 0.0),
+                      child: textAreaWithButtons,
+                    )),
                   ],
                 )
               : Column(
@@ -625,7 +670,6 @@ class MessageWriterState extends State<MessageWriter> {
                         children: [
                           Flexible(
                             child: Container(
-                              //color: Colors.orange,
                               margin: EdgeInsets.only(
                                   left: Globals.isDesktopDevice() ? 16.0 : 0.0,
                                   top: Globals.isDesktopDevice() ? 16.0 : 0.0,
@@ -671,7 +715,17 @@ class MessageWriterState extends State<MessageWriter> {
                             ),
                           ),
                           Flexible(
-                            child: textAreaWithButtons,
+                            child: Container(
+                              margin: Globals.isDesktopDevice()
+                                  ? EdgeInsets.only(
+                                      top: 16.0,
+                                      bottom: 16.0,
+                                      right: isPortraitMode ? 0.0 : 16.0,
+                                    )
+                                  : EdgeInsets.only(
+                                      top: isPortraitMode ? 8.0 : 0.0),
+                              child: textAreaWithButtons,
+                            ),
                           ),
                         ],
                       ),

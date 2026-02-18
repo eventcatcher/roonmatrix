@@ -205,6 +205,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                             color: ColorDefs.textColor(context: context),
                             fontSize: fontSize ?? 14.0,
                           ),
+                          expands: true,
                           decoration: InputDecoration(
                             hintText:
                                 translations['pleaseTypeMessagePlaceholder'] ??
@@ -235,10 +236,12 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                             }
 
                             if (onChanged != null) {
-                              EasyDebounce.debounce(
-                                  '$label-debouncer',
-                                  Duration(milliseconds: debounceTime),
-                                  () => onChanged!(value));
+                              withDebounce!
+                                  ? EasyDebounce.debounce(
+                                      '$label-debouncer',
+                                      Duration(milliseconds: debounceTime),
+                                      () => onChanged!(value))
+                                  : onChanged!(value);
                             }
                           },
                         ),

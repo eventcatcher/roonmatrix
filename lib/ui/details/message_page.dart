@@ -39,6 +39,8 @@ class MessagePageState extends State<MessagePage> {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+  final ValueNotifier<String> messageTextBackup = ValueNotifier<String>('');
+  TextEditingController messageTextController = TextEditingController();
 
   Map<String, dynamic> translations = {};
   String title = '';
@@ -62,6 +64,13 @@ class MessagePageState extends State<MessagePage> {
     mainBloc.getInfo(ip: selectedDeviceIp);
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    messageTextController.dispose();
+
+    super.dispose();
   }
 
   Widget selectBox({
@@ -108,8 +117,11 @@ class MessagePageState extends State<MessagePage> {
           child: Padding(
         padding: const EdgeInsets.only(top: 0.0),
         child: MessageWriter(
+          key: const ValueKey('message_writer'),
           ip: selectedDeviceIp,
           isPortraitMode: isPortraitMode,
+          messageTextController: messageTextController,
+          messageTextBackup: messageTextBackup,
           customMessage: customMessage,
           translations: translations,
           deviceSelection: selectBox(options: options),
