@@ -44,6 +44,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
   Orientation get orientation => widget.orientation;
   Function(double value) get onChanged => widget.onChanged;
 
+  final double labelWidthx = 150.0;
   final double labelWidthFallback = 200.0;
   final double sliderPercentTextWidth = 124.0;
   final double labelAndSliderInRowMinWidth = 600;
@@ -77,12 +78,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                     orientation == Orientation.landscape
                 ? 4.0
                 : 8.0),
-        padding: EdgeInsets.symmetric(
-            horizontal: 8.0,
-            vertical: (Platform.isIOS || Platform.isAndroid) &&
-                    orientation == Orientation.landscape
-                ? 0.0
-                : 8.0),
+        padding: EdgeInsets.symmetric(horizontal: 8.0),
         decoration: BoxDecoration(
           color: Globals.brightness() == Brightness.dark
               ? Colors.grey.shade900
@@ -104,10 +100,10 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
         ),
         child: MediaQuery.of(context).size.width > labelAndSliderInRowMinWidth
             ? Row(
+                // in row label
                 children: [
-                  Flexible(
-                      flex: 1,
-                      fit: FlexFit.tight,
+                  SizedBox(
+                      width: labelWidth ?? labelWidthFallback,
                       child: Text(
                         '$label: ',
                         style: TextStyle(
@@ -124,21 +120,25 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 4.0, top: 4.0),
                       child: SizedBox(
-                        width: labelWidth ?? labelWidthFallback,
-                        child: Slider(
-                          value: sliderValue,
-                          min: min,
-                          max: max,
-                          divisions: divisions,
-                          thumbColor: thumbColor,
-                          activeColor: activeColor,
-                          inactiveColor: inactiveColor,
-                          onChanged: (double value) {
-                            onChanged(value);
-                            setState(() {
-                              sliderValue = value;
-                            });
-                          },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Slider(
+                              value: sliderValue,
+                              min: min,
+                              max: max,
+                              divisions: divisions,
+                              thumbColor: thumbColor,
+                              activeColor: activeColor,
+                              inactiveColor: inactiveColor,
+                              onChanged: (double value) {
+                                onChanged(value);
+                                setState(() {
+                                  sliderValue = value;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -164,6 +164,8 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                 ],
               )
             : Column(
+                // top label
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(label),
@@ -171,7 +173,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 4.0, top: 4.0),
+                          padding: const EdgeInsets.only(left: 4.0, top: 0.0),
                           child: SizedBox(
                             width: labelWidth ?? labelWidthFallback,
                             child: Slider(

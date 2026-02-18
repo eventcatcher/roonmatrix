@@ -51,7 +51,7 @@ class LiveControlPageState extends State<LiveControlPage> {
   Map<String, dynamic> translations = {};
   Map<String, String> options = {};
   List<ConfigDefinitionItem> fieldDefinition = [];
-  List<HorizontalSlider> sliders = [];
+  List<Widget> sliders = [];
   String title = '';
   String macosVersion = '';
   bool translationsLoaded = false;
@@ -97,141 +97,148 @@ class LiveControlPageState extends State<LiveControlPage> {
     super.initState();
   }
 
-  List<HorizontalSlider> buildSliders({
+  List<Widget> buildSliders({
     required String selectedDeviceIp,
     required Orientation orientation,
     double labelWidth = 300,
   }) {
     return [
       if (verticalOutput == true)
-        HorizontalSlider(
-          key: ValueKey('SliderVerticalScrollDelay-$selectedDeviceIp'),
-          label: translations['config']?['vertical_scroll_delay'] ??
-              'Vertical scroll delay',
-          sliderValue: verticalScrollDelay,
+        Flexible(
+          child: HorizontalSlider(
+            key: ValueKey('SliderVerticalScrollDelay-$selectedDeviceIp'),
+            label: translations['config']?['vertical_scroll_delay'] ??
+                'Vertical scroll delay',
+            sliderValue: verticalScrollDelay,
+            labelWidth: labelWidth,
+            min: verticalScrollDelay < verticalScrollMin
+                ? verticalScrollDelay
+                : verticalScrollMin,
+            max: verticalScrollDelay > verticalScrollMax
+                ? verticalScrollDelay
+                : verticalScrollMax,
+            divisions: verticalScrollDivisions,
+            valueType: translations['config']?[verticalScrollDelayUnit] ??
+                verticalScrollDelayUnit ??
+                translations['config']?['seconds'] ??
+                'seconds',
+            orientation: orientation,
+            onChanged: (double value) {
+              EasyDebounce.debounce(
+                'livecontrol-vScrollSetLiveControl-debouncer',
+                debounceSetLiveControlDuration,
+                () {
+                  mainBloc.saveLiveControl(
+                    ip: selectedDeviceIp,
+                    control: 'vertical_scroll_delay',
+                    value: value.floor().toString(),
+                  );
+                },
+              );
+              EasyDebounce.debounce(
+                'livecontrol-vScrollGetinfo-debouncer',
+                debounceGetInfoDuration,
+                () {
+                  mainBloc.getInfo(ip: selectedDeviceIp);
+                },
+              );
+              setState(() {
+                verticalScrollDelay = value;
+              });
+            },
+          ),
+        ),
+      Flexible(
+        child: HorizontalSlider(
+          key: ValueKey('SliderScrollSpeed-$selectedDeviceIp'),
+          label: verticalOutput == true
+              ? translations['config'] != null &&
+                      translations['config']['led_vertical_scroll_delay'] !=
+                          null
+                  ? (translations['config']['led_vertical_scroll_delay']
+                          as String)
+                      .replaceAll('LED ', '')
+                  : 'Vertical scroll delay (line by line)'
+              : translations['config'] != null &&
+                      translations['config']['led_scroll_delay'] != null
+                  ? (translations['config']['led_scroll_delay'] as String)
+                      .replaceAll('LED ', '')
+                  : 'Horizontal scroll delay (line by line)',
+          sliderValue: scrollSpeed,
           labelWidth: labelWidth,
-          min: verticalScrollDelay < verticalScrollMin
-              ? verticalScrollDelay
-              : verticalScrollMin,
-          max: verticalScrollDelay > verticalScrollMax
-              ? verticalScrollDelay
-              : verticalScrollMax,
-          divisions: verticalScrollDivisions,
-          valueType: translations['config']?[verticalScrollDelayUnit] ??
-              verticalScrollDelayUnit ??
-              translations['config']?['seconds'] ??
-              'seconds',
+          min: scrollSpeed < scrollMin ? scrollSpeed : scrollMin,
+          max: scrollSpeed > scrollMax ? scrollSpeed : scrollMax,
+          divisions: scrollDivisions,
+          valueType: translations['config']?[ledScrollDelayUnit] ??
+              ledScrollDelayUnit ??
+              translations['config']?['ms'] ??
+              'ms',
           orientation: orientation,
           onChanged: (double value) {
             EasyDebounce.debounce(
-              'livecontrol-vScrollSetLiveControl-debouncer',
+              'livecontrol-scrollSpeedSetLiveControl-debouncer',
               debounceSetLiveControlDuration,
               () {
                 mainBloc.saveLiveControl(
                   ip: selectedDeviceIp,
-                  control: 'vertical_scroll_delay',
+                  control: verticalOutput == true
+                      ? 'led_vertical_scroll_delay'
+                      : 'led_scroll_delay',
                   value: value.floor().toString(),
                 );
               },
             );
             EasyDebounce.debounce(
-              'livecontrol-vScrollGetinfo-debouncer',
+              'livecontrol-scrollSpeedGetinfo-debouncer',
               debounceGetInfoDuration,
               () {
                 mainBloc.getInfo(ip: selectedDeviceIp);
               },
             );
             setState(() {
-              verticalScrollDelay = value;
+              scrollSpeed = value;
             });
           },
         ),
-      HorizontalSlider(
-        key: ValueKey('SliderScrollSpeed-$selectedDeviceIp'),
-        label: verticalOutput == true
-            ? translations['config'] != null &&
-                    translations['config']['led_vertical_scroll_delay'] != null
-                ? (translations['config']['led_vertical_scroll_delay']
-                        as String)
-                    .replaceAll('LED ', '')
-                : 'Vertical scroll delay (line by line)'
-            : translations['config'] != null &&
-                    translations['config']['led_scroll_delay'] != null
-                ? (translations['config']['led_scroll_delay'] as String)
-                    .replaceAll('LED ', '')
-                : 'Horizontal scroll delay (line by line)',
-        sliderValue: scrollSpeed,
-        labelWidth: labelWidth,
-        min: scrollSpeed < scrollMin ? scrollSpeed : scrollMin,
-        max: scrollSpeed > scrollMax ? scrollSpeed : scrollMax,
-        divisions: scrollDivisions,
-        valueType: translations['config']?[ledScrollDelayUnit] ??
-            ledScrollDelayUnit ??
-            translations['config']?['ms'] ??
-            'ms',
-        orientation: orientation,
-        onChanged: (double value) {
-          EasyDebounce.debounce(
-            'livecontrol-scrollSpeedSetLiveControl-debouncer',
-            debounceSetLiveControlDuration,
-            () {
-              mainBloc.saveLiveControl(
-                ip: selectedDeviceIp,
-                control: verticalOutput == true
-                    ? 'led_vertical_scroll_delay'
-                    : 'led_scroll_delay',
-                value: value.floor().toString(),
-              );
-            },
-          );
-          EasyDebounce.debounce(
-            'livecontrol-scrollSpeedGetinfo-debouncer',
-            debounceGetInfoDuration,
-            () {
-              mainBloc.getInfo(ip: selectedDeviceIp);
-            },
-          );
-          setState(() {
-            scrollSpeed = value;
-          });
-        },
       ),
-      HorizontalSlider(
-        key: ValueKey('SliderContrast-$selectedDeviceIp'),
-        label: translations['config']?['led_contrast'] != null
-            ? (translations['config']?['led_contrast'] as String)
-                .replaceAll('LED ', '')
-            : 'contrast',
-        sliderValue: contrast,
-        labelWidth: labelWidth,
-        min: contrast < contrastMin ? contrast : contrastMin,
-        max: contrast > contrastMax ? contrast : contrastMax,
-        divisions: contrastDivisions,
-        valueType: '%',
-        orientation: orientation,
-        onChanged: (double value) {
-          EasyDebounce.debounce(
-            'livecontrol-contrastSetLiveControl-debouncer',
-            debounceSetLiveControlDuration,
-            () {
-              mainBloc.saveLiveControl(
-                ip: selectedDeviceIp,
-                control: 'led_contrast',
-                value: value.floor().toString(),
-              );
-            },
-          );
-          EasyDebounce.debounce(
-            'livecontrol-contrastGetinfo-debouncer',
-            debounceGetInfoDuration,
-            () {
-              mainBloc.getInfo(ip: selectedDeviceIp);
-            },
-          );
-          setState(() {
-            contrast = value;
-          });
-        },
+      Flexible(
+        child: HorizontalSlider(
+          key: ValueKey('SliderContrast-$selectedDeviceIp'),
+          label: translations['config']?['led_contrast'] != null
+              ? (translations['config']?['led_contrast'] as String)
+                  .replaceAll('LED ', '')
+              : 'contrast',
+          sliderValue: contrast,
+          labelWidth: labelWidth,
+          min: contrast < contrastMin ? contrast : contrastMin,
+          max: contrast > contrastMax ? contrast : contrastMax,
+          divisions: contrastDivisions,
+          valueType: '%',
+          orientation: orientation,
+          onChanged: (double value) {
+            EasyDebounce.debounce(
+              'livecontrol-contrastSetLiveControl-debouncer',
+              debounceSetLiveControlDuration,
+              () {
+                mainBloc.saveLiveControl(
+                  ip: selectedDeviceIp,
+                  control: 'led_contrast',
+                  value: value.floor().toString(),
+                );
+              },
+            );
+            EasyDebounce.debounce(
+              'livecontrol-contrastGetinfo-debouncer',
+              debounceGetInfoDuration,
+              () {
+                mainBloc.getInfo(ip: selectedDeviceIp);
+              },
+            );
+            setState(() {
+              contrast = value;
+            });
+          },
+        ),
       ),
     ];
   }
@@ -241,7 +248,7 @@ class LiveControlPageState extends State<LiveControlPage> {
     required Map<String, dynamic> infos,
     required ConfigDefinition? definitions,
     required Map<String, String> options,
-    required List<HorizontalSlider> sliders,
+    required List<Widget> sliders,
     required Orientation orientation,
   }) {
     if (selectedDeviceName == null || options[selectedDeviceName] == null) {
@@ -253,7 +260,7 @@ class LiveControlPageState extends State<LiveControlPage> {
       return SizedBox();
     }
 
-    return SingleChildScrollView(
+    return Container(
       padding: const EdgeInsets.all(8),
       child: Center(
           child: Column(
@@ -285,7 +292,7 @@ class LiveControlPageState extends State<LiveControlPage> {
               height: (Platform.isIOS || Platform.isAndroid) &&
                       orientation == Orientation.landscape
                   ? 0
-                  : 48.0),
+                  : 8.0),
           ...sliders,
         ],
       )),
