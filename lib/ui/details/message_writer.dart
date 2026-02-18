@@ -21,8 +21,6 @@ class MessageWriter extends StatefulWidget {
   final String ip;
   final bool isPortraitMode;
   final String customMessage;
-  final TextEditingController messageTextController;
-  final ValueNotifier<String> messageTextBackup;
   final Map<String, dynamic> translations;
   final Widget? deviceSelection;
 
@@ -30,8 +28,6 @@ class MessageWriter extends StatefulWidget {
     super.key,
     required this.ip,
     required this.isPortraitMode,
-    required this.messageTextController,
-    required this.messageTextBackup,
     required this.customMessage,
     required this.translations,
     this.deviceSelection,
@@ -44,9 +40,6 @@ class MessageWriter extends StatefulWidget {
 class MessageWriterState extends State<MessageWriter> {
   String get ip => widget.ip;
   bool get isPortraitMode => widget.isPortraitMode;
-  TextEditingController get messageTextController =>
-      widget.messageTextController;
-  ValueNotifier<String> get messageTextBackup => widget.messageTextBackup;
   String get customMessage => widget.customMessage;
   Map<String, dynamic> get translations => widget.translations;
   Widget? get deviceSelection => widget.deviceSelection;
@@ -54,7 +47,9 @@ class MessageWriterState extends State<MessageWriter> {
   Widget get textAreaWithButtons => getTextAreaWithButtons();
   bool get isPortraiModeChanged => isPortraitMode != isPortraitModeBefore;
 
-  TextEditingController nameTextController = TextEditingController();
+  final TextEditingController nameTextController = TextEditingController();
+  final TextEditingController messageTextController = TextEditingController();
+  final ValueNotifier<String> messageTextBackup = ValueNotifier<String>('');
 
   String? selectedMessageId;
   Map<String, String> options = {};
@@ -72,12 +67,6 @@ class MessageWriterState extends State<MessageWriter> {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
 
-    messageTextBackup.addListener(() {
-      if (messageTextController.text != messageTextBackup.value) {
-        messageTextController.text = messageTextBackup.value;
-      }
-    });
-
     getCustomMessages();
 
     super.initState();
@@ -85,8 +74,6 @@ class MessageWriterState extends State<MessageWriter> {
 
   @override
   void didUpdateWidget(MessageWriter oldWidget) {
-    print(
-        'isPortraitMode: $isPortraitMode, messageTextController: ${messageTextController.text}, messageTextBackup: ${messageTextBackup.value}');
     if (messageTextController.text.isEmpty &&
             messageTextBackup.value.isNotEmpty ||
         isPortraiModeChanged) {
@@ -111,6 +98,8 @@ class MessageWriterState extends State<MessageWriter> {
   @override
   void dispose() {
     nameTextController.dispose();
+    messageTextController.dispose();
+    messageTextBackup.dispose();
 
     super.dispose();
   }
@@ -531,15 +520,6 @@ class MessageWriterState extends State<MessageWriter> {
               double textFieldHeight =
                   constraints.maxHeight - (Globals.isMobileDevice() ? 3 : 0);
               double fontSize = textFieldHeight / 20 / 1.25;
-              //messageTextController.text = messageTextBackup.value;
-              // messageTextController.value =
-              //     messageTextController.value.copyWith(
-              //   text: messageTextBackup.value,
-              //   selection: TextSelection.collapsed(
-              //       offset: messageTextBackup.value.length),
-              //   composing: TextRange.empty,
-              // );
-              // print('messageTextController: ${messageTextController.text}');
 
               return EditableMultilineText(
                 key: const PageStorageKey("message_text_field"),
