@@ -101,19 +101,25 @@ class DeviceListItemState extends State<DeviceListItem> {
   final double tickerFontSize = 14.0;
   final double tickerPixelPerSecondFactor = 50.0;
   final double tickerSpeedSliderWidth = 120.0;
+  final double tickerHorizontalPadding = 8.0;
 
-  final double ledSize = 3.0;
   final double ledGap = 0.2;
   final Color ledOnColor = Colors.red.shade400;
   final Color ledOffColor = const Color(0xFF000000);
   final double ledTickerPadding = 2.0;
   final double ledTickerBorderSize = 1.0;
+  final double ledSizeDefault = 3.0;
+  double ledSize = 3.0;
 
   List<String> verticalTextLines = [];
   int scrollDuration = 0;
   int linePause = 0;
   double infoOpacityLevel = 1.0;
   double itemListHeight = 84;
+  double ledSizeBefore = 0;
+  int ledModules = 9;
+  bool ledTickerInDeviceListActiveBefore = false;
+  bool verticalTickerActiveBefore = false;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -124,12 +130,24 @@ class DeviceListItemState extends State<DeviceListItem> {
   late Map<String, dynamic> info;
   late double scrollSpeedScrollMatrix;
   late double scrollSpeedDevice;
+  late double ledSingleModuleSize;
+  late double tickerWidth;
+  late bool verticalOutput;
 
   @override
   void initState() {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
+
+    ledTickerInDeviceListActiveBefore = ledTickerInDeviceListActive;
+    verticalTickerActiveBefore = verticalTickerActive;
+    ledSingleModuleSize = ledSize * 8 + ledGap * 8;
+    tickerWidth = ledTickerInDeviceListActive
+        ? ledModules * ledSize * 8 +
+            2 * ledTickerPadding +
+            2 * ledTickerBorderSize
+        : ledModules * tickerFontSize * Globals.verticalTickerWidthFactor;
 
     updateProps();
 
@@ -152,23 +170,49 @@ class DeviceListItemState extends State<DeviceListItem> {
     info = widget.info;
     scrollSpeedScrollMatrix = widget.scrollSpeedScrollMatrix;
     scrollSpeedDevice = widget.scrollSpeedDevice;
+
+    Map<String, dynamic> i = info[ip];
+    ledModules = i['led_modules'];
+    verticalOutput = verticalTickerActive && (i['vertical_output'] ?? false);
+
+    double ledSizeNew = ledSize;
+    if (ledModules * ledSize * 8 + ledGap * 8 >
+        width - tickerHorizontalPadding * 2) {
+      ledSizeNew = width / (ledModules * 8 + ledGap * 8);
+    } else {
+      ledSizeNew = ledSizeDefault;
+    }
+
+    if (ledSizeNew != ledSizeBefore ||
+        ledTickerInDeviceListActiveBefore != ledTickerInDeviceListActive ||
+        verticalTickerActiveBefore != verticalTickerActive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            ledSize = ledSizeNew;
+            ledSizeBefore = ledSize;
+            ledTickerInDeviceListActiveBefore = ledTickerInDeviceListActive;
+            verticalTickerActiveBefore = verticalTickerActive;
+            verticalOutput =
+                verticalTickerActive && (i['vertical_output'] ?? false);
+            ledSingleModuleSize = ledSize * 8 + ledGap * 8;
+
+            tickerWidth = ledTickerInDeviceListActive
+                ? ledModules * ledSize * 8 +
+                    2 * ledTickerPadding +
+                    2 * ledTickerBorderSize
+                : ledModules *
+                    tickerFontSize *
+                    Globals.verticalTickerWidthFactor;
+          });
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     Map<String, dynamic> i = info[ip];
-
-    int ledModules = i['led_modules'];
-    bool verticalOutput =
-        verticalTickerActive && (i['vertical_output'] ?? false);
-
-    double ledSingleModuleSize = ledSize * 8 + ledGap * 8;
-
-    double tickerWidth = ledTickerInDeviceListActive
-        ? ledModules * ledSize * 8 +
-            2 * ledTickerPadding +
-            2 * ledTickerBorderSize
-        : ledModules * tickerFontSize * Globals.verticalTickerWidthFactor;
 
     double tickerHeight = ledTickerInDeviceListActive
         ? ledSingleModuleSize + ledTickerPadding * 2 + ledTickerBorderSize * 2
@@ -225,8 +269,8 @@ class DeviceListItemState extends State<DeviceListItem> {
       color: ColorDefs.tileBackgroundColor(context: context),
       height: itemListHeight - 1,
       padding: EdgeInsets.only(
-        left: 8.0,
-        right: 8.0,
+        left: tickerHorizontalPadding,
+        right: tickerHorizontalPadding,
       ),
       child: Stack(
         children: [

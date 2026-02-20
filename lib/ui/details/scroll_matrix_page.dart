@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,8 @@ import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
 import 'package:roonmatrix/ui/layout/titlebar_info_content.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
+import 'package:roonmatrix/ui/settings/settings_bloc.dart';
+import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:updatable_ticker/updatable_ticker.dart';
 import 'package:updatable_vertical_ticker/updatable_vertical_ticker.dart';
 import 'package:window_manager/window_manager.dart';
@@ -53,8 +57,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   Map<String, dynamic> get translations => widget.translations;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  bool get verticalTickerActive => widget.verticalTickerActive;
-  bool get ledTickerOnTickerPageActive => widget.ledTickerOnTickerPageActive;
   Function(double speed) get speedChanged => widget.speedChanged;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -92,6 +94,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
+  late SettingsBloc settingsBloc;
+  late StreamSubscription settingsBlocSubscription;
+  late bool verticalTickerActive;
+  late bool ledTickerOnTickerPageActive;
 
   @override
   void initState() {
@@ -102,12 +108,34 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
+    settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
+    verticalTickerActive = widget.verticalTickerActive;
+    ledTickerOnTickerPageActive = widget.ledTickerOnTickerPageActive;
     sliderValue = widget.scrollSpeed;
 
     if (Globals.isDesktopDevice()) {
       asynInitDesktopDevice();
     }
+
+    settingsBlocSubscription =
+        settingsBloc.stream.listen((SettingsState settingsState) {
+      if (settingsState is SettingsStateLoaded) {
+        if (settingsState.ledTickerOnTickerPageActive !=
+                ledTickerOnTickerPageActive ||
+            settingsState.verticalTickerActive != verticalTickerActive) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                ledTickerOnTickerPageActive =
+                    settingsState.ledTickerOnTickerPageActive;
+                verticalTickerActive = settingsState.verticalTickerActive;
+              });
+            }
+          });
+        }
+      }
+    });
 
     windowManager.addListener(this);
 
@@ -152,6 +180,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   @override
   void dispose() {
     windowManager.removeListener(this);
+    settingsBlocSubscription.cancel();
     super.dispose();
   }
 
@@ -166,8 +195,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
             if (verticalOutput && verticalTickerActive) {
               width = MediaQuery.of(context).size.width;
               height = MediaQuery.of(context).size.height;
-              mobileFontSize =
-                  width / ledModules / Globals.verticalTickerWidthFactor;
+              mobileFontSize = ledTickerOnTickerPageActive
+                  ? Globals.mobileFontSizeMedium
+                  : width / ledModules / Globals.verticalTickerWidthFactor;
             } else {
               mobileFontSize = Globals.mobileFontSizeMedium;
             }
@@ -187,17 +217,19 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       if (verticalOutput && verticalTickerActive) {
         double maxFontSizeForWidth =
             width / ledModules / Globals.verticalTickerWidthFactor;
-        ledSize = width / ledModules / 1.0 / 8;
+        ledSize = width / ledModules / 8;
         double maxFontSizeForHeight = height - 60 - height / 6;
         fontSize = maxFontSizeForHeight < maxFontSizeForWidth
             ? maxFontSizeForHeight
             : maxFontSizeForWidth;
       } else {
         fontSize = height - 60 - height / 6;
-        ledSize = width / ledModules / 8 / 1.2;
+        ledSize = width / ledModules / 8;
       }
     } else {
       fontSize = mobileFontSize;
+      ledSize =
+          width / ledModules / 8 / Globals.mobileFontSizeMedium * fontSize;
     }
 
     pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
@@ -217,7 +249,12 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   return SizedBox();
                 }
 
-                double tickerWidth = double.infinity;
+                double tickerWidth = ledTickerOnTickerPageActive
+                    ? ledModules * ledSize * 8
+                    : ledModules * fontSize;
+                if (tickerWidth > width) {
+                  tickerWidth = width;
+                }
 
                 if (mainState.devices.isNotEmpty &&
                     mainState.info.containsKey(ip)) {
@@ -229,10 +266,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     ledModules = i['led_modules'];
                     verticalOutput =
                         verticalTickerActive && (i['vertical_output'] ?? false);
-
-                    tickerWidth = ledTickerOnTickerPageActive
-                        ? ledModules * ledSize * 8
-                        : ledModules * fontSize;
 
                     SchedulerBinding.instance.addPostFrameCallback((_) async {
                       if (mounted) {
@@ -362,29 +395,29 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                         child: Container(
                                           padding: EdgeInsets.symmetric(
                                               vertical: ledSize * 0.4),
-                                          color: Colors.grey.shade700,
                                           child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
                                             children: [
-                                              Expanded(
-                                                child: Container(
-                                                  color: Colors.black,
-                                                  child: UpdatableLedTicker(
-                                                    key: ValueKey(
-                                                        'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                                                    updatableText: scrollText,
-                                                    modules: ledModules,
-                                                    useProportionalFont: true,
-                                                    ledSize: ledSize,
-                                                    ledGap: ledGap,
-                                                    onColor: ledOnColor,
-                                                    offColor: ledOffColor,
-                                                    pixelsPerSecond: 100 *
-                                                        sliderValue /
-                                                        (ledSize * 0.1),
-                                                    forceUpdate: false,
-                                                    separator:
-                                                        Globals.tickerSeparator,
-                                                  ),
+                                              Container(
+                                                width: tickerWidth,
+                                                color: Colors.black,
+                                                child: UpdatableLedTicker(
+                                                  key: ValueKey(
+                                                      'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                                                  updatableText: scrollText,
+                                                  modules: ledModules,
+                                                  useProportionalFont: true,
+                                                  ledSize: ledSize,
+                                                  ledGap: ledGap,
+                                                  onColor: ledOnColor,
+                                                  offColor: ledOffColor,
+                                                  pixelsPerSecond: 100 *
+                                                      sliderValue /
+                                                      (ledSize * 0.1),
+                                                  forceUpdate: false,
+                                                  separator:
+                                                      Globals.tickerSeparator,
                                                 ),
                                               ),
                                             ],
@@ -439,6 +472,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                 ip: ip,
                 ledModules: ledModules,
                 verticalOutput: verticalOutput && verticalTickerActive,
+                ledTickerActive: ledTickerOnTickerPageActive,
                 width: width,
                 scrollSpeed: sliderValue,
                 speedChanged: (double speed) {
@@ -570,6 +604,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                         ip: ip,
                         ledModules: ledModules,
                         verticalOutput: verticalOutput && verticalTickerActive,
+                        ledTickerActive: ledTickerOnTickerPageActive,
                         width: width,
                         scrollSpeed: sliderValue,
                         speedChanged: (double speed) {

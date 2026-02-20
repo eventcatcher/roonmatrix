@@ -10,6 +10,7 @@ class MobileSpeedSliderAndFontsizeControls extends StatefulWidget {
   final String ip;
   final int ledModules;
   final bool verticalOutput;
+  final bool ledTickerActive;
   final double width;
   final double scrollSpeed;
   final Function(double speed) speedChanged;
@@ -21,6 +22,7 @@ class MobileSpeedSliderAndFontsizeControls extends StatefulWidget {
     required this.ip,
     required this.ledModules,
     required this.verticalOutput,
+    required this.ledTickerActive,
     required this.width,
     required this.scrollSpeed,
     required this.speedChanged,
@@ -38,6 +40,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
   String get ip => widget.ip;
   int get ledModules => widget.ledModules;
   bool get verticalOutput => widget.verticalOutput;
+  bool get ledTickerActive => widget.ledTickerActive;
   double get width => widget.width;
   double get scrollSpeed => widget.scrollSpeed;
   Function(double speed) get speedChanged => widget.speedChanged;
@@ -63,11 +66,18 @@ class _MobileSpeedSliderAndFontsizeControlsState
   @override
   void initState() {
     if (verticalOutput == true) {
-      double maxFontSize =
-          width / ledModules / Globals.verticalTickerWidthFactor;
-      mobileFontSizeBig = maxFontSize;
-      mobileFontSizeMedium = maxFontSize / 1.5;
-      mobileFontSizeSmall = maxFontSize / 2;
+      if (ledTickerActive == true) {
+        mobileFontSizeBig = Globals.mobileFontSizeMedium / 1;
+        mobileFontSizeMedium = Globals.mobileFontSizeMedium / 1.5;
+        mobileFontSizeSmall = Globals.mobileFontSizeMedium / 2;
+      } else {
+        double maxFontSize =
+            width / ledModules / Globals.verticalTickerWidthFactor;
+        mobileFontSizeBig = maxFontSize;
+        mobileFontSizeMedium = maxFontSize / 1.5;
+        mobileFontSizeSmall = maxFontSize / 2;
+      }
+
       fontSize = mobileFontSizeBig;
     } else {
       fontSize = Globals.mobileFontSizeMedium;
