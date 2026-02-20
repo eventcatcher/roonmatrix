@@ -64,12 +64,13 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
   final int cyclePause = 2;
 
-  double ledSize = 3.0;
   final double ledGap = 0.2;
   final Color ledOnColor = Colors.red.shade400;
   final Color ledOffColor = const Color(0xFF000000);
   final double ledTickerPadding = 2.0;
   final double ledTickerBorderSize = 1.0;
+  final double ledSizeDefault = 3.0;
+  double ledSize = 3.0;
 
   Orientation orientation = Orientation.portrait;
   Offset actualPosition = Offset(0, 0);
@@ -230,6 +231,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       fontSize = mobileFontSize;
       ledSize =
           width / ledModules / 8 / Globals.mobileFontSizeMedium * fontSize;
+    }
+    if (ledSize > ledSizeDefault) {
+      ledSize = ledSizeDefault;
     }
 
     pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);

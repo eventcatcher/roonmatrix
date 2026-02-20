@@ -176,9 +176,13 @@ class DeviceListItemState extends State<DeviceListItem> {
     verticalOutput = verticalTickerActive && (i['vertical_output'] ?? false);
 
     double ledSizeNew = ledSize;
+    double nettoWidth = width - tickerHorizontalPadding * 2;
     if (ledModules * ledSize * 8 + ledGap * 8 >
-        width - tickerHorizontalPadding * 2) {
-      ledSizeNew = width / (ledModules * 8 + ledGap * 8);
+        nettoWidth - tickerHorizontalPadding * 2) {
+      ledSizeNew = nettoWidth / (ledModules * 8 + ledGap * 8);
+      if (ledSizeNew > ledSizeDefault) {
+        ledSizeNew = ledSizeDefault;
+      }
     } else {
       ledSizeNew = ledSizeDefault;
     }
@@ -481,7 +485,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                           : Alignment.center,
                       key: ValueKey(
                           'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                      width: MediaQuery.of(context).size.width - 16,
+                      width: MediaQuery.of(context).size.width -
+                          2 * tickerHorizontalPadding,
                       height: tickerHeight,
                       child: verticalOutput && verticalTickerActive
                           ? Container(

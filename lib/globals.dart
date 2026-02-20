@@ -12,7 +12,7 @@ class Globals {
       true; // show app in iOS ui style (running on macos or iOS)
   static final bool showSelectBoxInMacStyle = true;
 
-  static double minDesktopWidth = 400;
+  static double minDesktopWidth = 300;
   static Size minDesktopSize =
       Size(minDesktopWidth, Globals.getWindowMinHeight());
   static Size standardDesktopSize = Size(minDesktopWidth, 768);
