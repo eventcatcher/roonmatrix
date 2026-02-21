@@ -22,6 +22,7 @@ class SelectBox extends StatefulWidget {
   final bool? readOnly;
   final double? maxWidth;
   final bool? expanded;
+  final bool? elementExpanded;
   final bool? readOnlyColoredGrey;
   final bool? optionsWithVerticalSpace;
   final void Function(String? value) onChanged;
@@ -43,6 +44,7 @@ class SelectBox extends StatefulWidget {
     this.readOnly,
     this.maxWidth,
     this.expanded = false,
+    this.elementExpanded = false,
     this.readOnlyColoredGrey = false,
     this.optionsWithVerticalSpace,
     required this.onChanged,
@@ -68,6 +70,7 @@ class SelectBoxState extends State<SelectBox> {
   bool? get readOnly => widget.readOnly;
   double? get maxWidth => widget.maxWidth;
   bool? get expanded => widget.expanded;
+  bool? get elementExpanded => widget.elementExpanded;
   bool? get readOnlyColoredGrey => widget.readOnlyColoredGrey;
   bool? get optionsWithVerticalSpace => widget.optionsWithVerticalSpace;
   void Function(String? value) get onChanged => widget.onChanged;
@@ -133,18 +136,40 @@ class SelectBoxState extends State<SelectBox> {
   Widget dropdownElement({
     required BuildContext context,
     required bool expanded,
+    required bool elementExpanded,
   }) {
     if (Globals.inIosStyle()) {
+      Widget text = options!.keys.toList().isEmpty
+          ? SizedBox()
+          : Text(
+              selected != null
+                  ? showValue!
+                      ? options![selected]
+                      : selected!
+                  : translations['zonePickerSelectionEmpty'] ?? 'Please Select',
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            );
+
       return options!.keys.toList().isEmpty
-          ? Text(translations['zonePickerOptionsEmpty'] ?? 'none')
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  translations['zonePickerOptionsEmpty'] ?? 'none',
+                ),
+              ],
+            )
           : CupertinoButton(
-              child: Text(
-                selected != null
-                    ? showValue!
-                        ? options![selected]
-                        : selected!
-                    : translations['zonePickerSelectionEmpty'] ??
-                        'Please Select',
+              padding: EdgeInsets.zero,
+              sizeStyle: CupertinoButtonSize.small,
+              child: SizedBox(
+                width: maxWidth,
+                child: elementExpanded
+                    ? Center(
+                        child: text,
+                      )
+                    : text,
               ),
               onPressed: () => options != null
                   ? SharedWidgets.showIosPickerDialog(
@@ -180,12 +205,10 @@ class SelectBoxState extends State<SelectBox> {
                           padding: EdgeInsets.symmetric(
                               vertical:
                                   optionsWithVerticalSpace == true ? 8.0 : 0.0),
-                          child: SizedBox(
-                            child: Text(
-                              showValue! ? options![key]! : key,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
+                          child: Text(
+                            showValue! ? options![key]! : key,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                       ),
@@ -193,57 +216,64 @@ class SelectBoxState extends State<SelectBox> {
                   }).toList()
                 : [],
           )
-        : DropdownButton<String>(
-            value: selected,
-            isExpanded: expanded,
-            hint: placeholder != null
-                ? Text(
-                    placeholder!,
-                    style: TextStyle(
-                      color: ColorDefs.textColor(context: context),
-                      fontSize: 12.0,
-                    ),
-                  )
-                : null,
-            //dropdownColor: Colors.white,
-            icon: Icon(
-              Icons.arrow_drop_down,
-              color: ColorDefs.iconColor(context: context),
-            ),
-            iconSize: 32,
-            elevation: 16,
-            style: TextStyle(
-              color: ColorDefs.textColor(context: context),
-            ),
-            underline: Container(
-              height: 0,
-              color: Colors.blue,
-            ),
-            onChanged: (String? value) {
-              onChanged(value);
-            },
-            items: (options != null && options!.isNotEmpty)
-                ? (options!.keys.map<DropdownMenuItem<String>>((String key) {
-                    return DropdownMenuItem<String>(
-                      value: key,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical:
-                                optionsWithVerticalSpace == true ? 8.0 : 0.0),
-                        child: Text(
-                          showValue! ? options![key]! : key,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+        : SizedBox(
+            width: maxWidth,
+            child: DropdownButton<String>(
+              value: selected,
+              isExpanded: elementExpanded,
+              hint: placeholder != null
+                  ? Text(
+                      placeholder!,
+                      style: TextStyle(
+                        color: ColorDefs.textColor(context: context),
+                        fontSize: 12.0,
                       ),
-                    );
-                  }).toList())
-                : [],
+                    )
+                  : null,
+              //dropdownColor: Colors.white,
+              icon: Icon(
+                Icons.arrow_drop_down,
+                color: ColorDefs.iconColor(context: context),
+              ),
+              iconSize: 32,
+              elevation: 16,
+              style: TextStyle(
+                color: ColorDefs.textColor(context: context),
+              ),
+              underline: Container(
+                height: 0,
+                color: Colors.blue,
+              ),
+              onChanged: (String? value) {
+                onChanged(value);
+              },
+              items: (options != null && options!.isNotEmpty)
+                  ? (options!.keys.map<DropdownMenuItem<String>>((String key) {
+                      return DropdownMenuItem<String>(
+                        value: key,
+                        child: SizedBox(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: optionsWithVerticalSpace == true
+                                    ? 8.0
+                                    : 0.0),
+                            child: Text(
+                              showValue! ? options![key]! : key,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList())
+                  : [],
+            ),
           );
   }
 
   Widget dropdown({
     required bool expanded,
+    required bool elementExpanded,
     required BuildContext context,
   }) =>
       Container(
@@ -263,7 +293,10 @@ class SelectBoxState extends State<SelectBox> {
               ),
         child: readOnly == true
             ? dropdownReadonlyElement(context: context)
-            : dropdownElement(context: context, expanded: expanded),
+            : dropdownElement(
+                context: context,
+                expanded: expanded,
+                elementExpanded: elementExpanded),
       );
 
   @override
@@ -291,7 +324,10 @@ class SelectBoxState extends State<SelectBox> {
                         ),
                       ),
                     ),
-                  dropdown(expanded: expanded!, context: dropdownContext),
+                  dropdown(
+                      expanded: expanded!,
+                      elementExpanded: elementExpanded!,
+                      context: dropdownContext),
                 ],
               )
             : Column(
@@ -310,7 +346,10 @@ class SelectBoxState extends State<SelectBox> {
                       height: 4.0,
                     ),
                   ],
-                  dropdown(expanded: expanded!, context: dropdownContext),
+                  dropdown(
+                      expanded: expanded!,
+                      elementExpanded: elementExpanded!,
+                      context: dropdownContext),
                 ],
               ),
       ),

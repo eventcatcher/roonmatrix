@@ -123,6 +123,7 @@ class MessageWriterState extends State<MessageWriter> {
             selected: selectedMessageId,
             options: options,
             expanded: true,
+            elementExpanded: true,
             onChanged: (String? newValue) {
               messageTextBackup.value = options[newValue]!;
               setState(() {

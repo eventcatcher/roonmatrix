@@ -89,19 +89,25 @@ class LogPageState extends State<LogPage> {
         AnimatedOpacity(
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: visibilityAnimation,
-          child: IconButton(
-            padding: const EdgeInsets.only(bottom: 2.0),
-            splashRadius: splashRadius,
-            hoverColor: Colors.transparent,
-            onPressed: () {
-              setState(() {
-                filterLog = !filterLog;
-              });
-            },
-            icon: Icon(
-              Icons.filter_alt,
-              size: 24,
-              color: filterLog ? Colors.green : Colors.grey,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 2.0),
+            child: SizedBox(
+              width: 24.0,
+              child: IconButton(
+                padding: const EdgeInsets.only(bottom: 2.0),
+                splashRadius: splashRadius,
+                hoverColor: Colors.transparent,
+                onPressed: () {
+                  setState(() {
+                    filterLog = !filterLog;
+                  });
+                },
+                icon: Icon(
+                  Icons.filter_alt,
+                  size: 24,
+                  color: filterLog ? Colors.green : Colors.grey,
+                ),
+              ),
             ),
           ),
         ),
@@ -221,22 +227,31 @@ class LogPageState extends State<LogPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             MediaQuery.of(context).size.width >= Globals.widthSwitchBoundaryMid
-                ? selectBoxWithIcon
+                ? Globals.isDesktopDevice() &&
+                        !Globals.inMacosStyle() &&
+                        !Globals.inIosStyle()
+                    ? SizedBox(width: 236.0, child: selectBoxWithIcon)
+                    : selectBoxWithIcon
                 : Expanded(
                     child: selectBoxWithIcon,
                   ),
             if (MediaQuery.of(context).size.width >=
                 Globals.widthSwitchBoundaryMid)
               SizedBox(
-                  width: 400.0,
-                  child: Row(
-                      children: logfilePartSelection(logstr: mainState.log))),
+                width: 400.0,
+                child: Row(
+                  children: logfilePartSelection(logstr: mainState.log),
+                ),
+              ),
           ],
         ),
         if (MediaQuery.of(context).size.width < Globals.widthSwitchBoundaryMid)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: logfilePartSelection(logstr: mainState.log),
+          Padding(
+            padding: const EdgeInsets.only(left: 12.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: logfilePartSelection(logstr: mainState.log),
+            ),
           ),
         Expanded(
           child: mainState.subPageIdle == true

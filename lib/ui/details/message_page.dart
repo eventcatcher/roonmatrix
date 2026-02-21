@@ -86,6 +86,7 @@ class MessagePageState extends State<MessagePage> {
         noVerticalSpace: Globals.isMobileDevice(),
         readOnly: false,
         expanded: true,
+        elementExpanded: true,
         selected: selectedDeviceName,
         options: options,
         onChanged: (String? newValue) {

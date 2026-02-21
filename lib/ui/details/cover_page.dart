@@ -458,6 +458,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                 noVerticalSpace: false,
                 readOnly: false,
                 maxWidth: width != null && width <= 300 ? width - 70 : null,
+                elementExpanded: width != null && width <= 300,
                 selected:
                     options[selectedZoneId] != null ? selectedZoneId : null,
                 options: options,
