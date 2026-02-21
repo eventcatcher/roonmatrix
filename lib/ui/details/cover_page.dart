@@ -788,7 +788,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             ? getSelectBoxArea(
                                                 portraitMode: portraitMode,
                                                 options: options,
-                                                withLabel: false,
+                                                withLabel:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .width >
+                                                        870,
                                                 width: MediaQuery.of(context)
                                                             .size
                                                             .width /
