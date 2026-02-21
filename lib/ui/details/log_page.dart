@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
@@ -90,7 +92,8 @@ class LogPageState extends State<LogPage> {
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: visibilityAnimation,
           child: Padding(
-            padding: const EdgeInsets.only(right: 2.0),
+            padding:
+                EdgeInsets.only(left: Platform.isMacOS ? 0.0 : 2.0, right: 2.0),
             child: SizedBox(
               width: 24.0,
               child: IconButton(
@@ -230,7 +233,7 @@ class LogPageState extends State<LogPage> {
                 ? Globals.isDesktopDevice() &&
                         !Globals.inMacosStyle() &&
                         !Globals.inIosStyle()
-                    ? SizedBox(width: 236.0, child: selectBoxWithIcon)
+                    ? IntrinsicWidth(child: selectBoxWithIcon)
                     : selectBoxWithIcon
                 : Expanded(
                     child: selectBoxWithIcon,

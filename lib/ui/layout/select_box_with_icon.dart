@@ -299,7 +299,8 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                             ),
                           Text(
                             options![key]['name'],
-                            overflow: TextOverflow.fade,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             style: (TextStyle(
                                 color: ColorDefs.textColor(context: context),
                                 fontSize: fontSize,
