@@ -3,10 +3,11 @@ import 'package:roonmatrix/globals.dart';
 
 class ControlButton extends StatelessWidget {
   final double buttonSize;
+  final double? iconSize;
   final double? horizontalMargin;
   final double verticalTooltipOffset;
   final String tooltipText;
-  final Icon icon;
+  final Widget icon;
   final Color? color;
   final bool readOnly;
   final VoidCallback onPressed;
@@ -14,6 +15,7 @@ class ControlButton extends StatelessWidget {
   const ControlButton({
     super.key,
     required this.buttonSize,
+    this.iconSize,
     this.horizontalMargin,
     required this.verticalTooltipOffset,
     required this.tooltipText,
@@ -31,26 +33,26 @@ class ControlButton extends StatelessWidget {
       margin: horizontalMargin != null
           ? EdgeInsets.symmetric(horizontal: horizontalMargin!)
           : null,
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Tooltip(
-          message: readOnly ? '' : tooltipText,
-          triggerMode: TooltipTriggerMode.manual,
-          waitDuration: Duration(seconds: 3),
-          verticalOffset: verticalTooltipOffset,
-          child: Material(
-            color: Colors.transparent,
-            shape: const CircleBorder(),
-            clipBehavior: Clip.antiAlias,
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              color: color,
-              hoverColor:
-                  readOnly ? Colors.transparent : Globals.hoverButtonBackground,
-              onPressed: readOnly ? null : () => onPressed(),
-              icon: icon,
-              iconSize: buttonSize * 0.5,
-            ),
+      child: Tooltip(
+        message: readOnly ? '' : tooltipText,
+        triggerMode: TooltipTriggerMode.manual,
+        waitDuration: Duration(seconds: 3),
+        verticalOffset: verticalTooltipOffset,
+        child: Material(
+          color: Colors.transparent,
+          shape: const CircleBorder(),
+          clipBehavior: Clip.antiAlias,
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            color: color,
+            hoverColor: readOnly
+                ? Colors.transparent
+                : Globals.brightness() == Brightness.dark
+                    ? Globals.hoverButtonBackground
+                    : Globals.hoverButtonBackgrounDark,
+            onPressed: readOnly ? null : () => onPressed(),
+            icon: icon,
+            iconSize: iconSize,
           ),
         ),
       ),

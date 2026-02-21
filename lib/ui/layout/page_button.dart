@@ -41,7 +41,9 @@ class PageButtonState extends State<PageButton> {
 
   @override
   Widget build(BuildContext context) {
-    return Globals.isDesktopDevice()
+    return Globals.isDesktopDevice() &&
+            MediaQuery.of(context).size.width >
+                Globals.mobilePageButtonsMaxWidth
         ? Padding(
             padding: EdgeInsets.only(left: paddingLeft),
             child: IconButtonElement(

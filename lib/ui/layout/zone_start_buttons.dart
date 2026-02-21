@@ -166,7 +166,9 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
     if (buttons.isEmpty) {
       return SizedBox();
     }
-    return Globals.isMobileDevice()
+    return Globals.isMobileDevice() ||
+            MediaQuery.of(context).size.width <=
+                Globals.mobilePageButtonsMaxWidth
         ? SizedBox(
             width: zoneNotRunningButtonsWidth ?? buttonsWidthDefault,
             height: expandableSize,
@@ -190,7 +192,11 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
                           height: 30.0,
                           child: Center(
                             child: Text(
-                                '${(translations['startZone'] ?? 'start').toString().toFirstUpper}: '),
+                              '${(translations['startZone'] ?? 'start').toString().toFirstUpper}: ',
+                              style: TextStyle(
+                                color: ColorDefs.textColor(context: context),
+                              ),
+                            ),
                           ),
                         ),
                         ...buttons,

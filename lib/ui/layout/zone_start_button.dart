@@ -18,7 +18,9 @@ class ZoneStartButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(left: 4.0),
-        child: Globals.isDesktopDevice()
+        child: Globals.isDesktopDevice() &&
+                MediaQuery.of(context).size.width >
+                    Globals.mobilePageButtonsMaxWidth
             ? IconTextButtonElement(
                 onMacAsText: true,
                 style: ElevatedButton.styleFrom(
@@ -46,7 +48,12 @@ class ZoneStartButton extends StatelessWidget {
                   backgroundColor: ColorDefs.buttonBlueColor(context: context),
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: Platform.isIOS ? 5.0 : 7.0),
+                      horizontal: 8.0,
+                      vertical: Globals.isDesktopDevice()
+                          ? 13
+                          : Platform.isIOS
+                              ? 5.0
+                              : 7.0),
                   minimumSize: Size.zero,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),

@@ -7,7 +7,8 @@ import 'package:roonmatrix/ui/main/main_bloc.dart';
 class ControlButtons extends StatefulWidget {
   final Orientation orientation;
   final Map<String, dynamic> translations;
-  final double partsToSubtract;
+  final bool portraitMode;
+  final double padding;
   final String ip;
   final bool? idle;
   final bool? shuffle;
@@ -20,7 +21,8 @@ class ControlButtons extends StatefulWidget {
     super.key,
     required this.orientation,
     required this.translations,
-    this.partsToSubtract = 0,
+    required this.portraitMode,
+    required this.padding,
     required this.ip,
     this.idle,
     this.shuffle,
@@ -37,7 +39,8 @@ class ControlButtons extends StatefulWidget {
 class ControlButtonsState extends State<ControlButtons> {
   Orientation get orientation => widget.orientation;
   Map<String, dynamic> get translations => widget.translations;
-  double get partsToSubtract => widget.partsToSubtract;
+  bool get portraitMode => widget.portraitMode;
+  double get padding => widget.padding;
   String get ip => widget.ip;
   String get controlId => widget.controlId;
   bool get readOnly => widget.readOnly;
@@ -65,7 +68,7 @@ class ControlButtonsState extends State<ControlButtons> {
     required double size,
     required bool inRow,
   }) =>
-      (size - 16) / (inRow ? cols : 3);
+      (size - padding) / (inRow ? cols : 3);
 
   bool idle = false;
   bool shuffle = false;
@@ -91,9 +94,11 @@ class ControlButtonsState extends State<ControlButtons> {
     return LayoutBuilder(builder: (context, constraints) {
       double maxWidth = constraints.maxWidth;
       double maxHeight = constraints.maxHeight == double.infinity
-          ? MediaQuery.of(context).size.height - partsToSubtract
+          ? MediaQuery.of(context).size.height
           : constraints.maxHeight;
-      inRow = maxHeight < controlAreaInCrossMinHeight;
+
+      inRow = !(Globals.isDesktopDevice() && !portraitMode) &&
+          maxHeight < controlAreaInCrossMinHeight;
       double size =
           inRow ? maxWidth : (maxWidth < maxHeight ? maxWidth : maxHeight);
       double buttonSize = getButtonSize(size: size, inRow: inRow);
@@ -104,11 +109,11 @@ class ControlButtonsState extends State<ControlButtons> {
       double verticalTooltipOffset = buttonSize / 2;
       double width = (inRow ? cols : 3) * buttonSize;
       double height = (inRow ? 1 : 3) * buttonSize;
-      double iconSize = buttonSize * 0.5;
+      double iconSize = buttonSize * 0.6;
 
       return SizedBox(
-        width: size,
-        height: inRow ? buttonSize : size,
+        width: size - padding,
+        height: inRow ? buttonSize : size - padding,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -118,7 +123,7 @@ class ControlButtonsState extends State<ControlButtons> {
                 Container(
                   width: width,
                   height: height,
-                  decoration: inRow && width < (maxWidth - 16)
+                  decoration: inRow && width < (maxWidth - padding)
                       ? Globals.brightness() == Brightness.dark
                           ? areaDecorationFilledDarkStyle()
                           : areaDecorationFilledLightStyle()
@@ -132,13 +137,13 @@ class ControlButtonsState extends State<ControlButtons> {
                             SizedBox(width: buttonSize),
                             ControlButton(
                               buttonSize: buttonSize,
+                              iconSize: buttonSize * 0.6,
                               verticalTooltipOffset: verticalTooltipOffset,
                               tooltipText:
                                   translations['controlButtonRepeatText'] ??
                                       'repeat',
                               icon: Icon(
                                 Icons.repeat,
-                                size: iconSize,
                                 color: repeat
                                     ? enableIconColor
                                     : Globals.brightness() == Brightness.dark
@@ -168,14 +173,14 @@ class ControlButtonsState extends State<ControlButtons> {
                           if (inRow) ...[
                             ControlButton(
                               buttonSize: buttonSize,
-                              horizontalMargin: iconSize / 2 + 8,
+                              iconSize: buttonSize * 0.7,
+                              horizontalMargin: iconSize / 2,
                               verticalTooltipOffset: verticalTooltipOffset,
                               tooltipText:
                                   translations['controlButtonShuffleText'] ??
                                       'shuffle',
                               icon: Icon(
                                 Icons.shuffle,
-                                size: iconSize,
                                 color: shuffle
                                     ? enableIconColor
                                     : Globals.brightness() == Brightness.dark
@@ -200,6 +205,7 @@ class ControlButtonsState extends State<ControlButtons> {
                             ),
                             ControlButton(
                               buttonSize: buttonSize,
+                              iconSize: buttonSize * 0.7,
                               horizontalMargin: iconSize / 2,
                               verticalTooltipOffset: verticalTooltipOffset,
                               tooltipText:
@@ -207,7 +213,6 @@ class ControlButtonsState extends State<ControlButtons> {
                                       'repeat',
                               icon: Icon(
                                 Icons.repeat,
-                                size: iconSize,
                                 color: repeat
                                     ? enableIconColor
                                     : Globals.brightness() == Brightness.dark
@@ -234,6 +239,7 @@ class ControlButtonsState extends State<ControlButtons> {
                           ],
                           ControlButton(
                             buttonSize: buttonSize,
+                            iconSize: buttonSize,
                             horizontalMargin: inRow ? iconSize / 2 : null,
                             verticalTooltipOffset: verticalTooltipOffset,
                             tooltipText:
@@ -241,7 +247,6 @@ class ControlButtonsState extends State<ControlButtons> {
                                     'previous track',
                             icon: Icon(
                               Icons.keyboard_arrow_left,
-                              size: iconSize,
                               color: (isRadio || idle)
                                   ? Globals.brightness() == Brightness.dark
                                       ? disabledIconColorDark
@@ -263,6 +268,7 @@ class ControlButtonsState extends State<ControlButtons> {
                           ),
                           ControlButton(
                             buttonSize: buttonSize,
+                            iconSize: buttonSize * 0.7,
                             horizontalMargin: inRow ? iconSize / 2 : null,
                             verticalTooltipOffset: verticalTooltipOffset,
                             tooltipText:
@@ -270,7 +276,6 @@ class ControlButtonsState extends State<ControlButtons> {
                                     'pause/play',
                             icon: Icon(
                               idle ? Icons.play_arrow : Icons.pause,
-                              size: iconSize,
                             ),
                             color: Globals.brightness() == Brightness.dark
                                 ? iconColorDark
@@ -294,6 +299,7 @@ class ControlButtonsState extends State<ControlButtons> {
                           ),
                           ControlButton(
                             buttonSize: buttonSize,
+                            iconSize: buttonSize,
                             horizontalMargin: inRow ? iconSize / 2 : null,
                             verticalTooltipOffset: verticalTooltipOffset,
                             tooltipText:
@@ -301,7 +307,6 @@ class ControlButtonsState extends State<ControlButtons> {
                                     'next track',
                             icon: Icon(
                               Icons.keyboard_arrow_right,
-                              size: iconSize,
                               color: (isRadio || idle)
                                   ? Globals.brightness() == Brightness.dark
                                       ? disabledIconColorDark
@@ -332,13 +337,13 @@ class ControlButtonsState extends State<ControlButtons> {
                             SizedBox(width: buttonSize),
                             ControlButton(
                               buttonSize: buttonSize,
+                              iconSize: buttonSize * 0.6,
                               verticalTooltipOffset: verticalTooltipOffset,
                               tooltipText:
                                   translations['controlButtonShuffleText'] ??
                                       'shuffle',
                               icon: Icon(
                                 Icons.shuffle,
-                                size: iconSize,
                                 color: shuffle
                                     ? enableIconColor
                                     : Globals.brightness() == Brightness.dark

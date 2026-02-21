@@ -421,7 +421,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   Widget getSelectBoxArea({
     required bool portraitMode,
+    withLabel = true,
     required Map<String, String> options,
+    double? width,
   }) {
     return Container(
       margin: EdgeInsets.only(
@@ -442,7 +444,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                 key: ValueKey('ZoneSelectBox-$selectedZoneId'),
                 translations: translations,
                 aligned: 'horizontal',
-                label: '${translations['zoneSelectionLabel'] ?? 'Zone'}',
+                label: withLabel
+                    ? '${translations['zoneSelectionLabel'] ?? 'Zone'}'
+                    : null,
                 labelWeight: FontWeight.bold,
                 labelColor: Globals.brightness() == Brightness.dark
                     ? Colors.white
@@ -453,6 +457,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                 inRow: true,
                 noVerticalSpace: false,
                 readOnly: false,
+                maxWidth: width != null && width <= 300 ? width - 70 : null,
                 selected:
                     options[selectedZoneId] != null ? selectedZoneId : null,
                 options: options,
@@ -543,14 +548,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     required String? selectedZoneId,
   }) =>
       LayoutBuilder(builder: (context, constraints) {
-        double padding = portraitMode ? 0.0 : 16.0;
-        double height = portraitMode
-            ? (constraints.maxHeight - coverPadding + 3)
-            : (constraints.maxHeight - coverPadding * 2 - 24);
-
-        if (height < 57 && !threeCols) {
-          return SizedBox();
-        }
         return Container(
           width: portraitMode ? null : double.infinity,
           height: portraitMode || threeCols ? null : double.infinity,
@@ -568,22 +565,20 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
               ? areaDecorationFilledDarkStyle()
               : areaDecorationFilledLightStyle(),
           child: Center(
-            child: Padding(
-              padding: EdgeInsets.all(padding),
-              child: ControlButtons(
-                key: ValueKey(
-                    'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
-                orientation: orientation,
-                translations: translations,
-                //partsToSubtract: portraitMode || threeCols ? 0 : 355,
-                ip: ip,
-                controlId: controlId ?? widget.controlId ?? '',
-                idle: idle,
-                shuffle: shuffle,
-                repeat: repeat,
-                isRadio: isRadio,
-                readOnly: selectedZoneId == null || selectedZoneId.isEmpty,
-              ),
+            child: ControlButtons(
+              key: ValueKey(
+                  'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
+              orientation: orientation,
+              translations: translations,
+              portraitMode: portraitMode,
+              padding: coverPadding,
+              ip: ip,
+              controlId: controlId ?? widget.controlId ?? '',
+              idle: idle,
+              shuffle: shuffle,
+              repeat: repeat,
+              isRadio: isRadio,
+              readOnly: selectedZoneId == null || selectedZoneId.isEmpty,
             ),
           ),
         );
@@ -633,8 +628,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                     ? coverWidth!
                                                     : 200,
                                                 child: getSelectBoxArea(
-                                                    portraitMode: portraitMode,
-                                                    options: options),
+                                                  portraitMode: portraitMode,
+                                                  withLabel:
+                                                      coverWidth != null &&
+                                                          coverWidth! > 300,
+                                                  options: options,
+                                                  width: coverWidth,
+                                                ),
                                               )
                                             : SizedBox(
                                                 height: 16.0,
@@ -676,8 +676,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                               coverWidth!,
                                               MediaQuery.of(context).size.width,
                                             );
-                                            print(
-                                                'controlsWidth: $controlsWidth');
 
                                             return Column(
                                               children: [
@@ -733,6 +731,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             child: getTextArea(
                                               portraitMode: portraitMode,
                                               threeCols: threeCols,
+                                              fontSize: MediaQuery.of(context)
+                                                              .size
+                                                              .height <
+                                                          500 ||
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width <
+                                                          650 ||
+                                                      (coverWidth != null &&
+                                                          coverWidth! < 400)
+                                                  ? 14
+                                                  : null,
                                             )),
                                       ],
                                     ),
@@ -771,11 +781,19 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                         noRightPadding: false,
                                         selectedZone: selectedZone,
                                       ).inGridArea('cover'),
-                                      if (!threeCols)
+                                      if (!threeCols &&
+                                          MediaQuery.of(context).size.width >
+                                              565)
                                         widget.controlId == null
                                             ? getSelectBoxArea(
                                                 portraitMode: portraitMode,
                                                 options: options,
+                                                withLabel: false,
+                                                width: MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        2.5 -
+                                                    (coverPadding * 3),
                                               ).inGridArea('select')
                                             : SizedBox().inGridArea('select'),
                                       getControlArea(
@@ -825,6 +843,24 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                               getSelectBoxArea(
                                                             portraitMode:
                                                                 portraitMode,
+                                                            withLabel:
+                                                                MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width >
+                                                                    1180,
+                                                            width: MediaQuery.of(
+                                                                            context)
+                                                                        .size
+                                                                        .width <=
+                                                                    1180
+                                                                ? MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                        3 -
+                                                                    (coverPadding *
+                                                                        5)
+                                                                : null,
                                                             options: options,
                                                           ),
                                                         ),
@@ -850,7 +886,19 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             : getTextArea(
                                                 portraitMode: portraitMode,
                                                 threeCols: threeCols,
-                                              ),
+                                                fontSize: MediaQuery.of(context)
+                                                                .size
+                                                                .height <
+                                                            Globals
+                                                                .heightSwitchBoundaryVerySmall ||
+                                                        (!threeCols &&
+                                                            MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width <
+                                                                640)
+                                                    ? 11
+                                                    : null),
                                       ).inGridArea('text')
                                     ],
                                   );

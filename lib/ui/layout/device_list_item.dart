@@ -356,27 +356,44 @@ class DeviceListItemState extends State<DeviceListItem> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
-                              child: Text(
-                                mainRepository.getTimeZonePlaycountText(
-                                  translations: translations,
-                                  info: i,
-                                  zoneName: zoneName,
-                                ),
-                                softWrap: true,
-                                maxLines: 2,
-                                overflow: TextOverflow.fade,
-                                style: TextStyle(fontSize: 14.0),
-                              ),
+                              child: width >
+                                      Globals
+                                          .deviceListItemSwitchBoundaryFullInfo
+                                  ? Text(
+                                      mainRepository.getTimeZonePlaycountText(
+                                        translations: translations,
+                                        info: i,
+                                        zoneName: zoneName,
+                                      ),
+                                      softWrap: true,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.fade,
+                                      style: TextStyle(
+                                          fontSize: width >
+                                                  Globals
+                                                      .mobilePageButtonsMaxWidth
+                                              ? 14.0
+                                              : 12.0),
+                                    )
+                                  : Padding(
+                                      padding: EdgeInsets.only(
+                                          right: 12.0, top: 12.0),
+                                      child: Text('${i['playcount']}',
+                                          softWrap: true,
+                                          overflow: TextOverflow.fade,
+                                          style: const TextStyle(fontSize: 9)),
+                                    ),
                             ),
-                            DesktopPageButtons(
-                              translations: translations,
-                              ip: ip,
-                              info: info,
-                              spotifyAuthUrl: spotifyAuthUrl,
-                              moreInfo: moreInfo,
-                              minDesktopSize: minDesktopSize,
-                              standardDesktopSize: standardDesktopSize,
-                            )
+                            if (width > Globals.mobilePageButtonsMaxWidth)
+                              DesktopPageButtons(
+                                translations: translations,
+                                ip: ip,
+                                info: info,
+                                spotifyAuthUrl: spotifyAuthUrl,
+                                moreInfo: moreInfo,
+                                minDesktopSize: minDesktopSize,
+                                standardDesktopSize: standardDesktopSize,
+                              )
                           ],
                         )
                       : SizedBox(
@@ -417,9 +434,14 @@ class DeviceListItemState extends State<DeviceListItem> {
               ],
             ),
           ),
-          if (Globals.isMobileDevice())
+          if (Globals.isMobileDevice() ||
+              width <= Globals.mobilePageButtonsMaxWidth)
             Positioned(
-              top: Platform.isAndroid ? 4.0 : 7.0,
+              top: Globals.isDesktopDevice()
+                  ? 9.0
+                  : Platform.isAndroid
+                      ? 4.0
+                      : 7.0,
               right: 0.0,
               child: MobilePageButtons(
                 translations: translations,

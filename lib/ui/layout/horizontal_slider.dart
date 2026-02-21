@@ -8,6 +8,7 @@ import 'package:roonmatrix/globals.dart';
 
 class HorizontalSlider extends StatefulWidget {
   final String label;
+  final bool? smallHeight;
   final double? labelWidth;
   final double min;
   final double max;
@@ -20,6 +21,7 @@ class HorizontalSlider extends StatefulWidget {
   const HorizontalSlider({
     super.key,
     required this.label,
+    this.smallHeight = false,
     this.labelWidth,
     required this.min,
     required this.max,
@@ -36,6 +38,7 @@ class HorizontalSlider extends StatefulWidget {
 
 class _HorizontalSliderState extends State<HorizontalSlider> {
   String get label => widget.label;
+  bool get smallHeight => widget.smallHeight!;
   double? get labelWidth => widget.labelWidth;
   double get min => widget.min;
   double get max => widget.max;
@@ -108,6 +111,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                         '$label: ',
                         style: TextStyle(
                           color: ColorDefs.textColor(context: context),
+                          fontSize: smallHeight ? 12.0 : null,
                         ),
                       )),
                   Flexible(
@@ -118,7 +122,8 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                             : 1,
                     fit: FlexFit.tight,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 4.0, top: 4.0),
+                      padding: EdgeInsets.only(
+                          left: 4.0, top: smallHeight ? 1.0 : 4.0),
                       child: SizedBox(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -168,7 +173,13 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: ColorDefs.textColor(context: context),
+                      fontSize: smallHeight ? 12.0 : null,
+                    ),
+                  ),
                   Row(
                     children: [
                       Expanded(
@@ -181,6 +192,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                               min: min,
                               max: max,
                               divisions: divisions,
+                              padding: smallHeight ? EdgeInsets.all(4.0) : null,
                               thumbColor: thumbColor,
                               activeColor: activeColor,
                               inactiveColor: inactiveColor,
@@ -203,6 +215,9 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                               valueType: valueType,
                               sliderValue: sliderValue,
                               max: max,
+                            ),
+                            style: TextStyle(
+                              color: ColorDefs.textColor(context: context),
                             ),
                           ),
                         ),

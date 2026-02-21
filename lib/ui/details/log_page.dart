@@ -198,42 +198,38 @@ class LogPageState extends State<LogPage> {
             ),
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Flexible(
-                flex: 2,
-                child: SelectBoxWithIcon(
-                  translations: translations,
-                  options: translationsBloc.state.logHoursOptions,
-                  placeholder: translations['pleaseSelectPlaceholder'] ??
-                      'Please Select',
-                  selected: hours.toString(),
-                  onChanged: (String? value) {
-                    if (value != null) {
-                      mainBloc.getLog(ip: ip, hours: int.parse(value));
-                      if (mounted) {
-                        setState(() {
-                          hours = int.parse(value);
-                          logfilePart = 1;
-                          logfilePartOffset = [];
-                        });
-                      }
+              SelectBoxWithIcon(
+                translations: translations,
+                options: translationsBloc.state.logHoursOptions,
+                placeholder:
+                    translations['pleaseSelectPlaceholder'] ?? 'Please Select',
+                selected: hours.toString(),
+                onChanged: (String? value) {
+                  if (value != null) {
+                    mainBloc.getLog(ip: ip, hours: int.parse(value));
+                    if (mounted) {
+                      setState(() {
+                        hours = int.parse(value);
+                        logfilePart = 1;
+                        logfilePartOffset = [];
+                      });
                     }
-                  },
-                ),
+                  }
+                },
               ),
-              if (Globals.isDesktopDevice())
-                Flexible(
-                  flex: 1,
-                  child: SizedBox(
-                      width: 400.0,
-                      child: Row(
-                          children:
-                              logfilePartSelection(logstr: mainState.log))),
-                ),
+              if (MediaQuery.of(context).size.width >=
+                  Globals.widthSwitchBoundaryMid)
+                SizedBox(
+                    width: 400.0,
+                    child: Row(
+                        children: logfilePartSelection(logstr: mainState.log))),
             ],
           ),
-          if (Globals.isMobileDevice())
+          if (MediaQuery.of(context).size.width <
+              Globals.widthSwitchBoundaryMid)
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: logfilePartSelection(logstr: mainState.log),

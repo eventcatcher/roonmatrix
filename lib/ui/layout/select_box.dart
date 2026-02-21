@@ -20,6 +20,7 @@ class SelectBox extends StatefulWidget {
   final bool? inRow;
   final bool? noVerticalSpace;
   final bool? readOnly;
+  final double? maxWidth;
   final bool? expanded;
   final bool? readOnlyColoredGrey;
   final bool? optionsWithVerticalSpace;
@@ -40,6 +41,7 @@ class SelectBox extends StatefulWidget {
     this.inRow,
     this.noVerticalSpace,
     this.readOnly,
+    this.maxWidth,
     this.expanded = false,
     this.readOnlyColoredGrey = false,
     this.optionsWithVerticalSpace,
@@ -64,6 +66,7 @@ class SelectBoxState extends State<SelectBox> {
   bool? get inRow => widget.inRow;
   bool? get noVerticalSpace => widget.noVerticalSpace;
   bool? get readOnly => widget.readOnly;
+  double? get maxWidth => widget.maxWidth;
   bool? get expanded => widget.expanded;
   bool? get readOnlyColoredGrey => widget.readOnlyColoredGrey;
   bool? get optionsWithVerticalSpace => widget.optionsWithVerticalSpace;
@@ -171,13 +174,19 @@ class SelectBoxState extends State<SelectBox> {
                 ? options!.keys.map<MacosPopupMenuItem<String>>((String key) {
                     return MacosPopupMenuItem<String>(
                       value: key,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical:
-                                optionsWithVerticalSpace == true ? 8.0 : 0.0),
-                        child: Text(
-                          showValue! ? options![key]! : key,
-                          overflow: TextOverflow.fade,
+                      child: SizedBox(
+                        width: maxWidth,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical:
+                                  optionsWithVerticalSpace == true ? 8.0 : 0.0),
+                          child: SizedBox(
+                            child: Text(
+                              showValue! ? options![key]! : key,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -223,7 +232,8 @@ class SelectBoxState extends State<SelectBox> {
                                 optionsWithVerticalSpace == true ? 8.0 : 0.0),
                         child: Text(
                           showValue! ? options![key]! : key,
-                          overflow: TextOverflow.fade,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ),
                     );

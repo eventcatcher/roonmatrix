@@ -60,7 +60,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   Function(double speed) get speedChanged => widget.speedChanged;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final double sliderOverlayMaxWidth = 300.0;
 
   final int cyclePause = 2;
 
@@ -498,8 +497,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     right: 10,
                     child: SliderHoverOverlay(
                       label: '${translations['speed'] ?? 'speed:'}:',
-                      width: width > sliderOverlayMaxWidth
-                          ? sliderOverlayMaxWidth
+                      width: width > Globals.sliderOverlayMaxWidth
+                          ? Globals.sliderOverlayMaxWidth
                           : width,
                       min: 0.1,
                       value: sliderValue,
@@ -559,8 +558,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                         right: 10,
                         child: SliderHoverOverlay(
                           label: '${translations['speed'] ?? 'speed:'}:',
-                          width: width > sliderOverlayMaxWidth
-                              ? sliderOverlayMaxWidth
+                          width: width > Globals.sliderOverlayMaxWidth
+                              ? Globals.sliderOverlayMaxWidth
                               : width,
                           min: 0.1,
                           value: sliderValue,
@@ -628,8 +627,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                           right: 10,
                           child: SliderHoverOverlay(
                             label: '${translations['speed'] ?? 'speed:'}:',
-                            width: width > sliderOverlayMaxWidth
-                                ? sliderOverlayMaxWidth
+                            width: width > Globals.sliderOverlayMaxWidth
+                                ? Globals.sliderOverlayMaxWidth
                                 : width,
                             min: 0.1,
                             value: sliderValue,

@@ -394,8 +394,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         children: [
                                           if (showExportButton == true)
                                             Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 8.0),
+                                              padding: EdgeInsets.only(
+                                                  right:
+                                                      Globals.isDesktopDevice() &&
+                                                              devices
+                                                                  .isNotEmpty &&
+                                                              coverRowActive ==
+                                                                  true
+                                                          ? 0.0
+                                                          : 8.0),
                                               child: IconTextButtonElement(
                                                 onMacAsText: true,
                                                 icon: const Padding(

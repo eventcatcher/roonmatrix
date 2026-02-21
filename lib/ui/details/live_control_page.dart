@@ -102,6 +102,8 @@ class LiveControlPageState extends State<LiveControlPage> {
     required Orientation orientation,
     double labelWidth = 300,
   }) {
+    bool smallHeight =
+        MediaQuery.of(context).size.height < Globals.heightSwitchBoundarySmall;
     return [
       if (verticalOutput == true)
         Flexible(
@@ -109,6 +111,7 @@ class LiveControlPageState extends State<LiveControlPage> {
             key: ValueKey('SliderVerticalScrollDelay-$selectedDeviceIp'),
             label: translations['config']?['vertical_scroll_delay'] ??
                 'Vertical scroll delay',
+            smallHeight: smallHeight,
             sliderValue: verticalScrollDelay,
             labelWidth: labelWidth,
             min: verticalScrollDelay < verticalScrollMin
@@ -164,6 +167,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                   ? (translations['config']['led_scroll_delay'] as String)
                       .replaceAll('LED ', '')
                   : 'Horizontal scroll delay (line by line)',
+          smallHeight: smallHeight,
           sliderValue: scrollSpeed,
           labelWidth: labelWidth,
           min: scrollSpeed < scrollMin ? scrollSpeed : scrollMin,
@@ -208,6 +212,7 @@ class LiveControlPageState extends State<LiveControlPage> {
               ? (translations['config']?['led_contrast'] as String)
                   .replaceAll('LED ', '')
               : 'contrast',
+          smallHeight: smallHeight,
           sliderValue: contrast,
           labelWidth: labelWidth,
           min: contrast < contrastMin ? contrast : contrastMin,

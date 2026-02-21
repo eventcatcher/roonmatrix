@@ -671,25 +671,69 @@ class MessageWriterState extends State<MessageWriter> {
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: messageSelectbox(),
                                   ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 16.0, top: 8.0),
-                                        child: stopMessageButton(
-                                            desktopLandscapeWide:
-                                                Globals.isDesktopDevice()),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 8.0),
-                                        child: sendMessageButton(),
-                                      ),
-                                    ],
-                                  ),
+                                  MediaQuery.of(context).size.width <
+                                          Globals.widthSwitchBoundaryMid
+                                      ? Column(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 16.0,
+                                                            top: 8.0),
+                                                    child: stopMessageButton(
+                                                        desktopLandscapeWide:
+                                                            Globals
+                                                                .isDesktopDevice()),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 16.0,
+                                                            top: 8.0),
+                                                    child: sendMessageButton(),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        )
+                                      : Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 16.0, top: 8.0),
+                                              child: stopMessageButton(
+                                                  desktopLandscapeWide: Globals
+                                                      .isDesktopDevice()),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 8.0),
+                                              child: sendMessageButton(),
+                                            ),
+                                          ],
+                                        ),
                                 ],
                               ),
                             ),

@@ -12,10 +12,15 @@ class Globals {
       true; // show app in iOS ui style (running on macos or iOS)
   static final bool showSelectBoxInMacStyle = true;
 
-  static double minDesktopWidth = 300;
-  static Size minDesktopSize =
-      Size(minDesktopWidth, Globals.getWindowMinHeight());
-  static Size standardDesktopSize = Size(minDesktopWidth, 768);
+  static double minDesktopWidth = 398;
+  static double defaultDesktopWidth = 1280;
+
+  static double minDesktopHeight = Globals.getWindowMinHeight();
+  static double defaultDesktopHeight = 768;
+
+  static Size minDesktopSize = Size(minDesktopWidth, minDesktopHeight);
+  static Size standardDesktopSize =
+      Size(defaultDesktopWidth, defaultDesktopHeight);
 
   static bool isMobileDevice() =>
       Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
@@ -58,6 +63,17 @@ class Globals {
   static double mobileFontSizeSmall = 32.0;
   static double mobileFontSizeMedium = 64.0;
   static double mobileFontSizeBig = 128.0;
+
+  static final double heightSwitchBoundaryVerySmall = 400;
+  static final double heightSwitchBoundarySmall = 480;
+
+  static final double mobilePageButtonsMaxWidth = 960;
+
+  static final double widthSwitchBoundaryMid = 768;
+
+  static final double sliderOverlayMaxWidth = 216.0;
+
+  static double deviceListItemSwitchBoundaryFullInfo = 650;
 
   static final double extendedTitleWidth = 500.0;
 
@@ -104,6 +120,7 @@ class Globals {
           .replaceFirst('-Apple Music', '');
 
   static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
+  static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);
 
   static double getWindowMinHeight() {
     double minHeight = Platform.isWindows ? 392 : 320;
