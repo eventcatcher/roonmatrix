@@ -187,124 +187,128 @@ class LogPageState extends State<LogPage> {
     required BuildContext context,
     required MainState mainState,
     required String logstr,
-  }) =>
-      Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: SearchField(
-              type: 'log',
-              controller: mainBloc.getSearchController(type: 'log'),
-            ),
+  }) {
+    Widget selectBoxWithIcon = SelectBoxWithIcon(
+      translations: translations,
+      options: translationsBloc.state.logHoursOptions,
+      placeholder: translations['pleaseSelectPlaceholder'] ?? 'Please Select',
+      selected: hours.toString(),
+      onChanged: (String? value) {
+        if (value != null) {
+          mainBloc.getLog(ip: ip, hours: int.parse(value));
+          if (mounted) {
+            setState(() {
+              hours = int.parse(value);
+              logfilePart = 1;
+              logfilePartOffset = [];
+            });
+          }
+        }
+      },
+    );
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: SearchField(
+            type: 'log',
+            controller: mainBloc.getSearchController(type: 'log'),
           ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            MediaQuery.of(context).size.width >= Globals.widthSwitchBoundaryMid
+                ? selectBoxWithIcon
+                : Expanded(
+                    child: selectBoxWithIcon,
+                  ),
+            if (MediaQuery.of(context).size.width >=
+                Globals.widthSwitchBoundaryMid)
+              SizedBox(
+                  width: 400.0,
+                  child: Row(
+                      children: logfilePartSelection(logstr: mainState.log))),
+          ],
+        ),
+        if (MediaQuery.of(context).size.width < Globals.widthSwitchBoundaryMid)
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
+            children: logfilePartSelection(logstr: mainState.log),
+          ),
+        Expanded(
+          child: mainState.subPageIdle == true
+              ? const LoadingIndicatorSmall()
+              : ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: ExtendedText(
+                        logstr,
+                        specialTextSpanBuilder: RichParser(),
+                        style: TextStyle(
+                            color: ColorDefs.textColor(context: context)),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+        if (Globals.inIosStyle()) const SizedBox(height: 14.0),
+        Padding(
+          padding: EdgeInsets.symmetric(
+              vertical: Globals.isDesktopDevice() ? 16.0 : 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              SelectBoxWithIcon(
-                translations: translations,
-                options: translationsBloc.state.logHoursOptions,
-                placeholder:
-                    translations['pleaseSelectPlaceholder'] ?? 'Please Select',
-                selected: hours.toString(),
-                onChanged: (String? value) {
-                  if (value != null) {
-                    mainBloc.getLog(ip: ip, hours: int.parse(value));
-                    if (mounted) {
-                      setState(() {
-                        hours = int.parse(value);
-                        logfilePart = 1;
-                        logfilePartOffset = [];
-                      });
-                    }
-                  }
-                },
+              IconTextButtonElement(
+                onMacAsText: true,
+                icon: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Icon(
+                    Icons.download,
+                    color: Colors.white,
+                    size: 20.0,
+                  ),
+                ),
+                label: (translations['exportButtonText'] ?? 'export')
+                    .toString()
+                    .toFirstUpper,
+                onPressed: saveIdle == true || mainState.subPageIdle == true
+                    ? null
+                    : () async {
+                        setState(() {
+                          saveIdle = true;
+                        });
+                        bool? valid = await mainBloc.exportData(
+                            name: name, ip: ip, type: 'log');
+                        setState(() {
+                          saveIdle = false;
+                        });
+                        if (valid == null) {
+                          return;
+                        }
+
+                        SharedWidgets.showSnackBar(
+                            // ignore: use_build_context_synchronously
+                            context: context,
+                            doneMessage: translations['exportDoneMessage'] ??
+                                'export successfully done',
+                            failMessage: translations['exportFailedMessage'] ??
+                                'export failed!',
+                            valid: valid);
+                      },
               ),
-              if (MediaQuery.of(context).size.width >=
-                  Globals.widthSwitchBoundaryMid)
-                SizedBox(
-                    width: 400.0,
-                    child: Row(
-                        children: logfilePartSelection(logstr: mainState.log))),
             ],
           ),
-          if (MediaQuery.of(context).size.width <
-              Globals.widthSwitchBoundaryMid)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: logfilePartSelection(logstr: mainState.log),
-            ),
-          Expanded(
-            child: mainState.subPageIdle == true
-                ? const LoadingIndicatorSmall()
-                : ListView(
-                    shrinkWrap: true,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: ExtendedText(
-                          logstr,
-                          specialTextSpanBuilder: RichParser(),
-                          style: TextStyle(
-                              color: ColorDefs.textColor(context: context)),
-                        ),
-                      ),
-                    ],
-                  ),
-          ),
-          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
-          Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: Globals.isDesktopDevice() ? 16.0 : 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconTextButtonElement(
-                  onMacAsText: true,
-                  icon: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Icon(
-                      Icons.download,
-                      color: Colors.white,
-                      size: 20.0,
-                    ),
-                  ),
-                  label: (translations['exportButtonText'] ?? 'export')
-                      .toString()
-                      .toFirstUpper,
-                  onPressed: saveIdle == true || mainState.subPageIdle == true
-                      ? null
-                      : () async {
-                          setState(() {
-                            saveIdle = true;
-                          });
-                          bool? valid = await mainBloc.exportData(
-                              name: name, ip: ip, type: 'log');
-                          setState(() {
-                            saveIdle = false;
-                          });
-                          if (valid == null) {
-                            return;
-                          }
-
-                          SharedWidgets.showSnackBar(
-                              // ignore: use_build_context_synchronously
-                              context: context,
-                              doneMessage: translations['exportDoneMessage'] ??
-                                  'export successfully done',
-                              failMessage:
-                                  translations['exportFailedMessage'] ??
-                                      'export failed!',
-                              valid: valid);
-                        },
-                ),
-              ],
-            ),
-          ),
-          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
-        ],
-      );
+        ),
+        if (Globals.inIosStyle()) const SizedBox(height: 14.0),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

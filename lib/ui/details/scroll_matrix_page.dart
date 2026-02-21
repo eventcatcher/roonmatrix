@@ -231,9 +231,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       ledSize =
           width / ledModules / 8 / Globals.mobileFontSizeMedium * fontSize;
     }
-    if (ledSize > ledSizeDefault) {
-      ledSize = ledSizeDefault;
-    }
 
     pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
     // if (kDebugMode) {
