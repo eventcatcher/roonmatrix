@@ -185,6 +185,7 @@ class MessageWriterState extends State<MessageWriter> {
                                           'allDevicesRemoveSwitchLabel'] ??
                                       'remove from all devices',
                                   enabled: allDevices,
+                                  expanded: false,
                                   onChanged: (bool value) {
                                     if (mounted) {
                                       setState(() => allDevices = value);
@@ -335,26 +336,24 @@ class MessageWriterState extends State<MessageWriter> {
                                       },
                                     ),
                                     const SizedBox(height: 48.0),
-                                    Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                            left: Globals.inMacosStyle()
-                                                ? 8.0
-                                                : 0.0),
-                                        child: SwitchButton(
-                                          aligned: 'inline',
-                                          reverse: true,
-                                          label: translations[
-                                                  'allDevicesSwitchLabel'] ??
-                                              'send to all devices',
-                                          enabled: allDevices,
-                                          onChanged: (bool value) {
-                                            if (mounted) {
-                                              setState(
-                                                  () => allDevices = value);
-                                            }
-                                          },
-                                        ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          left: Globals.inMacosStyle()
+                                              ? 8.0
+                                              : 0.0),
+                                      child: SwitchButton(
+                                        aligned: 'inline',
+                                        reverse: true,
+                                        label: translations[
+                                                'allDevicesSwitchLabel'] ??
+                                            'send to all devices',
+                                        enabled: allDevices,
+                                        expanded: false,
+                                        onChanged: (bool value) {
+                                          if (mounted) {
+                                            setState(() => allDevices = value);
+                                          }
+                                        },
                                       ),
                                     ),
                                   ],
@@ -618,7 +617,6 @@ class MessageWriterState extends State<MessageWriter> {
                         bottom: Globals.isMobileDevice() ? 0.0 : 16.0,
                       ),
                       child: Row(
-                        mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Padding(
@@ -675,7 +673,7 @@ class MessageWriterState extends State<MessageWriter> {
                                   MediaQuery.of(context).size.width <
                                           Globals.widthSwitchBoundaryMid
                                       ? Column(
-                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisSize: MainAxisSize.min,
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           crossAxisAlignment:
@@ -687,10 +685,12 @@ class MessageWriterState extends State<MessageWriter> {
                                               children: [
                                                 Expanded(
                                                   child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 16.0,
-                                                            top: 8.0),
+                                                    padding: EdgeInsets.only(
+                                                        left: 16.0,
+                                                        top: Globals
+                                                                .isMobileDevice()
+                                                            ? 16.0
+                                                            : 8.0),
                                                     child: stopMessageButton(
                                                         desktopLandscapeWide:
                                                             Globals
@@ -722,15 +722,20 @@ class MessageWriterState extends State<MessageWriter> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 16.0, top: 8.0),
+                                              padding: EdgeInsets.only(
+                                                  left: 16.0,
+                                                  top: Globals.isMobileDevice()
+                                                      ? 16.0
+                                                      : 8.0),
                                               child: stopMessageButton(
                                                   desktopLandscapeWide: Globals
                                                       .isDesktopDevice()),
                                             ),
                                             Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 8.0),
+                                              padding: EdgeInsets.only(
+                                                  top: Globals.isMobileDevice()
+                                                      ? 16.0
+                                                      : 8.0),
                                               child: sendMessageButton(),
                                             ),
                                           ],

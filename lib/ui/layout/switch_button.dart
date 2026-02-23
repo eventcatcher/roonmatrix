@@ -8,6 +8,7 @@ class SwitchButton extends StatelessWidget {
   final String? aligned;
   final Color? labelColor;
   final bool reverse;
+  final bool expanded;
   final bool enabled;
   final void Function(bool value) onChanged;
 
@@ -17,6 +18,7 @@ class SwitchButton extends StatelessWidget {
     this.aligned,
     this.labelColor = Colors.black,
     this.reverse = false,
+    this.expanded = true,
     this.enabled = false,
     required this.onChanged,
   });
@@ -24,19 +26,17 @@ class SwitchButton extends StatelessWidget {
   final double labelFontSize = 12.0;
   final Color iosActiveTrackColor = const Color.fromARGB(255, 20, 106, 237);
 
-  Widget labelWidget(context) => Expanded(
-        child: label != null
-            ? Text(
-                label!,
-                style: TextStyle(
-                  color: Globals.brightness() == Brightness.dark
-                      ? ColorDefs.textColor(context: context)
-                      : labelColor ?? ColorDefs.textColor(context: context),
-                  fontSize: labelFontSize,
-                ),
-              )
-            : Container(),
-      );
+  Widget labelWidget(context) => label != null
+      ? Text(
+          label!,
+          style: TextStyle(
+            color: Globals.brightness() == Brightness.dark
+                ? ColorDefs.textColor(context: context)
+                : labelColor ?? ColorDefs.textColor(context: context),
+            fontSize: labelFontSize,
+          ),
+        )
+      : Container();
 
   Widget switchWidget({bool noSpace = true}) => Container(
         transform: noSpace ? Matrix4.translationValues(10.0, -0.0, 0.0) : null,
@@ -81,11 +81,20 @@ class SwitchButton extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          reverse ? switchWidget(noSpace: false) : labelWidget(context),
+          reverse
+              ? switchWidget(noSpace: false)
+              : expanded
+                  ? Expanded(child: labelWidget(context))
+                  : labelWidget(context),
           reverse
               ? Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: labelWidget(context),
+                  padding: EdgeInsets.only(
+                      left: Globals.inMacosStyle() || Globals.inIosStyle()
+                          ? 8.0
+                          : 0.0),
+                  child: expanded
+                      ? Expanded(child: labelWidget(context))
+                      : labelWidget(context),
                 )
               : switchWidget(),
         ],
