@@ -57,7 +57,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final double coverPadding = 16.0;
-  final double controlAreaInCrossMinHeight = 150;
+  final double zoneCornerLabelMinCoverSize = 150;
+  final double fullTextLengthMax = 130;
   final bool withAnimatedBackground = false;
 
   final BoxDecoration areaDecorationBorderStyle = BoxDecoration(
@@ -224,8 +225,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     double? fontSize,
   }) {
     final CrossAxisAlignment textAlignment = CrossAxisAlignment.center;
-    final double fontSizeFinal =
-        fontSize ?? (Globals.isDesktopDevice() ? 20.0 : 12.0);
+    double fontSizeFinal = fontSize ??
+        (Globals.isDesktopDevice()
+            ? (threeCols && MediaQuery.of(context).size.height < 600) ||
+                    (!threeCols && MediaQuery.of(context).size.width < 1024)
+                ? 17
+                : 20.0
+            : 12.0);
 
     if (selectedZone == null ||
         selectedZone!.isEmpty ||
@@ -299,6 +305,23 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         status: selectedZone!['status'],
       );
 
+      final int fullTextLength = coverModel.zoneName.length +
+          coverModel.artist.length +
+          coverModel.album.length +
+          coverModel.album.length +
+          coverModel.track.length;
+      bool longText = fullTextLength > fullTextLengthMax &&
+          (MediaQuery.of(context).size.height < (portraitMode ? 700 : 568) ||
+              (!portraitMode && MediaQuery.of(context).size.width < 1024));
+
+      if (longText && fontSizeFinal >= 14) {
+        fontSizeFinal = fontSizeFinal > 14 ? 14 : 11;
+      }
+      // if (kDebugMode) {
+      //   debugPrint(
+      //       'fullTextLength: $fullTextLength, width: ${MediaQuery.of(context).size.width}, height: ${MediaQuery.of(context).size.height}, longText: $longText, fontSize: $fontSize, fontSizeFinal: $fontSizeFinal');
+      // }
+
       Widget inner = Row(
         children: [
           Expanded(
@@ -327,6 +350,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                         coverRowArtist: true,
                         coverRowAlbum: true,
                         coverRowTrack: true,
+                        longText: longText,
                       ),
                     ),
                   ),
@@ -339,7 +363,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
       return ClipRRect(
         child: AnimatedSwitcher(
-          duration: Duration(milliseconds: 500),
+          duration: Globals.coverSwitchDefaultFadeAnimationDuration * 0.6,
           transitionBuilder: (child, animation) {
             return SlideTransition(
               position: Tween<Offset>(
@@ -514,7 +538,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   (constraints.maxWidth - size) / (portraitMode ? 2 : 1);
               double offsetY = (constraints.maxHeight - size) / 2;
 
-              if (size < 150) {
+              if (size < zoneCornerLabelMinCoverSize) {
                 return ZoneCornerLabel(
                   zoneName: '-${selectedZone?['zone'] ?? name}',
                   coverWidth: Globals.zoneCornerFullSize,

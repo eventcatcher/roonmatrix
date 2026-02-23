@@ -82,7 +82,7 @@ class Globals {
   static final double overlyPlayoutButtonSizeFactor = 0.22;
 
   static final Duration coverSwitchDefaultFadeAnimationDuration =
-      Duration(milliseconds: 2000);
+      Duration(milliseconds: 700);
 
   static final Duration coverSwitchAnimatedPresetDuration =
       const Duration(milliseconds: 1000);

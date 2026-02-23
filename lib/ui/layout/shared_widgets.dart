@@ -365,6 +365,7 @@ class SharedWidgets {
     required String text,
     required double fontSize,
     required Color color,
+    int? maxLines,
   }) =>
       TableRow(children: [
         TableCell(
@@ -383,6 +384,8 @@ class SharedWidgets {
         TableCell(
           child: Text(
             text,
+            maxLines: maxLines ?? 5,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: fontSize,

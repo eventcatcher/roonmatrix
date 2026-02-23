@@ -111,9 +111,24 @@ class ControlButtonsState extends State<ControlButtons> {
       double height = (inRow ? 1 : 3) * buttonSize;
       double iconSize = buttonSize * 0.6;
 
-      return SizedBox(
+      double boxHeight = inRow ? buttonSize : size - padding;
+      if (boxHeight < 10) {
+        boxHeight = 10;
+      }
+      if (height < 10) {
+        height = 10;
+      }
+      if (width < 10) {
+        width = 10;
+      }
+      if (buttonSize < 10) {
+        buttonSize = 10;
+      }
+
+      return Container(
         width: size - padding,
-        height: inRow ? buttonSize : size - padding,
+        constraints: BoxConstraints(minWidth: 10, minHeight: boxHeight),
+        height: boxHeight,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -121,6 +136,8 @@ class ControlButtonsState extends State<ControlButtons> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
+                  constraints:
+                      BoxConstraints(minWidth: 10, minHeight: boxHeight),
                   width: width,
                   height: height,
                   decoration: inRow && width < (maxWidth - padding)

@@ -10,6 +10,7 @@ class CoverTextOverlayExtended extends StatefulWidget {
   final bool coverRowArtist;
   final bool coverRowAlbum;
   final bool coverRowTrack;
+  final bool longText;
 
   const CoverTextOverlayExtended({
     super.key,
@@ -20,6 +21,7 @@ class CoverTextOverlayExtended extends StatefulWidget {
     required this.coverRowArtist,
     required this.coverRowAlbum,
     required this.coverRowTrack,
+    this.longText = false,
   });
 
   @override
@@ -34,6 +36,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
   bool get coverRowTrack => widget.coverRowTrack;
+  bool get longText => widget.longText;
 
   late CoverModel coverModel;
 
@@ -60,6 +63,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
             text: coverModel.zoneName,
             fontSize: fontSize,
             color: color,
+            maxLines: longText ? 1 : 2,
           ),
           if (coverRowArtist == true)
             SharedWidgets.getTableRowInnerCentered(
@@ -67,6 +71,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
               text: coverModel.artist,
               fontSize: fontSize,
               color: color,
+              maxLines: longText ? 2 : 5,
             ),
           if (coverRowAlbum == true)
             SharedWidgets.getTableRowInnerCentered(
@@ -74,6 +79,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
               text: coverModel.album,
               fontSize: fontSize,
               color: color,
+              maxLines: longText ? 3 : 5,
             ),
           if (coverRowTrack == true && coverModel.track.isNotEmpty)
             SharedWidgets.getTableRowInnerCentered(
@@ -81,6 +87,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
               text: coverModel.track,
               fontSize: fontSize,
               color: color,
+              maxLines: longText ? 3 : 5,
             ),
         ],
       );
