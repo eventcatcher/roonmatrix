@@ -28,10 +28,17 @@ class IconButtonElement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (Globals.inIosStyle()) {
-      return CupertinoButton.filled(
+      return CupertinoButton(
         disabledColor: CupertinoColors.systemGrey,
         padding: EdgeInsets.all(10),
         minSize: 10,
+        color: noBackground
+            ? null
+            : readOnly
+                ? CupertinoColors.inactiveGray.color
+                : moreInfo
+                    ? CupertinoColors.activeOrange.color
+                    : CupertinoColors.activeBlue.color,
         onPressed: readOnly ? null : onPressed,
         child: icon,
       );
