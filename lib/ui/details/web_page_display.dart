@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/ui/details/web_page_bloc.dart';
 import 'package:roonmatrix/ui/details/web_page_state.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
@@ -126,7 +127,9 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
             urlController.text = url;
 
             if (url == '') {
-              return CircularProgressIndicator();
+              return CircularProgressIndicator(
+                color: ColorDefs.blueIconColor(context: context),
+              );
             }
 
             return SafeArea(

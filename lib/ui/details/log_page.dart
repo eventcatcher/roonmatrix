@@ -187,9 +187,12 @@ class LogPageState extends State<LogPage> {
         ),
         if (refreshLog == true)
           SizedBox(
-              width: 20.0,
-              height: 20.0,
-              child: const CircularProgressIndicator()),
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(
+              color: ColorDefs.blueIconColor(context: context),
+            ),
+          ),
       ];
 
   Widget body({

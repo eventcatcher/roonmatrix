@@ -28,6 +28,7 @@ class LoadingIndicatorBig extends StatelessWidget {
                 child: Center(
                     child: CircularProgressIndicator(
                   strokeWidth: strokeWidth,
+                  color: ColorDefs.blueIconColor(context: context),
                 )),
               )),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/color_defs.dart';
 
 class LoadingIndicatorSmall extends StatelessWidget {
   final String? message;
@@ -14,7 +15,9 @@ class LoadingIndicatorSmall extends StatelessWidget {
               Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: Text(message!)),
-            const CircularProgressIndicator(),
+            CircularProgressIndicator(
+              color: ColorDefs.blueIconColor(context: context),
+            ),
           ],
         ),
       );

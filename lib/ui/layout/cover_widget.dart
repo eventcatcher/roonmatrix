@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/cover_model.dart';
@@ -256,7 +257,9 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                     Globals
                                                         .overlyPlayoutButtonSizeFactor,
                                             child: CircularProgressIndicator(
-                                                color: Colors.blue.shade900),
+                                              color: ColorDefs.blueIconColor(
+                                                  context: context),
+                                            ),
                                           ),
                                         ),
                                       ),
