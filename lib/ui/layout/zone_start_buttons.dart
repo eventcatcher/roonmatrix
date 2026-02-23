@@ -170,48 +170,53 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
             MediaQuery.of(context).size.width <=
                 Globals.mobilePageButtonsMaxWidth
         ? SizedBox(
-            width: zoneNotRunningButtonsWidth ?? buttonsWidthDefault,
+            width: (zoneNotRunningButtonsWidth ?? buttonsWidthDefault) -
+                (Globals.inMacosStyle() || Globals.inIosStyle() ? 8.0 : 0.0),
             height: expandableSize,
-            child: ExpandableMenu(
-              key: ValueKey(
-                  'ExpandableMenuZoneButtons-$zoneNotRunningButtonsWidth'), // zone button menu in cover area
-              width: expandableSize,
-              height: expandableSize,
-              animationSpeed: animationSpeed,
-              backgroundColor:
-                  ColorDefs.buttonRowBackgroundColor(context: context),
-              items: [
-                Wrap(
-                  direction: Axis.horizontal,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      key: keyZoneNotRunningButtonsKey,
-                      children: [
-                        SizedBox(
-                          height: 30.0,
-                          child: Center(
-                            child: Text(
-                              '${(translations['startZone'] ?? 'start').toString().toFirstUpper}: ',
-                              style: TextStyle(
-                                color: ColorDefs.textColor(context: context),
+            child: ScrollConfiguration(
+              behavior:
+                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              child: ExpandableMenu(
+                key: ValueKey(
+                    'ExpandableMenuZoneButtons-$zoneNotRunningButtonsWidth'), // zone button menu in cover area
+                width: expandableSize,
+                height: expandableSize,
+                animationSpeed: animationSpeed,
+                backgroundColor:
+                    ColorDefs.buttonRowBackgroundColor(context: context),
+                items: [
+                  Wrap(
+                    direction: Axis.horizontal,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        key: keyZoneNotRunningButtonsKey,
+                        children: [
+                          SizedBox(
+                            height: 30.0,
+                            child: Center(
+                              child: Text(
+                                '${(translations['startZone'] ?? 'start').toString().toFirstUpper}: ',
+                                style: TextStyle(
+                                  color: ColorDefs.textColor(context: context),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        ...buttons,
-                        Text(
-                          '$zoneNotRunningButtonsWidth-${orientation.name}',
-                          style: TextStyle(
-                            fontSize:
-                                0, // update value here to refresh widget (without the width is not actualized)
+                          ...buttons,
+                          Text(
+                            '$zoneNotRunningButtonsWidth-${orientation.name}',
+                            style: TextStyle(
+                              fontSize:
+                                  0, // update value here to refresh widget (without the width is not actualized)
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           )
         : Row(

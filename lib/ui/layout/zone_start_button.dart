@@ -50,7 +50,9 @@ class ZoneStartButton extends StatelessWidget {
                   padding: EdgeInsets.symmetric(
                       horizontal: 8.0,
                       vertical: Globals.isDesktopDevice()
-                          ? 13
+                          ? Globals.inMacosStyle() || Globals.inIosStyle()
+                              ? 13
+                              : 15
                           : Platform.isIOS
                               ? 5.0
                               : 7.0),

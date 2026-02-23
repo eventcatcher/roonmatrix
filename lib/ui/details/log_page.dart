@@ -81,6 +81,9 @@ class LogPageState extends State<LogPage> {
     super.initState();
   }
 
+  double get filePartPaddingLeft =>
+      Globals.inMacosStyle() || Globals.inIosStyle() ? 0.0 : 2.0;
+
   List<Widget> logfilePartSelection({
     required String logstr,
     double splashRadius = 16.0,
@@ -92,8 +95,7 @@ class LogPageState extends State<LogPage> {
           opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
           duration: visibilityAnimation,
           child: Padding(
-            padding:
-                EdgeInsets.only(left: Platform.isMacOS ? 0.0 : 2.0, right: 2.0),
+            padding: EdgeInsets.only(left: filePartPaddingLeft, right: 2.0),
             child: SizedBox(
               width: 24.0,
               child: IconButton(
