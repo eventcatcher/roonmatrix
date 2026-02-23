@@ -64,11 +64,41 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
             ),
             padding: const EdgeInsets.all(8.0),
             child: Center(
-              child: Text(
-                translations['scanNoFoundMessage'] ?? 'no devices found',
-                style: TextStyle(
-                  color: ColorDefs.textColor(context: context),
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    height: noDevicesFoundRectSize / 2 - 19 - 12,
+                    child: Text(
+                      '${translations['scanNoFoundMessage'] ?? 'no devices found'}.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: ColorDefs.textColor(context: context),
+                        fontSize: 12.0,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.refresh,
+                    color: Globals.brightness() == Brightness.dark
+                        ? Colors.white
+                        : const Color.fromARGB(255, 8, 108, 158),
+                    size: 36.0,
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    height: noDevicesFoundRectSize / 2 - 19 - 12,
+                    child: Text(
+                      '${translations['clickToScanAgainMessage'] ?? 'Click here to scan again'}.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: ColorDefs.textColor(context: context),
+                        fontSize: 12.0,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

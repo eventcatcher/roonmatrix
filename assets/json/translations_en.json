@@ -30,6 +30,7 @@
     "debugMessage": "Debug Messages",
     "scanMessage": "scan for devices",
     "scanNoFoundMessage": "no devices found",
+    "clickToScanAgainMessage": "Click here to scan again",
     "deviceListTime": "time",
     "deviceListZone": "zone",
     "deviceListPlaycount": "playcount",
