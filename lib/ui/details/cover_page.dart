@@ -562,9 +562,12 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                     top: offsetY,
                     right:
                         offsetX, //give the values according to your requirement
-                    child: ZoneCornerLabel(
-                      zoneName: '-${selectedZone?['zone'] ?? name}',
-                      coverWidth: Globals.zoneCornerFullSize,
+                    child: Opacity(
+                      opacity: ColorDefs.zoneCornerLabelOpacity,
+                      child: ZoneCornerLabel(
+                        zoneName: '-${selectedZone?['zone'] ?? name}',
+                        coverWidth: Globals.zoneCornerFullSize,
+                      ),
                     ),
                   ),
                 ],

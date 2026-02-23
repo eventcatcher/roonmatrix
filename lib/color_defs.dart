@@ -9,6 +9,7 @@ class ColorDefs {
 
   static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
   static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);
+  static final double zoneCornerLabelOpacity = 0.7;
 
   static Color textColor({
     required BuildContext context,

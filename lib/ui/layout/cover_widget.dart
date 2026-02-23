@@ -63,7 +63,6 @@ class _CoverWidgetState extends State<CoverWidget> {
   final double minPlayControlCoverSize = 150;
   final double extendedTextMinCoverHeight = 400.0;
   final Color textAreaBackgroundColor = Color.fromARGB(200, 0, 0, 0);
-  final double zoneCornerLabelOpacity = 0.7;
   final int buttonStatusSwitchTimeoutInSeconds = 10;
 
   Timer? statusInProgressTimer;
@@ -412,7 +411,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                     ),
                   ),
                   Opacity(
-                    opacity: zoneCornerLabelOpacity,
+                    opacity: ColorDefs.zoneCornerLabelOpacity,
                     child: SizedBox(
                       width: coverWidth,
                       child: Align(
