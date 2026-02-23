@@ -205,6 +205,24 @@ class ColorDefs {
         : Colors.blue.shade700;
   }
 
+  static Color blueIconColor({
+    required BuildContext context,
+  }) {
+    if (Globals.inIosStyle()) {
+      return Globals.brightness() == Brightness.dark
+          ? CupertinoColors.white
+          : CupertinoColors.systemBlue;
+    }
+    if (Globals.inMacosStyle()) {
+      return Globals.brightness() == Brightness.dark
+          ? MacosColors.white
+          : MacosColors.systemBlueColor; // MacosColors.systemTealColor;
+    }
+    return Globals.brightness() == Brightness.dark
+        ? Colors.white
+        : Colors.blue.shade700;
+  }
+
   static Color buttonRowBackgroundColor({
     required BuildContext context,
   }) =>

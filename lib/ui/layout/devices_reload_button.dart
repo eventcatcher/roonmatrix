@@ -81,9 +81,7 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
                   ),
                   Icon(
                     Icons.refresh,
-                    color: Globals.brightness() == Brightness.dark
-                        ? Colors.white
-                        : const Color.fromARGB(255, 8, 108, 158),
+                    color: ColorDefs.blueIconColor(context: context),
                     size: 36.0,
                   ),
                   Container(
