@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';

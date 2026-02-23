@@ -22,9 +22,6 @@ class CoverWidget extends StatefulWidget {
   final CoverModel coverModel;
   final double coverSize;
   final bool coverRowDynamicSize;
-  final bool showExportButton;
-  final double? appBarHeight;
-  final double itemListHeight;
   final Orientation orientation;
   final bool coverRowArtist;
   final bool coverRowAlbum;
@@ -40,9 +37,6 @@ class CoverWidget extends StatefulWidget {
     required this.coverModel,
     required this.coverSize,
     required this.coverRowDynamicSize,
-    required this.showExportButton,
-    required this.appBarHeight,
-    required this.itemListHeight,
     required this.orientation,
     required this.coverRowArtist,
     required this.coverRowAlbum,
@@ -59,9 +53,6 @@ class _CoverWidgetState extends State<CoverWidget> {
   Map<String, dynamic> get translations => widget.translations;
   List<String> get devices => widget.devices;
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
-  bool get showExportButton => widget.showExportButton;
-  double? get appBarHeight => widget.appBarHeight;
-  double get itemListHeight => widget.itemListHeight;
   Orientation get orientation => widget.orientation;
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
