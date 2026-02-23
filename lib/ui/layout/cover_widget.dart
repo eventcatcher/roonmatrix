@@ -62,11 +62,8 @@ class _CoverWidgetState extends State<CoverWidget> {
 
   final double minPlayControlCoverSize = 150;
   final double extendedTextMinCoverHeight = 400.0;
-  final Color coverBackgroundColor = const Color(0xff7c94b6);
   final Color textAreaBackgroundColor = Color.fromARGB(200, 0, 0, 0);
   final double zoneCornerLabelOpacity = 0.7;
-  final ColorFilter idleZoneColorFilter =
-      ColorFilter.mode(Colors.black.withValues(alpha: 0.2), BlendMode.dstATop);
   final int buttonStatusSwitchTimeoutInSeconds = 10;
 
   Timer? statusInProgressTimer;
@@ -200,13 +197,12 @@ class _CoverWidgetState extends State<CoverWidget> {
                                           ? double.infinity
                                           : null,
                                       decoration: BoxDecoration(
-                                        color: coverBackgroundColor,
                                         image: DecorationImage(
                                           fit: BoxFit.cover,
-                                          colorFilter:
-                                              coverModel.status != 'playing'
-                                                  ? idleZoneColorFilter
-                                                  : null,
+                                          colorFilter: coverModel.status !=
+                                                  'playing'
+                                              ? ColorDefs.idleZoneColorFilter
+                                              : null,
                                           image: img,
                                           onError: (Object errDetails,
                                               StackTrace? trace) {
@@ -393,7 +389,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                                   children: [
                                     SvgPicture.asset(
                                       Globals.placeholderSvgAssetPath(),
-                                      colorFilter: idleZoneColorFilter,
+                                      colorFilter:
+                                          ColorDefs.idleZoneColorFilter,
                                       allowDrawingOutsideViewBox: false,
                                       width: double.infinity,
                                       height: double.infinity,

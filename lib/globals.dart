@@ -119,9 +119,6 @@ class Globals {
           .replaceFirst('-Spotify', '')
           .replaceFirst('-Apple Music', '');
 
-  static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
-  static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);
-
   static double getWindowMinHeight() {
     double minHeight = Platform.isWindows ? 392 : 320;
     if (Platform.isLinux) {

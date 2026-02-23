@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 
 class ControlButton extends StatelessWidget {
@@ -48,8 +49,8 @@ class ControlButton extends StatelessWidget {
             hoverColor: readOnly
                 ? Colors.transparent
                 : Globals.brightness() == Brightness.dark
-                    ? Globals.hoverButtonBackground
-                    : Globals.hoverButtonBackgrounDark,
+                    ? ColorDefs.hoverButtonBackground
+                    : ColorDefs.hoverButtonBackgrounDark,
             onPressed: readOnly ? null : () => onPressed(),
             icon: icon,
             iconSize: iconSize,

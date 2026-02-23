@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 
 class CoverOverlayButton extends StatefulWidget {
@@ -60,7 +61,7 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
               child: IconButton(
                 icon: icon,
                 iconSize: coverWidth * Globals.overlyPlayoutButtonSizeFactor,
-                hoverColor: Globals.hoverButtonBackground,
+                hoverColor: ColorDefs.hoverButtonBackground,
                 color: iconColor,
                 onPressed: () => onPressed(),
               ),

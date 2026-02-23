@@ -9,6 +9,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_layout_grid/flutter_layout_grid.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/cover_model.dart';
@@ -534,6 +535,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                             alignment: portraitMode
                                 ? Alignment.topCenter
                                 : Alignment.centerLeft,
+                            colorBlendMode: idle ? BlendMode.dstATop : null,
+                            color: idle
+                                ? Colors.black.withValues(alpha: 0.4)
+                                : null,
                             width: double.infinity,
                             height: double.infinity,
                             errorBuilder: (context, error, stackTrace) {
@@ -549,6 +554,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                             alignment: portraitMode
                                 ? Alignment.center
                                 : Alignment.centerLeft,
+                            colorFilter:
+                                idle ? ColorDefs.idleZoneColorFilter : null,
                           ),
                   ),
                   Positioned(

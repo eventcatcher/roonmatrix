@@ -4,6 +4,12 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/globals.dart';
 
 class ColorDefs {
+  static final ColorFilter idleZoneColorFilter =
+      ColorFilter.mode(Colors.black.withValues(alpha: 0.4), BlendMode.dstATop);
+
+  static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
+  static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);
+
   static Color textColor({
     required BuildContext context,
   }) {
