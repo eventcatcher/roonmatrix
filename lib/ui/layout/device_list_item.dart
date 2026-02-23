@@ -224,7 +224,7 @@ class DeviceListItemState extends State<DeviceListItem> {
 
     String scrollText = verticalOutput
         ? ''
-        : mainRepository.replaceIllegalCharsInTickerString(
+        : mainBloc.replaceIllegalCharsInTickerString(
             str: i['app_displaystr'] ?? '',
             replaceActiveZoneMarker: !ledTickerInDeviceListActive,
           );
@@ -232,7 +232,7 @@ class DeviceListItemState extends State<DeviceListItem> {
     if (verticalOutput && verticalTickerActive) {
       List<String> lines = [];
       for (String line in List<String>.from(i['vert_strlines'])) {
-        String filteredLine = mainRepository.replaceIllegalCharsInTickerString(
+        String filteredLine = mainBloc.replaceIllegalCharsInTickerString(
           str: line,
           replaceActiveZoneMarker: !ledTickerInDeviceListActive,
         );

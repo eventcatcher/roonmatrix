@@ -97,24 +97,6 @@ class MainRepository {
         ),
       );
 
-  String replaceIllegalCharsInTickerString({
-    required String str,
-    bool replaceActiveZoneMarker = false,
-  }) {
-    if (str.length > 1 && str.startsWith('[') && str.endsWith(']')) {
-      str = jsonDecode(str.replaceAll("'", '"')).join(
-          ' '); // maybe troublemaker (should be replaced in python part on device)
-      str = str.replaceAll('< ', ', ');
-      str = str.replaceAll(' >', ': ');
-    }
-    if (replaceActiveZoneMarker) {
-      str = str.replaceAll('[*]', '\u2736');
-      str = str.replaceAll('=>', '\u21E2');
-    }
-
-    return str;
-  }
-
   double getSafeHeight({
     required FlutterView viewData,
   }) {

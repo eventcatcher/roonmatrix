@@ -193,8 +193,11 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
         if (mounted) {
           setState(() {
             if (verticalOutput && verticalTickerActive) {
-              width = MediaQuery.of(context).size.width;
-              height = MediaQuery.of(context).size.height;
+              final MediaQueryData media = MediaQuery.of(context);
+              width =
+                  media.size.width - media.padding.left - media.padding.right;
+              height =
+                  media.size.height - media.padding.top - media.padding.bottom;
               mobileFontSize = ledTickerOnTickerPageActive
                   ? Globals.mobileFontSizeMedium
                   : width / ledModules / Globals.verticalTickerWidthFactor;
@@ -210,8 +213,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   }
 
   void updateSizes(String caller) {
-    width = MediaQuery.of(context).size.width;
-    height = MediaQuery.of(context).size.height;
+    final MediaQueryData media = MediaQuery.of(context);
+    width = media.size.width - media.padding.left - media.padding.right;
+    height = media.size.height - media.padding.top - media.padding.bottom;
 
     if (Globals.isDesktopDevice()) {
       if (verticalOutput && verticalTickerActive) {
@@ -264,15 +268,13 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       ledModules != i['led_modules'] ||
                       verticalOutput != i['vertical_output']) {
                     ledModules = i['led_modules'];
-                    verticalOutput =
-                        verticalTickerActive && (i['vertical_output'] ?? false);
+                    verticalOutput = i['vertical_output'] ?? false;
 
                     SchedulerBinding.instance.addPostFrameCallback((_) async {
                       if (mounted) {
                         setState(() {
                           ledModules = i['led_modules'];
-                          verticalOutput = verticalTickerActive &&
-                              (i['vertical_output'] ?? false);
+                          verticalOutput = i['vertical_output'] ?? false;
                           if (!fontSizeInitialized) {
                             initMobileFontSize();
                             fontSizeInitialized = true;
@@ -282,27 +284,29 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     });
                   }
 
-                  String displaystrNew =
-                      verticalOutput ? '' : i['app_displaystr'];
-
+                  String displaystrNew = verticalOutput && verticalTickerActive
+                      ? ''
+                      : i['app_displaystr'];
                   if (verticalOutput && verticalTickerActive) {
                     List<String> lines = [];
                     for (String line in List<String>.from(i['vert_strlines'])) {
                       lines.add(
-                        mainRepository.replaceIllegalCharsInTickerString(
+                        mainBloc.replaceIllegalCharsInTickerString(
                           str: line,
                           replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
                         ),
                       );
                     }
                     verticalTextLines = lines;
+                    if (!verticalTickerActive) {
+                      displaystrNew = lines.join();
+                    }
                   }
 
                   linePause = i['vertical_scroll_delay'];
 
                   if (displaystrNew != displaystr) {
-                    scrollText =
-                        mainRepository.replaceIllegalCharsInTickerString(
+                    scrollText = mainBloc.replaceIllegalCharsInTickerString(
                       str: displaystrNew,
                       replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
                     );
@@ -451,6 +455,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
   @override
   Widget build(BuildContext context) {
+    final MediaQueryData media = MediaQuery.of(context);
+    double width = media.size.width - media.padding.left - media.padding.right;
     updateSizes('build');
 
     if (Globals.inIosStyle()) {
@@ -464,7 +470,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
               onPressed: () => Navigator.pop(context),
             ),
             trailing: SizedBox(
-              width: MediaQuery.of(context).size.width - 100,
+              width: width - 100,
               child: MobileSpeedSliderAndFontsizeControls(
                 key: ValueKey(
                     'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput'),

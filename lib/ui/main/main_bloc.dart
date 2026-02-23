@@ -8,6 +8,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:json_repair_flutter/json_repair_flutter.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/globals.dart';
@@ -224,6 +225,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
 
             addWebSocketService(ip: ip);
+
+            if (state.config.keys.isEmpty) {
+              getConfig(ip: ip);
+            }
             getInfo(ip: ip);
           }
         }
@@ -1337,6 +1342,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 if (kDebugMode) {
                   debugPrint('get missing info data at start: $device');
                 }
+
+                if (state.config.keys.isEmpty) {
+                  getConfig(ip: device);
+                }
                 getInfo(ip: device);
               }
             }
@@ -2181,6 +2190,74 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
 
     return {"zone": zone, "isRadio": isRadio};
+  }
+
+  String replaceIllegalCharsInTickerString({
+    required String str,
+    bool replaceActiveZoneMarker = false,
+  }) {
+    Map<String, dynamic> language = state.config['LANGUAGE'] ?? {};
+    Map<String, dynamic> messages = language['messages'] != null
+        ? jsonDecode(language['messages'].replaceAll("'", '"'))
+        : {};
+
+    if (str.length > 1) {
+      // && str.startsWith('[') && str.endsWith(']')
+      try {
+        Map<String, dynamic> strMap = repairJson(
+          str.replaceAll("'", '"'),
+          logging: true,
+        );
+        List<String> strList = List<String>.from(strMap['data']);
+        List<String> strListFixed = [];
+        for (int idx = 0; idx < strList.length; idx++) {
+          if ((strList[idx].startsWith('${messages['Source']}:') ||
+                  strList[idx].startsWith('${messages['time']}:') ||
+                  strList[idx].startsWith('${messages['Weather']}:')) &&
+              strList[idx - 1] != '' &&
+              strList[idx - 1] !=
+                  language['playing_headline'].replaceAll('ö', 'oe')) {
+            strListFixed.add('');
+          }
+          strListFixed.add(strList[idx]);
+        }
+        for (int idx = 0; idx < strListFixed.length; idx++) {
+          if (strListFixed[idx] == '') {
+            strListFixed[idx] = ' // ';
+          } else if (strListFixed[idx] ==
+              language['playing_headline'].replaceAll('ö', 'oe')) {
+            strListFixed[idx] = '${strListFixed[idx]}:';
+          } else if (strListFixed[idx].startsWith('${messages['Source']}:')) {
+            strListFixed[idx] = '${strListFixed[idx]},';
+          } else if (strListFixed[idx].length > 1 &&
+              strListFixed[idx].substring(0, 1) != 'a' &&
+              strListFixed[idx].substring(0, 1) != 'o' &&
+              strListFixed[idx].substring(0, 1) != '<' &&
+              strListFixed[idx].substring(1, 2) == ' ') {
+            strListFixed[idx] = "'${strListFixed[idx]}";
+          }
+        }
+        str = strListFixed.join(
+            ' '); // maybe troublemaker (should be replaced in python part on device)
+        str = str
+            .replaceAll('< ', ', ')
+            .replaceAll(' >', ': ')
+            .replaceAll(' , ', ', ')
+            .replaceAll('  ', ' ');
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint(
+              "MainBloc/replaceIllegalCharsInTickerString => Failed to repair JSON.\nError: ${e.toString()}");
+        }
+      }
+    }
+
+    if (replaceActiveZoneMarker) {
+      str = str.replaceAll('[*]', '\u2736');
+      str = str.replaceAll('=>', '\u21E2');
+    }
+
+    return str;
   }
 
   // ==================== //
