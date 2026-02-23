@@ -115,6 +115,14 @@ class ColorDefs {
         : Colors.grey.shade100;
   }
 
+  static Color buttonAreaBackgroundColor({
+    required BuildContext context,
+  }) {
+    return Globals.brightness() == Brightness.dark
+        ? Color.fromARGB(255, 60, 60, 60)
+        : Colors.grey.shade300;
+  }
+
   static Color toolbarBackgroundColor({
     required BuildContext context,
   }) {
@@ -262,7 +270,7 @@ class ColorDefs {
         : Colors.white;
   }
 
-  static Color bugerMenuHeadlineColor({
+  static Color burgerMenuHeadlineColor({
     required BuildContext context,
   }) {
     return Globals.inIosStyle() ? CupertinoColors.systemGrey : Colors.blue;

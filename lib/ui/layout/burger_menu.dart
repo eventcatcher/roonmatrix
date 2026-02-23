@@ -64,7 +64,8 @@ class BurgerMenuState extends State<BurgerMenu> {
             child: Globals.inIosStyle()
                 ? Container(
                     decoration: BoxDecoration(
-                      color: ColorDefs.bugerMenuHeadlineColor(context: context),
+                      color:
+                          ColorDefs.burgerMenuHeadlineColor(context: context),
                     ),
                     margin: EdgeInsets.zero,
                     padding: EdgeInsets.zero,
@@ -76,7 +77,8 @@ class BurgerMenuState extends State<BurgerMenu> {
                   )
                 : DrawerHeader(
                     decoration: BoxDecoration(
-                      color: ColorDefs.bugerMenuHeadlineColor(context: context),
+                      color:
+                          ColorDefs.burgerMenuHeadlineColor(context: context),
                     ),
                     margin: EdgeInsets.zero,
                     padding: EdgeInsets.zero,
