@@ -657,304 +657,296 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           children: [
             !loaded
                 ? SizedBox()
-                : Expanded(
-                    child: RoonmatrixAnimatedGradient(
-                      disabled: !withAnimatedBackground,
-                      child: OrientationBuilder(builder:
-                          (BuildContext context, Orientation orientation) {
-                        final bool portraitMode = (Globals.isMobileDevice() &&
-                                orientation == Orientation.portrait) ||
-                            (Globals.isDesktopDevice() &&
-                                MediaQuery.of(context).size.height >
-                                    MediaQuery.of(context).size.width);
+                : RoonmatrixAnimatedGradient(
+                    disabled: !withAnimatedBackground,
+                    child: OrientationBuilder(builder:
+                        (BuildContext context, Orientation orientation) {
+                      final bool portraitMode = (Globals.isMobileDevice() &&
+                              orientation == Orientation.portrait) ||
+                          (Globals.isDesktopDevice() &&
+                              MediaQuery.of(context).size.height >
+                                  MediaQuery.of(context).size.width);
 
-                        bool threeCols = MediaQuery.of(context).size.width /
-                                MediaQuery.of(context).size.height >
-                            2.5;
+                      bool threeCols = MediaQuery.of(context).size.width /
+                              MediaQuery.of(context).size.height >
+                          2.5;
 
-                        return portraitMode
-                            ? Container(
-                                margin: EdgeInsets.symmetric(
-                                  horizontal: coverPadding,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    widget.controlId == null
-                                        ? SizedBox(
-                                            width: coverWidth != null
-                                                ? coverWidth!
-                                                : 200,
-                                            child: getSelectBoxArea(
-                                              portraitMode: portraitMode,
-                                              withLabel: coverWidth != null &&
-                                                  coverWidth! > 300,
-                                              options: options,
-                                              width: coverWidth,
-                                            ),
-                                          )
-                                        : SizedBox(
-                                            height: 16.0,
+                      return portraitMode
+                          ? Container(
+                              margin: EdgeInsets.symmetric(
+                                horizontal: coverPadding,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  widget.controlId == null
+                                      ? SizedBox(
+                                          width: coverWidth != null
+                                              ? coverWidth!
+                                              : 200,
+                                          child: getSelectBoxArea(
+                                            portraitMode: portraitMode,
+                                            withLabel: coverWidth != null &&
+                                                coverWidth! > 300,
+                                            options: options,
+                                            width: coverWidth,
                                           ),
-                                    Expanded(
-                                      child: LayoutBuilder(
-                                          builder: (context, constraints) {
-                                        final double coverSize =
-                                            constraints.maxWidth - 8;
-                                        final double minControlsHeight = 86;
-                                        double coverHeight = min(
-                                          coverSize,
-                                          constraints.maxHeight -
-                                              minControlsHeight,
-                                        );
-                                        if (coverHeight <
-                                            MediaQuery.of(context).size.height /
-                                                2) {
-                                          coverHeight = MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              2;
-                                        }
-
-                                        coverWidth = coverHeight;
-
-                                        final controlsHeight = max(
-                                              minControlsHeight,
-                                              constraints.maxHeight -
-                                                  coverSize -
-                                                  8,
-                                            ) -
-                                            coverPadding;
-
-                                        final controlsWidth = min(
-                                          coverWidth!,
-                                          MediaQuery.of(context).size.width,
-                                        );
-
-                                        return Column(
-                                          children: [
-                                            Expanded(
-                                              child: getCoverArea(
-                                                context: context,
-                                                portraitMode: portraitMode,
-                                                noRightPadding: true,
-                                                selectedZone: selectedZone,
-                                              ),
-                                            ),
-                                            Container(
-                                              constraints: BoxConstraints(
-                                                minWidth: controlsWidth,
-                                                maxWidth: controlsWidth,
-                                              ),
-                                              width: controlsWidth,
-                                              height: controlsHeight.toDouble(),
-                                              child: getControlArea(
-                                                portraitMode: portraitMode,
-                                                orientation: orientation,
-                                                threeCols: threeCols,
-                                                idle: idle,
-                                                shuffle: shuffle,
-                                                repeat: repeat,
-                                                isRadio: isRadio,
-                                                selectedZoneId: selectedZoneId,
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }),
-                                    ),
-                                    Container(
-                                        constraints: coverWidth != null
-                                            ? BoxConstraints(
-                                                minWidth: coverWidth!,
-                                                maxWidth: coverWidth!,
-                                              )
-                                            : null,
-                                        width: coverWidth != null
-                                            ? (coverWidth! - coverPadding)
-                                            : 200,
-                                        margin: EdgeInsets.only(
-                                          bottom: coverPadding,
+                                        )
+                                      : SizedBox(
+                                          height: 16.0,
                                         ),
-                                        decoration: Globals.brightness() ==
-                                                Brightness.dark
-                                            ? areaDecorationFilledDarkStyle()
-                                            : areaDecorationFilledLightStyle(),
-                                        child: getTextArea(
+                                  Expanded(
+                                    child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                      final double coverSize =
+                                          constraints.maxWidth - 8;
+                                      final double minControlsHeight = 86;
+                                      double coverHeight = min(
+                                        coverSize,
+                                        constraints.maxHeight -
+                                            minControlsHeight,
+                                      );
+                                      if (coverHeight <
+                                          MediaQuery.of(context).size.height /
+                                              2) {
+                                        coverHeight =
+                                            MediaQuery.of(context).size.height /
+                                                2;
+                                      }
+
+                                      coverWidth = coverHeight;
+
+                                      final controlsHeight = max(
+                                            minControlsHeight,
+                                            constraints.maxHeight -
+                                                coverSize -
+                                                8,
+                                          ) -
+                                          coverPadding;
+
+                                      final controlsWidth = min(
+                                        coverWidth!,
+                                        MediaQuery.of(context).size.width,
+                                      );
+
+                                      return Column(
+                                        children: [
+                                          Expanded(
+                                            child: getCoverArea(
+                                              context: context,
+                                              portraitMode: portraitMode,
+                                              noRightPadding: true,
+                                              selectedZone: selectedZone,
+                                            ),
+                                          ),
+                                          Container(
+                                            constraints: BoxConstraints(
+                                              minWidth: controlsWidth,
+                                              maxWidth: controlsWidth,
+                                            ),
+                                            width: controlsWidth,
+                                            height: controlsHeight.toDouble(),
+                                            child: getControlArea(
+                                              portraitMode: portraitMode,
+                                              orientation: orientation,
+                                              threeCols: threeCols,
+                                              idle: idle,
+                                              shuffle: shuffle,
+                                              repeat: repeat,
+                                              isRadio: isRadio,
+                                              selectedZoneId: selectedZoneId,
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    }),
+                                  ),
+                                  Container(
+                                      constraints: coverWidth != null
+                                          ? BoxConstraints(
+                                              minWidth: coverWidth!,
+                                              maxWidth: coverWidth!,
+                                            )
+                                          : null,
+                                      width: coverWidth != null
+                                          ? (coverWidth! - coverPadding)
+                                          : 200,
+                                      margin: EdgeInsets.only(
+                                        bottom: coverPadding,
+                                      ),
+                                      decoration: Globals.brightness() ==
+                                              Brightness.dark
+                                          ? areaDecorationFilledDarkStyle()
+                                          : areaDecorationFilledLightStyle(),
+                                      child: getTextArea(
+                                        portraitMode: portraitMode,
+                                        threeCols: threeCols,
+                                        fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .height <
+                                                    500 ||
+                                                MediaQuery.of(context)
+                                                        .size
+                                                        .width <
+                                                    650 ||
+                                                (coverWidth != null &&
+                                                    coverWidth! < 400)
+                                            ? 14
+                                            : null,
+                                      )),
+                                ],
+                              ),
+                            )
+                          : LayoutGrid(
+                              areas: threeCols
+                                  ? 'cover controls text'
+                                  : '''
+                                cover select
+                                cover controls
+                                cover text
+                              ''',
+                              columnSizes: threeCols
+                                  ? [1.fr, 1.fr, 0.8.fr]
+                                  : [
+                                      1.fr,
+                                      Globals.isDesktopDevice()
+                                          ? 0.75.fr
+                                          : 1.2.fr,
+                                    ],
+                              rowSizes: threeCols
+                                  ? [
+                                      1.fr,
+                                    ]
+                                  : [
+                                      auto,
+                                      1.fr,
+                                      auto,
+                                    ],
+                              columnGap: 2,
+                              rowGap: 2,
+                              children: [
+                                getCoverArea(
+                                  context: context,
+                                  portraitMode: portraitMode,
+                                  noRightPadding: false,
+                                  selectedZone: selectedZone,
+                                ).inGridArea('cover'),
+                                if (!threeCols &&
+                                    MediaQuery.of(context).size.width > 565)
+                                  widget.controlId == null
+                                      ? getSelectBoxArea(
+                                          portraitMode: portraitMode,
+                                          options: options,
+                                          withLabel: MediaQuery.of(context)
+                                                  .size
+                                                  .width >
+                                              870,
+                                          width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2.5 -
+                                              (coverPadding * 3),
+                                        ).inGridArea('select')
+                                      : SizedBox().inGridArea('select'),
+                                getControlArea(
+                                  portraitMode: portraitMode,
+                                  orientation: orientation,
+                                  threeCols: threeCols,
+                                  idle: idle,
+                                  shuffle: shuffle,
+                                  repeat: repeat,
+                                  isRadio: isRadio,
+                                  selectedZoneId: selectedZoneId,
+                                ).inGridArea('controls'),
+                                Container(
+                                  margin: EdgeInsets.only(
+                                    top: threeCols ? coverPadding : 0.0,
+                                    bottom: coverPadding,
+                                    right: coverPadding,
+                                  ),
+                                  decoration:
+                                      Globals.brightness() == Brightness.dark
+                                          ? areaDecorationFilledDarkStyle()
+                                          : areaDecorationFilledLightStyle(),
+                                  child: threeCols
+                                      ? LayoutBuilder(
+                                          builder: (context, constraints) {
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical:
+                                                    constraints.maxHeight / 12),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  widget.controlId == null
+                                                      ? MainAxisAlignment
+                                                          .spaceBetween
+                                                      : MainAxisAlignment
+                                                          .center,
+                                              children: [
+                                                if (widget.controlId == null &&
+                                                    threeCols)
+                                                  Container(
+                                                    margin: EdgeInsets.only(
+                                                        left: coverPadding),
+                                                    child: getSelectBoxArea(
+                                                      portraitMode:
+                                                          portraitMode,
+                                                      withLabel:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width >
+                                                              1180,
+                                                      width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width <=
+                                                              1180
+                                                          ? MediaQuery.of(context)
+                                                                      .size
+                                                                      .width /
+                                                                  3 -
+                                                              (coverPadding * 5)
+                                                          : null,
+                                                      options: options,
+                                                    ),
+                                                  ),
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                      bottom: coverPadding),
+                                                  child: getTextArea(
+                                                    portraitMode: portraitMode,
+                                                    threeCols: threeCols,
+                                                    fontSize:
+                                                        constraints.maxHeight <
+                                                                300
+                                                            ? 14
+                                                            : null,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        })
+                                      : getTextArea(
                                           portraitMode: portraitMode,
                                           threeCols: threeCols,
                                           fontSize: MediaQuery.of(context)
                                                           .size
                                                           .height <
-                                                      500 ||
-                                                  MediaQuery.of(context)
-                                                          .size
-                                                          .width <
-                                                      650 ||
-                                                  (coverWidth != null &&
-                                                      coverWidth! < 400)
-                                              ? 14
-                                              : null,
-                                        )),
-                                  ],
-                                ),
-                              )
-                            : LayoutGrid(
-                                areas: threeCols
-                                    ? 'cover controls text'
-                                    : '''
-                                    cover select
-                                    cover controls
-                                    cover text
-                                  ''',
-                                columnSizes: threeCols
-                                    ? [1.fr, 1.fr, 0.8.fr]
-                                    : [
-                                        1.fr,
-                                        Globals.isDesktopDevice()
-                                            ? 0.75.fr
-                                            : 1.2.fr,
-                                      ],
-                                rowSizes: threeCols
-                                    ? [
-                                        1.fr,
-                                      ]
-                                    : [
-                                        auto,
-                                        1.fr,
-                                        auto,
-                                      ],
-                                columnGap: 2,
-                                rowGap: 2,
-                                children: [
-                                  getCoverArea(
-                                    context: context,
-                                    portraitMode: portraitMode,
-                                    noRightPadding: false,
-                                    selectedZone: selectedZone,
-                                  ).inGridArea('cover'),
-                                  if (!threeCols &&
-                                      MediaQuery.of(context).size.width > 565)
-                                    widget.controlId == null
-                                        ? getSelectBoxArea(
-                                            portraitMode: portraitMode,
-                                            options: options,
-                                            withLabel: MediaQuery.of(context)
-                                                    .size
-                                                    .width >
-                                                870,
-                                            width: MediaQuery.of(context)
-                                                        .size
-                                                        .width /
-                                                    2.5 -
-                                                (coverPadding * 3),
-                                          ).inGridArea('select')
-                                        : SizedBox().inGridArea('select'),
-                                  getControlArea(
-                                    portraitMode: portraitMode,
-                                    orientation: orientation,
-                                    threeCols: threeCols,
-                                    idle: idle,
-                                    shuffle: shuffle,
-                                    repeat: repeat,
-                                    isRadio: isRadio,
-                                    selectedZoneId: selectedZoneId,
-                                  ).inGridArea('controls'),
-                                  Container(
-                                    margin: EdgeInsets.only(
-                                      top: threeCols ? coverPadding : 0.0,
-                                      bottom: coverPadding,
-                                      right: coverPadding,
-                                    ),
-                                    decoration:
-                                        Globals.brightness() == Brightness.dark
-                                            ? areaDecorationFilledDarkStyle()
-                                            : areaDecorationFilledLightStyle(),
-                                    child: threeCols
-                                        ? LayoutBuilder(
-                                            builder: (context, constraints) {
-                                            return Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical:
-                                                      constraints.maxHeight /
-                                                          12),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    widget.controlId == null
-                                                        ? MainAxisAlignment
-                                                            .spaceBetween
-                                                        : MainAxisAlignment
-                                                            .center,
-                                                children: [
-                                                  if (widget.controlId ==
-                                                          null &&
-                                                      threeCols)
-                                                    Container(
-                                                      margin: EdgeInsets.only(
-                                                          left: coverPadding),
-                                                      child: getSelectBoxArea(
-                                                        portraitMode:
-                                                            portraitMode,
-                                                        withLabel:
-                                                            MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width >
-                                                                1180,
-                                                        width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width <=
-                                                                1180
-                                                            ? MediaQuery.of(context)
-                                                                        .size
-                                                                        .width /
-                                                                    3 -
-                                                                (coverPadding *
-                                                                    5)
-                                                            : null,
-                                                        options: options,
-                                                      ),
-                                                    ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        bottom: coverPadding),
-                                                    child: getTextArea(
-                                                      portraitMode:
-                                                          portraitMode,
-                                                      threeCols: threeCols,
-                                                      fontSize: constraints
-                                                                  .maxHeight <
-                                                              300
-                                                          ? 14
-                                                          : null,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            );
-                                          })
-                                        : getTextArea(
-                                            portraitMode: portraitMode,
-                                            threeCols: threeCols,
-                                            fontSize: MediaQuery.of(context)
-                                                            .size
-                                                            .height <
-                                                        Globals
-                                                            .heightSwitchBoundaryVerySmall ||
-                                                    (!threeCols &&
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width <
-                                                            640)
-                                                ? 11
-                                                : null),
-                                  ).inGridArea('text')
-                                ],
-                              );
-                      }),
-                    ),
+                                                      Globals
+                                                          .heightSwitchBoundaryVerySmall ||
+                                                  (!threeCols &&
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width <
+                                                          640)
+                                              ? 11
+                                              : null),
+                                ).inGridArea('text')
+                              ],
+                            );
+                    }),
                   )
           ],
         ),
