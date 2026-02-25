@@ -233,6 +233,19 @@ class MainRepository {
     return zoneName;
   }
 
+  bool getIdleMode({
+    required Map<String, dynamic> info,
+  }) {
+    bool idle = false;
+
+    if (info['control_id'] != null) {
+      String controlId = info['control_id'];
+      idle = info['playmode'][controlId] != 'play';
+    }
+
+    return idle;
+  }
+
   Future<Map<String, String>> getCustomMessages() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? messagesStr = prefs.getString('customMessages');

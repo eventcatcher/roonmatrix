@@ -4,8 +4,17 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/globals.dart';
 
 class ColorDefs {
+  static final BlendMode idleZoneColorBlendMode = BlendMode.dstATop;
+  static final Color idleZoneColor = Globals.brightness() == Brightness.dark
+      ? Colors.black.withValues(alpha: 0.15)
+      : Colors.black.withValues(alpha: 0.2);
   static final ColorFilter idleZoneColorFilter =
-      ColorFilter.mode(Colors.black.withValues(alpha: 0.4), BlendMode.dstATop);
+      ColorFilter.mode(idleZoneColor, idleZoneColorBlendMode);
+  static final Color idleZoneIconColor = Globals.brightness() == Brightness.dark
+      ? Colors.black.withValues(alpha: 0.25)
+      : Colors.black.withValues(alpha: 0.3);
+  static final ColorFilter idleZoneIconColorFilter =
+      ColorFilter.mode(idleZoneIconColor, idleZoneColorBlendMode);
 
   static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
   static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);

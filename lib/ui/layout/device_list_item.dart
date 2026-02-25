@@ -248,6 +248,7 @@ class DeviceListItemState extends State<DeviceListItem> {
     }
 
     String zoneName = mainRepository.getZoneName(info: i);
+    bool idle = mainRepository.getIdleMode(info: i);
 
     Map<String, dynamic>? zone = mainRepository.getZoneDataForControlId(i);
     String? coverUrl = mainRepository.getCoverUrl(zone: zone);
@@ -317,6 +318,10 @@ class DeviceListItemState extends State<DeviceListItem> {
                               coverUrl,
                               width: deviceListCoverSize,
                               height: deviceListCoverSize,
+                              colorBlendMode: idle
+                                  ? ColorDefs.idleZoneColorBlendMode
+                                  : null,
+                              color: idle ? ColorDefs.idleZoneIconColor : null,
                               key: ValueKey(
                                   'DeviceCover-${widget.ip}-$coverUrl'),
                               errorBuilder: (context, error, stackTrace) {
@@ -332,6 +337,9 @@ class DeviceListItemState extends State<DeviceListItem> {
                               Globals.placeholderSvgAssetPath(),
                               allowDrawingOutsideViewBox: false,
                               fit: BoxFit.cover,
+                              colorFilter: idle
+                                  ? ColorDefs.idleZoneIconColorFilter
+                                  : null,
                               clipBehavior: Clip.hardEdge,
                             ),
                     ),

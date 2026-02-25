@@ -559,10 +559,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                             alignment: portraitMode
                                 ? Alignment.topCenter
                                 : Alignment.centerLeft,
-                            colorBlendMode: idle ? BlendMode.dstATop : null,
-                            color: idle
-                                ? Colors.black.withValues(alpha: 0.4)
-                                : null,
+                            colorBlendMode:
+                                idle ? ColorDefs.idleZoneColorBlendMode : null,
+                            color: idle ? ColorDefs.idleZoneColor : null,
                             width: double.infinity,
                             height: double.infinity,
                             errorBuilder: (context, error, stackTrace) {
