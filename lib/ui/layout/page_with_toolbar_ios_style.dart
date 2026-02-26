@@ -134,8 +134,33 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
                           ),
                         ],
                       )
-                    : Column(
+                    : Stack(
                         children: [
+                          Positioned(
+                            right: 24.0,
+                            top: 27.0,
+                            child: SizedBox(
+                              width: 124.0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    sliderName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 9.0,
+                                      color: Globals.brightness() ==
+                                              Brightness.dark
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                           SliderMobile(
                             min: Globals.sliderMinValue,
                             max: Globals.sliderMaxValue,
@@ -144,15 +169,6 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
                             updateValue: (double value) =>
                                 sliderUpdateValue!(speed: value),
                           ),
-                          Text(
-                            sliderName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 10.0,
-                              color: Colors.white,
-                            ),
-                          )
                         ],
                       ),
               )
