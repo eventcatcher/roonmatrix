@@ -58,6 +58,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   Map<String, dynamic> translations = {};
 
   Orientation orientation = Orientation.portrait;
+  Map<String, dynamic> scrollSpeedDeviceMap = {};
+  String activeSliderIp = '';
   double width = 1280;
   double height = 768;
   double scrollSpeedDevice = 1.0;
@@ -152,6 +154,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     bool ledTickerOnTickerPageActive =
                         settingsState.ledTickerOnTickerPageActive;
 
+                    scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
                     scrollSpeedDevice = settingsState.scrollSpeedDevice;
                     scrollSpeedScrollMatrix =
                         settingsState.scrollSpeedScrollMatrix;
@@ -278,39 +281,55 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                     bool pingItem =
                                                         ping[ip] ?? false;
 
-                                                    return DeviceListItem(
-                                                      itemListKey: itemListKey,
-                                                      index: index,
-                                                      width: width,
-                                                      height: height,
-                                                      orientation: orientation,
-                                                      minDesktopSize:
-                                                          minDesktopSize,
-                                                      standardDesktopSize:
-                                                          standardDesktopSize,
-                                                      translations:
-                                                          translations,
-                                                      ip: ip,
-                                                      connected: connectedItem,
-                                                      ping: pingItem,
-                                                      info: info,
-                                                      spotifyAuthUrl:
-                                                          spotifyAuthUrls[ip] ??
-                                                              '*',
-                                                      isSmallDeviceWidth:
-                                                          isSmallDeviceWidth,
-                                                      moreInfo: moreInfo,
-                                                      scrollSpeedScrollMatrix:
-                                                          scrollSpeedScrollMatrix,
-                                                      scrollSpeedDevice:
-                                                          scrollSpeedDevice,
-                                                      verticalTickerActive:
-                                                          verticalTickerActive,
-                                                      ledTickerInDeviceListActive:
-                                                          ledTickerInDeviceListActive,
-                                                      ledTickerOnTickerPageActive:
-                                                          ledTickerOnTickerPageActive,
-                                                      updateSizes: updateSizes,
+                                                    return GestureDetector(
+                                                      behavior: HitTestBehavior
+                                                          .translucent,
+                                                      onTap: () {
+                                                        setState(() {
+                                                          activeSliderIp = ip;
+                                                        });
+                                                      },
+                                                      child: DeviceListItem(
+                                                        itemListKey:
+                                                            itemListKey,
+                                                        index: index,
+                                                        width: width,
+                                                        height: height,
+                                                        orientation:
+                                                            orientation,
+                                                        minDesktopSize:
+                                                            minDesktopSize,
+                                                        standardDesktopSize:
+                                                            standardDesktopSize,
+                                                        translations:
+                                                            translations,
+                                                        ip: ip,
+                                                        connected:
+                                                            connectedItem,
+                                                        ping: pingItem,
+                                                        info: info,
+                                                        spotifyAuthUrl:
+                                                            spotifyAuthUrls[
+                                                                    ip] ??
+                                                                '*',
+                                                        isSmallDeviceWidth:
+                                                            isSmallDeviceWidth,
+                                                        moreInfo: moreInfo,
+                                                        scrollSpeedScrollMatrix:
+                                                            scrollSpeedScrollMatrix,
+                                                        scrollSpeedDevice:
+                                                            scrollSpeedDeviceMap[
+                                                                    ip] ??
+                                                                scrollSpeedDevice,
+                                                        verticalTickerActive:
+                                                            verticalTickerActive,
+                                                        ledTickerInDeviceListActive:
+                                                            ledTickerInDeviceListActive,
+                                                        ledTickerOnTickerPageActive:
+                                                            ledTickerOnTickerPageActive,
+                                                        updateSizes:
+                                                            updateSizes,
+                                                      ),
                                                     );
                                                   }),
                                     ),
@@ -557,21 +576,43 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               return SizedBox();
             }
 
+            scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
             scrollSpeedDevice = settingsState.scrollSpeedDevice;
+
+            bool verticalTickerActive = settingsState.verticalTickerActive;
+            bool verticalOutput = activeSliderIp.isNotEmpty &&
+                    mainBloc.state.info[activeSliderIp] != null
+                ? mainBloc.state.info[activeSliderIp]['vertical_output'] ??
+                    false
+                : false;
+            List<dynamic> list = mainBloc.getScrollDelayMinMax(
+              ip: activeSliderIp,
+              verticalOutput: verticalOutput,
+              verticalTickerActive: verticalTickerActive,
+            );
+            double sliderDefaultValue = list[3];
 
             return PageWithToolbarIosStyle(
               title: title,
+              activeSliderIp: activeSliderIp,
+              sliderDefaultValue: sliderDefaultValue,
               showExpandableSpeedSlider: showExpandableSpeedSlider,
-              scrollSpeedDevice: scrollSpeedDevice,
+              scrollSpeedDevice:
+                  scrollSpeedDeviceMap[activeSliderIp] ?? scrollSpeedDevice,
               animationController: animationController,
               isDrawerOpen: isDrawerOpen,
               body: bodyWithMenuDrawerOverlay(context),
-              sliderUpdateValue: ({required double speed}) {
-                setState(() {
-                  scrollSpeedDevice = speed;
-                  settingsBloc.setScrollSpeedDevice(speed: speed);
-                });
-              },
+              sliderUpdateValue: activeSliderIp.isNotEmpty
+                  ? ({required double speed}) {
+                      setState(() {
+                        if (activeSliderIp.isNotEmpty) {
+                          scrollSpeedDeviceMap[activeSliderIp] = speed;
+                        }
+                        scrollSpeedDevice = speed;
+                        settingsBloc.setScrollSpeedDevice(ip: '', speed: speed);
+                      });
+                    }
+                  : null,
               setAppBarHeight: ({required double height}) {
                 appBarHeight = height;
                 navigationTop =
@@ -614,13 +655,29 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             return SizedBox();
           }
 
+          scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
           scrollSpeedDevice = settingsState.scrollSpeedDevice;
+
+          bool verticalTickerActive = settingsState.verticalTickerActive;
+          bool verticalOutput = activeSliderIp.isNotEmpty &&
+                  mainBloc.state.info[activeSliderIp] != null
+              ? mainBloc.state.info[activeSliderIp]['vertical_output'] ?? false
+              : false;
+          List<dynamic> list = mainBloc.getScrollDelayMinMax(
+            ip: activeSliderIp,
+            verticalOutput: verticalOutput,
+            verticalTickerActive: verticalTickerActive,
+          );
+          double sliderDefaultValue = list[3];
 
           return PageWithToolbarFlutterStyle(
             scaffoldKey: scaffoldKey,
             title: title,
+            activeSliderIp: activeSliderIp,
+            sliderDefaultValue: sliderDefaultValue,
             showExpandableSpeedSlider: showExpandableSpeedSlider,
-            scrollSpeedDevice: scrollSpeedDevice,
+            scrollSpeedDevice:
+                scrollSpeedDeviceMap[activeSliderIp] ?? scrollSpeedDevice,
             standardDesktopSize: standardDesktopSize,
             drawer:
                 Globals.inIosStyle() || Platform.isAndroid || Platform.isFuchsia
@@ -642,12 +699,17 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
                   minDesktopSize: minDesktopSize);
             },
-            sliderUpdateValue: ({required double speed}) {
-              setState(() {
-                scrollSpeedDevice = speed;
-                settingsBloc.setScrollSpeedDevice(speed: speed);
-              });
-            },
+            sliderUpdateValue: activeSliderIp.isNotEmpty
+                ? ({required double speed}) {
+                    setState(() {
+                      if (activeSliderIp.isNotEmpty) {
+                        scrollSpeedDeviceMap[activeSliderIp] = speed;
+                      }
+                      scrollSpeedDevice = speed;
+                      settingsBloc.setScrollSpeedDevice(ip: '', speed: speed);
+                    });
+                  }
+                : null,
             setAppBarHeight: ({required double height}) {
               if (Platform.isAndroid || Platform.isFuchsia) {
                 appBarHeight = height;

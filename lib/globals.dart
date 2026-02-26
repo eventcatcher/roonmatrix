@@ -64,6 +64,9 @@ class Globals {
   static double mobileFontSizeMedium = 64.0;
   static double mobileFontSizeBig = 128.0;
 
+  static final double sliderMinValue = 0.0;
+  static final double sliderMaxValue = 5.0;
+
   static final double heightSwitchBoundaryVerySmall = 400;
   static final double heightSwitchBoundarySmall = 480;
 

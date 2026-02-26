@@ -10,6 +10,7 @@ abstract class SettingsState extends Equatable {
   final bool coverRowTrack;
   final bool coverRowDynamicSize;
   final double scrollSpeedDevice;
+  final Map<String, dynamic> scrollSpeedDeviceMap;
   final double scrollSpeedScrollMatrix;
   final bool verticalTickerActive;
   final bool ledTickerInDeviceListActive;
@@ -24,6 +25,7 @@ abstract class SettingsState extends Equatable {
     this.coverRowAlbum = false,
     this.coverRowTrack = true,
     this.coverRowDynamicSize = true,
+    this.scrollSpeedDeviceMap = const {},
     this.scrollSpeedDevice = 1.0,
     this.scrollSpeedScrollMatrix = 1.0,
     this.verticalTickerActive = false,
@@ -40,6 +42,7 @@ abstract class SettingsState extends Equatable {
     bool? coverRowAlbum,
     bool? coverRowTrack,
     bool? coverRowDynamicSize,
+    Map<String, dynamic>? scrollSpeedDeviceMap,
     double? scrollSpeedDevice,
     double? scrollSpeedScrollMatrix,
     bool? verticalTickerActive,
@@ -55,6 +58,7 @@ abstract class SettingsState extends Equatable {
       coverRowAlbum: coverRowAlbum ?? this.coverRowAlbum,
       coverRowTrack: coverRowTrack ?? this.coverRowTrack,
       coverRowDynamicSize: coverRowDynamicSize ?? this.coverRowDynamicSize,
+      scrollSpeedDeviceMap: scrollSpeedDeviceMap ?? this.scrollSpeedDeviceMap,
       scrollSpeedDevice: scrollSpeedDevice ?? this.scrollSpeedDevice,
       scrollSpeedScrollMatrix:
           scrollSpeedScrollMatrix ?? this.scrollSpeedScrollMatrix,
@@ -77,6 +81,7 @@ abstract class SettingsState extends Equatable {
       coverRowAlbum,
       coverRowTrack,
       coverRowDynamicSize,
+      scrollSpeedDeviceMap,
       scrollSpeedDevice,
       scrollSpeedScrollMatrix,
       verticalTickerActive,
@@ -108,6 +113,7 @@ class SettingsStateLoaded extends SettingsState {
     required super.coverRowAlbum,
     required super.coverRowTrack,
     required super.coverRowDynamicSize,
+    required super.scrollSpeedDeviceMap,
     required super.scrollSpeedDevice,
     required super.scrollSpeedScrollMatrix,
     required super.verticalTickerActive,

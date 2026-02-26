@@ -2,16 +2,20 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/slider_expandable.dart';
 import 'package:roonmatrix/ui/layout/slider_mobile.dart';
+import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:window_manager/window_manager.dart';
 
 class PageWithToolbarFlutterStyle extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String title;
+  final String activeSliderIp;
+  final double sliderDefaultValue;
   final bool withTabController;
   final int tabLength;
   final PreferredSizeWidget? tabBar;
@@ -30,6 +34,8 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
     super.key,
     required this.scaffoldKey,
     required this.title,
+    required this.activeSliderIp,
+    required this.sliderDefaultValue,
     this.withTabController = false,
     this.tabLength = 2,
     this.tabBar,
@@ -54,6 +60,8 @@ class _PageWithToolbarFlutterStyleState
     extends State<PageWithToolbarFlutterStyle> with WindowListener {
   GlobalKey<ScaffoldState> get scaffoldKey => widget.scaffoldKey;
   String get title => widget.title;
+  String get activeSliderIp => widget.activeSliderIp;
+  double get sliderDefaultValue => widget.sliderDefaultValue;
   bool get withTabController => widget.withTabController;
   int get tabLength => widget.tabLength;
   PreferredSizeWidget? get tabBar => widget.tabBar;
@@ -72,10 +80,18 @@ class _PageWithToolbarFlutterStyleState
 
   bool isFullscreen = false;
 
+  String get sliderName =>
+      activeSliderIp.isNotEmpty && mainBloc.state.info[activeSliderIp] != null
+          ? mainBloc.state.info[activeSliderIp]['name']
+          : activeSliderIp;
+
+  late MainBloc mainBloc;
   late PreferredSizeWidget appBarWithActions;
 
   @override
   void initState() {
+    mainBloc = BlocProvider.of<MainBloc>(context);
+
     if (Globals.isDesktopDevice()) {
       SchedulerBinding.instance.addPostFrameCallback((_) async {
         bool isFullscreenStatus = await windowManager.isFullScreen();
@@ -201,16 +217,52 @@ class _PageWithToolbarFlutterStyleState
                   ? EdgeInsets.only(top: 5.0, right: 8.0)
                   : null,
               child: showExpandableSpeedSlider
-                  ? SliderExpandable(
-                      width: 236.0,
-                      value: scrollSpeedDevice,
-                      updateValue: (double value) =>
-                          sliderUpdateValue!(speed: value),
+                  ? Stack(
+                      children: [
+                        Positioned(
+                          right: 53.0,
+                          top: 18.0,
+                          child: Container(
+                            constraints: BoxConstraints(maxWidth: 120.0),
+                            child: Text(
+                              sliderName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10.0,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SliderExpandable(
+                          width: 236.0,
+                          value: scrollSpeedDevice,
+                          updateValue: (double value) =>
+                              sliderUpdateValue!(speed: value),
+                        ),
+                      ],
                     )
-                  : SliderMobile(
-                      value: scrollSpeedDevice,
-                      updateValue: (double value) =>
-                          sliderUpdateValue!(speed: value),
+                  : Column(
+                      children: [
+                        SliderMobile(
+                          min: Globals.sliderMinValue,
+                          max: Globals.sliderMaxValue,
+                          defaultValue: sliderDefaultValue,
+                          value: scrollSpeedDevice,
+                          updateValue: (double value) =>
+                              sliderUpdateValue!(speed: value),
+                        ),
+                        Text(
+                          sliderName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 10.0,
+                            color: Colors.white,
+                          ),
+                        )
+                      ],
                     ),
             ),
         ],

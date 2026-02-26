@@ -99,7 +99,6 @@ class DeviceListItemState extends State<DeviceListItem> {
   final double verticalTickerTopOffset = 58.0;
   final double tickerAreaHeight = 24.0;
   final double tickerFontSize = 14.0;
-  final double tickerPixelPerSecondFactor = 50.0;
   final double tickerSpeedSliderWidth = 120.0;
   final double tickerHorizontalPadding = 8.0;
 
@@ -110,6 +109,7 @@ class DeviceListItemState extends State<DeviceListItem> {
   final double ledTickerBorderSize = 1.0;
   final double ledSizeDefault = 3.0;
   double ledSize = 3.0;
+  double sliderDefaultValue = 1.0;
 
   List<String> verticalTextLines = [];
   int scrollDuration = 0;
@@ -120,6 +120,12 @@ class DeviceListItemState extends State<DeviceListItem> {
   int ledModules = 9;
   bool ledTickerInDeviceListActiveBefore = false;
   bool verticalTickerActiveBefore = false;
+
+  double pixelsPerSecond = 20;
+  double scrollDelay = 25.0;
+  int scrollDelayMin = 1;
+  int scrollDelayMax = 100;
+  int defaultDelay = 25;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -163,6 +169,35 @@ class DeviceListItemState extends State<DeviceListItem> {
     //print('ip: $ip, scrollText: ${info[ip]['app_displaystr'] ?? ''}');
   }
 
+  double getPixelsPerSecond({
+    required String? ip,
+    required double fontSize,
+    required double sliderValue,
+  }) {
+    if (ip == null || ip.isEmpty) {
+      return 15.0;
+    }
+
+    List<dynamic> list = mainBloc.getPixelsPerSecond(
+        ip: ip,
+        isScrollMatrixPage: false,
+        verticalOutput: verticalOutput,
+        verticalTickerActive: verticalTickerActive,
+        ledTickerActive: ledTickerInDeviceListActive,
+        fontSize: fontSize,
+        ledSize: ledSize,
+        sliderValue: sliderValue);
+
+    defaultDelay = list[0];
+    scrollDelayMin = list[1];
+    scrollDelayMax = list[2];
+    sliderDefaultValue = list[3];
+    scrollDelay = list[4];
+    pixelsPerSecond = list[5];
+
+    return pixelsPerSecond;
+  }
+
   void updateProps() {
     ip = widget.ip;
     connected = widget.connected;
@@ -173,7 +208,7 @@ class DeviceListItemState extends State<DeviceListItem> {
 
     Map<String, dynamic> i = info[ip];
     ledModules = i['led_modules'];
-    verticalOutput = verticalTickerActive && (i['vertical_output'] ?? false);
+    verticalOutput = i['vertical_output'] ?? false;
 
     double ledSizeNew = ledSize;
     double nettoWidth = width - tickerHorizontalPadding * 2;
@@ -197,8 +232,7 @@ class DeviceListItemState extends State<DeviceListItem> {
             ledSizeBefore = ledSize;
             ledTickerInDeviceListActiveBefore = ledTickerInDeviceListActive;
             verticalTickerActiveBefore = verticalTickerActive;
-            verticalOutput =
-                verticalTickerActive && (i['vertical_output'] ?? false);
+            verticalOutput = i['vertical_output'] ?? false;
             ledSingleModuleSize = ledSize * 8 + ledGap * 8;
 
             tickerWidth = ledTickerInDeviceListActive
@@ -212,6 +246,12 @@ class DeviceListItemState extends State<DeviceListItem> {
         }
       });
     }
+
+    pixelsPerSecond = getPixelsPerSecond(
+      ip: ip,
+      fontSize: tickerFontSize,
+      sliderValue: scrollSpeedDevice,
+    );
   }
 
   @override
@@ -222,9 +262,12 @@ class DeviceListItemState extends State<DeviceListItem> {
         ? ledSingleModuleSize + ledTickerPadding * 2 + ledTickerBorderSize * 2
         : tickerAreaHeight;
 
-    String scrollText = verticalOutput
+    String scrollText = verticalOutput && verticalTickerActive
         ? ''
         : mainBloc.replaceIllegalCharsInTickerString(
+            ip: ip,
+            verticalOutput: verticalOutput,
+            verticalTickerActive: verticalTickerActive,
             str: i['app_displaystr'] ?? '',
             replaceActiveZoneMarker: !ledTickerInDeviceListActive,
           );
@@ -233,6 +276,9 @@ class DeviceListItemState extends State<DeviceListItem> {
       List<String> lines = [];
       for (String line in List<String>.from(i['vert_strlines'])) {
         String filteredLine = mainBloc.replaceIllegalCharsInTickerString(
+          ip: ip,
+          verticalOutput: verticalOutput,
+          verticalTickerActive: verticalTickerActive,
           str: line,
           replaceActiveZoneMarker: !ledTickerInDeviceListActive,
         );
@@ -477,47 +523,48 @@ class DeviceListItemState extends State<DeviceListItem> {
                   (ledTickerInDeviceListActive
                       ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
                       : 0),
-              child: InkWell(
-                onTap: () => showGeneralDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  barrierLabel: 'Dialog',
-                  transitionDuration: const Duration(milliseconds: 0),
-                  pageBuilder: (_, __, ___) {
-                    return ScrollMatrixPage(
-                      ip: ip,
-                      scrollSpeed: scrollSpeedScrollMatrix,
-                      name: i['name'],
-                      translations: translations,
-                      minDesktopSize: minDesktopSize,
-                      standardDesktopSize: standardDesktopSize,
-                      verticalTickerActive: verticalTickerActive,
-                      ledTickerOnTickerPageActive: ledTickerOnTickerPageActive,
-                      speedChanged: (double speed) {
-                        scrollSpeedScrollMatrix = speed;
-                        settingsBloc.setScrollSpeedScrollMatrix(speed: speed);
-                      },
-                    );
-                  },
-                ),
-                child: NotificationListener<SizeChangedLayoutNotification>(
-                  onNotification: (notification) {
-                    updateSizes('NotificationListener');
-                    build(context);
-                    return false;
-                  },
-                  child: SizeChangedLayoutNotifier(
-                    child: Container(
-                      //color: Colors.green,
-                      alignment: ledTickerInDeviceListActive ||
-                              (verticalOutput && verticalTickerActive)
-                          ? Alignment.centerLeft
-                          : Alignment.center,
-                      key: ValueKey(
-                          'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                      width: MediaQuery.of(context).size.width -
-                          2 * tickerHorizontalPadding,
-                      height: tickerHeight,
+              child: NotificationListener<SizeChangedLayoutNotification>(
+                onNotification: (notification) {
+                  updateSizes('NotificationListener');
+                  build(context);
+                  return false;
+                },
+                child: SizeChangedLayoutNotifier(
+                  child: Container(
+                    alignment: ledTickerInDeviceListActive ||
+                            (verticalOutput && verticalTickerActive)
+                        ? Alignment.centerLeft
+                        : Alignment.center,
+                    key: ValueKey(
+                        'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                    width: MediaQuery.of(context).size.width -
+                        2 * tickerHorizontalPadding,
+                    height: tickerHeight,
+                    child: InkWell(
+                      onTap: () => showGeneralDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        barrierLabel: 'Dialog',
+                        transitionDuration: const Duration(milliseconds: 0),
+                        pageBuilder: (_, __, ___) {
+                          return ScrollMatrixPage(
+                            ip: ip,
+                            scrollSpeed: scrollSpeedScrollMatrix,
+                            name: i['name'],
+                            translations: translations,
+                            minDesktopSize: minDesktopSize,
+                            standardDesktopSize: standardDesktopSize,
+                            verticalTickerActive: verticalTickerActive,
+                            ledTickerOnTickerPageActive:
+                                ledTickerOnTickerPageActive,
+                            speedChanged: (double speed) {
+                              scrollSpeedScrollMatrix = speed;
+                              settingsBloc.setScrollSpeedScrollMatrix(
+                                  speed: speed);
+                            },
+                          );
+                        },
+                      ),
                       child: verticalOutput && verticalTickerActive
                           ? Container(
                               width: tickerWidth,
@@ -530,8 +577,9 @@ class DeviceListItemState extends State<DeviceListItem> {
                               decoration: ledTickerInDeviceListActive
                                   ? BoxDecoration(
                                       border: Border.all(
-                                          width: ledTickerBorderSize,
-                                          color: Colors.blue))
+                                      width: ledTickerBorderSize,
+                                      color: Colors.blue,
+                                    ))
                                   : BoxDecoration(
                                       borderRadius: Globals.borderRadius(),
                                       boxShadow: [
@@ -564,7 +612,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                         texts: verticalTextLines,
                                         scrollDuration: Duration(
                                             milliseconds:
-                                                (50 * 8 / scrollSpeedDevice)
+                                                (ledSize * scrollDelay / 0.5)
                                                     .floor()),
                                         linePause: Duration(
                                             seconds:
@@ -580,8 +628,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                       texts: verticalTextLines,
                                       scrollDuration: Duration(
                                           milliseconds:
-                                              (50 * 8 / scrollSpeedDevice)
-                                                  .floor()),
+                                              (8 * scrollDelay).floor()),
                                       linePause: Duration(
                                           seconds: i['vertical_scroll_delay']),
                                       cyclePause: Duration(seconds: cyclePause),
@@ -612,9 +659,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                       ledGap: ledGap,
                                       onColor: ledOnColor,
                                       offColor: ledOffColor,
-                                      pixelsPerSecond:
-                                          tickerPixelPerSecondFactor *
-                                              scrollSpeedDevice,
+                                      pixelsPerSecond: pixelsPerSecond,
                                       forceUpdate: false,
                                       separator: Globals.tickerSeparator,
                                     ),
@@ -631,8 +676,11 @@ class DeviceListItemState extends State<DeviceListItem> {
                                       context: context,
                                     ),
                                   ),
-                                  pixelsPerSecond: tickerPixelPerSecondFactor *
-                                      scrollSpeedDevice,
+                                  pixelsPerSecond: getPixelsPerSecond(
+                                    ip: ip,
+                                    fontSize: tickerFontSize,
+                                    sliderValue: scrollSpeedDevice,
+                                  ),
                                   forceUpdate: false,
                                   separator: Globals.tickerSeparator,
                                 ),
@@ -647,9 +695,12 @@ class DeviceListItemState extends State<DeviceListItem> {
               child: SliderHoverOverlay(
                 label: '${translations['speed'] ?? 'speed:'}:',
                 width: tickerSpeedSliderWidth,
+                min: Globals.sliderMinValue,
+                max: Globals.sliderMaxValue,
+                defaultValue: sliderDefaultValue,
                 value: scrollSpeedDevice,
                 updateValue: (double value) {
-                  settingsBloc.setScrollSpeedDevice(speed: value);
+                  settingsBloc.setScrollSpeedDevice(ip: ip, speed: value);
                   setState(() {
                     scrollSpeedDevice = value;
                   });

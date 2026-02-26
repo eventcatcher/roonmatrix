@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:roonmatrix/ui/settings/settings_event.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +23,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         bool coverRowTrack = prefs.getBool('coverRowTrack') ?? true;
         bool coverRowDynamicSize =
             prefs.getBool('coverRowDynamicSize') ?? false;
+        String scrollSpeedDeviceMapJsonStr =
+            prefs.getString('scrollSpeedDeviceMap') ?? '';
+        Map<String, dynamic> scrollSpeedDeviceMap =
+            scrollSpeedDeviceMapJsonStr.isNotEmpty
+                ? jsonDecode(scrollSpeedDeviceMapJsonStr)
+                : {};
         double scrollSpeedDevice = prefs.getDouble('scrollSpeedDevice') ?? 1.0;
         double scrollSpeedScrollMatrix =
             prefs.getDouble('scrollSpeedScrollMatrix') ?? 1.0;
@@ -41,6 +49,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           coverRowTrack: coverRowTrack,
           coverRowDynamicSize: coverRowDynamicSize,
           scrollSpeedDevice: scrollSpeedDevice,
+          scrollSpeedDeviceMap: scrollSpeedDeviceMap,
           scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
           verticalTickerActive: verticalTickerActive,
           ledTickerInDeviceListActive: ledTickerInDeviceListActive,
@@ -76,14 +85,28 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       }
 
       if (event is SetScrollSpeedDevice) {
+        String ip = event.ip;
         double scrollSpeedDevice = event.speed;
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setDouble('scrollSpeedDevice', scrollSpeedDevice);
 
-        emit(state.copyWith(
-          scrollSpeedDevice: scrollSpeedDevice,
-        ));
+        if (ip.isNotEmpty) {
+          Map<String, dynamic> scrollSpeedDeviceMap =
+              Map<String, dynamic>.from(state.scrollSpeedDeviceMap);
+          scrollSpeedDeviceMap[ip] = scrollSpeedDevice;
+          prefs.setString(
+              'scrollSpeedDeviceMap', jsonEncode(scrollSpeedDeviceMap));
+
+          emit(state.copyWith(
+            scrollSpeedDeviceMap: scrollSpeedDeviceMap,
+            scrollSpeedDevice: scrollSpeedDevice,
+          ));
+        } else {
+          emit(state.copyWith(
+            scrollSpeedDevice: scrollSpeedDevice,
+          ));
+        }
       }
 
       if (event is SetScrollSpeedScrollMatrix) {
@@ -203,6 +226,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       'coverRowAlbum',
       'coverRowTrack',
       'coverRowDynamicSize',
+      'scrollSpeedDeviceMap',
       'scrollSpeedDevice',
       'scrollSpeedScrollMatrix',
       'verticalTickerActive',
@@ -309,9 +333,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   }
 
   void setScrollSpeedDevice({
+    required String ip,
     required double speed,
   }) {
-    add(SetScrollSpeedDevice(speed: speed));
+    add(SetScrollSpeedDevice(ip: ip, speed: speed));
   }
 
   void setScrollSpeedScrollMatrix({

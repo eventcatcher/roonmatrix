@@ -618,6 +618,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             : PageWithToolbarFlutterStyle(
                                 scaffoldKey: scaffoldKey,
                                 title: title,
+                                activeSliderIp: '',
+                                sliderDefaultValue: 0.0,
                                 showExpandableSpeedSlider: false,
                                 scrollSpeedDevice: 1.0,
                                 standardDesktopSize: standardDesktopSize,

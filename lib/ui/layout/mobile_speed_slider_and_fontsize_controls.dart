@@ -12,6 +12,7 @@ class MobileSpeedSliderAndFontsizeControls extends StatefulWidget {
   final bool verticalOutput;
   final bool ledTickerActive;
   final double width;
+  final double sliderDefaultValue;
   final double scrollSpeed;
   final Function(double speed) speedChanged;
   final Function(double size) sizeChanged;
@@ -24,6 +25,7 @@ class MobileSpeedSliderAndFontsizeControls extends StatefulWidget {
     required this.verticalOutput,
     required this.ledTickerActive,
     required this.width,
+    required this.sliderDefaultValue,
     required this.scrollSpeed,
     required this.speedChanged,
     required this.sizeChanged,
@@ -42,6 +44,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
   bool get verticalOutput => widget.verticalOutput;
   bool get ledTickerActive => widget.ledTickerActive;
   double get width => widget.width;
+  double get sliderDefaultValue => widget.sliderDefaultValue;
   double get scrollSpeed => widget.scrollSpeed;
   Function(double speed) get speedChanged => widget.speedChanged;
   Function(double size) get sizeChanged => widget.sizeChanged;
@@ -50,8 +53,6 @@ class _MobileSpeedSliderAndFontsizeControlsState
   final double sliderTextMobileMin = 800;
   final double sliderWidthBig = 200.0;
   final double sliderWidthSmall = 120.0;
-  final double sliderMinValue = 0.1;
-  final double sliderMaxValue = 5.0;
   final int sliderDivisions = 100;
 
   double mobileFontSizeSmall = Globals.mobileFontSizeSmall;
@@ -100,8 +101,8 @@ class _MobileSpeedSliderAndFontsizeControlsState
             ),
           InkWell(
             onDoubleTap: () {
-              speedChanged(1.0);
-              setState(() => sliderValue = 1.0);
+              speedChanged(sliderDefaultValue);
+              setState(() => sliderValue = sliderDefaultValue);
             },
             child: Padding(
               padding: const EdgeInsets.only(top: 4.0),
@@ -110,8 +111,8 @@ class _MobileSpeedSliderAndFontsizeControlsState
                     width > sliderMobileMin ? sliderWidthBig : sliderWidthSmall,
                 child: Slider(
                   value: sliderValue,
-                  min: sliderMinValue,
-                  max: sliderMaxValue,
+                  min: Globals.sliderMinValue,
+                  max: Globals.sliderMaxValue,
                   divisions: sliderDivisions,
                   thumbColor: Colors.red.shade700,
                   activeColor: Colors.green.shade200,

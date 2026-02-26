@@ -226,7 +226,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
             addWebSocketService(ip: ip);
 
-            if (state.config.keys.isEmpty) {
+            if (!state.config.containsKey(ip)) {
               getConfig(ip: ip);
             }
             getInfo(ip: ip);
@@ -371,6 +371,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       if (event is GetConfig) {
         String ip = event.ip;
+        if (ip.isEmpty) {
+          return;
+        }
 
         emit(state.copyWith(
           update: DateTime.now(),
@@ -394,9 +397,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               Map fieldValues =
                   getFieldValues(defs: definitions, json: json['config']);
 
+              Map<String, dynamic> config =
+                  Map<String, dynamic>.from(state.config);
+              config[ip] = json['config'];
+
               emit(state.copyWith(
                 update: DateTime.now(),
-                config: json['config'],
+                config: config,
                 definitions: definitions,
                 fieldValues: fieldValues,
                 subPageIdle: false,
@@ -642,8 +649,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             .join('\n');
       }
 
-      if (type == 'config') {
-        fileStr = getPrettyJSONString(state.config);
+      if (type == 'config' && state.config.containsKey(ip)) {
+        fileStr = getPrettyJSONString(state.config[ip]);
       }
 
       if (type == 'log') {
@@ -660,36 +667,38 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         fileStr = log;
       }
 
-      FileSaveLocation? result;
-      String fileName =
-          'roonmatrix-$name-$type-${DateFormat('yyyyMMddTHHmmss').format(DateTime.now())}.txt';
-      if (Globals.isDesktopDevice()) {
-        result = await getSaveLocation(suggestedName: fileName);
-        if (result == null) {
-          // Operation was canceled by the user.
-          return Future.value(null);
-        }
-      }
-
-      List<int> encoded = utf8.encode(fileStr);
-      final Uint8List fileData = Uint8List.fromList(encoded);
-      const String mimeType = 'text/plain';
-      final XFile textFile =
-          XFile.fromData(fileData, mimeType: mimeType, name: fileName);
-
-      try {
+      if (fileStr.isNotEmpty) {
+        FileSaveLocation? result;
+        String fileName =
+            'roonmatrix-$name-$type-${DateFormat('yyyyMMddTHHmmss').format(DateTime.now())}.txt';
         if (Globals.isDesktopDevice()) {
-          await textFile.saveTo(result!.path);
-        } else {
-          await fileRepository.write(
-              subFolder: '', fileName: fileName, bytes: fileData);
+          result = await getSaveLocation(suggestedName: fileName);
+          if (result == null) {
+            // Operation was canceled by the user.
+            return Future.value(null);
+          }
         }
-        return Future.value(true);
-      } catch (e) {
-        if (kDebugMode) {
-          debugPrint('save of $fileName error: $e');
+
+        List<int> encoded = utf8.encode(fileStr);
+        final Uint8List fileData = Uint8List.fromList(encoded);
+        const String mimeType = 'text/plain';
+        final XFile textFile =
+            XFile.fromData(fileData, mimeType: mimeType, name: fileName);
+
+        try {
+          if (Globals.isDesktopDevice()) {
+            await textFile.saveTo(result!.path);
+          } else {
+            await fileRepository.write(
+                subFolder: '', fileName: fileName, bytes: fileData);
+          }
+          return Future.value(true);
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('save of $fileName error: $e');
+          }
+          return Future.value(false);
         }
-        return Future.value(false);
       }
     }
 
@@ -1138,6 +1147,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       "value": value,
     };
 
+    Map<String, dynamic> config = Map<String, dynamic>.from(state.config);
+    config[ip]['SYSTEM'][control] = value;
+    updateStateConfig(ip: ip, config: config);
+
     String url = 'http://$ip:$port/livecontrol/';
     try {
       Uri uri = Uri.parse(url);
@@ -1343,7 +1356,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   debugPrint('get missing info data at start: $device');
                 }
 
-                if (state.config.keys.isEmpty) {
+                if (!state.config.containsKey(device)) {
                   getConfig(ip: device);
                 }
                 getInfo(ip: device);
@@ -2193,61 +2206,66 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   String replaceIllegalCharsInTickerString({
+    required String ip,
+    required bool verticalOutput,
+    required bool verticalTickerActive,
     required String str,
     bool replaceActiveZoneMarker = false,
   }) {
-    Map<String, dynamic> language = state.config['LANGUAGE'] ?? {};
-    Map<String, dynamic> messages = language['messages'] != null
-        ? jsonDecode(language['messages'].replaceAll("'", '"'))
-        : {};
+    if (state.config.containsKey(ip)) {
+      Map<String, dynamic> language = state.config[ip]['LANGUAGE'] ?? {};
+      Map<String, dynamic> messages = language['messages'] != null
+          ? jsonDecode(language['messages'].replaceAll("'", '"'))
+          : {};
 
-    if (str.length > 1) {
-      // && str.startsWith('[') && str.endsWith(']')
-      try {
-        Map<String, dynamic> strMap = repairJson(
-          str.replaceAll("'", '"'),
-          logging: true,
-        );
-        List<String> strList = List<String>.from(strMap['data']);
-        List<String> strListFixed = [];
-        for (int idx = 0; idx < strList.length; idx++) {
-          if ((strList[idx].startsWith('${messages['Source']}:') ||
-                  strList[idx].startsWith('${messages['time']}:') ||
-                  strList[idx].startsWith('${messages['Weather']}:')) &&
-              strList[idx - 1] != '' &&
-              strList[idx - 1] !=
-                  language['playing_headline'].replaceAll('ö', 'oe')) {
-            strListFixed.add('');
+      if (str.length > 1 && verticalOutput == true && !verticalTickerActive) {
+        // && str.startsWith('[') && str.endsWith(']')
+        try {
+          Map<String, dynamic> strMap = repairJson(
+            str.replaceAll("'", '"'),
+            logging: true,
+          );
+          List<String> strList = List<String>.from(strMap['data']);
+          List<String> strListFixed = [];
+          for (int idx = 0; idx < strList.length; idx++) {
+            if ((strList[idx].startsWith('${messages['Source']}:') ||
+                    strList[idx].startsWith('${messages['time']}:') ||
+                    strList[idx].startsWith('${messages['Weather']}:')) &&
+                strList[idx - 1] != '' &&
+                strList[idx - 1] !=
+                    language['playing_headline'].replaceAll('ö', 'oe')) {
+              strListFixed.add('');
+            }
+            strListFixed.add(strList[idx]);
           }
-          strListFixed.add(strList[idx]);
-        }
-        for (int idx = 0; idx < strListFixed.length; idx++) {
-          if (strListFixed[idx] == '') {
-            strListFixed[idx] = ' // ';
-          } else if (strListFixed[idx] ==
-              language['playing_headline'].replaceAll('ö', 'oe')) {
-            strListFixed[idx] = '${strListFixed[idx]}:';
-          } else if (strListFixed[idx].startsWith('${messages['Source']}:')) {
-            strListFixed[idx] = '${strListFixed[idx]},';
-          } else if (strListFixed[idx].length > 1 &&
-              strListFixed[idx].substring(0, 1) != 'a' &&
-              strListFixed[idx].substring(0, 1) != 'o' &&
-              strListFixed[idx].substring(0, 1) != '<' &&
-              strListFixed[idx].substring(1, 2) == ' ') {
-            strListFixed[idx] = "'${strListFixed[idx]}";
+          for (int idx = 0; idx < strListFixed.length; idx++) {
+            if (strListFixed[idx] == '') {
+              strListFixed[idx] = ' // ';
+            } else if (strListFixed[idx] ==
+                language['playing_headline'].replaceAll('ö', 'oe')) {
+              strListFixed[idx] = '${strListFixed[idx]}:';
+            } else if (strListFixed[idx].startsWith('${messages['Source']}:')) {
+              strListFixed[idx] = '${strListFixed[idx]},';
+            } else if (strListFixed[idx].length > 1 &&
+                strListFixed[idx].substring(0, 1) != 'a' &&
+                strListFixed[idx].substring(0, 1) != 'o' &&
+                strListFixed[idx].substring(0, 1) != '<' &&
+                strListFixed[idx].substring(1, 2) == ' ') {
+              strListFixed[idx] = "'${strListFixed[idx]}";
+            }
           }
-        }
-        str = strListFixed.join(
-            ' '); // maybe troublemaker (should be replaced in python part on device)
-        str = str
-            .replaceAll('< ', ', ')
-            .replaceAll(' >', ': ')
-            .replaceAll(' , ', ', ')
-            .replaceAll('  ', ' ');
-      } catch (e) {
-        if (kDebugMode) {
-          debugPrint(
-              "MainBloc/replaceIllegalCharsInTickerString => Failed to repair JSON.\nError: ${e.toString()}");
+          str = strListFixed.join(
+              ' '); // maybe troublemaker (should be replaced in python part on device)
+          str = str
+              .replaceAll('< ', ', ')
+              .replaceAll(' >', ': ')
+              .replaceAll(' , ', ', ')
+              .replaceAll('  ', ' ');
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint(
+                "MainBloc/replaceIllegalCharsInTickerString => Failed to repair JSON.\nError: ${e.toString()}");
+          }
         }
       }
     }
@@ -2313,6 +2331,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(GetConfig(ip: ip));
   }
 
+  void updateStateConfig({
+    required String ip,
+    required Map<String, dynamic> config,
+  }) {
+    add(UpdateStateConfig(ip: ip, config: config));
+  }
+
   void getLog({
     required String ip,
     required int hours,
@@ -2358,6 +2383,127 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required String filter,
   }) {
     add(SetSearchFilter(type: type, filter: filter));
+  }
+
+  List<dynamic> getScrollDelayMinMax({
+    required String ip,
+    required bool verticalOutput,
+    required bool verticalTickerActive,
+  }) {
+    int defaultDelay = 20;
+    int scrollDelayMin = 10;
+    int scrollDelayMax = 200;
+    double sliderDefaultValue = 0.5;
+
+    if (!state.config.containsKey(ip)) {
+      return [defaultDelay, scrollDelayMin, scrollDelayMax, sliderDefaultValue];
+    }
+
+    String ledScrollDefinitionName = verticalOutput && verticalTickerActive
+        ? 'led_vertical_scroll_delay'
+        : 'led_scroll_delay';
+    defaultDelay =
+        int.parse(state.config[ip]['SYSTEM'][ledScrollDefinitionName]);
+
+    if (state.definitions != null) {
+      ConfigDefinitionItem? item = state.definitions!.area
+          .firstWhere((el) => el.name == 'SYSTEM')
+          .items
+          .firstWhereOrNull((el) => el.name == ledScrollDefinitionName);
+
+      if (item != null) {
+        String type = item.type.type;
+        List<String> typeParts =
+            type.replaceFirst('int(', '').replaceAll(')', '').split(',');
+        scrollDelayMin = int.parse(typeParts[0]);
+        scrollDelayMax = int.parse(typeParts[1]);
+      }
+
+      if (!verticalOutput) {
+        scrollDelayMin =
+            4; // extend delay range with smaller delay for apps own ticker
+      }
+
+      sliderDefaultValue = Globals.sliderMaxValue -
+          ((Globals.sliderMaxValue - Globals.sliderMinValue) /
+              (scrollDelayMax - scrollDelayMin) *
+              (defaultDelay - scrollDelayMin));
+      // debugPrint(
+      //     'getScrollDelayMinMax => sliderDefaultValue: $sliderDefaultValue, scrollDelayMin: $scrollDelayMin, scrollDelayMax: $scrollDelayMax, defaultDelay: $defaultDelay, dotsPerSecond: ${1000 / defaultDelay}');
+    }
+
+    return [defaultDelay, scrollDelayMin, scrollDelayMax, sliderDefaultValue];
+  }
+
+  List<dynamic> getPixelsPerSecond({
+    required String ip,
+    required bool isScrollMatrixPage,
+    required bool verticalOutput,
+    required bool verticalTickerActive,
+    required bool ledTickerActive,
+    required double fontSize,
+    required double ledSize,
+    required double sliderValue,
+  }) {
+    final double verticalFontFactor = isScrollMatrixPage ? 1.0 : 1.0;
+    final double horizontalFontFactor = isScrollMatrixPage ? 1.3 : 1.3;
+    final double verticalLedFactor = isScrollMatrixPage ? 1.0 : 1.0;
+    final double horizontalLedFactor = isScrollMatrixPage ? 2.07 : 4.00;
+    final double pixelsPerSecondVerticalFontFactor =
+        isScrollMatrixPage ? 1.0 : 1.0;
+    final double pixelsPerSecondHorizontalFontFactor =
+        isScrollMatrixPage ? 3.0 : 2.3;
+
+    List<dynamic> list = getScrollDelayMinMax(
+      ip: ip,
+      verticalOutput: verticalOutput,
+      verticalTickerActive: verticalTickerActive,
+    );
+    int defaultDelay = list[0];
+    int scrollDelayMin = list[1];
+    int scrollDelayMax = list[2];
+    double sliderDefaultValue = list[3];
+
+    double sliderFactor = 1 - 1 / Globals.sliderMaxValue * sliderValue;
+    double scrollDelay =
+        scrollDelayMin + ((scrollDelayMax - scrollDelayMin) * sliderFactor);
+    double dotsPerSecond = 1000 / scrollDelay;
+    double ledCharsPerSecond = dotsPerSecond /
+        8 *
+        (verticalOutput && verticalTickerActive
+            ? verticalFontFactor
+            : horizontalFontFactor); // approximately on LED matrix
+
+    double pixelsPerSecond = 8;
+
+    if (ledTickerActive) {
+      pixelsPerSecond = dotsPerSecond *
+          ledSize /
+          8 *
+          (verticalOutput && verticalTickerActive
+              ? verticalLedFactor
+              : horizontalLedFactor); // horizontal-led-ticker wird langsamer bei kleineren Fonts!
+    } else {
+      pixelsPerSecond = ledCharsPerSecond *
+          fontSize /
+          (verticalOutput && verticalTickerActive
+              ? pixelsPerSecondVerticalFontFactor
+              : pixelsPerSecondHorizontalFontFactor);
+    }
+
+    if (kDebugMode) {
+      debugPrint(
+          'actual sliderValue: $sliderValue, scrollDelay: $scrollDelay, dotsPerSecond: $dotsPerSecond, ledCharsPerSecond:$ledCharsPerSecond, pixelsPerSecond: $pixelsPerSecond, fontSize: $fontSize, ledSize: $ledSize');
+    }
+
+    return [
+      defaultDelay,
+      scrollDelayMin,
+      scrollDelayMax,
+      sliderDefaultValue,
+      scrollDelay,
+      pixelsPerSecond
+    ];
   }
 
   @override

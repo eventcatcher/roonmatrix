@@ -327,7 +327,7 @@ class ConfigPageState extends State<ConfigPage> {
 
                 String search = mainState.searchFilter['config']!;
                 macosVersion = mainState.macosVersion;
-                jsonStr = mainBloc.getPrettyJSONString(mainState.config);
+                jsonStr = mainBloc.getPrettyJSONString(mainState.config[ip]);
 
                 if (search.isNotEmpty) {
                   jsonStr = jsonStr.replaceAllMapped(
@@ -471,6 +471,8 @@ class ConfigPageState extends State<ConfigPage> {
                     : PageWithToolbarFlutterStyle(
                         scaffoldKey: scaffoldKey,
                         title: title,
+                        activeSliderIp: '',
+                        sliderDefaultValue: 0.0,
                         withTabController: true,
                         tabLength: 2,
                         tabBar: PreferredSize(

@@ -6,14 +6,16 @@ class SliderMobile extends StatefulWidget {
   final double min;
   final double max;
   final int divisions;
+  final double defaultValue;
   final double value;
   final Function(double value) updateValue;
 
   const SliderMobile({
     super.key,
-    this.min = 0.25,
-    this.max = 5,
+    this.min = 0.0,
+    this.max = 5.0,
     this.divisions = 100,
+    this.defaultValue = 1.0,
     this.value = 1.0,
     required this.updateValue,
   });
@@ -48,15 +50,18 @@ class _SliderMobileState extends State<SliderMobile> {
   Widget build(BuildContext context) => Container(
         padding: EdgeInsets.only(top: 2.0),
         height: height,
-        child: Slider(
-          value: value,
-          min: widget.min,
-          max: widget.max,
-          divisions: widget.divisions,
-          thumbColor: Colors.red.shade700,
-          activeColor: Colors.green.shade200,
-          inactiveColor: Colors.grey.shade700,
-          onChanged: (double value) => widget.updateValue(value),
+        child: InkWell(
+          onDoubleTap: () => widget.updateValue(widget.defaultValue),
+          child: Slider(
+            value: value,
+            min: widget.min,
+            max: widget.max,
+            divisions: widget.divisions,
+            thumbColor: Colors.red.shade700,
+            activeColor: Colors.green.shade200,
+            inactiveColor: Colors.grey.shade700,
+            onChanged: (double value) => widget.updateValue(value),
+          ),
         ),
       );
 }

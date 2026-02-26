@@ -83,14 +83,19 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   double height = 768;
   double fontSize = 1.0;
   double mobileFontSize = 1.0;
-  double pixelsPerSecond = 0;
+  double pixelsPerSecond = 20;
   double sliderValue = 1.0;
+  double sliderDefaultValue = 1.0;
   int scrollDuration = 0;
   int linePause = 0;
   int ledModules = 9;
   bool isFullscreen = false;
   bool verticalOutput = false;
   bool fontSizeInitialized = false;
+  double scrollDelay = 25.0;
+  int scrollDelayMin = 1;
+  int scrollDelayMax = 100;
+  int defaultDelay = 25;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -102,9 +107,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   @override
   void initState() {
     title = '$name : ${translations['tickerPageHeaderText'] ?? 'Ticker'}';
-    pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
-    width = minDesktopSize.width;
-    height = minDesktopSize.height;
 
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
@@ -112,6 +114,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
     verticalTickerActive = widget.verticalTickerActive;
     ledTickerOnTickerPageActive = widget.ledTickerOnTickerPageActive;
+
+    width = minDesktopSize.width;
+    height = minDesktopSize.height;
+
     sliderValue = widget.scrollSpeed;
 
     if (Globals.isDesktopDevice()) {
@@ -184,8 +190,30 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     super.dispose();
   }
 
-  getPixelsPerSecond({required double fontSize}) =>
-      pixelsPerSecond = 200 + fontSize / 2.25;
+  double getPixelsPerSecond({
+    required double fontSize,
+    required double sliderValue,
+  }) {
+    List<dynamic> list = mainBloc.getPixelsPerSecond(
+      ip: ip,
+      isScrollMatrixPage: true,
+      verticalOutput: verticalOutput,
+      verticalTickerActive: verticalTickerActive,
+      ledTickerActive: ledTickerOnTickerPageActive,
+      fontSize: fontSize,
+      ledSize: ledSize,
+      sliderValue: sliderValue,
+    );
+
+    defaultDelay = list[0];
+    scrollDelayMin = list[1];
+    scrollDelayMax = list[2];
+    sliderDefaultValue = list[3];
+    scrollDelay = list[4];
+    pixelsPerSecond = list[5];
+
+    return pixelsPerSecond;
+  }
 
   void initMobileFontSize() {
     if (Globals.isMobileDevice()) {
@@ -205,7 +233,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
               mobileFontSize = Globals.mobileFontSizeMedium;
             }
             fontSize = mobileFontSize;
-            pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
+            pixelsPerSecond = getPixelsPerSecond(
+              fontSize: fontSize,
+              sliderValue: sliderValue,
+            );
           });
         }
       });
@@ -236,7 +267,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
           width / ledModules / 8 / Globals.mobileFontSizeMedium * fontSize;
     }
 
-    pixelsPerSecond = getPixelsPerSecond(fontSize: fontSize);
+    pixelsPerSecond = getPixelsPerSecond(
+      fontSize: fontSize,
+      sliderValue: sliderValue,
+    );
     // if (kDebugMode) {
     //   debugPrint(
     //       'ScrollMatrixPage => updateSizes, caller: $caller, width: $width, height: $height, fontSize: $fontSize');
@@ -292,6 +326,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     for (String line in List<String>.from(i['vert_strlines'])) {
                       lines.add(
                         mainBloc.replaceIllegalCharsInTickerString(
+                          ip: ip,
+                          verticalOutput: verticalOutput,
+                          verticalTickerActive: verticalTickerActive,
                           str: line,
                           replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
                         ),
@@ -307,6 +344,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
                   if (displaystrNew != displaystr) {
                     scrollText = mainBloc.replaceIllegalCharsInTickerString(
+                      ip: ip,
+                      verticalOutput: verticalOutput,
+                      verticalTickerActive: verticalTickerActive,
                       str: displaystrNew,
                       replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
                     );
@@ -363,9 +403,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                               offColor: ledOffColor,
                                               texts: verticalTextLines,
                                               scrollDuration: Duration(
-                                                  milliseconds:
-                                                      (50 * 8 / sliderValue)
-                                                          .floor()),
+                                                  milliseconds: (ledSize *
+                                                          scrollDelay /
+                                                          1.5)
+                                                      .floor()),
                                               linePause:
                                                   Duration(seconds: linePause),
                                               cyclePause:
@@ -379,8 +420,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                           texts: verticalTextLines,
                                           scrollDuration: Duration(
                                               milliseconds:
-                                                  (50 * 8 / sliderValue)
-                                                      .floor()),
+                                                  (8 * scrollDelay).floor()),
                                           linePause:
                                               Duration(seconds: linePause),
                                           cyclePause:
@@ -416,9 +456,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                                   ledGap: ledGap,
                                                   onColor: ledOnColor,
                                                   offColor: ledOffColor,
-                                                  pixelsPerSecond: 100 *
-                                                      sliderValue /
-                                                      (ledSize * 0.1),
+                                                  pixelsPerSecond:
+                                                      pixelsPerSecond,
                                                   forceUpdate: false,
                                                   separator:
                                                       Globals.tickerSeparator,
@@ -439,8 +478,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                       fontSize: fontSize / 1.2,
                                       color: Colors.black,
                                     ),
-                                    pixelsPerSecond:
-                                        pixelsPerSecond * sliderValue,
+                                    pixelsPerSecond: getPixelsPerSecond(
+                                      fontSize: fontSize,
+                                      sliderValue: sliderValue,
+                                    ),
                                     forceUpdate: false,
                                     center: true,
                                     separator: Globals.tickerSeparator,
@@ -480,6 +521,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                 verticalOutput: verticalOutput && verticalTickerActive,
                 ledTickerActive: ledTickerOnTickerPageActive,
                 width: width,
+                sliderDefaultValue: sliderDefaultValue,
                 scrollSpeed: sliderValue,
                 speedChanged: (double speed) {
                   speedChanged(speed);
@@ -503,7 +545,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       width: width > Globals.sliderOverlayMaxWidth
                           ? Globals.sliderOverlayMaxWidth
                           : width,
-                      min: 0.1,
+                      min: Globals.sliderMinValue,
+                      max: Globals.sliderMaxValue,
+                      defaultValue: sliderDefaultValue,
                       value: sliderValue,
                       updateValue: (double value) {
                         speedChanged(value);
@@ -564,7 +608,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                           width: width > Globals.sliderOverlayMaxWidth
                               ? Globals.sliderOverlayMaxWidth
                               : width,
-                          min: 0.1,
+                          min: Globals.sliderMinValue,
+                          max: Globals.sliderMaxValue,
+                          defaultValue: sliderDefaultValue,
                           value: sliderValue,
                           updateValue: (double value) {
                             speedChanged(value);
@@ -590,6 +636,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
               : PageWithToolbarFlutterStyle(
                   scaffoldKey: scaffoldKey,
                   title: title,
+                  activeSliderIp: '',
+                  sliderDefaultValue: sliderDefaultValue,
                   showExpandableSpeedSlider: false,
                   scrollSpeedDevice: 1.0,
                   standardDesktopSize: standardDesktopSize,
@@ -612,6 +660,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                         verticalOutput: verticalOutput && verticalTickerActive,
                         ledTickerActive: ledTickerOnTickerPageActive,
                         width: width,
+                        sliderDefaultValue: sliderDefaultValue,
                         scrollSpeed: sliderValue,
                         speedChanged: (double speed) {
                           speedChanged(speed);
@@ -633,7 +682,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                             width: width > Globals.sliderOverlayMaxWidth
                                 ? Globals.sliderOverlayMaxWidth
                                 : width,
-                            min: 0.1,
+                            min: Globals.sliderMinValue,
+                            max: Globals.sliderMaxValue,
+                            defaultValue: sliderDefaultValue,
                             value: sliderValue,
                             updateValue: (double value) {
                               speedChanged(value);

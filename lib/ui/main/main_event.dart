@@ -117,6 +117,19 @@ class GetConfig extends MainEvent {
   List<Object> get props => [ip];
 }
 
+class UpdateStateConfig extends MainEvent {
+  final String ip;
+  final Map<String, dynamic> config;
+
+  const UpdateStateConfig({
+    required this.ip,
+    required this.config,
+  });
+
+  @override
+  List<Object> get props => [ip, config];
+}
+
 class GetLog extends MainEvent {
   final String ip;
   final int hours;

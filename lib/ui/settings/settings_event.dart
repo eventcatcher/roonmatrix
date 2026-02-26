@@ -91,14 +91,16 @@ class SetCoverRowDynamicSizeMode extends SettingsEvent {
 }
 
 class SetScrollSpeedDevice extends SettingsEvent {
+  final String ip;
   final double speed;
 
   const SetScrollSpeedDevice({
+    required this.ip,
     required this.speed,
   });
 
   @override
-  List<Object> get props => [speed];
+  List<Object> get props => [ip, speed];
 }
 
 class SetScrollSpeedScrollMatrix extends SettingsEvent {

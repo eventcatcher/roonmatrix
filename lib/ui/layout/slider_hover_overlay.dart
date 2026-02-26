@@ -12,6 +12,7 @@ class SliderHoverOverlay extends StatefulWidget {
   final double value;
   final double min;
   final double max;
+  final double defaultValue;
   final int divisions;
   final Function(PointerEnterEvent event)? onHover;
   final Function(double value) updateValue;
@@ -22,8 +23,9 @@ class SliderHoverOverlay extends StatefulWidget {
     required this.width,
     this.height = 36.0,
     this.value = 1.0,
-    this.min = 0.25,
-    this.max = 5,
+    this.min = 0.0,
+    this.max = 5.0,
+    this.defaultValue = 1.0,
     this.divisions = 100,
     this.onHover,
     required this.updateValue,
@@ -71,7 +73,7 @@ class _SliderHoverOverlayState extends State<SliderHoverOverlay> {
   @override
   Widget build(BuildContext context) => HoverWidget(
         hoverChild: InkWell(
-          onDoubleTap: () => widget.updateValue(1.0),
+          onDoubleTap: () => widget.updateValue(widget.defaultValue),
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0.0, end: 1.0),
             curve: Curves.ease,
