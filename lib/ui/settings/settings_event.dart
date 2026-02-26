@@ -146,3 +146,14 @@ class SetLedTickerOnTickerPageActiveMode extends SettingsEvent {
   @override
   List<Object> get props => [enabled];
 }
+
+class SetForceTickerUpdateActiveMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetForceTickerUpdateActiveMode({
+    required this.enabled,
+  });
+
+  @override
+  List<Object> get props => [enabled];
+}

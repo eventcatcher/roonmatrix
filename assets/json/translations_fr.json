@@ -112,6 +112,7 @@
     "verticalTickerSelectorLabel" : "Afficher le téléscripteur vertical si l'appareil est configuré en conséquence",
     "ledTickerInDeviceListSelectorLabel" : "Afficher le ticker LED dans la liste des appareils",
     "ledTickerOnTickerPageSelectorLabel" : "Afficher le téléscripteur LED sur la page du ticker",
+    "forceTickerUpdate": "Mettre à jour immédiatement le téléscripteur lors des mises à jour de texte (interrompt le téléscripteur en cours d'exécution)",
     "okButtonText": "OK",
     "speed": "vitesse",
     "messageSelectionLabel": "Message",

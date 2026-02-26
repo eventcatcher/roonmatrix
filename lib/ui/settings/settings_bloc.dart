@@ -38,6 +38,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             prefs.getBool('ledTickerInDeviceListActive') ?? true;
         bool ledTickerOnTickerPageActive =
             prefs.getBool('ledTickerOnTickerPageActive') ?? true;
+        bool forceTickerUpdateActive =
+            prefs.getBool('forceTickerUpdateActive') ?? false;
 
         emit(SettingsStateLoaded(
           ipStart: validIp ? ipStart! : state.ipStart,
@@ -54,6 +56,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           verticalTickerActive: verticalTickerActive,
           ledTickerInDeviceListActive: ledTickerInDeviceListActive,
           ledTickerOnTickerPageActive: ledTickerOnTickerPageActive,
+          forceTickerUpdateActive: forceTickerUpdateActive,
         ));
       }
 
@@ -206,6 +209,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ledTickerOnTickerPageActive: enabled,
         ));
       }
+
+      if (event is SetForceTickerUpdateActiveMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('forceTickerUpdateActive', enabled);
+
+        emit(state.copyWith(
+          forceTickerUpdateActive: enabled,
+        ));
+      }
     });
 
     loadDefaults();
@@ -232,6 +246,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       'verticalTickerActive',
       'ledTickerInDeviceListActive',
       'ledTickerOnTickerPageActive',
+      'forceTickerUpdateActive',
     ];
     for (String key in prefsToRemoveList) {
       await prefs.remove(key);
@@ -361,5 +376,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required bool enabled,
   }) {
     add(SetLedTickerOnTickerPageActiveMode(enabled: enabled));
+  }
+
+  void setForceTickerUpdateActiveMode({
+    required bool enabled,
+  }) {
+    add(SetForceTickerUpdateActiveMode(enabled: enabled));
   }
 }

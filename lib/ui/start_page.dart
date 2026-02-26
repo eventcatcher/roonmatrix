@@ -153,6 +153,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         settingsState.ledTickerInDeviceListActive;
                     bool ledTickerOnTickerPageActive =
                         settingsState.ledTickerOnTickerPageActive;
+                    bool forceTickerUpdateActive =
+                        settingsState.forceTickerUpdateActive;
 
                     scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
                     scrollSpeedDevice = settingsState.scrollSpeedDevice;
@@ -327,6 +329,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                             ledTickerInDeviceListActive,
                                                         ledTickerOnTickerPageActive:
                                                             ledTickerOnTickerPageActive,
+                                                        forceTickerUpdateActive:
+                                                            forceTickerUpdateActive,
                                                         updateSizes:
                                                             updateSizes,
                                                       ),

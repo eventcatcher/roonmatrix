@@ -15,6 +15,7 @@ abstract class SettingsState extends Equatable {
   final bool verticalTickerActive;
   final bool ledTickerInDeviceListActive;
   final bool ledTickerOnTickerPageActive;
+  final bool forceTickerUpdateActive;
 
   const SettingsState({
     this.ipStart = '',
@@ -31,6 +32,7 @@ abstract class SettingsState extends Equatable {
     this.verticalTickerActive = false,
     this.ledTickerInDeviceListActive = false,
     this.ledTickerOnTickerPageActive = false,
+    this.forceTickerUpdateActive = false,
   });
 
   SettingsState copyWith({
@@ -48,6 +50,7 @@ abstract class SettingsState extends Equatable {
     bool? verticalTickerActive,
     bool? ledTickerInDeviceListActive,
     bool? ledTickerOnTickerPageActive,
+    bool? forceTickerUpdateActive,
   }) {
     return SettingsStateLoaded(
       ipStart: ipStart ?? this.ipStart,
@@ -67,6 +70,8 @@ abstract class SettingsState extends Equatable {
           ledTickerInDeviceListActive ?? this.ledTickerInDeviceListActive,
       ledTickerOnTickerPageActive:
           ledTickerOnTickerPageActive ?? this.ledTickerOnTickerPageActive,
+      forceTickerUpdateActive:
+          forceTickerUpdateActive ?? this.forceTickerUpdateActive,
     );
   }
 
@@ -87,6 +92,7 @@ abstract class SettingsState extends Equatable {
       verticalTickerActive,
       ledTickerInDeviceListActive,
       ledTickerOnTickerPageActive,
+      forceTickerUpdateActive,
     ];
 
     return props;
@@ -119,6 +125,7 @@ class SettingsStateLoaded extends SettingsState {
     required super.verticalTickerActive,
     required super.ledTickerInDeviceListActive,
     required super.ledTickerOnTickerPageActive,
+    required super.forceTickerUpdateActive,
   });
 
   @override

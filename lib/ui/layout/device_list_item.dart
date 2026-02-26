@@ -41,7 +41,7 @@ class DeviceListItem extends StatefulWidget {
   final bool verticalTickerActive;
   final bool ledTickerInDeviceListActive;
   final bool ledTickerOnTickerPageActive;
-
+  final bool forceTickerUpdateActive;
   final void Function(String caller) updateSizes;
 
   const DeviceListItem({
@@ -66,6 +66,7 @@ class DeviceListItem extends StatefulWidget {
     required this.verticalTickerActive,
     required this.ledTickerInDeviceListActive,
     required this.ledTickerOnTickerPageActive,
+    required this.forceTickerUpdateActive,
     required this.updateSizes,
   });
 
@@ -88,6 +89,7 @@ class DeviceListItemState extends State<DeviceListItem> {
   bool get verticalTickerActive => widget.verticalTickerActive;
   bool get ledTickerInDeviceListActive => widget.ledTickerInDeviceListActive;
   bool get ledTickerOnTickerPageActive => widget.ledTickerOnTickerPageActive;
+  bool get forceTickerUpdateActive => widget.forceTickerUpdateActive;
   void Function(String caller) get updateSizes => widget.updateSizes;
 
   final int cyclePause = 2;
@@ -557,6 +559,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                             verticalTickerActive: verticalTickerActive,
                             ledTickerOnTickerPageActive:
                                 ledTickerOnTickerPageActive,
+                            forceTickerUpdateActive: forceTickerUpdateActive,
                             speedChanged: (double speed) {
                               scrollSpeedScrollMatrix = speed;
                               settingsBloc.setScrollSpeedScrollMatrix(
@@ -660,7 +663,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                       onColor: ledOnColor,
                                       offColor: ledOffColor,
                                       pixelsPerSecond: pixelsPerSecond,
-                                      forceUpdate: false,
+                                      forceUpdate: forceTickerUpdateActive,
                                       separator: Globals.tickerSeparator,
                                     ),
                                   ),
@@ -681,7 +684,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                     fontSize: tickerFontSize,
                                     sliderValue: scrollSpeedDevice,
                                   ),
-                                  forceUpdate: false,
+                                  forceUpdate: forceTickerUpdateActive,
                                   separator: Globals.tickerSeparator,
                                 ),
                     ),

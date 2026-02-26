@@ -60,6 +60,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool verticalTickerActive = false;
   bool ledTickerInDeviceListActive = false;
   bool ledTickerOnTickerPageActive = false;
+  bool forceTickerUpdateActive = false;
 
   bool translationsLoaded = false;
   bool rangeValid = false;
@@ -472,6 +473,20 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label: translations['forceTickerUpdate'] ??
+                      'Update ticker immediately on text updates (interrupts running ticker)',
+                  enabled: forceTickerUpdateActive,
+                  onChanged: (value) {
+                    settingsBloc.setForceTickerUpdateActiveMode(enabled: value);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -563,6 +578,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             settingsState.ledTickerInDeviceListActive;
                         ledTickerOnTickerPageActive =
                             settingsState.ledTickerOnTickerPageActive;
+                        forceTickerUpdateActive =
+                            settingsState.forceTickerUpdateActive;
 
                         if (!loaded) {
                           SchedulerBinding.instance

@@ -31,6 +31,7 @@ class ScrollMatrixPage extends StatefulWidget {
   final double scrollSpeed;
   final bool verticalTickerActive;
   final bool ledTickerOnTickerPageActive;
+  final bool forceTickerUpdateActive;
   final Function(double speed) speedChanged;
 
   const ScrollMatrixPage({
@@ -43,6 +44,7 @@ class ScrollMatrixPage extends StatefulWidget {
     required this.scrollSpeed,
     required this.verticalTickerActive,
     required this.ledTickerOnTickerPageActive,
+    required this.forceTickerUpdateActive,
     required this.speedChanged,
   });
 
@@ -458,7 +460,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                                   offColor: ledOffColor,
                                                   pixelsPerSecond:
                                                       pixelsPerSecond,
-                                                  forceUpdate: false,
+                                                  forceUpdate: widget
+                                                      .forceTickerUpdateActive,
                                                   separator:
                                                       Globals.tickerSeparator,
                                                 ),
@@ -482,7 +485,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                       fontSize: fontSize,
                                       sliderValue: sliderValue,
                                     ),
-                                    forceUpdate: false,
+                                    forceUpdate: widget.forceTickerUpdateActive,
                                     center: true,
                                     separator: Globals.tickerSeparator,
                                   ),
