@@ -77,7 +77,6 @@ dependencies:
   connection_network_type: ^1.0.0
   connectivity_plus: ^6.1.5
   device_info_plus: ^12.3.0
-  flutter_layout_grid: ^2.0.8
   json_repair_flutter: ^2.0.2
   updatable_ticker: ^1.1.2
   updatable_vertical_ticker: ^1.1.1
