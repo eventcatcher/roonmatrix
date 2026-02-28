@@ -95,7 +95,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   bool repeat = false;
   bool isRadio = false;
   bool loaded = false;
+  bool portraitModeOverride = false;
+  bool sizeWidthToSmaller = false;
   double? coverWidth;
+  double? controlAreaWidth;
+  double? windowWidth;
 
   late MainRepository mainRepository;
   late MainBloc mainBloc;
@@ -683,15 +687,29 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                         disabled: !withAnimatedBackground,
                         child: OrientationBuilder(builder:
                             (BuildContext context, Orientation orientation) {
-                          final bool portraitMode = (Globals.isMobileDevice() &&
+                          final bool threeCols =
+                              MediaQuery.of(context).size.width /
+                                      MediaQuery.of(context).size.height >
+                                  2.5;
+                          bool portraitMode = (Globals.isMobileDevice() &&
                                   orientation == Orientation.portrait) ||
                               (Globals.isDesktopDevice() &&
                                   MediaQuery.of(context).size.height >
                                       MediaQuery.of(context).size.width);
 
-                          bool threeCols = MediaQuery.of(context).size.width /
-                                  MediaQuery.of(context).size.height >
-                              2.5;
+                          if (portraitMode && portraitModeOverride == true) {
+                            portraitModeOverride = false;
+                          }
+                          if (!portraitMode && portraitModeOverride == true) {
+                            portraitMode = true;
+                          }
+
+                          sizeWidthToSmaller = windowWidth != null &&
+                              MediaQuery.of(context).size.width < windowWidth!;
+                          windowWidth = MediaQuery.of(context).size.width;
+
+                          print(
+                              'portraitModeOverride: $portraitModeOverride, portraitMode: $portraitMode');
 
                           return portraitMode
                               ? Container(
@@ -840,23 +858,31 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                 )
                               : Row(
                                   children: [
-                                    Flexible(
-                                      flex: 20,
-                                      child: LayoutBuilder(
-                                          builder: (context, constraints) {
-                                        print(
-                                            'std cover size: ${constraints.maxWidth} x ${constraints.maxHeight}');
-                                        return getCoverArea(
-                                          context: context,
-                                          portraitMode: portraitMode,
-                                          noRightPadding: false,
-                                          selectedZone: selectedZone,
-                                        );
-                                      }),
+                                    Container(
+                                      constraints: BoxConstraints(
+                                        minWidth:
+                                            MediaQuery.of(context).size.height -
+                                                48,
+                                        minHeight:
+                                            MediaQuery.of(context).size.height -
+                                                32,
+                                        maxWidth:
+                                            MediaQuery.of(context).size.height -
+                                                48,
+                                        maxHeight:
+                                            MediaQuery.of(context).size.height -
+                                                32,
+                                      ),
+                                      child: getCoverArea(
+                                        context: context,
+                                        portraitMode: portraitMode,
+                                        noRightPadding: false,
+                                        selectedZone: selectedZone,
+                                      ),
                                     ),
                                     threeCols
                                         ? Flexible(
-                                            flex: 20,
+                                            flex: 1,
                                             child: LayoutBuilder(builder:
                                                 (context, constraints) {
                                               print(
@@ -874,9 +900,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             }),
                                           )
                                         : Flexible(
-                                            flex: Globals.isDesktopDevice()
-                                                ? 15
-                                                : 12,
+                                            flex: 1,
                                             child: Column(
                                               children: [
                                                 if (MediaQuery.of(context)
@@ -905,8 +929,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                 Flexible(
                                                   child: LayoutBuilder(builder:
                                                       (context, constraints) {
+                                                    if (sizeWidthToSmaller ==
+                                                            true &&
+                                                        constraints.maxWidth <
+                                                            300) {
+                                                      portraitModeOverride =
+                                                          true;
+                                                    }
+                                                    controlAreaWidth =
+                                                        constraints.maxWidth;
+
                                                     print(
-                                                        'std controlarea size: ${constraints.maxWidth} x ${constraints.maxHeight}');
+                                                        'twocolumn controlarea size: ${constraints.maxWidth} x ${constraints.maxHeight}');
                                                     return getControlArea(
                                                       portraitMode:
                                                           portraitMode,
@@ -980,7 +1014,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                           ),
                                     if (threeCols)
                                       Flexible(
-                                        flex: 16,
+                                        flex: 1,
                                         child: Container(
                                           margin: EdgeInsets.only(
                                             top: threeCols ? coverPadding : 0.0,
