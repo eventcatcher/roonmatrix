@@ -58,7 +58,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   Widget build(BuildContext context) => Table(
         columnWidths: {0: IntrinsicColumnWidth(), 1: IntrinsicColumnWidth()},
         children: [
-          SharedWidgets.getTableRowInnerCentered(
+          SharedWidgets.getTableRowFormatted(
             label: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
             text: coverModel.zoneName,
             fontSize: fontSize,
@@ -66,7 +66,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
             maxLines: longText ? 1 : 2,
           ),
           if (coverRowArtist == true)
-            SharedWidgets.getTableRowInnerCentered(
+            SharedWidgets.getTableRowFormatted(
               label: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
               text: coverModel.artist,
               fontSize: fontSize,
@@ -74,7 +74,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
               maxLines: longText ? 2 : 5,
             ),
           if (coverRowAlbum == true)
-            SharedWidgets.getTableRowInnerCentered(
+            SharedWidgets.getTableRowFormatted(
               label: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
               text: coverModel.album,
               fontSize: fontSize,
@@ -82,7 +82,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
               maxLines: longText ? 3 : 5,
             ),
           if (coverRowTrack == true && coverModel.track.isNotEmpty)
-            SharedWidgets.getTableRowInnerCentered(
+            SharedWidgets.getTableRowFormatted(
               label: '${translations['coverTrackHeader'] ?? 'Track'}: ',
               text: coverModel.track,
               fontSize: fontSize,

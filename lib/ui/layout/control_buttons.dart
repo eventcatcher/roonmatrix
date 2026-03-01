@@ -51,7 +51,8 @@ class ControlButtonsState extends State<ControlButtons> {
   final Color enableIconColor = Colors.green;
   final Color disabledIconColorLight = Colors.grey.shade600;
   final Color disabledIconColorDark = Colors.grey.shade300;
-  final double controlAreaInCrossMinHeight = 150;
+  final double controlAreaInCrossMinHeight =
+      Globals.isDesktopDevice() ? 100 : 150;
   final int cols = 9;
 
   BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
@@ -97,8 +98,7 @@ class ControlButtonsState extends State<ControlButtons> {
           ? MediaQuery.of(context).size.height
           : constraints.maxHeight;
 
-      inRow = !(Globals.isDesktopDevice() && !portraitMode) &&
-          maxHeight < controlAreaInCrossMinHeight;
+      inRow = maxHeight < controlAreaInCrossMinHeight;
       double size =
           inRow ? maxWidth : (maxWidth < maxHeight ? maxWidth : maxHeight);
       double buttonSize = getButtonSize(size: size, inRow: inRow);

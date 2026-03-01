@@ -360,7 +360,7 @@ class SharedWidgets {
         }
       });
 
-  static TableRow getTableRowInnerCentered({
+  static TableRow getTableRowFormatted({
     required String label,
     required String text,
     required double fontSize,
@@ -376,7 +376,7 @@ class SharedWidgets {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: fontSize,
-                color: color,
+                color: color.withValues(alpha: 0.7),
               ),
             ),
           ),
