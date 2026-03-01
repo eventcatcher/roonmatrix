@@ -562,7 +562,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
           return Center(
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: Globals.borderRadius(),
               child: Stack(
                 children: [
                   AnimatedSwitcher(
@@ -587,11 +587,26 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                     ? double.infinity
                                     : null,
                             errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                  Globals.placeholderPngAssetPath());
+                              return SizedBox(
+                                width: size,
+                                height: size,
+                                child: SvgPicture.asset(
+                                  Globals.placeholderSvgAssetPath(),
+                                  allowDrawingOutsideViewBox: false,
+                                  fit: BoxFit.contain,
+                                  alignment: portraitMode
+                                      ? Alignment.center
+                                      : Alignment.centerLeft,
+                                  colorFilter: idle
+                                      ? ColorDefs.idleZoneColorFilter
+                                      : null,
+                                ),
+                              );
                             },
                           )
-                        : Center(
+                        : SizedBox(
+                            width: size,
+                            height: size,
                             child: SvgPicture.asset(
                               Globals.placeholderSvgAssetPath(),
                               allowDrawingOutsideViewBox: false,
@@ -601,14 +616,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                   : Alignment.centerLeft,
                               colorFilter:
                                   idle ? ColorDefs.idleZoneColorFilter : null,
-                              width:
-                                  constraints.maxWidth <= constraints.maxHeight
-                                      ? double.infinity
-                                      : null,
-                              height:
-                                  constraints.maxWidth >= constraints.maxHeight
-                                      ? double.infinity
-                                      : null,
                             ),
                           ),
                   ),
