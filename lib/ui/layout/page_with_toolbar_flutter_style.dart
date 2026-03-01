@@ -243,26 +243,41 @@ class _PageWithToolbarFlutterStyleState
                         ),
                       ],
                     )
-                  : Column(
-                      children: [
-                        SliderMobile(
-                          min: Globals.sliderMinValue,
-                          max: Globals.sliderMaxValue,
-                          defaultValue: sliderDefaultValue,
-                          value: scrollSpeedDevice,
-                          updateValue: (double value) =>
-                              sliderUpdateValue!(speed: value),
-                        ),
-                        Text(
-                          sliderName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 10.0,
-                            color: Colors.white,
+                  : Center(
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            right: 10.0,
+                            top: -1.0,
+                            child: SizedBox(
+                              width: 116.0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    sliderName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 10.0,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        )
-                      ],
+                          SliderMobile(
+                            min: Globals.sliderMinValue,
+                            max: Globals.sliderMaxValue,
+                            defaultValue: sliderDefaultValue,
+                            value: scrollSpeedDevice,
+                            updateValue: (double value) =>
+                                sliderUpdateValue!(speed: value),
+                          ),
+                        ],
+                      ),
                     ),
             ),
         ],

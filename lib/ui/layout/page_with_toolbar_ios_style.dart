@@ -137,10 +137,10 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
                     : Stack(
                         children: [
                           Positioned(
-                            right: 24.0,
-                            top: 27.0,
+                            right: 10.0,
+                            top: 0.0,
                             child: SizedBox(
-                              width: 124.0,
+                              width: 130.0,
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
