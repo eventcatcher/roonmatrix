@@ -24,6 +24,7 @@ import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart'
     show MainState, MainStateLoaded;
+import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:window_manager/window_manager.dart';
 
 class CoverPage extends StatefulWidget {
@@ -563,74 +564,88 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           return Center(
             child: ClipRRect(
               borderRadius: Globals.borderRadius(),
-              child: Stack(
-                children: [
-                  AnimatedSwitcher(
-                    duration: Globals.coverSwitchDefaultFadeAnimationDuration,
-                    child: mainRepository.coverExistInZone(zone: selectedZone)
-                        ? Image.network(
-                            selectedZone!['cover'],
-                            key: ValueKey(
-                                'BigCover-$selectedZone-${selectedZone['cover']}'),
-                            fit: BoxFit.contain,
-                            alignment: portraitMode
-                                ? Alignment.topCenter
-                                : Alignment.centerLeft,
-                            colorBlendMode:
-                                idle ? ColorDefs.idleZoneColorBlendMode : null,
-                            color: idle ? ColorDefs.idleZoneColor : null,
-                            width: constraints.maxWidth <= constraints.maxHeight
-                                ? double.infinity
-                                : null,
-                            height:
-                                constraints.maxWidth >= constraints.maxHeight
-                                    ? double.infinity
-                                    : null,
-                            errorBuilder: (context, error, stackTrace) {
-                              return SizedBox(
-                                width: size,
-                                height: size,
-                                child: SvgPicture.asset(
-                                  Globals.placeholderSvgAssetPath(),
-                                  allowDrawingOutsideViewBox: false,
-                                  fit: BoxFit.contain,
-                                  alignment: portraitMode
-                                      ? Alignment.center
-                                      : Alignment.centerLeft,
-                                  colorFilter: idle
-                                      ? ColorDefs.idleZoneColorFilter
-                                      : null,
-                                ),
-                              );
-                            },
-                          )
-                        : SizedBox(
-                            width: size,
-                            height: size,
-                            child: SvgPicture.asset(
-                              Globals.placeholderSvgAssetPath(),
-                              allowDrawingOutsideViewBox: false,
+              child: SimpleGestureDetector(
+                onHorizontalSwipe: (SwipeDirection direction) {
+                  if (direction == SwipeDirection.right) {
+                    mainBloc.zoneControl(
+                        ip: ip, controlId: controlId!, cmd: 'previous');
+                  }
+                  if (direction == SwipeDirection.left) {
+                    mainBloc.zoneControl(
+                        ip: ip, controlId: controlId!, cmd: 'next');
+                  }
+                },
+                child: Stack(
+                  children: [
+                    AnimatedSwitcher(
+                      duration: Globals.coverSwitchDefaultFadeAnimationDuration,
+                      child: mainRepository.coverExistInZone(zone: selectedZone)
+                          ? Image.network(
+                              selectedZone!['cover'],
+                              key: ValueKey(
+                                  'BigCover-$selectedZone-${selectedZone['cover']}'),
                               fit: BoxFit.contain,
                               alignment: portraitMode
-                                  ? Alignment.center
+                                  ? Alignment.topCenter
                                   : Alignment.centerLeft,
-                              colorFilter:
-                                  idle ? ColorDefs.idleZoneColorFilter : null,
+                              colorBlendMode: idle
+                                  ? ColorDefs.idleZoneColorBlendMode
+                                  : null,
+                              color: idle ? ColorDefs.idleZoneColor : null,
+                              width:
+                                  constraints.maxWidth <= constraints.maxHeight
+                                      ? double.infinity
+                                      : null,
+                              height:
+                                  constraints.maxWidth >= constraints.maxHeight
+                                      ? double.infinity
+                                      : null,
+                              errorBuilder: (context, error, stackTrace) {
+                                return SizedBox(
+                                  width: size,
+                                  height: size,
+                                  child: SvgPicture.asset(
+                                    Globals.placeholderSvgAssetPath(),
+                                    allowDrawingOutsideViewBox: false,
+                                    fit: BoxFit.contain,
+                                    alignment: portraitMode
+                                        ? Alignment.center
+                                        : Alignment.centerLeft,
+                                    colorFilter: idle
+                                        ? ColorDefs.idleZoneColorFilter
+                                        : null,
+                                  ),
+                                );
+                              },
+                            )
+                          : SizedBox(
+                              width: size,
+                              height: size,
+                              child: SvgPicture.asset(
+                                Globals.placeholderSvgAssetPath(),
+                                allowDrawingOutsideViewBox: false,
+                                fit: BoxFit.contain,
+                                alignment: portraitMode
+                                    ? Alignment.center
+                                    : Alignment.centerLeft,
+                                colorFilter:
+                                    idle ? ColorDefs.idleZoneColorFilter : null,
+                              ),
                             ),
-                          ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0, //give the values according to your requirement
-                    child: Opacity(
-                      opacity: ColorDefs.zoneCornerLabelOpacity,
-                      child: ZoneCornerLabel(
-                        zoneName: '-${selectedZone?['zone'] ?? name}',
-                        coverWidth: Globals.zoneCornerFullSize,
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0, //give the values according to your requirement
+                      child: Opacity(
+                        opacity: ColorDefs.zoneCornerLabelOpacity,
+                        child: ZoneCornerLabel(
+                          zoneName: '-${selectedZone?['zone'] ?? name}',
+                          coverWidth: Globals.zoneCornerFullSize,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
