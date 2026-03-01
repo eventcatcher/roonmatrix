@@ -64,6 +64,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   final double minTextAreaHeightDesktop = 128.0;
   final double minTextAreaHeightMobile = 100.0;
   final bool withAnimatedBackground = false;
+
   final bool fillUpCoverAreaWidth = true;
 
   final BoxDecoration areaDecorationBorderStyle = BoxDecoration(
@@ -551,10 +552,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             : EdgeInsets.all(coverPadding),
         child: LayoutBuilder(builder: (context, constraints) {
           double size = min(constraints.maxWidth, constraints.maxHeight);
-          double offsetX =
-              (constraints.maxWidth - size) / (portraitMode ? 2 : 1);
-          double offsetY = (constraints.maxHeight - size) / 2;
-
           if (size < zoneCornerLabelMinCoverSize) {
             return ZoneCornerLabel(
               zoneName: '-${selectedZone?['zone'] ?? name}',
@@ -563,52 +560,72 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             );
           }
 
-          return Stack(
-            children: [
-              AnimatedSwitcher(
-                duration: Globals.coverSwitchDefaultFadeAnimationDuration,
-                child: mainRepository.coverExistInZone(zone: selectedZone)
-                    ? Image.network(
-                        selectedZone!['cover'],
-                        key: ValueKey(
-                            'BigCover-$selectedZone-${selectedZone['cover']}'),
-                        fit: BoxFit.contain,
-                        alignment: portraitMode
-                            ? Alignment.topCenter
-                            : Alignment.centerLeft,
-                        colorBlendMode:
-                            idle ? ColorDefs.idleZoneColorBlendMode : null,
-                        color: idle ? ColorDefs.idleZoneColor : null,
-                        width: double.infinity,
-                        height: double.infinity,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(Globals.placeholderPngAssetPath());
-                        },
-                      )
-                    : SvgPicture.asset(
-                        Globals.placeholderSvgAssetPath(),
-                        allowDrawingOutsideViewBox: false,
-                        width: double.infinity,
-                        height: double.infinity,
-                        alignment: portraitMode
-                            ? Alignment.center
-                            : Alignment.centerLeft,
-                        colorFilter:
-                            idle ? ColorDefs.idleZoneColorFilter : null,
-                      ),
-              ),
-              Positioned(
-                top: offsetY,
-                right: offsetX, //give the values according to your requirement
-                child: Opacity(
-                  opacity: ColorDefs.zoneCornerLabelOpacity,
-                  child: ZoneCornerLabel(
-                    zoneName: '-${selectedZone?['zone'] ?? name}',
-                    coverWidth: Globals.zoneCornerFullSize,
+          return Center(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
+                children: [
+                  AnimatedSwitcher(
+                    duration: Globals.coverSwitchDefaultFadeAnimationDuration,
+                    child: mainRepository.coverExistInZone(zone: selectedZone)
+                        ? Image.network(
+                            selectedZone!['cover'],
+                            key: ValueKey(
+                                'BigCover-$selectedZone-${selectedZone['cover']}'),
+                            fit: BoxFit.contain,
+                            alignment: portraitMode
+                                ? Alignment.topCenter
+                                : Alignment.centerLeft,
+                            colorBlendMode:
+                                idle ? ColorDefs.idleZoneColorBlendMode : null,
+                            color: idle ? ColorDefs.idleZoneColor : null,
+                            width: constraints.maxWidth <= constraints.maxHeight
+                                ? double.infinity
+                                : null,
+                            height:
+                                constraints.maxWidth >= constraints.maxHeight
+                                    ? double.infinity
+                                    : null,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                  Globals.placeholderPngAssetPath());
+                            },
+                          )
+                        : Center(
+                            child: SvgPicture.asset(
+                              Globals.placeholderSvgAssetPath(),
+                              allowDrawingOutsideViewBox: false,
+                              fit: BoxFit.contain,
+                              alignment: portraitMode
+                                  ? Alignment.center
+                                  : Alignment.centerLeft,
+                              colorFilter:
+                                  idle ? ColorDefs.idleZoneColorFilter : null,
+                              width:
+                                  constraints.maxWidth <= constraints.maxHeight
+                                      ? double.infinity
+                                      : null,
+                              height:
+                                  constraints.maxWidth >= constraints.maxHeight
+                                      ? double.infinity
+                                      : null,
+                            ),
+                          ),
                   ),
-                ),
+                  Positioned(
+                    top: 0,
+                    right: 0, //give the values according to your requirement
+                    child: Opacity(
+                      opacity: ColorDefs.zoneCornerLabelOpacity,
+                      child: ZoneCornerLabel(
+                        zoneName: '-${selectedZone?['zone'] ?? name}',
+                        coverWidth: Globals.zoneCornerFullSize,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           );
         }),
       );
