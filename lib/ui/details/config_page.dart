@@ -471,7 +471,6 @@ class ConfigPageState extends State<ConfigPage> {
                     : PageWithToolbarFlutterStyle(
                         scaffoldKey: scaffoldKey,
                         title: title,
-                        activeSliderIp: '',
                         sliderDefaultValue: 0.0,
                         withTabController: true,
                         tabLength: 2,

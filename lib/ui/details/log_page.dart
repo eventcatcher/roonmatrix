@@ -484,7 +484,6 @@ class LogPageState extends State<LogPage> {
                     : PageWithToolbarFlutterStyle(
                         scaffoldKey: scaffoldKey,
                         title: title,
-                        activeSliderIp: '',
                         sliderDefaultValue: 0.0,
                         showExpandableSpeedSlider: false,
                         scrollSpeedDevice: 1.0,

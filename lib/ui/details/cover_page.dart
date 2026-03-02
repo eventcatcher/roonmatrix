@@ -228,7 +228,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   }
 
   double getTextAreaFontSize({required double width, required double height}) {
-    double fontSize = 20;
+    double fontSize = Globals.isDesktopDevice() ? 20 : 16;
 
     if (width < 768) {
       fontSize = 16;
@@ -1196,7 +1196,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         : PageWithToolbarFlutterStyle(
             scaffoldKey: scaffoldKey,
             title: title,
-            activeSliderIp: '',
             sliderDefaultValue: 0.0,
             showExpandableSpeedSlider: false,
             scrollSpeedDevice: 1.0,

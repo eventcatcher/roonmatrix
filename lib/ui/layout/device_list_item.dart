@@ -30,6 +30,7 @@ class DeviceListItem extends StatefulWidget {
   final Size standardDesktopSize;
   final Map<String, dynamic> translations;
   final String ip;
+  final String activeIp;
   final bool connected;
   final bool ping;
   final Map<String, dynamic> info;
@@ -55,6 +56,7 @@ class DeviceListItem extends StatefulWidget {
     required this.standardDesktopSize,
     required this.translations,
     required this.ip,
+    required this.activeIp,
     required this.connected,
     required this.ping,
     required this.info,
@@ -83,6 +85,7 @@ class DeviceListItemState extends State<DeviceListItem> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   Map<String, dynamic> get translations => widget.translations;
+  String get activeIp => widget.activeIp;
   String get spotifyAuthUrl => widget.spotifyAuthUrl;
   bool get isSmallDeviceWidth => widget.isSmallDeviceWidth;
   bool get moreInfo => widget.moreInfo;
@@ -317,401 +320,430 @@ class DeviceListItemState extends State<DeviceListItem> {
       }
     });
 
-    return Container(
-      key: index == 0 ? itemListKey : null, // only first item with key
-      color: ColorDefs.tileBackgroundColor(context: context),
-      height: itemListHeight - 1,
-      padding: EdgeInsets.only(
-        left: tickerHorizontalPadding,
-        right: tickerHorizontalPadding,
-      ),
-      child: Stack(
-        children: [
-          //Text('scrollText: $scrollText'),
-          ListTile(
-            contentPadding: EdgeInsets.all(0),
-            tileColor: tileColor,
-            iconColor: Colors.black,
-            textColor: ColorDefs.textColor(context: context),
-            title: Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: deviceListCoverSize,
-                  height: deviceListCoverSize,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () => showGeneralDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      barrierLabel: 'Dialog',
-                      transitionDuration: const Duration(milliseconds: 0),
-                      pageBuilder: (_, __, ___) {
-                        return CoverPage(
-                          name: i['name'],
-                          ip: ip,
-                          translations: translations,
-                          minDesktopSize: minDesktopSize,
-                          standardDesktopSize: standardDesktopSize,
-                        );
-                      },
-                    ),
-                    icon: AnimatedSwitcher(
-                      duration: Globals.coverSwitchDefaultFadeAnimationDuration,
-                      switchInCurve: Curves.easeIn,
-                      switchOutCurve: Curves.easeOut,
-                      child: coverUrl != null
-                          ? Image.network(
-                              coverUrl,
-                              width: deviceListCoverSize,
-                              height: deviceListCoverSize,
-                              colorBlendMode: idle
-                                  ? ColorDefs.idleZoneColorBlendMode
-                                  : null,
-                              color: idle ? ColorDefs.idleZoneIconColor : null,
-                              key: ValueKey(
-                                  'DeviceCover-${widget.ip}-$coverUrl'),
-                              errorBuilder: (context, error, stackTrace) {
-                                return SvgPicture.asset(
+    return Stack(
+      children: [
+        Container(
+          key: index == 0 ? itemListKey : null, // only first item with key
+          color: ColorDefs.tileBackgroundColor(context: context),
+          height: itemListHeight - 1,
+          padding: EdgeInsets.only(
+            left: tickerHorizontalPadding,
+            right: tickerHorizontalPadding,
+          ),
+          child: Stack(
+            children: [
+              //Text('scrollText: $scrollText'),
+              ListTile(
+                contentPadding: EdgeInsets.all(0),
+                tileColor: tileColor,
+                iconColor: Colors.black,
+                textColor: ColorDefs.textColor(context: context),
+                title: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: deviceListCoverSize,
+                      height: deviceListCoverSize,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => showGeneralDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          barrierLabel: 'Dialog',
+                          transitionDuration: const Duration(milliseconds: 0),
+                          pageBuilder: (_, __, ___) {
+                            return CoverPage(
+                              name: i['name'],
+                              ip: ip,
+                              translations: translations,
+                              minDesktopSize: minDesktopSize,
+                              standardDesktopSize: standardDesktopSize,
+                            );
+                          },
+                        ),
+                        icon: AnimatedSwitcher(
+                          duration:
+                              Globals.coverSwitchDefaultFadeAnimationDuration,
+                          switchInCurve: Curves.easeIn,
+                          switchOutCurve: Curves.easeOut,
+                          child: coverUrl != null
+                              ? Image.network(
+                                  coverUrl,
+                                  width: deviceListCoverSize,
+                                  height: deviceListCoverSize,
+                                  colorBlendMode: idle
+                                      ? ColorDefs.idleZoneColorBlendMode
+                                      : null,
+                                  color:
+                                      idle ? ColorDefs.idleZoneIconColor : null,
+                                  key: ValueKey(
+                                      'DeviceCover-${widget.ip}-$coverUrl'),
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return SvgPicture.asset(
+                                      Globals.placeholderSvgAssetPath(),
+                                      allowDrawingOutsideViewBox: false,
+                                      fit: BoxFit.cover,
+                                      clipBehavior: Clip.hardEdge,
+                                    );
+                                  },
+                                )
+                              : SvgPicture.asset(
                                   Globals.placeholderSvgAssetPath(),
                                   allowDrawingOutsideViewBox: false,
                                   fit: BoxFit.cover,
+                                  colorFilter: idle
+                                      ? ColorDefs.idleZoneIconColorFilter
+                                      : null,
                                   clipBehavior: Clip.hardEdge,
-                                );
-                              },
-                            )
-                          : SvgPicture.asset(
-                              Globals.placeholderSvgAssetPath(),
-                              allowDrawingOutsideViewBox: false,
-                              fit: BoxFit.cover,
-                              colorFilter: idle
-                                  ? ColorDefs.idleZoneIconColorFilter
-                                  : null,
-                              clipBehavior: Clip.hardEdge,
-                            ),
+                                ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                SizedBox(width: 8.0),
-                DeviceInfo(
-                  ip: ip,
-                  connected: connected,
-                  ping: ping,
-                  info: info,
-                  deviceListCoverSize: deviceListCoverSize,
-                  onFinishedPing: () {
-                    mainBloc.setPing(ip: ip, ping: false);
-                  },
-                ),
-                Expanded(
-                  child: Globals.isDesktopDevice()
-                      ? Row(
-                          // desktop variant
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Flexible(
-                              child: width >
-                                      Globals
-                                          .deviceListItemSwitchBoundaryFullInfo
-                                  ? Text(
-                                      mainRepository.getTimeZonePlaycountText(
-                                        translations: translations,
-                                        info: i,
-                                        zoneName: zoneName,
-                                      ),
-                                      softWrap: true,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.fade,
-                                      style: TextStyle(
-                                          fontSize: width >
-                                                  Globals
-                                                      .mobilePageButtonsMaxWidth
-                                              ? 14.0
-                                              : 12.0),
-                                    )
-                                  : Padding(
-                                      padding: EdgeInsets.only(
-                                          right: 12.0, top: 12.0),
+                    SizedBox(width: 8.0),
+                    DeviceInfo(
+                      ip: ip,
+                      connected: connected,
+                      ping: ping,
+                      info: info,
+                      deviceListCoverSize: deviceListCoverSize,
+                      onFinishedPing: () {
+                        mainBloc.setPing(ip: ip, ping: false);
+                      },
+                    ),
+                    Expanded(
+                      child: Globals.isDesktopDevice()
+                          ? Row(
+                              // desktop variant
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: width >
+                                          Globals
+                                              .deviceListItemSwitchBoundaryFullInfo
+                                      ? Text(
+                                          mainRepository
+                                              .getTimeZonePlaycountText(
+                                            translations: translations,
+                                            info: i,
+                                            zoneName: zoneName,
+                                          ),
+                                          softWrap: true,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.fade,
+                                          style: TextStyle(
+                                              fontSize: width >
+                                                      Globals
+                                                          .mobilePageButtonsMaxWidth
+                                                  ? 14.0
+                                                  : 12.0),
+                                        )
+                                      : Padding(
+                                          padding: EdgeInsets.only(
+                                              right: 12.0, top: 12.0),
+                                          child: Text('${i['playcount']}',
+                                              softWrap: true,
+                                              overflow: TextOverflow.fade,
+                                              style:
+                                                  const TextStyle(fontSize: 9)),
+                                        ),
+                                ),
+                                if (width > Globals.mobilePageButtonsMaxWidth)
+                                  DesktopPageButtons(
+                                    translations: translations,
+                                    ip: ip,
+                                    info: info,
+                                    spotifyAuthUrl: spotifyAuthUrl,
+                                    moreInfo: moreInfo,
+                                    minDesktopSize: minDesktopSize,
+                                    standardDesktopSize: standardDesktopSize,
+                                  )
+                              ],
+                            )
+                          : SizedBox(
+                              height: deviceListCoverSize,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  if (isSmallDeviceWidth == true)
+                                    Padding(
+                                      padding: EdgeInsets.only(right: 12.0),
                                       child: Text('${i['playcount']}',
                                           softWrap: true,
                                           overflow: TextOverflow.fade,
                                           style: const TextStyle(fontSize: 9)),
                                     ),
+                                  if (!isSmallDeviceWidth)
+                                    AnimatedOpacity(
+                                      opacity: infoOpacityLevel,
+                                      duration: Duration(milliseconds: 400),
+                                      child: Text(
+                                        mainRepository.getTimeZonePlaycountText(
+                                          translations: translations,
+                                          info: i,
+                                          zoneName: zoneName,
+                                          withLineBreak: true,
+                                        ),
+                                        softWrap: true,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.fade,
+                                        style: const TextStyle(fontSize: 11),
+                                      ),
+                                    ),
+                                  SizedBox(width: mobileInfoPaddingRight)
+                                ],
+                              ),
                             ),
-                            if (width > Globals.mobilePageButtonsMaxWidth)
-                              DesktopPageButtons(
-                                translations: translations,
+                    ),
+                  ],
+                ),
+              ),
+              if (Globals.isMobileDevice() ||
+                  width <= Globals.mobilePageButtonsMaxWidth)
+                Positioned(
+                  top: Globals.isDesktopDevice()
+                      ? 9.0
+                      : Platform.isAndroid
+                          ? 4.0
+                          : 7.0,
+                  right: 0.0,
+                  child: MobilePageButtons(
+                    translations: translations,
+                    moreInfo: moreInfo,
+                    zoneName: zoneName,
+                    ip: ip,
+                    spotifyAuthUrl: spotifyAuthUrl,
+                    zoneData: i,
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
+                    isExpanded: ({required bool mode}) {
+                      setState(() {
+                        infoOpacityLevel = mode == true ? 0.0 : 1.0;
+                      });
+                    },
+                    setSpotifyAuthRedirectUrl: ({required String url}) {
+                      mainBloc.setSpotifyAuthRedirectUrl(ip: ip, url: url);
+                    },
+                  ),
+                ),
+              Positioned(
+                  top: (verticalOutput && verticalTickerActive
+                          ? verticalTickerTopOffset
+                          : tickerTopOffset) +
+                      (ledTickerInDeviceListActive
+                          ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
+                          : 0),
+                  child: NotificationListener<SizeChangedLayoutNotification>(
+                    onNotification: (notification) {
+                      updateSizes('NotificationListener');
+                      build(context);
+                      return false;
+                    },
+                    child: SizeChangedLayoutNotifier(
+                      child: Container(
+                        alignment: ledTickerInDeviceListActive ||
+                                (verticalOutput && verticalTickerActive)
+                            ? Alignment.centerLeft
+                            : Alignment.center,
+                        key: ValueKey(
+                            'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                        width: MediaQuery.of(context).size.width -
+                            2 * tickerHorizontalPadding,
+                        height: tickerHeight,
+                        child: InkWell(
+                          onTap: () => showGeneralDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            barrierLabel: 'Dialog',
+                            transitionDuration: const Duration(milliseconds: 0),
+                            pageBuilder: (_, __, ___) {
+                              return ScrollMatrixPage(
                                 ip: ip,
-                                info: info,
-                                spotifyAuthUrl: spotifyAuthUrl,
-                                moreInfo: moreInfo,
+                                scrollSpeed: scrollSpeedScrollMatrix,
+                                name: i['name'],
+                                translations: translations,
                                 minDesktopSize: minDesktopSize,
                                 standardDesktopSize: standardDesktopSize,
-                              )
-                          ],
-                        )
-                      : SizedBox(
-                          height: deviceListCoverSize,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              if (isSmallDeviceWidth == true)
-                                Padding(
-                                  padding: EdgeInsets.only(right: 12.0),
-                                  child: Text('${i['playcount']}',
-                                      softWrap: true,
-                                      overflow: TextOverflow.fade,
-                                      style: const TextStyle(fontSize: 9)),
-                                ),
-                              if (!isSmallDeviceWidth)
-                                AnimatedOpacity(
-                                  opacity: infoOpacityLevel,
-                                  duration: Duration(milliseconds: 400),
-                                  child: Text(
-                                    mainRepository.getTimeZonePlaycountText(
-                                      translations: translations,
-                                      info: i,
-                                      zoneName: zoneName,
-                                      withLineBreak: true,
-                                    ),
-                                    softWrap: true,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.fade,
-                                    style: const TextStyle(fontSize: 11),
-                                  ),
-                                ),
-                              SizedBox(width: mobileInfoPaddingRight)
-                            ],
-                          ),
-                        ),
-                ),
-              ],
-            ),
-          ),
-          if (Globals.isMobileDevice() ||
-              width <= Globals.mobilePageButtonsMaxWidth)
-            Positioned(
-              top: Globals.isDesktopDevice()
-                  ? 9.0
-                  : Platform.isAndroid
-                      ? 4.0
-                      : 7.0,
-              right: 0.0,
-              child: MobilePageButtons(
-                translations: translations,
-                moreInfo: moreInfo,
-                zoneName: zoneName,
-                ip: ip,
-                spotifyAuthUrl: spotifyAuthUrl,
-                zoneData: i,
-                minDesktopSize: minDesktopSize,
-                standardDesktopSize: standardDesktopSize,
-                isExpanded: ({required bool mode}) {
-                  setState(() {
-                    infoOpacityLevel = mode == true ? 0.0 : 1.0;
-                  });
-                },
-                setSpotifyAuthRedirectUrl: ({required String url}) {
-                  mainBloc.setSpotifyAuthRedirectUrl(ip: ip, url: url);
-                },
-              ),
-            ),
-          Positioned(
-              top: (verticalOutput && verticalTickerActive
-                      ? verticalTickerTopOffset
-                      : tickerTopOffset) +
-                  (ledTickerInDeviceListActive
-                      ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
-                      : 0),
-              child: NotificationListener<SizeChangedLayoutNotification>(
-                onNotification: (notification) {
-                  updateSizes('NotificationListener');
-                  build(context);
-                  return false;
-                },
-                child: SizeChangedLayoutNotifier(
-                  child: Container(
-                    alignment: ledTickerInDeviceListActive ||
-                            (verticalOutput && verticalTickerActive)
-                        ? Alignment.centerLeft
-                        : Alignment.center,
-                    key: ValueKey(
-                        'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                    width: MediaQuery.of(context).size.width -
-                        2 * tickerHorizontalPadding,
-                    height: tickerHeight,
-                    child: InkWell(
-                      onTap: () => showGeneralDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        barrierLabel: 'Dialog',
-                        transitionDuration: const Duration(milliseconds: 0),
-                        pageBuilder: (_, __, ___) {
-                          return ScrollMatrixPage(
-                            ip: ip,
-                            scrollSpeed: scrollSpeedScrollMatrix,
-                            name: i['name'],
-                            translations: translations,
-                            minDesktopSize: minDesktopSize,
-                            standardDesktopSize: standardDesktopSize,
-                            verticalTickerActive: verticalTickerActive,
-                            ledTickerOnTickerPageActive:
-                                ledTickerOnTickerPageActive,
-                            forceTickerUpdateActive: forceTickerUpdateActive,
-                            speedChanged: (double speed) {
-                              scrollSpeedScrollMatrix = speed;
-                              settingsBloc.setScrollSpeedScrollMatrix(
-                                  speed: speed);
+                                verticalTickerActive: verticalTickerActive,
+                                ledTickerOnTickerPageActive:
+                                    ledTickerOnTickerPageActive,
+                                forceTickerUpdateActive:
+                                    forceTickerUpdateActive,
+                                speedChanged: (double speed) {
+                                  scrollSpeedScrollMatrix = speed;
+                                  settingsBloc.setScrollSpeedScrollMatrix(
+                                      speed: speed);
+                                },
+                              );
                             },
-                          );
-                        },
-                      ),
-                      child: verticalOutput && verticalTickerActive
-                          ? Container(
-                              width: tickerWidth,
-                              padding: ledTickerInDeviceListActive
-                                  ? EdgeInsets.all(ledTickerPadding)
-                                  : EdgeInsets.only(
-                                      top: 4.0,
-                                      bottom: 4.0,
-                                    ),
-                              decoration: ledTickerInDeviceListActive
-                                  ? BoxDecoration(
-                                      border: Border.all(
-                                      width: ledTickerBorderSize,
-                                      color: Colors.blue,
-                                    ))
-                                  : BoxDecoration(
-                                      borderRadius: Globals.borderRadius(),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Globals.brightness() ==
-                                                  Brightness.dark
-                                              ? Colors.grey.shade700
-                                                  .withValues(alpha: 0.25)
-                                              : Colors.grey
-                                                  .withValues(alpha: 0.25),
-                                          spreadRadius: 0,
-                                          blurRadius: 0,
-                                        ),
-                                      ],
-                                    ),
-                              child: ledTickerInDeviceListActive
-                                  ? Container(
-                                      color: Colors.black,
-                                      child: UpdatableVerticalLedTicker(
-                                        key: ValueKey(
-                                          'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
-                                        ),
-                                        modules: ledModules,
-                                        useProportionalFont: true,
-                                        center: true,
-                                        ledSize: ledSize,
-                                        ledGap: ledGap,
-                                        onColor: ledOnColor,
-                                        offColor: ledOffColor,
-                                        texts: verticalTextLines,
-                                        scrollDuration: Duration(
-                                            milliseconds:
-                                                (ledSize * scrollDelay / 0.5)
-                                                    .floor()),
-                                        linePause: Duration(
-                                            seconds:
-                                                i['vertical_scroll_delay']),
-                                        cyclePause:
-                                            Duration(seconds: cyclePause),
-                                      ),
-                                    )
-                                  : UpdatableVerticalTicker(
-                                      key: ValueKey(
-                                        'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
-                                      ),
-                                      texts: verticalTextLines,
-                                      scrollDuration: Duration(
-                                          milliseconds:
-                                              (8 * scrollDelay).floor()),
-                                      linePause: Duration(
-                                          seconds: i['vertical_scroll_delay']),
-                                      cyclePause: Duration(seconds: cyclePause),
-                                      textStyle: TextStyle(
-                                        fontSize: tickerFontSize,
-                                        color: ColorDefs.textColor(
-                                            context: context),
-                                      ),
-                                    ),
-                            )
-                          : ledTickerInDeviceListActive
+                          ),
+                          child: verticalOutput && verticalTickerActive
                               ? Container(
                                   width: tickerWidth,
-                                  padding: EdgeInsets.all(ledTickerPadding),
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
+                                  padding: ledTickerInDeviceListActive
+                                      ? EdgeInsets.all(ledTickerPadding)
+                                      : EdgeInsets.only(
+                                          top: 4.0,
+                                          bottom: 4.0,
+                                        ),
+                                  decoration: ledTickerInDeviceListActive
+                                      ? BoxDecoration(
+                                          border: Border.all(
                                           width: ledTickerBorderSize,
-                                          color: Colors.blue)),
-                                  child: Container(
-                                    color: Colors.black,
-                                    child: UpdatableLedTicker(
+                                          color: Colors.blue,
+                                        ))
+                                      : BoxDecoration(
+                                          borderRadius: Globals.borderRadius(),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Globals.brightness() ==
+                                                      Brightness.dark
+                                                  ? Colors.grey.shade700
+                                                      .withValues(alpha: 0.25)
+                                                  : Colors.grey
+                                                      .withValues(alpha: 0.25),
+                                              spreadRadius: 0,
+                                              blurRadius: 0,
+                                            ),
+                                          ],
+                                        ),
+                                  child: ledTickerInDeviceListActive
+                                      ? Container(
+                                          color: Colors.black,
+                                          child: UpdatableVerticalLedTicker(
+                                            key: ValueKey(
+                                              'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
+                                            ),
+                                            modules: ledModules,
+                                            useProportionalFont: true,
+                                            center: true,
+                                            ledSize: ledSize,
+                                            ledGap: ledGap,
+                                            onColor: ledOnColor,
+                                            offColor: ledOffColor,
+                                            texts: verticalTextLines,
+                                            scrollDuration: Duration(
+                                                milliseconds: (ledSize *
+                                                        scrollDelay /
+                                                        0.5)
+                                                    .floor()),
+                                            linePause: Duration(
+                                                seconds:
+                                                    i['vertical_scroll_delay']),
+                                            cyclePause:
+                                                Duration(seconds: cyclePause),
+                                          ),
+                                        )
+                                      : UpdatableVerticalTicker(
+                                          key: ValueKey(
+                                            'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
+                                          ),
+                                          texts: verticalTextLines,
+                                          scrollDuration: Duration(
+                                              milliseconds:
+                                                  (8 * scrollDelay).floor()),
+                                          linePause: Duration(
+                                              seconds:
+                                                  i['vertical_scroll_delay']),
+                                          cyclePause:
+                                              Duration(seconds: cyclePause),
+                                          textStyle: TextStyle(
+                                            fontSize: tickerFontSize,
+                                            color: ColorDefs.textColor(
+                                                context: context),
+                                          ),
+                                        ),
+                                )
+                              : ledTickerInDeviceListActive
+                                  ? Container(
+                                      width: tickerWidth,
+                                      padding: EdgeInsets.all(ledTickerPadding),
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              width: ledTickerBorderSize,
+                                              color: Colors.blue)),
+                                      child: Container(
+                                        color: Colors.black,
+                                        child: UpdatableLedTicker(
+                                          key: ValueKey(
+                                              'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
+                                          updatableText: scrollText,
+                                          modules: ledModules,
+                                          useProportionalFont: true,
+                                          ledSize: ledSize,
+                                          ledGap: ledGap,
+                                          onColor: ledOnColor,
+                                          offColor: ledOffColor,
+                                          pixelsPerSecond: pixelsPerSecond,
+                                          forceUpdate: forceTickerUpdateActive,
+                                          separator: Globals.tickerSeparator,
+                                        ),
+                                      ),
+                                    )
+                                  : UpdatableTicker(
                                       key: ValueKey(
                                           'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                                       updatableText: scrollText,
-                                      modules: ledModules,
-                                      useProportionalFont: true,
-                                      ledSize: ledSize,
-                                      ledGap: ledGap,
-                                      onColor: ledOnColor,
-                                      offColor: ledOffColor,
-                                      pixelsPerSecond: pixelsPerSecond,
+                                      style: TextStyle(
+                                        fontFamily: Globals.tickerFontFamily,
+                                        fontSize: tickerFontSize,
+                                        color: ColorDefs.textColor(
+                                          context: context,
+                                        ),
+                                      ),
+                                      pixelsPerSecond: getPixelsPerSecond(
+                                        ip: ip,
+                                        fontSize: tickerFontSize,
+                                        sliderValue: scrollSpeedDevice,
+                                      ),
                                       forceUpdate: forceTickerUpdateActive,
                                       separator: Globals.tickerSeparator,
                                     ),
-                                  ),
-                                )
-                              : UpdatableTicker(
-                                  key: ValueKey(
-                                      'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                  updatableText: scrollText,
-                                  style: TextStyle(
-                                    fontFamily: Globals.tickerFontFamily,
-                                    fontSize: tickerFontSize,
-                                    color: ColorDefs.textColor(
-                                      context: context,
-                                    ),
-                                  ),
-                                  pixelsPerSecond: getPixelsPerSecond(
-                                    ip: ip,
-                                    fontSize: tickerFontSize,
-                                    sliderValue: scrollSpeedDevice,
-                                  ),
-                                  forceUpdate: forceTickerUpdateActive,
-                                  separator: Globals.tickerSeparator,
-                                ),
+                        ),
+                      ),
                     ),
+                  )),
+              if (Globals.isDesktopDevice())
+                Positioned(
+                  bottom: -10,
+                  right: 0,
+                  child: SliderHoverOverlay(
+                    label: '${translations['speed'] ?? 'speed:'}:',
+                    width: tickerSpeedSliderWidth,
+                    min: Globals.sliderMinValue,
+                    max: Globals.sliderMaxValue,
+                    defaultValue: sliderDefaultValue,
+                    value: scrollSpeedDevice,
+                    updateValue: (double value) {
+                      settingsBloc.setScrollSpeedDevice(ip: ip, speed: value);
+                      setState(() {
+                        scrollSpeedDevice = value;
+                      });
+                    },
                   ),
                 ),
-              )),
-          if (Globals.isDesktopDevice())
-            Positioned(
-              bottom: -10,
-              right: 0,
-              child: SliderHoverOverlay(
-                label: '${translations['speed'] ?? 'speed:'}:',
-                width: tickerSpeedSliderWidth,
-                min: Globals.sliderMinValue,
-                max: Globals.sliderMaxValue,
-                defaultValue: sliderDefaultValue,
-                value: scrollSpeedDevice,
-                updateValue: (double value) {
-                  settingsBloc.setScrollSpeedDevice(ip: ip, speed: value);
-                  setState(() {
-                    scrollSpeedDevice = value;
-                  });
-                },
+            ],
+          ),
+        ),
+        if (Globals.isMobileDevice() && ip == activeIp)
+          Positioned(
+            top: 0,
+            left: 0,
+            child: Container(
+              width: 5.0,
+              height: itemListHeight - 1,
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(
+                    color: Colors.blue.shade800,
+                    width: 4,
+                  ),
+                ),
               ),
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }

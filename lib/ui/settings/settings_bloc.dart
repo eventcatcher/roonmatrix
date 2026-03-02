@@ -25,10 +25,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             prefs.getBool('coverRowDynamicSize') ?? false;
         String scrollSpeedDeviceMapJsonStr =
             prefs.getString('scrollSpeedDeviceMap') ?? '';
+        print('scrollSpeedDeviceMapJsonStr: $scrollSpeedDeviceMapJsonStr');
         Map<String, dynamic> scrollSpeedDeviceMap =
             scrollSpeedDeviceMapJsonStr.isNotEmpty
                 ? jsonDecode(scrollSpeedDeviceMapJsonStr)
                 : {};
+        print('scrollSpeedDeviceMap: $scrollSpeedDeviceMap');
         double scrollSpeedDevice = prefs.getDouble('scrollSpeedDevice') ?? 1.0;
         double scrollSpeedScrollMatrix =
             prefs.getDouble('scrollSpeedScrollMatrix') ?? 1.0;

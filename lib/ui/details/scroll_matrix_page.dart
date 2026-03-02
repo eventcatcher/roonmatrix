@@ -639,7 +639,6 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
               : PageWithToolbarFlutterStyle(
                   scaffoldKey: scaffoldKey,
                   title: title,
-                  activeSliderIp: '',
                   sliderDefaultValue: sliderDefaultValue,
                   showExpandableSpeedSlider: false,
                   scrollSpeedDevice: 1.0,

@@ -8,7 +8,6 @@ import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class PageWithToolbarIosStyle extends StatefulWidget {
   final String title;
-  final String activeSliderIp;
   final double sliderDefaultValue;
   final bool showExpandableSpeedSlider;
   final double scrollSpeedDevice;
@@ -22,7 +21,6 @@ class PageWithToolbarIosStyle extends StatefulWidget {
   const PageWithToolbarIosStyle({
     super.key,
     required this.title,
-    required this.activeSliderIp,
     required this.sliderDefaultValue,
     required this.showExpandableSpeedSlider,
     required this.scrollSpeedDevice,
@@ -41,7 +39,6 @@ class PageWithToolbarIosStyle extends StatefulWidget {
 
 class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
   String get title => widget.title;
-  String get activeSliderIp => widget.activeSliderIp;
   double get sliderDefaultValue => widget.sliderDefaultValue;
   bool get showExpandableSpeedSlider => widget.showExpandableSpeedSlider;
   double get scrollSpeedDevice => widget.scrollSpeedDevice;
@@ -52,11 +49,6 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
   Function({required double speed})? get sliderUpdateValue =>
       widget.sliderUpdateValue;
   Function({required bool open}) get setDrawerState => widget.setDrawerState;
-
-  String get sliderName =>
-      activeSliderIp.isNotEmpty && mainBloc.state.info[activeSliderIp] != null
-          ? mainBloc.state.info[activeSliderIp]['name']
-          : activeSliderIp;
 
   late MainBloc mainBloc;
   late ObstructingPreferredSizeWidget appBarWithActions;
@@ -108,68 +100,19 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
                     ? EdgeInsets.only(top: 5.0, right: 8.0)
                     : null,
                 child: showExpandableSpeedSlider
-                    ? Stack(
-                        children: [
-                          Positioned(
-                            right: 53.0,
-                            top: 18.0,
-                            child: Container(
-                              constraints: BoxConstraints(maxWidth: 120.0),
-                              child: Text(
-                                sliderName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 10.0,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SliderExpandable(
-                            width: 236.0,
-                            value: scrollSpeedDevice,
-                            updateValue: (double value) =>
-                                sliderUpdateValue!(speed: value),
-                          ),
-                        ],
+                    ? SliderExpandable(
+                        width: 236.0,
+                        value: scrollSpeedDevice,
+                        updateValue: (double value) =>
+                            sliderUpdateValue!(speed: value),
                       )
-                    : Stack(
-                        children: [
-                          Positioned(
-                            right: 10.0,
-                            top: 0.0,
-                            child: SizedBox(
-                              width: 130.0,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    sliderName,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 9.0,
-                                      color: Globals.brightness() ==
-                                              Brightness.dark
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          SliderMobile(
-                            min: Globals.sliderMinValue,
-                            max: Globals.sliderMaxValue,
-                            defaultValue: sliderDefaultValue,
-                            value: scrollSpeedDevice,
-                            updateValue: (double value) =>
-                                sliderUpdateValue!(speed: value),
-                          ),
-                        ],
+                    : SliderMobile(
+                        min: Globals.sliderMinValue,
+                        max: Globals.sliderMaxValue,
+                        defaultValue: sliderDefaultValue,
+                        value: scrollSpeedDevice,
+                        updateValue: (double value) =>
+                            sliderUpdateValue!(speed: value),
                       ),
               )
             : null,

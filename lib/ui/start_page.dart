@@ -59,7 +59,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
   Orientation orientation = Orientation.portrait;
   Map<String, dynamic> scrollSpeedDeviceMap = {};
-  String activeSliderIp = '';
+  String activeIp = '';
   double width = 1280;
   double height = 768;
   double scrollSpeedDevice = 1.0;
@@ -288,7 +288,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                           .translucent,
                                                       onTap: () {
                                                         setState(() {
-                                                          activeSliderIp = ip;
+                                                          activeIp = ip;
                                                         });
                                                       },
                                                       child: DeviceListItem(
@@ -306,6 +306,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                         translations:
                                                             translations,
                                                         ip: ip,
+                                                        activeIp: activeIp,
                                                         connected:
                                                             connectedItem,
                                                         ping: pingItem,
@@ -584,13 +585,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             scrollSpeedDevice = settingsState.scrollSpeedDevice;
 
             bool verticalTickerActive = settingsState.verticalTickerActive;
-            bool verticalOutput = activeSliderIp.isNotEmpty &&
-                    mainBloc.state.info[activeSliderIp] != null
-                ? mainBloc.state.info[activeSliderIp]['vertical_output'] ??
-                    false
-                : false;
+            bool verticalOutput =
+                activeIp.isNotEmpty && mainBloc.state.info[activeIp] != null
+                    ? mainBloc.state.info[activeIp]['vertical_output'] ?? false
+                    : false;
             List<dynamic> list = mainBloc.getScrollDelayMinMax(
-              ip: activeSliderIp,
+              ip: activeIp,
               verticalOutput: verticalOutput,
               verticalTickerActive: verticalTickerActive,
             );
@@ -598,22 +598,22 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
             return PageWithToolbarIosStyle(
               title: title,
-              activeSliderIp: activeSliderIp,
               sliderDefaultValue: sliderDefaultValue,
               showExpandableSpeedSlider: showExpandableSpeedSlider,
               scrollSpeedDevice:
-                  scrollSpeedDeviceMap[activeSliderIp] ?? scrollSpeedDevice,
+                  scrollSpeedDeviceMap[activeIp] ?? scrollSpeedDevice,
               animationController: animationController,
               isDrawerOpen: isDrawerOpen,
               body: bodyWithMenuDrawerOverlay(context),
-              sliderUpdateValue: activeSliderIp.isNotEmpty
+              sliderUpdateValue: activeIp.isNotEmpty
                   ? ({required double speed}) {
                       setState(() {
-                        if (activeSliderIp.isNotEmpty) {
-                          scrollSpeedDeviceMap[activeSliderIp] = speed;
+                        if (activeIp.isNotEmpty) {
+                          scrollSpeedDeviceMap[activeIp] = speed;
                         }
                         scrollSpeedDevice = speed;
-                        settingsBloc.setScrollSpeedDevice(ip: '', speed: speed);
+                        settingsBloc.setScrollSpeedDevice(
+                            ip: activeIp, speed: speed);
                       });
                     }
                   : null,
@@ -663,25 +663,26 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           scrollSpeedDevice = settingsState.scrollSpeedDevice;
 
           bool verticalTickerActive = settingsState.verticalTickerActive;
-          bool verticalOutput = activeSliderIp.isNotEmpty &&
-                  mainBloc.state.info[activeSliderIp] != null
-              ? mainBloc.state.info[activeSliderIp]['vertical_output'] ?? false
-              : false;
+          bool verticalOutput =
+              activeIp.isNotEmpty && mainBloc.state.info[activeIp] != null
+                  ? mainBloc.state.info[activeIp]['vertical_output'] ?? false
+                  : false;
           List<dynamic> list = mainBloc.getScrollDelayMinMax(
-            ip: activeSliderIp,
+            ip: activeIp,
             verticalOutput: verticalOutput,
             verticalTickerActive: verticalTickerActive,
           );
           double sliderDefaultValue = list[3];
 
+          print(
+              'PageWithToolbarFlutterStyle activeIp: $activeIp, scrollSpeedDeviceMap: ${scrollSpeedDeviceMap[activeIp]}, fallback: $scrollSpeedDevice');
           return PageWithToolbarFlutterStyle(
             scaffoldKey: scaffoldKey,
             title: title,
-            activeSliderIp: activeSliderIp,
             sliderDefaultValue: sliderDefaultValue,
             showExpandableSpeedSlider: showExpandableSpeedSlider,
             scrollSpeedDevice:
-                scrollSpeedDeviceMap[activeSliderIp] ?? scrollSpeedDevice,
+                scrollSpeedDeviceMap[activeIp] ?? scrollSpeedDevice,
             standardDesktopSize: standardDesktopSize,
             drawer:
                 Globals.inIosStyle() || Platform.isAndroid || Platform.isFuchsia
@@ -703,14 +704,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
                   minDesktopSize: minDesktopSize);
             },
-            sliderUpdateValue: activeSliderIp.isNotEmpty
+            sliderUpdateValue: activeIp.isNotEmpty
                 ? ({required double speed}) {
                     setState(() {
-                      if (activeSliderIp.isNotEmpty) {
-                        scrollSpeedDeviceMap[activeSliderIp] = speed;
+                      if (activeIp.isNotEmpty) {
+                        scrollSpeedDeviceMap[activeIp] = speed;
                       }
                       scrollSpeedDevice = speed;
-                      settingsBloc.setScrollSpeedDevice(ip: '', speed: speed);
+                      settingsBloc.setScrollSpeedDevice(
+                          ip: activeIp, speed: speed);
                     });
                   }
                 : null,
