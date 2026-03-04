@@ -44,13 +44,50 @@ class _CoverTextOverlaySmallState extends State<CoverTextOverlaySmall> {
   }
 
   @override
-  Widget build(BuildContext context) => Text(
-        '${widget.translations['zoneSelectionLabel'] ?? 'Zone'}: ${Globals.getZoneNameWithoutType(zoneName: coverModel.zoneName)}${widget.coverRowTrack == true && coverModel.track.isNotEmpty && widget.constraints.maxHeight > 169 ? ', ${widget.translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}' : ''}',
-        style: TextStyle(
-          fontSize: widget.constraints.maxHeight > fontSizeBigMinHeightAbove
-              ? widget.fontSizeBig
-              : widget.fontSizeSmall,
-          color: Colors.white,
-        ),
+  Widget build(BuildContext context) => Wrap(
+        children: [
+          Text(
+            '${widget.translations['zoneSelectionLabel'] ?? 'Zone'}: ',
+            style: TextStyle(
+              fontSize: widget.constraints.maxHeight > fontSizeBigMinHeightAbove
+                  ? widget.fontSizeBig
+                  : widget.fontSizeSmall,
+              color: Colors.white.withValues(alpha: 0.8),
+            ),
+          ),
+          Text(
+            Globals.getZoneNameWithoutType(zoneName: coverModel.zoneName),
+            style: TextStyle(
+              fontSize: widget.constraints.maxHeight > fontSizeBigMinHeightAbove
+                  ? widget.fontSizeBig
+                  : widget.fontSizeSmall,
+              color: Colors.white,
+            ),
+          ),
+          if (widget.coverRowTrack == true &&
+              coverModel.track.isNotEmpty &&
+              widget.constraints.maxHeight > 169) ...[
+            Text(
+              ', ${widget.translations['coverTrackHeader'] ?? 'Track'}: ',
+              style: TextStyle(
+                fontSize:
+                    widget.constraints.maxHeight > fontSizeBigMinHeightAbove
+                        ? widget.fontSizeBig
+                        : widget.fontSizeSmall,
+                color: Colors.white.withValues(alpha: 0.8),
+              ),
+            ),
+            Text(
+              coverModel.track,
+              style: TextStyle(
+                fontSize:
+                    widget.constraints.maxHeight > fontSizeBigMinHeightAbove
+                        ? widget.fontSizeBig
+                        : widget.fontSizeSmall,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ],
       );
 }
