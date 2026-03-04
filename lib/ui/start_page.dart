@@ -674,8 +674,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           );
           double sliderDefaultValue = list[3];
 
-          print(
-              'PageWithToolbarFlutterStyle activeIp: $activeIp, scrollSpeedDeviceMap: ${scrollSpeedDeviceMap[activeIp]}, fallback: $scrollSpeedDevice');
           return PageWithToolbarFlutterStyle(
             scaffoldKey: scaffoldKey,
             title: title,

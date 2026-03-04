@@ -123,6 +123,8 @@ class SelectBoxState extends State<SelectBox> {
         (options != null && selected != null && options![selected!] != null)
             ? selected!
             : "",
+        overflow: TextOverflow.ellipsis,
+        maxLines: 1,
         style: TextStyle(
           color: readOnlyColoredGrey == true
               ? Colors.grey
