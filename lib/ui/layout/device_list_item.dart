@@ -624,10 +624,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                                             offColor: ledOffColor,
                                             texts: verticalTextLines,
                                             scrollDuration: Duration(
-                                                milliseconds: (ledSize *
-                                                        scrollDelay /
-                                                        0.5)
-                                                    .floor()),
+                                                milliseconds:
+                                                    (scrollDelay * 8).floor()),
                                             linePause: Duration(
                                                 seconds:
                                                     i['vertical_scroll_delay']),
@@ -642,7 +640,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                           texts: verticalTextLines,
                                           scrollDuration: Duration(
                                               milliseconds:
-                                                  (8 * scrollDelay).floor()),
+                                                  (scrollDelay * 8).floor()),
                                           linePause: Duration(
                                               seconds:
                                                   i['vertical_scroll_delay']),

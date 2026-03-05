@@ -405,10 +405,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                               offColor: ledOffColor,
                                               texts: verticalTextLines,
                                               scrollDuration: Duration(
-                                                  milliseconds: (ledSize *
-                                                          scrollDelay /
-                                                          1.5)
-                                                      .floor()),
+                                                  milliseconds:
+                                                      (scrollDelay * 8)
+                                                          .floor()),
                                               linePause:
                                                   Duration(seconds: linePause),
                                               cyclePause:
@@ -422,7 +421,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                           texts: verticalTextLines,
                                           scrollDuration: Duration(
                                               milliseconds:
-                                                  (8 * scrollDelay).floor()),
+                                                  (scrollDelay * 8).floor()),
                                           linePause:
                                               Duration(seconds: linePause),
                                           cyclePause:
