@@ -411,7 +411,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           },
           child: threeCols
               ? Column(
-                  key: ValueKey('Text-$hash'),
+                  key: ValueKey('Text-$idle-$hash'),
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -419,7 +419,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   ],
                 )
               : IntrinsicHeight(
-                  key: ValueKey('Text-$hash'),
+                  key: ValueKey('Text-$idle-$hash'),
                   child: inner,
                 ),
         ),
@@ -608,9 +608,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
               )
             : EdgeInsets.all(coverPadding),
         child: LayoutBuilder(builder: (context, constraints) {
-          double size = max(constraints.maxWidth, constraints.maxHeight);
+          double maxSize = max(constraints.maxWidth, constraints.maxHeight);
+          double minSize = min(constraints.maxWidth, constraints.maxHeight);
 
-          if (size < zoneCornerLabelMinCoverSize) {
+          if (minSize < zoneCornerLabelMinCoverSize) {
             return ZoneCornerLabel(
               zoneName: '-${selectedZone?['zone'] ?? name}',
               coverWidth: Globals.zoneCornerFullSize,
@@ -640,7 +641,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                           ? Image.network(
                               selectedZone!['cover'],
                               key: ValueKey(
-                                  'BigCover-$selectedZone-${selectedZone['cover']}'),
+                                  'BigCover-$selectedZone-$idle-${selectedZone['cover']}'),
                               fit: BoxFit.contain,
                               alignment: portraitMode
                                   ? Alignment.topCenter
@@ -659,8 +660,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                       : null,
                               errorBuilder: (context, error, stackTrace) {
                                 return SizedBox(
-                                  width: size,
-                                  height: size,
+                                  width: maxSize,
+                                  height: maxSize,
                                   child: SvgPicture.asset(
                                     Globals.placeholderSvgAssetPath(),
                                     allowDrawingOutsideViewBox: false,
@@ -676,8 +677,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                               },
                             )
                           : SizedBox(
-                              width: size,
-                              height: size,
+                              width: maxSize,
+                              height: maxSize,
                               child: SvgPicture.asset(
                                 Globals.placeholderSvgAssetPath(),
                                 allowDrawingOutsideViewBox: false,
