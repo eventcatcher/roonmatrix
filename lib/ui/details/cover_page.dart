@@ -624,11 +624,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
               borderRadius: Globals.borderRadius(),
               child: SimpleGestureDetector(
                 onHorizontalSwipe: (SwipeDirection direction) {
-                  if (direction == SwipeDirection.right) {
+                  if (Globals.isMobileDevice() &&
+                      direction == SwipeDirection.right) {
                     mainBloc.zoneControl(
                         ip: ip, controlId: controlId!, cmd: 'previous');
                   }
-                  if (direction == SwipeDirection.left) {
+                  if (Globals.isMobileDevice() &&
+                      direction == SwipeDirection.left) {
                     mainBloc.zoneControl(
                         ip: ip, controlId: controlId!, cmd: 'next');
                   }
