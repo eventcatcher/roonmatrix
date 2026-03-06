@@ -2445,12 +2445,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required double ledSize,
     required double sliderValue,
   }) {
-    final double verticalFontFactor = isScrollMatrixPage ? 1.0 : 1.0;
-    final double horizontalFontFactor = isScrollMatrixPage ? 1.3 : 1.3;
-    final double verticalLedFactor = isScrollMatrixPage ? 1.0 : 1.0;
-    final double horizontalLedFactor = isScrollMatrixPage ? 2.07 : 4.00;
-    final double pixelsPerSecondVerticalFontFactor =
-        isScrollMatrixPage ? 1.0 : 1.0;
+    final double verticalFontFactor = 1.0;
+    final double horizontalFontFactor = 1.3;
+    final double pixelsPerSecondVerticalFontFactor = 1.0;
     final double pixelsPerSecondHorizontalFontFactor =
         isScrollMatrixPage ? 3.0 : 2.3;
 
@@ -2477,12 +2474,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     double pixelsPerSecond = 8;
 
     if (ledTickerActive) {
-      pixelsPerSecond = dotsPerSecond *
-          ledSize /
-          8 *
-          (verticalOutput && verticalTickerActive
-              ? verticalLedFactor
-              : horizontalLedFactor); // horizontal-led-ticker wird langsamer bei kleineren Fonts!
+      pixelsPerSecond = dotsPerSecond;
     } else {
       pixelsPerSecond = ledCharsPerSecond *
           fontSize /
