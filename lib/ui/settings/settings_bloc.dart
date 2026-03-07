@@ -40,9 +40,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
                 ? jsonDecode(scrollSpeedScrollMatrixDeviceMapJsonStr)
                 : {};
         if (kDebugMode) {
-          debugPrint('load scrollSpeedDeviceMap: $scrollSpeedDeviceMap');
           debugPrint(
-              'load scrollSpeedScrollMatrixDeviceMap: $scrollSpeedScrollMatrixDeviceMap');
+              'speedcheck => load scrollSpeedDeviceMap: $scrollSpeedDeviceMap');
+          debugPrint(
+              'speedcheck => load scrollSpeedScrollMatrixDeviceMap: $scrollSpeedScrollMatrixDeviceMap');
         }
         bool verticalTickerActive =
             prefs.getBool('verticalTickerActive') ?? true;
@@ -114,7 +115,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           prefs.setString(
               'scrollSpeedDeviceMap', jsonEncode(scrollSpeedDeviceMap));
           if (kDebugMode) {
-            debugPrint('save scrollSpeedDeviceMap: $scrollSpeedDeviceMap');
+            debugPrint(
+                'speedcheck => save scrollSpeedDeviceMap: $scrollSpeedDeviceMap');
           }
 
           emit(state.copyWith(
@@ -143,7 +145,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
               jsonEncode(scrollSpeedScrollMatrixDeviceMap));
           if (kDebugMode) {
             debugPrint(
-                'save scrollSpeedScrollMatrixDeviceMap: $scrollSpeedScrollMatrixDeviceMap');
+                'speedcheck => save scrollSpeedScrollMatrixDeviceMap: $scrollSpeedScrollMatrixDeviceMap');
           }
 
           emit(state.copyWith(

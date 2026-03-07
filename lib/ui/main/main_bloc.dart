@@ -2432,6 +2432,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             type.replaceFirst('int(', '').replaceAll(')', '').split(',');
         scrollDelayMin = int.parse(typeParts[0]);
         scrollDelayMax = int.parse(typeParts[1]);
+      } else {
+        scrollDelayMin =
+            12; // default fallback value for coverplayer which has no matching SYSTEM definition
+        scrollDelayMax = ledScrollDefinitionName == 'led_scroll_delay'
+            ? 50
+            : 200; // default fallback value for coverplayer which has no matching SYSTEM definition
       }
 
       if (!verticalOutput) {
@@ -2475,6 +2481,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     int scrollDelayMin = list[1];
     int scrollDelayMax = list[2];
     double sliderDefaultValue = list[3];
+    if (kDebugMode) {
+      debugPrint(
+          'speedcheck => getPixelsPerSecond ip: $ip, verticalOutput: $verticalOutput, defaultDelay: $defaultDelay, scrollDelayMin: $scrollDelayMin, scrollDelayMax: $scrollDelayMax, sliderDefaultValue: $sliderDefaultValue');
+    }
 
     double sliderFactor = 1 - 1 / Globals.sliderMaxValue * sliderValue;
     double scrollDelay =
