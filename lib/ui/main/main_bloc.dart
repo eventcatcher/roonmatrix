@@ -585,6 +585,15 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           setPollingTimer();
         }
       }
+
+      if (event is DisableListItemsRendering) {
+        bool disable = event.disable;
+
+        emit(state.copyWith(
+          update: DateTime.now(),
+          disableListItemsRendering: disable,
+        ));
+      }
     });
 
     setPollingTimer();
@@ -2383,6 +2392,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required String filter,
   }) {
     add(SetSearchFilter(type: type, filter: filter));
+  }
+
+  void disableListItemsRendering({
+    required bool disable,
+  }) {
+    add(DisableListItemsRendering(disable: disable));
   }
 
   List<dynamic> getScrollDelayMinMax({

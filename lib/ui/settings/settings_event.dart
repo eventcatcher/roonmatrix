@@ -104,14 +104,16 @@ class SetScrollSpeedDevice extends SettingsEvent {
 }
 
 class SetScrollSpeedScrollMatrix extends SettingsEvent {
+  final String ip;
   final double speed;
 
   const SetScrollSpeedScrollMatrix({
+    required this.ip,
     required this.speed,
   });
 
   @override
-  List<Object> get props => [speed];
+  List<Object> get props => [ip, speed];
 }
 
 class SetVerticalTickerActiveMode extends SettingsEvent {

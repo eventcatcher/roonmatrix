@@ -64,6 +64,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   double height = 768;
   double scrollSpeedDevice = 1.0;
   double scrollSpeedScrollMatrix = 1.0;
+  Map<String, dynamic> scrollSpeedScrollMatrixDeviceMap = {};
   double? appBarHeight;
   double? navigationTop;
 
@@ -160,6 +161,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     scrollSpeedDevice = settingsState.scrollSpeedDevice;
                     scrollSpeedScrollMatrix =
                         settingsState.scrollSpeedScrollMatrix;
+                    scrollSpeedScrollMatrixDeviceMap =
+                        settingsState.scrollSpeedScrollMatrixDeviceMap;
 
                     return BlocBuilder(
                         bloc: mainBloc,
@@ -264,79 +267,88 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                           : devices.isEmpty
                                               ? DevicesReloadButton(
                                                   translations: translations)
-                                              : ListView.separated(
-                                                  key: ValueKey(
-                                                      'DeviceList-${devices.length}'),
-                                                  separatorBuilder:
-                                                      (context, index) =>
-                                                          const Divider(
-                                                            color: Colors.white,
-                                                            height: 1,
-                                                          ),
-                                                  itemCount: devices.length,
-                                                  itemBuilder:
-                                                      (BuildContext context,
-                                                          int index) {
-                                                    String ip = devices[index];
-                                                    bool connectedItem =
-                                                        connected[ip] ?? false;
-                                                    bool pingItem =
-                                                        ping[ip] ?? false;
+                                              : mainState
+                                                      .disableListItemsRendering
+                                                  ? SizedBox()
+                                                  : ListView.separated(
+                                                      key: ValueKey(
+                                                          'DeviceList-${devices.length}'),
+                                                      separatorBuilder:
+                                                          (context, index) =>
+                                                              const Divider(
+                                                                color: Colors
+                                                                    .white,
+                                                                height: 1,
+                                                              ),
+                                                      itemCount: devices.length,
+                                                      itemBuilder:
+                                                          (BuildContext context,
+                                                              int index) {
+                                                        String ip =
+                                                            devices[index];
+                                                        bool connectedItem =
+                                                            connected[ip] ??
+                                                                false;
+                                                        bool pingItem =
+                                                            ping[ip] ?? false;
 
-                                                    return GestureDetector(
-                                                      behavior: HitTestBehavior
-                                                          .translucent,
-                                                      onTap: () {
-                                                        setState(() {
-                                                          activeIp = ip;
-                                                        });
-                                                      },
-                                                      child: DeviceListItem(
-                                                        itemListKey:
-                                                            itemListKey,
-                                                        index: index,
-                                                        width: width,
-                                                        height: height,
-                                                        orientation:
-                                                            orientation,
-                                                        minDesktopSize:
-                                                            minDesktopSize,
-                                                        standardDesktopSize:
-                                                            standardDesktopSize,
-                                                        translations:
-                                                            translations,
-                                                        ip: ip,
-                                                        activeIp: activeIp,
-                                                        connected:
-                                                            connectedItem,
-                                                        ping: pingItem,
-                                                        info: info,
-                                                        spotifyAuthUrl:
-                                                            spotifyAuthUrls[
-                                                                    ip] ??
-                                                                '*',
-                                                        isSmallDeviceWidth:
-                                                            isSmallDeviceWidth,
-                                                        moreInfo: moreInfo,
-                                                        scrollSpeedScrollMatrix:
-                                                            scrollSpeedScrollMatrix,
-                                                        scrollSpeedDevice:
-                                                            scrollSpeedDeviceMap[
-                                                                    ip] ??
-                                                                scrollSpeedDevice,
-                                                        verticalTickerActive:
-                                                            verticalTickerActive,
-                                                        ledTickerInDeviceListActive:
-                                                            ledTickerInDeviceListActive,
-                                                        ledTickerOnTickerPageActive:
-                                                            ledTickerOnTickerPageActive,
-                                                        forceTickerUpdateActive:
-                                                            forceTickerUpdateActive,
-                                                        updateSizes:
-                                                            updateSizes,
-                                                      ),
-                                                    );
-                                                  }),
+                                                        return GestureDetector(
+                                                          behavior:
+                                                              HitTestBehavior
+                                                                  .translucent,
+                                                          onTap: () {
+                                                            setState(() {
+                                                              activeIp = ip;
+                                                            });
+                                                          },
+                                                          child: DeviceListItem(
+                                                            itemListKey:
+                                                                itemListKey,
+                                                            index: index,
+                                                            width: width,
+                                                            height: height,
+                                                            orientation:
+                                                                orientation,
+                                                            minDesktopSize:
+                                                                minDesktopSize,
+                                                            standardDesktopSize:
+                                                                standardDesktopSize,
+                                                            translations:
+                                                                translations,
+                                                            ip: ip,
+                                                            activeIp: activeIp,
+                                                            connected:
+                                                                connectedItem,
+                                                            ping: pingItem,
+                                                            info: info,
+                                                            spotifyAuthUrl:
+                                                                spotifyAuthUrls[
+                                                                        ip] ??
+                                                                    '*',
+                                                            isSmallDeviceWidth:
+                                                                isSmallDeviceWidth,
+                                                            moreInfo: moreInfo,
+                                                            scrollSpeedScrollMatrix:
+                                                                scrollSpeedScrollMatrixDeviceMap[
+                                                                        ip] ??
+                                                                    scrollSpeedScrollMatrix,
+                                                            scrollSpeedDevice:
+                                                                scrollSpeedDeviceMap[
+                                                                        ip] ??
+                                                                    scrollSpeedDevice,
+                                                            verticalTickerActive:
+                                                                verticalTickerActive,
+                                                            ledTickerInDeviceListActive:
+                                                                ledTickerInDeviceListActive,
+                                                            ledTickerOnTickerPageActive:
+                                                                ledTickerOnTickerPageActive,
+                                                            forceTickerUpdateActive:
+                                                                forceTickerUpdateActive,
+                                                            updateSizes:
+                                                                updateSizes,
+                                                          ),
+                                                        );
+                                                      }),
                                     ),
 
                                     if (Globals.isDesktopDevice() &&

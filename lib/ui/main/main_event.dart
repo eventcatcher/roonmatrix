@@ -222,3 +222,14 @@ class SetConnected extends MainEvent {
   @override
   List<Object> get props => [ip, connected];
 }
+
+class DisableListItemsRendering extends MainEvent {
+  final bool disable;
+
+  const DisableListItemsRendering({
+    required this.disable,
+  });
+
+  @override
+  List<Object> get props => [disable];
+}

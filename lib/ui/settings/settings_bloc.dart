@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:roonmatrix/ui/settings/settings_event.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,15 +24,26 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         bool coverRowTrack = prefs.getBool('coverRowTrack') ?? true;
         bool coverRowDynamicSize =
             prefs.getBool('coverRowDynamicSize') ?? false;
+        double scrollSpeedDevice = prefs.getDouble('scrollSpeedDevice') ?? 1.0;
         String scrollSpeedDeviceMapJsonStr =
             prefs.getString('scrollSpeedDeviceMap') ?? '';
         Map<String, dynamic> scrollSpeedDeviceMap =
             scrollSpeedDeviceMapJsonStr.isNotEmpty
                 ? jsonDecode(scrollSpeedDeviceMapJsonStr)
                 : {};
-        double scrollSpeedDevice = prefs.getDouble('scrollSpeedDevice') ?? 1.0;
         double scrollSpeedScrollMatrix =
             prefs.getDouble('scrollSpeedScrollMatrix') ?? 1.0;
+        String scrollSpeedScrollMatrixDeviceMapJsonStr =
+            prefs.getString('scrollSpeedScrollMatrixDeviceMap') ?? '';
+        Map<String, dynamic> scrollSpeedScrollMatrixDeviceMap =
+            scrollSpeedScrollMatrixDeviceMapJsonStr.isNotEmpty
+                ? jsonDecode(scrollSpeedScrollMatrixDeviceMapJsonStr)
+                : {};
+        if (kDebugMode) {
+          debugPrint('load scrollSpeedDeviceMap: $scrollSpeedDeviceMap');
+          debugPrint(
+              'load scrollSpeedScrollMatrixDeviceMap: $scrollSpeedScrollMatrixDeviceMap');
+        }
         bool verticalTickerActive =
             prefs.getBool('verticalTickerActive') ?? true;
         bool ledTickerInDeviceListActive =
@@ -53,6 +65,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           scrollSpeedDevice: scrollSpeedDevice,
           scrollSpeedDeviceMap: scrollSpeedDeviceMap,
           scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
+          scrollSpeedScrollMatrixDeviceMap: scrollSpeedScrollMatrixDeviceMap,
           verticalTickerActive: verticalTickerActive,
           ledTickerInDeviceListActive: ledTickerInDeviceListActive,
           ledTickerOnTickerPageActive: ledTickerOnTickerPageActive,
@@ -100,6 +113,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           scrollSpeedDeviceMap[ip] = scrollSpeedDevice;
           prefs.setString(
               'scrollSpeedDeviceMap', jsonEncode(scrollSpeedDeviceMap));
+          if (kDebugMode) {
+            debugPrint('save scrollSpeedDeviceMap: $scrollSpeedDeviceMap');
+          }
 
           emit(state.copyWith(
             scrollSpeedDeviceMap: scrollSpeedDeviceMap,
@@ -113,14 +129,32 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       }
 
       if (event is SetScrollSpeedScrollMatrix) {
+        String ip = event.ip;
         double scrollSpeedScrollMatrix = event.speed;
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setDouble('scrollSpeedScrollMatrix', scrollSpeedScrollMatrix);
 
-        emit(state.copyWith(
-          scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
-        ));
+        if (ip.isNotEmpty) {
+          Map<String, dynamic> scrollSpeedScrollMatrixDeviceMap =
+              Map<String, dynamic>.from(state.scrollSpeedScrollMatrixDeviceMap);
+          scrollSpeedScrollMatrixDeviceMap[ip] = scrollSpeedScrollMatrix;
+          prefs.setString('scrollSpeedScrollMatrixDeviceMap',
+              jsonEncode(scrollSpeedScrollMatrixDeviceMap));
+          if (kDebugMode) {
+            debugPrint(
+                'save scrollSpeedScrollMatrixDeviceMap: $scrollSpeedScrollMatrixDeviceMap');
+          }
+
+          emit(state.copyWith(
+            scrollSpeedScrollMatrixDeviceMap: scrollSpeedScrollMatrixDeviceMap,
+            scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
+          ));
+        } else {
+          emit(state.copyWith(
+            scrollSpeedScrollMatrix: scrollSpeedScrollMatrix,
+          ));
+        }
       }
 
       if (event is SetCoverRowActiveMode) {
@@ -240,9 +274,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       'coverRowAlbum',
       'coverRowTrack',
       'coverRowDynamicSize',
-      'scrollSpeedDeviceMap',
       'scrollSpeedDevice',
+      'scrollSpeedDeviceMap',
       'scrollSpeedScrollMatrix',
+      'scrollSpeedScrollMatrixDeviceMap',
       'verticalTickerActive',
       'ledTickerInDeviceListActive',
       'ledTickerOnTickerPageActive',
@@ -355,9 +390,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   }
 
   void setScrollSpeedScrollMatrix({
+    required String ip,
     required double speed,
   }) {
-    add(SetScrollSpeedScrollMatrix(speed: speed));
+    add(SetScrollSpeedScrollMatrix(ip: ip, speed: speed));
   }
 
   void setVerticalTickerActiveMode({

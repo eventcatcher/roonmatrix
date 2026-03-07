@@ -573,7 +573,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                 speedChanged: (double speed) {
                                   scrollSpeedScrollMatrix = speed;
                                   settingsBloc.setScrollSpeedScrollMatrix(
-                                      speed: speed);
+                                      ip: ip, speed: speed);
                                 },
                               );
                             },

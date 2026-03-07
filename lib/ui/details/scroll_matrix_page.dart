@@ -114,6 +114,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     mainBloc = BlocProvider.of<MainBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
+    mainBloc.disableListItemsRendering(disable: true);
+
     verticalTickerActive = widget.verticalTickerActive;
     ledTickerOnTickerPageActive = widget.ledTickerOnTickerPageActive;
 
@@ -510,7 +512,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
             leading: CupertinoButton(
               padding: EdgeInsets.zero,
               child: CupertinoNavigationBarBackButton(),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                mainBloc.disableListItemsRendering(disable: false);
+                Navigator.pop(context);
+              },
             ),
             trailing: SizedBox(
               width: width - 100,
@@ -628,6 +633,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     if (Globals.isDesktopDevice() && !isFullscreen) {
                       mainBloc.windowResize(
                           size: actualSize, position: actualPosition);
+                      mainBloc.disableListItemsRendering(disable: false);
                     }
                   },
                   resizeToFullWidth: () {
@@ -701,6 +707,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     if (Globals.isDesktopDevice() && !isFullscreen) {
                       mainBloc.windowResize(
                           size: actualSize, position: actualPosition);
+                      mainBloc.disableListItemsRendering(disable: false);
                     }
                   },
                   resizeToFullWidth: () {

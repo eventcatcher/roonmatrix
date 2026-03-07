@@ -16,6 +16,7 @@ abstract class MainState extends Equatable {
   final Map fieldValues;
   final String log;
   final bool idle;
+  final bool disableListItemsRendering;
   final bool subPageIdle;
   final String logMessage;
   final Map<String, dynamic> spotifyAuthUrls;
@@ -41,6 +42,7 @@ abstract class MainState extends Equatable {
       this.fieldValues = const {},
       this.log = '',
       this.idle = false,
+      this.disableListItemsRendering = false,
       this.subPageIdle = false,
       this.logMessage = '',
       this.spotifyAuthUrls = const {},
@@ -61,6 +63,7 @@ abstract class MainState extends Equatable {
     Map? fieldValues,
     String? log,
     bool? idle,
+    bool? disableListItemsRendering,
     bool? subPageIdle,
     String? logMessage,
     Map<String, dynamic>? spotifyAuthUrls,
@@ -81,6 +84,8 @@ abstract class MainState extends Equatable {
       fieldValues: fieldValues ?? this.fieldValues,
       log: log ?? this.log,
       idle: idle ?? this.idle,
+      disableListItemsRendering:
+          disableListItemsRendering ?? this.disableListItemsRendering,
       subPageIdle: subPageIdle ?? this.subPageIdle,
       logMessage: logMessage ?? this.logMessage,
       spotifyAuthUrls: spotifyAuthUrls ?? this.spotifyAuthUrls,
@@ -100,6 +105,7 @@ abstract class MainState extends Equatable {
       fieldValues,
       log,
       idle,
+      disableListItemsRendering,
       subPageIdle,
       logMessage,
       spotifyAuthUrls,
@@ -152,6 +158,7 @@ class MainStateLoaded extends MainState {
     required super.fieldValues,
     required super.log,
     required super.idle,
+    required super.disableListItemsRendering,
     required super.subPageIdle,
     required super.logMessage,
     required super.spotifyAuthUrls,
