@@ -509,9 +509,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
             brightness: Globals.brightness(),
-            leading: CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: CupertinoNavigationBarBackButton(),
+            leading: CupertinoNavigationBarBackButton(
               onPressed: () {
                 mainBloc.disableListItemsRendering(disable: false);
                 Navigator.pop(context);

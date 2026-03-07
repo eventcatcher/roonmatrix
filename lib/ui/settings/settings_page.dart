@@ -600,11 +600,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             navigationBar: CupertinoNavigationBar(
                               brightness: Globals.brightness(),
                               middle: Text(title),
-                              leading: CupertinoButton(
-                                padding: EdgeInsets.zero,
-                                child: CupertinoNavigationBarBackButton(),
-                                onPressed: () => Navigator.pop(context),
-                              ),
+                              leading: CupertinoNavigationBarBackButton(),
                             ),
                             child: SafeArea(
                               child: body(
