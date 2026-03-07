@@ -633,8 +633,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     if (Globals.isDesktopDevice() && !isFullscreen) {
                       mainBloc.windowResize(
                           size: actualSize, position: actualPosition);
-                      mainBloc.disableListItemsRendering(disable: false);
                     }
+                    mainBloc.disableListItemsRendering(disable: false);
                   },
                   resizeToFullWidth: () {
                     mainBloc.windowResizeToFullWidthAndMinimumHeight(
@@ -707,8 +707,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     if (Globals.isDesktopDevice() && !isFullscreen) {
                       mainBloc.windowResize(
                           size: actualSize, position: actualPosition);
-                      mainBloc.disableListItemsRendering(disable: false);
                     }
+                    mainBloc.disableListItemsRendering(disable: false);
                   },
                   resizeToFullWidth: () {
                     mainBloc.windowResizeToFullWidthAndMinimumHeight(

@@ -2438,6 +2438,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         scrollDelayMax = ledScrollDefinitionName == 'led_scroll_delay'
             ? 50
             : 200; // default fallback value for coverplayer which has no matching SYSTEM definition
+        if (kDebugMode) {
+          debugPrint(
+              'getScrollDelayMinMax => get scrollDelayMin and scrollDelayMax fallback values');
+        }
       }
 
       if (!verticalOutput) {
