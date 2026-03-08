@@ -43,6 +43,7 @@ class DeviceListItem extends StatefulWidget {
   final bool verticalTickerActive;
   final bool ledTickerInDeviceListActive;
   final bool ledTickerOnTickerPageActive;
+  final bool ledTickerPixelShiftActive;
   final bool forceTickerUpdateActive;
   final void Function(String caller) updateSizes;
 
@@ -70,6 +71,7 @@ class DeviceListItem extends StatefulWidget {
     required this.verticalTickerActive,
     required this.ledTickerInDeviceListActive,
     required this.ledTickerOnTickerPageActive,
+    required this.ledTickerPixelShiftActive,
     required this.forceTickerUpdateActive,
     required this.updateSizes,
   });
@@ -94,6 +96,7 @@ class DeviceListItemState extends State<DeviceListItem> {
   bool get verticalTickerActive => widget.verticalTickerActive;
   bool get ledTickerInDeviceListActive => widget.ledTickerInDeviceListActive;
   bool get ledTickerOnTickerPageActive => widget.ledTickerOnTickerPageActive;
+  bool get ledTickerPixelShiftActive => widget.ledTickerPixelShiftActive;
   bool get forceTickerUpdateActive => widget.forceTickerUpdateActive;
   void Function(String caller) get updateSizes => widget.updateSizes;
 
@@ -570,6 +573,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                                 verticalTickerActive: verticalTickerActive,
                                 ledTickerOnTickerPageActive:
                                     ledTickerOnTickerPageActive,
+                                ledTickerPixelShiftActive:
+                                    ledTickerPixelShiftActive,
                                 forceTickerUpdateActive:
                                     forceTickerUpdateActive,
                                 speedChanged: (double speed) {
@@ -612,13 +617,17 @@ class DeviceListItemState extends State<DeviceListItem> {
                                         ),
                                   child: ledTickerInDeviceListActive
                                       ? Container(
-                                          color: Colors.black,
+                                          color: ledTickerPixelShiftActive
+                                              ? Colors.black
+                                              : Colors.grey.shade800,
                                           child: UpdatableVerticalLedTicker(
                                             key: ValueKey(
                                               'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
                                             ),
                                             modules: ledModules,
                                             useProportionalFont: true,
+                                            enableSmoothScrolling:
+                                                ledTickerPixelShiftActive,
                                             center: true,
                                             ledSize: ledSize,
                                             ledGap: ledGap,
@@ -664,13 +673,17 @@ class DeviceListItemState extends State<DeviceListItem> {
                                               width: ledTickerBorderSize,
                                               color: Colors.blue)),
                                       child: Container(
-                                        color: Colors.black,
+                                        color: ledTickerPixelShiftActive
+                                            ? Colors.black
+                                            : Colors.grey.shade800,
                                         child: UpdatableLedTicker(
                                           key: ValueKey(
                                               'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
                                           updatableText: scrollText,
                                           modules: ledModules,
                                           useProportionalFont: true,
+                                          enableSmoothScrolling:
+                                              ledTickerPixelShiftActive,
                                           ledSize: ledSize,
                                           ledGap: ledGap,
                                           onColor: ledOnColor,

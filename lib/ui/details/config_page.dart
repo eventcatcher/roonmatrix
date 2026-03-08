@@ -341,7 +341,7 @@ class ConfigPageState extends State<ConfigPage> {
                 }
 
                 ConfigDefinition defs = mainState.definitions[ip]!;
-                fieldValues = mainState.fieldValues;
+                fieldValues = mainState.fieldValues[ip];
                 validData = mainBloc.validateAll(
                     definitions: defs, fieldValues: fieldValues);
                 formFields = mainBloc.getConfigFormFields(

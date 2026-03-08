@@ -16,6 +16,7 @@ abstract class SettingsState extends Equatable {
   final bool verticalTickerActive;
   final bool ledTickerInDeviceListActive;
   final bool ledTickerOnTickerPageActive;
+  final bool ledTickerPixelShiftActive;
   final bool forceTickerUpdateActive;
 
   const SettingsState({
@@ -34,6 +35,7 @@ abstract class SettingsState extends Equatable {
     this.verticalTickerActive = false,
     this.ledTickerInDeviceListActive = false,
     this.ledTickerOnTickerPageActive = false,
+    this.ledTickerPixelShiftActive = false,
     this.forceTickerUpdateActive = false,
   });
 
@@ -53,6 +55,7 @@ abstract class SettingsState extends Equatable {
     bool? verticalTickerActive,
     bool? ledTickerInDeviceListActive,
     bool? ledTickerOnTickerPageActive,
+    bool? ledTickerPixelShiftActive,
     bool? forceTickerUpdateActive,
   }) {
     return SettingsStateLoaded(
@@ -75,6 +78,8 @@ abstract class SettingsState extends Equatable {
           ledTickerInDeviceListActive ?? this.ledTickerInDeviceListActive,
       ledTickerOnTickerPageActive:
           ledTickerOnTickerPageActive ?? this.ledTickerOnTickerPageActive,
+      ledTickerPixelShiftActive:
+          ledTickerPixelShiftActive ?? this.ledTickerPixelShiftActive,
       forceTickerUpdateActive:
           forceTickerUpdateActive ?? this.forceTickerUpdateActive,
     );
@@ -98,6 +103,7 @@ abstract class SettingsState extends Equatable {
       verticalTickerActive,
       ledTickerInDeviceListActive,
       ledTickerOnTickerPageActive,
+      ledTickerPixelShiftActive,
       forceTickerUpdateActive,
     ];
 
@@ -132,6 +138,7 @@ class SettingsStateLoaded extends SettingsState {
     required super.verticalTickerActive,
     required super.ledTickerInDeviceListActive,
     required super.ledTickerOnTickerPageActive,
+    required super.ledTickerPixelShiftActive,
     required super.forceTickerUpdateActive,
   });
 

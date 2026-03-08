@@ -60,6 +60,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool verticalTickerActive = false;
   bool ledTickerInDeviceListActive = false;
   bool ledTickerOnTickerPageActive = false;
+  bool ledTickerPixelShiftActive = false;
   bool forceTickerUpdateActive = false;
 
   bool translationsLoaded = false;
@@ -479,6 +480,21 @@ class _SettingsPageState extends State<SettingsPage> {
                   bottom: 16.0,
                 ),
                 child: SwitchButton(
+                  label: translations['ledTickerPixelShift'] ??
+                      'Scroll LED ticker pixel by pixel (pixel-precise smooth scrolling)',
+                  enabled: ledTickerPixelShiftActive,
+                  onChanged: (value) {
+                    settingsBloc.setLedTickerPixelShiftActiveMode(
+                        enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
                   label: translations['forceTickerUpdate'] ??
                       'Update ticker immediately on text updates (interrupts running ticker)',
                   enabled: forceTickerUpdateActive,
@@ -578,6 +594,8 @@ class _SettingsPageState extends State<SettingsPage> {
                             settingsState.ledTickerInDeviceListActive;
                         ledTickerOnTickerPageActive =
                             settingsState.ledTickerOnTickerPageActive;
+                        ledTickerPixelShiftActive =
+                            settingsState.ledTickerPixelShiftActive;
                         forceTickerUpdateActive =
                             settingsState.forceTickerUpdateActive;
 

@@ -156,6 +156,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         settingsState.ledTickerInDeviceListActive;
                     bool ledTickerOnTickerPageActive =
                         settingsState.ledTickerOnTickerPageActive;
+                    bool ledTickerPixelShiftActive =
+                        settingsState.ledTickerPixelShiftActive;
                     bool forceTickerUpdateActive =
                         settingsState.forceTickerUpdateActive;
 
@@ -349,6 +351,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 ledTickerInDeviceListActive,
                                                             ledTickerOnTickerPageActive:
                                                                 ledTickerOnTickerPageActive,
+                                                            ledTickerPixelShiftActive:
+                                                                ledTickerPixelShiftActive,
                                                             forceTickerUpdateActive:
                                                                 forceTickerUpdateActive,
                                                             updateSizes:

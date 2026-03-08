@@ -562,7 +562,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                 inRow: true,
                 noVerticalSpace: false,
                 elementExpanded:
-                    width != null && width <= 300, // TODO: maybe throws error
+                    width != null && width <= 300, // maybe throws error
                 readOnly: false,
                 maxWidth: width != null && width <= 300 ? width - 70 : null,
                 selected:

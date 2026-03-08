@@ -112,6 +112,7 @@
     "verticalTickerSelectorLabel" : "Vertikalen Ticker anzeigen, wenn das Gerät entsprechend konfiguriert ist",
     "ledTickerInDeviceListSelectorLabel" : "LED-Ticker in Geräteliste anzeigen",
     "ledTickerOnTickerPageSelectorLabel" : "LED-Ticker auf der Ticker-Seite anzeigen",
+    "ledTickerPixelShift": "LED-Ticker pixelweise scrollen (pixelgenaues, flüssiges Scrollen)",
     "forceTickerUpdate": "Ticker sofort aktualisieren bei Text-Updates (unterbricht laufenden Ticker)",
     "okButtonText": "OK",
     "speed": "Geschwindigkeit",

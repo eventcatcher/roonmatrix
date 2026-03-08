@@ -51,6 +51,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             prefs.getBool('ledTickerInDeviceListActive') ?? true;
         bool ledTickerOnTickerPageActive =
             prefs.getBool('ledTickerOnTickerPageActive') ?? true;
+        bool ledTickerPixelShiftActive =
+            prefs.getBool('ledTickerPixelShiftActive') ?? true;
         bool forceTickerUpdateActive =
             prefs.getBool('forceTickerUpdateActive') ?? false;
 
@@ -70,6 +72,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           verticalTickerActive: verticalTickerActive,
           ledTickerInDeviceListActive: ledTickerInDeviceListActive,
           ledTickerOnTickerPageActive: ledTickerOnTickerPageActive,
+          ledTickerPixelShiftActive: ledTickerPixelShiftActive,
           forceTickerUpdateActive: forceTickerUpdateActive,
         ));
       }
@@ -246,6 +249,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         ));
       }
 
+      if (event is SetLedTickerPixelShiftActiveMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('ledTickerPixelShiftActive', enabled);
+
+        emit(state.copyWith(
+          ledTickerPixelShiftActive: enabled,
+        ));
+      }
+
       if (event is SetForceTickerUpdateActiveMode) {
         bool enabled = event.enabled;
 
@@ -283,6 +297,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       'verticalTickerActive',
       'ledTickerInDeviceListActive',
       'ledTickerOnTickerPageActive',
+      'ledTickerPixelShiftActive',
       'forceTickerUpdateActive',
     ];
     for (String key in prefsToRemoveList) {
@@ -414,6 +429,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required bool enabled,
   }) {
     add(SetLedTickerOnTickerPageActiveMode(enabled: enabled));
+  }
+
+  void setLedTickerPixelShiftActiveMode({
+    required bool enabled,
+  }) {
+    add(SetLedTickerPixelShiftActiveMode(enabled: enabled));
   }
 
   void setForceTickerUpdateActiveMode({

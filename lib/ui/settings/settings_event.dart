@@ -149,6 +149,17 @@ class SetLedTickerOnTickerPageActiveMode extends SettingsEvent {
   List<Object> get props => [enabled];
 }
 
+class SetLedTickerPixelShiftActiveMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetLedTickerPixelShiftActiveMode({
+    required this.enabled,
+  });
+
+  @override
+  List<Object> get props => [enabled];
+}
+
 class SetForceTickerUpdateActiveMode extends SettingsEvent {
   final bool enabled;
 

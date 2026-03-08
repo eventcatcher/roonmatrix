@@ -32,6 +32,7 @@ class ScrollMatrixPage extends StatefulWidget {
   final double scrollSpeed;
   final bool verticalTickerActive;
   final bool ledTickerOnTickerPageActive;
+  final bool ledTickerPixelShiftActive;
   final bool forceTickerUpdateActive;
   final Function(double speed) speedChanged;
 
@@ -45,6 +46,7 @@ class ScrollMatrixPage extends StatefulWidget {
     required this.scrollSpeed,
     required this.verticalTickerActive,
     required this.ledTickerOnTickerPageActive,
+    required this.ledTickerPixelShiftActive,
     required this.forceTickerUpdateActive,
     required this.speedChanged,
   });
@@ -107,6 +109,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   late StreamSubscription settingsBlocSubscription;
   late bool verticalTickerActive;
   late bool ledTickerOnTickerPageActive;
+  late bool ledTickerPixelShiftActive;
+  late bool forceTickerUpdateActive;
 
   @override
   void initState() {
@@ -120,6 +124,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
     verticalTickerActive = widget.verticalTickerActive;
     ledTickerOnTickerPageActive = widget.ledTickerOnTickerPageActive;
+    ledTickerPixelShiftActive = widget.ledTickerPixelShiftActive;
+    forceTickerUpdateActive = widget.forceTickerUpdateActive;
 
     width = minDesktopSize.width;
     height = minDesktopSize.height;
@@ -135,13 +141,19 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       if (settingsState is SettingsStateLoaded) {
         if (settingsState.ledTickerOnTickerPageActive !=
                 ledTickerOnTickerPageActive ||
-            settingsState.verticalTickerActive != verticalTickerActive) {
+            settingsState.verticalTickerActive != verticalTickerActive ||
+            settingsState.ledTickerPixelShiftActive !=
+                ledTickerPixelShiftActive ||
+            settingsState.forceTickerUpdateActive != forceTickerUpdateActive) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               setState(() {
                 ledTickerOnTickerPageActive =
                     settingsState.ledTickerOnTickerPageActive;
                 verticalTickerActive = settingsState.verticalTickerActive;
+                ledTickerPixelShiftActive =
+                    settingsState.ledTickerPixelShiftActive;
+                forceTickerUpdateActive = settingsState.forceTickerUpdateActive;
               });
             }
           });
@@ -398,12 +410,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                               vertical: ledSize * 0.7),
                                           color: Colors.grey.shade700,
                                           child: Container(
-                                            color: Colors.black,
+                                            color: ledTickerPixelShiftActive
+                                                ? Colors.black
+                                                : Colors.grey.shade800,
                                             child: UpdatableVerticalLedTicker(
                                               key: ValueKey(
                                                   'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
                                               modules: ledModules,
                                               useProportionalFont: true,
+                                              enableSmoothScrolling:
+                                                  ledTickerPixelShiftActive,
                                               center: true,
                                               ledSize: ledSize,
                                               ledGap: ledGap,
@@ -452,13 +468,17 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                             children: [
                                               Container(
                                                 width: tickerWidth,
-                                                color: Colors.black,
+                                                color: ledTickerPixelShiftActive
+                                                    ? Colors.black
+                                                    : Colors.grey.shade800,
                                                 child: UpdatableLedTicker(
                                                   key: ValueKey(
                                                       'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
                                                   updatableText: scrollText,
                                                   modules: ledModules,
                                                   useProportionalFont: true,
+                                                  enableSmoothScrolling:
+                                                      ledTickerPixelShiftActive,
                                                   ledSize: ledSize,
                                                   ledGap: ledGap,
                                                   onColor: ledOnColor,

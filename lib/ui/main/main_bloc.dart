@@ -397,7 +397,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   Map<String, ConfigDefinition>.from(state.definitions);
               definitions[ip] = deviceDefinitions;
 
-              Map fieldValues =
+              Map<String, dynamic> fieldValues =
+                  Map<String, dynamic>.from(state.fieldValues);
+              fieldValues[ip] =
                   getFieldValues(defs: deviceDefinitions, json: json['config']);
 
               Map<String, dynamic> config =
