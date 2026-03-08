@@ -12,7 +12,7 @@ abstract class MainState extends Equatable {
   final Map<String, bool> ping;
   final Map<String, dynamic> info;
   final Map<String, dynamic> config;
-  final ConfigDefinition? definitions;
+  final Map<String, ConfigDefinition> definitions;
   final Map fieldValues;
   final String log;
   final bool idle;
@@ -38,7 +38,7 @@ abstract class MainState extends Equatable {
       this.ping = const {},
       this.info = const {},
       this.config = const {},
-      this.definitions,
+      this.definitions = const {},
       this.fieldValues = const {},
       this.log = '',
       this.idle = false,
@@ -59,7 +59,7 @@ abstract class MainState extends Equatable {
     Map<String, bool>? ping,
     Map<String, dynamic>? info,
     Map<String, dynamic>? config,
-    ConfigDefinition? definitions,
+    Map<String, ConfigDefinition>? definitions,
     Map? fieldValues,
     String? log,
     bool? idle,
@@ -102,6 +102,7 @@ abstract class MainState extends Equatable {
       ping,
       info,
       config,
+      definitions,
       fieldValues,
       log,
       idle,
@@ -120,9 +121,6 @@ abstract class MainState extends Equatable {
     }
     if (activeDeviceIp != null) {
       props.add(activeDeviceIp!);
-    }
-    if (definitions != null) {
-      props.add(definitions!);
     }
     if (update != null) {
       props.add(update!);

@@ -9,6 +9,7 @@ import 'package:roonmatrix/ui/main/main_bloc.dart';
 class PageWithToolbarIosStyle extends StatefulWidget {
   final String title;
   final double sliderDefaultValue;
+  final bool showSlider;
   final bool showExpandableSpeedSlider;
   final double scrollSpeedDevice;
   final AnimationController animationController;
@@ -22,6 +23,7 @@ class PageWithToolbarIosStyle extends StatefulWidget {
     super.key,
     required this.title,
     required this.sliderDefaultValue,
+    required this.showSlider,
     required this.showExpandableSpeedSlider,
     required this.scrollSpeedDevice,
     required this.animationController,
@@ -40,6 +42,7 @@ class PageWithToolbarIosStyle extends StatefulWidget {
 class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
   String get title => widget.title;
   double get sliderDefaultValue => widget.sliderDefaultValue;
+  bool get showSlider => widget.showSlider;
   bool get showExpandableSpeedSlider => widget.showExpandableSpeedSlider;
   double get scrollSpeedDevice => widget.scrollSpeedDevice;
   AnimationController get animationController => widget.animationController;
@@ -99,21 +102,23 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
                 padding: showExpandableSpeedSlider
                     ? EdgeInsets.only(top: 5.0, right: 8.0)
                     : null,
-                child: showExpandableSpeedSlider
-                    ? SliderExpandable(
-                        width: 236.0,
-                        value: scrollSpeedDevice,
-                        updateValue: (double value) =>
-                            sliderUpdateValue!(speed: value),
-                      )
-                    : SliderMobile(
-                        min: Globals.sliderMinValue,
-                        max: Globals.sliderMaxValue,
-                        defaultValue: sliderDefaultValue,
-                        value: scrollSpeedDevice,
-                        updateValue: (double value) =>
-                            sliderUpdateValue!(speed: value),
-                      ),
+                child: showSlider
+                    ? showExpandableSpeedSlider
+                        ? SliderExpandable(
+                            width: 236.0,
+                            value: scrollSpeedDevice,
+                            updateValue: (double value) =>
+                                sliderUpdateValue!(speed: value),
+                          )
+                        : SliderMobile(
+                            min: Globals.sliderMinValue,
+                            max: Globals.sliderMaxValue,
+                            defaultValue: sliderDefaultValue,
+                            value: scrollSpeedDevice,
+                            updateValue: (double value) =>
+                                sliderUpdateValue!(speed: value),
+                          )
+                    : SizedBox(),
               )
             : null,
       );

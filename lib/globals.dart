@@ -7,7 +7,7 @@ import 'package:roonmatrix/ui/helper/cover_transition_preset.dart';
 
 class Globals {
   static final bool showMacStyle =
-      false; // show app in macos ui style (running on macos)
+      true; // show app in macos ui style (running on macos)
   static final bool showIosStyle =
       true; // show app in iOS ui style (running on macos or iOS)
   static final bool showSelectBoxInMacStyle = true;

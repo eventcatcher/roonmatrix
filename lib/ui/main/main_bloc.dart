@@ -391,11 +391,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   jsonDecode(utf8.decode(response.bodyBytes))
                       as Map<String, dynamic>;
 
-              ConfigDefinition definitions =
+              ConfigDefinition deviceDefinitions =
                   ConfigDefinition.fromJson(json['definitions']);
+              Map<String, ConfigDefinition> definitions =
+                  Map<String, ConfigDefinition>.from(state.definitions);
+              definitions[ip] = deviceDefinitions;
 
               Map fieldValues =
-                  getFieldValues(defs: definitions, json: json['config']);
+                  getFieldValues(defs: deviceDefinitions, json: json['config']);
 
               Map<String, dynamic> config =
                   Map<String, dynamic>.from(state.config);
@@ -2420,8 +2423,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     defaultDelay =
         int.parse(state.config[ip]['SYSTEM'][ledScrollDefinitionName]);
 
-    if (state.definitions != null) {
-      ConfigDefinitionItem? item = state.definitions!.area
+    if (state.definitions.containsKey(ip)) {
+      ConfigDefinitionItem? item = state.definitions[ip]!.area
           .firstWhere((el) => el.name == 'SYSTEM')
           .items
           .firstWhereOrNull((el) => el.name == ledScrollDefinitionName);
@@ -2455,6 +2458,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               (defaultDelay - scrollDelayMin));
       // debugPrint(
       //     'getScrollDelayMinMax => sliderDefaultValue: $sliderDefaultValue, scrollDelayMin: $scrollDelayMin, scrollDelayMax: $scrollDelayMax, defaultDelay: $defaultDelay, dotsPerSecond: ${1000 / defaultDelay}');
+    } else {
+      scrollDelayMin =
+          12; // default fallback value for coverplayer which has no matching SYSTEM definition
+      scrollDelayMax = ledScrollDefinitionName == 'led_scroll_delay'
+          ? 50
+          : 200; // default fallback value for coverplayer which has no matching SYSTEM definition
+      if (kDebugMode) {
+        debugPrint(
+            'getScrollDelayMinMax => get scrollDelayMin and scrollDelayMax fallback values');
+      }
     }
 
     return [defaultDelay, scrollDelayMin, scrollDelayMax, sliderDefaultValue];

@@ -259,6 +259,7 @@ class InfoPageState extends State<InfoPage> {
                         scaffoldKey: scaffoldKey,
                         title: title,
                         sliderDefaultValue: 0.0,
+                        showSlider: false,
                         showExpandableSpeedSlider: false,
                         scrollSpeedDevice: 1.0,
                         standardDesktopSize: standardDesktopSize,

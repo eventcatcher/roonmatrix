@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/ui/layout/mobile_speed_slider_and_fontsize_controls.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
@@ -74,6 +75,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   double ledSize = 3.0;
 
   Orientation orientation = Orientation.portrait;
+  ConfigDefinition? definitions;
   Offset actualPosition = Offset(0, 0);
   Size actualSize = Size(1280, 768);
   List<String> verticalTextLines = [];
@@ -287,9 +289,11 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
           child: BlocBuilder(
               bloc: mainBloc,
               builder: (context, MainState mainState) {
-                if (mainState is! MainStateLoaded) {
+                if (mainState is! MainStateLoaded ||
+                    !mainState.definitions.containsKey(ip)) {
                   return SizedBox();
                 }
+                definitions = mainState.definitions[ip];
 
                 double tickerWidth = ledTickerOnTickerPageActive
                     ? ledModules * ledSize * 8
@@ -511,37 +515,43 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
             brightness: Globals.brightness(),
             leading: CupertinoNavigationBarBackButton(
               onPressed: () {
+                if (Globals.isDesktopDevice() && !isFullscreen) {
+                  mainBloc.windowResize(
+                      size: actualSize, position: actualPosition);
+                }
                 mainBloc.disableListItemsRendering(disable: false);
                 Navigator.pop(context);
               },
             ),
             trailing: SizedBox(
               width: width - 100,
-              child: MobileSpeedSliderAndFontsizeControls(
-                key: ValueKey(
-                    'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput'),
-                translations: translations,
-                ip: ip,
-                ledModules: ledModules,
-                verticalOutput: verticalOutput && verticalTickerActive,
-                ledTickerActive: ledTickerOnTickerPageActive,
-                width: width,
-                sliderDefaultValue: sliderDefaultValue,
-                scrollSpeed: sliderValue,
-                speedChanged: (double speed) {
-                  speedChanged(speed);
-                  setState(() => sliderValue = speed);
-                },
-                sizeChanged: (double size) =>
-                    setState(() => mobileFontSize = size),
-              ),
+              child: definitions != null
+                  ? MobileSpeedSliderAndFontsizeControls(
+                      key: ValueKey(
+                          'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput'),
+                      translations: translations,
+                      ip: ip,
+                      ledModules: ledModules,
+                      verticalOutput: verticalOutput && verticalTickerActive,
+                      ledTickerActive: ledTickerOnTickerPageActive,
+                      width: width,
+                      sliderDefaultValue: sliderDefaultValue,
+                      scrollSpeed: sliderValue,
+                      speedChanged: (double speed) {
+                        speedChanged(speed);
+                        setState(() => sliderValue = speed);
+                      },
+                      sizeChanged: (double size) =>
+                          setState(() => mobileFontSize = size),
+                    )
+                  : SizedBox(),
             ),
           ),
           child: SafeArea(
             child: Stack(
               children: [
                 body(),
-                if (Globals.isDesktopDevice())
+                if (Globals.isDesktopDevice() && definitions != null)
                   Positioned(
                     bottom: -10,
                     right: 10,
@@ -577,6 +587,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
           }
 
           macosVersion = mainState.macosVersion;
+          definitions = mainState.definitions[ip];
 
           return Globals.inMacosStyle()
               ? PageWithToolbarMacStyle(
@@ -605,26 +616,27 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   body: Stack(
                     children: [
                       body(),
-                      Positioned(
-                        bottom: -10,
-                        right: 10,
-                        child: SliderHoverOverlay(
-                          label: '${translations['speed'] ?? 'speed:'}:',
-                          width: width > Globals.sliderOverlayMaxWidth
-                              ? Globals.sliderOverlayMaxWidth
-                              : width,
-                          min: Globals.sliderMinValue,
-                          max: Globals.sliderMaxValue,
-                          defaultValue: sliderDefaultValue,
-                          value: sliderValue,
-                          updateValue: (double value) {
-                            speedChanged(value);
-                            setState(() {
-                              sliderValue = value;
-                            });
-                          },
+                      if (definitions != null)
+                        Positioned(
+                          bottom: -10,
+                          right: 10,
+                          child: SliderHoverOverlay(
+                            label: '${translations['speed'] ?? 'speed:'}:',
+                            width: width > Globals.sliderOverlayMaxWidth
+                                ? Globals.sliderOverlayMaxWidth
+                                : width,
+                            min: Globals.sliderMinValue,
+                            max: Globals.sliderMaxValue,
+                            defaultValue: sliderDefaultValue,
+                            value: sliderValue,
+                            updateValue: (double value) {
+                              speedChanged(value);
+                              setState(() {
+                                sliderValue = value;
+                              });
+                            },
+                          ),
                         ),
-                      ),
                     ],
                   ),
                   backButtonPressed: () {
@@ -643,6 +655,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   scaffoldKey: scaffoldKey,
                   title: title,
                   sliderDefaultValue: sliderDefaultValue,
+                  showSlider: Globals.isMobileDevice() && definitions != null,
                   showExpandableSpeedSlider: false,
                   scrollSpeedDevice: 1.0,
                   standardDesktopSize: standardDesktopSize,
@@ -655,7 +668,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                           translations: translations,
                         ),
                       ),
-                    if (Globals.isMobileDevice())
+                    if (Globals.isMobileDevice() && definitions != null)
                       MobileSpeedSliderAndFontsizeControls(
                         key: ValueKey(
                             'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput'),
@@ -678,7 +691,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                   body: Stack(
                     children: [
                       body(),
-                      if (Globals.isDesktopDevice())
+                      if (Globals.isDesktopDevice() && definitions != null)
                         Positioned(
                           bottom: -10,
                           right: 10,

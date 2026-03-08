@@ -33,6 +33,7 @@ class DeviceListItem extends StatefulWidget {
   final String activeIp;
   final bool connected;
   final bool ping;
+  final bool showSlider;
   final Map<String, dynamic> info;
   final String spotifyAuthUrl;
   final bool isSmallDeviceWidth;
@@ -59,6 +60,7 @@ class DeviceListItem extends StatefulWidget {
     required this.activeIp,
     required this.connected,
     required this.ping,
+    required this.showSlider,
     required this.info,
     required this.spotifyAuthUrl,
     required this.isSmallDeviceWidth,
@@ -702,7 +704,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                       ),
                     ),
                   )),
-              if (Globals.isDesktopDevice())
+              if (Globals.isDesktopDevice() && widget.showSlider == true)
                 Positioned(
                   bottom: -10,
                   right: 0,

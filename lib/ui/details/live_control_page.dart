@@ -468,14 +468,15 @@ class LiveControlPageState extends State<LiveControlPage> {
           return BlocBuilder(
               bloc: mainBloc,
               builder: (context, MainState mainState) {
-                if (mainState is! MainStateLoaded) {
+                if (mainState is! MainStateLoaded ||
+                    !mainState.definitions.containsKey(ip)) {
                   return const SizedBox();
                 }
 
                 macosVersion = mainState.macosVersion;
                 List<String> devices = mainState.devices;
                 Map<String, dynamic> infos = mainState.info;
-                ConfigDefinition? definitions = mainState.definitions;
+                ConfigDefinition? definitions = mainState.definitions[ip];
 
                 updateVars(
                   devices: devices,
@@ -534,6 +535,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                           scaffoldKey: scaffoldKey,
                           title: title,
                           sliderDefaultValue: 0.0,
+                          showSlider: false,
                           showExpandableSpeedSlider: false,
                           scrollSpeedDevice: 1.0,
                           standardDesktopSize: standardDesktopSize,

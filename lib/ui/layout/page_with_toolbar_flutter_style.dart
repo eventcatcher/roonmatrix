@@ -15,6 +15,7 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String title;
   final double sliderDefaultValue;
+  final bool showSlider;
   final bool withTabController;
   final int tabLength;
   final PreferredSizeWidget? tabBar;
@@ -34,6 +35,7 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
     required this.scaffoldKey,
     required this.title,
     required this.sliderDefaultValue,
+    required this.showSlider,
     this.withTabController = false,
     this.tabLength = 2,
     this.tabBar,
@@ -59,6 +61,7 @@ class _PageWithToolbarFlutterStyleState
   GlobalKey<ScaffoldState> get scaffoldKey => widget.scaffoldKey;
   String get title => widget.title;
   double get sliderDefaultValue => widget.sliderDefaultValue;
+  bool get showSlider => widget.showSlider;
   bool get withTabController => widget.withTabController;
   int get tabLength => widget.tabLength;
   PreferredSizeWidget? get tabBar => widget.tabBar;
@@ -208,23 +211,25 @@ class _PageWithToolbarFlutterStyleState
               padding: showExpandableSpeedSlider
                   ? EdgeInsets.only(top: 5.0, right: 8.0)
                   : null,
-              child: showExpandableSpeedSlider
-                  ? SliderExpandable(
-                      width: 236.0,
-                      value: scrollSpeedDevice,
-                      updateValue: (double value) =>
-                          sliderUpdateValue!(speed: value),
-                    )
-                  : Center(
-                      child: SliderMobile(
-                        min: Globals.sliderMinValue,
-                        max: Globals.sliderMaxValue,
-                        defaultValue: sliderDefaultValue,
-                        value: scrollSpeedDevice,
-                        updateValue: (double value) =>
-                            sliderUpdateValue!(speed: value),
-                      ),
-                    ),
+              child: showSlider
+                  ? showExpandableSpeedSlider
+                      ? SliderExpandable(
+                          width: 236.0,
+                          value: scrollSpeedDevice,
+                          updateValue: (double value) =>
+                              sliderUpdateValue!(speed: value),
+                        )
+                      : Center(
+                          child: SliderMobile(
+                            min: Globals.sliderMinValue,
+                            max: Globals.sliderMaxValue,
+                            defaultValue: sliderDefaultValue,
+                            value: scrollSpeedDevice,
+                            updateValue: (double value) =>
+                                sliderUpdateValue!(speed: value),
+                          ),
+                        )
+                  : SizedBox(),
             ),
         ],
         bottom: withTabController == true && tabBar != null ? tabBar : null,

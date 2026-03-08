@@ -336,11 +336,11 @@ class ConfigPageState extends State<ConfigPage> {
                   });
                 }
 
-                if (mainState.definitions == null) {
+                if (!mainState.definitions.containsKey(ip)) {
                   return const LoadingIndicatorSmall();
                 }
 
-                ConfigDefinition defs = mainState.definitions!;
+                ConfigDefinition defs = mainState.definitions[ip]!;
                 fieldValues = mainState.fieldValues;
                 validData = mainBloc.validateAll(
                     definitions: defs, fieldValues: fieldValues);
@@ -468,6 +468,7 @@ class ConfigPageState extends State<ConfigPage> {
                         scaffoldKey: scaffoldKey,
                         title: title,
                         sliderDefaultValue: 0.0,
+                        showSlider: false,
                         withTabController: true,
                         tabLength: 2,
                         tabBar: PreferredSize(

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/lifecycle_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu_wrapper.dart';
@@ -56,6 +57,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   final drawerOffsetToHide = -240.0;
 
   Map<String, dynamic> translations = {};
+  Map<String, ConfigDefinition> definitions = {};
 
   Orientation orientation = Orientation.portrait;
   Map<String, dynamic> scrollSpeedDeviceMap = {};
@@ -196,6 +198,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                           bool idle = mainState.idle;
                           Map<String, bool> connected = mainState.connected;
                           Map<String, bool> ping = mainState.ping;
+                          definitions = mainState.definitions;
 
                           if (kDebugMode) {
                             debugPrint(
@@ -320,6 +323,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                             connected:
                                                                 connectedItem,
                                                             ping: pingItem,
+                                                            showSlider:
+                                                                definitions
+                                                                    .containsKey(
+                                                                        ip),
                                                             info: info,
                                                             spotifyAuthUrl:
                                                                 spotifyAuthUrls[
@@ -549,7 +556,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             left: isDrawerOpen ? 0 : drawerOffsetToHide,
             child: Container(
               width: 230,
-              height: double.infinity,
+              //height: double.infinity,
               decoration: BoxDecoration(
                 color: ColorDefs.windowBackgroundColor(context: context),
                 boxShadow: [
@@ -611,6 +618,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             return PageWithToolbarIosStyle(
               title: title,
               sliderDefaultValue: sliderDefaultValue,
+              showSlider:
+                  Globals.isMobileDevice() && definitions.containsKey(activeIp),
               showExpandableSpeedSlider: showExpandableSpeedSlider,
               scrollSpeedDevice:
                   scrollSpeedDeviceMap[activeIp] ?? scrollSpeedDevice,
@@ -690,6 +699,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             scaffoldKey: scaffoldKey,
             title: title,
             sliderDefaultValue: sliderDefaultValue,
+            showSlider:
+                Globals.isMobileDevice() && definitions.containsKey(activeIp),
             showExpandableSpeedSlider: showExpandableSpeedSlider,
             scrollSpeedDevice:
                 scrollSpeedDeviceMap[activeIp] ?? scrollSpeedDevice,
