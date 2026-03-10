@@ -497,41 +497,45 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             child: Padding(
               padding: EdgeInsets.only(
                   top: coverPadding, bottom: portraitMode ? coverPadding : 0),
-              child: SelectBox(
-                  key: ValueKey('ZoneSelectBox-$selectedZoneId'),
-                  translations: translations,
-                  aligned: 'inline',
-                  placeholder:
-                      '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                  inRow: true,
-                  noVerticalSpace: true,
-                  readOnly: false,
-                  maxWidth: width != null
-                      ? width -
-                          (portraitMode ? 20 : 16) -
-                          (Globals.inMacosStyle() ? 15 : 0)
-                      : null,
-                  elementExpanded: true,
-                  selected:
-                      options[selectedZoneId] != null ? selectedZoneId : null,
-                  options: options,
-                  onChanged: (String? newValue) {
-                    Map<String, dynamic> updateData =
-                        updateZoneSelection(newValue: newValue);
-                    selectedZoneId =
-                        updateData['selectedZoneId'] ?? selectedZoneId;
-                    controlId = updateData['controlId'] ?? controlId;
-                    selectedZone = updateData['selectedZone'] ?? selectedZone;
-                    if (mounted && updateData.keys.isNotEmpty) {
-                      setState(() {
-                        selectedZoneId =
-                            updateData['selectedZoneId'] ?? selectedZoneId;
-                        controlId = updateData['controlId'] ?? controlId;
-                        selectedZone =
-                            updateData['selectedZone'] ?? selectedZone;
-                      });
-                    }
-                  }),
+              child: Tooltip(
+                message: translations['selectZoneTooltip'] ?? 'Select zone',
+                waitDuration: Globals.tooltipWaitDuration,
+                child: SelectBox(
+                    key: ValueKey('ZoneSelectBox-$selectedZoneId'),
+                    translations: translations,
+                    aligned: 'inline',
+                    placeholder:
+                        '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                    inRow: true,
+                    noVerticalSpace: true,
+                    readOnly: false,
+                    maxWidth: width != null
+                        ? width -
+                            (portraitMode ? 20 : 16) -
+                            (Globals.inMacosStyle() ? 15 : 0)
+                        : null,
+                    elementExpanded: true,
+                    selected:
+                        options[selectedZoneId] != null ? selectedZoneId : null,
+                    options: options,
+                    onChanged: (String? newValue) {
+                      Map<String, dynamic> updateData =
+                          updateZoneSelection(newValue: newValue);
+                      selectedZoneId =
+                          updateData['selectedZoneId'] ?? selectedZoneId;
+                      controlId = updateData['controlId'] ?? controlId;
+                      selectedZone = updateData['selectedZone'] ?? selectedZone;
+                      if (mounted && updateData.keys.isNotEmpty) {
+                        setState(() {
+                          selectedZoneId =
+                              updateData['selectedZoneId'] ?? selectedZoneId;
+                          controlId = updateData['controlId'] ?? controlId;
+                          selectedZone =
+                              updateData['selectedZone'] ?? selectedZone;
+                        });
+                      }
+                    }),
+              ),
             ),
           ),
         ],
@@ -553,37 +557,42 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SelectBox(
-                key: ValueKey('ZoneSelectBox-$selectedZoneId'),
-                translations: translations,
-                aligned: 'horizontal',
-                placeholder:
-                    '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                inRow: true,
-                noVerticalSpace: false,
-                elementExpanded:
-                    width != null && width <= 300, // maybe throws error
-                readOnly: false,
-                maxWidth: width != null && width <= 300 ? width - 70 : null,
-                selected:
-                    options[selectedZoneId] != null ? selectedZoneId : null,
-                options: options,
-                onChanged: (String? newValue) {
-                  Map<String, dynamic> updateData =
-                      updateZoneSelection(newValue: newValue);
-                  selectedZoneId =
-                      updateData['selectedZoneId'] ?? selectedZoneId;
-                  controlId = updateData['controlId'] ?? controlId;
-                  selectedZone = updateData['selectedZone'] ?? selectedZone;
-                  if (mounted && updateData.keys.isNotEmpty) {
-                    setState(() {
-                      selectedZoneId =
-                          updateData['selectedZoneId'] ?? selectedZoneId;
-                      controlId = updateData['controlId'] ?? controlId;
-                      selectedZone = updateData['selectedZone'] ?? selectedZone;
-                    });
-                  }
-                }),
+            Tooltip(
+              message: translations['selectZoneTooltip'] ?? 'Select zone',
+              waitDuration: Duration(seconds: 2),
+              child: SelectBox(
+                  key: ValueKey('ZoneSelectBox-$selectedZoneId'),
+                  translations: translations,
+                  aligned: 'horizontal',
+                  placeholder:
+                      '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                  inRow: true,
+                  noVerticalSpace: false,
+                  elementExpanded:
+                      width != null && width <= 300, // maybe throws error
+                  readOnly: false,
+                  maxWidth: width != null && width <= 300 ? width - 70 : null,
+                  selected:
+                      options[selectedZoneId] != null ? selectedZoneId : null,
+                  options: options,
+                  onChanged: (String? newValue) {
+                    Map<String, dynamic> updateData =
+                        updateZoneSelection(newValue: newValue);
+                    selectedZoneId =
+                        updateData['selectedZoneId'] ?? selectedZoneId;
+                    controlId = updateData['controlId'] ?? controlId;
+                    selectedZone = updateData['selectedZone'] ?? selectedZone;
+                    if (mounted && updateData.keys.isNotEmpty) {
+                      setState(() {
+                        selectedZoneId =
+                            updateData['selectedZoneId'] ?? selectedZoneId;
+                        controlId = updateData['controlId'] ?? controlId;
+                        selectedZone =
+                            updateData['selectedZone'] ?? selectedZone;
+                      });
+                    }
+                  }),
+            ),
           ],
         ),
       ),

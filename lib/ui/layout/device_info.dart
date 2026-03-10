@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/ripple_ping.dart';
 
 class DeviceInfo extends StatelessWidget {
+  final Map<String, dynamic> translations;
   final String ip;
   final Map<String, dynamic> info;
   final bool connected;
@@ -11,6 +13,7 @@ class DeviceInfo extends StatelessWidget {
 
   const DeviceInfo({
     super.key,
+    required this.translations,
     required this.ip,
     required this.connected,
     required this.ping,
@@ -61,18 +64,29 @@ class DeviceInfo extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                connected ? Icons.wifi : Icons.wifi_off,
-                size: 24.0,
-                color: connected ? Colors.green.shade600 : Colors.grey.shade500,
+              Tooltip(
+                message: translations['deviceConnectionStatusLabel'] ??
+                    'Device connection status',
+                waitDuration: Globals.tooltipWaitDuration,
+                child: Icon(
+                  connected ? Icons.wifi : Icons.wifi_off,
+                  size: 24.0,
+                  color:
+                      connected ? Colors.green.shade600 : Colors.grey.shade500,
+                ),
               ),
               SizedBox(width: 16.0),
-              RipplePing(
-                trigger: ping,
-                color: Colors.red.shade800,
-                dotSize: 6,
-                maxRadius: 20,
-                onFinished: () => onFinishedPing(),
+              Tooltip(
+                message: translations['devicePingStatusLabel'] ??
+                    'Device response received',
+                waitDuration: Globals.tooltipWaitDuration,
+                child: RipplePing(
+                  trigger: ping,
+                  color: Colors.red.shade800,
+                  dotSize: 6,
+                  maxRadius: 20,
+                  onFinished: () => onFinishedPing(),
+                ),
               ),
             ],
           ),

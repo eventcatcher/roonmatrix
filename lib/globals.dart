@@ -90,6 +90,11 @@ class Globals {
   static final Duration coverSwitchAnimatedPresetDuration =
       const Duration(milliseconds: 1000);
 
+  static final Duration tooltipWaitDuration = const Duration(seconds: 2);
+
+  static final Duration controlButtonTooltipWaitDuration =
+      const Duration(seconds: 3);
+
   static final AnimatedSwitcherTransitionBuilder coverSwitchAnimatedPreset =
       CoverTransition.presets(
     CoverTransitionPreset.fadeScale,

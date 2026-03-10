@@ -168,7 +168,7 @@ class _PageWithToolbarFlutterStyleState
                   child: Tooltip(
                     message: translations['fullWidthResizeButtonLabel'] ??
                         'Full width',
-                    waitDuration: Duration(seconds: 2),
+                    waitDuration: Globals.tooltipWaitDuration,
                     child: IconButton(
                       iconSize: 16.0,
                       enableFeedback: true,
@@ -188,7 +188,7 @@ class _PageWithToolbarFlutterStyleState
                   child: Tooltip(
                     message:
                         translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-                    waitDuration: Duration(seconds: 2),
+                    waitDuration: Globals.tooltipWaitDuration,
                     child: IconButton(
                       iconSize: 16.0,
                       enableFeedback: true,
@@ -209,7 +209,7 @@ class _PageWithToolbarFlutterStyleState
                     child: Tooltip(
                       message: translations['maximizeResizeButtonLabel'] ??
                           'Maximize',
-                      waitDuration: Duration(seconds: 2),
+                      waitDuration: Globals.tooltipWaitDuration,
                       child: IconButton(
                         iconSize: 16.0,
                         enableFeedback: true,

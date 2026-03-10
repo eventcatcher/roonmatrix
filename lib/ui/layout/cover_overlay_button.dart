@@ -52,7 +52,7 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
           child: Tooltip(
             message: message,
             triggerMode: TooltipTriggerMode.manual,
-            waitDuration: Duration(seconds: 3),
+            waitDuration: Globals.controlButtonTooltipWaitDuration,
             verticalOffset: coverWidth / 8,
             child: Material(
               color: Colors.transparent,

@@ -37,7 +37,7 @@ class ControlButton extends StatelessWidget {
       child: Tooltip(
         message: readOnly ? '' : tooltipText,
         triggerMode: TooltipTriggerMode.manual,
-        waitDuration: Duration(seconds: 3),
+        waitDuration: Globals.controlButtonTooltipWaitDuration,
         verticalOffset: verticalTooltipOffset,
         child: Material(
           color: Colors.transparent,

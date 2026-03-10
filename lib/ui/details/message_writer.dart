@@ -552,41 +552,13 @@ class MessageWriterState extends State<MessageWriter> {
                     ),
                     child: Column(
                       children: [
-                        Ink(
-                          decoration: ShapeDecoration(
-                            color: messageTextBackup.value.isNotEmpty
-                                ? Globals.brightness() == Brightness.dark
-                                    ? Colors.blue.shade800
-                                    : Colors.blue.shade600
-                                : Colors.grey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: Globals.borderRadius(),
-                            ),
-                          ),
-                          child: SharedWidgets.addIconButton(
-                              context: context,
-                              textController: nameTextController,
-                              disabled: messageTextBackup.value.isEmpty,
-                              translations: translations,
-                              onExit: () => setState(() {
-                                    nameTextController.text = '';
-                                  }),
-                              onAccepted: (dynamic newKey) {
-                                if (newKey is String && newKey.isNotEmpty) {
-                                  onAddMessagePreset(key: newKey);
-                                }
-                              }),
-                        ),
-                        Expanded(child: const SizedBox(height: 5.0)),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            bottom: (Globals.isDesktopDevice() ? 0.0 : 21.0) -
-                                (Globals.isMobileDevice() ? 19 : 0),
-                          ),
+                        Tooltip(
+                          message: translations['addMessageToPresetsLabel'] ??
+                              'Add message to presets list',
+                          waitDuration: Globals.tooltipWaitDuration,
                           child: Ink(
                             decoration: ShapeDecoration(
-                              color: selectedMessageId != null &&
-                                      options.containsKey(selectedMessageId)
+                              color: messageTextBackup.value.isNotEmpty
                                   ? Globals.brightness() == Brightness.dark
                                       ? Colors.blue.shade800
                                       : Colors.blue.shade600
@@ -595,12 +567,51 @@ class MessageWriterState extends State<MessageWriter> {
                                 borderRadius: Globals.borderRadius(),
                               ),
                             ),
-                            child: SharedWidgets.removeIconButton(
-                              context: context,
-                              textController: nameTextController,
-                              disabled: selectedMessageId == null,
-                              translations: translations,
-                              onPressed: () => onRemoveMessagePreset(),
+                            child: SharedWidgets.addIconButton(
+                                context: context,
+                                textController: nameTextController,
+                                disabled: messageTextBackup.value.isEmpty,
+                                translations: translations,
+                                onExit: () => setState(() {
+                                      nameTextController.text = '';
+                                    }),
+                                onAccepted: (dynamic newKey) {
+                                  if (newKey is String && newKey.isNotEmpty) {
+                                    onAddMessagePreset(key: newKey);
+                                  }
+                                }),
+                          ),
+                        ),
+                        Expanded(child: const SizedBox(height: 5.0)),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            bottom: (Globals.isDesktopDevice() ? 0.0 : 21.0) -
+                                (Globals.isMobileDevice() ? 19 : 0),
+                          ),
+                          child: Tooltip(
+                            message:
+                                translations['removeMessageFromPresetsLabel'] ??
+                                    'Remove message from presets list',
+                            waitDuration: Globals.tooltipWaitDuration,
+                            child: Ink(
+                              decoration: ShapeDecoration(
+                                color: selectedMessageId != null &&
+                                        options.containsKey(selectedMessageId)
+                                    ? Globals.brightness() == Brightness.dark
+                                        ? Colors.blue.shade800
+                                        : Colors.blue.shade600
+                                    : Colors.grey,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: Globals.borderRadius(),
+                                ),
+                              ),
+                              child: SharedWidgets.removeIconButton(
+                                context: context,
+                                textController: nameTextController,
+                                disabled: selectedMessageId == null,
+                                translations: translations,
+                                onPressed: () => onRemoveMessagePreset(),
+                              ),
                             ),
                           ),
                         ),
