@@ -164,6 +164,7 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
 
                 return Globals.inMacosStyle()
                     ? PageWithToolbarMacStyle(
+                        translations: translations,
                         title: title,
                         standardDesktopSize: standardDesktopSize,
                         macosVersion: macosVersion,
@@ -176,6 +177,7 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
                       )
                     : PageWithToolbarFlutterStyle(
                         scaffoldKey: scaffoldKey,
+                        translations: translations,
                         title: title,
                         sliderDefaultValue: 0.0,
                         showSlider: false,

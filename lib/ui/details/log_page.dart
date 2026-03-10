@@ -465,6 +465,7 @@ class LogPageState extends State<LogPage> {
 
                 return Globals.inMacosStyle()
                     ? PageWithToolbarMacStyle(
+                        translations: translations,
                         title: title,
                         standardDesktopSize: standardDesktopSize,
                         macosVersion: macosVersion,
@@ -479,6 +480,7 @@ class LogPageState extends State<LogPage> {
                       )
                     : PageWithToolbarFlutterStyle(
                         scaffoldKey: scaffoldKey,
+                        translations: translations,
                         title: title,
                         sliderDefaultValue: 0.0,
                         showSlider: false,

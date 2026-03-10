@@ -10,6 +10,7 @@ import 'package:roonmatrix/ui/layout/macos_tappable_text_back_button.dart';
 import 'package:window_manager/window_manager.dart';
 
 class PageWithToolbarMacStyle extends StatefulWidget {
+  final Map<String, dynamic> translations;
   final String title;
   final Size standardDesktopSize;
   final String macosVersion;
@@ -21,6 +22,7 @@ class PageWithToolbarMacStyle extends StatefulWidget {
 
   const PageWithToolbarMacStyle({
     super.key,
+    required this.translations,
     required this.title,
     required this.standardDesktopSize,
     required this.macosVersion,
@@ -38,6 +40,7 @@ class PageWithToolbarMacStyle extends StatefulWidget {
 
 class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
     with WindowListener {
+  Map<String, dynamic> get translations => widget.translations;
   String get title => widget.title;
   Size get standardDesktopSize => widget.standardDesktopSize;
   String get macosVersion => widget.macosVersion;
@@ -122,7 +125,10 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
             if (!isFullscreen) ...[
               const ToolBarSpacer(),
               ToolBarIconButton(
-                label: "full width",
+                label:
+                    translations['fullWidthResizeButtonLabel'] ?? 'Full width',
+                tooltipMessage:
+                    translations['fullWidthResizeButtonLabel'] ?? 'Full width',
                 icon: Icon(
                   FontAwesomeIcons.arrowsLeftRight,
                   size: iconSize,
@@ -132,7 +138,9 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
                 showLabel: false,
               ),
               ToolBarIconButton(
-                label: "minimize",
+                label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+                tooltipMessage:
+                    translations['minimizeResizeButtonLabel'] ?? 'Minimize',
                 icon: Icon(
                   FontAwesomeIcons.minimize,
                   size: iconSize,
@@ -143,7 +151,9 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
                 showLabel: false,
               ),
               ToolBarIconButton(
-                label: "maximize",
+                label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
+                tooltipMessage:
+                    translations['maximizeResizeButtonLabel'] ?? 'Maximize',
                 icon: Icon(
                   FontAwesomeIcons.maximize,
                   size: iconSize,

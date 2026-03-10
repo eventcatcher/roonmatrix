@@ -515,6 +515,7 @@ class LiveControlPageState extends State<LiveControlPage> {
 
                   return Globals.inMacosStyle()
                       ? PageWithToolbarMacStyle(
+                          translations: translations,
                           title: title,
                           standardDesktopSize: standardDesktopSize,
                           macosVersion: macosVersion,
@@ -533,6 +534,7 @@ class LiveControlPageState extends State<LiveControlPage> {
                         )
                       : PageWithToolbarFlutterStyle(
                           scaffoldKey: scaffoldKey,
+                          translations: translations,
                           title: title,
                           sliderDefaultValue: 0.0,
                           showSlider: false,

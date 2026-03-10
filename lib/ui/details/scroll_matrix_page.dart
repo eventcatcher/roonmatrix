@@ -611,6 +611,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
           return Globals.inMacosStyle()
               ? PageWithToolbarMacStyle(
+                  translations: translations,
                   title: title,
                   standardDesktopSize: standardDesktopSize,
                   macosVersion: macosVersion,
@@ -673,6 +674,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                 )
               : PageWithToolbarFlutterStyle(
                   scaffoldKey: scaffoldKey,
+                  translations: translations,
                   title: title,
                   sliderDefaultValue: sliderDefaultValue,
                   showSlider: Globals.isMobileDevice() && definitions != null,

@@ -13,6 +13,7 @@ import 'package:window_manager/window_manager.dart';
 
 class PageWithToolbarFlutterStyle extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final Map<String, dynamic> translations;
   final String title;
   final double sliderDefaultValue;
   final bool showSlider;
@@ -33,6 +34,7 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
   const PageWithToolbarFlutterStyle({
     super.key,
     required this.scaffoldKey,
+    required this.translations,
     required this.title,
     required this.sliderDefaultValue,
     required this.showSlider,
@@ -59,6 +61,7 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
 class _PageWithToolbarFlutterStyleState
     extends State<PageWithToolbarFlutterStyle> with WindowListener {
   GlobalKey<ScaffoldState> get scaffoldKey => widget.scaffoldKey;
+  Map<String, dynamic> get translations => widget.translations;
   String get title => widget.title;
   double get sliderDefaultValue => widget.sliderDefaultValue;
   bool get showSlider => widget.showSlider;
@@ -162,43 +165,61 @@ class _PageWithToolbarFlutterStyleState
               if (Globals.isDesktopDevice() && !isFullscreen) ...[
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
-                  child: IconButton(
-                    iconSize: 16.0,
-                    padding: EdgeInsets.zero,
-                    onPressed: () => resizeToFullWidth(),
-                    icon: Icon(
-                      FontAwesomeIcons.arrowsLeftRight,
-                      color:
-                          ColorDefs.toolbarResizeButtonColor(context: context),
+                  child: Tooltip(
+                    message: translations['fullWidthResizeButtonLabel'] ??
+                        'Full width',
+                    waitDuration: Duration(seconds: 2),
+                    child: IconButton(
+                      iconSize: 16.0,
+                      enableFeedback: true,
+                      padding: EdgeInsets.zero,
+                      onPressed: () => resizeToFullWidth(),
+                      icon: Icon(
+                        FontAwesomeIcons.arrowsLeftRight,
+                        color: ColorDefs.toolbarResizeButtonColor(
+                            context: context),
+                      ),
                     ),
                   ),
                 ),
                 Padding(
                   padding:
                       EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
-                  child: IconButton(
-                    iconSize: 16.0,
-                    padding: EdgeInsets.zero,
-                    onPressed: () => windowManager.setSize(standardDesktopSize,
-                        animate: true),
-                    icon: Icon(
-                      FontAwesomeIcons.minimize,
-                      color:
-                          ColorDefs.toolbarResizeButtonColor(context: context),
+                  child: Tooltip(
+                    message:
+                        translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+                    waitDuration: Duration(seconds: 2),
+                    child: IconButton(
+                      iconSize: 16.0,
+                      enableFeedback: true,
+                      padding: EdgeInsets.zero,
+                      onPressed: () => windowManager
+                          .setSize(standardDesktopSize, animate: true),
+                      icon: Icon(
+                        FontAwesomeIcons.minimize,
+                        color: ColorDefs.toolbarResizeButtonColor(
+                            context: context),
+                      ),
                     ),
                   ),
                 ),
                 if (Platform.isMacOS)
                   Padding(
                     padding: const EdgeInsets.only(right: 4.0),
-                    child: IconButton(
-                      iconSize: 16.0,
-                      padding: EdgeInsets.zero,
-                      onPressed: () => windowManager.maximize(),
-                      icon: Icon(
-                        FontAwesomeIcons.maximize,
-                        color: ColorDefs.toolbarResizeButtonColor(
-                            context: context),
+                    child: Tooltip(
+                      message: translations['maximizeResizeButtonLabel'] ??
+                          'Maximize',
+                      waitDuration: Duration(seconds: 2),
+                      child: IconButton(
+                        iconSize: 16.0,
+                        enableFeedback: true,
+                        padding: EdgeInsets.zero,
+                        onPressed: () => windowManager.maximize(),
+                        icon: Icon(
+                          FontAwesomeIcons.maximize,
+                          color: ColorDefs.toolbarResizeButtonColor(
+                              context: context),
+                        ),
                       ),
                     ),
                   ),

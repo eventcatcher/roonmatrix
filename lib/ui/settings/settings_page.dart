@@ -632,6 +632,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                         return Globals.inMacosStyle()
                             ? PageWithToolbarMacStyle(
+                                translations: translations,
                                 title: title,
                                 standardDesktopSize: standardDesktopSize,
                                 macosVersion: macosVersion,
@@ -648,6 +649,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               )
                             : PageWithToolbarFlutterStyle(
                                 scaffoldKey: scaffoldKey,
+                                translations: translations,
                                 title: title,
                                 sliderDefaultValue: 0.0,
                                 showSlider: false,

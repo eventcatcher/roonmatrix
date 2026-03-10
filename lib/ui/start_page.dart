@@ -665,6 +665,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             }
 
             return PageWithToolbarMacStyle(
+              translations: translations,
               title: title,
               standardDesktopSize: standardDesktopSize,
               macosVersion: mainState.macosVersion,
@@ -701,6 +702,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
           return PageWithToolbarFlutterStyle(
             scaffoldKey: scaffoldKey,
+            translations: translations,
             title: title,
             sliderDefaultValue: sliderDefaultValue,
             showSlider:
