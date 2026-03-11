@@ -81,10 +81,9 @@ class MessageWriterState extends State<MessageWriter> {
           .firstWhereOrNull((MapEntry entry) => entry.value == customMessage)
           ?.key;
       selectedMessageId = key;
-      if (key != null) {
-        messageTextController.text = options[key] ?? '';
-        messageTextBackup.value = options[key] ?? '';
-      }
+
+      messageTextController.text = customMessage;
+      messageTextBackup.value = customMessage;
     }
   }
 
@@ -466,7 +465,6 @@ class MessageWriterState extends State<MessageWriter> {
                           setState(() {
                             setMessage = false;
                             nameTextController.text = '';
-                            selectedMessageId = null;
                           });
                         }
                       },
