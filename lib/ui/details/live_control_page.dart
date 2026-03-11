@@ -274,12 +274,16 @@ class LiveControlPageState extends State<LiveControlPage> {
           SelectBox(
             translations: translations,
             aligned: 'horizontal',
-            label: '${translations['deviceName'] ?? 'device name'}:',
+            label: Globals.inIosStyle()
+                ? null
+                : '${translations['deviceName'] ?? 'device name'}:',
             placeholder:
                 '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
             inRow: false,
             noVerticalSpace: false,
             readOnly: false,
+            expanded: Globals.inIosStyle(),
+            elementExpanded: Globals.inIosStyle(),
             selected: selectedDeviceName,
             options: options,
             onChanged: (String? newValue) {

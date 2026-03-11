@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
@@ -487,7 +486,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     required Map<String, String> options,
     double? width,
   }) {
-    if (selectBoxWithoutPadding == true && Platform.isIOS && !threeCols) {
+    if (selectBoxWithoutPadding == true &&
+        (Globals.inIosStyle() || !threeCols)) {
       return Row(
         mainAxisAlignment:
             portraitMode ? MainAxisAlignment.center : MainAxisAlignment.start,

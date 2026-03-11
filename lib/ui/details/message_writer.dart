@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -68,9 +69,23 @@ class MessageWriterState extends State<MessageWriter> {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
 
-    getCustomMessages();
+    init();
 
     super.initState();
+  }
+
+  init() async {
+    Map<String, String> options = await getCustomMessages();
+    if (customMessage.isNotEmpty) {
+      String? key = options.entries
+          .firstWhereOrNull((MapEntry entry) => entry.value == customMessage)
+          ?.key;
+      selectedMessageId = key;
+      if (key != null) {
+        messageTextController.text = options[key] ?? '';
+        messageTextBackup.value = options[key] ?? '';
+      }
+    }
   }
 
   @override
@@ -105,11 +120,13 @@ class MessageWriterState extends State<MessageWriter> {
     super.dispose();
   }
 
-  Future<void> getCustomMessages() async {
+  Future<Map<String, String>> getCustomMessages() async {
     options = await mainRepository.getCustomMessages();
     setState(() {
       optionsLoaded = true;
     });
+
+    return options;
   }
 
   Widget messageSelectbox() => Padding(

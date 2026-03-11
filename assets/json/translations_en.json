@@ -104,6 +104,8 @@
     "removeButtonText": "remove",
     "logHoursAgoSelectionHourMaskSingle": "# hour ago",
     "logHoursAgoSelectionHourMaskMultiple": "# hours ago",
+    "warningNoteHeader": "Please note",
+    "hoursSelectionWarningText": "A log can become very large, and loading the file can therefore sometimes take quite a long time before the log is displayed in the app. During this time, the app may not respond smoothly! It is therefore best to start with short time ranges of 1 or 2 hours. Do not load the maximum time range of 24 hours right away. For the analysis of larger time ranges, it is recommended to load the log first onto your computer or mobile device and then open it with a text or code editor. You can start the download by clicking on the export button.",
     "settingsPageIpScanRangeHeadline": "IP range to scan for devices",
     "settingsPageIpScanRangeLabelFrom": "from",
     "settingsPageIpScanRangeLabelTo": "to",

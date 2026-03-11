@@ -5,6 +5,7 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/rich_parser.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
@@ -200,23 +201,90 @@ class LogPageState extends State<LogPage> {
     required MainState mainState,
     required String logstr,
   }) {
-    Widget selectBoxWithIcon = SelectBoxWithIcon(
-      translations: translations,
-      options: translationsBloc.state.logHoursOptions,
-      placeholder: translations['pleaseSelectPlaceholder'] ?? 'Please Select',
-      selected: hours.toString(),
-      onChanged: (String? value) {
-        if (value != null) {
-          mainBloc.getLog(ip: ip, hours: int.parse(value));
-          if (mounted) {
-            setState(() {
-              hours = int.parse(value);
-              logfilePart = 1;
-              logfilePartOffset = [];
-            });
+    Widget tooltipWarning = Padding(
+      padding: EdgeInsets.only(top: 3.0),
+      child: SelectBoxWithIcon(
+        translations: translations,
+        options: translationsBloc.state.logHoursOptions,
+        placeholder: translations['pleaseSelectPlaceholder'] ?? 'Please Select',
+        selected: hours.toString(),
+        onChanged: (String? value) {
+          if (value != null) {
+            mainBloc.getLog(ip: ip, hours: int.parse(value));
+            if (mounted) {
+              setState(() {
+                hours = int.parse(value);
+                logfilePart = 1;
+                logfilePartOffset = [];
+              });
+            }
           }
-        }
-      },
+        },
+      ),
+    );
+
+    Widget selectBoxWithIcon = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Globals.inMacosStyle() || Globals.inIosStyle()
+            ? tooltipWarning
+            : Expanded(
+                child: tooltipWarning,
+              ),
+        Tooltip(
+          margin: EdgeInsets.symmetric(
+              horizontal: Globals.isDesktopDevice() ? 64.0 : 16.0),
+          padding: EdgeInsets.all(16.0),
+          richMessage: WidgetSpan(
+            child: Column(
+              children: [
+                Text(
+                  translations['warningNoteHeader'] ?? "Please note",
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  translations['hoursSelectionWarningText'] ??
+                      'A log can become very large, and loading the file can therefore sometimes take quite a long time before the log is displayed in the app. During this time, the app may not respond smoothly! It is therefore best to start with short time ranges of 1 or 2 hours. Do not load the maximum time range of 24 hours right away. For the analysis of larger time ranges, it is recommended to load the log first onto your computer or mobile device and then open it with a text or code editor. You can start the download by clicking on the export button.',
+                  style: TextStyle(fontSize: 16.0, color: Colors.white),
+                ),
+              ],
+            ),
+          ),
+          waitDuration: Globals.tooltipWaitDuration,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              hoverColor: Colors.transparent,
+              onTap: () {
+                ApproveModal(
+                  context: context,
+                  title: translations['warningNoteHeader'] ?? "Please note",
+                  question: translations['hoursSelectionWarningText'] ??
+                      'A log can become very large, and loading the file can therefore sometimes take quite a long time before the log is displayed in the app. During this time, the app may not respond smoothly! It is therefore best to start with short time ranges of 1 or 2 hours. Do not load the maximum time range of 24 hours right away. For the analysis of larger time ranges, it is recommended to load the log first onto your computer or mobile device and then open it with a text or code editor. You can start the download by clicking on the export button.',
+                  okText: translations['okButtonText'] ?? 'OK',
+                  cancelText: '',
+                ).show();
+              },
+              child: Padding(
+                padding: EdgeInsets.only(
+                    right: Globals.inMacosStyle() ? 16.0 : 10.0),
+                child: Icon(
+                  Icons.help,
+                  color: ColorDefs.blueIconColor(context: context),
+                  size: Globals.inIosStyle()
+                      ? 48.0
+                      : Globals.inMacosStyle()
+                          ? 24.0
+                          : 36.0,
+                ),
+              ),
+            ),
+          ),
+        )
+      ],
     );
 
     return Column(

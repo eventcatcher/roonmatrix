@@ -104,6 +104,8 @@
     "removeButtonText": "Supprimer",
     "logHoursAgoSelectionHourMaskSingle": "la dernière heure",
     "logHoursAgoSelectionHourMaskMultiple": "Il y a # heures",
+    "warningNoteHeader": "Veuillez noter",
+    "hoursSelectionWarningText": "Un journal peut devenir très volumineux, et le chargement du fichier peut donc parfois prendre un certain temps avant que le journal ne s'affiche dans l'application. Pendant ce temps, l'application peut ne pas répondre correctement ! Il est donc préférable de commencer par des intervalles de temps courts, de 1 ou 2 heures. Ne chargez pas immédiatement la plage horaire maximale de 24 heures. Pour l'analyse de plages horaires plus longues, il est recommandé de charger d'abord le journal sur votre ordinateur ou votre appareil mobile, puis de l'ouvrir avec un éditeur de texte ou de code. Vous pouvez lancer le téléchargement en cliquant sur le bouton Exporter.",
     "settingsPageIpScanRangeHeadline": "Plage d'adresses IP à analyser pour rechercher des périphériques",
     "settingsPageIpScanRangeLabelFrom": "de",
     "settingsPageIpScanRangeLabelTo": "à",

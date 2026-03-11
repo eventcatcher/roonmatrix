@@ -104,6 +104,8 @@
     "removeButtonText": "entfernen",
     "logHoursAgoSelectionHourMaskSingle": "die letzte Stunde",
     "logHoursAgoSelectionHourMaskMultiple": "die letzten # Stunden",
+    "warningNoteHeader": "Bitte beachten",
+    "hoursSelectionWarningText": "Ein Log kann sehr gross werden, und das laden der Datei kann daher auch manchmal recht lange dauern, bis das Log in der App angezeigt wird. Die App kann in dieser Zeit unter Umständen nicht mehr flüssig reagieren! Fangen sie daher am besten mit kurzen Zeitbereichen von 1 oder 2 Stunden an. Laden Sie nicht gleich den maximalen Zeitbereich von 24 Stunden. Für die Analyse von grösseren Zeitbereichen ist es empfehlenswert, das Log zuerst auf ihren Rechner oder Mobilgerät zu laden, und dann mit einem Text- oder Code-Editor zu öffnen. Den Download können sie mit einem klick auf den Export-Button starten.",
     "settingsPageIpScanRangeHeadline": "IP-Bereich für den Scan nach Geräten",
     "settingsPageIpScanRangeLabelFrom": "von",
     "settingsPageIpScanRangeLabelTo": "bis",
