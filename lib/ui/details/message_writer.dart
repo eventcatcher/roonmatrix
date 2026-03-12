@@ -12,6 +12,7 @@ import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
+import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -472,6 +473,37 @@ class MessageWriterState extends State<MessageWriter> {
             }),
       );
 
+  Widget resetMessageButton({required bool desktopLandscapeWide}) => Tooltip(
+        message: translations['resetMessageButtonLabel'] ?? 'Clear text',
+        waitDuration: Globals.tooltipWaitDuration,
+        child: Ink(
+          child: IconButtonElement(
+            noBackground: true,
+            readOnly: messageTextBackup.value.isEmpty,
+            size: 40,
+            icon: Icon(
+              Icons.clear,
+              color: messageTextBackup.value.isNotEmpty
+                  ? Globals.brightness() == Brightness.dark
+                      ? Colors.blue.shade800
+                      : Colors.blue.shade600
+                  : Colors.grey,
+              size: 20.0,
+            ),
+            onPressed: () async {
+              if (Platform.isIOS || Platform.isAndroid) {
+                FocusManager.instance.primaryFocus
+                    ?.unfocus(); // hide onscreen keyboard to see the response message (snackbar)
+              }
+              setState(() {
+                messageTextController.text = '';
+                messageTextBackup.value = messageTextController.text;
+              });
+            },
+          ),
+        ),
+      );
+
   void onAddMessagePreset({required String key}) => options.containsKey(key)
       ? ApproveModal(
           context: context,
@@ -596,6 +628,11 @@ class MessageWriterState extends State<MessageWriter> {
                                   }
                                 }),
                           ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24.0),
+                          child: resetMessageButton(
+                              desktopLandscapeWide: Globals.isDesktopDevice()),
                         ),
                         Expanded(child: const SizedBox(height: 5.0)),
                         Padding(

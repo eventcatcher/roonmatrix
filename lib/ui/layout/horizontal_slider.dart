@@ -50,7 +50,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
   final double labelWidthx = 150.0;
   final double labelWidthFallback = 200.0;
   final double sliderPercentTextWidth = 124.0;
-  final double labelAndSliderInRowMinWidth = 600;
+  final double labelAndSliderInRowMinWidth = 1200;
   final double flex3MinWidth = 1200.0;
   final double flex2MinWidth = 800.0;
 
@@ -216,6 +216,7 @@ class _HorizontalSliderState extends State<HorizontalSlider> {
                               sliderValue: sliderValue,
                               max: max,
                             ),
+                            textAlign: TextAlign.end,
                             style: TextStyle(
                               color: ColorDefs.textColor(context: context),
                             ),

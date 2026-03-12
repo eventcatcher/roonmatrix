@@ -137,6 +137,8 @@
     "sendOptionForce": "Forcer la lecture",
     "sendOptionNextPlayout": "À la prochaine lecture",
     "sendOptionExclusive": "Lecture exclusive",
+    "resetMessageButtonLabel": "Texte clair",
+    "resetMessageShortButtonLabel": "clair",
     "allDevicesSwitchLabel": "envoyer à tous les appareils",
     "allDevicesRemoveSwitchLabel": "supprimer de tous les appareils",
     "zonePickerOptionsEmpty": "aucun",

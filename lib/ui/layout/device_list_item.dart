@@ -101,12 +101,12 @@ class DeviceListItemState extends State<DeviceListItem> {
   void Function(String caller) get updateSizes => widget.updateSizes;
 
   final int cyclePause = 2;
-  final double deviceListCoverSize = 40.0;
+  final double deviceListCoverSize = 68.0;
   final double mobileInfoPaddingRight = 40.0;
   final Color tileColor = Colors.lightBlueAccent;
 
-  final double tickerTopOffset = 58.0;
-  final double verticalTickerTopOffset = 58.0;
+  final double tickerTopOffset = 54.0;
+  final double verticalTickerTopOffset = 54.0;
   final double tickerAreaHeight = 24.0;
   final double tickerFontSize = 14.0;
   final double tickerSpeedSliderWidth = 120.0;
@@ -337,7 +337,6 @@ class DeviceListItemState extends State<DeviceListItem> {
           ),
           child: Stack(
             children: [
-              //Text('scrollText: $scrollText'),
               ListTile(
                 contentPadding: EdgeInsets.all(0),
                 tileColor: tileColor,
@@ -418,7 +417,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                       connected: connected,
                       ping: ping,
                       info: info,
-                      deviceListCoverSize: deviceListCoverSize,
+                      height: 38,
                       onFinishedPing: () {
                         mainBloc.setPing(ip: ip, ping: false);
                       },
@@ -515,7 +514,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                   width <= Globals.mobilePageButtonsMaxWidth)
                 Positioned(
                   top: Globals.isDesktopDevice()
-                      ? 9.0
+                      ? 7.0
                       : Platform.isAndroid
                           ? 4.0
                           : 7.0,
@@ -541,11 +540,14 @@ class DeviceListItemState extends State<DeviceListItem> {
                 ),
               Positioned(
                   top: (verticalOutput && verticalTickerActive
-                          ? verticalTickerTopOffset
+                          ? ledTickerInDeviceListActive
+                              ? verticalTickerTopOffset
+                              : verticalTickerTopOffset - 1
                           : tickerTopOffset) +
                       (ledTickerInDeviceListActive
                           ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
                           : 0),
+                  left: deviceListCoverSize + 8,
                   child: NotificationListener<SizeChangedLayoutNotification>(
                     onNotification: (notification) {
                       updateSizes('NotificationListener');
@@ -603,9 +605,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                                     width: tickerWidth,
                                     padding: ledTickerInDeviceListActive
                                         ? EdgeInsets.all(ledTickerPadding)
-                                        : EdgeInsets.only(
-                                            top: 4.0,
-                                            bottom: 4.0,
+                                        : EdgeInsets.symmetric(
+                                            vertical: 2.0,
                                           ),
                                     decoration: ledTickerInDeviceListActive
                                         ? BoxDecoration(

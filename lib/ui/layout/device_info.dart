@@ -8,7 +8,7 @@ class DeviceInfo extends StatelessWidget {
   final Map<String, dynamic> info;
   final bool connected;
   final bool ping;
-  final double deviceListCoverSize;
+  final double height;
   final VoidCallback onFinishedPing;
 
   const DeviceInfo({
@@ -18,7 +18,7 @@ class DeviceInfo extends StatelessWidget {
     required this.connected,
     required this.ping,
     required this.info,
-    required this.deviceListCoverSize,
+    required this.height,
     required this.onFinishedPing,
   });
 
@@ -37,7 +37,7 @@ class DeviceInfo extends StatelessWidget {
           children: [
             SizedBox(
               width: widthNameAndIpArea,
-              height: deviceListCoverSize + 1,
+              height: height,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,

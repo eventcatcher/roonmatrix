@@ -137,6 +137,8 @@
     "sendOptionForce": "Force Playout",
     "sendOptionNextPlayout": "On next Playout",
     "sendOptionExclusive": "Exclusive Playout",
+    "resetMessageButtonLabel": "Clear text",
+    "resetMessageShortButtonLabel": "clear",
     "allDevicesSwitchLabel": "send to all devices",
     "allDevicesRemoveSwitchLabel": "remove from all devices",
     "zonePickerOptionsEmpty": "none",

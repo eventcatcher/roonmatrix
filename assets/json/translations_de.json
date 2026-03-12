@@ -137,6 +137,8 @@
     "sendOptionForce": "Sofort aktualisieren",
     "sendOptionNextPlayout": "Beim nächsten Playout anzeigen",
     "sendOptionExclusive": "Exklusives Playout",
+    "resetMessageButtonLabel": "Text leeren",
+    "resetMessageShortButtonLabel": "leeren",
     "allDevicesSwitchLabel": "an alle Geräte senden",
     "allDevicesRemoveSwitchLabel": "von allen Geräten entfernen",
     "zonePickerOptionsEmpty": "keine",
