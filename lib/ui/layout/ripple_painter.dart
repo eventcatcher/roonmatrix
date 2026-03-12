@@ -21,7 +21,7 @@ class RipplePainter extends CustomPainter {
     final double offset = maxRadius * 0.35;
     final Offset center = Offset(
       size.width / 2 - offset,
-      size.height / 2 - offset,
+      (maxRadius + size.height) / 2 - offset - 1,
     );
 
     // ripple-circle

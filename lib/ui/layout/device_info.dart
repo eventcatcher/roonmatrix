@@ -46,13 +46,13 @@ class DeviceInfo extends StatelessWidget {
                     info[ip]['name'],
                     softWrap: false,
                     maxLines: 1,
-                    style: TextStyle(fontSize: fontSizeName),
+                    style: TextStyle(fontSize: fontSizeName, height: 1.3),
                   ),
                   Text(
                     ip,
                     softWrap: false,
                     maxLines: 1,
-                    style: TextStyle(fontSize: fontSizeIp),
+                    style: TextStyle(fontSize: fontSizeIp, height: 1.3),
                   )
                 ],
               ),
@@ -60,19 +60,23 @@ class DeviceInfo extends StatelessWidget {
           ],
         ),
         Padding(
-          padding: EdgeInsets.only(top: 8.0),
+          padding: EdgeInsets.only(top: 0.0),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Tooltip(
                 message: translations['deviceConnectionStatusLabel'] ??
                     'Device connection status',
                 waitDuration: Globals.tooltipWaitDuration,
-                child: Icon(
-                  connected ? Icons.wifi : Icons.wifi_off,
-                  size: 24.0,
-                  color:
-                      connected ? Colors.green.shade600 : Colors.grey.shade500,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3.0),
+                  child: Icon(
+                    connected ? Icons.wifi : Icons.wifi_off,
+                    size: 24.0,
+                    color: connected
+                        ? Colors.green.shade600
+                        : Colors.grey.shade500,
+                  ),
                 ),
               ),
               SizedBox(width: 16.0),
@@ -84,7 +88,7 @@ class DeviceInfo extends StatelessWidget {
                   trigger: ping,
                   color: Colors.red.shade800,
                   dotSize: 6,
-                  maxRadius: 20,
+                  maxRadius: height / 2,
                   onFinished: () => onFinishedPing(),
                 ),
               ),

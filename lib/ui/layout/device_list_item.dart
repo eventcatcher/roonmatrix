@@ -105,8 +105,8 @@ class DeviceListItemState extends State<DeviceListItem> {
   final double mobileInfoPaddingRight = 40.0;
   final Color tileColor = Colors.lightBlueAccent;
 
-  final double tickerTopOffset = 54.0;
-  final double verticalTickerTopOffset = 54.0;
+  final double tickerTopOffset = 53.0;
+  final double verticalTickerTopOffset = 53.0;
   final double tickerAreaHeight = 24.0;
   final double tickerFontSize = 14.0;
   final double tickerSpeedSliderWidth = 120.0;
@@ -221,7 +221,8 @@ class DeviceListItemState extends State<DeviceListItem> {
     verticalOutput = i['vertical_output'] ?? false;
 
     double ledSizeNew = ledSize;
-    double nettoWidth = width - tickerHorizontalPadding * 2;
+    double nettoWidth =
+        width - deviceListCoverSize - tickerHorizontalPadding * 3 - 3;
     if (ledModules * ledSize * 8 + ledGap * 8 >
         nettoWidth - tickerHorizontalPadding * 2) {
       ledSizeNew = nettoWidth / (ledModules * 8 + ledGap * 8);
@@ -423,64 +424,74 @@ class DeviceListItemState extends State<DeviceListItem> {
                         connected: connected,
                         ping: ping,
                         info: info,
-                        height: 38,
+                        height: Globals.mobileExpandableButtonSize - 4,
                         onFinishedPing: () {
                           mainBloc.setPing(ip: ip, ping: false);
                         },
                       ),
                       Expanded(
                         child: Globals.isDesktopDevice()
-                            ? Row(
-                                // desktop variant
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: width >
-                                            Globals
-                                                .deviceListItemSwitchBoundaryFullInfo
-                                        ? Text(
-                                            mainRepository
-                                                .getTimeZonePlaycountText(
-                                              translations: translations,
-                                              info: i,
-                                              zoneName: zoneName,
+                            ? SizedBox(
+                                height:
+                                    width <= Globals.mobilePageButtonsMaxWidth
+                                        ? Globals.mobileExpandableButtonSize
+                                        : null,
+                                child: Row(
+                                  // desktop variant
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: width >
+                                              Globals
+                                                  .deviceListItemSwitchBoundaryFullInfo
+                                          ? Text(
+                                              mainRepository
+                                                  .getTimeZonePlaycountText(
+                                                translations: translations,
+                                                info: i,
+                                                zoneName: zoneName,
+                                              ),
+                                              softWrap: true,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.fade,
+                                              style: TextStyle(
+                                                  fontSize: width >
+                                                          Globals
+                                                              .mobilePageButtonsMaxWidth
+                                                      ? 14.0
+                                                      : 12.0,
+                                                  height: 1.3),
+                                            )
+                                          : Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 12.0),
+                                              child: Text('${i['playcount']}',
+                                                  softWrap: true,
+                                                  overflow: TextOverflow.fade,
+                                                  style: const TextStyle(
+                                                      fontSize: 9,
+                                                      height: 1.3)),
                                             ),
-                                            softWrap: true,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.fade,
-                                            style: TextStyle(
-                                                fontSize: width >
-                                                        Globals
-                                                            .mobilePageButtonsMaxWidth
-                                                    ? 14.0
-                                                    : 12.0),
-                                          )
-                                        : Padding(
-                                            padding: EdgeInsets.only(
-                                                right: 12.0, top: 12.0),
-                                            child: Text('${i['playcount']}',
-                                                softWrap: true,
-                                                overflow: TextOverflow.fade,
-                                                style: const TextStyle(
-                                                    fontSize: 9)),
-                                          ),
-                                  ),
-                                  if (width > Globals.mobilePageButtonsMaxWidth)
-                                    DesktopPageButtons(
-                                      translations: translations,
-                                      ip: ip,
-                                      info: info,
-                                      spotifyAuthUrl: spotifyAuthUrl,
-                                      moreInfo: moreInfo,
-                                      minDesktopSize: minDesktopSize,
-                                      standardDesktopSize: standardDesktopSize,
-                                    )
-                                ],
+                                    ),
+                                    if (width >
+                                        Globals.mobilePageButtonsMaxWidth)
+                                      DesktopPageButtons(
+                                        translations: translations,
+                                        ip: ip,
+                                        info: info,
+                                        spotifyAuthUrl: spotifyAuthUrl,
+                                        moreInfo: moreInfo,
+                                        minDesktopSize: minDesktopSize,
+                                        standardDesktopSize:
+                                            standardDesktopSize,
+                                      )
+                                  ],
+                                ),
                               )
                             : SizedBox(
-                                height: deviceListCoverSize,
+                                height: Globals.mobileExpandableButtonSize,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -523,11 +534,7 @@ class DeviceListItemState extends State<DeviceListItem> {
               if (Globals.isMobileDevice() ||
                   width <= Globals.mobilePageButtonsMaxWidth)
                 Positioned(
-                  top: Globals.isDesktopDevice()
-                      ? 7.0
-                      : Platform.isAndroid
-                          ? 4.0
-                          : 7.0,
+                  top: 9.0,
                   right: 0.0,
                   child: MobilePageButtons(
                     translations: translations,

@@ -60,9 +60,11 @@ class Globals {
 
   static final double verticalTickerWidthFactor = 0.65;
 
-  static double mobileFontSizeSmall = 32.0;
-  static double mobileFontSizeMedium = 64.0;
-  static double mobileFontSizeBig = 128.0;
+  static final double mobileButtonSize = 40.0;
+  static final double mobileExpandableButtonSize = 38.0;
+  static final double mobileFontSizeSmall = 32.0;
+  static final double mobileFontSizeMedium = 64.0;
+  static final double mobileFontSizeBig = 128.0;
 
   static final double sliderMinValue = 0.0;
   static final double sliderMaxValue = 5.0;
@@ -76,7 +78,7 @@ class Globals {
 
   static final double sliderOverlayMaxWidth = 216.0;
 
-  static double deviceListItemSwitchBoundaryFullInfo = 650;
+  static final double deviceListItemSwitchBoundaryFullInfo = 650;
 
   static final double extendedTitleWidth = 500.0;
 

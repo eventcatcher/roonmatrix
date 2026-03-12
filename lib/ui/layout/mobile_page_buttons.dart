@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
@@ -54,7 +55,6 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       widget.setSpotifyAuthRedirectUrl;
 
   final double baseWidth = 100.0;
-  final double buttonSize = 38.0;
   final int animationSpeed = 400;
 
   List<Widget> mobileButtonsList = [];
@@ -212,8 +212,9 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: baseWidth + buttonSize * mobileButtonsList.length,
-        height: buttonSize,
+        width: baseWidth +
+            Globals.mobileExpandableButtonSize * mobileButtonsList.length,
+        height: Globals.mobileExpandableButtonSize,
         child: Stack(
           children: [
             Positioned(
@@ -223,8 +224,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
               child: ExpandableMenu(
                 key: ValueKey(
                     'ExpandableMenu-$ip-$moreInfo'), // main item expandable for mobile
-                width: buttonSize,
-                height: buttonSize,
+                width: Globals.mobileExpandableButtonSize,
+                height: Globals.mobileExpandableButtonSize,
                 animationSpeed: animationSpeed,
                 backgroundColor:
                     ColorDefs.buttonRowBackgroundColor(context: context),
