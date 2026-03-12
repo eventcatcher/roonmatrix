@@ -337,177 +337,187 @@ class DeviceListItemState extends State<DeviceListItem> {
           ),
           child: Stack(
             children: [
-              ListTile(
-                contentPadding: EdgeInsets.all(0),
-                tileColor: tileColor,
-                iconColor: Colors.black,
-                textColor: ColorDefs.textColor(context: context),
-                title: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: deviceListCoverSize,
-                      height: deviceListCoverSize,
-                      child: Tooltip(
-                        message: translations['openCoverPageButtonLabel'] ??
-                            'Open album cover view and device control page',
-                        waitDuration: Globals.tooltipWaitDuration,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () => showGeneralDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            barrierLabel: 'Dialog',
-                            transitionDuration: const Duration(milliseconds: 0),
-                            pageBuilder: (_, __, ___) {
-                              return CoverPage(
-                                name: i['name'],
-                                ip: ip,
-                                translations: translations,
-                                minDesktopSize: minDesktopSize,
-                                standardDesktopSize: standardDesktopSize,
-                              );
-                            },
-                          ),
-                          icon: AnimatedSwitcher(
-                            duration:
-                                Globals.coverSwitchDefaultFadeAnimationDuration,
-                            switchInCurve: Curves.easeIn,
-                            switchOutCurve: Curves.easeOut,
-                            child: coverUrl != null
-                                ? Image.network(
-                                    coverUrl,
-                                    width: deviceListCoverSize,
-                                    height: deviceListCoverSize,
-                                    colorBlendMode: idle
-                                        ? ColorDefs.idleZoneColorBlendMode
-                                        : null,
-                                    color: idle
-                                        ? ColorDefs.idleZoneIconColor
-                                        : null,
-                                    key: ValueKey(
-                                        'DeviceCover-${widget.ip}-$coverUrl'),
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return SvgPicture.asset(
-                                        Globals.placeholderSvgAssetPath(),
-                                        allowDrawingOutsideViewBox: false,
-                                        fit: BoxFit.cover,
-                                        clipBehavior: Clip.hardEdge,
-                                      );
-                                    },
-                                  )
-                                : SvgPicture.asset(
-                                    Globals.placeholderSvgAssetPath(),
-                                    allowDrawingOutsideViewBox: false,
-                                    fit: BoxFit.cover,
-                                    colorFilter: idle
-                                        ? ColorDefs.idleZoneIconColorFilter
-                                        : null,
-                                    clipBehavior: Clip.hardEdge,
-                                  ),
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(vertical: tickerHorizontalPadding),
+                child: ListTile(
+                  minVerticalPadding: 0.0,
+                  contentPadding: EdgeInsets.all(0),
+                  tileColor: tileColor,
+                  iconColor: Colors.black,
+                  textColor: ColorDefs.textColor(context: context),
+                  title: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: deviceListCoverSize,
+                        height: deviceListCoverSize,
+                        child: Tooltip(
+                          message: translations['openCoverPageButtonLabel'] ??
+                              'Open album cover view and device control page',
+                          waitDuration: Globals.tooltipWaitDuration,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => showGeneralDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              barrierLabel: 'Dialog',
+                              transitionDuration:
+                                  const Duration(milliseconds: 0),
+                              pageBuilder: (_, __, ___) {
+                                return CoverPage(
+                                  name: i['name'],
+                                  ip: ip,
+                                  translations: translations,
+                                  minDesktopSize: minDesktopSize,
+                                  standardDesktopSize: standardDesktopSize,
+                                );
+                              },
+                            ),
+                            icon: AnimatedSwitcher(
+                              duration: Globals
+                                  .coverSwitchDefaultFadeAnimationDuration,
+                              switchInCurve: Curves.easeIn,
+                              switchOutCurve: Curves.easeOut,
+                              child: coverUrl != null
+                                  ? Image.network(
+                                      coverUrl,
+                                      width: deviceListCoverSize,
+                                      height: deviceListCoverSize,
+                                      colorBlendMode: idle
+                                          ? ColorDefs.idleZoneColorBlendMode
+                                          : null,
+                                      color: idle
+                                          ? ColorDefs.idleZoneIconColor
+                                          : null,
+                                      key: ValueKey(
+                                          'DeviceCover-${widget.ip}-$coverUrl'),
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return SvgPicture.asset(
+                                          Globals.placeholderSvgAssetPath(),
+                                          allowDrawingOutsideViewBox: false,
+                                          fit: BoxFit.cover,
+                                          clipBehavior: Clip.hardEdge,
+                                        );
+                                      },
+                                    )
+                                  : SvgPicture.asset(
+                                      Globals.placeholderSvgAssetPath(),
+                                      allowDrawingOutsideViewBox: false,
+                                      fit: BoxFit.cover,
+                                      colorFilter: idle
+                                          ? ColorDefs.idleZoneIconColorFilter
+                                          : null,
+                                      clipBehavior: Clip.hardEdge,
+                                    ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 8.0),
-                    DeviceInfo(
-                      translations: translations,
-                      ip: ip,
-                      connected: connected,
-                      ping: ping,
-                      info: info,
-                      height: 38,
-                      onFinishedPing: () {
-                        mainBloc.setPing(ip: ip, ping: false);
-                      },
-                    ),
-                    Expanded(
-                      child: Globals.isDesktopDevice()
-                          ? Row(
-                              // desktop variant
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: width >
-                                          Globals
-                                              .deviceListItemSwitchBoundaryFullInfo
-                                      ? Text(
+                      SizedBox(width: 8.0),
+                      DeviceInfo(
+                        translations: translations,
+                        ip: ip,
+                        connected: connected,
+                        ping: ping,
+                        info: info,
+                        height: 38,
+                        onFinishedPing: () {
+                          mainBloc.setPing(ip: ip, ping: false);
+                        },
+                      ),
+                      Expanded(
+                        child: Globals.isDesktopDevice()
+                            ? Row(
+                                // desktop variant
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: width >
+                                            Globals
+                                                .deviceListItemSwitchBoundaryFullInfo
+                                        ? Text(
+                                            mainRepository
+                                                .getTimeZonePlaycountText(
+                                              translations: translations,
+                                              info: i,
+                                              zoneName: zoneName,
+                                            ),
+                                            softWrap: true,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.fade,
+                                            style: TextStyle(
+                                                fontSize: width >
+                                                        Globals
+                                                            .mobilePageButtonsMaxWidth
+                                                    ? 14.0
+                                                    : 12.0),
+                                          )
+                                        : Padding(
+                                            padding: EdgeInsets.only(
+                                                right: 12.0, top: 12.0),
+                                            child: Text('${i['playcount']}',
+                                                softWrap: true,
+                                                overflow: TextOverflow.fade,
+                                                style: const TextStyle(
+                                                    fontSize: 9)),
+                                          ),
+                                  ),
+                                  if (width > Globals.mobilePageButtonsMaxWidth)
+                                    DesktopPageButtons(
+                                      translations: translations,
+                                      ip: ip,
+                                      info: info,
+                                      spotifyAuthUrl: spotifyAuthUrl,
+                                      moreInfo: moreInfo,
+                                      minDesktopSize: minDesktopSize,
+                                      standardDesktopSize: standardDesktopSize,
+                                    )
+                                ],
+                              )
+                            : SizedBox(
+                                height: deviceListCoverSize,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    if (isSmallDeviceWidth == true)
+                                      Padding(
+                                        padding: EdgeInsets.only(right: 12.0),
+                                        child: Text('${i['playcount']}',
+                                            softWrap: true,
+                                            overflow: TextOverflow.fade,
+                                            style:
+                                                const TextStyle(fontSize: 9)),
+                                      ),
+                                    if (!isSmallDeviceWidth)
+                                      AnimatedOpacity(
+                                        opacity: infoOpacityLevel,
+                                        duration: Duration(milliseconds: 400),
+                                        child: Text(
                                           mainRepository
                                               .getTimeZonePlaycountText(
                                             translations: translations,
                                             info: i,
                                             zoneName: zoneName,
+                                            withLineBreak: true,
                                           ),
                                           softWrap: true,
                                           maxLines: 2,
                                           overflow: TextOverflow.fade,
-                                          style: TextStyle(
-                                              fontSize: width >
-                                                      Globals
-                                                          .mobilePageButtonsMaxWidth
-                                                  ? 14.0
-                                                  : 12.0),
-                                        )
-                                      : Padding(
-                                          padding: EdgeInsets.only(
-                                              right: 12.0, top: 12.0),
-                                          child: Text('${i['playcount']}',
-                                              softWrap: true,
-                                              overflow: TextOverflow.fade,
-                                              style:
-                                                  const TextStyle(fontSize: 9)),
+                                          style: const TextStyle(fontSize: 11),
                                         ),
-                                ),
-                                if (width > Globals.mobilePageButtonsMaxWidth)
-                                  DesktopPageButtons(
-                                    translations: translations,
-                                    ip: ip,
-                                    info: info,
-                                    spotifyAuthUrl: spotifyAuthUrl,
-                                    moreInfo: moreInfo,
-                                    minDesktopSize: minDesktopSize,
-                                    standardDesktopSize: standardDesktopSize,
-                                  )
-                              ],
-                            )
-                          : SizedBox(
-                              height: deviceListCoverSize,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  if (isSmallDeviceWidth == true)
-                                    Padding(
-                                      padding: EdgeInsets.only(right: 12.0),
-                                      child: Text('${i['playcount']}',
-                                          softWrap: true,
-                                          overflow: TextOverflow.fade,
-                                          style: const TextStyle(fontSize: 9)),
-                                    ),
-                                  if (!isSmallDeviceWidth)
-                                    AnimatedOpacity(
-                                      opacity: infoOpacityLevel,
-                                      duration: Duration(milliseconds: 400),
-                                      child: Text(
-                                        mainRepository.getTimeZonePlaycountText(
-                                          translations: translations,
-                                          info: i,
-                                          zoneName: zoneName,
-                                          withLineBreak: true,
-                                        ),
-                                        softWrap: true,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.fade,
-                                        style: const TextStyle(fontSize: 11),
                                       ),
-                                    ),
-                                  SizedBox(width: mobileInfoPaddingRight)
-                                ],
+                                    SizedBox(width: mobileInfoPaddingRight)
+                                  ],
+                                ),
                               ),
-                            ),
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               if (Globals.isMobileDevice() ||
@@ -542,7 +552,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                   top: (verticalOutput && verticalTickerActive
                           ? ledTickerInDeviceListActive
                               ? verticalTickerTopOffset
-                              : verticalTickerTopOffset - 1
+                              : verticalTickerTopOffset - 1.5
                           : tickerTopOffset) +
                       (ledTickerInDeviceListActive
                           ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
