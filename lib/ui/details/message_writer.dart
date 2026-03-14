@@ -12,7 +12,6 @@ import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
-import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -53,6 +52,8 @@ class MessageWriterState extends State<MessageWriter> {
   final TextEditingController nameTextController = TextEditingController();
   final TextEditingController messageTextController = TextEditingController();
   final ValueNotifier<String> messageTextBackup = ValueNotifier<String>('');
+  final borderRadius =
+      BorderRadius.all(Radius.circular(Globals.inMacosStyle() ? 7.0 : 5.0));
 
   String? selectedMessageId;
   Map<String, String> options = {};
@@ -474,35 +475,24 @@ class MessageWriterState extends State<MessageWriter> {
       );
 
   Widget resetMessageButton({required bool desktopLandscapeWide}) => Tooltip(
-        message: translations['resetMessageButtonLabel'] ?? 'Clear text',
-        waitDuration: Globals.tooltipWaitDuration,
-        child: Ink(
-          child: IconButtonElement(
-            noBackground: true,
-            readOnly: messageTextBackup.value.isEmpty,
-            size: 40,
-            icon: Icon(
-              Icons.clear,
-              color: messageTextBackup.value.isNotEmpty
-                  ? Globals.brightness() == Brightness.dark
-                      ? Colors.blue.shade800
-                      : Colors.blue.shade600
-                  : Colors.grey,
-              size: 20.0,
-            ),
-            onPressed: () async {
-              if (Platform.isIOS || Platform.isAndroid) {
-                FocusManager.instance.primaryFocus
-                    ?.unfocus(); // hide onscreen keyboard to see the response message (snackbar)
-              }
-              setState(() {
-                messageTextController.text = '';
-                messageTextBackup.value = messageTextController.text;
-              });
-            },
-          ),
-        ),
-      );
+      message: translations['resetMessageButtonLabel'] ?? 'Clear text',
+      waitDuration: Globals.tooltipWaitDuration,
+      child: SharedWidgets.restyledIconButton(
+        context: context,
+        disabled: messageTextBackup.value.isEmpty,
+        icon: Icons.clear,
+        onPressed: () async {
+          if (Platform.isIOS || Platform.isAndroid) {
+            FocusManager.instance.primaryFocus
+                ?.unfocus(); // hide onscreen keyboard to see the response message (snackbar)
+          }
+          setState(() {
+            messageTextController.text = '';
+            messageTextBackup.value = messageTextController.text;
+            selectedMessageId = null;
+          });
+        },
+      ));
 
   void onAddMessagePreset({required String key}) => options.containsKey(key)
       ? ApproveModal(
@@ -594,7 +584,7 @@ class MessageWriterState extends State<MessageWriter> {
                       color:
                           ColorDefs.buttonAreaBackgroundColor(context: context),
                       shape: RoundedRectangleBorder(
-                        borderRadius: Globals.borderRadius(),
+                        borderRadius: borderRadius,
                       ),
                     ),
                     child: Column(
@@ -611,11 +601,12 @@ class MessageWriterState extends State<MessageWriter> {
                                       : Colors.blue.shade600
                                   : Colors.grey,
                               shape: RoundedRectangleBorder(
-                                borderRadius: Globals.borderRadius(),
+                                borderRadius: borderRadius,
                               ),
                             ),
                             child: SharedWidgets.addIconButton(
                                 context: context,
+                                icon: Icons.add,
                                 textController: nameTextController,
                                 disabled: messageTextBackup.value.isEmpty,
                                 translations: translations,
@@ -645,25 +636,11 @@ class MessageWriterState extends State<MessageWriter> {
                                 translations['removeMessageFromPresetsLabel'] ??
                                     'Remove message from presets list',
                             waitDuration: Globals.tooltipWaitDuration,
-                            child: Ink(
-                              decoration: ShapeDecoration(
-                                color: selectedMessageId != null &&
-                                        options.containsKey(selectedMessageId)
-                                    ? Globals.brightness() == Brightness.dark
-                                        ? Colors.blue.shade800
-                                        : Colors.blue.shade600
-                                    : Colors.grey,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: Globals.borderRadius(),
-                                ),
-                              ),
-                              child: SharedWidgets.removeIconButton(
-                                context: context,
-                                textController: nameTextController,
-                                disabled: selectedMessageId == null,
-                                translations: translations,
-                                onPressed: () => onRemoveMessagePreset(),
-                              ),
+                            child: SharedWidgets.restyledIconButton(
+                              context: context,
+                              icon: Icons.remove,
+                              disabled: selectedMessageId == null,
+                              onPressed: () => onRemoveMessagePreset(),
                             ),
                           ),
                         ),
@@ -733,8 +710,12 @@ class MessageWriterState extends State<MessageWriter> {
                               decoration: BoxDecoration(
                                 borderRadius: Globals.borderRadius(),
                                 border: Border.all(
-                                    color: Colors.grey.shade400,
-                                    width: 0,
+                                    color: Globals.inMacosStyle() ||
+                                            Globals.inIosStyle()
+                                        ? ColorDefs.borderColor(
+                                            context: context)
+                                        : Colors.grey.shade400,
+                                    //width: 0,
                                     style: BorderStyle.solid),
                               ),
                               child: Column(

@@ -147,6 +147,7 @@ class SharedWidgets {
   static IconButtonElement addIconButton({
     required BuildContext context,
     required TextEditingController? textController,
+    required IconData icon,
     bool disabled = false,
     required Map<String, dynamic> translations,
     required void Function(dynamic value) onAccepted,
@@ -154,10 +155,19 @@ class SharedWidgets {
   }) =>
       IconButtonElement(
           readOnly: disabled,
+          backgroundColor: Colors.transparent,
+          backgroundReadOnlyColor: Colors.transparent,
+          backgroundHoverColor: Colors.blue.shade800.withAlpha(30),
           size: 40,
-          icon: const Icon(
-            Icons.add,
-            color: Colors.white,
+          icon: Icon(
+            icon,
+            color: disabled
+                ? Globals.inMacosStyle() || Globals.inIosStyle()
+                    ? CupertinoColors.inactiveGray.color
+                    : Colors.grey
+                : Globals.brightness() == Brightness.dark
+                    ? Colors.blue.shade600
+                    : Colors.blue.shade800,
             size: 20.0,
           ),
           onPressed: () async {
@@ -186,19 +196,27 @@ class SharedWidgets {
             }
           });
 
-  static IconButtonElement removeIconButton({
+  static IconButtonElement restyledIconButton({
     required BuildContext context,
-    required TextEditingController? textController,
+    required IconData icon,
     bool disabled = false,
-    required Map<String, dynamic> translations,
     required VoidCallback onPressed,
   }) =>
       IconButtonElement(
         readOnly: disabled,
+        backgroundColor: Colors.transparent,
+        backgroundReadOnlyColor: Colors.transparent,
+        backgroundHoverColor: Colors.blue.shade800.withAlpha(30),
         size: 40,
-        icon: const Icon(
-          Icons.remove,
-          color: Colors.white,
+        icon: Icon(
+          icon,
+          color: disabled
+              ? Globals.inMacosStyle() || Globals.inIosStyle()
+                  ? CupertinoColors.inactiveGray.color
+                  : Colors.grey
+              : Globals.brightness() == Brightness.dark
+                  ? Colors.blue.shade600
+                  : Colors.blue.shade800,
           size: 20.0,
         ),
         onPressed: () {

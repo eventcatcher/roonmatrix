@@ -1822,7 +1822,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
           if (fieldType == 'multiline-text') {
             widgetField = Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              padding: const EdgeInsets.only(
+                top: 6.0,
+                bottom: 6.0,
+                right: 16.0,
+              ),
               child: EditableMultilineText(
                 translations: translations,
                 label: label,

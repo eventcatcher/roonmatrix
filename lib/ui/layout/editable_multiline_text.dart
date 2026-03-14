@@ -126,17 +126,15 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                   decoration: Globals.inIosStyle() || Globals.inMacosStyle()
                       ? null
                       : BoxDecoration(
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.grey,
-                              offset: Offset(0.1, 0.5),
-                              blurRadius: 0.1,
-                              blurStyle: BlurStyle.normal,
-                            )
-                          ],
-                          color: ColorDefs.elementBackgroundColor(
-                              context: context),
                           borderRadius: Globals.borderRadius(),
+                          border: Border.all(
+                            color:
+                                Globals.inMacosStyle() || Globals.inIosStyle()
+                                    ? ColorDefs.borderColor(context: context)
+                                    : Colors.grey.shade400,
+                            //width: 0,
+                            style: BorderStyle.solid,
+                          ),
                         ),
                   child: Globals.inIosStyle() || Globals.inMacosStyle()
                       ? CupertinoTextField(
@@ -145,7 +143,6 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                               translations['pleaseTypeMessagePlaceholder'] ??
                               'Please write message here',
                           textAlign: TextAlign.start,
-                          expands: true,
                           textAlignVertical: TextAlignVertical.top,
                           decoration: BoxDecoration(
                             border: Border.all(
@@ -205,7 +202,6 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                             color: ColorDefs.textColor(context: context),
                             fontSize: fontSize ?? 14.0,
                           ),
-                          expands: true,
                           decoration: InputDecoration(
                             hintText:
                                 translations['pleaseTypeMessagePlaceholder'] ??
