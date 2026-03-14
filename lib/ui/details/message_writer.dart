@@ -555,8 +555,7 @@ class MessageWriterState extends State<MessageWriter> {
         children: [
           Expanded(
             child: LayoutBuilder(builder: (context, constraints) {
-              double textFieldHeight =
-                  constraints.maxHeight - (Globals.isMobileDevice() ? 3 : 0);
+              double textFieldHeight = constraints.maxHeight;
               double fontSize = textFieldHeight / 20 / 1.25;
 
               return EditableMultilineText(
@@ -706,7 +705,7 @@ class MessageWriterState extends State<MessageWriter> {
                                   left: Globals.isDesktopDevice() ? 16.0 : 0.0,
                                   top: Globals.isDesktopDevice() ? 16.0 : 0.0,
                                   bottom:
-                                      Globals.isDesktopDevice() ? 16.0 : 3.0),
+                                      Globals.isDesktopDevice() ? 16.0 : 0.0),
                               decoration: BoxDecoration(
                                 borderRadius: Globals.borderRadius(),
                                 border: Border.all(
