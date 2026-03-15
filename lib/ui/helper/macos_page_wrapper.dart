@@ -8,6 +8,7 @@ import 'package:window_manager/window_manager.dart';
 class MacosPageWrapper extends StatefulWidget {
   final String? name;
   final String? macosVersion;
+  final VoidCallback? backButtonPressed;
   final ToolBar? toolBar;
   final Widget? additionalFullscreenTitleContent;
   final Widget body;
@@ -16,6 +17,7 @@ class MacosPageWrapper extends StatefulWidget {
     super.key,
     this.name,
     required this.macosVersion,
+    this.backButtonPressed,
     required this.toolBar,
     this.additionalFullscreenTitleContent,
     required this.body,
@@ -127,13 +129,25 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
                                       MacosBackButton(
                                         fillColor: Colors.transparent,
                                         hoverColor: Colors.transparent,
-                                        onPressed: () => Navigator.pop(context),
+                                        onPressed: () {
+                                          if (widget.backButtonPressed !=
+                                              null) {
+                                            widget.backButtonPressed!();
+                                          }
+                                          Navigator.pop(context);
+                                        },
                                         //hoverColor: MacosColors.systemBlueColor,
                                         mouseCursor: SystemMouseCursors.click,
                                       ),
                                       SizedBox(width: 4.0),
                                       InkWell(
-                                        onTap: () => Navigator.pop(context),
+                                        onTap: () {
+                                          if (widget.backButtonPressed !=
+                                              null) {
+                                            widget.backButtonPressed!();
+                                          }
+                                          Navigator.pop(context);
+                                        },
                                         child: Text(
                                           name!,
                                           style: TextStyle(

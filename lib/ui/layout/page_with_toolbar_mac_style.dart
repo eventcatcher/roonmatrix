@@ -104,6 +104,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
   Widget build(BuildContext context) => MacosPageWrapper(
         name: title == Globals.mainWindowTitle ? null : title,
         macosVersion: macosVersion,
+        backButtonPressed: backButtonPressed,
         toolBar: ToolBar(
           titleWidth: Globals.extendedTitleWidth,
           title: title == Globals.mainWindowTitle
