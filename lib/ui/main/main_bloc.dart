@@ -2140,6 +2140,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         color: ColorDefs.windowBackgroundColor(context: context),
         child: ExpansionTile(
           initiallyExpanded: state.tileExpanded[expandableLabel] ?? false,
+          enableFeedback: true,
           title: Headline(
             text: translations['config']?[expandableLabel] ?? expandableLabel,
           ),
