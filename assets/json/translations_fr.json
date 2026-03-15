@@ -249,8 +249,11 @@
         "name": "Nom",
         "url": "Url",
         "count": "nombre",
+        "Keyboard": "Clavier",
+        "Row": "Ligne",
         "SYSTEM": "SYSTÈME",
         "LANGUAGE": "LANGUE",
+        "KEYBOARD": "CLAVIER",
         "WEBSERVERS": "SERVEUR WEB",
         "WEATHER": "MÉTÉO",
         "CLOCK": "HORLOGE"    

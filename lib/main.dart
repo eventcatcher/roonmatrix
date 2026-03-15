@@ -619,6 +619,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                 theme: MacosThemeData.light(isMainWindow: true),
                 darkTheme: MacosThemeData.dark(isMainWindow: true),
                 themeMode: ThemeMode.system,
+                localizationsDelegates: [DefaultMaterialLocalizations.delegate],
                 home: home(translationsBloc: translationsBloc),
               )
             : Globals.inIosStyle()
@@ -631,6 +632,9 @@ class RoonMatrixState extends State<RoonMatrix> {
                         brightness: Globals.brightness(),
                         //primaryColor: CupertinoColors.systemBlue,
                       ),
+                      localizationsDelegates: [
+                        DefaultMaterialLocalizations.delegate
+                      ],
                       home: home(translationsBloc: translationsBloc),
                     );
                   })

@@ -249,8 +249,11 @@
         "name": "Name",
         "url": "Url",
         "count": "Anzahl",
+        "Keyboard": "Tastaturbelegung",
+        "Row": "Reihe",
         "SYSTEM": "SYSTEM",
         "LANGUAGE": "SPRACHE",
+        "KEYBOARD": "TASTATUR",
         "WEBSERVERS": "WEBSERVER",
         "WEATHER": "WETTER",
         "CLOCK": "UHR"

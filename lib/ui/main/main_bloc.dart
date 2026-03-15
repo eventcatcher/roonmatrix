@@ -599,6 +599,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           disableListItemsRendering: disable,
         ));
       }
+
+      if (event is SetTilesExpanded) {
+        emit(state.copyWith(
+          update: DateTime.now(),
+          tileExpanded: event.tileExpanded,
+        ));
+      }
+
+      if (event is SetTileExpanded) {
+        Map<String, bool> tileExpanded = Map.from(state.tileExpanded);
+        tileExpanded[event.name] = event.expanded;
+
+        emit(state.copyWith(
+          update: DateTime.now(),
+          tileExpanded: tileExpanded,
+        ));
+      }
     });
 
     setPollingTimer();
@@ -1718,6 +1735,26 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return label;
   }
 
+  void setConfigExpandables({
+    required ConfigDefinition defs,
+  }) {
+    Map<String, bool> tileExpanded = {};
+    for (ConfigDefinitionArea area in defs.area) {
+      tileExpanded[area.name] = false;
+      if (area.name == 'LANGUAGE') {
+        for (ConfigDefinitionItem fieldDefinition in area.items) {
+          if (!tileExpanded.containsKey('KEYBOARD') &&
+              fieldDefinition.name.contains('keyb')) {
+            tileExpanded['KEYBOARD'] = false;
+            break;
+          }
+        }
+      }
+    }
+
+    setTilesExpanded(tileExpanded: tileExpanded);
+  }
+
   List<Widget> getConfigFormFields({
     required BuildContext context,
     required Map<String, dynamic> translations,
@@ -1730,11 +1767,34 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }) updateFieldValues,
   }) {
     List<Widget> widgets = [];
-
+    Map<String, ConfigDefinitionArea> expandables = {};
     for (ConfigDefinitionArea area in defs.area) {
+      expandables[area.name] = area;
+      if (area.name == 'LANGUAGE') {
+        for (ConfigDefinitionItem fieldDefinition in area.items) {
+          if (!expandables.containsKey('KEYBOARD') &&
+              fieldDefinition.name.contains('keyb')) {
+            expandables['KEYBOARD'] = area;
+            break;
+          }
+        }
+      }
+    }
+
+    for (String expandableLabel in expandables.keys) {
+      ConfigDefinitionArea area = expandables[expandableLabel]!;
+
       List<Widget> fields = [];
 
       for (ConfigDefinitionItem fieldDefinition in area.items) {
+        if (expandableLabel == 'LANGUAGE' &&
+            fieldDefinition.name.contains('keyb')) {
+          continue;
+        }
+        if (expandableLabel == 'KEYBOARD' &&
+            !fieldDefinition.name.contains('keyb')) {
+          continue;
+        }
         String? fieldType = getFieldType(fieldDefinition: fieldDefinition);
         if (fieldType != null && fieldDefinition.editable == true) {
           if (kDebugMode) {
@@ -1749,6 +1809,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             fieldDefinition: fieldDefinition,
             fieldType: fieldType,
           );
+          if (expandableLabel == 'KEYBOARD') {
+            label = label
+                .replaceFirst('Keyboard', translations['config']['Keyboard'])
+                .replaceFirst('Row', '${translations['config']['Row']} ');
+          }
 
           if (fieldType == 'text' && fieldDefinition.type.options != null) {
             widgetField = Padding(
@@ -2073,13 +2138,20 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           borderRadius: Globals.borderRadius(),
         ),
         color: ColorDefs.windowBackgroundColor(context: context),
-        child: Column(
-          children: [
-            Headline(
-              text: translations['config']?[area.name] ?? area.name,
-            ),
-            ...fields
-          ],
+        child: ExpansionTile(
+          initiallyExpanded: state.tileExpanded[expandableLabel] ?? false,
+          title: Headline(
+            text: translations['config']?[expandableLabel] ?? expandableLabel,
+          ),
+          trailing: Icon(
+            state.tileExpanded[expandableLabel] == true
+                ? Icons.arrow_drop_up
+                : Icons.arrow_drop_down,
+          ),
+          children: fields,
+          onExpansionChanged: (bool expanded) {
+            setTileExpanded(name: expandableLabel, expanded: expanded);
+          },
         ),
       );
       widgets.add(widgetArea);
@@ -2375,6 +2447,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required bool connected,
   }) {
     add(SetConnected(ip: ip, connected: connected));
+  }
+
+  void setTilesExpanded({
+    required Map<String, bool> tileExpanded,
+  }) {
+    add(SetTilesExpanded(tileExpanded: tileExpanded));
+  }
+
+  void setTileExpanded({
+    required String name,
+    required bool expanded,
+  }) {
+    add(SetTileExpanded(name: name, expanded: expanded));
   }
 
   void zoneControl({

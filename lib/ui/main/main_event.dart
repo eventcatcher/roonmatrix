@@ -233,3 +233,27 @@ class DisableListItemsRendering extends MainEvent {
   @override
   List<Object> get props => [disable];
 }
+
+class SetTilesExpanded extends MainEvent {
+  final Map<String, bool> tileExpanded;
+
+  const SetTilesExpanded({
+    required this.tileExpanded,
+  });
+
+  @override
+  List<Object> get props => [tileExpanded];
+}
+
+class SetTileExpanded extends MainEvent {
+  final String name;
+  final bool expanded;
+
+  const SetTileExpanded({
+    required this.name,
+    required this.expanded,
+  });
+
+  @override
+  List<Object> get props => [name, expanded];
+}

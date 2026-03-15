@@ -8,6 +8,7 @@ abstract class MainState extends Equatable {
   final Map<String, String> searchFilter;
   final List<String> devices;
   final String? activeDeviceIp;
+  final Map<String, bool> tileExpanded;
   final Map<String, bool> connected;
   final Map<String, bool> ping;
   final Map<String, dynamic> info;
@@ -34,6 +35,7 @@ abstract class MainState extends Equatable {
       },
       this.devices = const [],
       this.activeDeviceIp,
+      this.tileExpanded = const {},
       this.connected = const {},
       this.ping = const {},
       this.info = const {},
@@ -55,6 +57,7 @@ abstract class MainState extends Equatable {
     Map<String, String>? searchFilter,
     List<String>? devices,
     String? activeDeviceIp,
+    Map<String, bool>? tileExpanded,
     Map<String, bool>? connected,
     Map<String, bool>? ping,
     Map<String, dynamic>? info,
@@ -76,6 +79,7 @@ abstract class MainState extends Equatable {
       searchFilter: searchFilter ?? this.searchFilter,
       devices: devices ?? this.devices,
       activeDeviceIp: activeDeviceIp ?? this.activeDeviceIp,
+      tileExpanded: tileExpanded ?? this.tileExpanded,
       connected: connected ?? this.connected,
       ping: ping ?? this.ping,
       info: info ?? this.info,
@@ -101,6 +105,7 @@ abstract class MainState extends Equatable {
       connected,
       ping,
       info,
+      tileExpanded,
       config,
       definitions,
       fieldValues,
@@ -148,6 +153,7 @@ class MainStateLoaded extends MainState {
     required super.searchFilter,
     required super.devices,
     required super.activeDeviceIp,
+    required super.tileExpanded,
     required super.connected,
     required super.ping,
     required super.info,

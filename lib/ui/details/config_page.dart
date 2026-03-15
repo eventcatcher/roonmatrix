@@ -63,6 +63,7 @@ class ConfigPageState extends State<ConfigPage> {
   bool translationsLoaded = false;
   bool saveIdle = false;
   bool validData = false;
+  bool expandablesSetupDone = false;
 
   late TranslationsBloc translationsBloc;
   late MainBloc mainBloc;
@@ -344,6 +345,10 @@ class ConfigPageState extends State<ConfigPage> {
                 fieldValues = mainState.fieldValues[ip];
                 validData = mainBloc.validateAll(
                     definitions: defs, fieldValues: fieldValues);
+                if (!expandablesSetupDone) {
+                  expandablesSetupDone = true;
+                  mainBloc.setConfigExpandables(defs: defs);
+                }
                 formFields = mainBloc.getConfigFormFields(
                     context: context,
                     translations: translations,
