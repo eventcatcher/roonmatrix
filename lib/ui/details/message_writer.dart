@@ -152,7 +152,7 @@ class MessageWriterState extends State<MessageWriter> {
             }),
       );
 
-  Widget stopMessageButton({required bool desktopLandscapeWide}) => Padding(
+  Widget stopMessageButton() => Padding(
         padding: EdgeInsets.only(
             top: Globals.inMacosStyle()
                 ? 15.0
@@ -170,9 +170,9 @@ class MessageWriterState extends State<MessageWriter> {
               size: 20.0,
             ),
           ),
-          label: desktopLandscapeWide
-              ? translations['breakMessageButtonLabel'] ?? 'stop message'
-              : translations['breakMessageShortButtonLabel'] ?? 'stop',
+          label: (translations['breakMessageShortButtonLabel'] ?? 'stop')
+              .toString()
+              .toFirstUpper,
           onPressed: customMessage.isEmpty
               ? null
               : () async {
@@ -673,9 +673,7 @@ class MessageWriterState extends State<MessageWriter> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(left: 16.0),
-                            child: stopMessageButton(
-                                desktopLandscapeWide:
-                                    Globals.isDesktopDevice()),
+                            child: stopMessageButton(),
                           ),
                           sendMessageButton(),
                         ],
@@ -747,10 +745,7 @@ class MessageWriterState extends State<MessageWriter> {
                                                                 .isMobileDevice()
                                                             ? 16.0
                                                             : 8.0),
-                                                    child: stopMessageButton(
-                                                        desktopLandscapeWide:
-                                                            Globals
-                                                                .isDesktopDevice()),
+                                                    child: stopMessageButton(),
                                                   ),
                                                 ),
                                               ],
@@ -783,9 +778,7 @@ class MessageWriterState extends State<MessageWriter> {
                                                   top: Globals.isMobileDevice()
                                                       ? 16.0
                                                       : 8.0),
-                                              child: stopMessageButton(
-                                                  desktopLandscapeWide: Globals
-                                                      .isDesktopDevice()),
+                                              child: stopMessageButton(),
                                             ),
                                             Padding(
                                               padding: EdgeInsets.only(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/titlebar_info_content.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -126,32 +127,125 @@ class _MobileSpeedSliderAndFontsizeControlsState
             ),
           ),
           const Text('  |  '),
-          IconButton(
-            iconSize: 12.0,
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              sizeChanged(mobileFontSizeSmall);
-              setState(() => fontSize = mobileFontSizeSmall);
-            },
-            icon: const Icon(FontAwesomeIcons.font),
+          Padding(
+            padding: EdgeInsets.only(top: Globals.inIosStyle() ? 0 : 15.0),
+            child: Column(
+              children: [
+                IconButton(
+                  iconSize: 12.0,
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minWidth: 40.0, minHeight: 40.0),
+                  onPressed: () {
+                    sizeChanged(mobileFontSizeSmall);
+                    setState(() => fontSize = mobileFontSizeSmall);
+                  },
+                  icon: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4.0),
+                          child: const Icon(FontAwesomeIcons.font),
+                        ),
+                        Container(
+                          width: 20.0,
+                          height: 3.0,
+                          padding: EdgeInsets.only(top: 4.0),
+                          decoration: ShapeDecoration(
+                            color: fontSize == mobileFontSizeSmall
+                                ? ColorDefs.selectedIconColor(context: context)
+                                : Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: Globals.borderRadius(),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          IconButton(
-            iconSize: 16.0,
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              sizeChanged(mobileFontSizeMedium);
-              setState(() => fontSize = mobileFontSizeMedium);
-            },
-            icon: const Icon(FontAwesomeIcons.font),
+          Padding(
+            padding: EdgeInsets.only(top: Globals.inIosStyle() ? 0 : 15.0),
+            child: Column(
+              children: [
+                IconButton(
+                  iconSize: 16.0,
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minWidth: 40.0, minHeight: 40.0),
+                  onPressed: () {
+                    sizeChanged(mobileFontSizeMedium);
+                    setState(() => fontSize = mobileFontSizeMedium);
+                  },
+                  icon: Padding(
+                    padding: const EdgeInsets.only(top: 6.0),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2.0),
+                          child: const Icon(FontAwesomeIcons.font),
+                        ),
+                        Container(
+                          width: 20.0,
+                          height: 3.0,
+                          padding: EdgeInsets.only(top: 4.0),
+                          decoration: ShapeDecoration(
+                            color: fontSize == mobileFontSizeMedium
+                                ? ColorDefs.selectedIconColor(context: context)
+                                : Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: Globals.borderRadius(),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          IconButton(
-            iconSize: 20.0,
-            padding: EdgeInsets.zero,
-            onPressed: () {
-              sizeChanged(mobileFontSizeBig);
-              setState(() => fontSize = mobileFontSizeBig);
-            },
-            icon: const Icon(FontAwesomeIcons.font),
+          Padding(
+            padding: EdgeInsets.only(top: Globals.inIosStyle() ? 0 : 15.0),
+            child: Column(
+              children: [
+                IconButton(
+                  iconSize: 20.0,
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(minWidth: 40.0, minHeight: 40.0),
+                  onPressed: () {
+                    sizeChanged(mobileFontSizeBig);
+                    setState(() => fontSize = mobileFontSizeBig);
+                  },
+                  icon: Padding(
+                    padding: const EdgeInsets.only(top: 3.0),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2.0),
+                          child: const Icon(FontAwesomeIcons.font),
+                        ),
+                        Container(
+                          width: 20.0,
+                          height: 3.0,
+                          padding: EdgeInsets.only(top: 4.0),
+                          decoration: ShapeDecoration(
+                            color: fontSize == mobileFontSizeBig
+                                ? ColorDefs.selectedIconColor(context: context)
+                                : Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: Globals.borderRadius(),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
         if (Globals.isDesktopDevice())

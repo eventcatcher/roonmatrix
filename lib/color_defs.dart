@@ -211,6 +211,18 @@ class ColorDefs {
         : Colors.blue.shade100;
   }
 
+  static Color selectedIconColor({
+    required BuildContext context,
+  }) {
+    if (Globals.inIosStyle()) {
+      return CupertinoColors.systemBlue;
+    }
+    if (Globals.inMacosStyle()) {
+      return MacosColors.systemBlueColor; // MacosColors.systemTealColor;
+    }
+    return Colors.white;
+  }
+
   static Color buttonBlueColor({
     required BuildContext context,
   }) {
