@@ -23,6 +23,9 @@ class ColorDefs {
   static final Color controlIconColorDark = Colors.blue.shade900;
   static final Color controlIconColorLight = Colors.blue.shade300;
 
+  static final Color deviceSelectedBarColorDark = Colors.blue.shade900;
+  static final Color deviceSelectedBarColorLight = Colors.blue.shade300;
+
   static Color textColor({
     required BuildContext context,
   }) {

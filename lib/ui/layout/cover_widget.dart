@@ -60,7 +60,7 @@ class _CoverWidgetState extends State<CoverWidget> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
 
-  final double minPlayControlCoverSize = 150;
+  final double minPlayControlCoverSize = 130;
   final double extendedTextMinCoverHeight = 400.0;
   final Color textAreaBackgroundColor = Color.fromARGB(200, 0, 0, 0);
   final int buttonStatusSwitchTimeoutInSeconds = 10;

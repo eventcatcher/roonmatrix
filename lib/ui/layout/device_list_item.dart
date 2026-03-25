@@ -784,7 +784,9 @@ class DeviceListItemState extends State<DeviceListItem> {
               decoration: BoxDecoration(
                 border: Border(
                   left: BorderSide(
-                    color: Colors.blue.shade800,
+                    color: Globals.brightness() == Brightness.dark
+                        ? ColorDefs.deviceSelectedBarColorLight
+                        : ColorDefs.deviceSelectedBarColorDark,
                     width: 4,
                   ),
                 ),
