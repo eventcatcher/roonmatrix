@@ -256,6 +256,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                                       CoverOverlayButton(
                                         alignment: Alignment.center,
                                         coverWidth: coverWidth,
+                                        isPlaying:
+                                            coverModel.status == 'playing',
                                         additionalVisibility:
                                             (statusUpdateInProgress &&
                                                     (statusInProgress ==
@@ -314,6 +316,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         child: CoverOverlayButton(
                                             alignment: Alignment.centerLeft,
                                             coverWidth: coverWidth,
+                                            isPlaying:
+                                                coverModel.status == 'playing',
                                             additionalVisibility:
                                                 statusUpdateInProgress &&
                                                     statusInProgress ==
@@ -351,6 +355,8 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         child: CoverOverlayButton(
                                           alignment: Alignment.centerRight,
                                           coverWidth: coverWidth,
+                                          isPlaying:
+                                              coverModel.status == 'playing',
                                           additionalVisibility:
                                               statusUpdateInProgress &&
                                                   statusInProgress == 'next',

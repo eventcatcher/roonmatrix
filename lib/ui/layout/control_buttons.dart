@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/control_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -46,8 +47,6 @@ class ControlButtonsState extends State<ControlButtons> {
   bool get readOnly => widget.readOnly;
 
   final bool showButtonUp = false;
-  final Color iconColorLight = Colors.blue.shade900;
-  final Color iconColorDark = Colors.blue.shade300;
   final Color enableIconColor = Colors.green;
   final Color disabledIconColorLight = Colors.grey.shade600;
   final Color disabledIconColorDark = Colors.grey.shade300;
@@ -271,8 +270,8 @@ class ControlButtonsState extends State<ControlButtons> {
                                   : null,
                             ),
                             color: Globals.brightness() == Brightness.dark
-                                ? iconColorDark
-                                : iconColorLight,
+                                ? ColorDefs.controlIconColorLight
+                                : ColorDefs.controlIconColorDark,
                             readOnly: isRadio || idle,
                             onPressed: () {
                               if (!readOnly) {
@@ -295,8 +294,8 @@ class ControlButtonsState extends State<ControlButtons> {
                               idle ? Icons.play_arrow : Icons.pause,
                             ),
                             color: Globals.brightness() == Brightness.dark
-                                ? iconColorDark
-                                : iconColorLight,
+                                ? ColorDefs.controlIconColorLight
+                                : ColorDefs.controlIconColorDark,
                             readOnly: false,
                             onPressed: () {
                               if (!readOnly) {
@@ -331,8 +330,8 @@ class ControlButtonsState extends State<ControlButtons> {
                                   : null,
                             ),
                             color: Globals.brightness() == Brightness.dark
-                                ? iconColorDark
-                                : iconColorLight,
+                                ? ColorDefs.controlIconColorLight
+                                : ColorDefs.controlIconColorDark,
                             readOnly: isRadio || idle,
                             onPressed: () {
                               if (!readOnly) {

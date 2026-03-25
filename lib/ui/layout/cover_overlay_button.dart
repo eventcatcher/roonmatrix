@@ -5,6 +5,7 @@ import 'package:roonmatrix/globals.dart';
 class CoverOverlayButton extends StatefulWidget {
   final Alignment alignment;
   final double coverWidth;
+  final bool isPlaying;
   final bool additionalVisibility;
   final Icon icon;
   final String message;
@@ -14,6 +15,7 @@ class CoverOverlayButton extends StatefulWidget {
     super.key,
     required this.alignment,
     required this.coverWidth,
+    required this.isPlaying,
     this.additionalVisibility = false,
     required this.icon,
     required this.message,
@@ -28,12 +30,12 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
   Alignment get alignment => widget.alignment;
   double get coverWidth => widget.coverWidth;
   bool get additionalVisibility => widget.additionalVisibility;
+  bool get isPlaying => widget.isPlaying;
   Icon get icon => widget.icon;
   String get message => widget.message;
   VoidCallback get onPressed => widget.onPressed;
 
   final Duration opacityDuration = const Duration(milliseconds: 200);
-  final Color iconColor = Colors.blue.shade900;
 
   bool hovered = false;
 
@@ -62,7 +64,9 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
                 icon: icon,
                 iconSize: coverWidth * Globals.overlyPlayoutButtonSizeFactor,
                 hoverColor: ColorDefs.hoverButtonBackground,
-                color: iconColor,
+                color: Globals.brightness() == Brightness.dark
+                    ? ColorDefs.controlIconColorLight
+                    : ColorDefs.controlIconColorDark,
                 onPressed: () => onPressed(),
               ),
             ),
