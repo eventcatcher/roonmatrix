@@ -161,6 +161,7 @@ flutter:
   assets:
   # svg
     - assets/svg/8-8-led-matrix-display-unit.svg
+    - assets/svg/albumcover.svg
   # png
     - assets/icon/icon.png
     - assets/icon/roon.png

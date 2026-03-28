@@ -48,6 +48,9 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final double minIpFieldsInRowWidth = 400.0;
 
+// setMiniPlayerAlwaysOnTopMode
+// setMiniPlayerPreventCloseAppMode
+
   Map<String, dynamic> translations = {};
   String title = '';
   String macosVersion = '';
@@ -62,6 +65,8 @@ class _SettingsPageState extends State<SettingsPage> {
   bool ledTickerOnTickerPageActive = false;
   bool ledTickerPixelShiftActive = false;
   bool forceTickerUpdateActive = false;
+  bool miniPlayerAlwaysOnTop = false;
+  bool miniPlayerPreventCloseApp = false;
 
   bool translationsLoaded = false;
   bool rangeValid = false;
@@ -503,6 +508,54 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  left: 16.0,
+                  top: 16.0,
+                  bottom: 16.0,
+                ),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child:
+                      Text(translations['miniPlayerHeadline'] ?? 'Mini Player',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w400,
+                            color: ColorDefs.textColor(context: context),
+                          )),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label: translations['alwaysOnTopLabel'] ??
+                      'Show always on top of all other windows',
+                  enabled: miniPlayerAlwaysOnTop,
+                  onChanged: (value) {
+                    settingsBloc.setMiniPlayerAlwaysOnTopMode(enabled: value);
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label: translations['preventCloseAppLabel'] ??
+                      'Hide button to close the app',
+                  enabled: miniPlayerPreventCloseApp,
+                  onChanged: (value) {
+                    settingsBloc.setMiniPlayerPreventCloseAppMode(
+                        enabled: value);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -598,6 +651,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             settingsState.ledTickerPixelShiftActive;
                         forceTickerUpdateActive =
                             settingsState.forceTickerUpdateActive;
+                        miniPlayerAlwaysOnTop =
+                            settingsState.miniPlayerAlwaysOnTop;
+                        miniPlayerPreventCloseApp =
+                            settingsState.miniPlayerPreventCloseApp;
 
                         if (!loaded) {
                           SchedulerBinding.instance

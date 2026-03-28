@@ -14,6 +14,7 @@ class PageWithToolbarMacStyle extends StatefulWidget {
   final String title;
   final Size standardDesktopSize;
   final String macosVersion;
+  final bool showResizeButtons;
   final List<ToolbarItem>? actions;
   final Widget? additionalFullscreenTitleContent;
   final Widget body;
@@ -26,6 +27,7 @@ class PageWithToolbarMacStyle extends StatefulWidget {
     required this.title,
     required this.standardDesktopSize,
     required this.macosVersion,
+    this.showResizeButtons = true,
     this.actions,
     this.additionalFullscreenTitleContent,
     required this.body,
@@ -44,6 +46,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
   String get title => widget.title;
   Size get standardDesktopSize => widget.standardDesktopSize;
   String get macosVersion => widget.macosVersion;
+  bool get showResizeButtons => widget.showResizeButtons;
   List<ToolbarItem>? get actions => widget.actions;
   Widget? get additionalFullscreenTitleContent =>
       widget.additionalFullscreenTitleContent;
@@ -123,7 +126,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
               const ToolBarSpacer(),
               ...actions!,
             ],
-            if (!isFullscreen) ...[
+            if (!isFullscreen && showResizeButtons == true) ...[
               const ToolBarSpacer(),
               ToolBarIconButton(
                 label:
@@ -164,7 +167,7 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
                 showLabel: false,
               ),
             ],
-            const ToolBarSpacer(),
+            if (showResizeButtons == true) const ToolBarSpacer(),
           ],
         ),
         additionalFullscreenTitleContent: additionalFullscreenTitleContent,

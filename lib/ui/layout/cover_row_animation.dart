@@ -24,6 +24,8 @@ class CoverRowAnimation extends StatefulWidget {
   final bool coverRowAlbum;
   final bool coverRowTrack;
   final bool coverRowDynamicSize;
+  final bool miniPlayerAlwaysOnTop;
+  final bool miniPlayerPreventCloseApp;
   final bool showExportButton;
   final Size minDesktopSize;
   final Size standardDesktopSize;
@@ -42,6 +44,8 @@ class CoverRowAnimation extends StatefulWidget {
     required this.coverRowAlbum,
     required this.coverRowTrack,
     required this.coverRowDynamicSize,
+    required this.miniPlayerAlwaysOnTop,
+    required this.miniPlayerPreventCloseApp,
     required this.showExportButton,
     required this.minDesktopSize,
     required this.standardDesktopSize,
@@ -62,6 +66,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   bool get coverRowAlbum => widget.coverRowAlbum;
   bool get coverRowTrack => widget.coverRowTrack;
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
+  bool get miniPlayerAlwaysOnTop => widget.miniPlayerAlwaysOnTop;
+  bool get miniPlayerPreventCloseApp => widget.miniPlayerPreventCloseApp;
   bool get showExportButton => widget.showExportButton;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
@@ -177,6 +183,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
               coverModel: item,
               coverSize: coverSize,
               coverRowDynamicSize: coverRowDynamicSize,
+              miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
+              miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
               orientation: orientation,
               coverRowArtist: coverRowArtist,
               coverRowAlbum: coverRowAlbum,
@@ -202,6 +210,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       activeDeviceIp: activeDeviceIp,
       coverList: coverList,
       coverRowDynamicSize: coverRowDynamicSize,
+      miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
+      miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
       showExportButton: showExportButton,
       appBarHeight: appBarHeight,
       itemListHeight: itemListHeight,

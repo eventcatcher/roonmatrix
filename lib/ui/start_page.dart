@@ -160,6 +160,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         settingsState.ledTickerPixelShiftActive;
                     bool forceTickerUpdateActive =
                         settingsState.forceTickerUpdateActive;
+                    bool miniPlayerAlwaysOnTop =
+                        settingsState.miniPlayerAlwaysOnTop;
+                    bool miniPlayerPreventCloseApp =
+                        settingsState.miniPlayerPreventCloseApp;
 
                     scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
                     scrollSpeedDevice = settingsState.scrollSpeedDevice;
@@ -379,6 +383,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         coverRowTrack: coverRowTrack,
                                         coverRowDynamicSize:
                                             coverRowDynamicSize,
+                                        miniPlayerAlwaysOnTop:
+                                            miniPlayerAlwaysOnTop,
+                                        miniPlayerPreventCloseApp:
+                                            miniPlayerPreventCloseApp,
                                         showExportButton: showExportButton,
                                         minDesktopSize: minDesktopSize,
                                         standardDesktopSize:
@@ -404,6 +412,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             coverRowTrack: coverRowTrack,
                                             coverRowDynamicSize:
                                                 coverRowDynamicSize,
+                                            miniPlayerAlwaysOnTop:
+                                                miniPlayerAlwaysOnTop,
+                                            miniPlayerPreventCloseApp:
+                                                miniPlayerPreventCloseApp,
                                             showExportButton: showExportButton,
                                             minDesktopSize: minDesktopSize,
                                             standardDesktopSize:

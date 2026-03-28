@@ -17,6 +17,7 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
   final String title;
   final double sliderDefaultValue;
   final bool showSlider;
+  final bool showResizeButtons;
   final bool withTabController;
   final int tabLength;
   final PreferredSizeWidget? tabBar;
@@ -38,6 +39,7 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
     required this.title,
     required this.sliderDefaultValue,
     required this.showSlider,
+    this.showResizeButtons = true,
     this.withTabController = false,
     this.tabLength = 2,
     this.tabBar,
@@ -65,6 +67,7 @@ class _PageWithToolbarFlutterStyleState
   String get title => widget.title;
   double get sliderDefaultValue => widget.sliderDefaultValue;
   bool get showSlider => widget.showSlider;
+  bool get showResizeButtons => widget.showResizeButtons;
   bool get withTabController => widget.withTabController;
   int get tabLength => widget.tabLength;
   PreferredSizeWidget? get tabBar => widget.tabBar;
@@ -162,7 +165,9 @@ class _PageWithToolbarFlutterStyleState
           Row(
             children: [
               if (actions != null) ...actions!,
-              if (Globals.isDesktopDevice() && !isFullscreen) ...[
+              if (Globals.isDesktopDevice() &&
+                  !isFullscreen &&
+                  showResizeButtons == true) ...[
                 Padding(
                   padding: const EdgeInsets.only(right: 16.0),
                   child: Tooltip(
@@ -182,28 +187,29 @@ class _PageWithToolbarFlutterStyleState
                     ),
                   ),
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
-                  child: Tooltip(
-                    message:
-                        translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-                    waitDuration: Globals.tooltipWaitDuration,
-                    child: IconButton(
-                      iconSize: 16.0,
-                      enableFeedback: true,
-                      padding: EdgeInsets.zero,
-                      onPressed: () => windowManager
-                          .setSize(standardDesktopSize, animate: true),
-                      icon: Icon(
-                        FontAwesomeIcons.minimize,
-                        color: ColorDefs.toolbarResizeButtonColor(
-                            context: context),
+                if (showResizeButtons == true)
+                  Padding(
+                    padding:
+                        EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
+                    child: Tooltip(
+                      message: translations['minimizeResizeButtonLabel'] ??
+                          'Minimize',
+                      waitDuration: Globals.tooltipWaitDuration,
+                      child: IconButton(
+                        iconSize: 16.0,
+                        enableFeedback: true,
+                        padding: EdgeInsets.zero,
+                        onPressed: () => windowManager
+                            .setSize(standardDesktopSize, animate: true),
+                        icon: Icon(
+                          FontAwesomeIcons.minimize,
+                          color: ColorDefs.toolbarResizeButtonColor(
+                              context: context),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (Platform.isMacOS)
+                if (Platform.isMacOS && showResizeButtons == true)
                   Padding(
                     padding: const EdgeInsets.only(right: 4.0),
                     child: Tooltip(

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2640"
+   xml:space="preserve"
+   width="682.66669"
+   height="682.66669"
+   viewBox="0 0 682.66669 682.66669"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+     id="defs2644"><clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath2654"><path
+         d="M 0,512 H 512 V 0 H 0 Z"
+         id="path2652" /></clipPath></defs><g
+     id="g2646"
+     transform="matrix(1.3333333,0,0,-1.3333333,0,682.66667)"><g
+       id="g2648"><g
+         id="g2650"
+         clip-path="url(#clipPath2654)"><g
+           id="g2656"
+           transform="translate(512,256)"><path
+             d="M 0,0 C 0,88.733 -71.933,160.667 -160.667,160.667 L -260.667,0 l 100,-160.667 C -71.933,-160.667 0,-88.733 0,0"
+             style="fill:#16202d;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             id="path2658" /></g><g
+           id="g2660"
+           transform="translate(351.333,331)"><path
+             d="M 0,0 -100,-75 0,-150 c 41.422,0 75,33.578 75,75 C 75,-33.578 41.422,0 0,0"
+             style="fill:#ff3187;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             id="path2662" /></g><path
+           d="M 0,80.333 H 175.666 V 431.667 L 0,431.667 Z"
+           style="fill:#ffd23b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path2664" /><path
+           d="M 351.333,431.667 H 175.666 V 80.333 h 175.667 z"
+           style="fill:#ffb24a;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path2666" /><g
+           id="g2668"
+           transform="translate(291.333,296.666)"><path
+             d="m 0,0 v 75 h -115.667 l -60,-135 z"
+             style="fill:#ff7169;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             id="path2670" /></g><g
+           id="g2672"
+           transform="translate(175.666,371.666)"><path
+             d="M 0,0 H -115.666 V -75 L 0,-135 Z"
+             style="fill:#ff9259;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             id="path2674" /></g><g
+           id="g2676"
+           transform="translate(175.666,296.666)"><path
+             d="M 0,0 -50,-78.166 0,-156.333 H 115.667 V 0 Z"
+             style="fill:#c7318b;fill-opacity:1;fill-rule:nonzero;stroke:none"
+             id="path2678" /></g><path
+           d="M 60,140.333 H 175.666 V 296.666 H 60 Z"
+           style="fill:#ff3187;fill-opacity:1;fill-rule:nonzero;stroke:none"
+           id="path2680" /></g></g></g></svg>

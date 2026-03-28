@@ -18,6 +18,8 @@ abstract class SettingsState extends Equatable {
   final bool ledTickerOnTickerPageActive;
   final bool ledTickerPixelShiftActive;
   final bool forceTickerUpdateActive;
+  final bool miniPlayerAlwaysOnTop;
+  final bool miniPlayerPreventCloseApp;
 
   const SettingsState({
     this.ipStart = '',
@@ -37,6 +39,8 @@ abstract class SettingsState extends Equatable {
     this.ledTickerOnTickerPageActive = false,
     this.ledTickerPixelShiftActive = false,
     this.forceTickerUpdateActive = false,
+    this.miniPlayerAlwaysOnTop = false,
+    this.miniPlayerPreventCloseApp = false,
   });
 
   SettingsState copyWith({
@@ -57,6 +61,8 @@ abstract class SettingsState extends Equatable {
     bool? ledTickerOnTickerPageActive,
     bool? ledTickerPixelShiftActive,
     bool? forceTickerUpdateActive,
+    bool? miniPlayerAlwaysOnTop,
+    bool? miniPlayerPreventCloseApp,
   }) {
     return SettingsStateLoaded(
       ipStart: ipStart ?? this.ipStart,
@@ -82,6 +88,10 @@ abstract class SettingsState extends Equatable {
           ledTickerPixelShiftActive ?? this.ledTickerPixelShiftActive,
       forceTickerUpdateActive:
           forceTickerUpdateActive ?? this.forceTickerUpdateActive,
+      miniPlayerAlwaysOnTop:
+          miniPlayerAlwaysOnTop ?? this.miniPlayerAlwaysOnTop,
+      miniPlayerPreventCloseApp:
+          miniPlayerPreventCloseApp ?? this.miniPlayerPreventCloseApp,
     );
   }
 
@@ -105,6 +115,8 @@ abstract class SettingsState extends Equatable {
       ledTickerOnTickerPageActive,
       ledTickerPixelShiftActive,
       forceTickerUpdateActive,
+      miniPlayerAlwaysOnTop,
+      miniPlayerPreventCloseApp,
     ];
 
     return props;
@@ -140,6 +152,8 @@ class SettingsStateLoaded extends SettingsState {
     required super.ledTickerOnTickerPageActive,
     required super.ledTickerPixelShiftActive,
     required super.forceTickerUpdateActive,
+    required super.miniPlayerAlwaysOnTop,
+    required super.miniPlayerPreventCloseApp,
   });
 
   @override

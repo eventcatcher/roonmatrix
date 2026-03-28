@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 
@@ -7,6 +8,8 @@ class CoverOverlayButton extends StatefulWidget {
   final double coverWidth;
   final bool isPlaying;
   final bool additionalVisibility;
+  final double? sizeFactor;
+  final SvgPicture? svg;
   final Icon icon;
   final String message;
   final VoidCallback onPressed;
@@ -17,7 +20,9 @@ class CoverOverlayButton extends StatefulWidget {
     required this.coverWidth,
     required this.isPlaying,
     this.additionalVisibility = false,
+    this.sizeFactor = 1.0,
     required this.icon,
+    this.svg,
     required this.message,
     required this.onPressed,
   });
@@ -31,6 +36,8 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
   double get coverWidth => widget.coverWidth;
   bool get additionalVisibility => widget.additionalVisibility;
   bool get isPlaying => widget.isPlaying;
+  double get sizeFactor => widget.sizeFactor!;
+  SvgPicture? get svg => widget.svg;
   Icon get icon => widget.icon;
   String get message => widget.message;
   VoidCallback get onPressed => widget.onPressed;
@@ -55,20 +62,45 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
             message: message,
             triggerMode: TooltipTriggerMode.manual,
             waitDuration: Globals.controlButtonTooltipWaitDuration,
-            verticalOffset: coverWidth / 8,
+            verticalOffset: (coverWidth *
+                    Globals.overlyPlayoutButtonSizeFactor *
+                    sizeFactor) /
+                2,
             child: Material(
               color: Colors.transparent,
               shape: const CircleBorder(),
               clipBehavior: Clip.antiAlias,
-              child: IconButton(
-                icon: icon,
-                iconSize: coverWidth * Globals.overlyPlayoutButtonSizeFactor,
-                hoverColor: ColorDefs.hoverButtonBackground,
-                color: Globals.brightness() == Brightness.dark
-                    ? ColorDefs.controlIconColorLight
-                    : ColorDefs.controlIconColorDark,
-                onPressed: () => onPressed(),
-              ),
+              child: svg != null
+                  ? SizedBox(
+                      width: (coverWidth *
+                          Globals.overlyPlayoutButtonSizeFactor *
+                          sizeFactor),
+                      height: (coverWidth *
+                          Globals.overlyPlayoutButtonSizeFactor *
+                          sizeFactor),
+                      child: InkWell(
+                        hoverColor: ColorDefs.hoverButtonBackground,
+                        child: Padding(
+                          padding: EdgeInsets.all(((coverWidth *
+                                      Globals.overlyPlayoutButtonSizeFactor) *
+                                  sizeFactor) /
+                              6),
+                          child: svg,
+                        ),
+                        onTap: () => onPressed(),
+                      ),
+                    )
+                  : IconButton(
+                      icon: icon,
+                      iconSize: (coverWidth *
+                          Globals.overlyPlayoutButtonSizeFactor *
+                          sizeFactor),
+                      hoverColor: ColorDefs.hoverButtonBackground,
+                      color: Globals.brightness() == Brightness.dark
+                          ? ColorDefs.controlIconColorLight
+                          : ColorDefs.controlIconColorDark,
+                      onPressed: () => onPressed(),
+                    ),
             ),
           ),
         ),

@@ -309,7 +309,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         selectedZone!.isNotEmpty &&
         selectedZone!['artist'] != null) {
       String zoneName = selectedZone!['zone'] != null
-          ? '${(selectedZone!['server'] == 'roon' ? selectedZone!['zone'] : selectedZone!['server']).toString().toFirstUpper} ${idle ? ' (${translations['paused'] ?? 'paused'})' : ''}'
+          ? (selectedZone!['server'] == 'roon'
+                  ? selectedZone!['zone']
+                  : selectedZone!['server'])
+              .toString()
+              .toFirstUpper
           : '';
 
       String hash = md5

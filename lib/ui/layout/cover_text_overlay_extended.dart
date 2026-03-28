@@ -60,7 +60,8 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
         children: [
           SharedWidgets.getTableRowFormatted(
             label: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
-            text: coverModel.zoneName,
+            text:
+                '${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}',
             fontSize: fontSize,
             color: color,
             maxLines: longText ? 1 : 2,

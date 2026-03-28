@@ -55,6 +55,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             prefs.getBool('ledTickerPixelShiftActive') ?? true;
         bool forceTickerUpdateActive =
             prefs.getBool('forceTickerUpdateActive') ?? false;
+        bool miniPlayerAlwaysOnTop =
+            prefs.getBool('miniPlayerAlwaysOnTop') ?? true;
+        bool miniPlayerPreventCloseApp =
+            prefs.getBool('miniPlayerPreventCloseApp') ?? true;
 
         emit(SettingsStateLoaded(
           ipStart: validIp ? ipStart! : state.ipStart,
@@ -74,6 +78,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           ledTickerOnTickerPageActive: ledTickerOnTickerPageActive,
           ledTickerPixelShiftActive: ledTickerPixelShiftActive,
           forceTickerUpdateActive: forceTickerUpdateActive,
+          miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
+          miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
         ));
       }
 
@@ -270,6 +276,28 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           forceTickerUpdateActive: enabled,
         ));
       }
+
+      if (event is SetMiniPlayerAlwaysOnTopMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('miniPlayerAlwaysOnTop', enabled);
+
+        emit(state.copyWith(
+          miniPlayerAlwaysOnTop: enabled,
+        ));
+      }
+
+      if (event is SetMiniPlayerPreventCloseAppMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('miniPlayerPreventCloseApp', enabled);
+
+        emit(state.copyWith(
+          miniPlayerPreventCloseApp: enabled,
+        ));
+      }
     });
 
     loadDefaults();
@@ -299,6 +327,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       'ledTickerOnTickerPageActive',
       'ledTickerPixelShiftActive',
       'forceTickerUpdateActive',
+      'miniPlayerAlwaysOnTop',
+      'miniPlayerPreventCloseApp',
     ];
     for (String key in prefsToRemoveList) {
       await prefs.remove(key);
@@ -441,5 +471,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required bool enabled,
   }) {
     add(SetForceTickerUpdateActiveMode(enabled: enabled));
+  }
+
+  void setMiniPlayerAlwaysOnTopMode({
+    required bool enabled,
+  }) {
+    add(SetMiniPlayerAlwaysOnTopMode(enabled: enabled));
+  }
+
+  void setMiniPlayerPreventCloseAppMode({
+    required bool enabled,
+  }) {
+    add(SetMiniPlayerPreventCloseAppMode(enabled: enabled));
   }
 }

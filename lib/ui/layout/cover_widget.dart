@@ -9,6 +9,7 @@ import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
+import 'package:roonmatrix/ui/details/mini_player_page.dart';
 import 'package:roonmatrix/ui/layout/cover_overlay_button.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_small.dart';
@@ -22,6 +23,8 @@ class CoverWidget extends StatefulWidget {
   final CoverModel coverModel;
   final double coverSize;
   final bool coverRowDynamicSize;
+  final bool miniPlayerAlwaysOnTop;
+  final bool miniPlayerPreventCloseApp;
   final Orientation orientation;
   final bool coverRowArtist;
   final bool coverRowAlbum;
@@ -37,6 +40,8 @@ class CoverWidget extends StatefulWidget {
     required this.coverModel,
     required this.coverSize,
     required this.coverRowDynamicSize,
+    required this.miniPlayerAlwaysOnTop,
+    required this.miniPlayerPreventCloseApp,
     required this.orientation,
     required this.coverRowArtist,
     required this.coverRowAlbum,
@@ -53,6 +58,8 @@ class _CoverWidgetState extends State<CoverWidget> {
   Map<String, dynamic> get translations => widget.translations;
   List<String> get devices => widget.devices;
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
+  bool get miniPlayerAlwaysOnTop => widget.miniPlayerAlwaysOnTop;
+  bool get miniPlayerPreventCloseApp => widget.miniPlayerPreventCloseApp;
   Orientation get orientation => widget.orientation;
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
@@ -247,6 +254,63 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                   context: context),
                                             ),
                                           ),
+                                        ),
+                                      ),
+                                    if (activeDeviceIp != null &&
+                                        coverWidth > minPlayControlCoverSize &&
+                                        Globals.isDesktopDevice())
+                                      Padding(
+                                        padding: const EdgeInsets.all(4.0),
+                                        child: CoverOverlayButton(
+                                          alignment: Alignment.topLeft,
+                                          coverWidth: coverWidth,
+                                          isPlaying: false,
+                                          sizeFactor: 0.8,
+                                          additionalVisibility: false,
+                                          svg: SvgPicture.asset(
+                                              'assets/svg/albumcover.svg',
+                                              allowDrawingOutsideViewBox: false,
+                                              fit: BoxFit.contain,
+                                              alignment: Alignment.center),
+                                          icon: Icon(Icons.library_music,
+                                              size: 32.0,
+                                              color: Globals.brightness() ==
+                                                      Brightness.dark
+                                                  ? ColorDefs
+                                                      .controlIconColorLight
+                                                  : ColorDefs
+                                                      .controlIconColorDark),
+                                          message: translations[
+                                                  'miniPlayerPageHeaderText'] ??
+                                              'Mini Player',
+                                          onPressed: () {
+                                            showGeneralDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              barrierLabel: 'Dialog',
+                                              transitionDuration:
+                                                  const Duration(
+                                                      milliseconds: 0),
+                                              pageBuilder: (_, __, ___) {
+                                                return MiniPlayerPage(
+                                                  name: coverModel.zoneName,
+                                                  ip: activeDeviceIp ??
+                                                      devices[0],
+                                                  controlId:
+                                                      coverModel.controlId,
+                                                  miniPlayerAlwaysOnTop:
+                                                      miniPlayerAlwaysOnTop,
+                                                  miniPlayerPreventCloseApp:
+                                                      miniPlayerPreventCloseApp,
+                                                  translations: translations,
+                                                  minDesktopSize:
+                                                      minDesktopSize,
+                                                  standardDesktopSize:
+                                                      standardDesktopSize,
+                                                );
+                                              },
+                                            );
+                                          },
                                         ),
                                       ),
                                     if (activeDeviceIp != null &&

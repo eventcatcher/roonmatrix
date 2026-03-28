@@ -170,3 +170,25 @@ class SetForceTickerUpdateActiveMode extends SettingsEvent {
   @override
   List<Object> get props => [enabled];
 }
+
+class SetMiniPlayerAlwaysOnTopMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetMiniPlayerAlwaysOnTopMode({
+    required this.enabled,
+  });
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetMiniPlayerPreventCloseAppMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetMiniPlayerPreventCloseAppMode({
+    required this.enabled,
+  });
+
+  @override
+  List<Object> get props => [enabled];
+}
