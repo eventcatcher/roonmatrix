@@ -48,9 +48,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   final double minIpFieldsInRowWidth = 400.0;
 
-// setMiniPlayerAlwaysOnTopMode
-// setMiniPlayerPreventCloseAppMode
-
   Map<String, dynamic> translations = {};
   String title = '';
   String macosVersion = '';
@@ -67,6 +64,8 @@ class _SettingsPageState extends State<SettingsPage> {
   bool forceTickerUpdateActive = false;
   bool miniPlayerAlwaysOnTop = false;
   bool miniPlayerPreventCloseApp = false;
+  bool miniPlayerShowTextInfoOnTrackChange = false;
+  int miniPlayerTextInfoDuration = 10;
 
   bool translationsLoaded = false;
   bool rangeValid = false;
@@ -556,6 +555,52 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  bottom: 16.0,
+                ),
+                child: SwitchButton(
+                  label: translations['showTextInfoOnTrackChange'] ??
+                      'Show track information automatically when the track changes',
+                  enabled: miniPlayerShowTextInfoOnTrackChange,
+                  onChanged: (value) {
+                    settingsBloc.setMiniPlayerShowTextInfoOnTrackChangeMode(
+                        enabled: value);
+                  },
+                ),
+              ),
+              Text('miniPlayerTextInfoDuration: $miniPlayerTextInfoDuration'),
+              Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 16.0,
+                ),
+                child: EditableSinglelineText(
+                  translations: translations,
+                  inputType: TextInputType.number,
+                  debounce: false,
+                  formatters: [FilteringTextInputFormatter.digitsOnly],
+                  noCounter: true,
+                  label: translations['textInfoDuration'] ??
+                      'Track Info Duration in seconds',
+                  text: miniPlayerTextInfoDuration.toString(),
+                  errorMessageHandler: (String newValue) {
+                    return mainBloc.getNumberFieldErrorMessage(
+                        value: newValue, translations: translations);
+                  },
+                  validation: (String text) {
+                    int? num = int.tryParse(text);
+                    if (num == null) {
+                      return false;
+                    }
+                    return num > 0;
+                  },
+                  onChanged: (String value) {
+                    settingsBloc.setMiniPlayerTextInfoDuration(
+                        seconds: int.tryParse(value) ?? 10);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -655,6 +700,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             settingsState.miniPlayerAlwaysOnTop;
                         miniPlayerPreventCloseApp =
                             settingsState.miniPlayerPreventCloseApp;
+                        miniPlayerShowTextInfoOnTrackChange =
+                            settingsState.miniPlayerShowTextInfoOnTrackChange;
+                        miniPlayerTextInfoDuration =
+                            settingsState.miniPlayerTextInfoDuration;
 
                         if (!loaded) {
                           SchedulerBinding.instance

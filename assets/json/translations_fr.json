@@ -130,6 +130,8 @@
     "miniPlayerHeadline" : "Mini-Lecteur",
     "alwaysOnTopLabel": "Toujours afficher au-dessus de toutes les autres fenêtres",
     "preventCloseAppLabel": "Cacher le bouton permettant de fermer l'application",
+    "showTextInfoOnTrackChange": "Afficher automatiquement les informations sur le morceau lorsque celui-ci change",
+    "textInfoDuration": "Informations sur le titre Durée en secondes",
     "okButtonText": "OK",
     "speed": "vitesse",
     "messageSelectionLabel": "Message",

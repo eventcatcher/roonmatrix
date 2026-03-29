@@ -32,6 +32,8 @@ class MiniPlayerPage extends StatefulWidget {
   final String? controlId;
   final bool miniPlayerAlwaysOnTop;
   final bool miniPlayerPreventCloseApp;
+  final bool miniPlayerShowTextInfoOnTrackChange;
+  final int miniPlayerTextInfoDuration;
   final Map<String, dynamic> translations;
   final Size minDesktopSize;
   final Size standardDesktopSize;
@@ -43,6 +45,8 @@ class MiniPlayerPage extends StatefulWidget {
     this.controlId,
     required this.miniPlayerAlwaysOnTop,
     required this.miniPlayerPreventCloseApp,
+    required this.miniPlayerShowTextInfoOnTrackChange,
+    required this.miniPlayerTextInfoDuration,
     required this.translations,
     required this.minDesktopSize,
     required this.standardDesktopSize,
@@ -61,6 +65,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final Color textAreaBackgroundColor = Color.fromARGB(200, 0, 0, 0);
+  final int textInfoOnTrackChangeDurationInSeconds = 10;
 
   final double coverPadding = 0.0;
   final double zoneCornerLabelMinCoverSize = 150;
@@ -103,6 +108,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   bool resizeIsUpdating = false;
   bool isFullscreen = false;
   bool hovered = false;
+  bool timedHover = false;
   Offset actualPosition = Offset(0, 0);
   Size actualSize = Size(600, 600);
   Size defaultSize = Size(600, 600);
@@ -118,6 +124,8 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   late StreamSubscription settingsBlocSubscription;
   late bool miniPlayerAlwaysOnTop;
   late bool miniPlayerPreventCloseApp;
+  late bool miniPlayerShowTextInfoOnTrackChange;
+  late int miniPlayerTextInfoDuration;
 
   @override
   void initState() {
@@ -125,6 +133,9 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
         '$name : ${translations['miniPlayerPageHeaderText'] ?? 'Mini Player'}';
     miniPlayerAlwaysOnTop = widget.miniPlayerAlwaysOnTop;
     miniPlayerPreventCloseApp = widget.miniPlayerPreventCloseApp;
+    miniPlayerShowTextInfoOnTrackChange =
+        widget.miniPlayerShowTextInfoOnTrackChange;
+    miniPlayerTextInfoDuration = widget.miniPlayerTextInfoDuration;
 
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
     mainRepository = RepositoryProvider.of<MainRepository>(context);
@@ -162,6 +173,10 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                 miniPlayerAlwaysOnTop = settingsState.miniPlayerAlwaysOnTop;
                 miniPlayerPreventCloseApp =
                     settingsState.miniPlayerPreventCloseApp;
+                miniPlayerShowTextInfoOnTrackChange =
+                    settingsState.miniPlayerShowTextInfoOnTrackChange;
+                miniPlayerTextInfoDuration =
+                    settingsState.miniPlayerTextInfoDuration;
                 windowManager.setAlwaysOnTop(miniPlayerAlwaysOnTop);
                 windowManager.setClosable(!miniPlayerPreventCloseApp);
               });
@@ -253,6 +268,12 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
             if (mounted) {
               setState(() {
                 statusInProgress = '';
+
+                if (miniPlayerShowTextInfoOnTrackChange == true) {
+                  hovered = true;
+                  timedHover = true;
+                }
+
                 if (statusInProgressTimer != null &&
                     statusInProgressTimer!.isActive) {
                   statusInProgressTimer!.cancel();
@@ -260,6 +281,18 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
               });
             }
           });
+          if (miniPlayerShowTextInfoOnTrackChange == true) {
+            Future.delayed(Duration(seconds: miniPlayerTextInfoDuration), () {
+              SchedulerBinding.instance.addPostFrameCallback((_) async {
+                if (mounted) {
+                  setState(() {
+                    timedHover = false;
+                    hovered = false;
+                  });
+                }
+              });
+            });
+          }
         }
 
         info = mainState.info[ip] ?? {};
@@ -525,10 +558,13 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                     left: 16.0,
                                     bottom: 16.0,
                                     child: MouseRegion(
-                                      onEnter: (_) =>
-                                          setState(() => hovered = true),
-                                      onExit: (_) =>
-                                          setState(() => hovered = false),
+                                      cursor: SystemMouseCursors.click,
+                                      onEnter: (_) => timedHover == true
+                                          ? null
+                                          : setState(() => hovered = true),
+                                      onExit: (_) => timedHover == true
+                                          ? null
+                                          : setState(() => hovered = false),
                                       child: AnimatedOpacity(
                                         opacity: hovered ? 1.0 : 0.0,
                                         duration: opacityDuration,

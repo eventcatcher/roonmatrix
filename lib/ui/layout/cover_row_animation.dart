@@ -26,6 +26,8 @@ class CoverRowAnimation extends StatefulWidget {
   final bool coverRowDynamicSize;
   final bool miniPlayerAlwaysOnTop;
   final bool miniPlayerPreventCloseApp;
+  final bool miniPlayerShowTextInfoOnTrackChange;
+  final int miniPlayerTextInfoDuration;
   final bool showExportButton;
   final Size minDesktopSize;
   final Size standardDesktopSize;
@@ -46,6 +48,8 @@ class CoverRowAnimation extends StatefulWidget {
     required this.coverRowDynamicSize,
     required this.miniPlayerAlwaysOnTop,
     required this.miniPlayerPreventCloseApp,
+    required this.miniPlayerShowTextInfoOnTrackChange,
+    required this.miniPlayerTextInfoDuration,
     required this.showExportButton,
     required this.minDesktopSize,
     required this.standardDesktopSize,
@@ -68,6 +72,9 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
   bool get miniPlayerAlwaysOnTop => widget.miniPlayerAlwaysOnTop;
   bool get miniPlayerPreventCloseApp => widget.miniPlayerPreventCloseApp;
+  bool get miniPlayerShowTextInfoOnTrackChange =>
+      widget.miniPlayerShowTextInfoOnTrackChange;
+  int get miniPlayerTextInfoDuration => widget.miniPlayerTextInfoDuration;
   bool get showExportButton => widget.showExportButton;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
@@ -185,6 +192,9 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
               coverRowDynamicSize: coverRowDynamicSize,
               miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
               miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
+              miniPlayerShowTextInfoOnTrackChange:
+                  miniPlayerShowTextInfoOnTrackChange,
+              miniPlayerTextInfoDuration: miniPlayerTextInfoDuration,
               orientation: orientation,
               coverRowArtist: coverRowArtist,
               coverRowAlbum: coverRowAlbum,
@@ -212,6 +222,8 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
       coverRowDynamicSize: coverRowDynamicSize,
       miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
       miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
+      miniPlayerShowTextInfoOnTrackChange: miniPlayerShowTextInfoOnTrackChange,
+      miniPlayerTextInfoDuration: miniPlayerTextInfoDuration,
       showExportButton: showExportButton,
       appBarHeight: appBarHeight,
       itemListHeight: itemListHeight,

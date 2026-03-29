@@ -25,6 +25,8 @@ class CoverWidget extends StatefulWidget {
   final bool coverRowDynamicSize;
   final bool miniPlayerAlwaysOnTop;
   final bool miniPlayerPreventCloseApp;
+  final bool miniPlayerShowTextInfoOnTrackChange;
+  final int miniPlayerTextInfoDuration;
   final Orientation orientation;
   final bool coverRowArtist;
   final bool coverRowAlbum;
@@ -42,6 +44,8 @@ class CoverWidget extends StatefulWidget {
     required this.coverRowDynamicSize,
     required this.miniPlayerAlwaysOnTop,
     required this.miniPlayerPreventCloseApp,
+    required this.miniPlayerShowTextInfoOnTrackChange,
+    required this.miniPlayerTextInfoDuration,
     required this.orientation,
     required this.coverRowArtist,
     required this.coverRowAlbum,
@@ -60,6 +64,9 @@ class _CoverWidgetState extends State<CoverWidget> {
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
   bool get miniPlayerAlwaysOnTop => widget.miniPlayerAlwaysOnTop;
   bool get miniPlayerPreventCloseApp => widget.miniPlayerPreventCloseApp;
+  bool get miniPlayerShowTextInfoOnTrackChange =>
+      widget.miniPlayerShowTextInfoOnTrackChange;
+  int get miniPlayerTextInfoDuration => widget.miniPlayerTextInfoDuration;
   Orientation get orientation => widget.orientation;
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
@@ -302,6 +309,10 @@ class _CoverWidgetState extends State<CoverWidget> {
                                                       miniPlayerAlwaysOnTop,
                                                   miniPlayerPreventCloseApp:
                                                       miniPlayerPreventCloseApp,
+                                                  miniPlayerShowTextInfoOnTrackChange:
+                                                      miniPlayerShowTextInfoOnTrackChange,
+                                                  miniPlayerTextInfoDuration:
+                                                      miniPlayerTextInfoDuration,
                                                   translations: translations,
                                                   minDesktopSize:
                                                       minDesktopSize,

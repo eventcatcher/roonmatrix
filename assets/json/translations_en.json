@@ -130,6 +130,8 @@
     "miniPlayerHeadline" : "Mini Player",
     "alwaysOnTopLabel": "Show always on top of all other windows",
     "preventCloseAppLabel": "Hide button to close the app",
+    "showTextInfoOnTrackChange": "Show track information automatically when the track changes",
+    "textInfoDuration": "Track Info Duration in seconds",
     "okButtonText": "OK",
     "speed": "speed",
     "messageSelectionLabel": "Message",

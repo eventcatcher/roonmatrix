@@ -19,6 +19,8 @@ class CoverRow extends StatefulWidget {
   final bool coverRowDynamicSize;
   final bool miniPlayerAlwaysOnTop;
   final bool miniPlayerPreventCloseApp;
+  final bool miniPlayerShowTextInfoOnTrackChange;
+  final int miniPlayerTextInfoDuration;
   final bool showExportButton;
   final double? appBarHeight;
   final double itemListHeight;
@@ -41,6 +43,8 @@ class CoverRow extends StatefulWidget {
     required this.coverRowDynamicSize,
     required this.miniPlayerAlwaysOnTop,
     required this.miniPlayerPreventCloseApp,
+    required this.miniPlayerShowTextInfoOnTrackChange,
+    required this.miniPlayerTextInfoDuration,
     required this.showExportButton,
     required this.appBarHeight,
     required this.itemListHeight,
@@ -65,6 +69,9 @@ class _CoverRowState extends State<CoverRow> {
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
   bool get miniPlayerAlwaysOnTop => widget.miniPlayerAlwaysOnTop;
   bool get miniPlayerPreventCloseApp => widget.miniPlayerPreventCloseApp;
+  bool get miniPlayerShowTextInfoOnTrackChange =>
+      widget.miniPlayerShowTextInfoOnTrackChange;
+  int get miniPlayerTextInfoDuration => widget.miniPlayerTextInfoDuration;
   bool get showExportButton => widget.showExportButton;
   double? get appBarHeight => widget.appBarHeight;
   double get itemListHeight => widget.itemListHeight;
@@ -140,6 +147,9 @@ class _CoverRowState extends State<CoverRow> {
               coverRowDynamicSize: coverRowDynamicSize,
               miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
               miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
+              miniPlayerShowTextInfoOnTrackChange:
+                  miniPlayerShowTextInfoOnTrackChange,
+              miniPlayerTextInfoDuration: miniPlayerTextInfoDuration,
               orientation: orientation,
               coverRowArtist: coverRowArtist,
               coverRowAlbum: coverRowAlbum,

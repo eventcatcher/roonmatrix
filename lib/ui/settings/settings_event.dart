@@ -192,3 +192,25 @@ class SetMiniPlayerPreventCloseAppMode extends SettingsEvent {
   @override
   List<Object> get props => [enabled];
 }
+
+class SetMiniPlayerShowTextInfoOnTrackChangeMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetMiniPlayerShowTextInfoOnTrackChangeMode({
+    required this.enabled,
+  });
+
+  @override
+  List<Object> get props => [enabled];
+}
+
+class SetMiniPlayerTextInfoDuration extends SettingsEvent {
+  final int seconds;
+
+  const SetMiniPlayerTextInfoDuration({
+    required this.seconds,
+  });
+
+  @override
+  List<Object> get props => [seconds];
+}

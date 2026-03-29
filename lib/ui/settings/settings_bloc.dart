@@ -59,6 +59,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             prefs.getBool('miniPlayerAlwaysOnTop') ?? true;
         bool miniPlayerPreventCloseApp =
             prefs.getBool('miniPlayerPreventCloseApp') ?? true;
+        bool miniPlayerShowTextInfoOnTrackChange =
+            prefs.getBool('miniPlayerShowTextInfoOnTrackChange') ?? true;
+        int miniPlayerTextInfoDuration =
+            prefs.getInt('miniPlayerTextInfoDuration') ?? 10;
 
         emit(SettingsStateLoaded(
           ipStart: validIp ? ipStart! : state.ipStart,
@@ -80,6 +84,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           forceTickerUpdateActive: forceTickerUpdateActive,
           miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
           miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
+          miniPlayerShowTextInfoOnTrackChange:
+              miniPlayerShowTextInfoOnTrackChange,
+          miniPlayerTextInfoDuration: miniPlayerTextInfoDuration,
         ));
       }
 
@@ -298,6 +305,30 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           miniPlayerPreventCloseApp: enabled,
         ));
       }
+
+      if (event is SetMiniPlayerShowTextInfoOnTrackChangeMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('miniPlayerShowTextInfoOnTrackChange', enabled);
+
+        emit(state.copyWith(
+          miniPlayerShowTextInfoOnTrackChange: enabled,
+        ));
+      }
+
+      if (event is SetMiniPlayerTextInfoDuration) {
+        int seconds = event.seconds;
+
+        if (seconds > 0) {
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setInt('miniPlayerTextInfoDuration', seconds);
+
+          emit(state.copyWith(
+            miniPlayerTextInfoDuration: seconds,
+          ));
+        }
+      }
     });
 
     loadDefaults();
@@ -329,6 +360,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       'forceTickerUpdateActive',
       'miniPlayerAlwaysOnTop',
       'miniPlayerPreventCloseApp',
+      'miniPlayerShowTextInfoOnTrackChange',
+      'miniPlayerTextInfoDuration',
     ];
     for (String key in prefsToRemoveList) {
       await prefs.remove(key);
@@ -483,5 +516,17 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     required bool enabled,
   }) {
     add(SetMiniPlayerPreventCloseAppMode(enabled: enabled));
+  }
+
+  void setMiniPlayerShowTextInfoOnTrackChangeMode({
+    required bool enabled,
+  }) {
+    add(SetMiniPlayerShowTextInfoOnTrackChangeMode(enabled: enabled));
+  }
+
+  void setMiniPlayerTextInfoDuration({
+    required int seconds,
+  }) {
+    add(SetMiniPlayerTextInfoDuration(seconds: seconds));
   }
 }

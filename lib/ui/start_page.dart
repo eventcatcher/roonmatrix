@@ -164,6 +164,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         settingsState.miniPlayerAlwaysOnTop;
                     bool miniPlayerPreventCloseApp =
                         settingsState.miniPlayerPreventCloseApp;
+                    bool miniPlayerShowTextInfoOnTrackChange =
+                        settingsState.miniPlayerShowTextInfoOnTrackChange;
+                    int miniPlayerTextInfoDuration =
+                        settingsState.miniPlayerTextInfoDuration;
 
                     scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
                     scrollSpeedDevice = settingsState.scrollSpeedDevice;
@@ -387,6 +391,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             miniPlayerAlwaysOnTop,
                                         miniPlayerPreventCloseApp:
                                             miniPlayerPreventCloseApp,
+                                        miniPlayerShowTextInfoOnTrackChange:
+                                            miniPlayerShowTextInfoOnTrackChange,
+                                        miniPlayerTextInfoDuration:
+                                            miniPlayerTextInfoDuration,
                                         showExportButton: showExportButton,
                                         minDesktopSize: minDesktopSize,
                                         standardDesktopSize:
@@ -416,6 +424,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 miniPlayerAlwaysOnTop,
                                             miniPlayerPreventCloseApp:
                                                 miniPlayerPreventCloseApp,
+                                            miniPlayerShowTextInfoOnTrackChange:
+                                                miniPlayerShowTextInfoOnTrackChange,
+                                            miniPlayerTextInfoDuration:
+                                                miniPlayerTextInfoDuration,
                                             showExportButton: showExportButton,
                                             minDesktopSize: minDesktopSize,
                                             standardDesktopSize:

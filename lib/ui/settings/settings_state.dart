@@ -20,6 +20,8 @@ abstract class SettingsState extends Equatable {
   final bool forceTickerUpdateActive;
   final bool miniPlayerAlwaysOnTop;
   final bool miniPlayerPreventCloseApp;
+  final bool miniPlayerShowTextInfoOnTrackChange;
+  final int miniPlayerTextInfoDuration;
 
   const SettingsState({
     this.ipStart = '',
@@ -41,6 +43,8 @@ abstract class SettingsState extends Equatable {
     this.forceTickerUpdateActive = false,
     this.miniPlayerAlwaysOnTop = false,
     this.miniPlayerPreventCloseApp = false,
+    this.miniPlayerShowTextInfoOnTrackChange = false,
+    this.miniPlayerTextInfoDuration = 10,
   });
 
   SettingsState copyWith({
@@ -63,6 +67,8 @@ abstract class SettingsState extends Equatable {
     bool? forceTickerUpdateActive,
     bool? miniPlayerAlwaysOnTop,
     bool? miniPlayerPreventCloseApp,
+    bool? miniPlayerShowTextInfoOnTrackChange,
+    int? miniPlayerTextInfoDuration,
   }) {
     return SettingsStateLoaded(
       ipStart: ipStart ?? this.ipStart,
@@ -92,6 +98,11 @@ abstract class SettingsState extends Equatable {
           miniPlayerAlwaysOnTop ?? this.miniPlayerAlwaysOnTop,
       miniPlayerPreventCloseApp:
           miniPlayerPreventCloseApp ?? this.miniPlayerPreventCloseApp,
+      miniPlayerShowTextInfoOnTrackChange:
+          miniPlayerShowTextInfoOnTrackChange ??
+              this.miniPlayerShowTextInfoOnTrackChange,
+      miniPlayerTextInfoDuration:
+          miniPlayerTextInfoDuration ?? this.miniPlayerTextInfoDuration,
     );
   }
 
@@ -117,6 +128,8 @@ abstract class SettingsState extends Equatable {
       forceTickerUpdateActive,
       miniPlayerAlwaysOnTop,
       miniPlayerPreventCloseApp,
+      miniPlayerShowTextInfoOnTrackChange,
+      miniPlayerTextInfoDuration,
     ];
 
     return props;
@@ -154,6 +167,8 @@ class SettingsStateLoaded extends SettingsState {
     required super.forceTickerUpdateActive,
     required super.miniPlayerAlwaysOnTop,
     required super.miniPlayerPreventCloseApp,
+    required super.miniPlayerShowTextInfoOnTrackChange,
+    required super.miniPlayerTextInfoDuration,
   });
 
   @override

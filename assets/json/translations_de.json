@@ -130,6 +130,8 @@
     "miniPlayerHeadline" : "Mini-Player",
     "alwaysOnTopLabel": "Immer über allen anderen Fenstern anzeigen",
     "preventCloseAppLabel": "Button zum schliessen der App entfernen",
+    "showTextInfoOnTrackChange": "Zeige Titelinfo automatisch bei Titelwechsel an",
+    "textInfoDuration": "Titelinfo Standzeit in Sekunden",
     "okButtonText": "OK",
     "speed": "Geschwindigkeit",
     "messageSelectionLabel": "Nachricht",
