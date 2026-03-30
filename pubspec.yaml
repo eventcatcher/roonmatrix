@@ -183,15 +183,9 @@ flutter:
     - family: NotoSans
       fonts:
         - asset: assets/fonts/NotoSans-Regular.ttf
-    - family: NotoSymbols
+    - family: Symbola
       fonts:
-        - asset: assets/fonts/NotoSansSymbols-Regular.ttf
-    - family: NotoSymbols2
-      fonts:
-        - asset: assets/fonts/NotoSansSymbols2-Regular.ttf
-    - family: NotoEmoji
-      fonts:
-        - asset: assets/fonts/NotoEmoji-Regular.ttf
+        - asset: assets/fonts/Symbola.ttf
 
 msix_config:
   display_name: RoonMatrix

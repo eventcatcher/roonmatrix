@@ -58,9 +58,7 @@ class Globals {
       Platform.isLinux ? 'NotoSans' : 'Arial';
   static final List<String> fontFamilyFallback = [
     'NotoSans',
-    'NotoSymbols',
-    'NotoSymbols2',
-    'NotoEmoji',
+    'Symbola',
   ];
 
   static final String tickerSeparator = '    ////    ';
