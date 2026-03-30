@@ -105,7 +105,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   bool repeat = false;
   bool isRadio = false;
   bool loaded = false;
-  bool resizeIsUpdating = false;
   bool isFullscreen = false;
   bool hovered = false;
   bool timedHover = false;
@@ -143,21 +142,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     mainBloc.getInfo(ip: ip);
     initSubscription();
     windowManager.addListener(this);
-    windowManager.setFullScreen(false);
-    windowManager.setAlwaysOnTop(widget.miniPlayerAlwaysOnTop);
-    windowManager.setClosable(!widget.miniPlayerPreventCloseApp);
-
-    WindowOptions windowOptions = WindowOptions(
-      size: defaultSize,
-      skipTaskbar: true,
-      fullScreen: false,
-      //titleBarStyle: TitleBarStyle.hidden,
-    );
-
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
 
     asynInitDesktopDevice();
 
@@ -204,18 +188,8 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   }
 
   @override
-  void onWindowResize() async {
-    if (resizeIsUpdating || isFullscreen) return;
-
-    resizeIsUpdating = true;
-
-    final Size size = await windowManager.getSize();
-    final double realHeight = size.height - getAdditionalWindowHeight();
-    final double side = size.width < realHeight ? size.width : realHeight;
-
-    await windowManager.setSize(Size(side, side + getAdditionalWindowHeight()));
-
-    resizeIsUpdating = false;
+  void onWindowResized() async {
+    setWindowSize();
   }
 
   double getAdditionalWindowHeight() {
@@ -229,25 +203,48 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     return appBarHeight + 28.0;
   }
 
+  Future<void> setWindowSize() async {
+    final double additionalHeight = getAdditionalWindowHeight();
+    final Size size = await windowManager.getSize();
+    final double realHeight = size.height - additionalHeight;
+    final double side = size.width < realHeight ? size.width : realHeight;
+
+    await windowManager.setSize(Size(side, side + additionalHeight));
+  }
+
   Future<void> asynInitDesktopDevice() async {
-    bool isFullscreenStatus = await windowManager.isFullScreen();
-    Offset position = await windowManager.getPosition();
-    Size size = await windowManager.getSize();
+    windowManager.setFullScreen(false);
+    windowManager.setBackgroundColor(Colors.black);
+    windowManager.setAlwaysOnTop(widget.miniPlayerAlwaysOnTop);
+    windowManager.setClosable(!widget.miniPlayerPreventCloseApp);
+    windowManager.setAspectRatio(1);
+
+    WindowOptions windowOptions = WindowOptions(
+      size: defaultSize,
+      skipTaskbar: true,
+      fullScreen: false,
+    );
+
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+
+    final Offset position = await windowManager.getPosition();
+    final Size size = await windowManager.getSize();
+    final double additionalHeight = getAdditionalWindowHeight();
 
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
         setState(() {
           actualPosition = position;
           actualSize = size;
-          isFullscreen = isFullscreenStatus;
-
-          if (!isFullscreenStatus) {
-            mainBloc.windowResize(
-                size: Size(defaultSize.width,
-                    defaultSize.height + getAdditionalWindowHeight()));
-          }
         });
       }
+
+      mainBloc.windowResize(
+        size: Size(defaultSize.width, defaultSize.height + additionalHeight),
+      );
     });
   }
 
@@ -501,6 +498,17 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     return Alignment.center;
   }
 
+  void resetWindowSettings() {
+    windowManager.setAlwaysOnTop(false);
+    windowManager.setSkipTaskbar(false);
+    windowManager.setClosable(true);
+    windowManager.setAspectRatio(0);
+
+    if (!isFullscreen) {
+      mainBloc.windowResize(size: actualSize, position: actualPosition);
+    }
+  }
+
   Widget body({
     required BuildContext context,
     required MainBloc mainBloc,
@@ -514,7 +522,8 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
           return false;
         },
         child: SizeChangedLayoutNotifier(
-          child: SizedBox(
+          child: Container(
+            color: Colors.blue,
             child: Stack(
               children: [
                 !loaded
@@ -774,12 +783,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
         brightness: Globals.brightness(),
         leading: CupertinoNavigationBarBackButton(
           onPressed: () {
-            windowManager.setAlwaysOnTop(false);
-            windowManager.setSkipTaskbar(false);
-            windowManager.setClosable(true);
-            if (!isFullscreen) {
-              mainBloc.windowResize(size: actualSize, position: actualPosition);
-            }
+            resetWindowSettings();
             Navigator.pop(context);
           },
         ),
@@ -813,13 +817,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
             showResizeButtons: false,
             body: body(context: context, mainBloc: mainBloc),
             backButtonPressed: () {
-              windowManager.setAlwaysOnTop(false);
-              windowManager.setSkipTaskbar(false);
-              windowManager.setClosable(true);
-              if (!isFullscreen) {
-                mainBloc.windowResize(
-                    size: actualSize, position: actualPosition);
-              }
+              resetWindowSettings();
             },
             resizeToFullWidth: () {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
