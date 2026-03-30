@@ -692,8 +692,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                                             textStyle: TextStyle(
                                               fontFamily:
                                                   Globals.tickerFontFamily,
-                                              fontFamilyFallback:
-                                                  Globals.fontFamilyFallback,
+                                              fontFamilyFallback: Globals
+                                                  .fontFamilyFallback, // fallback for Linux to get the correct symbols
                                               fontSize: tickerFontSize,
                                               color: ColorDefs.textColor(
                                                   context: context),
@@ -738,8 +738,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                                         updatableText: scrollText,
                                         style: TextStyle(
                                           fontFamily: Globals.tickerFontFamily,
-                                          fontFamilyFallback:
-                                              Globals.fontFamilyFallback,
+                                          fontFamilyFallback: Globals
+                                              .fontFamilyFallback, // fallback for Linux to get the correct symbols
                                           fontSize: tickerFontSize,
                                           color: ColorDefs.textColor(
                                             context: context,

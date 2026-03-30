@@ -451,8 +451,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                           textStyle: TextStyle(
                                             fontFamily:
                                                 Globals.tickerFontFamily,
-                                            fontFamilyFallback:
-                                                Globals.fontFamilyFallback,
+                                            fontFamilyFallback: Globals
+                                                .fontFamilyFallback, // fallback for Linux to get the correct symbols
                                             fontSize: fontSize / 1.2,
                                             color: Colors.black,
                                           ),
@@ -507,8 +507,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                     updatableText: scrollText,
                                     style: TextStyle(
                                       fontFamily: Globals.tickerFontFamily,
-                                      fontFamilyFallback:
-                                          Globals.fontFamilyFallback,
+                                      fontFamilyFallback: Globals
+                                          .fontFamilyFallback, // fallback for Linux to get the correct symbols
                                       fontSize: fontSize / 1.2,
                                       color: Colors.black,
                                     ),
