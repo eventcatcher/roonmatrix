@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -199,8 +200,14 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     if (Globals.inIosStyle()) {
       return appBarHeight + 28.0;
     }
+    if (Platform.isWindows) {
+      return appBarHeight + 24.0;
+    }
+    if (Platform.isLinux) {
+      return appBarHeight + 32.0;
+    }
 
-    return appBarHeight + 24.0;
+    return appBarHeight + 28.0;
   }
 
   Future<void> setWindowSize() async {
@@ -835,13 +842,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
             standardDesktopSize: standardDesktopSize,
             body: body(context: context, mainBloc: mainBloc),
             backButtonPressed: () {
-              windowManager.setAlwaysOnTop(false);
-              windowManager.setSkipTaskbar(false);
-              windowManager.setClosable(true);
-              if (!isFullscreen) {
-                mainBloc.windowResize(
-                    size: actualSize, position: actualPosition);
-              }
+              resetWindowSettings();
             },
             resizeToFullWidth: () {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
