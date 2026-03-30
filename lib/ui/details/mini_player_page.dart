@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -189,6 +190,19 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   }
 
   @override
+  void onWindowResize() async {
+    if (Platform.isLinux && !isFullscreen) {
+      EasyDebounce.debounce(
+        'miniplayer-resize-debouncer',
+        Duration(seconds: 2),
+        () {
+          setWindowSize();
+        },
+      );
+    }
+  }
+
+  @override
   void onWindowResized() async {
     setWindowSize();
   }
@@ -247,7 +261,9 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
           actualSize = size;
         });
       }
-      windowManager.setAspectRatio(1);
+      if (!Platform.isLinux) {
+        windowManager.setAspectRatio(1);
+      }
       mainBloc.windowResize(
         size: Size(defaultSize.width, defaultSize.height + additionalHeight),
       );
@@ -511,7 +527,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     windowManager.setClosable(true);
 
     if (!isFullscreen) {
-      print('actualSize: $actualSize');
       mainBloc.windowResize(size: actualSize, position: actualPosition);
     }
   }
