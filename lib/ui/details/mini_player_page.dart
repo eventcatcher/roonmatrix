@@ -213,11 +213,14 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   }
 
   Future<void> asynInitDesktopDevice() async {
+    final Size size = await windowManager.getSize();
+    final Offset position = await windowManager.getPosition();
+    final double additionalHeight = getAdditionalWindowHeight();
+
     windowManager.setFullScreen(false);
     windowManager.setBackgroundColor(Colors.black);
     windowManager.setAlwaysOnTop(widget.miniPlayerAlwaysOnTop);
     windowManager.setClosable(!widget.miniPlayerPreventCloseApp);
-    windowManager.setAspectRatio(1);
 
     WindowOptions windowOptions = WindowOptions(
       size: defaultSize,
@@ -230,10 +233,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
       await windowManager.focus();
     });
 
-    final Offset position = await windowManager.getPosition();
-    final Size size = await windowManager.getSize();
-    final double additionalHeight = getAdditionalWindowHeight();
-
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
         setState(() {
@@ -241,7 +240,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
           actualSize = size;
         });
       }
-
+      windowManager.setAspectRatio(1);
       mainBloc.windowResize(
         size: Size(defaultSize.width, defaultSize.height + additionalHeight),
       );
@@ -498,13 +497,14 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     return Alignment.center;
   }
 
-  void resetWindowSettings() {
+  void resetWindowSettings() async {
+    await windowManager.setAspectRatio(0);
     windowManager.setAlwaysOnTop(false);
     windowManager.setSkipTaskbar(false);
     windowManager.setClosable(true);
-    windowManager.setAspectRatio(0);
 
     if (!isFullscreen) {
+      print('actualSize: $actualSize');
       mainBloc.windowResize(size: actualSize, position: actualPosition);
     }
   }
