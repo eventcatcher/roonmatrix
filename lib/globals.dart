@@ -58,7 +58,8 @@ class Globals {
       Platform.isLinux ? 'NotoSans' : 'Arial';
   static final List<String> fontFamilyFallback = [
     'NotoSans',
-    'NotoSansSymbols',
+    'NotoSymbols',
+    'NotoSymbols2',
     'NotoEmoji',
   ];
 
