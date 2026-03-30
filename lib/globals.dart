@@ -54,7 +54,8 @@ class Globals {
 
   static String placeholderPngAssetPath() => 'assets/icon/icon.png';
 
-  static final String tickerFontFamily = 'Arial';
+  static final String tickerFontFamily =
+      Platform.isLinux ? 'NotoSans' : 'Arial';
   static final List<String> fontFamilyFallback = [
     'NotoSans',
     'NotoSansSymbols',
