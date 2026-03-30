@@ -200,7 +200,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
       return appBarHeight + 28.0;
     }
 
-    return appBarHeight + 28.0;
+    return appBarHeight + 24.0;
   }
 
   Future<void> setWindowSize() async {
@@ -522,8 +522,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
           return false;
         },
         child: SizeChangedLayoutNotifier(
-          child: Container(
-            color: Colors.blue,
+          child: SizedBox(
             child: Stack(
               children: [
                 !loaded
