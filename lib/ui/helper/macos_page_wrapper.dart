@@ -84,6 +84,7 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
 
   @override
   void onWindowLeaveFullScreen() {
+    print('onWindowLeaveFullScreen');
     setState(() {
       isFullscreen = false;
     });

@@ -55,6 +55,11 @@ class Globals {
   static String placeholderPngAssetPath() => 'assets/icon/icon.png';
 
   static final String tickerFontFamily = 'Arial';
+  static final List<String> fontFamilyFallback = [
+    'NotoSans',
+    'NotoSansSymbols',
+    'NotoEmoji',
+  ];
 
   static final String tickerSeparator = '    ////    ';
 

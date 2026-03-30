@@ -449,6 +449,10 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                           cyclePause:
                                               Duration(seconds: cyclePause),
                                           textStyle: TextStyle(
+                                            fontFamily:
+                                                Globals.tickerFontFamily,
+                                            fontFamilyFallback:
+                                                Globals.fontFamilyFallback,
                                             fontSize: fontSize / 1.2,
                                             color: Colors.black,
                                           ),
@@ -503,6 +507,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                                     updatableText: scrollText,
                                     style: TextStyle(
                                       fontFamily: Globals.tickerFontFamily,
+                                      fontFamilyFallback:
+                                          Globals.fontFamilyFallback,
                                       fontSize: fontSize / 1.2,
                                       color: Colors.black,
                                     ),

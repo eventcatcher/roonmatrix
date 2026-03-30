@@ -690,6 +690,10 @@ class DeviceListItemState extends State<DeviceListItem> {
                                             cyclePause:
                                                 Duration(seconds: cyclePause),
                                             textStyle: TextStyle(
+                                              fontFamily:
+                                                  Globals.tickerFontFamily,
+                                              fontFamilyFallback:
+                                                  Globals.fontFamilyFallback,
                                               fontSize: tickerFontSize,
                                               color: ColorDefs.textColor(
                                                   context: context),
@@ -734,6 +738,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                                         updatableText: scrollText,
                                         style: TextStyle(
                                           fontFamily: Globals.tickerFontFamily,
+                                          fontFamilyFallback:
+                                              Globals.fontFamilyFallback,
                                           fontSize: tickerFontSize,
                                           color: ColorDefs.textColor(
                                             context: context,

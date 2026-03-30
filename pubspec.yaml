@@ -180,7 +180,16 @@ flutter:
     - family: Arial
       fonts:
         - asset: assets/fonts/ARIAL.TTF
- 
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular.ttf
+    - family: NotoSymbols
+      fonts:
+        - asset: assets/fonts/NotoSansSymbols-Regular.ttf
+    - family: NotoEmoji
+      fonts:
+        - asset: assets/fonts/NotoEmoji-Regular.ttf
+
 msix_config:
   display_name: RoonMatrix
   publisher_display_name: Stephan Wilhelm
