@@ -2363,7 +2363,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     if (replaceActiveZoneMarker) {
       str = str.replaceAll('[*]', '\u2736');
-      str = str.replaceAll('=>', '\u21E2');
+      str = str.replaceAll('=>', '\u2794 '); // alternatives: 279D, 2B62, 23F5
     }
 
     return str;
