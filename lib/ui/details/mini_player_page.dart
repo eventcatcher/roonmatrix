@@ -110,6 +110,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   bool isFullscreen = false;
   bool hovered = false;
   bool timedHover = false;
+  bool disposed = false;
   Offset actualPosition = Offset(0, 0);
   Size actualSize = Size(600, 600);
   Size defaultSize = Size(600, 600);
@@ -194,9 +195,11 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     if (Platform.isLinux && !isFullscreen) {
       EasyDebounce.debounce(
         'miniplayer-resize-debouncer',
-        Duration(seconds: 2),
+        Duration(milliseconds: 200),
         () {
-          setWindowSize();
+          if (!disposed) {
+            setWindowSize();
+          }
         },
       );
     }
@@ -868,6 +871,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
   @override
   Future<void> dispose() async {
+    disposed = true;
     mainBlocSubscription.cancel();
     settingsBlocSubscription.cancel();
 
