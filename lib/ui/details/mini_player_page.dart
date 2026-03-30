@@ -204,7 +204,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
       return appBarHeight + 24.0;
     }
     if (Platform.isLinux) {
-      return appBarHeight + 32.0;
+      return appBarHeight;
     }
 
     return appBarHeight + 28.0;
