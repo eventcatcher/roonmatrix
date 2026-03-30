@@ -187,6 +187,7 @@ flutter:
       fonts:
         - asset: assets/fonts/NotoSansSymbols-Regular.ttf
     - family: NotoSymbols2
+      fonts:
         - asset: assets/fonts/NotoSansSymbols2-Regular.ttf
     - family: NotoEmoji
       fonts:
