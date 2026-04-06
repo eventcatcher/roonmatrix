@@ -26,6 +26,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:mac_menu_bar/mac_menu_bar.dart';
 
 Future<void> _configureMacosWindowUtils() async {
   const MacosWindowUtilsConfig config = MacosWindowUtilsConfig(
@@ -91,6 +92,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   String aboutAppMessage = '';
   bool translationsLoaded = false;
   bool saveIdle = false;
+  bool macMenuInitialized = false;
 
   Brightness? brightnessValue;
 
@@ -132,210 +134,81 @@ class RoonMatrixState extends State<RoonMatrix> {
     super.initState();
   }
 
-  PlatformMenuBar macosMenubar(
-          {required BuildContext context, required Widget child}) =>
-      PlatformMenuBar(
-        menus: <PlatformMenuItem>[
-          PlatformMenu(
-            label: title,
-            menus: <PlatformMenuItem>[
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.about))
-                    const PlatformProvidedMenuItem(
-                        type: PlatformProvidedMenuItemType.about),
-                ],
-              ),
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  PlatformMenuItem(
-                    label: translations['menuEntrySettings'] ?? 'Settings',
-                    shortcut: const SingleActivator(LogicalKeyboardKey.comma,
-                        meta: true),
-                    onSelected: () {
-                      showGeneralDialog(
-                        context: context,
-                        // barrierColor:
-                        //     Colors.black12.withOpacity(0.6), // Background color
-                        barrierDismissible: false,
-                        barrierLabel: 'Dialog',
-                        transitionDuration: const Duration(milliseconds: 0),
-                        pageBuilder: (_, __, ___) {
-                          return SettingsPage(
-                            minDesktopSize: minDesktopSize,
-                            standardDesktopSize: standardDesktopSize,
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.servicesSubmenu))
-                    const PlatformProvidedMenuItem(
-                        type: PlatformProvidedMenuItemType.servicesSubmenu),
-                ],
-              ),
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.hide))
-                    const PlatformProvidedMenuItem(
-                        type: PlatformProvidedMenuItemType.hide),
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.hideOtherApplications))
-                    const PlatformProvidedMenuItem(
-                        type:
-                            PlatformProvidedMenuItemType.hideOtherApplications),
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.showAllApplications))
-                    const PlatformProvidedMenuItem(
-                        type: PlatformProvidedMenuItemType.showAllApplications),
-                ],
-              ),
-              PlatformMenuItemGroup(members: <PlatformMenuItem>[
-                if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.quit))
-                  const PlatformProvidedMenuItem(
-                      type: PlatformProvidedMenuItemType.quit),
-              ]),
-            ],
-          ),
-          PlatformMenu(
-            label: translations['menuEntryFile'] ?? 'File',
-            menus: <PlatformMenuItem>[
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  PlatformMenuItem(
-                    label: translations['menuEntryExportDeviceList'] ??
-                        'Export Device List',
-                    shortcut: const SingleActivator(LogicalKeyboardKey.keyE,
-                        meta: true),
-                    onSelected: () async => await exportDeviceList(context),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          PlatformMenu(
-            label: translations['menuEntryEdit'] ?? 'Edit',
-            menus: <PlatformMenuItem>[
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  PlatformMenuItem(
-                    label: translations['menuEntryUndo'] ?? 'Undo',
-                    shortcut: const SingleActivator(LogicalKeyboardKey.keyZ,
-                        meta: true),
-                  ),
-                  PlatformMenuItem(
-                    label: translations['menuEntryRedo'] ?? 'Redo',
-                    shortcut: const SingleActivator(LogicalKeyboardKey.keyZ,
-                        meta: true, shift: true),
-                  ),
-                ],
-              ),
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  PlatformMenuItem(
-                    label: translations['menuEntryCut'] ?? 'Cut',
-                    shortcut: const SingleActivator(LogicalKeyboardKey.keyX,
-                        meta: true),
-                  ),
-                  PlatformMenuItem(
-                    label: translations['menuEntryCopy'] ?? 'Copy',
-                    shortcut: const SingleActivator(LogicalKeyboardKey.keyC,
-                        meta: true),
-                  ),
-                  PlatformMenuItem(
-                    label: translations['menuEntryPaste'] ?? 'Paste',
-                    shortcut: const SingleActivator(LogicalKeyboardKey.keyV,
-                        meta: true),
-                  ),
-                  PlatformMenuItem(
-                    label: translations['menuEntryDelete'] ?? 'Delete',
-                  ),
-                ],
-              ),
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  PlatformMenuItem(
-                    label: translations['menuEntrySelectAll'] ?? 'Select All',
-                    shortcut: const SingleActivator(LogicalKeyboardKey.keyA,
-                        meta: true),
-                  ),
-                ],
-              ),
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  PlatformMenu(
-                    label: translations['menuEntrySpeach'] ?? 'Speach',
-                    menus: <PlatformMenuItem>[
-                      PlatformMenuItemGroup(
-                        members: <PlatformMenuItem>[
-                          if (PlatformProvidedMenuItem.hasMenu(
-                              PlatformProvidedMenuItemType.startSpeaking))
-                            const PlatformProvidedMenuItem(
-                                type:
-                                    PlatformProvidedMenuItemType.startSpeaking),
-                          if (PlatformProvidedMenuItem.hasMenu(
-                              PlatformProvidedMenuItemType.stopSpeaking))
-                            const PlatformProvidedMenuItem(
-                                type:
-                                    PlatformProvidedMenuItemType.stopSpeaking),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          PlatformMenu(
-            label: translations['menuEntryView'] ?? 'View',
-            menus: <PlatformMenuItem>[
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.toggleFullScreen))
-                    const PlatformProvidedMenuItem(
-                        type: PlatformProvidedMenuItemType.toggleFullScreen),
-                ],
-              ),
-            ],
-          ),
-          PlatformMenu(
-            label: translations['menuEntryWindow'] ?? 'Window',
-            menus: <PlatformMenuItem>[
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.minimizeWindow))
-                    const PlatformProvidedMenuItem(
-                        type: PlatformProvidedMenuItemType.minimizeWindow),
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.zoomWindow))
-                    const PlatformProvidedMenuItem(
-                        type: PlatformProvidedMenuItemType.zoomWindow),
-                ],
-              ),
-              PlatformMenuItemGroup(
-                members: <PlatformMenuItem>[
-                  if (PlatformProvidedMenuItem.hasMenu(
-                      PlatformProvidedMenuItemType.arrangeWindowsInFront))
-                    const PlatformProvidedMenuItem(
-                        type:
-                            PlatformProvidedMenuItemType.arrangeWindowsInFront),
-                ],
-              ),
-            ],
-          ),
-        ],
-        child: child,
-      );
+  Future<void> setupMacMenuStrucure({
+    required BuildContext context,
+    required Map<String, dynamic> translations,
+  }) async {
+    if (macMenuInitialized == true) {
+      return;
+    }
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'main',
+      itemId: 'test',
+      title: translations['menuEntrySettings'] ?? 'Settings',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.comma,
+        meta: true,
+        shift: true,
+      ), // Cmd+,
+    );
+
+    await MacMenuBar.addSubmenu(
+      parentMenuId: 'main',
+      submenuId: 'file_menu',
+      title: 'File',
+      index: 1,
+    );
+
+    // Add items to the File menu
+    await MacMenuBar.addMenuItem(
+      menuId: 'file_menu',
+      itemId: 'export',
+      title: translations['menuEntryExportDeviceList'] ?? 'Export Device List',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyE,
+        meta: true,
+        shift: true,
+      ), // Cmd+Shift+E
+    );
+
+    MacMenuBar.setMenuItemSelectedHandler((itemId) {
+      handleMacCustomMenuItem(context: context, itemId: itemId);
+    });
+
+    macMenuInitialized = true;
+  }
+
+  void handleMacCustomMenuItem({
+    required BuildContext context,
+    required String itemId,
+  }) {
+    print('mmmmenu  handleMacCustomMenuItem $itemId');
+    switch (itemId) {
+      case 'settings':
+        showGeneralDialog(
+          context: context,
+          // barrierColor:
+          //     Colors.black12.withOpacity(0.6), // Background color
+          barrierDismissible: false,
+          barrierLabel: 'Dialog',
+          transitionDuration: const Duration(milliseconds: 0),
+          pageBuilder: (_, __, ___) {
+            return SettingsPage(
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
+            );
+          },
+        );
+
+        break;
+      case 'export':
+        exportDeviceList(context);
+        break;
+      default:
+        debugPrint('Unknown menu item: $itemId');
+    }
+  }
 
   MenuBarWidget windowsLinuxMenuBar({
     required BuildContext context,
@@ -557,13 +430,12 @@ class RoonMatrixState extends State<RoonMatrix> {
             }
 
             if (Platform.isMacOS) {
-              return macosMenubar(
-                context: context,
-                child: StartPage(
-                  minDesktopSize: minDesktopSize,
-                  standardDesktopSize: standardDesktopSize,
-                  title: title,
-                ),
+              setupMacMenuStrucure(
+                  context: context, translations: translations);
+              return StartPage(
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
+                title: title,
               );
             }
 
