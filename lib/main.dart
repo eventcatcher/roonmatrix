@@ -142,6 +142,51 @@ class RoonMatrixState extends State<RoonMatrix> {
       return;
     }
 
+    MacMenuBar.onSettings(() async {
+      showGeneralDialog(
+        context: context,
+        // barrierColor:
+        //     Colors.black12.withOpacity(0.6), // Background color
+        barrierDismissible: false,
+        barrierLabel: 'Dialog',
+        transitionDuration: const Duration(milliseconds: 0),
+        pageBuilder: (_, __, ___) {
+          return SettingsPage(
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+          );
+        },
+      );
+      return true;
+    });
+
+    // MacMenuBar.onCut(() async {
+    //   debugPrint('Cut menu item selected');
+    //   // Implement your cut logic here
+    //   return true; // Return true to indicate the action was handled
+    // });
+
+    // // Handle Copy menu item
+    // MacMenuBar.onCopy(() async {
+    //   debugPrint('Copy menu item selected');
+    //   // Implement your copy logic here
+    //   return true;
+    // });
+
+    // // Handle Paste menu item
+    // MacMenuBar.onPaste(() async {
+    //   debugPrint('Paste menu item selected');
+    //   // Implement your paste logic here
+    //   return true;
+    // });
+
+    // // Handle Select All menu item
+    // MacMenuBar.onSelectAll(() async {
+    //   debugPrint('Select All menu item selected');
+    //   // Implement your select all logic here
+    //   return true;
+    // });
+
     await MacMenuBar.addMenuItem(
       menuId: 'main',
       itemId: 'test',
@@ -167,8 +212,8 @@ class RoonMatrixState extends State<RoonMatrix> {
       title: translations['menuEntryExportDeviceList'] ?? 'Export Device List',
       shortcut: const SingleActivator(
         LogicalKeyboardKey.keyE,
-        meta: true,
-        shift: true,
+        control: true,
+        shift: false,
       ), // Cmd+Shift+E
     );
 
@@ -183,25 +228,7 @@ class RoonMatrixState extends State<RoonMatrix> {
     required BuildContext context,
     required String itemId,
   }) {
-    print('mmmmenu  handleMacCustomMenuItem $itemId');
     switch (itemId) {
-      case 'settings':
-        showGeneralDialog(
-          context: context,
-          // barrierColor:
-          //     Colors.black12.withOpacity(0.6), // Background color
-          barrierDismissible: false,
-          barrierLabel: 'Dialog',
-          transitionDuration: const Duration(milliseconds: 0),
-          pageBuilder: (_, __, ___) {
-            return SettingsPage(
-              minDesktopSize: minDesktopSize,
-              standardDesktopSize: standardDesktopSize,
-            );
-          },
-        );
-
-        break;
       case 'export':
         exportDeviceList(context);
         break;
