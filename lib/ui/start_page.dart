@@ -298,15 +298,14 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 false;
                                                         bool pingItem =
                                                             ping[ip] ?? false;
-                                                        bool verticalOutput = activeIp
+                                                        bool verticalOutput = ip
                                                                     .isNotEmpty &&
                                                                 mainBloc.state
                                                                             .info[
-                                                                        activeIp] !=
+                                                                        ip] !=
                                                                     null
                                                             ? mainBloc.state
-                                                                            .info[
-                                                                        activeIp]
+                                                                        .info[ip]
                                                                     [
                                                                     'vertical_output'] ??
                                                                 false
