@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition.dart';
+import 'package:roonmatrix/model/scroll_speed_variant.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/lifecycle_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu_wrapper.dart';
@@ -65,8 +66,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   double width = 1280;
   double height = 768;
   double scrollSpeedDevice = 1.0;
-  double scrollSpeedScrollMatrix = 1.0;
-  Map<String, dynamic> scrollSpeedScrollMatrixDeviceMap = {};
   double? appBarHeight;
   double? navigationTop;
 
@@ -170,11 +169,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                         settingsState.miniPlayerTextInfoDuration;
 
                     scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
-                    scrollSpeedDevice = settingsState.scrollSpeedDevice;
-                    scrollSpeedScrollMatrix =
-                        settingsState.scrollSpeedScrollMatrix;
-                    scrollSpeedScrollMatrixDeviceMap =
-                        settingsState.scrollSpeedScrollMatrixDeviceMap;
 
                     return BlocBuilder(
                         bloc: mainBloc,
@@ -304,6 +298,49 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 false;
                                                         bool pingItem =
                                                             ping[ip] ?? false;
+                                                        bool verticalOutput = activeIp
+                                                                    .isNotEmpty &&
+                                                                mainBloc.state
+                                                                            .info[
+                                                                        activeIp] !=
+                                                                    null
+                                                            ? mainBloc.state
+                                                                            .info[
+                                                                        activeIp]
+                                                                    [
+                                                                    'vertical_output'] ??
+                                                                false
+                                                            : false;
+
+                                                        String scrollSpeedKey =
+                                                            settingsBloc
+                                                                .getScrollSpeedKey(
+                                                          ip: ip,
+                                                          variant:
+                                                              ScrollSpeedVariant(
+                                                            isStandAlone: false,
+                                                            isLedVariant:
+                                                                ledTickerInDeviceListActive,
+                                                            isVertical:
+                                                                verticalTickerActive &&
+                                                                    verticalOutput,
+                                                          ),
+                                                        );
+                                                        String
+                                                            scrollSpeedStandAloneKey =
+                                                            settingsBloc
+                                                                .getScrollSpeedKey(
+                                                          ip: ip,
+                                                          variant:
+                                                              ScrollSpeedVariant(
+                                                            isStandAlone: true,
+                                                            isLedVariant:
+                                                                ledTickerOnTickerPageActive,
+                                                            isVertical:
+                                                                verticalTickerActive &&
+                                                                    verticalOutput,
+                                                          ),
+                                                        );
 
                                                         return GestureDetector(
                                                           behavior:
@@ -346,12 +383,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                 isSmallDeviceWidth,
                                                             moreInfo: moreInfo,
                                                             scrollSpeedScrollMatrix:
-                                                                scrollSpeedScrollMatrixDeviceMap[
-                                                                        ip] ??
-                                                                    scrollSpeedScrollMatrix,
+                                                                scrollSpeedDeviceMap[
+                                                                        scrollSpeedStandAloneKey] ??
+                                                                    1.0,
                                                             scrollSpeedDevice:
                                                                 scrollSpeedDeviceMap[
-                                                                        ip] ??
+                                                                        scrollSpeedKey] ??
                                                                     scrollSpeedDevice,
                                                             verticalTickerActive:
                                                                 verticalTickerActive,
@@ -629,13 +666,22 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             }
 
             scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
-            scrollSpeedDevice = settingsState.scrollSpeedDevice;
 
+            bool ledTickerInDeviceListActive =
+                settingsState.ledTickerInDeviceListActive;
             bool verticalTickerActive = settingsState.verticalTickerActive;
             bool verticalOutput =
                 activeIp.isNotEmpty && mainBloc.state.info[activeIp] != null
                     ? mainBloc.state.info[activeIp]['vertical_output'] ?? false
                     : false;
+            String scrollSpeedKey = settingsBloc.getScrollSpeedKey(
+              ip: activeIp,
+              variant: ScrollSpeedVariant(
+                isStandAlone: false,
+                isLedVariant: ledTickerInDeviceListActive,
+                isVertical: verticalTickerActive && verticalOutput,
+              ),
+            );
             List<dynamic> list = mainBloc.getScrollDelayMinMax(
               ip: activeIp,
               verticalOutput: verticalOutput,
@@ -649,8 +695,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
               showSlider:
                   Globals.isMobileDevice() && definitions.containsKey(activeIp),
               showExpandableSpeedSlider: showExpandableSpeedSlider,
-              scrollSpeedDevice:
-                  scrollSpeedDeviceMap[activeIp] ?? scrollSpeedDevice,
+              scrollSpeedDevice: scrollSpeedDeviceMap[scrollSpeedKey] ?? 1.0,
               animationController: animationController,
               isDrawerOpen: isDrawerOpen,
               body: bodyWithMenuDrawerOverlay(context),
@@ -658,11 +703,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                   ? ({required double speed}) {
                       setState(() {
                         if (activeIp.isNotEmpty) {
-                          scrollSpeedDeviceMap[activeIp] = speed;
+                          scrollSpeedDeviceMap[scrollSpeedKey] = speed;
                         }
                         scrollSpeedDevice = speed;
                         settingsBloc.setScrollSpeedDevice(
-                            ip: activeIp, speed: speed);
+                            key: scrollSpeedKey, speed: speed);
                       });
                     }
                   : null,
@@ -710,13 +755,22 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           }
 
           scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
-          scrollSpeedDevice = settingsState.scrollSpeedDevice;
 
+          bool ledTickerInDeviceListActive =
+              settingsState.ledTickerInDeviceListActive;
           bool verticalTickerActive = settingsState.verticalTickerActive;
           bool verticalOutput =
               activeIp.isNotEmpty && mainBloc.state.info[activeIp] != null
                   ? mainBloc.state.info[activeIp]['vertical_output'] ?? false
                   : false;
+          String scrollSpeedKey = settingsBloc.getScrollSpeedKey(
+            ip: activeIp,
+            variant: ScrollSpeedVariant(
+              isStandAlone: false,
+              isLedVariant: ledTickerInDeviceListActive,
+              isVertical: verticalTickerActive && verticalOutput,
+            ),
+          );
           List<dynamic> list = mainBloc.getScrollDelayMinMax(
             ip: activeIp,
             verticalOutput: verticalOutput,
@@ -733,7 +787,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 Globals.isMobileDevice() && definitions.containsKey(activeIp),
             showExpandableSpeedSlider: showExpandableSpeedSlider,
             scrollSpeedDevice:
-                scrollSpeedDeviceMap[activeIp] ?? scrollSpeedDevice,
+                scrollSpeedDeviceMap[scrollSpeedKey] ?? scrollSpeedDevice,
             standardDesktopSize: standardDesktopSize,
             drawer:
                 Globals.inIosStyle() || Platform.isAndroid || Platform.isFuchsia
@@ -759,11 +813,11 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 ? ({required double speed}) {
                     setState(() {
                       if (activeIp.isNotEmpty) {
-                        scrollSpeedDeviceMap[activeIp] = speed;
+                        scrollSpeedDeviceMap[scrollSpeedKey] = speed;
                       }
                       scrollSpeedDevice = speed;
                       settingsBloc.setScrollSpeedDevice(
-                          ip: activeIp, speed: speed);
+                          key: scrollSpeedKey, speed: speed);
                     });
                   }
                 : null,

@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/model/scroll_speed_variant.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/layout/desktop_page_buttons.dart';
@@ -594,8 +595,20 @@ class DeviceListItemState extends State<DeviceListItem> {
                               transitionDuration:
                                   const Duration(milliseconds: 0),
                               pageBuilder: (_, __, ___) {
+                                String scrollSpeedKey =
+                                    settingsBloc.getScrollSpeedKey(
+                                  ip: ip,
+                                  variant: ScrollSpeedVariant(
+                                    isStandAlone: true,
+                                    isLedVariant: ledTickerOnTickerPageActive,
+                                    isVertical:
+                                        verticalTickerActive && verticalOutput,
+                                  ),
+                                );
+
                                 return ScrollMatrixPage(
                                   ip: ip,
+                                  scrollSpeedKey: scrollSpeedKey,
                                   scrollSpeed: scrollSpeedScrollMatrix,
                                   name: i['name'],
                                   translations: translations,
@@ -608,10 +621,13 @@ class DeviceListItemState extends State<DeviceListItem> {
                                       ledTickerPixelShiftActive,
                                   forceTickerUpdateActive:
                                       forceTickerUpdateActive,
-                                  speedChanged: (double speed) {
+                                  speedChanged: ({
+                                    required String scrollSpeedKey,
+                                    required double speed,
+                                  }) {
                                     scrollSpeedScrollMatrix = speed;
-                                    settingsBloc.setScrollSpeedScrollMatrix(
-                                        ip: ip, speed: speed);
+                                    settingsBloc.setScrollSpeedDevice(
+                                        key: scrollSpeedKey, speed: speed);
                                   },
                                 );
                               },
@@ -770,7 +786,16 @@ class DeviceListItemState extends State<DeviceListItem> {
                     defaultValue: sliderDefaultValue,
                     value: scrollSpeedDevice,
                     updateValue: (double value) {
-                      settingsBloc.setScrollSpeedDevice(ip: ip, speed: value);
+                      String key = settingsBloc.getScrollSpeedKey(
+                        ip: ip,
+                        variant: ScrollSpeedVariant(
+                          isStandAlone: false,
+                          isLedVariant: ledTickerInDeviceListActive,
+                          isVertical: verticalTickerActive && verticalOutput,
+                        ),
+                      );
+
+                      settingsBloc.setScrollSpeedDevice(key: key, speed: value);
                       setState(() {
                         scrollSpeedDevice = value;
                       });
