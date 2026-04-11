@@ -79,6 +79,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   final double ledTickerPadding = 2.0;
   final double ledTickerBorderSize = 1.0;
   final double ledSizeDefault = 3.0;
+  final double tickerVerticalPadding = 20.0;
   double ledSize = 3.0;
 
   Orientation orientation = Orientation.portrait;
@@ -295,6 +296,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       } else {
         fontSize = height - 60 - height / 6;
         ledSize = width / ledModules / 8;
+
+        double topBottomBorder = (tickerVerticalPadding + 16) * 2;
+        double appBarHeight = Globals.inMacosStyle() || Globals.inIosStyle()
+            ? CupertinoNavigationBar().preferredSize.height
+            : AppBar().preferredSize.height;
+        double nettoHeight = height - appBarHeight - topBottomBorder;
+
+        if (nettoHeight < (ledSize * 8)) {
+          ledSize = nettoHeight / 8;
+        }
       }
     } else {
       fontSize = mobileFontSize;
@@ -415,7 +426,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     },
                     child: SizeChangedLayoutNotifier(
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 20.0),
+                        padding: EdgeInsets.symmetric(
+                            vertical: tickerVerticalPadding),
                         height: height - 52,
                         child: verticalOutput && verticalTickerActive
                             ? Center(
