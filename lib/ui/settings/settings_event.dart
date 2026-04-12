@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:roonmatrix/model/scroll_speed_variant.dart';
 
 abstract class SettingsEvent extends Equatable {
   const SettingsEvent([List props = const []]);
@@ -90,30 +91,30 @@ class SetCoverRowDynamicSizeMode extends SettingsEvent {
   List<Object> get props => [enabled];
 }
 
-class SetScrollSpeedDevice extends SettingsEvent {
+class GetScrollSpeedVariant extends SettingsEvent {
   final String ip;
+  final ScrollSpeedVariant variant;
+
+  const GetScrollSpeedVariant({
+    required this.ip,
+    required this.variant,
+  });
+
+  @override
+  List<Object> get props => [ip, variant];
+}
+
+class SetScrollSpeedDevice extends SettingsEvent {
+  final String key;
   final double speed;
 
   const SetScrollSpeedDevice({
-    required this.ip,
+    required this.key,
     required this.speed,
   });
 
   @override
-  List<Object> get props => [ip, speed];
-}
-
-class SetScrollSpeedScrollMatrix extends SettingsEvent {
-  final String ip;
-  final double speed;
-
-  const SetScrollSpeedScrollMatrix({
-    required this.ip,
-    required this.speed,
-  });
-
-  @override
-  List<Object> get props => [ip, speed];
+  List<Object> get props => [key, speed];
 }
 
 class SetVerticalTickerActiveMode extends SettingsEvent {

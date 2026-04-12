@@ -9,10 +9,7 @@ abstract class SettingsState extends Equatable {
   final bool coverRowAlbum;
   final bool coverRowTrack;
   final bool coverRowDynamicSize;
-  final double scrollSpeedDevice;
   final Map<String, dynamic> scrollSpeedDeviceMap;
-  final double scrollSpeedScrollMatrix;
-  final Map<String, dynamic> scrollSpeedScrollMatrixDeviceMap;
   final bool verticalTickerActive;
   final bool ledTickerInDeviceListActive;
   final bool ledTickerOnTickerPageActive;
@@ -32,10 +29,7 @@ abstract class SettingsState extends Equatable {
     this.coverRowAlbum = false,
     this.coverRowTrack = true,
     this.coverRowDynamicSize = true,
-    this.scrollSpeedDevice = 1.0,
     this.scrollSpeedDeviceMap = const {},
-    this.scrollSpeedScrollMatrix = 1.0,
-    this.scrollSpeedScrollMatrixDeviceMap = const {},
     this.verticalTickerActive = false,
     this.ledTickerInDeviceListActive = false,
     this.ledTickerOnTickerPageActive = false,
@@ -56,10 +50,7 @@ abstract class SettingsState extends Equatable {
     bool? coverRowAlbum,
     bool? coverRowTrack,
     bool? coverRowDynamicSize,
-    double? scrollSpeedDevice,
     Map<String, dynamic>? scrollSpeedDeviceMap,
-    double? scrollSpeedScrollMatrix,
-    Map<String, dynamic>? scrollSpeedScrollMatrixDeviceMap,
     bool? verticalTickerActive,
     bool? ledTickerInDeviceListActive,
     bool? ledTickerOnTickerPageActive,
@@ -79,12 +70,7 @@ abstract class SettingsState extends Equatable {
       coverRowAlbum: coverRowAlbum ?? this.coverRowAlbum,
       coverRowTrack: coverRowTrack ?? this.coverRowTrack,
       coverRowDynamicSize: coverRowDynamicSize ?? this.coverRowDynamicSize,
-      scrollSpeedDevice: scrollSpeedDevice ?? this.scrollSpeedDevice,
       scrollSpeedDeviceMap: scrollSpeedDeviceMap ?? this.scrollSpeedDeviceMap,
-      scrollSpeedScrollMatrix:
-          scrollSpeedScrollMatrix ?? this.scrollSpeedScrollMatrix,
-      scrollSpeedScrollMatrixDeviceMap: scrollSpeedScrollMatrixDeviceMap ??
-          this.scrollSpeedScrollMatrixDeviceMap,
       verticalTickerActive: verticalTickerActive ?? this.verticalTickerActive,
       ledTickerInDeviceListActive:
           ledTickerInDeviceListActive ?? this.ledTickerInDeviceListActive,
@@ -117,10 +103,7 @@ abstract class SettingsState extends Equatable {
       coverRowAlbum,
       coverRowTrack,
       coverRowDynamicSize,
-      scrollSpeedDevice,
       scrollSpeedDeviceMap,
-      scrollSpeedScrollMatrix,
-      scrollSpeedScrollMatrixDeviceMap,
       verticalTickerActive,
       ledTickerInDeviceListActive,
       ledTickerOnTickerPageActive,
@@ -156,10 +139,7 @@ class SettingsStateLoaded extends SettingsState {
     required super.coverRowAlbum,
     required super.coverRowTrack,
     required super.coverRowDynamicSize,
-    required super.scrollSpeedDevice,
     required super.scrollSpeedDeviceMap,
-    required super.scrollSpeedScrollMatrix,
-    required super.scrollSpeedScrollMatrixDeviceMap,
     required super.verticalTickerActive,
     required super.ledTickerInDeviceListActive,
     required super.ledTickerOnTickerPageActive,

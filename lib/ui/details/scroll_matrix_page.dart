@@ -9,6 +9,7 @@ import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition.dart';
+import 'package:roonmatrix/model/scroll_speed_variant.dart';
 import 'package:roonmatrix/ui/layout/mobile_speed_slider_and_fontsize_controls.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
@@ -25,6 +26,7 @@ import 'package:window_manager/window_manager.dart';
 
 class ScrollMatrixPage extends StatefulWidget {
   final String ip;
+  final String scrollSpeedKey;
   final String name;
   final Map<String, dynamic> translations;
   final Size minDesktopSize;
@@ -34,11 +36,13 @@ class ScrollMatrixPage extends StatefulWidget {
   final bool ledTickerOnTickerPageActive;
   final bool ledTickerPixelShiftActive;
   final bool forceTickerUpdateActive;
-  final Function(double speed) speedChanged;
+  final Function({required String scrollSpeedKey, required double speed})
+      speedChanged;
 
   const ScrollMatrixPage({
     super.key,
     required this.ip,
+    required this.scrollSpeedKey,
     required this.name,
     required this.translations,
     required this.minDesktopSize,
@@ -62,7 +66,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   Map<String, dynamic> get translations => widget.translations;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
-  Function(double speed) get speedChanged => widget.speedChanged;
+  Function({required String scrollSpeedKey, required double speed})
+      get speedChanged => widget.speedChanged;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -74,6 +79,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   final double ledTickerPadding = 2.0;
   final double ledTickerBorderSize = 1.0;
   final double ledSizeDefault = 3.0;
+  final double tickerVerticalPadding = 20.0;
   double ledSize = 3.0;
 
   Orientation orientation = Orientation.portrait;
@@ -107,6 +113,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   late MainBloc mainBloc;
   late SettingsBloc settingsBloc;
   late StreamSubscription settingsBlocSubscription;
+  late String scrollSpeedKey;
   late bool verticalTickerActive;
   late bool ledTickerOnTickerPageActive;
   late bool ledTickerPixelShiftActive;
@@ -130,6 +137,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     width = minDesktopSize.width;
     height = minDesktopSize.height;
 
+    scrollSpeedKey = widget.scrollSpeedKey;
     sliderValue = widget.scrollSpeed;
 
     if (Globals.isDesktopDevice()) {
@@ -154,6 +162,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                 ledTickerPixelShiftActive =
                     settingsState.ledTickerPixelShiftActive;
                 forceTickerUpdateActive = settingsState.forceTickerUpdateActive;
+                scrollSpeedKey = settingsBloc.getScrollSpeedKey(
+                  ip: ip,
+                  variant: ScrollSpeedVariant(
+                    isStandAlone: true,
+                    isLedVariant: ledTickerOnTickerPageActive,
+                    isVertical: verticalTickerActive && verticalOutput,
+                  ),
+                );
+                sliderValue =
+                    settingsState.scrollSpeedDeviceMap[scrollSpeedKey] ?? 1.0;
               });
             }
           });
@@ -278,6 +296,16 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       } else {
         fontSize = height - 60 - height / 6;
         ledSize = width / ledModules / 8;
+
+        double topBottomBorder = (tickerVerticalPadding + 16) * 2;
+        double appBarHeight = Globals.inMacosStyle() || Globals.inIosStyle()
+            ? CupertinoNavigationBar().preferredSize.height
+            : AppBar().preferredSize.height;
+        double nettoHeight = height - appBarHeight - topBottomBorder;
+
+        if (nettoHeight < (ledSize * 8)) {
+          ledSize = nettoHeight / 8;
+        }
       }
     } else {
       fontSize = mobileFontSize;
@@ -398,7 +426,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                     },
                     child: SizeChangedLayoutNotifier(
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 20.0),
+                        padding: EdgeInsets.symmetric(
+                            vertical: tickerVerticalPadding),
                         height: height - 52,
                         child: verticalOutput && verticalTickerActive
                             ? Center(
@@ -564,7 +593,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       sliderDefaultValue: sliderDefaultValue,
                       scrollSpeed: sliderValue,
                       speedChanged: (double speed) {
-                        speedChanged(speed);
+                        speedChanged(
+                            scrollSpeedKey: scrollSpeedKey, speed: speed);
                         setState(() => sliderValue = speed);
                       },
                       sizeChanged: (double size) =>
@@ -591,7 +621,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       defaultValue: sliderDefaultValue,
                       value: sliderValue,
                       updateValue: (double value) {
-                        speedChanged(value);
+                        speedChanged(
+                            scrollSpeedKey: scrollSpeedKey, speed: value);
                         setState(() {
                           sliderValue = value;
                         });
@@ -657,7 +688,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                             defaultValue: sliderDefaultValue,
                             value: sliderValue,
                             updateValue: (double value) {
-                              speedChanged(value);
+                              speedChanged(
+                                  scrollSpeedKey: scrollSpeedKey, speed: value);
                               setState(() {
                                 sliderValue = value;
                               });
@@ -709,7 +741,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                         sliderDefaultValue: sliderDefaultValue,
                         scrollSpeed: sliderValue,
                         speedChanged: (double speed) {
-                          speedChanged(speed);
+                          speedChanged(
+                              scrollSpeedKey: scrollSpeedKey, speed: speed);
                           setState(() => sliderValue = speed);
                         },
                         sizeChanged: (double size) =>
@@ -733,7 +766,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                             defaultValue: sliderDefaultValue,
                             value: sliderValue,
                             updateValue: (double value) {
-                              speedChanged(value);
+                              speedChanged(
+                                  scrollSpeedKey: scrollSpeedKey, speed: value);
                               setState(() {
                                 sliderValue = value;
                               });

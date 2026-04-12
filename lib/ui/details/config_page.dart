@@ -113,7 +113,7 @@ class ConfigPageState extends State<ConfigPage> {
                         size: 20.0,
                       ),
                     ),
-                    label: (translations['saveButtonText'] ?? 'save')
+                    label: (translations['saveButtonText'] ?? 'Save')
                         .toString()
                         .toFirstUpper,
                     onPressed: !validData ||
@@ -134,10 +134,10 @@ class ConfigPageState extends State<ConfigPage> {
                                 // ignore: use_build_context_synchronously
                                 context: widgetContext,
                                 doneMessage: translations['saveDoneMessage'] ??
-                                    'save config successfully done',
+                                    'Save config successfully done',
                                 failMessage:
                                     translations['saveFailedMessage'] ??
-                                        'save config failed!',
+                                        'Save config failed!',
                                 valid: valid);
 
                             if (valid == true) {
@@ -225,7 +225,7 @@ class ConfigPageState extends State<ConfigPage> {
                       size: 20.0,
                     ),
                   ),
-                  label: (translations['exportButtonText'] ?? 'export')
+                  label: (translations['exportButtonText'] ?? 'Export')
                       .toString()
                       .toFirstUpper,
                   onPressed: saveIdle == true || mainState.subPageIdle == true
@@ -247,10 +247,10 @@ class ConfigPageState extends State<ConfigPage> {
                               // ignore: use_build_context_synchronously
                               context: widgetContext,
                               doneMessage: translations['exportDoneMessage'] ??
-                                  'export successfully done',
+                                  'Export successfully done',
                               failMessage:
                                   translations['exportFailedMessage'] ??
-                                      'export failed!',
+                                      'Export failed!',
                               valid: valid);
                         },
                 ),

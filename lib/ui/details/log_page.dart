@@ -100,6 +100,8 @@ class LogPageState extends State<LogPage> {
               child: IconButton(
                 padding: const EdgeInsets.only(bottom: 2.0),
                 splashRadius: splashRadius,
+                tooltip: translations['filterButtonLabel'] ??
+                    'Filter search results',
                 hoverColor: Colors.transparent,
                 onPressed: () {
                   setState(() {
@@ -135,6 +137,7 @@ class LogPageState extends State<LogPage> {
           child: IconButton(
             padding: EdgeInsets.zero,
             splashRadius: splashRadius,
+            tooltip: translations['paginationBackLabel'] ?? 'Previous page',
             hoverColor: Colors.transparent,
             onPressed: () {
               if (logfilePart > 1) {
@@ -170,6 +173,7 @@ class LogPageState extends State<LogPage> {
           child: IconButton(
             padding: EdgeInsets.zero,
             splashRadius: splashRadius,
+            tooltip: translations['paginationNextLabel'] ?? 'Next page',
             hoverColor: Colors.transparent,
             onPressed: () {
               if (logfilePart < logfileParts) {
@@ -363,7 +367,7 @@ class LogPageState extends State<LogPage> {
                     size: 20.0,
                   ),
                 ),
-                label: (translations['exportButtonText'] ?? 'export')
+                label: (translations['exportButtonText'] ?? 'Export')
                     .toString()
                     .toFirstUpper,
                 onPressed: saveIdle == true || mainState.subPageIdle == true
@@ -385,9 +389,9 @@ class LogPageState extends State<LogPage> {
                             // ignore: use_build_context_synchronously
                             context: context,
                             doneMessage: translations['exportDoneMessage'] ??
-                                'export successfully done',
+                                'Export successfully done',
                             failMessage: translations['exportFailedMessage'] ??
-                                'export failed!',
+                                'Export failed!',
                             valid: valid);
                       },
               ),

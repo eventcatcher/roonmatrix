@@ -71,7 +71,7 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
                     alignment: Alignment.center,
                     height: noDevicesFoundRectSize / 2 - 19 - 12,
                     child: Text(
-                      '${translations['scanNoFoundMessage'] ?? 'no devices found'}.',
+                      '${translations['scanNoFoundMessage'] ?? 'No devices found'}.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: ColorDefs.textColor(context: context),

@@ -122,7 +122,11 @@ class MessageWriterState extends State<MessageWriter> {
   }
 
   Future<Map<String, String>> getCustomMessages() async {
-    options = await mainRepository.getCustomMessages();
+    Map<String, String> unsortedOptions =
+        await mainRepository.getCustomMessages();
+    options = Map.fromEntries(unsortedOptions.entries.toList()
+      ..sort((e1, e2) => e1.key.toLowerCase().compareTo(e2.key.toLowerCase())));
+
     setState(() {
       optionsLoaded = true;
     });
@@ -135,9 +139,10 @@ class MessageWriterState extends State<MessageWriter> {
         child: SelectBox(
             translations: translations,
             aligned: 'horizontal',
-            label: '${translations['messageSelectionLabel'] ?? 'Message'}:',
+            label:
+                '${translations['messageSelectionLabel'] ?? 'Message templates'}:',
             placeholder:
-                '${translations['messageSelectionPlaceholder'] ?? 'Select Message'}...',
+                '${translations['messageSelectionPlaceholder'] ?? 'Select template'}...',
             noVerticalSpace: true,
             selected: selectedMessageId,
             options: options,
@@ -170,7 +175,7 @@ class MessageWriterState extends State<MessageWriter> {
               size: 20.0,
             ),
           ),
-          label: (translations['breakMessageShortButtonLabel'] ?? 'stop')
+          label: (translations['breakMessageShortButtonLabel'] ?? 'Stop')
               .toString()
               .toFirstUpper,
           onPressed: customMessage.isEmpty
@@ -202,7 +207,7 @@ class MessageWriterState extends State<MessageWriter> {
                                   reverse: true,
                                   label: translations[
                                           'allDevicesRemoveSwitchLabel'] ??
-                                      'remove from all devices',
+                                      'Remove from all devices',
                                   enabled: allDevices,
                                   expanded: false,
                                   onChanged: (bool value) {
@@ -240,13 +245,13 @@ class MessageWriterState extends State<MessageWriter> {
                                 ? (translations['messageRemoveDoneMessage']
                                         as String)
                                     .replaceFirst('#', name)
-                                : "remove message from $name successfully done";
+                                : "Remove message from $name successfully done";
                         String failMessage =
                             translations['messageRemoveFailedMessage'] != null
                                 ? (translations['messageRemoveFailedMessage']
                                         as String)
                                     .replaceFirst('#', name)
-                                : "remove message from $name is failed!";
+                                : "Remove message from $name is failed!";
 
                         SharedWidgets.showSnackBar(
                             // ignore: use_build_context_synchronously
@@ -270,13 +275,13 @@ class MessageWriterState extends State<MessageWriter> {
                               ? (translations['messageRemoveDoneMessage']
                                       as String)
                                   .replaceFirst('#', name)
-                              : "remove message from $name successfully done";
+                              : "Remove message from $name successfully done";
                       String failMessage =
                           translations['messageRemoveFailedMessage'] != null
                               ? (translations['messageRemoveFailedMessage']
                                       as String)
                                   .replaceFirst('#', name)
-                              : "remove message from $name is failed!";
+                              : "Remove message from $name is failed!";
 
                       SharedWidgets.showSnackBar(
                           // ignore: use_build_context_synchronously
@@ -311,7 +316,7 @@ class MessageWriterState extends State<MessageWriter> {
                     size: 20.0,
                   ),
                 ),
-                label: (translations['sendButtonLabel'] ?? 'send')
+                label: (translations['sendButtonLabel'] ?? 'Send')
                     .toString()
                     .toFirstUpper,
                 onPressed: messageTextBackup.value.isEmpty ||
@@ -416,13 +421,13 @@ class MessageWriterState extends State<MessageWriter> {
                                   ? (translations['messageDoneMessage']
                                           as String)
                                       .replaceFirst('#', name)
-                                  : "send message to $name successfully done";
+                                  : "Send message to $name successfully done";
                               String failMessage =
                                   translations['messageFailedMessage'] != null
                                       ? (translations['messageFailedMessage']
                                               as String)
                                           .replaceFirst('#', name)
-                                      : "send message to $name failed!";
+                                      : "Send message to $name failed!";
 
                               SharedWidgets.showSnackBar(
                                   // ignore: use_build_context_synchronously
@@ -448,13 +453,13 @@ class MessageWriterState extends State<MessageWriter> {
                                     ? (translations['messageDoneMessage']
                                             as String)
                                         .replaceFirst('#', name)
-                                    : "send message to $name successfully done";
+                                    : "Send message to $name successfully done";
                             String failMessage =
                                 translations['messageFailedMessage'] != null
                                     ? (translations['messageFailedMessage']
                                             as String)
                                         .replaceFirst('#', name)
-                                    : "send message to $name failed!";
+                                    : "Send message to $name failed!";
 
                             SharedWidgets.showSnackBar(
                                 // ignore: use_build_context_synchronously
@@ -489,18 +494,21 @@ class MessageWriterState extends State<MessageWriter> {
           setState(() {
             messageTextController.text = '';
             messageTextBackup.value = messageTextController.text;
-            selectedMessageId = null;
           });
         },
       ));
 
-  void onAddMessagePreset({required String key}) => options.containsKey(key)
+  void onAddMessagePreset({required String key}) => options.keys
+              .toList()
+              .firstWhereOrNull(
+                  (String item) => item.toLowerCase() == key.toLowerCase()) !=
+          null
       ? ApproveModal(
           context: context,
-          title:
-              translations['removeMessageNameExistTitle'] ?? "Remove message",
+          title: translations['addMessageNameExistTitle'] ??
+              "Error by adding a message template",
           question:
-              '${translations['removeMessageNameExistQuestion'] ?? 'This message name is in use'}!',
+              '${translations['addMessageNameExistQuestion'] ?? 'This message name is in use'}!',
           okText: translations['okButtonText'] ?? 'OK',
           cancelText: '',
           onApproved: () => setState(() {
@@ -511,13 +519,30 @@ class MessageWriterState extends State<MessageWriter> {
           }),
         ).show()
       : setState(() {
-          options.putIfAbsent(key, () => messageTextController.text);
+          Map<String, String> unsortedOptions = Map.from(options);
+          unsortedOptions.putIfAbsent(key, () => messageTextController.text);
+          options = Map.fromEntries(unsortedOptions.entries.toList()
+            ..sort((e1, e2) =>
+                e1.key.toLowerCase().compareTo(e2.key.toLowerCase())));
+          String? newKey = options.entries
+              .firstWhereOrNull((MapEntry entry) => entry.key == key)
+              ?.key;
+          selectedMessageId = newKey;
+
           nameTextController.text = '';
-          messageTextController.text = '';
           messageTextBackup.value = messageTextController.text;
           mainRepository.setCustomMessages(messages: options);
-          mainBloc.getInfo(ip: ip);
         });
+
+  void onSaveExistingMessagePreset({required String key}) => setState(() {
+        Map<String, String> unsortedOptions = Map.from(options);
+        unsortedOptions[key] = messageTextController.text;
+        options = Map.from(unsortedOptions);
+
+        nameTextController.text = '';
+        messageTextBackup.value = messageTextController.text;
+        mainRepository.setCustomMessages(messages: options);
+      });
 
   Future<void> onRemoveMessagePreset() async {
     if (selectedMessageId != null && options.containsKey(selectedMessageId)) {
@@ -527,7 +552,7 @@ class MessageWriterState extends State<MessageWriter> {
             StatefulBuilder(builder: (context, setState) {
           return AlertElement(
             title: translations['dialogRemoveMessageQuestion'] ??
-                'Do you really want to delete this message?',
+                'Do you really want to delete the message template?',
             button1Label: translations['dialogNo'] ?? 'No',
             onPressed1: () => Navigator.of(context).pop(false),
             button2Label: translations['dialogYes'] ?? 'Yes',
@@ -544,7 +569,6 @@ class MessageWriterState extends State<MessageWriter> {
           selectedMessageId = null;
           options.remove(key);
           mainRepository.setCustomMessages(messages: options);
-          mainBloc.getInfo(ip: ip);
         });
       }
     }
@@ -590,7 +614,7 @@ class MessageWriterState extends State<MessageWriter> {
                       children: [
                         Tooltip(
                           message: translations['addMessageToPresetsLabel'] ??
-                              'Add message to presets list',
+                              'Add message template',
                           waitDuration: Globals.tooltipWaitDuration,
                           child: Ink(
                             decoration: ShapeDecoration(
@@ -605,6 +629,9 @@ class MessageWriterState extends State<MessageWriter> {
                             ),
                             child: SharedWidgets.addIconButton(
                                 context: context,
+                                title:
+                                    translations['addMessageToPresetsLabel'] ??
+                                        'Add message template',
                                 icon: Icons.add,
                                 textController: nameTextController,
                                 disabled: messageTextBackup.value.isEmpty,
@@ -616,6 +643,49 @@ class MessageWriterState extends State<MessageWriter> {
                                   if (newKey is String && newKey.isNotEmpty) {
                                     onAddMessagePreset(key: newKey);
                                   }
+                                }),
+                          ),
+                        ),
+                        Tooltip(
+                          message: translations['saveMessageToPresetsLabel'] ??
+                              'Save message template',
+                          waitDuration: Globals.tooltipWaitDuration,
+                          child: Ink(
+                            decoration: ShapeDecoration(
+                              color: messageTextBackup.value.isNotEmpty &&
+                                      selectedMessageId != null
+                                  ? Globals.brightness() == Brightness.dark
+                                      ? Colors.blue.shade800
+                                      : Colors.blue.shade600
+                                  : Colors.grey,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: borderRadius,
+                              ),
+                            ),
+                            child: SharedWidgets.restyledIconButton(
+                                context: context,
+                                icon: Icons.save,
+                                disabled: messageTextBackup.value.isEmpty ||
+                                    selectedMessageId == null,
+                                onPressed: () {
+                                  ApproveModal(
+                                      context: context,
+                                      title: translations[
+                                              'dialogSaveMessageTitle'] ??
+                                          'Save template',
+                                      question: translations[
+                                              'dialogSaveMessageQuestion'] ??
+                                          'Are you sure you want to save the message template?',
+                                      okText: translations['saveButtonText'] ??
+                                          'Save',
+                                      onCanceled: () => setState(() {
+                                            nameTextController.text = '';
+                                          }),
+                                      onApproved: () {
+                                        onSaveExistingMessagePreset(
+                                            key: selectedMessageId!);
+                                        nameTextController.text = '';
+                                      }).show();
                                 }),
                           ),
                         ),
@@ -633,7 +703,7 @@ class MessageWriterState extends State<MessageWriter> {
                           child: Tooltip(
                             message:
                                 translations['removeMessageFromPresetsLabel'] ??
-                                    'Remove message from presets list',
+                                    'Remove message template',
                             waitDuration: Globals.tooltipWaitDuration,
                             child: SharedWidgets.restyledIconButton(
                               context: context,
