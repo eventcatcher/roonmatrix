@@ -124,6 +124,15 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         ));
       }
 
+      if (event is SetSelectedDeviceIp) {
+        String ip = event.ip;
+
+        emit(state.copyWith(
+          update: DateTime.now(),
+          selectedDeviceIp: ip,
+        ));
+      }
+
       if (event is SetConnected) {
         String ip = event.ip;
         bool connected = event.connected;
@@ -615,6 +624,48 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           update: DateTime.now(),
           tileExpanded: tileExpanded,
         ));
+      }
+
+      if (event is SelectDeviceBefore) {
+        List<String> devices = getFilteredDevices();
+        if (devices.isNotEmpty) {
+          int index =
+              devices.indexWhere((String ip) => ip == state.selectedDeviceIp);
+          if (index == -1) {
+            emit(state.copyWith(
+              update: DateTime.now(),
+              selectedDeviceIp: devices[devices.length - 1],
+            ));
+          } else {
+            if (index > 0) {
+              emit(state.copyWith(
+                update: DateTime.now(),
+                selectedDeviceIp: devices[index - 1],
+              ));
+            }
+          }
+        }
+      }
+
+      if (event is SelectDeviceNext) {
+        List<String> devices = getFilteredDevices();
+        if (devices.isNotEmpty) {
+          int index =
+              devices.indexWhere((String ip) => ip == state.selectedDeviceIp);
+          if (index == -1) {
+            emit(state.copyWith(
+              update: DateTime.now(),
+              selectedDeviceIp: devices[0],
+            ));
+          } else {
+            if (index >= 0 && index < (devices.length - 1)) {
+              emit(state.copyWith(
+                update: DateTime.now(),
+                selectedDeviceIp: devices[index + 1],
+              ));
+            }
+          }
+        }
       }
     });
 
@@ -2369,132 +2420,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return str;
   }
 
-  // ==================== //
-  // public event methods //
-  // ==================== //
-
-  void loadDefaults() {
-    add(MainStateLoadDefaults());
-  }
-
-  void restartPollingTimer() {
-    add(RestartPollingTimer());
-  }
-
-  void addWebSocketService({
-    required String ip,
-  }) {
-    add(AddWebSocketService(ip: ip));
-  }
-
-  void resetWebSocketServices() {
-    add(ResetWebSocketServices());
-  }
-
-  void setIpRange({
-    required String? ipStart,
-    required String? ipEnd,
-  }) {
-    add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
-  }
-
-  void setLogMessage({
-    required String msg,
-  }) {
-    add(SetLogMessage(msg: msg));
-  }
-
-  void searching({
-    bool? idle,
-  }) {
-    add(Searching(idle: idle));
-  }
-
-  void getInfo({
-    required String ip,
-  }) {
-    add(GetInfo(ip: ip));
-  }
-
-  void getConfig({
-    required String ip,
-  }) {
-    add(GetConfig(ip: ip));
-  }
-
-  void updateStateConfig({
-    required String ip,
-    required Map<String, dynamic> config,
-  }) {
-    add(UpdateStateConfig(ip: ip, config: config));
-  }
-
-  void getLog({
-    required String ip,
-    required int hours,
-  }) {
-    add(GetLog(ip: ip, hours: hours));
-  }
-
-  void setPing({
-    required String ip,
-    required bool ping,
-  }) {
-    add(SetPing(ip: ip, ping: ping));
-  }
-
-  void setConnected({
-    required String ip,
-    required bool connected,
-  }) {
-    add(SetConnected(ip: ip, connected: connected));
-  }
-
-  void setTilesExpanded({
-    required Map<String, bool> tileExpanded,
-  }) {
-    add(SetTilesExpanded(tileExpanded: tileExpanded));
-  }
-
-  void setTileExpanded({
-    required String name,
-    required bool expanded,
-  }) {
-    add(SetTileExpanded(name: name, expanded: expanded));
-  }
-
-  void zoneControl({
-    required String ip,
-    required String controlId,
-    required String cmd,
-    bool enable = false,
-  }) {
-    add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd, enable: enable));
-  }
-
-  void setSpotifyAuthRedirectUrl({
-    required String ip,
-    required String url,
-  }) {
-    if (kDebugMode) {
-      debugPrint('setSpotifyAuthRedirectUrl => ip: $ip, url: $url');
-    }
-    add(SetSpotifyAuthRedirectUrl(ip: ip, url: url));
-  }
-
-  void setSearchFilter({
-    required String type,
-    required String filter,
-  }) {
-    add(SetSearchFilter(type: type, filter: filter));
-  }
-
-  void disableListItemsRendering({
-    required bool disable,
-  }) {
-    add(DisableListItemsRendering(disable: disable));
-  }
-
   List<dynamic> getScrollDelayMinMax({
     required String ip,
     required bool verticalOutput,
@@ -2630,6 +2555,150 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       scrollDelay,
       pixelsPerSecond
     ];
+  }
+
+  // ==================== //
+  // public event methods //
+  // ==================== //
+
+  void loadDefaults() {
+    add(MainStateLoadDefaults());
+  }
+
+  void restartPollingTimer() {
+    add(RestartPollingTimer());
+  }
+
+  void addWebSocketService({
+    required String ip,
+  }) {
+    add(AddWebSocketService(ip: ip));
+  }
+
+  void resetWebSocketServices() {
+    add(ResetWebSocketServices());
+  }
+
+  void setIpRange({
+    required String? ipStart,
+    required String? ipEnd,
+  }) {
+    add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
+  }
+
+  void setLogMessage({
+    required String msg,
+  }) {
+    add(SetLogMessage(msg: msg));
+  }
+
+  void searching({
+    bool? idle,
+  }) {
+    add(Searching(idle: idle));
+  }
+
+  void getInfo({
+    required String ip,
+  }) {
+    add(GetInfo(ip: ip));
+  }
+
+  void getConfig({
+    required String ip,
+  }) {
+    add(GetConfig(ip: ip));
+  }
+
+  void updateStateConfig({
+    required String ip,
+    required Map<String, dynamic> config,
+  }) {
+    add(UpdateStateConfig(ip: ip, config: config));
+  }
+
+  void getLog({
+    required String ip,
+    required int hours,
+  }) {
+    add(GetLog(ip: ip, hours: hours));
+  }
+
+  void setPing({
+    required String ip,
+    required bool ping,
+  }) {
+    add(SetPing(ip: ip, ping: ping));
+  }
+
+  void setSelectedDeviceIp({
+    required String ip,
+  }) {
+    add(SetSelectedDeviceIp(ip: ip));
+  }
+
+  void setConnected({
+    required String ip,
+    required bool connected,
+  }) {
+    add(SetConnected(ip: ip, connected: connected));
+  }
+
+  void setTilesExpanded({
+    required Map<String, bool> tileExpanded,
+  }) {
+    add(SetTilesExpanded(tileExpanded: tileExpanded));
+  }
+
+  void setTileExpanded({
+    required String name,
+    required bool expanded,
+  }) {
+    add(SetTileExpanded(name: name, expanded: expanded));
+  }
+
+  void zoneControl({
+    required String ip,
+    required String controlId,
+    required String cmd,
+    bool enable = false,
+  }) {
+    add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd, enable: enable));
+  }
+
+  void setSpotifyAuthRedirectUrl({
+    required String ip,
+    required String url,
+  }) {
+    if (kDebugMode) {
+      debugPrint('setSpotifyAuthRedirectUrl => ip: $ip, url: $url');
+    }
+    add(SetSpotifyAuthRedirectUrl(ip: ip, url: url));
+  }
+
+  void setSearchFilter({
+    required String type,
+    required String filter,
+  }) {
+    add(SetSearchFilter(type: type, filter: filter));
+  }
+
+  void disableListItemsRendering({
+    required bool disable,
+  }) {
+    add(DisableListItemsRendering(disable: disable));
+  }
+
+  void selectDeviceBefore({
+    required String ip,
+  }) {
+    add(SelectDeviceBefore(ip: ip));
+  }
+
+  void selectDeviceNext({
+    required String ip,
+  }) {
+    add(SelectDeviceNext(ip: ip));
   }
 
   @override

@@ -805,7 +805,7 @@ class DeviceListItemState extends State<DeviceListItem> {
             ],
           ),
         ),
-        if (Globals.isMobileDevice() && ip == activeIp)
+        if (ip == activeIp)
           Positioned(
             top: 0,
             left: 0,

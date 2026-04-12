@@ -166,6 +166,10 @@
     "filterButtonLabel": "Filter search results",
     "paginationBackLabel": "Previous page",
     "paginationNextLabel": "Next page",
+    "closePageLabel": "Close page",
+    "backToMainViewLabel": "Back to main page",
+    "selectDeviceBeforeLabel": "Select previous device",
+    "selectDeviceNextLabel": "Select next device",
     "config": {
         "hostname": "Hostname (Important)",
         "password": "Password (Important)",

@@ -166,6 +166,10 @@
     "filterButtonLabel": "Filtrer les résultats de recherche",
     "paginationBackLabel": "Page précédente",
     "paginationNextLabel": "Page suivante",
+    "closePageLabel": "Fermer la page",
+    "backToMainViewLabel": "Retour à la page d'accueil",
+    "selectDeviceBeforeLabel": "Sélection de appareils retour",
+    "selectDeviceNextLabel": "Sélection de l'appareil suivant",
     "config": {
 		"hostname": "Nom d'hôte (important)",
         "password": "Mot de passe (important)",

@@ -12,11 +12,19 @@ import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/ui/details/config_page.dart';
+import 'package:roonmatrix/ui/details/cover_page.dart';
+import 'package:roonmatrix/ui/details/info_page.dart';
+import 'package:roonmatrix/ui/details/live_control_page.dart';
+import 'package:roonmatrix/ui/details/log_page.dart';
+import 'package:roonmatrix/ui/details/message_page.dart';
+import 'package:roonmatrix/ui/details/mini_player_page.dart';
 import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:roonmatrix/ui/start_page.dart';
@@ -93,9 +101,13 @@ class RoonMatrixState extends State<RoonMatrix> {
   bool translationsLoaded = false;
   bool saveIdle = false;
   bool macMenuInitialized = false;
+  String selectedDeviceIp = '';
+  String selectedDeviceIpBefore = '';
+  Map<String, dynamic> info = {};
 
   Brightness? brightnessValue;
 
+  late StreamSubscription mainStreamSubscription;
   late StreamSubscription connectionStatusStreamSubscription;
   late TranslationsBloc translationsBloc;
   late SettingsBloc settingsBloc;
@@ -131,7 +143,203 @@ class RoonMatrixState extends State<RoonMatrix> {
       }
     });
 
+    mainStreamSubscription = mainBloc.stream.listen((
+      MainState mainState,
+    ) {
+      if (mainState is MainStateLoaded) {
+        if (selectedDeviceIpBefore != mainState.selectedDeviceIp) {
+          selectedDeviceIp = mainState.selectedDeviceIp;
+          info = mainState.info;
+          selectedDeviceIpBefore = selectedDeviceIp;
+          updateMacMenuBar(selectedDeviceIp: selectedDeviceIp, info: info);
+        }
+      }
+    });
+
     super.initState();
+  }
+
+  Future<void> addMacMenuDeviceNavigation() async {
+    // Add items to the View menu
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'close_page',
+      title: translations['closePageLabel'] ?? 'Close page',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.arrowLeft,
+        control: true,
+        shift: true,
+        alt: false,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'back_to_main',
+      title: translations['backToMainViewLabel'] ?? 'Back to main page',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.arrowLeft,
+        control: true,
+        shift: true,
+        alt: true,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'device_before',
+      title:
+          translations['selectDeviceBeforeLabel'] ?? 'Select previous device',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.arrowUp,
+        control: true,
+        shift: true,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'device_next',
+      title: translations['selectDeviceNextLabel'] ?? 'Select next device',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.arrowDown,
+        control: true,
+        shift: true,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'resize_minimize',
+      title: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.minus,
+        control: true,
+        shift: true,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'resize_full_width',
+      title: translations['fullWidthResizeButtonLabel'] ?? 'Full width',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyW,
+        control: true,
+        shift: true,
+      ),
+    );
+  }
+
+  Future<void> addMacMenuPageItemsFirstPart() async {
+    // Add items to the View menu
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'config_page',
+      title: translations['configButtonText'] ?? 'Config',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyS,
+        control: true,
+        shift: true,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'control_page',
+      title: translations['controlButtonText'] ?? 'Control',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyC,
+        control: true,
+        shift: true,
+      ),
+    );
+  }
+
+  Future<void> addMacMenuPageItemsMatrixOnlyPart() async {
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'message_page',
+      title: translations['messageButtonText'] ?? 'Message',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyM,
+        control: true,
+        shift: true,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'live_control_page',
+      title: translations['liveControlButtonText'] ?? 'Live Control',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyL,
+        control: true,
+        shift: true,
+      ),
+    );
+  }
+
+  Future<void> addMacMenuPageItemsLastPart() async {
+    // Add items to the View menu
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'monitoring_page',
+      title: translations['infoButtonText'] ?? 'Monitoring',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyI,
+        control: true,
+        shift: true,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'log_page',
+      title: translations['logButtonText'] ?? 'Log',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyD,
+        control: true,
+        shift: true,
+      ),
+    );
+
+    await MacMenuBar.addMenuItem(
+      menuId: 'View',
+      itemId: 'miniplayer_page',
+      title: translations['miniPlayerPageHeaderText'] ?? 'Mini Player',
+      shortcut: const SingleActivator(
+        LogicalKeyboardKey.keyP,
+        control: true,
+        shift: true,
+      ),
+    );
+  }
+
+  Future<void> updateMacMenuBar({
+    required String selectedDeviceIp,
+    required Map<String, dynamic> info,
+  }) async {
+    await MacMenuBar.removeMenuItem('config_page');
+    await MacMenuBar.removeMenuItem('control_page');
+    await MacMenuBar.removeMenuItem('message_page');
+    await MacMenuBar.removeMenuItem('live_control_page');
+    await MacMenuBar.removeMenuItem('monitoring_page');
+    await MacMenuBar.removeMenuItem('log_page');
+    await MacMenuBar.removeMenuItem('miniplayer_page');
+
+    if (selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null) {
+      await addMacMenuPageItemsFirstPart();
+
+      if (!(info[selectedDeviceIp] as Map<String, dynamic>)
+              .containsKey('display_cover') ||
+          info[selectedDeviceIp]['display_cover'] == false) {
+        await addMacMenuPageItemsMatrixOnlyPart();
+      }
+
+      await addMacMenuPageItemsLastPart();
+    }
   }
 
   Future<void> setupMacMenuStrucure({
@@ -217,11 +425,25 @@ class RoonMatrixState extends State<RoonMatrix> {
       ), // Cmd+Shift+E
     );
 
+    addMacMenuDeviceNavigation();
+
     MacMenuBar.setMenuItemSelectedHandler((itemId) {
       handleMacCustomMenuItem(context: context, itemId: itemId);
     });
 
     macMenuInitialized = true;
+  }
+
+  void openPage({required BuildContext context, required Widget page}) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierLabel: 'Dialog',
+      transitionDuration: const Duration(milliseconds: 0),
+      pageBuilder: (_, __, ___) {
+        return page;
+      },
+    );
   }
 
   void handleMacCustomMenuItem({
@@ -231,6 +453,135 @@ class RoonMatrixState extends State<RoonMatrix> {
     switch (itemId) {
       case 'export':
         exportDeviceList(context);
+        break;
+      case 'config_page':
+        openPage(
+          context: context,
+          page: ConfigPage(
+            name: info[selectedDeviceIp]['name'],
+            ip: selectedDeviceIp,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+            close: () {
+              Navigator.pop(context);
+            },
+          ),
+        );
+        break;
+      case 'control_page':
+        openPage(
+          context: context,
+          page: CoverPage(
+            name: info[selectedDeviceIp]['name'],
+            ip: selectedDeviceIp,
+            translations: translations,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+          ),
+        );
+        break;
+      case 'message_page':
+        openPage(
+          context: context,
+          page: MessagePage(
+            name: info[selectedDeviceIp]['name'],
+            ip: selectedDeviceIp,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+          ),
+        );
+        break;
+      case 'live_control_page':
+        openPage(
+          context: context,
+          page: LiveControlPage(
+            name: info[selectedDeviceIp]['name'],
+            ip: selectedDeviceIp,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+          ),
+        );
+        break;
+      case 'monitoring_page':
+        openPage(
+          context: context,
+          page: InfoPage(
+            name: info[selectedDeviceIp]['name'],
+            ip: selectedDeviceIp,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+          ),
+        );
+        break;
+      case 'log_page':
+        openPage(
+          context: context,
+          page: LogPage(
+            name: info[selectedDeviceIp]['name'],
+            ip: selectedDeviceIp,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+          ),
+        );
+        break;
+      case 'miniplayer_page':
+        bool miniPlayerAlwaysOnTop = settingsBloc.state.miniPlayerAlwaysOnTop;
+        bool miniPlayerPreventCloseApp =
+            settingsBloc.state.miniPlayerPreventCloseApp;
+        bool miniPlayerShowTextInfoOnTrackChange =
+            settingsBloc.state.miniPlayerShowTextInfoOnTrackChange;
+        int miniPlayerTextInfoDuration =
+            settingsBloc.state.miniPlayerTextInfoDuration;
+
+        Map<String, dynamic> i = info[selectedDeviceIp];
+        String controlId = i['control_id'];
+        String zoneName = '-';
+        if (i['channels'] != null && i['channels'][controlId] != null) {
+          if (i['channels'][controlId] == 'webserver' ||
+              i['channels'][controlId] == 'spotifyconnect') {
+            zoneName = controlId;
+          } else {
+            zoneName = i['channels'][controlId];
+          }
+        }
+
+        openPage(
+          context: context,
+          page: MiniPlayerPage(
+            name: zoneName,
+            ip: selectedDeviceIp,
+            controlId: info['control_id'],
+            miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
+            miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
+            miniPlayerShowTextInfoOnTrackChange:
+                miniPlayerShowTextInfoOnTrackChange,
+            miniPlayerTextInfoDuration: miniPlayerTextInfoDuration,
+            translations: translations,
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+          ),
+        );
+        break;
+      case 'close_page':
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
+        break;
+      case 'back_to_main':
+        Navigator.of(context).popUntil((route) => route.isFirst);
+        break;
+      case 'device_before':
+        mainBloc.selectDeviceBefore(ip: selectedDeviceIp);
+        break;
+      case 'device_next':
+        mainBloc.selectDeviceNext(ip: selectedDeviceIp);
+        break;
+      case 'resize_minimize':
+        windowManager.setSize(standardDesktopSize, animate: true);
+        break;
+      case 'resize_full_width':
+        mainBloc.windowResizeToFullWidthAndMinimumHeight(
+            minDesktopSize: minDesktopSize);
         break;
       default:
         debugPrint('Unknown menu item: $itemId');
@@ -551,6 +902,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   @override
   Future<void> dispose() async {
     connectionStatusStreamSubscription.cancel();
+    mainStreamSubscription.cancel();
 
     super.dispose();
   }

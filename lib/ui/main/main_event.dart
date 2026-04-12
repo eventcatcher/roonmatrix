@@ -162,7 +162,6 @@ class ZoneControl extends MainEvent {
 
 class SetSpotifyAuthRedirectUrl extends MainEvent {
   final String ip;
-
   final String url;
 
   const SetSpotifyAuthRedirectUrl({
@@ -172,6 +171,28 @@ class SetSpotifyAuthRedirectUrl extends MainEvent {
 
   @override
   List<Object> get props => [ip, url];
+}
+
+class SelectDeviceBefore extends MainEvent {
+  final String ip;
+
+  const SelectDeviceBefore({
+    required this.ip,
+  });
+
+  @override
+  List<Object> get props => [ip];
+}
+
+class SelectDeviceNext extends MainEvent {
+  final String ip;
+
+  const SelectDeviceNext({
+    required this.ip,
+  });
+
+  @override
+  List<Object> get props => [ip];
 }
 
 class SetIpRange extends MainEvent {
@@ -208,6 +229,17 @@ class SetPing extends MainEvent {
 
   @override
   List<Object> get props => [ip, ping];
+}
+
+class SetSelectedDeviceIp extends MainEvent {
+  final String ip;
+
+  const SetSelectedDeviceIp({
+    required this.ip,
+  });
+
+  @override
+  List<Object> get props => [ip];
 }
 
 class SetConnected extends MainEvent {

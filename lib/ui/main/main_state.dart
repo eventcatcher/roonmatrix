@@ -8,6 +8,7 @@ abstract class MainState extends Equatable {
   final Map<String, String> searchFilter;
   final List<String> devices;
   final String? activeDeviceIp;
+  final String selectedDeviceIp;
   final Map<String, bool> tileExpanded;
   final Map<String, bool> connected;
   final Map<String, bool> ping;
@@ -35,6 +36,7 @@ abstract class MainState extends Equatable {
       },
       this.devices = const [],
       this.activeDeviceIp,
+      this.selectedDeviceIp = '',
       this.tileExpanded = const {},
       this.connected = const {},
       this.ping = const {},
@@ -57,6 +59,7 @@ abstract class MainState extends Equatable {
     Map<String, String>? searchFilter,
     List<String>? devices,
     String? activeDeviceIp,
+    String? selectedDeviceIp,
     Map<String, bool>? tileExpanded,
     Map<String, bool>? connected,
     Map<String, bool>? ping,
@@ -79,6 +82,7 @@ abstract class MainState extends Equatable {
       searchFilter: searchFilter ?? this.searchFilter,
       devices: devices ?? this.devices,
       activeDeviceIp: activeDeviceIp ?? this.activeDeviceIp,
+      selectedDeviceIp: selectedDeviceIp ?? this.selectedDeviceIp,
       tileExpanded: tileExpanded ?? this.tileExpanded,
       connected: connected ?? this.connected,
       ping: ping ?? this.ping,
@@ -102,6 +106,7 @@ abstract class MainState extends Equatable {
     List<Object> props = [
       searchFilter,
       devices,
+      selectedDeviceIp,
       connected,
       ping,
       info,
@@ -153,6 +158,7 @@ class MainStateLoaded extends MainState {
     required super.searchFilter,
     required super.devices,
     required super.activeDeviceIp,
+    required super.selectedDeviceIp,
     required super.tileExpanded,
     required super.connected,
     required super.ping,
