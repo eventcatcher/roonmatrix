@@ -266,7 +266,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                           ),
                                           label:
                                               (translations['saveButtonText'] ??
-                                                      'save')
+                                                      'Save')
                                                   .toString()
                                                   .toFirstUpper,
                                           onPressed: ipStart.text.isNotEmpty &&

@@ -270,7 +270,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                           ? LoadingIndicatorBig(
                                               message:
                                                   translations['scanMessage'] ??
-                                                      'scan for devices')
+                                                      'Scan for devices')
                                           : devices.isEmpty
                                               ? DevicesReloadButton(
                                                   translations: translations)
@@ -523,7 +523,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 ),
                                                 label: (translations[
                                                             'exportButtonText'] ??
-                                                        'export')
+                                                        'Export')
                                                     .toString()
                                                     .toFirstUpper,
                                                 onPressed:
@@ -552,10 +552,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                                         context,
                                                                     doneMessage:
                                                                         translations['exportDoneMessage'] ??
-                                                                            'export successfully done',
+                                                                            'Export successfully done',
                                                                     failMessage:
                                                                         translations['exportFailedMessage'] ??
-                                                                            'export failed!',
+                                                                            'Export failed!',
                                                                     valid:
                                                                         valid);
                                                           },

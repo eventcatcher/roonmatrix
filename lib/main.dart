@@ -495,9 +495,9 @@ class RoonMatrixState extends State<RoonMatrix> {
         SharedWidgets.showSnackBar(
             context: context,
             doneMessage:
-                translations['exportDoneMessage'] ?? 'export successfully done',
+                translations['exportDoneMessage'] ?? 'Export successfully done',
             failMessage:
-                translations['exportFailedMessage'] ?? 'export failed!',
+                translations['exportFailedMessage'] ?? 'Export failed!',
             valid: valid);
       }
     });

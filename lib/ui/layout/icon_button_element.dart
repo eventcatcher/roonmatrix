@@ -78,7 +78,6 @@ class IconButtonElement extends StatelessWidget {
           pressedOpacity: 1,
           boxConstraints: BoxConstraints(
               minHeight: size, minWidth: size, maxWidth: size, maxHeight: size),
-          semanticLabel: label,
           onPressed: onPressed,
           mouseCursor: SystemMouseCursors.click,
         );

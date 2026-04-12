@@ -276,7 +276,7 @@ class LiveControlPageState extends State<LiveControlPage> {
             aligned: 'horizontal',
             label: Globals.inIosStyle()
                 ? null
-                : '${translations['deviceName'] ?? 'device name'}:',
+                : '${translations['deviceName'] ?? 'Device name'}:',
             placeholder:
                 '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
             inRow: false,

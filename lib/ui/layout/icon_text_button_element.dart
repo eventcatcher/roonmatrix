@@ -63,21 +63,23 @@ class IconTextButtonElement extends StatelessWidget {
                       : TextStyle(color: CupertinoColors.white),
                 ),
               )
-            : MacosIconButton(
-                boxConstraints: const BoxConstraints(
-                    minHeight: 30, minWidth: 30, maxWidth: 30, maxHeight: 30),
-                backgroundColor: secondaryStyle == true
-                    ? CupertinoColors.activeOrange.color
-                    : CupertinoColors.activeBlue.color,
-                hoverColor: secondaryStyle == true
-                    ? CupertinoColors.activeOrange.darkElevatedColor
-                    : CupertinoColors.activeBlue.darkElevatedColor,
-                disabledColor: CupertinoColors.systemGrey,
-                padding: EdgeInsets.zero,
-                icon: icon,
-                //semanticLabel: label,
-                onPressed: onPressed,
-                mouseCursor: SystemMouseCursors.click,
+            : MacosTooltip(
+                message: label,
+                child: MacosIconButton(
+                  boxConstraints: const BoxConstraints(
+                      minHeight: 30, minWidth: 30, maxWidth: 30, maxHeight: 30),
+                  backgroundColor: secondaryStyle == true
+                      ? CupertinoColors.activeOrange.color
+                      : CupertinoColors.activeBlue.color,
+                  hoverColor: secondaryStyle == true
+                      ? CupertinoColors.activeOrange.darkElevatedColor
+                      : CupertinoColors.activeBlue.darkElevatedColor,
+                  disabledColor: CupertinoColors.systemGrey,
+                  padding: EdgeInsets.zero,
+                  icon: icon,
+                  onPressed: onPressed,
+                  mouseCursor: SystemMouseCursors.click,
+                ),
               )
         : ElevatedButton.icon(
             icon: icon,

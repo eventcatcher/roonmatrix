@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
@@ -45,9 +46,10 @@ class SharedWidgets {
     required BuildContext context,
     required TextEditingController textController,
     required Map<String, dynamic> translations,
+    String? title,
   }) =>
       AlertElement(
-        title: translations['dialogAddItemTitle'] ?? 'Add a new item',
+        title: title ?? translations['dialogAddItemTitle'] ?? 'Add a new item',
         content: TextFieldElement(
           controller: textController,
           autofocus: true,
@@ -84,7 +86,9 @@ class SharedWidgets {
         title: translations['dialogRemoveItemTitle'] ?? 'Remove item?',
         button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
         onPressed1: () => Navigator.pop(context, false),
-        button2Label: translations['dialogRemoveButtonText'] ?? 'Remove',
+        button2Label: translations['dialogRemoveButtonText'] != null
+            ? (translations['dialogRemoveButtonText'] as String).toFirstUpper
+            : 'Remove',
         onPressed2: () => Navigator.pop(context, true),
       );
 
@@ -111,6 +115,7 @@ class SharedWidgets {
     required BuildContext context,
     required TextEditingController? textController,
     required Map<String, dynamic> translations,
+    String? title,
     required void Function(dynamic value) onAccepted,
   }) =>
       IconTextButtonElement(
@@ -131,6 +136,7 @@ class SharedWidgets {
                     context: context,
                     textController: textController,
                     translations: translations,
+                    title: title,
                   )
                 : addItemDialog(
                     context: context,
@@ -147,6 +153,7 @@ class SharedWidgets {
   static IconButtonElement addIconButton({
     required BuildContext context,
     required TextEditingController? textController,
+    String? title,
     required IconData icon,
     bool disabled = false,
     required Map<String, dynamic> translations,
@@ -179,6 +186,7 @@ class SharedWidgets {
                         context: context,
                         textController: textController,
                         translations: translations,
+                        title: title,
                       )
                     : addItemDialog(
                         context: context,

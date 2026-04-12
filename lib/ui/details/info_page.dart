@@ -112,7 +112,7 @@ class InfoPageState extends State<InfoPage> {
                       size: 20.0,
                     ),
                   ),
-                  label: (translations['exportButtonText'] ?? 'export')
+                  label: (translations['exportButtonText'] ?? 'Export')
                       .toString()
                       .toFirstUpper,
                   onPressed: saveIdle == true || mainState.subPageIdle == true
@@ -134,10 +134,10 @@ class InfoPageState extends State<InfoPage> {
                               // ignore: use_build_context_synchronously
                               context: context,
                               doneMessage: translations['exportDoneMessage'] ??
-                                  'export successfully done',
+                                  'Export successfully done',
                               failMessage:
                                   translations['exportFailedMessage'] ??
-                                      'export failed!',
+                                      'Export failed!',
                               valid: valid);
                         },
                 ),

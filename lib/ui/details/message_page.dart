@@ -79,7 +79,7 @@ class MessagePageState extends State<MessagePage> {
     return SelectBox(
         translations: translations,
         aligned: 'horizontal',
-        label: '${translations['deviceName'] ?? 'device name'}:',
+        label: '${translations['deviceName'] ?? 'Device name'}:',
         placeholder:
             '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
         inRow: false,
