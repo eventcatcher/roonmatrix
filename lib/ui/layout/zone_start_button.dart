@@ -31,7 +31,7 @@ class ZoneStartButton extends StatelessWidget {
                 icon: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Icon(
-                    Icons.open_with,
+                    Icons.start,
                     color: Colors.white,
                     size: 20.0,
                   ),

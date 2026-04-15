@@ -139,6 +139,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                   child: Globals.inIosStyle() || Globals.inMacosStyle()
                       ? CupertinoTextField(
                           controller: textController ?? _userTextController,
+                          undoController: UndoHistoryController(),
                           placeholder: placeholder ??
                               translations['pleaseTypeMessagePlaceholder'] ??
                               'Please write message here',
@@ -196,6 +197,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           })
                       : TextField(
                           controller: textController ?? _userTextController,
+                          undoController: UndoHistoryController(),
                           textAlign: TextAlign.start,
                           textAlignVertical: TextAlignVertical.top,
                           style: TextStyle(

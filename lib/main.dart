@@ -5,10 +5,8 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
@@ -21,7 +19,7 @@ import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/mini_player_page.dart';
 import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
-import 'package:roonmatrix/ui/layout/alert_element.dart';
+import 'package:roonmatrix/ui/layout/menubar_widget.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -97,10 +95,10 @@ class RoonMatrixState extends State<RoonMatrix> {
   final String title = Globals.mainWindowTitle;
 
   Map<String, dynamic> translations = {};
-  String aboutAppMessage = '';
   bool translationsLoaded = false;
   bool saveIdle = false;
   bool macMenuInitialized = false;
+  EditableTextState? lastFocusedEditable;
   String selectedDeviceIp = '';
   String selectedDeviceIpBefore = '';
   Map<String, dynamic> info = {};
@@ -342,7 +340,7 @@ class RoonMatrixState extends State<RoonMatrix> {
     }
   }
 
-  Future<void> setupMacMenuStrucure({
+  Future<void> setupMacMenuStructure({
     required BuildContext context,
     required Map<String, dynamic> translations,
   }) async {
@@ -588,131 +586,6 @@ class RoonMatrixState extends State<RoonMatrix> {
     }
   }
 
-  MenuBarWidget windowsLinuxMenuBar({
-    required BuildContext context,
-    required Map<String, dynamic> translations,
-    required Widget child,
-  }) =>
-      MenuBarWidget(
-        // Add a list of [BarButton]. The buttons in this List are
-        // displayed as the buttons on the bar itself
-        barButtons: windowsLinuxMenuBarButtons(
-            context: context, translations: translations),
-
-        // Style the menu bar itself. Hover over [MenuStyle] for all the options
-        barStyle: const MenuStyle(
-          padding: WidgetStatePropertyAll(EdgeInsets.zero),
-          backgroundColor: WidgetStatePropertyAll(Color(0xFF2b2b2b)),
-          maximumSize: WidgetStatePropertyAll(Size(double.infinity, 28.0)),
-        ),
-
-        // Style the menu bar buttons. Hover over [ButtonStyle] for all the options
-        barButtonStyle: const ButtonStyle(
-          padding:
-              WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 6.0)),
-          minimumSize: WidgetStatePropertyAll(Size(0.0, 32.0)),
-        ),
-
-        // Style the menu and submenu buttons. Hover over [ButtonStyle] for all the options
-        menuButtonStyle: const ButtonStyle(
-          minimumSize: WidgetStatePropertyAll(Size.fromHeight(36.0)),
-          padding: WidgetStatePropertyAll(
-              EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0)),
-        ),
-
-        // Enable or disable the bar
-        enabled: true,
-
-        // Set the child, i.e. the application under the menu bar
-        child: child,
-      );
-
-  List<BarButton> windowsLinuxMenuBarButtons({
-    required BuildContext context,
-    required Map<String, dynamic> translations,
-  }) {
-    return [
-      BarButton(
-        text: const Text(
-          'File',
-          style: TextStyle(color: Colors.white),
-        ),
-        submenu: SubMenu(
-          menuItems: [
-            MenuButton(
-              onTap: () async => await exportDeviceList(context),
-              shortcutText: 'Ctrl+E',
-              shortcut:
-                  const SingleActivator(LogicalKeyboardKey.keyE, control: true),
-              text: Text(translations['menuEntryExportDeviceList'] ??
-                  'Export Device List'),
-              icon: const Icon(Icons.settings),
-            ),
-            const MenuDivider(),
-            MenuButton(
-              onTap: () => showGeneralDialog(
-                context: context,
-                barrierDismissible: false,
-                barrierLabel: 'Dialog',
-                transitionDuration: const Duration(milliseconds: 0),
-                pageBuilder: (_, __, ___) {
-                  return SettingsPage(
-                    minDesktopSize: minDesktopSize,
-                    standardDesktopSize: standardDesktopSize,
-                  );
-                },
-              ),
-              shortcutText: 'Ctrl+,',
-              shortcut: const SingleActivator(LogicalKeyboardKey.comma,
-                  control: true),
-              text: Text(translations['menuEntrySettings'] ?? 'Settings'),
-              icon: const Icon(Icons.settings),
-            ),
-            const MenuDivider(),
-            MenuButton(
-              onTap: () {
-                SharedWidgets.showPlatformSpecificDialog(
-                    context: context,
-                    child: (BuildContext context) => AlertElement(
-                          title: translations['dialogQuitQuestion'] ??
-                              'Do you really want to quit?',
-                          button1Label: translations['dialogYes'] ?? 'Yes',
-                          onPressed1: () => FlutterWindowClose.closeWindow(),
-                          button2Label: translations['dialogNo'] ?? 'No',
-                          onPressed2: () => Navigator.of(context).pop(false),
-                        ));
-              },
-              shortcut:
-                  const SingleActivator(LogicalKeyboardKey.keyQ, control: true),
-              shortcutText: 'Ctrl+Q',
-              text: Text(translations['menuEntryQuit'] ?? 'Quit'),
-              icon: const Icon(Icons.exit_to_app),
-            ),
-          ],
-        ),
-      ),
-      BarButton(
-        text: Text(
-          translations['menuEntryHelp'] ?? 'Help',
-          style: const TextStyle(color: Colors.white),
-        ),
-        submenu: SubMenu(
-          menuItems: [
-            MenuButton(
-              onTap: () => SharedWidgets.openAboutModal(
-                  context: context,
-                  aboutAppMessage: aboutAppMessage,
-                  translations: translations),
-              icon: const Icon(Icons.info),
-              text: Text(translations['menuEntryAbout'] ??
-                  'About ${Globals.mainWindowTitle}'),
-            ),
-          ],
-        ),
-      ),
-    ];
-  }
-
   TabBarThemeData tabBarThemeData = const TabBarThemeData(
       labelColor: Colors.white,
       dividerColor: Colors.grey,
@@ -798,7 +671,6 @@ class RoonMatrixState extends State<RoonMatrix> {
           builder: (context, TranslationsState translationsState) {
             if (translationsState is TranslationsStateLoaded) {
               translations = translationsState.translations;
-              aboutAppMessage = translationsState.aboutAppMessage;
               translationsLoaded = translationsState.translationsLoaded;
             }
 
@@ -807,25 +679,25 @@ class RoonMatrixState extends State<RoonMatrix> {
               return translationsLoadingWindow(title: title);
             }
 
-            if (Platform.isMacOS) {
-              setupMacMenuStrucure(
-                  context: context, translations: translations);
-              return StartPage(
+            if (Platform.isWindows || Platform.isLinux) {
+              return MenubarWidget(
                 minDesktopSize: minDesktopSize,
                 standardDesktopSize: standardDesktopSize,
-                title: title,
-              );
-            }
-
-            if (Platform.isWindows || Platform.isLinux) {
-              return windowsLinuxMenuBar(
-                context: context,
-                translations: translations,
                 child: StartPage(
                   minDesktopSize: minDesktopSize,
                   standardDesktopSize: standardDesktopSize,
                   title: title,
                 ),
+              );
+            }
+
+            if (Platform.isMacOS) {
+              setupMacMenuStructure(
+                  context: context, translations: translations);
+              return StartPage(
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
+                title: title,
               );
             }
 
