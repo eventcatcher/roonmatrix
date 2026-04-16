@@ -19,10 +19,11 @@ import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/mini_player_page.dart';
 import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
-import 'package:roonmatrix/ui/layout/menubar_widget.dart';
+import 'package:roonmatrix/ui/helper/text_editing_service.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
+import 'package:roonmatrix/ui/main_shell.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:roonmatrix/ui/start_page.dart';
@@ -93,6 +94,7 @@ class RoonMatrixState extends State<RoonMatrix> {
 
   final FileRepository fileRepository = FileRepository();
   final String title = Globals.mainWindowTitle;
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
   Map<String, dynamic> translations = {};
   bool translationsLoaded = false;
@@ -347,6 +349,7 @@ class RoonMatrixState extends State<RoonMatrix> {
     if (macMenuInitialized == true) {
       return;
     }
+    final editingService = TextEditingService.instance;
 
     MacMenuBar.onSettings(() async {
       showGeneralDialog(
@@ -366,32 +369,28 @@ class RoonMatrixState extends State<RoonMatrix> {
       return true;
     });
 
-    // MacMenuBar.onCut(() async {
-    //   debugPrint('Cut menu item selected');
-    //   // Implement your cut logic here
-    //   return true; // Return true to indicate the action was handled
-    // });
+    MacMenuBar.onCut(() async {
+      editingService.cut();
+      return true; // Return true to indicate the action was handled
+    });
 
-    // // Handle Copy menu item
-    // MacMenuBar.onCopy(() async {
-    //   debugPrint('Copy menu item selected');
-    //   // Implement your copy logic here
-    //   return true;
-    // });
+    // Handle Copy menu item
+    MacMenuBar.onCopy(() async {
+      editingService.copy();
+      return true;
+    });
 
-    // // Handle Paste menu item
-    // MacMenuBar.onPaste(() async {
-    //   debugPrint('Paste menu item selected');
-    //   // Implement your paste logic here
-    //   return true;
-    // });
+    // Handle Paste menu item
+    MacMenuBar.onPaste(() async {
+      editingService.paste();
+      return true;
+    });
 
-    // // Handle Select All menu item
-    // MacMenuBar.onSelectAll(() async {
-    //   debugPrint('Select All menu item selected');
-    //   // Implement your select all logic here
-    //   return true;
-    // });
+    // Handle Select All menu item
+    MacMenuBar.onSelectAll(() async {
+      editingService.selectAll();
+      return true;
+    });
 
     await MacMenuBar.addMenuItem(
       menuId: 'main',
@@ -433,14 +432,8 @@ class RoonMatrixState extends State<RoonMatrix> {
   }
 
   void openPage({required BuildContext context, required Widget page}) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierLabel: 'Dialog',
-      transitionDuration: const Duration(milliseconds: 0),
-      pageBuilder: (_, __, ___) {
-        return page;
-      },
+    navigatorKey.currentState!.push(
+      MaterialPageRoute(builder: (_) => page),
     );
   }
 
@@ -561,12 +554,13 @@ class RoonMatrixState extends State<RoonMatrix> {
         );
         break;
       case 'close_page':
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
+        if (navigatorKey.currentState != null &&
+            navigatorKey.currentState!.canPop()) {
+          navigatorKey.currentState?.pop();
         }
         break;
       case 'back_to_main':
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        navigatorKey.currentState?.popUntil((route) => route.isFirst);
         break;
       case 'device_before':
         mainBloc.selectDeviceBefore(ip: selectedDeviceIp);
@@ -680,31 +674,30 @@ class RoonMatrixState extends State<RoonMatrix> {
             }
 
             if (Platform.isWindows || Platform.isLinux) {
-              return MenubarWidget(
+              return MainShell(
                 minDesktopSize: minDesktopSize,
                 standardDesktopSize: standardDesktopSize,
-                child: StartPage(
-                  minDesktopSize: minDesktopSize,
-                  standardDesktopSize: standardDesktopSize,
-                  title: title,
-                ),
+                title: title,
+                navigatorKey: navigatorKey,
               );
             }
 
             if (Platform.isMacOS) {
               setupMacMenuStructure(
                   context: context, translations: translations);
-              return StartPage(
+              return MainShell(
                 minDesktopSize: minDesktopSize,
                 standardDesktopSize: standardDesktopSize,
                 title: title,
+                navigatorKey: navigatorKey,
               );
             }
 
-            return StartPage(
+            return MainShell(
               minDesktopSize: minDesktopSize,
               standardDesktopSize: standardDesktopSize,
               title: title,
+              navigatorKey: navigatorKey,
             );
           });
 
@@ -742,6 +735,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                 darkTheme: MacosThemeData.dark(isMainWindow: true),
                 themeMode: ThemeMode.system,
                 localizationsDelegates: [DefaultMaterialLocalizations.delegate],
+                // navigatorKey: navigatorKey,
                 home: home(translationsBloc: translationsBloc),
               )
             : Globals.inIosStyle()
@@ -757,6 +751,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                       localizationsDelegates: [
                         DefaultMaterialLocalizations.delegate
                       ],
+                      // navigatorKey: navigatorKey,
                       home: home(translationsBloc: translationsBloc),
                     );
                   })
@@ -765,6 +760,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                     theme: materialThemeData(tabBarThemeData: tabBarThemeData),
                     darkTheme: ThemeData.dark(useMaterial3: false),
                     themeMode: ThemeMode.system,
+                    // navigatorKey: navigatorKey,
                     home: home(translationsBloc: translationsBloc),
                   ),
       ),

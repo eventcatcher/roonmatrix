@@ -312,11 +312,7 @@ class ConfigPageState extends State<ConfigPage> {
                       ),
                     ],
                   )
-                : Scaffold(
-                    appBar: AppBar(
-                      title: Text(title),
-                    ),
-                    body: const SizedBox());
+                : const SizedBox();
           }
 
           return BlocBuilder(

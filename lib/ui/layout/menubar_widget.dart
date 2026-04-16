@@ -31,12 +31,14 @@ import 'package:window_manager/window_manager.dart';
 class MenubarWidget extends StatefulWidget {
   final Size minDesktopSize;
   final Size standardDesktopSize;
+  final GlobalKey<NavigatorState> navigatorKey;
   final Widget child;
 
   const MenubarWidget({
     super.key,
     required this.standardDesktopSize,
     required this.minDesktopSize,
+    required this.navigatorKey,
     required this.child,
   });
 
@@ -47,6 +49,7 @@ class MenubarWidget extends StatefulWidget {
 class MenubarWidgetState extends State<MenubarWidget> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
+  GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   Widget get child => widget.child;
 
   final FileRepository fileRepository = FileRepository();
@@ -124,14 +127,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
   }
 
   void openPage({required BuildContext context, required Widget page}) {
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: false,
-      barrierLabel: 'Dialog',
-      transitionDuration: const Duration(milliseconds: 0),
-      pageBuilder: (_, __, ___) {
-        return page;
-      },
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (_) => page),
     );
   }
 
@@ -348,8 +345,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
           menuItems: [
             MenuButton(
               onTap: () {
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
+                if (navigatorKey.currentState != null &&
+                    navigatorKey.currentState!.canPop()) {
+                  navigatorKey.currentState?.pop();
                 }
               },
               icon: const Icon(Icons.arrow_back),
@@ -363,8 +361,12 @@ class MenubarWidgetState extends State<MenubarWidget> {
               text: Text(translations['closePageLabel'] ?? 'Close page'),
             ),
             MenuButton(
-              onTap: () =>
-                  Navigator.of(context).popUntil((route) => route.isFirst),
+              onTap: () {
+                if (navigatorKey.currentState != null &&
+                    navigatorKey.currentState!.canPop()) {
+                  navigatorKey.currentState?.popUntil((route) => route.isFirst);
+                }
+              },
               icon: const Icon(Icons.home),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.arrowLeft,

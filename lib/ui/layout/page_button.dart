@@ -39,6 +39,12 @@ class PageButtonState extends State<PageButton> {
   final Duration dialogDelayToCloseExpandedMenuBefore =
       Duration(milliseconds: 500);
 
+  void openPage({required BuildContext context, required Widget page}) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Globals.isDesktopDevice() &&
@@ -52,15 +58,7 @@ class PageButtonState extends State<PageButton> {
               withCircle: true,
               icon: Icon(icon, color: Colors.white, size: iconSize),
               moreInfo: moreInfo,
-              onPressed: () => showGeneralDialog(
-                context: context,
-                barrierDismissible: false,
-                barrierLabel: 'Dialog',
-                transitionDuration: const Duration(milliseconds: 0),
-                pageBuilder: (_, __, ___) {
-                  return page;
-                },
-              ),
+              onPressed: () => openPage(context: context, page: page),
             ),
           )
         : Padding(
@@ -76,15 +74,7 @@ class PageButtonState extends State<PageButton> {
                   Future<void>.delayed(dialogDelayToCloseExpandedMenuBefore)
                       .then((_) {
                     if (mounted && context.mounted) {
-                      showGeneralDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        barrierLabel: 'Dialog',
-                        transitionDuration: const Duration(milliseconds: 0),
-                        pageBuilder: (_, __, ___) {
-                          return page;
-                        },
-                      );
+                      openPage(context: context, page: page);
                     }
                     if (expandableMenuController != null) {
                       expandableMenuController!.close();
