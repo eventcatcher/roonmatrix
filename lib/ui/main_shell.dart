@@ -9,6 +9,7 @@ class MainShell extends StatefulWidget {
   final Size minDesktopSize;
   final Size standardDesktopSize;
   final GlobalKey<NavigatorState> navigatorKey;
+  final Function(BuildContext context) exportDeviceList;
 
   const MainShell({
     super.key,
@@ -16,6 +17,7 @@ class MainShell extends StatefulWidget {
     required this.minDesktopSize,
     required this.standardDesktopSize,
     required this.navigatorKey,
+    required this.exportDeviceList,
   });
 
   @override
@@ -27,6 +29,8 @@ class _MainShellState extends State<MainShell> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
+  Function(BuildContext context) get exportDeviceList =>
+      widget.exportDeviceList;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +44,7 @@ class _MainShellState extends State<MainShell> {
                   minDesktopSize: minDesktopSize,
                   standardDesktopSize: standardDesktopSize,
                   navigatorKey: navigatorKey,
+                  exportDeviceList: exportDeviceList,
                   child: SizedBox()),
             ),
           Expanded(

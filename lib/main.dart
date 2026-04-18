@@ -203,6 +203,31 @@ class RoonMatrixState extends State<RoonMatrix> {
           );
   }
 
+  exportDeviceList(BuildContext context) async {
+    setState(() {
+      saveIdle = true;
+    });
+    bool? valid = await mainBloc.exportDevicesData();
+    setState(() {
+      saveIdle = false;
+    });
+    if (valid == null) {
+      return;
+    }
+
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        SharedWidgets.showSnackBar(
+            context: context,
+            doneMessage:
+                translations['exportDoneMessage'] ?? 'Export successfully done',
+            failMessage:
+                translations['exportFailedMessage'] ?? 'Export failed!',
+            valid: valid);
+      }
+    });
+  }
+
   Widget home({
     required TranslationsBloc translationsBloc,
   }) =>
@@ -219,15 +244,6 @@ class RoonMatrixState extends State<RoonMatrix> {
               return translationsLoadingWindow(title: title);
             }
 
-            if (Platform.isWindows || Platform.isLinux) {
-              return MainShell(
-                minDesktopSize: minDesktopSize,
-                standardDesktopSize: standardDesktopSize,
-                title: title,
-                navigatorKey: navigatorKey,
-              );
-            }
-
             if (Platform.isMacOS) {
               menubarMacosClass = MenubarMacosClass(
                 minDesktopSize: minDesktopSize,
@@ -236,30 +252,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                 translations: translations,
                 mainBloc: mainBloc,
                 settingsBloc: settingsBloc,
-                exportDeviceList: (BuildContext context) async {
-                  setState(() {
-                    saveIdle = true;
-                  });
-                  bool? valid = await mainBloc.exportDevicesData();
-                  setState(() {
-                    saveIdle = false;
-                  });
-                  if (valid == null) {
-                    return;
-                  }
-
-                  SchedulerBinding.instance.addPostFrameCallback((_) async {
-                    if (mounted) {
-                      SharedWidgets.showSnackBar(
-                          context: context,
-                          doneMessage: translations['exportDoneMessage'] ??
-                              'Export successfully done',
-                          failMessage: translations['exportFailedMessage'] ??
-                              'Export failed!',
-                          valid: valid);
-                    }
-                  });
-                },
+                exportDeviceList: exportDeviceList,
               );
               menubarMacosClass!.init();
               menubarMacosClass!.setupMacMenuStructure(
@@ -271,6 +264,7 @@ class RoonMatrixState extends State<RoonMatrix> {
               standardDesktopSize: standardDesktopSize,
               title: title,
               navigatorKey: navigatorKey,
+              exportDeviceList: exportDeviceList,
             );
           });
 

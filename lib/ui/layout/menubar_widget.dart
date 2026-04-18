@@ -31,6 +31,7 @@ class MenubarWidget extends StatefulWidget {
   final Size minDesktopSize;
   final Size standardDesktopSize;
   final GlobalKey<NavigatorState> navigatorKey;
+  final Function(BuildContext context) exportDeviceList;
   final Widget child;
 
   const MenubarWidget({
@@ -38,6 +39,7 @@ class MenubarWidget extends StatefulWidget {
     required this.standardDesktopSize,
     required this.minDesktopSize,
     required this.navigatorKey,
+    required this.exportDeviceList,
     required this.child,
   });
 
@@ -49,6 +51,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
+  Function(BuildContext context) get exportDeviceList =>
+      widget.exportDeviceList;
   Widget get child => widget.child;
 
   Map<String, dynamic> translations = {};
@@ -127,31 +131,6 @@ class MenubarWidgetState extends State<MenubarWidget> {
     );
   }
 
-  Future<void> exportDeviceList(BuildContext context) async {
-    setState(() {
-      saveIdle = true;
-    });
-    bool? valid = await mainBloc.exportDevicesData();
-    setState(() {
-      saveIdle = false;
-    });
-    if (valid == null) {
-      return;
-    }
-
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      if (mounted) {
-        SharedWidgets.showSnackBar(
-            context: context,
-            doneMessage:
-                translations['exportDoneMessage'] ?? 'Export successfully done',
-            failMessage:
-                translations['exportFailedMessage'] ?? 'Export failed!',
-            valid: valid);
-      }
-    });
-  }
-
   MenuBarWidget windowsLinuxMenuBar({
     required BuildContext context,
     required Map<String, dynamic> translations,
@@ -206,7 +185,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
         submenu: SubMenu(
           menuItems: [
             MenuButton(
-              onTap: () async => await exportDeviceList(context),
+              onTap: () async => exportDeviceList(context),
               shortcutText: 'Ctrl+E',
               shortcut:
                   const SingleActivator(LogicalKeyboardKey.keyE, control: true),
