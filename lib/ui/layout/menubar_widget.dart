@@ -8,7 +8,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:menu_bar/menu_bar.dart';
-import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
@@ -52,8 +51,6 @@ class MenubarWidgetState extends State<MenubarWidget> {
   GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   Widget get child => widget.child;
 
-  final FileRepository fileRepository = FileRepository();
-
   Map<String, dynamic> translations = {};
   Map<String, dynamic> info = {};
   String selectedDeviceIp = '';
@@ -83,8 +80,6 @@ class MenubarWidgetState extends State<MenubarWidget> {
 
   @override
   void initState() {
-    fileRepository.init();
-
     FocusManager.instance.addListener(listenerFunction);
     TextEditingService.instance.init();
 
