@@ -483,7 +483,7 @@ class MenubarMacosClass {
     }
   }
 
-  Future<void> dispose() async {
+  void dispose() {
     settingsStreamSubscription?.cancel();
   }
 }

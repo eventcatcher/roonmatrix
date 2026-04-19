@@ -13,6 +13,7 @@ import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
 import 'package:roonmatrix/ui/layout/menubar_macos_class.dart';
+import 'package:roonmatrix/ui/layout/menubar_macos_custom_class.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -85,24 +86,28 @@ class RoonMatrixState extends State<RoonMatrix> {
   final String title = Globals.mainWindowTitle;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
 
+  final bool useCustomMacMenu = true;
+
   Map<String, dynamic> translations = {};
+  Map<String, dynamic> info = {};
+  String selectedDeviceIp = '';
+  String aboutAppMessage = '';
   bool translationsLoaded = false;
   bool saveIdle = false;
   bool macMenuInitialized = false;
+
   EditableTextState? lastFocusedEditable;
-  String selectedDeviceIp = '';
-  String selectedDeviceIpBefore = '';
-  Map<String, dynamic> info = {};
-
   Brightness? brightnessValue;
+  MenubarMacosClass? menubarMacosClass;
+  MenubarMacosCustomClass? menubarMacosCustomClass;
+  Widget menubarMacosCustom = SizedBox();
+  String? selectedDeviceIpBefore;
 
-  late StreamSubscription mainStreamSubscription;
   late StreamSubscription connectionStatusStreamSubscription;
   late TranslationsBloc translationsBloc;
   late SettingsBloc settingsBloc;
   late ConnectionStatusBloc connectionStatusBloc;
   late MainBloc mainBloc;
-  MenubarMacosClass? menubarMacosClass;
 
   @override
   void initState() {
@@ -131,20 +136,6 @@ class RoonMatrixState extends State<RoonMatrix> {
           mainBloc.restartPollingTimer();
           mainBloc.searching(idle: Globals.isMobileDevice());
         });
-      }
-    });
-
-    mainStreamSubscription = mainBloc.stream.listen((
-      MainState mainState,
-    ) {
-      if (mainState is MainStateLoaded) {
-        if (selectedDeviceIpBefore != mainState.selectedDeviceIp) {
-          selectedDeviceIp = mainState.selectedDeviceIp;
-          info = mainState.info;
-          selectedDeviceIpBefore = selectedDeviceIp;
-          menubarMacosClass!
-              .updateMacMenuBar(selectedDeviceIp: selectedDeviceIp, info: info);
-        }
       }
     });
 
@@ -236,6 +227,7 @@ class RoonMatrixState extends State<RoonMatrix> {
           builder: (context, TranslationsState translationsState) {
             if (translationsState is TranslationsStateLoaded) {
               translations = translationsState.translations;
+              aboutAppMessage = translationsState.aboutAppMessage;
               translationsLoaded = translationsState.translationsLoaded;
             }
 
@@ -245,27 +237,69 @@ class RoonMatrixState extends State<RoonMatrix> {
             }
 
             if (Platform.isMacOS) {
-              menubarMacosClass = MenubarMacosClass(
-                minDesktopSize: minDesktopSize,
-                standardDesktopSize: standardDesktopSize,
-                navigatorKey: navigatorKey,
-                translations: translations,
-                mainBloc: mainBloc,
-                settingsBloc: settingsBloc,
-                exportDeviceList: exportDeviceList,
-              );
-              menubarMacosClass!.init();
-              menubarMacosClass!.setupMacMenuStructure(
-                  context: context, translations: translations);
+              if (useCustomMacMenu == true) {
+                menubarMacosCustomClass = MenubarMacosCustomClass(
+                  minDesktopSize: minDesktopSize,
+                  standardDesktopSize: standardDesktopSize,
+                  navigatorKey: navigatorKey,
+                  translations: translations,
+                  aboutAppMessage: aboutAppMessage,
+                  mainBloc: mainBloc,
+                  settingsBloc: settingsBloc,
+                  exportDeviceList: exportDeviceList,
+                );
+                menubarMacosCustomClass!.init();
+              } else {
+                menubarMacosClass = MenubarMacosClass(
+                  minDesktopSize: minDesktopSize,
+                  standardDesktopSize: standardDesktopSize,
+                  navigatorKey: navigatorKey,
+                  translations: translations,
+                  mainBloc: mainBloc,
+                  settingsBloc: settingsBloc,
+                  exportDeviceList: exportDeviceList,
+                );
+                menubarMacosClass!.init();
+                menubarMacosClass!.setupMacMenuStructure(
+                    context: context, translations: translations);
+              }
             }
 
-            return MainShell(
-              minDesktopSize: minDesktopSize,
-              standardDesktopSize: standardDesktopSize,
-              title: title,
-              navigatorKey: navigatorKey,
-              exportDeviceList: exportDeviceList,
-            );
+            return useCustomMacMenu
+                ? BlocBuilder(
+                    bloc: mainBloc,
+                    builder: (context, MainState mainState) {
+                      if (mainState is MainStateLoaded) {
+                        if (selectedDeviceIpBefore !=
+                            mainState.selectedDeviceIp) {
+                          selectedDeviceIp = mainState.selectedDeviceIp;
+                          info = mainState.info;
+                          selectedDeviceIpBefore = selectedDeviceIp;
+
+                          menubarMacosCustom =
+                              menubarMacosCustomClass!.macosMenubar(
+                            context: context,
+                            selectedDeviceIp: selectedDeviceIp,
+                            info: info,
+                            child: MainShell(
+                              minDesktopSize: minDesktopSize,
+                              standardDesktopSize: standardDesktopSize,
+                              title: title,
+                              navigatorKey: navigatorKey,
+                              exportDeviceList: exportDeviceList,
+                            ),
+                          );
+                        }
+                      }
+                      return menubarMacosCustom;
+                    })
+                : MainShell(
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
+                    title: title,
+                    navigatorKey: navigatorKey,
+                    exportDeviceList: exportDeviceList,
+                  );
           });
 
   // This widget is the root of the application.
@@ -338,7 +372,6 @@ class RoonMatrixState extends State<RoonMatrix> {
   Future<void> dispose() async {
     menubarMacosClass?.dispose();
     connectionStatusStreamSubscription.cancel();
-    mainStreamSubscription.cancel();
 
     super.dispose();
   }
