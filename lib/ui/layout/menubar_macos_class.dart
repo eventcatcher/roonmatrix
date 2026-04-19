@@ -11,6 +11,7 @@ import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/mini_player_page.dart';
 import 'package:roonmatrix/ui/helper/text_editing_service.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_page.dart';
@@ -62,15 +63,6 @@ class MenubarMacosClass {
             settingsBloc.state.miniPlayerTextInfoDuration;
       }
     });
-  }
-
-  void openPage({required BuildContext context, required Widget page}) {
-    navigatorKey.currentState?.pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => page),
-        (route) => route.isFirst); // close all pages except main page
-    // navigatorKey.currentState!.push(
-    //   MaterialPageRoute(builder: (_) => page),
-    // );
   }
 
   Future<void> addMacMenuDeviceNavigation() async {
@@ -249,8 +241,9 @@ class MenubarMacosClass {
     if (selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null) {
       await addMacMenuPageItemsFirstPart();
 
-      if (!(info[selectedDeviceIp] as Map<String, dynamic>)
-              .containsKey('display_cover') ||
+      if (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+            'display_cover',
+          ) ||
           info[selectedDeviceIp]['display_cover'] == false) {
         await addMacMenuPageItemsMatrixOnlyPart();
       }
@@ -276,12 +269,17 @@ class MenubarMacosClass {
         barrierDismissible: false,
         barrierLabel: 'Dialog',
         transitionDuration: const Duration(milliseconds: 0),
-        pageBuilder: (_, __, ___) {
-          return SettingsPage(
-            minDesktopSize: minDesktopSize,
-            standardDesktopSize: standardDesktopSize,
-          );
-        },
+        pageBuilder:
+            (
+              BuildContext context,
+              Animation<double> animation,
+              Animation<double> secondaryAnimation,
+            ) {
+              return SettingsPage(
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
+              );
+            },
       );
       return true;
     });
@@ -357,8 +355,9 @@ class MenubarMacosClass {
         exportDeviceList(context);
         break;
       case 'config_page':
-        openPage(
+        SharedWidgets.openPage(
           context: context,
+          navigatorKey: navigatorKey,
           page: ConfigPage(
             name: info[selectedDeviceIp]['name'],
             ip: selectedDeviceIp,
@@ -371,8 +370,9 @@ class MenubarMacosClass {
         );
         break;
       case 'control_page':
-        openPage(
+        SharedWidgets.openPage(
           context: context,
+          navigatorKey: navigatorKey,
           page: CoverPage(
             name: info[selectedDeviceIp]['name'],
             ip: selectedDeviceIp,
@@ -383,8 +383,9 @@ class MenubarMacosClass {
         );
         break;
       case 'message_page':
-        openPage(
+        SharedWidgets.openPage(
           context: context,
+          navigatorKey: navigatorKey,
           page: MessagePage(
             name: info[selectedDeviceIp]['name'],
             ip: selectedDeviceIp,
@@ -394,8 +395,9 @@ class MenubarMacosClass {
         );
         break;
       case 'live_control_page':
-        openPage(
+        SharedWidgets.openPage(
           context: context,
+          navigatorKey: navigatorKey,
           page: LiveControlPage(
             name: info[selectedDeviceIp]['name'],
             ip: selectedDeviceIp,
@@ -405,8 +407,9 @@ class MenubarMacosClass {
         );
         break;
       case 'monitoring_page':
-        openPage(
+        SharedWidgets.openPage(
           context: context,
+          navigatorKey: navigatorKey,
           page: InfoPage(
             name: info[selectedDeviceIp]['name'],
             ip: selectedDeviceIp,
@@ -416,8 +419,9 @@ class MenubarMacosClass {
         );
         break;
       case 'log_page':
-        openPage(
+        SharedWidgets.openPage(
           context: context,
+          navigatorKey: navigatorKey,
           page: LogPage(
             name: info[selectedDeviceIp]['name'],
             ip: selectedDeviceIp,
@@ -439,8 +443,9 @@ class MenubarMacosClass {
           }
         }
 
-        openPage(
+        SharedWidgets.openPage(
           context: context,
+          navigatorKey: navigatorKey,
           page: MiniPlayerPage(
             name: zoneName,
             ip: selectedDeviceIp,
@@ -476,7 +481,8 @@ class MenubarMacosClass {
         break;
       case 'resize_full_width':
         mainBloc.windowResizeToFullWidthAndMinimumHeight(
-            minDesktopSize: minDesktopSize);
+          minDesktopSize: minDesktopSize,
+        );
         break;
       default:
         debugPrint('Unknown menu item: $itemId');

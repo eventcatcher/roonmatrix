@@ -20,7 +20,7 @@ class ButtonElement extends StatelessWidget {
     if (Globals.inIosStyle()) {
       return CupertinoButton.filled(
         padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-        minSize: 8,
+        minimumSize: Size(8.0, 8.0),
         onPressed: onPressed,
         child: Text(label),
       );

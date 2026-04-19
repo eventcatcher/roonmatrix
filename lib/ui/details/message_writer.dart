@@ -52,8 +52,9 @@ class MessageWriterState extends State<MessageWriter> {
   final TextEditingController nameTextController = TextEditingController();
   final TextEditingController messageTextController = TextEditingController();
   final ValueNotifier<String> messageTextBackup = ValueNotifier<String>('');
-  final borderRadius =
-      BorderRadius.all(Radius.circular(Globals.inMacosStyle() ? 7.0 : 5.0));
+  final borderRadius = BorderRadius.all(
+    Radius.circular(Globals.inMacosStyle() ? 7.0 : 5.0),
+  );
 
   String? selectedMessageId;
   Map<String, String> options = {};
@@ -76,7 +77,7 @@ class MessageWriterState extends State<MessageWriter> {
     super.initState();
   }
 
-  init() async {
+  Future<void> init() async {
     Map<String, String> options = await getCustomMessages();
     if (customMessage.isNotEmpty) {
       String? key = options.entries
@@ -122,10 +123,13 @@ class MessageWriterState extends State<MessageWriter> {
   }
 
   Future<Map<String, String>> getCustomMessages() async {
-    Map<String, String> unsortedOptions =
-        await mainRepository.getCustomMessages();
-    options = Map.fromEntries(unsortedOptions.entries.toList()
-      ..sort((e1, e2) => e1.key.toLowerCase().compareTo(e2.key.toLowerCase())));
+    Map<String, String> unsortedOptions = await mainRepository
+        .getCustomMessages();
+    options = Map.fromEntries(
+      unsortedOptions.entries.toList()..sort(
+        (e1, e2) => e1.key.toLowerCase().compareTo(e2.key.toLowerCase()),
+      ),
+    );
 
     setState(() {
       optionsLoaded = true;
@@ -135,50 +139,199 @@ class MessageWriterState extends State<MessageWriter> {
   }
 
   Widget messageSelectbox() => Padding(
-        padding: EdgeInsets.only(bottom: Globals.isMobileDevice() ? 0.0 : 8.0),
-        child: SelectBox(
-            translations: translations,
-            aligned: 'horizontal',
-            label:
-                '${translations['messageSelectionLabel'] ?? 'Message templates'}:',
-            placeholder:
-                '${translations['messageSelectionPlaceholder'] ?? 'Select template'}...',
-            noVerticalSpace: true,
-            selected: selectedMessageId,
-            options: options,
-            expanded: true,
-            elementExpanded: true,
-            onChanged: (String? newValue) {
-              messageTextBackup.value = options[newValue]!;
-              setState(() {
-                selectedMessageId = newValue;
-                messageTextController.text = options[selectedMessageId]!;
-              });
-            }),
-      );
+    padding: EdgeInsets.only(bottom: Globals.isMobileDevice() ? 0.0 : 8.0),
+    child: SelectBox(
+      translations: translations,
+      aligned: 'horizontal',
+      label: '${translations['messageSelectionLabel'] ?? 'Message templates'}:',
+      placeholder:
+          '${translations['messageSelectionPlaceholder'] ?? 'Select template'}...',
+      noVerticalSpace: true,
+      selected: selectedMessageId,
+      options: options,
+      expanded: true,
+      elementExpanded: true,
+      onChanged: (String? newValue) {
+        messageTextBackup.value = options[newValue]!;
+        setState(() {
+          selectedMessageId = newValue;
+          messageTextController.text = options[selectedMessageId]!;
+        });
+      },
+    ),
+  );
 
   Widget stopMessageButton() => Padding(
-        padding: EdgeInsets.only(
-            top: Globals.inMacosStyle()
-                ? 15.0
-                : deviceSelection == null
-                    ? 19.0
-                    : 0,
-            right: 16.0),
-        child: IconTextButtonElement(
+    padding: EdgeInsets.only(
+      top: Globals.inMacosStyle()
+          ? 15.0
+          : deviceSelection == null
+          ? 19.0
+          : 0,
+      right: 16.0,
+    ),
+    child: IconTextButtonElement(
+      onMacAsText: true,
+      icon: const Padding(
+        padding: EdgeInsets.symmetric(vertical: 7.5),
+        child: FaIcon(
+          FontAwesomeIcons.circleStop,
+          color: Colors.white,
+          size: 20.0,
+        ),
+      ),
+      label: (translations['breakMessageShortButtonLabel'] ?? 'Stop')
+          .toString()
+          .toFirstUpper,
+      onPressed: customMessage.isEmpty
+          ? null
+          : () async {
+              if (Platform.isIOS || Platform.isAndroid) {
+                FocusManager.instance.primaryFocus
+                    ?.unfocus(); // hide onscreen keyboard to see the response message (snackbar)
+              }
+              selectedOption = '';
+              bool value = await SharedWidgets.showPlatformSpecificDialog(
+                context: context,
+                child: (BuildContext context) => StatefulBuilder(
+                  builder: (context, setState) {
+                    return AlertElement(
+                      title:
+                          translations['dialogResetMessageQuestion'] ??
+                          'Do you really want to remove this message from the device?',
+                      content: SizedBox(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 48.0),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: Globals.inMacosStyle() ? 8.0 : 0.0,
+                              ),
+                              child: SwitchButton(
+                                aligned: 'inline',
+                                reverse: true,
+                                label:
+                                    translations['allDevicesRemoveSwitchLabel'] ??
+                                    'Remove from all devices',
+                                enabled: allDevices,
+                                expanded: false,
+                                onChanged: (bool value) {
+                                  if (mounted) {
+                                    setState(() => allDevices = value);
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      button1Label: translations['dialogNo'] ?? 'No',
+                      onPressed1: () => Navigator.of(context).pop(false),
+                      button2Label: translations['dialogYes'] ?? 'Yes',
+                      onPressed2: () => Navigator.of(context).pop(true),
+                    );
+                  },
+                ),
+              );
+
+              if (value == true) {
+                bool valid = false;
+                Map<String, dynamic> info = mainBloc.state.info;
+
+                if (allDevices == true) {
+                  List<String> devices = mainBloc.state.devices;
+                  for (String device in devices) {
+                    valid = await mainBloc.setCustomMessage(
+                      ip: device,
+                      message: '',
+                      option: 'stop',
+                    );
+                    mainBloc.getInfo(ip: ip);
+
+                    String name = info[device]?['name'] ?? device;
+                    String doneMessage =
+                        translations['messageRemoveDoneMessage'] != null
+                        ? (translations['messageRemoveDoneMessage'] as String)
+                              .replaceFirst('#', name)
+                        : "Remove message from $name successfully done";
+                    String failMessage =
+                        translations['messageRemoveFailedMessage'] != null
+                        ? (translations['messageRemoveFailedMessage'] as String)
+                              .replaceFirst('#', name)
+                        : "Remove message from $name is failed!";
+
+                    SharedWidgets.showSnackBar(
+                      // ignore: use_build_context_synchronously
+                      context: context,
+                      doneMessage: doneMessage,
+                      failMessage: failMessage,
+                      valid: valid,
+                    );
+                  }
+                } else {
+                  valid = await mainBloc.setCustomMessage(
+                    ip: ip,
+                    message: '',
+                    option: 'stop',
+                  );
+                  mainBloc.getInfo(ip: ip);
+                  nameTextController.text = '';
+                  messageTextController.text = '';
+                  messageTextBackup.value = messageTextController.text;
+                  selectedMessageId = null;
+
+                  String name = info[ip]?['name'] ?? ip;
+                  String doneMessage =
+                      translations['messageRemoveDoneMessage'] != null
+                      ? (translations['messageRemoveDoneMessage'] as String)
+                            .replaceFirst('#', name)
+                      : "Remove message from $name successfully done";
+                  String failMessage =
+                      translations['messageRemoveFailedMessage'] != null
+                      ? (translations['messageRemoveFailedMessage'] as String)
+                            .replaceFirst('#', name)
+                      : "Remove message from $name is failed!";
+
+                  SharedWidgets.showSnackBar(
+                    // ignore: use_build_context_synchronously
+                    context: context,
+                    doneMessage: doneMessage,
+                    failMessage: failMessage,
+                    valid: valid,
+                  );
+                }
+              }
+            },
+    ),
+  );
+
+  Widget sendMessageButton() => Padding(
+    padding: EdgeInsets.only(
+      top: Globals.inMacosStyle()
+          ? 15.0
+          : deviceSelection == null
+          ? 19.0
+          : 0,
+      right: 16.0,
+    ),
+    child: ValueListenableBuilder<String>(
+      valueListenable: messageTextBackup,
+      builder: (BuildContext context, String value, child) {
+        return IconTextButtonElement(
           onMacAsText: true,
           icon: const Padding(
             padding: EdgeInsets.symmetric(vertical: 7.5),
-            child: Icon(
-              FontAwesomeIcons.circleStop,
-              color: Colors.white,
-              size: 20.0,
-            ),
+            child: Icon(Icons.add, color: Colors.white, size: 20.0),
           ),
-          label: (translations['breakMessageShortButtonLabel'] ?? 'Stop')
+          label: (translations['sendButtonLabel'] ?? 'Send')
               .toString()
               .toFirstUpper,
-          onPressed: customMessage.isEmpty
+          onPressed:
+              messageTextBackup.value.isEmpty ||
+                  (customMessage.isNotEmpty &&
+                      customMessage == messageTextBackup.value)
               ? null
               : () async {
                   if (Platform.isIOS || Platform.isAndroid) {
@@ -188,47 +341,72 @@ class MessageWriterState extends State<MessageWriter> {
                   selectedOption = '';
                   bool value = await SharedWidgets.showPlatformSpecificDialog(
                     context: context,
-                    child: (BuildContext context) =>
-                        StatefulBuilder(builder: (context, setState) {
-                      return AlertElement(
-                        title: translations['dialogResetMessageQuestion'] ??
-                            'Do you really want to remove this message from the device?',
-                        content: SizedBox(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const SizedBox(height: 48.0),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    left: Globals.inMacosStyle() ? 8.0 : 0.0),
-                                child: SwitchButton(
-                                  aligned: 'inline',
-                                  reverse: true,
-                                  label: translations[
-                                          'allDevicesRemoveSwitchLabel'] ??
-                                      'Remove from all devices',
-                                  enabled: allDevices,
-                                  expanded: false,
-                                  onChanged: (bool value) {
-                                    if (mounted) {
-                                      setState(() => allDevices = value);
-                                    }
+                    child: (BuildContext context) => StatefulBuilder(
+                      builder: (context, setState) {
+                        return AlertElement(
+                          title:
+                              translations['dialogSendQuestion'] ??
+                              'Do you really want to send this message to the device?',
+                          content: SingleChildScrollView(
+                            padding: const EdgeInsets.all(8),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                VerticalRadioSelector(
+                                  options: [
+                                    translations['sendOptionForce'] ??
+                                        'Force Playout',
+                                    translations['sendOptionNextPlayout'] ??
+                                        'On next Playout',
+                                    translations['sendOptionExclusive'] ??
+                                        'Exclusive Playout',
+                                  ],
+                                  selectedOption: null,
+                                  onChanged: (String? value) {
+                                    setState(() {
+                                      selectedOption = value!;
+                                    });
                                   },
                                 ),
-                              )
-                            ],
+                                const SizedBox(height: 48.0),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    left: Globals.inMacosStyle() ? 8.0 : 0.0,
+                                  ),
+                                  child: SwitchButton(
+                                    aligned: 'inline',
+                                    reverse: true,
+                                    label:
+                                        translations['allDevicesSwitchLabel'] ??
+                                        'send to all devices',
+                                    enabled: allDevices,
+                                    expanded: false,
+                                    onChanged: (bool value) {
+                                      if (mounted) {
+                                        setState(() => allDevices = value);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        button1Label: translations['dialogNo'] ?? 'No',
-                        onPressed1: () => Navigator.of(context).pop(false),
-                        button2Label: translations['dialogYes'] ?? 'Yes',
-                        onPressed2: () => Navigator.of(context).pop(true),
-                      );
-                    }),
+                          button1Label: translations['dialogNo'] ?? 'No',
+                          onPressed1: () => Navigator.of(context).pop(false),
+                          button2Label: translations['dialogYes'] ?? 'Yes',
+                          onPressed2: selectedOption.isNotEmpty
+                              ? () => Navigator.of(context).pop(true)
+                              : null,
+                        );
+                      },
+                    ),
                   );
-
                   if (value == true) {
+                    setState(() {
+                      setMessage = true;
+                    });
+
                     bool valid = false;
                     Map<String, dynamic> info = mainBloc.state.info;
 
@@ -236,276 +414,107 @@ class MessageWriterState extends State<MessageWriter> {
                       List<String> devices = mainBloc.state.devices;
                       for (String device in devices) {
                         valid = await mainBloc.setCustomMessage(
-                            ip: device, message: '', option: 'stop');
+                          ip: device,
+                          message: messageTextBackup.value,
+                          option: mainRepository.getSelectedPlayoutOptionKey(
+                            option: selectedOption,
+                            translations: translations,
+                          ),
+                        );
                         mainBloc.getInfo(ip: ip);
 
                         String name = info[device]?['name'] ?? device;
                         String doneMessage =
-                            translations['messageRemoveDoneMessage'] != null
-                                ? (translations['messageRemoveDoneMessage']
-                                        as String)
-                                    .replaceFirst('#', name)
-                                : "Remove message from $name successfully done";
+                            translations['messageDoneMessage'] != null
+                            ? (translations['messageDoneMessage'] as String)
+                                  .replaceFirst('#', name)
+                            : "Send message to $name successfully done";
                         String failMessage =
-                            translations['messageRemoveFailedMessage'] != null
-                                ? (translations['messageRemoveFailedMessage']
-                                        as String)
-                                    .replaceFirst('#', name)
-                                : "Remove message from $name is failed!";
+                            translations['messageFailedMessage'] != null
+                            ? (translations['messageFailedMessage'] as String)
+                                  .replaceFirst('#', name)
+                            : "Send message to $name failed!";
 
                         SharedWidgets.showSnackBar(
-                            // ignore: use_build_context_synchronously
-                            context: context,
-                            doneMessage: doneMessage,
-                            failMessage: failMessage,
-                            valid: valid);
-                      }
-                    } else {
-                      valid = await mainBloc.setCustomMessage(
-                          ip: ip, message: '', option: 'stop');
-                      mainBloc.getInfo(ip: ip);
-                      nameTextController.text = '';
-                      messageTextController.text = '';
-                      messageTextBackup.value = messageTextController.text;
-                      selectedMessageId = null;
-
-                      String name = info[ip]?['name'] ?? ip;
-                      String doneMessage =
-                          translations['messageRemoveDoneMessage'] != null
-                              ? (translations['messageRemoveDoneMessage']
-                                      as String)
-                                  .replaceFirst('#', name)
-                              : "Remove message from $name successfully done";
-                      String failMessage =
-                          translations['messageRemoveFailedMessage'] != null
-                              ? (translations['messageRemoveFailedMessage']
-                                      as String)
-                                  .replaceFirst('#', name)
-                              : "Remove message from $name is failed!";
-
-                      SharedWidgets.showSnackBar(
                           // ignore: use_build_context_synchronously
                           context: context,
                           doneMessage: doneMessage,
                           failMessage: failMessage,
-                          valid: valid);
+                          valid: valid,
+                        );
+                      }
+                    } else {
+                      valid = await mainBloc.setCustomMessage(
+                        ip: ip,
+                        message: messageTextBackup.value,
+                        option: mainRepository.getSelectedPlayoutOptionKey(
+                          option: selectedOption,
+                          translations: translations,
+                        ),
+                      );
+                      mainBloc.getInfo(ip: ip);
+
+                      String name = info[ip]?['name'] ?? ip;
+                      String doneMessage =
+                          translations['messageDoneMessage'] != null
+                          ? (translations['messageDoneMessage'] as String)
+                                .replaceFirst('#', name)
+                          : "Send message to $name successfully done";
+                      String failMessage =
+                          translations['messageFailedMessage'] != null
+                          ? (translations['messageFailedMessage'] as String)
+                                .replaceFirst('#', name)
+                          : "Send message to $name failed!";
+
+                      SharedWidgets.showSnackBar(
+                        // ignore: use_build_context_synchronously
+                        context: context,
+                        doneMessage: doneMessage,
+                        failMessage: failMessage,
+                        valid: valid,
+                      );
                     }
+
+                    setState(() {
+                      setMessage = false;
+                      nameTextController.text = '';
+                    });
                   }
                 },
-        ),
-      );
-
-  Widget sendMessageButton() => Padding(
-        padding: EdgeInsets.only(
-            top: Globals.inMacosStyle()
-                ? 15.0
-                : deviceSelection == null
-                    ? 19.0
-                    : 0,
-            right: 16.0),
-        child: ValueListenableBuilder<String>(
-            valueListenable: messageTextBackup,
-            builder: (BuildContext context, String value, child) {
-              return IconTextButtonElement(
-                onMacAsText: true,
-                icon: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 7.5),
-                  child: Icon(
-                    Icons.add,
-                    color: Colors.white,
-                    size: 20.0,
-                  ),
-                ),
-                label: (translations['sendButtonLabel'] ?? 'Send')
-                    .toString()
-                    .toFirstUpper,
-                onPressed: messageTextBackup.value.isEmpty ||
-                        (customMessage.isNotEmpty &&
-                            customMessage == messageTextBackup.value)
-                    ? null
-                    : () async {
-                        if (Platform.isIOS || Platform.isAndroid) {
-                          FocusManager.instance.primaryFocus
-                              ?.unfocus(); // hide onscreen keyboard to see the response message (snackbar)
-                        }
-                        selectedOption = '';
-                        bool value =
-                            await SharedWidgets.showPlatformSpecificDialog(
-                          context: context,
-                          child: (BuildContext context) =>
-                              StatefulBuilder(builder: (context, setState) {
-                            return AlertElement(
-                              title: translations['dialogSendQuestion'] ??
-                                  'Do you really want to send this message to the device?',
-                              content: SingleChildScrollView(
-                                padding: const EdgeInsets.all(8),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    VerticalRadioSelector(
-                                      options: [
-                                        translations['sendOptionForce'] ??
-                                            'Force Playout',
-                                        translations['sendOptionNextPlayout'] ??
-                                            'On next Playout',
-                                        translations['sendOptionExclusive'] ??
-                                            'Exclusive Playout'
-                                      ],
-                                      selectedOption: null,
-                                      onChanged: (String? value) {
-                                        setState(() {
-                                          selectedOption = value!;
-                                        });
-                                      },
-                                    ),
-                                    const SizedBox(height: 48.0),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: Globals.inMacosStyle()
-                                              ? 8.0
-                                              : 0.0),
-                                      child: SwitchButton(
-                                        aligned: 'inline',
-                                        reverse: true,
-                                        label: translations[
-                                                'allDevicesSwitchLabel'] ??
-                                            'send to all devices',
-                                        enabled: allDevices,
-                                        expanded: false,
-                                        onChanged: (bool value) {
-                                          if (mounted) {
-                                            setState(() => allDevices = value);
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              button1Label: translations['dialogNo'] ?? 'No',
-                              onPressed1: () =>
-                                  Navigator.of(context).pop(false),
-                              button2Label: translations['dialogYes'] ?? 'Yes',
-                              onPressed2: selectedOption.isNotEmpty
-                                  ? () => Navigator.of(context).pop(true)
-                                  : null,
-                            );
-                          }),
-                        );
-                        if (value == true) {
-                          setState(() {
-                            setMessage = true;
-                          });
-
-                          bool valid = false;
-                          Map<String, dynamic> info = mainBloc.state.info;
-
-                          if (allDevices == true) {
-                            List<String> devices = mainBloc.state.devices;
-                            for (String device in devices) {
-                              valid = await mainBloc.setCustomMessage(
-                                  ip: device,
-                                  message: messageTextBackup.value,
-                                  option: mainRepository
-                                      .getSelectedPlayoutOptionKey(
-                                    option: selectedOption,
-                                    translations: translations,
-                                  ));
-                              mainBloc.getInfo(ip: ip);
-
-                              String name = info[device]?['name'] ?? device;
-                              String doneMessage = translations[
-                                          'messageDoneMessage'] !=
-                                      null
-                                  ? (translations['messageDoneMessage']
-                                          as String)
-                                      .replaceFirst('#', name)
-                                  : "Send message to $name successfully done";
-                              String failMessage =
-                                  translations['messageFailedMessage'] != null
-                                      ? (translations['messageFailedMessage']
-                                              as String)
-                                          .replaceFirst('#', name)
-                                      : "Send message to $name failed!";
-
-                              SharedWidgets.showSnackBar(
-                                  // ignore: use_build_context_synchronously
-                                  context: context,
-                                  doneMessage: doneMessage,
-                                  failMessage: failMessage,
-                                  valid: valid);
-                            }
-                          } else {
-                            valid = await mainBloc.setCustomMessage(
-                                ip: ip,
-                                message: messageTextBackup.value,
-                                option:
-                                    mainRepository.getSelectedPlayoutOptionKey(
-                                  option: selectedOption,
-                                  translations: translations,
-                                ));
-                            mainBloc.getInfo(ip: ip);
-
-                            String name = info[ip]?['name'] ?? ip;
-                            String doneMessage =
-                                translations['messageDoneMessage'] != null
-                                    ? (translations['messageDoneMessage']
-                                            as String)
-                                        .replaceFirst('#', name)
-                                    : "Send message to $name successfully done";
-                            String failMessage =
-                                translations['messageFailedMessage'] != null
-                                    ? (translations['messageFailedMessage']
-                                            as String)
-                                        .replaceFirst('#', name)
-                                    : "Send message to $name failed!";
-
-                            SharedWidgets.showSnackBar(
-                                // ignore: use_build_context_synchronously
-                                context: context,
-                                doneMessage: doneMessage,
-                                failMessage: failMessage,
-                                valid: valid);
-                          }
-
-                          setState(() {
-                            setMessage = false;
-                            nameTextController.text = '';
-                          });
-                        }
-                      },
-              );
-            }),
-      );
+        );
+      },
+    ),
+  );
 
   Widget resetMessageButton({required bool desktopLandscapeWide}) => Tooltip(
-      message: translations['resetMessageButtonLabel'] ?? 'Clear text',
-      waitDuration: Globals.tooltipWaitDuration,
-      child: SharedWidgets.restyledIconButton(
-        context: context,
-        disabled: messageTextBackup.value.isEmpty,
-        icon: Icons.clear,
-        onPressed: () async {
-          if (Platform.isIOS || Platform.isAndroid) {
-            FocusManager.instance.primaryFocus
-                ?.unfocus(); // hide onscreen keyboard to see the response message (snackbar)
-          }
-          setState(() {
-            messageTextController.text = '';
-            messageTextBackup.value = messageTextController.text;
-          });
-        },
-      ));
+    message: translations['resetMessageButtonLabel'] ?? 'Clear text',
+    waitDuration: Globals.tooltipWaitDuration,
+    child: SharedWidgets.restyledIconButton(
+      context: context,
+      disabled: messageTextBackup.value.isEmpty,
+      icon: Icons.clear,
+      onPressed: () async {
+        if (Platform.isIOS || Platform.isAndroid) {
+          FocusManager.instance.primaryFocus
+              ?.unfocus(); // hide onscreen keyboard to see the response message (snackbar)
+        }
+        setState(() {
+          messageTextController.text = '';
+          messageTextBackup.value = messageTextController.text;
+        });
+      },
+    ),
+  );
 
-  void onAddMessagePreset({required String key}) => options.keys
-              .toList()
-              .firstWhereOrNull(
-                  (String item) => item.toLowerCase() == key.toLowerCase()) !=
+  void onAddMessagePreset({required String key}) =>
+      options.keys.toList().firstWhereOrNull(
+            (String item) => item.toLowerCase() == key.toLowerCase(),
+          ) !=
           null
       ? ApproveModal(
           context: context,
-          title: translations['addMessageNameExistTitle'] ??
+          title:
+              translations['addMessageNameExistTitle'] ??
               "Error by adding a message template",
           question:
               '${translations['addMessageNameExistQuestion'] ?? 'This message name is in use'}!',
@@ -521,9 +530,11 @@ class MessageWriterState extends State<MessageWriter> {
       : setState(() {
           Map<String, String> unsortedOptions = Map.from(options);
           unsortedOptions.putIfAbsent(key, () => messageTextController.text);
-          options = Map.fromEntries(unsortedOptions.entries.toList()
-            ..sort((e1, e2) =>
-                e1.key.toLowerCase().compareTo(e2.key.toLowerCase())));
+          options = Map.fromEntries(
+            unsortedOptions.entries.toList()..sort(
+              (e1, e2) => e1.key.toLowerCase().compareTo(e2.key.toLowerCase()),
+            ),
+          );
           String? newKey = options.entries
               .firstWhereOrNull((MapEntry entry) => entry.key == key)
               ?.key;
@@ -535,30 +546,32 @@ class MessageWriterState extends State<MessageWriter> {
         });
 
   void onSaveExistingMessagePreset({required String key}) => setState(() {
-        Map<String, String> unsortedOptions = Map.from(options);
-        unsortedOptions[key] = messageTextController.text;
-        options = Map.from(unsortedOptions);
+    Map<String, String> unsortedOptions = Map.from(options);
+    unsortedOptions[key] = messageTextController.text;
+    options = Map.from(unsortedOptions);
 
-        nameTextController.text = '';
-        messageTextBackup.value = messageTextController.text;
-        mainRepository.setCustomMessages(messages: options);
-      });
+    nameTextController.text = '';
+    messageTextBackup.value = messageTextController.text;
+    mainRepository.setCustomMessages(messages: options);
+  });
 
   Future<void> onRemoveMessagePreset() async {
     if (selectedMessageId != null && options.containsKey(selectedMessageId)) {
       bool value = await SharedWidgets.showPlatformSpecificDialog(
         context: context,
-        child: (BuildContext context) =>
-            StatefulBuilder(builder: (context, setState) {
-          return AlertElement(
-            title: translations['dialogRemoveMessageQuestion'] ??
-                'Do you really want to delete the message template?',
-            button1Label: translations['dialogNo'] ?? 'No',
-            onPressed1: () => Navigator.of(context).pop(false),
-            button2Label: translations['dialogYes'] ?? 'Yes',
-            onPressed2: () => Navigator.of(context).pop(true),
-          );
-        }),
+        child: (BuildContext context) => StatefulBuilder(
+          builder: (context, setState) {
+            return AlertElement(
+              title:
+                  translations['dialogRemoveMessageQuestion'] ??
+                  'Do you really want to delete the message template?',
+              button1Label: translations['dialogNo'] ?? 'No',
+              onPressed1: () => Navigator.of(context).pop(false),
+              button2Label: translations['dialogYes'] ?? 'Yes',
+              onPressed2: () => Navigator.of(context).pop(true),
+            );
+          },
+        ),
       );
       if (value == true) {
         setState(() {
@@ -575,312 +588,336 @@ class MessageWriterState extends State<MessageWriter> {
   }
 
   Widget getTextAreaWithButtons() => Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: LayoutBuilder(builder: (context, constraints) {
-              double textFieldHeight = constraints.maxHeight;
-              double fontSize = textFieldHeight / 20 / 1.25;
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Expanded(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            double textFieldHeight = constraints.maxHeight;
+            double fontSize = textFieldHeight / 20 / 1.25;
 
-              return EditableMultilineText(
-                key: const PageStorageKey("message_text_field"),
-                translations: translations,
-                height: textFieldHeight,
-                fontSize: fontSize > 16 ? fontSize : 16,
-                textController: messageTextController,
-                withDebounce: false,
-                onChanged: (String value) {
-                  if (messageTextBackup.value != value) {
-                    messageTextBackup.value = value;
-                  }
-                },
-              );
-            }),
-          ),
-          ValueListenableBuilder<String>(
-              valueListenable: messageTextBackup,
-              builder: (BuildContext context, String value, child) {
-                return Padding(
-                  padding: EdgeInsets.only(right: isPortraitMode ? 16.0 : 0.0),
-                  child: Container(
-                    decoration: ShapeDecoration(
-                      color:
-                          ColorDefs.buttonAreaBackgroundColor(context: context),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: borderRadius,
+            return EditableMultilineText(
+              key: const PageStorageKey("message_text_field"),
+              translations: translations,
+              height: textFieldHeight,
+              fontSize: fontSize > 16 ? fontSize : 16,
+              textController: messageTextController,
+              withDebounce: false,
+              onChanged: (String value) {
+                if (messageTextBackup.value != value) {
+                  messageTextBackup.value = value;
+                }
+              },
+            );
+          },
+        ),
+      ),
+      ValueListenableBuilder<String>(
+        valueListenable: messageTextBackup,
+        builder: (BuildContext context, String value, child) {
+          return Padding(
+            padding: EdgeInsets.only(right: isPortraitMode ? 16.0 : 0.0),
+            child: Container(
+              decoration: ShapeDecoration(
+                color: ColorDefs.buttonAreaBackgroundColor(context: context),
+                shape: RoundedRectangleBorder(borderRadius: borderRadius),
+              ),
+              child: Column(
+                children: [
+                  Tooltip(
+                    message:
+                        translations['addMessageToPresetsLabel'] ??
+                        'Add message template',
+                    waitDuration: Globals.tooltipWaitDuration,
+                    child: Ink(
+                      decoration: ShapeDecoration(
+                        color: messageTextBackup.value.isNotEmpty
+                            ? Globals.brightness() == Brightness.dark
+                                  ? Colors.blue.shade800
+                                  : Colors.blue.shade600
+                            : Colors.grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: borderRadius,
+                        ),
+                      ),
+                      child: SharedWidgets.addIconButton(
+                        context: context,
+                        title:
+                            translations['addMessageToPresetsLabel'] ??
+                            'Add message template',
+                        icon: Icons.add,
+                        textController: nameTextController,
+                        disabled: messageTextBackup.value.isEmpty,
+                        translations: translations,
+                        onExit: () => setState(() {
+                          nameTextController.text = '';
+                        }),
+                        onAccepted: (dynamic newKey) {
+                          if (newKey is String && newKey.isNotEmpty) {
+                            onAddMessagePreset(key: newKey);
+                          }
+                        },
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        Tooltip(
-                          message: translations['addMessageToPresetsLabel'] ??
-                              'Add message template',
-                          waitDuration: Globals.tooltipWaitDuration,
-                          child: Ink(
-                            decoration: ShapeDecoration(
-                              color: messageTextBackup.value.isNotEmpty
-                                  ? Globals.brightness() == Brightness.dark
-                                      ? Colors.blue.shade800
-                                      : Colors.blue.shade600
-                                  : Colors.grey,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: borderRadius,
-                              ),
-                            ),
-                            child: SharedWidgets.addIconButton(
-                                context: context,
-                                title:
-                                    translations['addMessageToPresetsLabel'] ??
-                                        'Add message template',
-                                icon: Icons.add,
-                                textController: nameTextController,
-                                disabled: messageTextBackup.value.isEmpty,
-                                translations: translations,
-                                onExit: () => setState(() {
-                                      nameTextController.text = '';
-                                    }),
-                                onAccepted: (dynamic newKey) {
-                                  if (newKey is String && newKey.isNotEmpty) {
-                                    onAddMessagePreset(key: newKey);
-                                  }
-                                }),
-                          ),
+                  ),
+                  Tooltip(
+                    message:
+                        translations['saveMessageToPresetsLabel'] ??
+                        'Save message template',
+                    waitDuration: Globals.tooltipWaitDuration,
+                    child: Ink(
+                      decoration: ShapeDecoration(
+                        color:
+                            messageTextBackup.value.isNotEmpty &&
+                                selectedMessageId != null
+                            ? Globals.brightness() == Brightness.dark
+                                  ? Colors.blue.shade800
+                                  : Colors.blue.shade600
+                            : Colors.grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: borderRadius,
                         ),
-                        Tooltip(
-                          message: translations['saveMessageToPresetsLabel'] ??
-                              'Save message template',
-                          waitDuration: Globals.tooltipWaitDuration,
-                          child: Ink(
-                            decoration: ShapeDecoration(
-                              color: messageTextBackup.value.isNotEmpty &&
-                                      selectedMessageId != null
-                                  ? Globals.brightness() == Brightness.dark
-                                      ? Colors.blue.shade800
-                                      : Colors.blue.shade600
-                                  : Colors.grey,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: borderRadius,
-                              ),
-                            ),
-                            child: SharedWidgets.restyledIconButton(
-                                context: context,
-                                icon: Icons.save,
-                                disabled: messageTextBackup.value.isEmpty ||
-                                    selectedMessageId == null,
-                                onPressed: () {
-                                  ApproveModal(
-                                      context: context,
-                                      title: translations[
-                                              'dialogSaveMessageTitle'] ??
-                                          'Save template',
-                                      question: translations[
-                                              'dialogSaveMessageQuestion'] ??
-                                          'Are you sure you want to save the message template?',
-                                      okText: translations['saveButtonText'] ??
-                                          'Save',
-                                      onCanceled: () => setState(() {
-                                            nameTextController.text = '';
-                                          }),
-                                      onApproved: () {
-                                        onSaveExistingMessagePreset(
-                                            key: selectedMessageId!);
-                                        nameTextController.text = '';
-                                      }).show();
-                                }),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24.0),
-                          child: resetMessageButton(
-                              desktopLandscapeWide: Globals.isDesktopDevice()),
-                        ),
-                        Expanded(child: const SizedBox(height: 5.0)),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            bottom: (Globals.isDesktopDevice() ? 0.0 : 21.0) -
-                                (Globals.isMobileDevice() ? 19 : 0),
-                          ),
-                          child: Tooltip(
-                            message:
-                                translations['removeMessageFromPresetsLabel'] ??
-                                    'Remove message template',
-                            waitDuration: Globals.tooltipWaitDuration,
-                            child: SharedWidgets.restyledIconButton(
-                              context: context,
-                              icon: Icons.remove,
-                              disabled: selectedMessageId == null,
-                              onPressed: () => onRemoveMessagePreset(),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
+                      child: SharedWidgets.restyledIconButton(
+                        context: context,
+                        icon: Icons.save,
+                        disabled:
+                            messageTextBackup.value.isEmpty ||
+                            selectedMessageId == null,
+                        onPressed: () {
+                          ApproveModal(
+                            context: context,
+                            title:
+                                translations['dialogSaveMessageTitle'] ??
+                                'Save template',
+                            question:
+                                translations['dialogSaveMessageQuestion'] ??
+                                'Are you sure you want to save the message template?',
+                            okText: translations['saveButtonText'] ?? 'Save',
+                            onCanceled: () => setState(() {
+                              nameTextController.text = '';
+                            }),
+                            onApproved: () {
+                              onSaveExistingMessagePreset(
+                                key: selectedMessageId!,
+                              );
+                              nameTextController.text = '';
+                            },
+                          ).show();
+                        },
+                      ),
                     ),
                   ),
-                );
-              })
-        ],
-      );
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24.0),
+                    child: resetMessageButton(
+                      desktopLandscapeWide: Globals.isDesktopDevice(),
+                    ),
+                  ),
+                  Expanded(child: const SizedBox(height: 5.0)),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      bottom:
+                          (Globals.isDesktopDevice() ? 0.0 : 21.0) -
+                          (Globals.isMobileDevice() ? 19 : 0),
+                    ),
+                    child: Tooltip(
+                      message:
+                          translations['removeMessageFromPresetsLabel'] ??
+                          'Remove message template',
+                      waitDuration: Globals.tooltipWaitDuration,
+                      child: SharedWidgets.restyledIconButton(
+                        context: context,
+                        icon: Icons.remove,
+                        disabled: selectedMessageId == null,
+                        onPressed: () => onRemoveMessagePreset(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: optionsLoaded == true
           ? isPortraitMode
-              ? Column(
-                  children: [
-                    if (deviceSelection != null) deviceSelection!,
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: messageSelectbox(),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: 8.0,
-                        bottom: Globals.isMobileDevice() ? 0.0 : 16.0,
+                ? Column(
+                    children: [
+                      ?deviceSelection,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: messageSelectbox(),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16.0),
-                            child: stopMessageButton(),
-                          ),
-                          sendMessageButton(),
-                        ],
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: 8.0,
+                          bottom: Globals.isMobileDevice() ? 0.0 : 16.0,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 16.0),
+                              child: stopMessageButton(),
+                            ),
+                            sendMessageButton(),
+                          ],
+                        ),
                       ),
-                    ),
-                    Expanded(
+                      Expanded(
                         child: Container(
-                      margin: Globals.isDesktopDevice()
-                          ? EdgeInsets.only(
-                              top: 16.0,
-                              bottom: 16.0,
-                              right: isPortraitMode ? 0.0 : 16.0,
-                            )
-                          : EdgeInsets.only(top: isPortraitMode ? 8.0 : 0.0),
-                      child: textAreaWithButtons,
-                    )),
-                  ],
-                )
-              : Column(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: Container(
-                              margin: EdgeInsets.only(
+                          margin: Globals.isDesktopDevice()
+                              ? EdgeInsets.only(
+                                  top: 16.0,
+                                  bottom: 16.0,
+                                  right: isPortraitMode ? 0.0 : 16.0,
+                                )
+                              : EdgeInsets.only(
+                                  top: isPortraitMode ? 8.0 : 0.0,
+                                ),
+                          child: textAreaWithButtons,
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Container(
+                                margin: EdgeInsets.only(
                                   left: Globals.isDesktopDevice() ? 16.0 : 0.0,
                                   top: Globals.isDesktopDevice() ? 16.0 : 0.0,
-                                  bottom:
-                                      Globals.isDesktopDevice() ? 16.0 : 0.0),
-                              decoration: BoxDecoration(
-                                borderRadius: Globals.borderRadius(),
-                                border: Border.all(
-                                    color: Globals.inMacosStyle() ||
+                                  bottom: Globals.isDesktopDevice()
+                                      ? 16.0
+                                      : 0.0,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: Globals.borderRadius(),
+                                  border: Border.all(
+                                    color:
+                                        Globals.inMacosStyle() ||
                                             Globals.inIosStyle()
                                         ? ColorDefs.borderColor(
-                                            context: context)
+                                            context: context,
+                                          )
                                         : Colors.grey.shade400,
                                     //width: 0,
-                                    style: BorderStyle.solid),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 12.0),
-                                  if (deviceSelection != null) deviceSelection!,
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
-                                    child: messageSelectbox(),
+                                    style: BorderStyle.solid,
                                   ),
-                                  MediaQuery.of(context).size.width <
-                                          Globals.widthSwitchBoundaryMid
-                                      ? Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding: EdgeInsets.only(
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(height: 12.0),
+                                    ?deviceSelection,
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: messageSelectbox(),
+                                    ),
+                                    MediaQuery.of(context).size.width <
+                                            Globals.widthSwitchBoundaryMid
+                                        ? Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
                                                         left: 16.0,
-                                                        top: Globals
-                                                                .isMobileDevice()
+                                                        top:
+                                                            Globals.isMobileDevice()
                                                             ? 16.0
-                                                            : 8.0),
-                                                    child: stopMessageButton(),
+                                                            : 8.0,
+                                                      ),
+                                                      child:
+                                                          stopMessageButton(),
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Expanded(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
+                                                ],
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Expanded(
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
                                                             left: 16.0,
-                                                            top: 8.0),
-                                                    child: sendMessageButton(),
+                                                            top: 8.0,
+                                                          ),
+                                                      child:
+                                                          sendMessageButton(),
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        )
-                                      : Row(
-                                          mainAxisSize: MainAxisSize.max,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsets.only(
+                                                ],
+                                              ),
+                                            ],
+                                          )
+                                        : Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Padding(
+                                                padding: EdgeInsets.only(
                                                   left: 16.0,
                                                   top: Globals.isMobileDevice()
                                                       ? 16.0
-                                                      : 8.0),
-                                              child: stopMessageButton(),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(
+                                                      : 8.0,
+                                                ),
+                                                child: stopMessageButton(),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(
                                                   top: Globals.isMobileDevice()
                                                       ? 16.0
-                                                      : 8.0),
-                                              child: sendMessageButton(),
-                                            ),
-                                          ],
-                                        ),
-                                ],
+                                                      : 8.0,
+                                                ),
+                                                child: sendMessageButton(),
+                                              ),
+                                            ],
+                                          ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Flexible(
-                            child: Container(
-                              margin: Globals.isDesktopDevice()
-                                  ? EdgeInsets.only(
-                                      top: 16.0,
-                                      bottom: 16.0,
-                                      right: isPortraitMode ? 0.0 : 16.0,
-                                    )
-                                  : EdgeInsets.only(
-                                      top: isPortraitMode ? 8.0 : 0.0),
-                              child: textAreaWithButtons,
+                            Flexible(
+                              child: Container(
+                                margin: Globals.isDesktopDevice()
+                                    ? EdgeInsets.only(
+                                        top: 16.0,
+                                        bottom: 16.0,
+                                        right: isPortraitMode ? 0.0 : 16.0,
+                                      )
+                                    : EdgeInsets.only(
+                                        top: isPortraitMode ? 8.0 : 0.0,
+                                      ),
+                                child: textAreaWithButtons,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                )
+                    ],
+                  )
           : const SizedBox(),
     );
   }

@@ -41,11 +41,12 @@ class _MainShellState extends State<MainShell> {
             SizedBox(
               height: 24.0,
               child: MenubarWidget(
-                  minDesktopSize: minDesktopSize,
-                  standardDesktopSize: standardDesktopSize,
-                  navigatorKey: navigatorKey,
-                  exportDeviceList: exportDeviceList,
-                  child: SizedBox()),
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
+                navigatorKey: navigatorKey,
+                exportDeviceList: exportDeviceList,
+                child: SizedBox(),
+              ),
             ),
           Expanded(
             child: Navigator(
@@ -53,6 +54,7 @@ class _MainShellState extends State<MainShell> {
               onGenerateRoute: (settings) {
                 return MaterialPageRoute(
                   builder: (_) => StartPage(
+                    navigatorKey: navigatorKey,
                     minDesktopSize: minDesktopSize,
                     standardDesktopSize: standardDesktopSize,
                     title: title,

@@ -13,10 +13,12 @@ import 'package:roonmatrix/ui/details/mini_player_page.dart';
 import 'package:roonmatrix/ui/layout/cover_overlay_button.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_small.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverWidget extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
   final Map<String, dynamic> translations;
   final List<String> devices;
   final String? activeDeviceIp;
@@ -36,6 +38,7 @@ class CoverWidget extends StatefulWidget {
 
   const CoverWidget({
     super.key,
+    required this.navigatorKey,
     required this.translations,
     required this.devices,
     required this.activeDeviceIp,
@@ -59,6 +62,7 @@ class CoverWidget extends StatefulWidget {
 }
 
 class _CoverWidgetState extends State<CoverWidget> {
+  GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   Map<String, dynamic> get translations => widget.translations;
   List<String> get devices => widget.devices;
   bool get coverRowDynamicSize => widget.coverRowDynamicSize;
@@ -100,9 +104,7 @@ class _CoverWidgetState extends State<CoverWidget> {
     coverSize = widget.coverSize;
     activeDeviceIp = widget.activeDeviceIp;
 
-    img = NetworkImage(
-      coverModel.coverUrl,
-    );
+    img = NetworkImage(coverModel.coverUrl);
   }
 
   @override
@@ -143,407 +145,387 @@ class _CoverWidgetState extends State<CoverWidget> {
 
   void setButtonStatusSwitchInProgressTimer() {
     statusInProgressTimer = Timer.periodic(
-        Duration(seconds: buttonStatusSwitchTimeoutInSeconds), (Timer timer) {
-      statusInProgress = '';
-      statusInProgressTimer!.cancel();
-    });
+      Duration(seconds: buttonStatusSwitchTimeoutInSeconds),
+      (Timer timer) {
+        statusInProgress = '';
+        statusInProgressTimer!.cancel();
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) => Align(
-        alignment: Alignment.bottomLeft,
-        child: Container(
-          constraints: coverRowDynamicSize
-              ? null
-              : BoxConstraints(
-                  maxWidth: coverSize,
-                  maxHeight: coverSize,
-                ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // constraints.maxHeight gets the height of the AnimatedList
-              double coverHeight = constraints.maxHeight;
-              double coverWidth = coverHeight;
+    alignment: Alignment.bottomLeft,
+    child: Container(
+      constraints: coverRowDynamicSize
+          ? null
+          : BoxConstraints(maxWidth: coverSize, maxHeight: coverSize),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // constraints.maxHeight gets the height of the AnimatedList
+          double coverHeight = constraints.maxHeight;
+          double coverWidth = coverHeight;
 
-              return Stack(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      showGeneralDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        barrierLabel: 'Dialog',
-                        transitionDuration: const Duration(milliseconds: 0),
-                        pageBuilder: (_, __, ___) {
-                          return CoverPage(
-                            name: coverModel.zoneName,
-                            ip: activeDeviceIp ?? devices[0],
-                            controlId: coverModel.controlId,
-                            translations: translations,
-                            minDesktopSize: minDesktopSize,
-                            standardDesktopSize: standardDesktopSize,
-                          );
-                        },
-                      );
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(left: 1.0),
-                      width: coverWidth,
-                      height: coverHeight,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(0),
-                        child: AnimatedSwitcher(
-                          duration:
-                              Globals.coverSwitchDefaultFadeAnimationDuration,
-                          switchInCurve: Curves.easeIn,
-                          switchOutCurve: Curves.easeOut,
-                          child: coverModel.coverUrl.isNotEmpty
-                              ? Stack(
-                                  children: [
-                                    Container(
-                                      key: ValueKey(
-                                          'CoverWidgetImage-${coverModel.hash}-${orientation.name}'),
-                                      width: coverRowDynamicSize
-                                          ? double.infinity
+          return Stack(
+            children: [
+              InkWell(
+                onTap: () {
+                  SharedWidgets.openPage(
+                    context: context,
+                    navigatorKey: navigatorKey,
+                    page: CoverPage(
+                      name: coverModel.zoneName,
+                      ip: activeDeviceIp ?? devices[0],
+                      controlId: coverModel.controlId,
+                      translations: translations,
+                      minDesktopSize: minDesktopSize,
+                      standardDesktopSize: standardDesktopSize,
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.only(left: 1.0),
+                  width: coverWidth,
+                  height: coverHeight,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(0),
+                    child: AnimatedSwitcher(
+                      duration: Globals.coverSwitchDefaultFadeAnimationDuration,
+                      switchInCurve: Curves.easeIn,
+                      switchOutCurve: Curves.easeOut,
+                      child: coverModel.coverUrl.isNotEmpty
+                          ? Stack(
+                              children: [
+                                Container(
+                                  key: ValueKey(
+                                    'CoverWidgetImage-${coverModel.hash}-${orientation.name}',
+                                  ),
+                                  width: coverRowDynamicSize
+                                      ? double.infinity
+                                      : null,
+                                  height: coverRowDynamicSize
+                                      ? double.infinity
+                                      : null,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      colorFilter:
+                                          coverModel.status != 'playing'
+                                          ? ColorDefs.idleZoneColorFilter
                                           : null,
-                                      height: coverRowDynamicSize
-                                          ? double.infinity
-                                          : null,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          colorFilter: coverModel.status !=
-                                                  'playing'
-                                              ? ColorDefs.idleZoneColorFilter
-                                              : null,
-                                          image: img,
-                                          onError: (Object errDetails,
-                                              StackTrace? trace) {
+                                      image: img,
+                                      onError:
+                                          (
+                                            Object errDetails,
+                                            StackTrace? trace,
+                                          ) {
                                             setState(() {
-                                              img = AssetImage(Globals
-                                                  .placeholderPngAssetPath());
+                                              img = AssetImage(
+                                                Globals.placeholderPngAssetPath(),
+                                              );
                                             });
                                           },
+                                    ),
+                                  ),
+                                ),
+                                if (Globals.isDesktopDevice() &&
+                                    coverWidth > minPlayControlCoverSize &&
+                                    !coverModel.isRadio &&
+                                    activeDeviceIp != null &&
+                                    statusUpdateInProgress)
+                                  Padding(
+                                    padding:
+                                        statusInProgress == 'previous' ||
+                                            statusInProgress == 'next'
+                                        ? statusInProgress == 'previous'
+                                              ? const EdgeInsets.only(left: 4.0)
+                                              : const EdgeInsets.only(
+                                                  right: 4.0,
+                                                )
+                                        : EdgeInsets.zero,
+                                    child: Align(
+                                      alignment: getProgressIndicatorAlignment(
+                                        statusInProgress,
+                                      ),
+                                      child: SizedBox(
+                                        width:
+                                            16 +
+                                            coverWidth *
+                                                Globals
+                                                    .overlyPlayoutButtonSizeFactor,
+                                        height:
+                                            16 +
+                                            coverWidth *
+                                                Globals
+                                                    .overlyPlayoutButtonSizeFactor,
+                                        child: CircularProgressIndicator(
+                                          color: ColorDefs.blueIconColor(
+                                            context: context,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                    if (Globals.isDesktopDevice() &&
-                                        coverWidth > minPlayControlCoverSize &&
-                                        !coverModel.isRadio &&
-                                        activeDeviceIp != null &&
-                                        statusUpdateInProgress)
-                                      Padding(
-                                        padding:
-                                            statusInProgress == 'previous' ||
-                                                    statusInProgress == 'next'
-                                                ? statusInProgress == 'previous'
-                                                    ? const EdgeInsets.only(
-                                                        left: 4.0)
-                                                    : const EdgeInsets.only(
-                                                        right: 4.0)
-                                                : EdgeInsets.zero,
-                                        child: Align(
-                                          alignment:
-                                              getProgressIndicatorAlignment(
-                                            statusInProgress,
-                                          ),
-                                          child: SizedBox(
-                                            width: 16 +
-                                                coverWidth *
-                                                    Globals
-                                                        .overlyPlayoutButtonSizeFactor,
-                                            height: 16 +
-                                                coverWidth *
-                                                    Globals
-                                                        .overlyPlayoutButtonSizeFactor,
-                                            child: CircularProgressIndicator(
-                                              color: ColorDefs.blueIconColor(
-                                                  context: context),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    if (activeDeviceIp != null &&
-                                        coverWidth > minPlayControlCoverSize &&
-                                        Globals.isDesktopDevice())
-                                      Padding(
-                                        padding: const EdgeInsets.all(4.0),
-                                        child: CoverOverlayButton(
-                                          alignment: Alignment.topLeft,
-                                          coverWidth: coverWidth,
-                                          isPlaying: false,
-                                          sizeFactor: 0.8,
-                                          additionalVisibility: false,
-                                          svg: SvgPicture.asset(
-                                              'assets/svg/albumcover.svg',
-                                              allowDrawingOutsideViewBox: false,
-                                              fit: BoxFit.contain,
-                                              alignment: Alignment.center),
-                                          icon: Icon(Icons.library_music,
-                                              size: 32.0,
-                                              color: Globals.brightness() ==
-                                                      Brightness.dark
-                                                  ? ColorDefs
-                                                      .controlIconColorLight
-                                                  : ColorDefs
-                                                      .controlIconColorDark),
-                                          message: translations[
-                                                  'miniPlayerPageHeaderText'] ??
-                                              'Mini Player',
-                                          onPressed: () {
-                                            showGeneralDialog(
-                                              context: context,
-                                              barrierDismissible: false,
-                                              barrierLabel: 'Dialog',
-                                              transitionDuration:
-                                                  const Duration(
-                                                      milliseconds: 0),
-                                              pageBuilder: (_, __, ___) {
-                                                return MiniPlayerPage(
-                                                  name: coverModel.zoneName,
-                                                  ip: activeDeviceIp ??
-                                                      devices[0],
-                                                  controlId:
-                                                      coverModel.controlId,
-                                                  miniPlayerAlwaysOnTop:
-                                                      miniPlayerAlwaysOnTop,
-                                                  miniPlayerPreventCloseApp:
-                                                      miniPlayerPreventCloseApp,
-                                                  miniPlayerShowTextInfoOnTrackChange:
-                                                      miniPlayerShowTextInfoOnTrackChange,
-                                                  miniPlayerTextInfoDuration:
-                                                      miniPlayerTextInfoDuration,
-                                                  translations: translations,
-                                                  minDesktopSize:
-                                                      minDesktopSize,
-                                                  standardDesktopSize:
-                                                      standardDesktopSize,
-                                                );
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    if (activeDeviceIp != null &&
-                                        coverWidth > minPlayControlCoverSize &&
-                                        (Globals.isDesktopDevice() ||
-                                            coverModel.status != 'playing'))
-                                      CoverOverlayButton(
+                                  ),
+                                if (activeDeviceIp != null &&
+                                    coverWidth > minPlayControlCoverSize &&
+                                    Globals.isDesktopDevice())
+                                  Padding(
+                                    padding: const EdgeInsets.all(4.0),
+                                    child: CoverOverlayButton(
+                                      alignment: Alignment.topLeft,
+                                      coverWidth: coverWidth,
+                                      isPlaying: false,
+                                      sizeFactor: 0.8,
+                                      additionalVisibility: false,
+                                      svg: SvgPicture.asset(
+                                        'assets/svg/albumcover.svg',
+                                        allowDrawingOutsideViewBox: false,
+                                        fit: BoxFit.contain,
                                         alignment: Alignment.center,
-                                        coverWidth: coverWidth,
-                                        isPlaying:
-                                            coverModel.status == 'playing',
-                                        additionalVisibility:
-                                            (statusUpdateInProgress &&
-                                                    (statusInProgress ==
-                                                            'playing' ||
-                                                        statusInProgress ==
-                                                            'pause')) ||
-                                                coverModel.status != 'playing',
-                                        icon: coverModel.status == 'playing'
-                                            ? Icon(
-                                                Icons.pause,
-                                                color: statusUpdateInProgress
-                                                    ? Colors.grey.shade700
-                                                    : null,
-                                              )
-                                            : Icon(
-                                                Icons.play_arrow,
-                                                color: statusUpdateInProgress
-                                                    ? Colors.grey.shade700
-                                                    : null,
-                                              ),
-                                        message: coverModel.status == 'playing'
-                                            ? translations[
-                                                    'controlButtonPauseText'] ??
-                                                'pause'
-                                            : translations[
-                                                    'controlButtonPlayText'] ??
-                                                'play',
-                                        onPressed: () {
-                                          if (!statusUpdateInProgress) {
-                                            setButtonStatusSwitchInProgressTimer();
-                                            setState(() {
-                                              statusInProgress =
-                                                  coverModel.status == 'pause'
-                                                      ? 'playing'
-                                                      : 'pause';
-                                            });
-                                            mainBloc.zoneControl(
-                                              ip: mainBloc
-                                                  .state.activeDeviceIp!,
-                                              controlId: coverModel.controlId,
-                                              cmd: 'playmode',
-                                              enable: coverModel.status !=
-                                                  'playing',
-                                            );
-                                          }
-                                        },
                                       ),
-                                    if (Globals.isDesktopDevice() &&
-                                        coverWidth > minPlayControlCoverSize &&
-                                        !coverModel.isRadio &&
-                                        coverModel.status == 'playing' &&
-                                        activeDeviceIp != null) ...[
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 4.0),
-                                        child: CoverOverlayButton(
-                                            alignment: Alignment.centerLeft,
-                                            coverWidth: coverWidth,
-                                            isPlaying:
-                                                coverModel.status == 'playing',
-                                            additionalVisibility:
-                                                statusUpdateInProgress &&
-                                                    statusInProgress ==
-                                                        'previous',
-                                            icon: Icon(
-                                              Icons.skip_previous,
-                                              color: statusUpdateInProgress
-                                                  ? Colors.grey.shade700
-                                                  : null,
-                                            ),
-                                            message: translations[
-                                                    'controlButtonPreviousText'] ??
-                                                'previous track',
-                                            onPressed: () {
-                                              if (!statusUpdateInProgress &&
-                                                  coverModel.status ==
-                                                      'playing') {
-                                                setButtonStatusSwitchInProgressTimer();
-                                                setState(() {
-                                                  statusInProgress = 'previous';
-                                                });
-                                                mainBloc.zoneControl(
-                                                  ip: activeDeviceIp!,
-                                                  controlId:
-                                                      coverModel.controlId,
-                                                  cmd: 'previous',
-                                                  enable: true,
-                                                );
-                                              }
-                                            }),
+                                      icon: Icon(
+                                        Icons.library_music,
+                                        size: 32.0,
+                                        color:
+                                            Globals.brightness() ==
+                                                Brightness.dark
+                                            ? ColorDefs.controlIconColorLight
+                                            : ColorDefs.controlIconColorDark,
                                       ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(right: 4.0),
-                                        child: CoverOverlayButton(
-                                          alignment: Alignment.centerRight,
-                                          coverWidth: coverWidth,
-                                          isPlaying:
-                                              coverModel.status == 'playing',
-                                          additionalVisibility:
-                                              statusUpdateInProgress &&
-                                                  statusInProgress == 'next',
-                                          icon: Icon(
-                                            Icons.skip_next,
+                                      message:
+                                          translations['miniPlayerPageHeaderText'] ??
+                                          'Mini Player',
+                                      onPressed: () {
+                                        SharedWidgets.openPage(
+                                          context: context,
+                                          navigatorKey: navigatorKey,
+                                          page: MiniPlayerPage(
+                                            name: coverModel.zoneName,
+                                            ip: activeDeviceIp ?? devices[0],
+                                            controlId: coverModel.controlId,
+                                            miniPlayerAlwaysOnTop:
+                                                miniPlayerAlwaysOnTop,
+                                            miniPlayerPreventCloseApp:
+                                                miniPlayerPreventCloseApp,
+                                            miniPlayerShowTextInfoOnTrackChange:
+                                                miniPlayerShowTextInfoOnTrackChange,
+                                            miniPlayerTextInfoDuration:
+                                                miniPlayerTextInfoDuration,
+                                            translations: translations,
+                                            minDesktopSize: minDesktopSize,
+                                            standardDesktopSize:
+                                                standardDesktopSize,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                if (activeDeviceIp != null &&
+                                    coverWidth > minPlayControlCoverSize &&
+                                    (Globals.isDesktopDevice() ||
+                                        coverModel.status != 'playing'))
+                                  CoverOverlayButton(
+                                    alignment: Alignment.center,
+                                    coverWidth: coverWidth,
+                                    isPlaying: coverModel.status == 'playing',
+                                    additionalVisibility:
+                                        (statusUpdateInProgress &&
+                                            (statusInProgress == 'playing' ||
+                                                statusInProgress == 'pause')) ||
+                                        coverModel.status != 'playing',
+                                    icon: coverModel.status == 'playing'
+                                        ? Icon(
+                                            Icons.pause,
+                                            color: statusUpdateInProgress
+                                                ? Colors.grey.shade700
+                                                : null,
+                                          )
+                                        : Icon(
+                                            Icons.play_arrow,
                                             color: statusUpdateInProgress
                                                 ? Colors.grey.shade700
                                                 : null,
                                           ),
-                                          message: translations[
-                                                  'controlButtonNextText'] ??
-                                              'next track',
-                                          onPressed: () {
-                                            if (!statusUpdateInProgress &&
-                                                coverModel.status ==
-                                                    'playing') {
-                                              setButtonStatusSwitchInProgressTimer();
-                                              setState(() {
-                                                statusInProgress = 'next';
-                                              });
-                                              mainBloc.zoneControl(
-                                                ip: activeDeviceIp!,
-                                                controlId: coverModel.controlId,
-                                                cmd: 'next',
-                                                enable: true,
-                                              );
-                                            }
-                                          },
-                                        ),
+                                    message: coverModel.status == 'playing'
+                                        ? translations['controlButtonPauseText'] ??
+                                              'pause'
+                                        : translations['controlButtonPlayText'] ??
+                                              'play',
+                                    onPressed: () {
+                                      if (!statusUpdateInProgress) {
+                                        setButtonStatusSwitchInProgressTimer();
+                                        setState(() {
+                                          statusInProgress =
+                                              coverModel.status == 'pause'
+                                              ? 'playing'
+                                              : 'pause';
+                                        });
+                                        mainBloc.zoneControl(
+                                          ip: mainBloc.state.activeDeviceIp!,
+                                          controlId: coverModel.controlId,
+                                          cmd: 'playmode',
+                                          enable:
+                                              coverModel.status != 'playing',
+                                        );
+                                      }
+                                    },
+                                  ),
+                                if (Globals.isDesktopDevice() &&
+                                    coverWidth > minPlayControlCoverSize &&
+                                    !coverModel.isRadio &&
+                                    coverModel.status == 'playing' &&
+                                    activeDeviceIp != null) ...[
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 4.0),
+                                    child: CoverOverlayButton(
+                                      alignment: Alignment.centerLeft,
+                                      coverWidth: coverWidth,
+                                      isPlaying: coverModel.status == 'playing',
+                                      additionalVisibility:
+                                          statusUpdateInProgress &&
+                                          statusInProgress == 'previous',
+                                      icon: Icon(
+                                        Icons.skip_previous,
+                                        color: statusUpdateInProgress
+                                            ? Colors.grey.shade700
+                                            : null,
                                       ),
-                                    ],
-                                  ],
-                                )
-                              : Stack(
-                                  children: [
-                                    SvgPicture.asset(
-                                      Globals.placeholderSvgAssetPath(),
-                                      colorFilter:
-                                          ColorDefs.idleZoneColorFilter,
-                                      allowDrawingOutsideViewBox: false,
-                                      width: double.infinity,
-                                      height: double.infinity,
+                                      message:
+                                          translations['controlButtonPreviousText'] ??
+                                          'previous track',
+                                      onPressed: () {
+                                        if (!statusUpdateInProgress &&
+                                            coverModel.status == 'playing') {
+                                          setButtonStatusSwitchInProgressTimer();
+                                          setState(() {
+                                            statusInProgress = 'previous';
+                                          });
+                                          mainBloc.zoneControl(
+                                            ip: activeDeviceIp!,
+                                            controlId: coverModel.controlId,
+                                            cmd: 'previous',
+                                            enable: true,
+                                          );
+                                        }
+                                      },
                                     ),
-                                    Positioned.fill(
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: Icon(
-                                          Icons.close,
-                                          color: Colors.red,
-                                          size: 60.0,
-                                        ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 4.0),
+                                    child: CoverOverlayButton(
+                                      alignment: Alignment.centerRight,
+                                      coverWidth: coverWidth,
+                                      isPlaying: coverModel.status == 'playing',
+                                      additionalVisibility:
+                                          statusUpdateInProgress &&
+                                          statusInProgress == 'next',
+                                      icon: Icon(
+                                        Icons.skip_next,
+                                        color: statusUpdateInProgress
+                                            ? Colors.grey.shade700
+                                            : null,
                                       ),
+                                      message:
+                                          translations['controlButtonNextText'] ??
+                                          'next track',
+                                      onPressed: () {
+                                        if (!statusUpdateInProgress &&
+                                            coverModel.status == 'playing') {
+                                          setButtonStatusSwitchInProgressTimer();
+                                          setState(() {
+                                            statusInProgress = 'next';
+                                          });
+                                          mainBloc.zoneControl(
+                                            ip: activeDeviceIp!,
+                                            controlId: coverModel.controlId,
+                                            cmd: 'next',
+                                            enable: true,
+                                          );
+                                        }
+                                      },
                                     ),
-                                  ],
+                                  ),
+                                ],
+                              ],
+                            )
+                          : Stack(
+                              children: [
+                                SvgPicture.asset(
+                                  Globals.placeholderSvgAssetPath(),
+                                  colorFilter: ColorDefs.idleZoneColorFilter,
+                                  allowDrawingOutsideViewBox: false,
+                                  width: double.infinity,
+                                  height: double.infinity,
                                 ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Opacity(
-                    opacity: ColorDefs.zoneCornerLabelOpacity,
-                    child: SizedBox(
-                      width: coverWidth,
-                      child: Align(
-                        alignment: Alignment.topRight,
-                        child: ZoneCornerLabel(
-                          zoneName: coverModel.zoneName,
-                          coverWidth: coverWidth,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Container(
-                        constraints: BoxConstraints(
-                          maxWidth: coverWidth - 14,
-                        ),
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          borderRadius: Globals.borderRadius(),
-                          color: textAreaBackgroundColor,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4.0, vertical: 2.0),
-                          child: coverHeight >= extendedTextMinCoverHeight &&
-                                  (coverRowArtist == true ||
-                                      coverRowAlbum == true)
-                              ? CoverTextOverlayExtended(
-                                  coverModel: coverModel,
-                                  translations: translations,
-                                  coverRowArtist: coverRowArtist,
-                                  coverRowAlbum: coverRowAlbum,
-                                  coverRowTrack: coverRowTrack,
-                                )
-                              : CoverTextOverlaySmall(
-                                  coverModel: coverModel,
-                                  coverRowTrack: coverRowTrack,
-                                  constraints: constraints,
-                                  translations: translations,
+                                Positioned.fill(
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Icon(
+                                      Icons.close,
+                                      color: Colors.red,
+                                      size: 60.0,
+                                    ),
+                                  ),
                                 ),
-                        ),
-                      ),
+                              ],
+                            ),
                     ),
                   ),
-                ],
-              );
-            },
-          ),
-        ),
-      );
+                ),
+              ),
+              Opacity(
+                opacity: ColorDefs.zoneCornerLabelOpacity,
+                child: SizedBox(
+                  width: coverWidth,
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: ZoneCornerLabel(
+                      zoneName: coverModel.zoneName,
+                      coverWidth: coverWidth,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(8.0),
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    constraints: BoxConstraints(maxWidth: coverWidth - 14),
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      borderRadius: Globals.borderRadius(),
+                      color: textAreaBackgroundColor,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4.0,
+                        vertical: 2.0,
+                      ),
+                      child:
+                          coverHeight >= extendedTextMinCoverHeight &&
+                              (coverRowArtist == true || coverRowAlbum == true)
+                          ? CoverTextOverlayExtended(
+                              coverModel: coverModel,
+                              translations: translations,
+                              coverRowArtist: coverRowArtist,
+                              coverRowAlbum: coverRowAlbum,
+                              coverRowTrack: coverRowTrack,
+                            )
+                          : CoverTextOverlaySmall(
+                              coverModel: coverModel,
+                              coverRowTrack: coverRowTrack,
+                              constraints: constraints,
+                              translations: translations,
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    ),
+  );
 }

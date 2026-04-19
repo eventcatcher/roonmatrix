@@ -11,6 +11,7 @@ import 'package:roonmatrix/ui/layout/page_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class DesktopPageButtons extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
   final Map<String, dynamic> translations;
   final String ip;
   final Map<String, dynamic> info;
@@ -21,6 +22,7 @@ class DesktopPageButtons extends StatefulWidget {
 
   const DesktopPageButtons({
     super.key,
+    required this.navigatorKey,
     required this.translations,
     required this.ip,
     required this.info,
@@ -35,6 +37,7 @@ class DesktopPageButtons extends StatefulWidget {
 }
 
 class DesktopPageButtonsState extends State<DesktopPageButtons> {
+  GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   Map<String, dynamic> get translations => widget.translations;
   String get spotifyAuthUrl => widget.spotifyAuthUrl;
   bool get moreInfo => widget.moreInfo;
@@ -73,7 +76,9 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
       children: [
         if (spotifyAuthUrl != '*')
           PageButton(
-            label: translations['spotifyConnectAuthText'] ??
+            navigatorKey: navigatorKey,
+            label:
+                translations['spotifyConnectAuthText'] ??
                 'Spotify Connect Authorize',
             icon: Icons.phone_enabled,
             moreInfo: true,
@@ -90,6 +95,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
             ),
           ),
         PageButton(
+          navigatorKey: navigatorKey,
           label: translations['configButtonText'] ?? 'Config',
           icon: Icons.settings,
           moreInfo: false,
@@ -104,6 +110,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           ),
         ),
         PageButton(
+          navigatorKey: navigatorKey,
           label: translations['controlButtonText'] ?? 'Control',
           icon: Icons.control_camera,
           moreInfo: false,
@@ -118,6 +125,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
         if (!info[ip].containsKey('display_cover') ||
             info[ip]['display_cover'] == false)
           PageButton(
+            navigatorKey: navigatorKey,
             label: translations['messageButtonText'] ?? 'Message',
             icon: Icons.message_outlined,
             iconSize: 18.0,
@@ -132,6 +140,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
         if (!info[ip].containsKey('display_cover') ||
             info[ip]['display_cover'] == false)
           PageButton(
+            navigatorKey: navigatorKey,
             label: translations['liveControlButtonText'] ?? 'Live Control',
             icon: Icons.visibility_outlined,
             moreInfo: false,
@@ -144,6 +153,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           ),
         if (moreInfo == true) ...[
           PageButton(
+            navigatorKey: navigatorKey,
             label: translations['infoButtonText'] ?? 'Monitoring',
             icon: Icons.info_outline,
             moreInfo: true,
@@ -155,6 +165,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
             ),
           ),
           PageButton(
+            navigatorKey: navigatorKey,
             label: translations['logButtonText'] ?? 'Log',
             icon: Icons.terminal,
             moreInfo: true,

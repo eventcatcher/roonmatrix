@@ -12,6 +12,7 @@ import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/page_button.dart';
 
 class MobilePageButtons extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
   final Map<String, dynamic> translations;
   final bool moreInfo;
   final String zoneName;
@@ -25,6 +26,7 @@ class MobilePageButtons extends StatefulWidget {
 
   const MobilePageButtons({
     super.key,
+    required this.navigatorKey,
     required this.translations,
     required this.moreInfo,
     required this.zoneName,
@@ -42,6 +44,7 @@ class MobilePageButtons extends StatefulWidget {
 }
 
 class _MobilePageButtonsState extends State<MobilePageButtons> {
+  GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   Map<String, dynamic> get translations => widget.translations;
   bool get moreInfo => widget.moreInfo;
   String get zoneName => widget.zoneName;
@@ -97,82 +100,87 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     required String spotifyAuthUrl,
     required Map<String, dynamic> zoneData,
     required ExpandableMenuController? expandableMenuController,
-  }) =>
-      [
-        if (spotifyAuthUrl != '*')
-          PageButton(
-            label: translations['spotifyConnectAuthText'] ??
-                'Spotify Connect Authorize',
-            icon: Icons.phone_enabled,
-            moreInfo: true,
-            page: SpotifyConnectWebAuthPage(
-              name: zoneData['name'],
-              ip: ip,
-              url: spotifyAuthUrl,
-              minDesktopSize: minDesktopSize,
-              standardDesktopSize: standardDesktopSize,
-              callbackUrl: ({required String url}) =>
-                  setSpotifyAuthRedirectUrl(url: url),
-            ),
-            expandableMenuController: expandableMenuController,
-          ),
-        PageButton(
-          label: translations['configButtonText'] ?? 'Config',
-          icon: Icons.settings_outlined,
-          moreInfo: false,
-          page: ConfigPage(
-            name: zoneData['name'],
-            ip: ip,
-            minDesktopSize: minDesktopSize,
-            standardDesktopSize: standardDesktopSize,
-            close: () {
-              Navigator.pop(context);
-            },
-          ),
-          expandableMenuController: expandableMenuController,
+  }) => [
+    if (spotifyAuthUrl != '*')
+      PageButton(
+        navigatorKey: navigatorKey,
+        label:
+            translations['spotifyConnectAuthText'] ??
+            'Spotify Connect Authorize',
+        icon: Icons.phone_enabled,
+        moreInfo: true,
+        page: SpotifyConnectWebAuthPage(
+          name: zoneData['name'],
+          ip: ip,
+          url: spotifyAuthUrl,
+          minDesktopSize: minDesktopSize,
+          standardDesktopSize: standardDesktopSize,
+          callbackUrl: ({required String url}) =>
+              setSpotifyAuthRedirectUrl(url: url),
         ),
-        PageButton(
-          label: translations['controlButtonText'] ?? 'Control',
-          icon: Icons.control_camera,
-          moreInfo: false,
-          page: CoverPage(
-            name: zoneData['name'],
-            ip: ip,
-            translations: translations,
-            minDesktopSize: minDesktopSize,
-            standardDesktopSize: standardDesktopSize,
-          ),
-          expandableMenuController: expandableMenuController,
+        expandableMenuController: expandableMenuController,
+      ),
+    PageButton(
+      navigatorKey: navigatorKey,
+      label: translations['configButtonText'] ?? 'Config',
+      icon: Icons.settings_outlined,
+      moreInfo: false,
+      page: ConfigPage(
+        name: zoneData['name'],
+        ip: ip,
+        minDesktopSize: minDesktopSize,
+        standardDesktopSize: standardDesktopSize,
+        close: () {
+          Navigator.pop(context);
+        },
+      ),
+      expandableMenuController: expandableMenuController,
+    ),
+    PageButton(
+      navigatorKey: navigatorKey,
+      label: translations['controlButtonText'] ?? 'Control',
+      icon: Icons.control_camera,
+      moreInfo: false,
+      page: CoverPage(
+        name: zoneData['name'],
+        ip: ip,
+        translations: translations,
+        minDesktopSize: minDesktopSize,
+        standardDesktopSize: standardDesktopSize,
+      ),
+      expandableMenuController: expandableMenuController,
+    ),
+    if (!zoneData.containsKey('display_cover') ||
+        zoneData['display_cover'] == false)
+      PageButton(
+        navigatorKey: navigatorKey,
+        label: translations['messageButtonText'] ?? 'Message',
+        icon: Icons.message_outlined,
+        moreInfo: false,
+        page: MessagePage(
+          ip: ip,
+          name: zoneData['name'],
+          minDesktopSize: minDesktopSize,
+          standardDesktopSize: standardDesktopSize,
         ),
-        if (!zoneData.containsKey('display_cover') ||
-            zoneData['display_cover'] == false)
-          PageButton(
-            label: translations['messageButtonText'] ?? 'Message',
-            icon: Icons.message_outlined,
-            moreInfo: false,
-            page: MessagePage(
-              ip: ip,
-              name: zoneData['name'],
-              minDesktopSize: minDesktopSize,
-              standardDesktopSize: standardDesktopSize,
-            ),
-            expandableMenuController: expandableMenuController,
-          ),
-        if (!zoneData.containsKey('display_cover') ||
-            zoneData['display_cover'] == false)
-          PageButton(
-            label: translations['liveControlButtonText'] ?? 'Live Control',
-            icon: Icons.visibility_outlined,
-            moreInfo: false,
-            page: LiveControlPage(
-              ip: ip,
-              name: zoneData['name'],
-              minDesktopSize: minDesktopSize,
-              standardDesktopSize: standardDesktopSize,
-            ),
-            expandableMenuController: expandableMenuController,
-          ),
-      ];
+        expandableMenuController: expandableMenuController,
+      ),
+    if (!zoneData.containsKey('display_cover') ||
+        zoneData['display_cover'] == false)
+      PageButton(
+        navigatorKey: navigatorKey,
+        label: translations['liveControlButtonText'] ?? 'Live Control',
+        icon: Icons.visibility_outlined,
+        moreInfo: false,
+        page: LiveControlPage(
+          ip: ip,
+          name: zoneData['name'],
+          minDesktopSize: minDesktopSize,
+          standardDesktopSize: standardDesktopSize,
+        ),
+        expandableMenuController: expandableMenuController,
+      ),
+  ];
 
   List<Widget> mobilePageButtonsForDebugging({
     required String zoneName,
@@ -180,63 +188,67 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     required String spotifyAuthUrl,
     required Map<String, dynamic> zoneData,
     required ExpandableMenuController? expandableMenuController,
-  }) =>
-      [
-        if (moreInfo == true) ...[
-          PageButton(
-            label: translations['infoButtonText'] ?? 'Monitoring',
-            icon: Icons.info_outline,
-            moreInfo: true,
-            page: InfoPage(
-              name: zoneData['name'],
-              ip: ip,
-              minDesktopSize: minDesktopSize,
-              standardDesktopSize: standardDesktopSize,
-            ),
-            expandableMenuController: expandableMenuController,
-          ),
-          PageButton(
-            label: translations['logButtonText'] ?? 'Log',
-            icon: Icons.terminal,
-            moreInfo: true,
-            page: LogPage(
-              name: zoneData['name'],
-              ip: ip,
-              minDesktopSize: minDesktopSize,
-              standardDesktopSize: standardDesktopSize,
-            ),
-            expandableMenuController: expandableMenuController,
-          ),
-        ],
-      ];
+  }) => [
+    if (moreInfo == true) ...[
+      PageButton(
+        navigatorKey: navigatorKey,
+        label: translations['infoButtonText'] ?? 'Monitoring',
+        icon: Icons.info_outline,
+        moreInfo: true,
+        page: InfoPage(
+          name: zoneData['name'],
+          ip: ip,
+          minDesktopSize: minDesktopSize,
+          standardDesktopSize: standardDesktopSize,
+        ),
+        expandableMenuController: expandableMenuController,
+      ),
+      PageButton(
+        navigatorKey: navigatorKey,
+        label: translations['logButtonText'] ?? 'Log',
+        icon: Icons.terminal,
+        moreInfo: true,
+        page: LogPage(
+          name: zoneData['name'],
+          ip: ip,
+          minDesktopSize: minDesktopSize,
+          standardDesktopSize: standardDesktopSize,
+        ),
+        expandableMenuController: expandableMenuController,
+      ),
+    ],
+  ];
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: baseWidth +
-            Globals.mobileExpandableButtonSize * mobileButtonsList.length,
-        height: Globals.mobileExpandableButtonSize,
-        child: Stack(
-          children: [
-            Positioned(
-              top: 0.0,
-              left: 0.0,
-              right: 0.0,
-              child: ExpandableMenu(
-                key: ValueKey(
-                    'ExpandableMenu-$ip-$moreInfo'), // main item expandable for mobile
-                width: Globals.mobileExpandableButtonSize,
-                height: Globals.mobileExpandableButtonSize,
-                animationSpeed: animationSpeed,
-                backgroundColor:
-                    ColorDefs.buttonRowBackgroundColor(context: context),
-                items: mobileButtonsList,
-                getController: (ExpandableMenuController controller) {
-                  expandableMenuController = controller;
-                },
-                isExpanded: (bool mode) => isExpanded(mode: mode),
-              ),
+    width:
+        baseWidth +
+        Globals.mobileExpandableButtonSize * mobileButtonsList.length,
+    height: Globals.mobileExpandableButtonSize,
+    child: Stack(
+      children: [
+        Positioned(
+          top: 0.0,
+          left: 0.0,
+          right: 0.0,
+          child: ExpandableMenu(
+            key: ValueKey(
+              'ExpandableMenu-$ip-$moreInfo',
+            ), // main item expandable for mobile
+            width: Globals.mobileExpandableButtonSize,
+            height: Globals.mobileExpandableButtonSize,
+            animationSpeed: animationSpeed,
+            backgroundColor: ColorDefs.buttonRowBackgroundColor(
+              context: context,
             ),
-          ],
+            items: mobileButtonsList,
+            getController: (ExpandableMenuController controller) {
+              expandableMenuController = controller;
+            },
+            isExpanded: (bool mode) => isExpanded(mode: mode),
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }

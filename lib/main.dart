@@ -45,13 +45,17 @@ void main() async {
     await _configureMacosWindowUtils();
   }
 
-  runApp(RoonMatrix(
-    minDesktopSize: Globals.minDesktopSize,
-    standardDesktopSize: Globals.standardDesktopSize,
-  ));
+  runApp(
+    RoonMatrix(
+      minDesktopSize: Globals.minDesktopSize,
+      standardDesktopSize: Globals.standardDesktopSize,
+    ),
+  );
 
-  Bloc.transformer = sequential<
-      dynamic>(); // all bloc events strictly sequential (like mapEventToState in bloc prior v8)
+  Bloc.transformer =
+      sequential<
+        dynamic
+      >(); // all bloc events strictly sequential (like mapEventToState in bloc prior v8)
 
   if (Globals.isDesktopDevice()) {
     doWhenWindowReady(() {
@@ -143,24 +147,19 @@ class RoonMatrixState extends State<RoonMatrix> {
   }
 
   TabBarThemeData tabBarThemeData = const TabBarThemeData(
-      labelColor: Colors.white,
-      dividerColor: Colors.grey,
-      labelStyle: TextStyle(fontWeight: FontWeight.bold),
-      unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
-      indicator: UnderlineTabIndicator(
-          borderSide: BorderSide(width: 2, color: Colors.red)));
+    labelColor: Colors.white,
+    dividerColor: Colors.grey,
+    labelStyle: TextStyle(fontWeight: FontWeight.bold),
+    unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+    indicator: UnderlineTabIndicator(
+      borderSide: BorderSide(width: 2, color: Colors.red),
+    ),
+  );
 
-  ThemeData materialThemeData({
-    required TabBarThemeData tabBarThemeData,
-  }) =>
-      ThemeData(
-        useMaterial3: false,
-        tabBarTheme: tabBarThemeData,
-      );
+  ThemeData materialThemeData({required TabBarThemeData tabBarThemeData}) =>
+      ThemeData(useMaterial3: false, tabBarTheme: tabBarThemeData);
 
-  Widget translationsLoadingWindow({
-    required String title,
-  }) {
+  Widget translationsLoadingWindow({required String title}) {
     if (Globals.inIosStyle()) {
       return CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
@@ -176,25 +175,18 @@ class RoonMatrixState extends State<RoonMatrix> {
             children: [
               ContentArea(
                 builder: ((context, scrollController) {
-                  return Material(
-                    child: MacosWindow(
-                      child: SizedBox(),
-                    ),
-                  );
+                  return Material(child: MacosWindow(child: SizedBox()));
                 }),
               ),
             ],
           )
         : Scaffold(
-            appBar: AppBar(
-              title: Text(title),
-              actions: const [],
-            ),
+            appBar: AppBar(title: Text(title), actions: const []),
             body: const SizedBox(),
           );
   }
 
-  exportDeviceList(BuildContext context) async {
+  Future<void> exportDeviceList(BuildContext context) async {
     setState(() {
       saveIdle = true;
     });
@@ -209,98 +201,97 @@ class RoonMatrixState extends State<RoonMatrix> {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
         SharedWidgets.showSnackBar(
-            context: context,
-            doneMessage:
-                translations['exportDoneMessage'] ?? 'Export successfully done',
-            failMessage:
-                translations['exportFailedMessage'] ?? 'Export failed!',
-            valid: valid);
+          context: context,
+          doneMessage:
+              translations['exportDoneMessage'] ?? 'Export successfully done',
+          failMessage: translations['exportFailedMessage'] ?? 'Export failed!',
+          valid: valid,
+        );
       }
     });
   }
 
-  Widget home({
-    required TranslationsBloc translationsBloc,
-  }) =>
-      BlocBuilder(
-          bloc: translationsBloc,
-          builder: (context, TranslationsState translationsState) {
-            if (translationsState is TranslationsStateLoaded) {
-              translations = translationsState.translations;
-              aboutAppMessage = translationsState.aboutAppMessage;
-              translationsLoaded = translationsState.translationsLoaded;
-            }
+  Widget home({required TranslationsBloc translationsBloc}) => BlocBuilder(
+    bloc: translationsBloc,
+    builder: (context, TranslationsState translationsState) {
+      if (translationsState is TranslationsStateLoaded) {
+        translations = translationsState.translations;
+        aboutAppMessage = translationsState.aboutAppMessage;
+        translationsLoaded = translationsState.translationsLoaded;
+      }
 
-            if (translationsState is! TranslationsStateLoaded ||
-                !translationsLoaded) {
-              return translationsLoadingWindow(title: title);
-            }
+      if (translationsState is! TranslationsStateLoaded ||
+          !translationsLoaded) {
+        return translationsLoadingWindow(title: title);
+      }
 
-            if (Platform.isMacOS) {
-              if (useCustomMacMenu == true) {
-                menubarMacosCustomClass = MenubarMacosCustomClass(
-                  minDesktopSize: minDesktopSize,
-                  standardDesktopSize: standardDesktopSize,
-                  navigatorKey: navigatorKey,
-                  translations: translations,
-                  aboutAppMessage: aboutAppMessage,
-                  mainBloc: mainBloc,
-                  settingsBloc: settingsBloc,
-                  exportDeviceList: exportDeviceList,
-                );
-                menubarMacosCustomClass!.init();
-              } else {
-                menubarMacosClass = MenubarMacosClass(
-                  minDesktopSize: minDesktopSize,
-                  standardDesktopSize: standardDesktopSize,
-                  navigatorKey: navigatorKey,
-                  translations: translations,
-                  mainBloc: mainBloc,
-                  settingsBloc: settingsBloc,
-                  exportDeviceList: exportDeviceList,
-                );
-                menubarMacosClass!.init();
-                menubarMacosClass!.setupMacMenuStructure(
-                    context: context, translations: translations);
-              }
-            }
+      if (Platform.isMacOS) {
+        if (useCustomMacMenu == true) {
+          menubarMacosCustomClass = MenubarMacosCustomClass(
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+            navigatorKey: navigatorKey,
+            translations: translations,
+            aboutAppMessage: aboutAppMessage,
+            mainBloc: mainBloc,
+            settingsBloc: settingsBloc,
+            exportDeviceList: exportDeviceList,
+          );
+          menubarMacosCustomClass!.init();
+        } else {
+          menubarMacosClass = MenubarMacosClass(
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+            navigatorKey: navigatorKey,
+            translations: translations,
+            mainBloc: mainBloc,
+            settingsBloc: settingsBloc,
+            exportDeviceList: exportDeviceList,
+          );
+          menubarMacosClass!.init();
+          menubarMacosClass!.setupMacMenuStructure(
+            context: context,
+            translations: translations,
+          );
+        }
+      }
 
-            return useCustomMacMenu
-                ? BlocBuilder(
-                    bloc: mainBloc,
-                    builder: (context, MainState mainState) {
-                      if (mainState is MainStateLoaded) {
-                        if (selectedDeviceIpBefore !=
-                            mainState.selectedDeviceIp) {
-                          selectedDeviceIp = mainState.selectedDeviceIp;
-                          info = mainState.info;
-                          selectedDeviceIpBefore = selectedDeviceIp;
+      return Platform.isMacOS && useCustomMacMenu
+          ? BlocBuilder(
+              bloc: mainBloc,
+              builder: (context, MainState mainState) {
+                if (mainState is MainStateLoaded) {
+                  if (selectedDeviceIpBefore != mainState.selectedDeviceIp) {
+                    selectedDeviceIp = mainState.selectedDeviceIp;
+                    info = mainState.info;
+                    selectedDeviceIpBefore = selectedDeviceIp;
 
-                          menubarMacosCustom =
-                              menubarMacosCustomClass!.macosMenubar(
-                            context: context,
-                            selectedDeviceIp: selectedDeviceIp,
-                            info: info,
-                            child: MainShell(
-                              minDesktopSize: minDesktopSize,
-                              standardDesktopSize: standardDesktopSize,
-                              title: title,
-                              navigatorKey: navigatorKey,
-                              exportDeviceList: exportDeviceList,
-                            ),
-                          );
-                        }
-                      }
-                      return menubarMacosCustom;
-                    })
-                : MainShell(
-                    minDesktopSize: minDesktopSize,
-                    standardDesktopSize: standardDesktopSize,
-                    title: title,
-                    navigatorKey: navigatorKey,
-                    exportDeviceList: exportDeviceList,
-                  );
-          });
+                    menubarMacosCustom = menubarMacosCustomClass!.macosMenubar(
+                      context: context,
+                      selectedDeviceIp: selectedDeviceIp,
+                      info: info,
+                      child: MainShell(
+                        minDesktopSize: minDesktopSize,
+                        standardDesktopSize: standardDesktopSize,
+                        title: title,
+                        navigatorKey: navigatorKey,
+                        exportDeviceList: exportDeviceList,
+                      ),
+                    );
+                  }
+                }
+                return menubarMacosCustom;
+              },
+            )
+          : MainShell(
+              minDesktopSize: minDesktopSize,
+              standardDesktopSize: standardDesktopSize,
+              title: title,
+              navigatorKey: navigatorKey,
+              exportDeviceList: exportDeviceList,
+            );
+    },
+  );
 
   // This widget is the root of the application.
   @override
@@ -325,9 +316,7 @@ class RoonMatrixState extends State<RoonMatrix> {
           BlocProvider<ConnectionStatusBloc>(
             create: (BuildContext context) => connectionStatusBloc,
           ),
-          BlocProvider<MainBloc>(
-            create: (BuildContext context) => mainBloc,
-          ),
+          BlocProvider<MainBloc>(create: (BuildContext context) => mainBloc),
         ],
         child: Globals.inMacosStyle()
             ? MacosApp(
@@ -340,30 +329,32 @@ class RoonMatrixState extends State<RoonMatrix> {
                 home: home(translationsBloc: translationsBloc),
               )
             : Globals.inIosStyle()
-                ? Builder(builder: (context) {
-                    brightnessValue = MediaQuery.of(context).platformBrightness;
+            ? Builder(
+                builder: (context) {
+                  brightnessValue = MediaQuery.of(context).platformBrightness;
 
-                    return CupertinoApp(
-                      title: title,
-                      theme: CupertinoThemeData(
-                        brightness: Globals.brightness(),
-                        //primaryColor: CupertinoColors.systemBlue,
-                      ),
-                      localizationsDelegates: [
-                        DefaultMaterialLocalizations.delegate
-                      ],
-                      // navigatorKey: navigatorKey,
-                      home: home(translationsBloc: translationsBloc),
-                    );
-                  })
-                : MaterialApp(
+                  return CupertinoApp(
                     title: title,
-                    theme: materialThemeData(tabBarThemeData: tabBarThemeData),
-                    darkTheme: ThemeData.dark(useMaterial3: false),
-                    themeMode: ThemeMode.system,
+                    theme: CupertinoThemeData(
+                      brightness: Globals.brightness(),
+                      //primaryColor: CupertinoColors.systemBlue,
+                    ),
+                    localizationsDelegates: [
+                      DefaultMaterialLocalizations.delegate,
+                    ],
                     // navigatorKey: navigatorKey,
                     home: home(translationsBloc: translationsBloc),
-                  ),
+                  );
+                },
+              )
+            : MaterialApp(
+                title: title,
+                theme: materialThemeData(tabBarThemeData: tabBarThemeData),
+                darkTheme: ThemeData.dark(useMaterial3: false),
+                themeMode: ThemeMode.system,
+                // navigatorKey: navigatorKey,
+                home: home(translationsBloc: translationsBloc),
+              ),
       ),
     );
   }

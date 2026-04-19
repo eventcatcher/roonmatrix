@@ -9,6 +9,7 @@ import 'package:roonmatrix/ui/layout/cover_widget.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverRow extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
   final GlobalKey<AnimatedListState> coverListKey;
   final MediaQueryData mediaQueryData;
   final Map<String, dynamic> translations;
@@ -33,6 +34,7 @@ class CoverRow extends StatefulWidget {
 
   const CoverRow({
     super.key,
+    required this.navigatorKey,
     required this.coverListKey,
     required this.mediaQueryData,
     required this.translations,
@@ -61,6 +63,7 @@ class CoverRow extends StatefulWidget {
 }
 
 class _CoverRowState extends State<CoverRow> {
+  GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   GlobalKey<AnimatedListState> get coverListKey => widget.coverListKey;
   MediaQueryData get mediaQueryData => widget.mediaQueryData;
   Map<String, dynamic> get translations => widget.translations;
@@ -110,7 +113,8 @@ class _CoverRowState extends State<CoverRow> {
   Widget getCoverRow({required Map<String, dynamic> info}) {
     if (kDebugMode) {
       debugPrint(
-          'CoverRow/getCoverRow => covers to display: ${coverList.length}');
+        'CoverRow/getCoverRow => covers to display: ${coverList.length}',
+      );
     }
 
     double coverSize = mainRepository.getCoverSize(
@@ -139,6 +143,7 @@ class _CoverRowState extends State<CoverRow> {
             transitionBuilder: Globals.coverSwitchAnimatedPreset,
             child: CoverWidget(
               key: ValueKey('CoverWidget-${coverModelItem.hash}'),
+              navigatorKey: navigatorKey,
               translations: translations,
               devices: devices,
               activeDeviceIp: activeDeviceIp,
@@ -168,11 +173,10 @@ class _CoverRowState extends State<CoverRow> {
             child: Container(
               color: ColorDefs.coverRowBackgroundColor(context: context),
               child: coverRowList,
-            ))
-        : ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: coverSize,
             ),
+          )
+        : ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: coverSize),
             child: Align(
               // flexible child
               alignment: Alignment.center,
@@ -181,8 +185,9 @@ class _CoverRowState extends State<CoverRow> {
                   Flexible(
                     fit: FlexFit.loose,
                     child: Container(
-                      color:
-                          ColorDefs.coverRowBackgroundColor(context: context),
+                      color: ColorDefs.coverRowBackgroundColor(
+                        context: context,
+                      ),
                       child: coverRowList,
                     ),
                   ),

@@ -72,8 +72,9 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
     });
 
     windowManager.addListener(this);
-    macosVersionMajor =
-        macosVersion.isNotEmpty ? int.parse(macosVersion.split('.').first) : 0;
+    macosVersionMajor = macosVersion.isNotEmpty
+        ? int.parse(macosVersion.split('.').first)
+        : 0;
 
     super.initState();
   }
@@ -105,72 +106,69 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
 
   @override
   Widget build(BuildContext context) => MacosPageWrapper(
-        name: title == Globals.mainWindowTitle ? null : title,
-        macosVersion: macosVersion,
-        backButtonPressed: backButtonPressed,
-        toolBar: ToolBar(
-          titleWidth: Globals.extendedTitleWidth,
-          title: title == Globals.mainWindowTitle
-              ? Text(title)
-              : MacosTappableTextBackButton(
-                  text: title,
-                  onPressed: backButtonPressed,
-                ),
-          leading: title == Globals.mainWindowTitle
-              ? null
-              : MacosTappableIconBackButton(
-                  onPressed: backButtonPressed,
-                ),
-          actions: [
-            if (actions != null && actions!.isNotEmpty) ...[
-              const ToolBarSpacer(),
-              ...actions!,
-            ],
-            if (!isFullscreen && showResizeButtons == true) ...[
-              const ToolBarSpacer(),
-              ToolBarIconButton(
-                label:
-                    translations['fullWidthResizeButtonLabel'] ?? 'Full width',
-                tooltipMessage:
-                    translations['fullWidthResizeButtonLabel'] ?? 'Full width',
-                icon: Icon(
-                  FontAwesomeIcons.arrowsLeftRight,
-                  size: iconSize,
-                  color: ColorDefs.toolbarResizeButtonColor(context: context),
-                ),
-                onPressed: () => resizeToFullWidth(),
-                showLabel: false,
-              ),
-              ToolBarIconButton(
-                label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-                tooltipMessage:
-                    translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-                icon: Icon(
-                  FontAwesomeIcons.minimize,
-                  size: iconSize,
-                  color: ColorDefs.toolbarResizeButtonColor(context: context),
-                ),
-                onPressed: () =>
-                    windowManager.setSize(standardDesktopSize, animate: true),
-                showLabel: false,
-              ),
-              ToolBarIconButton(
-                label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
-                tooltipMessage:
-                    translations['maximizeResizeButtonLabel'] ?? 'Maximize',
-                icon: Icon(
-                  FontAwesomeIcons.maximize,
-                  size: iconSize,
-                  color: ColorDefs.toolbarResizeButtonColor(context: context),
-                ),
-                onPressed: () => windowManager.maximize(),
-                showLabel: false,
-              ),
-            ],
-            if (showResizeButtons == true) const ToolBarSpacer(),
-          ],
-        ),
-        additionalFullscreenTitleContent: additionalFullscreenTitleContent,
-        body: body,
-      );
+    name: title == Globals.mainWindowTitle ? null : title,
+    macosVersion: macosVersion,
+    backButtonPressed: backButtonPressed,
+    toolBar: ToolBar(
+      titleWidth: Globals.extendedTitleWidth,
+      title: title == Globals.mainWindowTitle
+          ? Text(title)
+          : MacosTappableTextBackButton(
+              text: title,
+              onPressed: backButtonPressed,
+            ),
+      leading: title == Globals.mainWindowTitle
+          ? null
+          : MacosTappableIconBackButton(onPressed: backButtonPressed),
+      actions: [
+        if (actions != null && actions!.isNotEmpty) ...[
+          const ToolBarSpacer(),
+          ...actions!,
+        ],
+        if (!isFullscreen && showResizeButtons == true) ...[
+          const ToolBarSpacer(),
+          ToolBarIconButton(
+            label: translations['fullWidthResizeButtonLabel'] ?? 'Full width',
+            tooltipMessage:
+                translations['fullWidthResizeButtonLabel'] ?? 'Full width',
+            icon: FaIcon(
+              FontAwesomeIcons.arrowsLeftRight,
+              size: iconSize,
+              color: ColorDefs.toolbarResizeButtonColor(context: context),
+            ),
+            onPressed: () => resizeToFullWidth(),
+            showLabel: false,
+          ),
+          ToolBarIconButton(
+            label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+            tooltipMessage:
+                translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+            icon: FaIcon(
+              FontAwesomeIcons.minimize,
+              size: iconSize,
+              color: ColorDefs.toolbarResizeButtonColor(context: context),
+            ),
+            onPressed: () =>
+                windowManager.setSize(standardDesktopSize, animate: true),
+            showLabel: false,
+          ),
+          ToolBarIconButton(
+            label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
+            tooltipMessage:
+                translations['maximizeResizeButtonLabel'] ?? 'Maximize',
+            icon: FaIcon(
+              FontAwesomeIcons.maximize,
+              size: iconSize,
+              color: ColorDefs.toolbarResizeButtonColor(context: context),
+            ),
+            onPressed: () => windowManager.maximize(),
+            showLabel: false,
+          ),
+        ],
+        if (showResizeButtons == true) const ToolBarSpacer(),
+      ],
+    ),
+    additionalFullscreenTitleContent: additionalFullscreenTitleContent,
+    body: body,
+  );
 }

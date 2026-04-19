@@ -79,17 +79,16 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   final Duration opacityDuration = const Duration(milliseconds: 200);
 
   BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
-        borderRadius: Globals.borderRadius(),
-        color:
-            Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
-        // color: Color.fromARGB(160, 0, 0, 0),
-      );
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
+    // color: Color.fromARGB(160, 0, 0, 0),
+  );
 
   BoxDecoration areaDecorationFilledDarkStyle() => BoxDecoration(
-        borderRadius: Globals.borderRadius(),
-        color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
-        // color: Color.fromARGB(160, 0, 0, 0),
-      );
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
+    // color: Color.fromARGB(160, 0, 0, 0),
+  );
 
   Map<String, dynamic> info = {};
   Map<String, dynamic> webPlayoutsRaw = {};
@@ -148,8 +147,9 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
     asynInitDesktopDevice();
 
-    settingsBlocSubscription =
-        settingsBloc.stream.listen((SettingsState settingsState) {
+    settingsBlocSubscription = settingsBloc.stream.listen((
+      SettingsState settingsState,
+    ) {
       if (settingsState is SettingsStateLoaded) {
         if (settingsState.miniPlayerAlwaysOnTop != miniPlayerAlwaysOnTop ||
             settingsState.miniPlayerPreventCloseApp !=
@@ -273,13 +273,14 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     });
   }
 
-  initSubscription() {
+  void initSubscription() {
     mainBlocSubscription = mainBloc.stream.listen((MainState mainState) {
       if (mainState is MainStateLoaded) {
         coverList = mainBloc.getCoversModel(showWebCoverNotRunning: false);
         CoverModel? oldCoverModel = coverModel;
-        coverModel = coverList
-            .firstWhereOrNull((CoverModel el) => el.controlId == controlId);
+        coverModel = coverList.firstWhereOrNull(
+          (CoverModel el) => el.controlId == controlId,
+        );
 
         if (statusInProgress == coverModel?.status ||
             (oldCoverModel == null && coverModel != null) ||
@@ -403,109 +404,120 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     required BuildContext context,
     required bool portraitMode,
     required Map<String, dynamic>? selectedZone,
-  }) =>
-      SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: LayoutBuilder(builder: (context, constraints) {
-          double maxSize = max(constraints.maxWidth, constraints.maxHeight);
+  }) => SizedBox(
+    width: double.infinity,
+    height: double.infinity,
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        double maxSize = max(constraints.maxWidth, constraints.maxHeight);
 
-          return Center(
-            child: SimpleGestureDetector(
-              swipeConfig: SimpleSwipeConfig(
-                  horizontalThreshold: 50,
-                  swipeDetectionBehavior:
-                      SwipeDetectionBehavior.continuousDistinct),
-              onHorizontalSwipe: (SwipeDirection direction) {
-                if (direction == SwipeDirection.right) {
-                  mainBloc.zoneControl(
-                      ip: ip, controlId: controlId!, cmd: 'previous');
-                }
-                if (direction == SwipeDirection.left) {
-                  mainBloc.zoneControl(
-                      ip: ip, controlId: controlId!, cmd: 'next');
-                }
-              },
-              child: Stack(
-                children: [
-                  AnimatedSwitcher(
-                    duration: Globals.coverSwitchDefaultFadeAnimationDuration,
-                    child: mainRepository.coverExistInZone(zone: selectedZone)
-                        ? Image.network(
-                            selectedZone!['cover'],
-                            key: ValueKey(
-                                'BigCover-$selectedZone-$idle-${selectedZone['cover']}'),
+        return Center(
+          child: SimpleGestureDetector(
+            swipeConfig: SimpleSwipeConfig(
+              horizontalThreshold: 50,
+              swipeDetectionBehavior: SwipeDetectionBehavior.continuousDistinct,
+            ),
+            onHorizontalSwipe: (SwipeDirection direction) {
+              if (direction == SwipeDirection.right) {
+                mainBloc.zoneControl(
+                  ip: ip,
+                  controlId: controlId!,
+                  cmd: 'previous',
+                );
+              }
+              if (direction == SwipeDirection.left) {
+                mainBloc.zoneControl(
+                  ip: ip,
+                  controlId: controlId!,
+                  cmd: 'next',
+                );
+              }
+            },
+            child: Stack(
+              children: [
+                AnimatedSwitcher(
+                  duration: Globals.coverSwitchDefaultFadeAnimationDuration,
+                  child: mainRepository.coverExistInZone(zone: selectedZone)
+                      ? Image.network(
+                          selectedZone!['cover'],
+                          key: ValueKey(
+                            'BigCover-$selectedZone-$idle-${selectedZone['cover']}',
+                          ),
+                          fit: BoxFit.contain,
+                          alignment: portraitMode
+                              ? Alignment.topCenter
+                              : Alignment.centerLeft,
+                          colorBlendMode: idle
+                              ? ColorDefs.idleZoneColorBlendMode
+                              : null,
+                          color: idle ? ColorDefs.idleZoneColor : null,
+                          width: constraints.maxWidth <= constraints.maxHeight
+                              ? double.infinity
+                              : null,
+                          height: constraints.maxWidth >= constraints.maxHeight
+                              ? double.infinity
+                              : null,
+                          errorBuilder: (context, error, stackTrace) {
+                            return SizedBox(
+                              width: maxSize,
+                              height: maxSize,
+                              child: SvgPicture.asset(
+                                Globals.placeholderSvgAssetPath(),
+                                allowDrawingOutsideViewBox: false,
+                                fit: BoxFit.contain,
+                                alignment: portraitMode
+                                    ? Alignment.center
+                                    : Alignment.centerLeft,
+                                colorFilter: idle
+                                    ? ColorDefs.idleZoneColorFilter
+                                    : null,
+                              ),
+                            );
+                          },
+                        )
+                      : SizedBox(
+                          width: maxSize,
+                          height: maxSize,
+                          child: SvgPicture.asset(
+                            Globals.placeholderSvgAssetPath(),
+                            allowDrawingOutsideViewBox: false,
                             fit: BoxFit.contain,
                             alignment: portraitMode
-                                ? Alignment.topCenter
+                                ? Alignment.center
                                 : Alignment.centerLeft,
-                            colorBlendMode:
-                                idle ? ColorDefs.idleZoneColorBlendMode : null,
-                            color: idle ? ColorDefs.idleZoneColor : null,
-                            width: constraints.maxWidth <= constraints.maxHeight
-                                ? double.infinity
+                            colorFilter: idle
+                                ? ColorDefs.idleZoneColorFilter
                                 : null,
-                            height:
-                                constraints.maxWidth >= constraints.maxHeight
-                                    ? double.infinity
-                                    : null,
-                            errorBuilder: (context, error, stackTrace) {
-                              return SizedBox(
-                                width: maxSize,
-                                height: maxSize,
-                                child: SvgPicture.asset(
-                                  Globals.placeholderSvgAssetPath(),
-                                  allowDrawingOutsideViewBox: false,
-                                  fit: BoxFit.contain,
-                                  alignment: portraitMode
-                                      ? Alignment.center
-                                      : Alignment.centerLeft,
-                                  colorFilter: idle
-                                      ? ColorDefs.idleZoneColorFilter
-                                      : null,
-                                ),
-                              );
-                            },
-                          )
-                        : SizedBox(
-                            width: maxSize,
-                            height: maxSize,
-                            child: SvgPicture.asset(
-                              Globals.placeholderSvgAssetPath(),
-                              allowDrawingOutsideViewBox: false,
-                              fit: BoxFit.contain,
-                              alignment: portraitMode
-                                  ? Alignment.center
-                                  : Alignment.centerLeft,
-                              colorFilter:
-                                  idle ? ColorDefs.idleZoneColorFilter : null,
-                            ),
                           ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0, //give the values according to your requirement
-                    child: Opacity(
-                      opacity: ColorDefs.zoneCornerLabelOpacity,
-                      child: ZoneCornerLabel(
-                        zoneName: '-${selectedZone?['zone'] ?? name}',
-                        coverWidth: Globals.zoneCornerFullSize,
-                      ),
+                        ),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0, //give the values according to your requirement
+                  child: Opacity(
+                    opacity: ColorDefs.zoneCornerLabelOpacity,
+                    child: ZoneCornerLabel(
+                      zoneName: '-${selectedZone?['zone'] ?? name}',
+                      coverWidth: Globals.zoneCornerFullSize,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        }),
-      );
+          ),
+        );
+      },
+    ),
+  );
 
   void setButtonStatusSwitchInProgressTimer() {
     statusInProgressTimer = Timer.periodic(
-        Duration(seconds: buttonStatusSwitchTimeoutInSeconds), (Timer timer) {
-      statusInProgress = '';
-      statusInProgressTimer!.cancel();
-    });
+      Duration(seconds: buttonStatusSwitchTimeoutInSeconds),
+      (Timer timer) {
+        statusInProgress = '';
+        statusInProgressTimer!.cancel();
+      },
+    );
   }
 
   bool get statusUpdateInProgress =>
@@ -537,28 +549,28 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   Widget body({
     required BuildContext context,
     required MainBloc mainBloc,
-  }) =>
-      NotificationListener<SizeChangedLayoutNotification>(
-        onNotification: (notification) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            setState(() {});
-          });
-          //build(context);
-          return false;
-        },
-        child: SizeChangedLayoutNotifier(
-          child: SizedBox(
-            child: Stack(
-              children: [
-                !loaded
-                    ? SizedBox()
-                    : RoonmatrixAnimatedGradient(
-                        disabled: !withAnimatedBackground,
-                        child: OrientationBuilder(builder:
-                            (BuildContext context, Orientation orientation) {
-                          windowWidth = MediaQuery.of(context).size.width;
+  }) => NotificationListener<SizeChangedLayoutNotification>(
+    onNotification: (notification) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {});
+      });
+      //build(context);
+      return false;
+    },
+    child: SizeChangedLayoutNotifier(
+      child: SizedBox(
+        child: Stack(
+          children: [
+            !loaded
+                ? SizedBox()
+                : RoonmatrixAnimatedGradient(
+                    disabled: !withAnimatedBackground,
+                    child: OrientationBuilder(
+                      builder: (BuildContext context, Orientation orientation) {
+                        windowWidth = MediaQuery.of(context).size.width;
 
-                          return LayoutBuilder(builder: (context, constraints) {
+                        return LayoutBuilder(
+                          builder: (context, constraints) {
                             final double coverSize = constraints.maxWidth;
                             final double minControlsHeight = 86;
                             double coverHeight = min(
@@ -568,7 +580,8 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
                             coverWidth = coverHeight;
 
-                            final double controlsHeight = max(
+                            final double controlsHeight =
+                                max(
                                   minControlsHeight,
                                   constraints.maxHeight - coverSize,
                                 ) -
@@ -576,7 +589,8 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
                             if (kDebugMode) {
                               debugPrint(
-                                  'portraitMode cover + controlArea => maxWidth: ${constraints.maxWidth}, coverWidth: $coverWidth, controlsHeight: $controlsHeight');
+                                'portraitMode cover + controlArea => maxWidth: ${constraints.maxWidth}, coverWidth: $coverWidth, controlsHeight: $controlsHeight',
+                              );
                             }
 
                             return Stack(
@@ -615,7 +629,9 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                           ),
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 4.0, vertical: 2.0),
+                                              horizontal: 4.0,
+                                              vertical: 2.0,
+                                            ),
                                             child: SizedBox(
                                               child: CoverTextOverlayExtended(
                                                 coverModel: coverModel!,
@@ -639,11 +655,10 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                     isPlaying: coverModel!.status == 'playing',
                                     additionalVisibility:
                                         (statusUpdateInProgress &&
-                                                (statusInProgress ==
-                                                        'playing' ||
-                                                    statusInProgress ==
-                                                        'paused')) ||
-                                            coverModel!.status != 'playing',
+                                            (statusInProgress == 'playing' ||
+                                                statusInProgress ==
+                                                    'paused')) ||
+                                        coverModel!.status != 'playing',
                                     icon: coverModel!.status == 'playing'
                                         ? Icon(
                                             Icons.pause,
@@ -658,20 +673,18 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                                 : null,
                                           ),
                                     message: coverModel!.status == 'playing'
-                                        ? translations[
-                                                'controlButtonPauseText'] ??
-                                            'pause'
-                                        : translations[
-                                                'controlButtonPlayText'] ??
-                                            'play',
+                                        ? translations['controlButtonPauseText'] ??
+                                              'pause'
+                                        : translations['controlButtonPlayText'] ??
+                                              'play',
                                     onPressed: () {
                                       if (!statusUpdateInProgress) {
                                         setButtonStatusSwitchInProgressTimer();
                                         setState(() {
                                           statusInProgress =
                                               coverModel!.status == 'paused'
-                                                  ? 'playing'
-                                                  : 'paused';
+                                              ? 'playing'
+                                              : 'paused';
                                         });
                                         mainBloc.zoneControl(
                                           ip: mainBloc.state.activeDeviceIp!,
@@ -687,28 +700,34 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                     !coverModel!.isRadio &&
                                     statusUpdateInProgress)
                                   Padding(
-                                    padding: statusInProgress == 'previous' ||
+                                    padding:
+                                        statusInProgress == 'previous' ||
                                             statusInProgress == 'next'
                                         ? statusInProgress == 'previous'
-                                            ? const EdgeInsets.only(left: 4.0)
-                                            : const EdgeInsets.only(right: 4.0)
+                                              ? const EdgeInsets.only(left: 4.0)
+                                              : const EdgeInsets.only(
+                                                  right: 4.0,
+                                                )
                                         : EdgeInsets.zero,
                                     child: Align(
                                       alignment: getProgressIndicatorAlignment(
                                         statusInProgress,
                                       ),
                                       child: SizedBox(
-                                        width: 16 +
+                                        width:
+                                            16 +
                                             (coverWidth ?? 0) *
                                                 Globals
                                                     .overlyPlayoutButtonSizeFactor,
-                                        height: 16 +
+                                        height:
+                                            16 +
                                             (coverWidth ?? 0) *
                                                 Globals
                                                     .overlyPlayoutButtonSizeFactor,
                                         child: CircularProgressIndicator(
                                           color: ColorDefs.blueIconColor(
-                                              context: context),
+                                            context: context,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -719,37 +738,38 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                   Padding(
                                     padding: const EdgeInsets.only(left: 4.0),
                                     child: CoverOverlayButton(
-                                        alignment: Alignment.centerLeft,
-                                        coverWidth: coverWidth ?? 0,
-                                        isPlaying:
-                                            coverModel!.status == 'playing',
-                                        additionalVisibility:
-                                            statusUpdateInProgress &&
-                                                statusInProgress == 'previous',
-                                        icon: Icon(
-                                          Icons.skip_previous,
-                                          color: statusUpdateInProgress
-                                              ? Colors.grey.shade700
-                                              : null,
-                                        ),
-                                        message: translations[
-                                                'controlButtonPreviousText'] ??
-                                            'previous track',
-                                        onPressed: () {
-                                          if (!statusUpdateInProgress &&
-                                              coverModel!.status == 'playing') {
-                                            setButtonStatusSwitchInProgressTimer();
-                                            setState(() {
-                                              statusInProgress = 'previous';
-                                            });
-                                            mainBloc.zoneControl(
-                                              ip: ip,
-                                              controlId: coverModel!.controlId,
-                                              cmd: 'previous',
-                                              enable: true,
-                                            );
-                                          }
-                                        }),
+                                      alignment: Alignment.centerLeft,
+                                      coverWidth: coverWidth ?? 0,
+                                      isPlaying:
+                                          coverModel!.status == 'playing',
+                                      additionalVisibility:
+                                          statusUpdateInProgress &&
+                                          statusInProgress == 'previous',
+                                      icon: Icon(
+                                        Icons.skip_previous,
+                                        color: statusUpdateInProgress
+                                            ? Colors.grey.shade700
+                                            : null,
+                                      ),
+                                      message:
+                                          translations['controlButtonPreviousText'] ??
+                                          'previous track',
+                                      onPressed: () {
+                                        if (!statusUpdateInProgress &&
+                                            coverModel!.status == 'playing') {
+                                          setButtonStatusSwitchInProgressTimer();
+                                          setState(() {
+                                            statusInProgress = 'previous';
+                                          });
+                                          mainBloc.zoneControl(
+                                            ip: ip,
+                                            controlId: coverModel!.controlId,
+                                            cmd: 'previous',
+                                            enable: true,
+                                          );
+                                        }
+                                      },
+                                    ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(right: 4.0),
@@ -760,15 +780,15 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                           coverModel!.status == 'playing',
                                       additionalVisibility:
                                           statusUpdateInProgress &&
-                                              statusInProgress == 'next',
+                                          statusInProgress == 'next',
                                       icon: Icon(
                                         Icons.skip_next,
                                         color: statusUpdateInProgress
                                             ? Colors.grey.shade700
                                             : null,
                                       ),
-                                      message: translations[
-                                              'controlButtonNextText'] ??
+                                      message:
+                                          translations['controlButtonNextText'] ??
                                           'next track',
                                       onPressed: () {
                                         if (!statusUpdateInProgress &&
@@ -790,14 +810,16 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                 ],
                               ],
                             );
-                          });
-                        }),
-                      )
-              ],
-            ),
-          ),
+                          },
+                        );
+                      },
+                    ),
+                  ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -811,9 +833,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
             Navigator.pop(context);
           },
         ),
-        middle: Text(
-          title,
-        ),
+        middle: Text(title),
       );
       appBarHeight = appBarWithActions.preferredSize.height;
     } else {
@@ -845,7 +865,8 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
             },
             resizeToFullWidth: () {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                  minDesktopSize: minDesktopSize);
+                minDesktopSize: minDesktopSize,
+              );
             },
           )
         : PageWithToolbarFlutterStyle(
@@ -864,7 +885,8 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
             },
             resizeToFullWidth: () {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                  minDesktopSize: minDesktopSize);
+                minDesktopSize: minDesktopSize,
+              );
             },
           );
   }

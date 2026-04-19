@@ -33,11 +33,12 @@ class _ZoneCornerLabelState extends State<ZoneCornerLabel> {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
   }
 
-  mask({required Widget child}) => asRoundVariant
+  Widget mask({required Widget child}) => asRoundVariant
       ? CircleAvatar(
           radius: 20,
           backgroundColor: mainRepository.getZoneColor(zoneName),
-          child: child)
+          child: child,
+        )
       : SizedBox(child: child);
 
   @override
@@ -55,31 +56,38 @@ class _ZoneCornerLabelState extends State<ZoneCornerLabel> {
                     )
                   : mainRepository.statusCorner(
                       size: coverWidth,
-                      color: mainRepository.getZoneColor(zoneName)),
+                      color: mainRepository.getZoneColor(zoneName),
+                    ),
             ),
           ),
           Positioned(
             right: asRoundVariant
                 ? null
                 : mainRepository
-                    .getZoneIconPositionBySize(
-                        size: coverWidth, zoneName: zoneName)
-                    .dx,
+                      .getZoneIconPositionBySize(
+                        size: coverWidth,
+                        zoneName: zoneName,
+                      )
+                      .dx,
             top: asRoundVariant
                 ? null
                 : mainRepository
-                    .getZoneIconPositionBySize(
-                        size: coverWidth, zoneName: zoneName)
-                    .dy,
+                      .getZoneIconPositionBySize(
+                        size: coverWidth,
+                        zoneName: zoneName,
+                      )
+                      .dy,
             child: Center(
               child: Image(
-                image: AssetImage(
-                  Globals.getZoneIcon(zoneName: zoneName),
-                ),
+                image: AssetImage(Globals.getZoneIcon(zoneName: zoneName)),
                 width: mainRepository.getZoneIconDynamicSize(
-                    size: coverWidth, zoneName: zoneName),
+                  size: coverWidth,
+                  zoneName: zoneName,
+                ),
                 height: mainRepository.getZoneIconDynamicSize(
-                    size: coverWidth, zoneName: zoneName),
+                  size: coverWidth,
+                  zoneName: zoneName,
+                ),
               ),
             ),
           ),

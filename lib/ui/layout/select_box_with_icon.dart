@@ -68,11 +68,19 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
     switch (aligned) {
       case "left":
         margin = const EdgeInsets.only(
-            left: 16.0, right: 8.0, top: 16.0, bottom: 5.0);
+          left: 16.0,
+          right: 8.0,
+          top: 16.0,
+          bottom: 5.0,
+        );
         break;
       case "right":
         margin = const EdgeInsets.only(
-            left: 8.0, right: 16.0, top: 16.0, bottom: 5.0);
+          left: 8.0,
+          right: 16.0,
+          top: 16.0,
+          bottom: 5.0,
+        );
         break;
       case "leftSmallBottom":
         margin = const EdgeInsets.only(left: 16.0, right: 8.0, bottom: 5.0);
@@ -90,15 +98,17 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
         margin = const EdgeInsets.all(0);
         break;
       default:
-        margin =
-            const EdgeInsets.only(left: 8.0, right: 8.0, top: 2.0, bottom: 0.0);
+        margin = const EdgeInsets.only(
+          left: 8.0,
+          right: 8.0,
+          top: 2.0,
+          bottom: 0.0,
+        );
     }
     super.initState();
   }
 
-  Widget dropdownReadonlyElement({
-    required BuildContext context,
-  }) {
+  Widget dropdownReadonlyElement({required BuildContext context}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -129,7 +139,7 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                     offset: Offset(0.1, 0.5),
                     blurRadius: 0.1,
                     blurStyle: BlurStyle.normal,
-                  )
+                  ),
                 ],
                 color: ColorDefs.elementBackgroundColor(context: context),
                 borderRadius: Globals.borderRadius(),
@@ -153,10 +163,11 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                     ),
                     Text(
                       selected != null
-                          ? options!.values.toList()[
-                              options!.keys.toList().indexOf(selected!)]['name']
+                          ? options!.values.toList()[options!.keys
+                                .toList()
+                                .indexOf(selected!)]['name']
                           : translations['zonePickerSelectionEmpty'] ??
-                              'Please Select',
+                                'Please Select',
                     ),
                   ],
                 ),
@@ -168,8 +179,11 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                         selected: selected,
                         showValue: true,
                         isObject: true,
-                        onApproved: () => onChanged(options!.keys
-                            .toList()[selectedItem >= 0 ? selectedItem : 0]),
+                        onApproved: () => onChanged(
+                          options!.keys.toList()[selectedItem >= 0
+                              ? selectedItem
+                              : 0],
+                        ),
                         onSelectedItemChanged: (int index) {
                           selectedItem = index;
                         },
@@ -202,9 +216,10 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                           options![key]['name'],
                           overflow: TextOverflow.fade,
                           style: TextStyle(
-                              color: ColorDefs.textColor(context: context),
-                              fontSize: fontSize,
-                              decorationStyle: TextDecorationStyle.double),
+                            color: ColorDefs.textColor(context: context),
+                            fontSize: fontSize,
+                            decorationStyle: TextDecorationStyle.double,
+                          ),
                         ),
                       ],
                     ),
@@ -212,31 +227,33 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                   .toList(),
               items: (options != null && options!.isNotEmpty)
                   ? options!.keys
-                      .map<MacosPopupMenuItem<String>>(
-                        (String key) => MacosPopupMenuItem<String>(
-                          value: key,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
+                        .map<MacosPopupMenuItem<String>>(
+                          (String key) => MacosPopupMenuItem<String>(
+                            value: key,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
                                 vertical: optionsWithVerticalSpace == true
                                     ? 8.0
-                                    : 0.0),
-                            child: Text(
-                              options![key]['name'],
-                              overflow: TextOverflow.fade,
-                              style: TextStyle(
+                                    : 0.0,
+                              ),
+                              child: Text(
+                                options![key]['name'],
+                                overflow: TextOverflow.fade,
+                                style: TextStyle(
                                   color: ColorDefs.textColor(context: context),
                                   fontSize: fontSize,
-                                  decorationStyle: TextDecorationStyle.double),
+                                  decorationStyle: TextDecorationStyle.double,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                      .toList()
+                        )
+                        .toList()
                   : [],
             ),
           )
         : DropdownButtonFormField<String>(
-            value: selected,
+            initialValue: selected,
             decoration: InputDecoration(
               prefixIconConstraints: BoxConstraints(
                 minWidth: 16.0,
@@ -267,7 +284,9 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
             dropdownColor: ColorDefs.selectboxBackgroundColor(context: context),
             icon: Container(
               padding: EdgeInsets.only(
-                  bottom: 11.0, right: Platform.isAndroid ? 8 : 4),
+                bottom: 11.0,
+                right: Platform.isAndroid ? 8 : 4,
+              ),
               transform: Platform.isAndroid
                   ? Matrix4.translationValues(0, -2.0, 0.0)
                   : null,
@@ -302,10 +321,12 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: (TextStyle(
-                                color: ColorDefs.textColor(context: context),
-                                fontSize: fontSize,
-                                fontWeight: options![key]['fontWeight'] ??
-                                    FontWeight.normal)),
+                              color: ColorDefs.textColor(context: context),
+                              fontSize: fontSize,
+                              fontWeight:
+                                  options![key]['fontWeight'] ??
+                                  FontWeight.normal,
+                            )),
                           ),
                         ],
                       ),
@@ -316,33 +337,33 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
   }
 
   Widget dropdown({required bool expanded}) => Container(
-        height: Globals.inIosStyle()
-            ? 56.0
-            : Globals.selectBoxInMacStyle()
-                ? null
-                : 36.0,
-        margin: EdgeInsets.only(top: 4),
-        padding: Globals.inIosStyle() || (Globals.selectBoxInMacStyle())
-            ? null
-            : const EdgeInsets.only(left: 10),
-        decoration: Globals.inIosStyle() || (Globals.selectBoxInMacStyle())
-            ? null
-            : BoxDecoration(
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(0.1, 0.5),
-                    blurRadius: 0.1,
-                    blurStyle: BlurStyle.normal,
-                  )
-                ],
-                color: ColorDefs.elementBackgroundColor(context: context),
-                borderRadius: Globals.borderRadius(),
+    height: Globals.inIosStyle()
+        ? 56.0
+        : Globals.selectBoxInMacStyle()
+        ? null
+        : 36.0,
+    margin: EdgeInsets.only(top: 4),
+    padding: Globals.inIosStyle() || (Globals.selectBoxInMacStyle())
+        ? null
+        : const EdgeInsets.only(left: 10),
+    decoration: Globals.inIosStyle() || (Globals.selectBoxInMacStyle())
+        ? null
+        : BoxDecoration(
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.grey,
+                offset: Offset(0.1, 0.5),
+                blurRadius: 0.1,
+                blurStyle: BlurStyle.normal,
               ),
-        child: readOnly == true
-            ? dropdownReadonlyElement(context: context)
-            : dropdownElement(context: context, expanded: expanded),
-      );
+            ],
+            color: ColorDefs.elementBackgroundColor(context: context),
+            borderRadius: Globals.borderRadius(),
+          ),
+    child: readOnly == true
+        ? dropdownReadonlyElement(context: context)
+        : dropdownElement(context: context, expanded: expanded),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -378,9 +399,7 @@ class SelectBoxWithIconState extends State<SelectBoxWithIcon> {
                         fontSize: fontSize,
                       ),
                     ),
-                    const SizedBox(
-                      height: 4.0,
-                    ),
+                    const SizedBox(height: 4.0),
                   ],
                   dropdown(expanded: true),
                 ],

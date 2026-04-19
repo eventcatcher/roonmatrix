@@ -61,7 +61,8 @@ class PageWithToolbarFlutterStyle extends StatefulWidget {
 }
 
 class _PageWithToolbarFlutterStyleState
-    extends State<PageWithToolbarFlutterStyle> with WindowListener {
+    extends State<PageWithToolbarFlutterStyle>
+    with WindowListener {
   GlobalKey<ScaffoldState> get scaffoldKey => widget.scaffoldKey;
   Map<String, dynamic> get translations => widget.translations;
   String get title => widget.title;
@@ -150,117 +151,119 @@ class _PageWithToolbarFlutterStyleState
   }
 
   PreferredSizeWidget getAppBar() => AppBar(
-        title: Text(title),
-        leading: title == Globals.mainWindowTitle
-            ? null
-            : BackButton(
-                onPressed: () {
-                  if (backButtonPressed != null) {
-                    backButtonPressed!();
-                  }
-                  Navigator.pop(context);
-                },
+    title: Text(title),
+    leading: title == Globals.mainWindowTitle
+        ? null
+        : BackButton(
+            onPressed: () {
+              if (backButtonPressed != null) {
+                backButtonPressed!();
+              }
+              Navigator.pop(context);
+            },
+          ),
+    actions: [
+      Row(
+        children: [
+          if (actions != null) ...actions!,
+          if (Globals.isDesktopDevice() &&
+              !isFullscreen &&
+              showResizeButtons == true) ...[
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Tooltip(
+                message:
+                    translations['fullWidthResizeButtonLabel'] ?? 'Full width',
+                waitDuration: Globals.tooltipWaitDuration,
+                child: IconButton(
+                  iconSize: 16.0,
+                  enableFeedback: true,
+                  padding: EdgeInsets.zero,
+                  onPressed: () => resizeToFullWidth(),
+                  icon: FaIcon(
+                    FontAwesomeIcons.arrowsLeftRight,
+                    color: ColorDefs.toolbarResizeButtonColor(context: context),
+                  ),
+                ),
               ),
-        actions: [
-          Row(
-            children: [
-              if (actions != null) ...actions!,
-              if (Globals.isDesktopDevice() &&
-                  !isFullscreen &&
-                  showResizeButtons == true) ...[
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0),
-                  child: Tooltip(
-                    message: translations['fullWidthResizeButtonLabel'] ??
-                        'Full width',
-                    waitDuration: Globals.tooltipWaitDuration,
-                    child: IconButton(
-                      iconSize: 16.0,
-                      enableFeedback: true,
-                      padding: EdgeInsets.zero,
-                      onPressed: () => resizeToFullWidth(),
-                      icon: Icon(
-                        FontAwesomeIcons.arrowsLeftRight,
-                        color: ColorDefs.toolbarResizeButtonColor(
-                            context: context),
+            ),
+            if (showResizeButtons == true)
+              Padding(
+                padding: EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
+                child: Tooltip(
+                  message:
+                      translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+                  waitDuration: Globals.tooltipWaitDuration,
+                  child: IconButton(
+                    iconSize: 16.0,
+                    enableFeedback: true,
+                    padding: EdgeInsets.zero,
+                    onPressed: () => windowManager.setSize(
+                      standardDesktopSize,
+                      animate: true,
+                    ),
+                    icon: FaIcon(
+                      FontAwesomeIcons.minimize,
+                      color: ColorDefs.toolbarResizeButtonColor(
+                        context: context,
                       ),
                     ),
                   ),
                 ),
-                if (showResizeButtons == true)
-                  Padding(
-                    padding:
-                        EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
-                    child: Tooltip(
-                      message: translations['minimizeResizeButtonLabel'] ??
-                          'Minimize',
-                      waitDuration: Globals.tooltipWaitDuration,
-                      child: IconButton(
-                        iconSize: 16.0,
-                        enableFeedback: true,
-                        padding: EdgeInsets.zero,
-                        onPressed: () => windowManager
-                            .setSize(standardDesktopSize, animate: true),
-                        icon: Icon(
-                          FontAwesomeIcons.minimize,
-                          color: ColorDefs.toolbarResizeButtonColor(
-                              context: context),
-                        ),
+              ),
+            if (Platform.isMacOS && showResizeButtons == true)
+              Padding(
+                padding: const EdgeInsets.only(right: 4.0),
+                child: Tooltip(
+                  message:
+                      translations['maximizeResizeButtonLabel'] ?? 'Maximize',
+                  waitDuration: Globals.tooltipWaitDuration,
+                  child: IconButton(
+                    iconSize: 16.0,
+                    enableFeedback: true,
+                    padding: EdgeInsets.zero,
+                    onPressed: () => windowManager.maximize(),
+                    icon: FaIcon(
+                      FontAwesomeIcons.maximize,
+                      color: ColorDefs.toolbarResizeButtonColor(
+                        context: context,
                       ),
                     ),
                   ),
-                if (Platform.isMacOS && showResizeButtons == true)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 4.0),
-                    child: Tooltip(
-                      message: translations['maximizeResizeButtonLabel'] ??
-                          'Maximize',
-                      waitDuration: Globals.tooltipWaitDuration,
-                      child: IconButton(
-                        iconSize: 16.0,
-                        enableFeedback: true,
-                        padding: EdgeInsets.zero,
-                        onPressed: () => windowManager.maximize(),
-                        icon: Icon(
-                          FontAwesomeIcons.maximize,
-                          color: ColorDefs.toolbarResizeButtonColor(
-                              context: context),
-                        ),
-                      ),
-                    ),
-                  ),
-              ]
-            ],
-          ),
-          if (Globals.isMobileDevice() && sliderUpdateValue != null)
-            Container(
-              width: showExpandableSpeedSlider ? 188.0 : 150.0,
-              padding: showExpandableSpeedSlider
-                  ? EdgeInsets.only(top: 5.0, right: 8.0)
-                  : null,
-              child: showSlider
-                  ? showExpandableSpeedSlider
-                      ? SliderExpandable(
-                          width: 236.0,
+                ),
+              ),
+          ],
+        ],
+      ),
+      if (Globals.isMobileDevice() && sliderUpdateValue != null)
+        Container(
+          width: showExpandableSpeedSlider ? 188.0 : 150.0,
+          padding: showExpandableSpeedSlider
+              ? EdgeInsets.only(top: 5.0, right: 8.0)
+              : null,
+          child: showSlider
+              ? showExpandableSpeedSlider
+                    ? SliderExpandable(
+                        width: 236.0,
+                        value: scrollSpeedDevice,
+                        updateValue: (double value) =>
+                            sliderUpdateValue!(speed: value),
+                      )
+                    : Center(
+                        child: SliderMobile(
+                          min: Globals.sliderMinValue,
+                          max: Globals.sliderMaxValue,
+                          defaultValue: sliderDefaultValue,
                           value: scrollSpeedDevice,
                           updateValue: (double value) =>
                               sliderUpdateValue!(speed: value),
-                        )
-                      : Center(
-                          child: SliderMobile(
-                            min: Globals.sliderMinValue,
-                            max: Globals.sliderMaxValue,
-                            defaultValue: sliderDefaultValue,
-                            value: scrollSpeedDevice,
-                            updateValue: (double value) =>
-                                sliderUpdateValue!(speed: value),
-                          ),
-                        )
-                  : SizedBox(),
-            ),
-        ],
-        bottom: withTabController == true && tabBar != null ? tabBar : null,
-      );
+                        ),
+                      )
+              : SizedBox(),
+        ),
+    ],
+    bottom: withTabController == true && tabBar != null ? tabBar : null,
+  );
 
   @override
   Widget build(BuildContext context) => withTabController

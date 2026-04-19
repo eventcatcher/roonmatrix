@@ -12,6 +12,7 @@ import 'package:roonmatrix/ui/layout/cover_widget.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverRowAnimation extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
   final FlutterView viewData;
   final MediaQueryData mediaQueryData;
   final Orientation orientation;
@@ -34,6 +35,7 @@ class CoverRowAnimation extends StatefulWidget {
 
   const CoverRowAnimation({
     super.key,
+    required this.navigatorKey,
     required this.viewData,
     required this.mediaQueryData,
     required this.orientation,
@@ -61,6 +63,7 @@ class CoverRowAnimation extends StatefulWidget {
 
 class CoverRowAnimationState extends State<CoverRowAnimation>
     with TickerProviderStateMixin {
+  GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   FlutterView get viewData => widget.viewData;
   MediaQueryData get mediaQueryData => widget.mediaQueryData;
   Orientation get orientation => widget.orientation;
@@ -119,19 +122,19 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   }
 
   void refreshCovers() {
-    List<CoverModel> coverListNew =
-        mainBloc.getCoversModel(showWebCoverNotRunning: showWebCoverNotRunning);
+    List<CoverModel> coverListNew = mainBloc.getCoversModel(
+      showWebCoverNotRunning: showWebCoverNotRunning,
+    );
     if (kDebugMode) {
       debugPrint(
-          'CoverRowAnimation/refreshCovers => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}');
+        'CoverRowAnimation/refreshCovers => coverListNew (${coverListNew.length}): ${coverListNew.map((el) => el.artist).join(',')}',
+      );
     }
 
     updateInCoverlist(newList: coverListNew);
   }
 
-  void updateInCoverlist({
-    required List<CoverModel> newList,
-  }) {
+  void updateInCoverlist({required List<CoverModel> newList}) {
     double coverSize = mainRepository.getCoverSize(
       viewData: viewData,
       mediaQueryData: mediaQueryData,
@@ -144,8 +147,9 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     List<int> indexesToRemove = [];
     List<int> indexesToAdd = [];
     newList.asMap().forEach((index, item) {
-      int coverlistIndex =
-          coverList.indexWhere((CoverModel el) => el.zoneName == item.zoneName);
+      int coverlistIndex = coverList.indexWhere(
+        (CoverModel el) => el.zoneName == item.zoneName,
+      );
       if (coverlistIndex == -1) {
         indexesToAdd.add(index); // add new item
       } else {
@@ -164,8 +168,9 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
     }
 
     coverList.asMap().forEach((index, item) {
-      int newlistIndex =
-          newList.indexWhere((CoverModel el) => el.zoneName == item.zoneName);
+      int newlistIndex = newList.indexWhere(
+        (CoverModel el) => el.zoneName == item.zoneName,
+      );
       if (newlistIndex == -1) {
         indexesToRemove.add(index); // remove old item (not found in new list)
       }
@@ -184,6 +189,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
             transitionBuilder: Globals.coverSwitchAnimatedPreset,
             child: CoverWidget(
               key: ValueKey('CoverWidget-${item.hash}'),
+              navigatorKey: navigatorKey,
               translations: translations,
               devices: devices,
               activeDeviceIp: activeDeviceIp,
@@ -212,6 +218,7 @@ class CoverRowAnimationState extends State<CoverRowAnimation>
   @override
   Widget build(BuildContext context) {
     return CoverRow(
+      navigatorKey: navigatorKey,
       coverListKey: coverListKey,
       mediaQueryData: mediaQueryData,
       translations: translations,

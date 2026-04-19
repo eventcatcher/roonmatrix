@@ -22,22 +22,16 @@ class SwitchElement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (Globals.inIosStyle()) {
-      return CupertinoSwitch(
-        value: value,
-        onChanged: onChanged,
-      );
+      return CupertinoSwitch(value: value, onChanged: onChanged);
     }
 
     return Globals.inMacosStyle()
-        ? MacosSwitch(
-            value: value,
-            onChanged: onChanged,
-          )
+        ? MacosSwitch(value: value, onChanged: onChanged)
         : Switch(
             value: value,
             materialTapTargetSize: materialTapTargetSize,
             activeTrackColor: activeTrackColor,
-            activeColor: activeColor,
+            activeThumbColor: activeColor,
             onChanged: onChanged,
           );
   }

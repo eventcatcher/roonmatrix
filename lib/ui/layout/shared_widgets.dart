@@ -19,97 +19,89 @@ class SharedWidgets {
   static List<Widget> labelWidget({
     required String? label,
     Color? labelColor,
-  }) =>
-      label != null
-          ? [
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: Text(
-                  label,
-                  overflow: TextOverflow
-                      .ellipsis, // fade is maybe the better alternative, because you see more of the text
-                  maxLines: 1,
-                  softWrap: false,
-                  style: TextStyle(
-                    color: labelColor,
-                    fontSize: 12.0,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 4.0,
-              ),
-            ]
-          : [];
+  }) => label != null
+      ? [
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text(
+              label,
+              overflow: TextOverflow
+                  .ellipsis, // fade is maybe the better alternative, because you see more of the text
+              maxLines: 1,
+              softWrap: false,
+              style: TextStyle(color: labelColor, fontSize: 12.0),
+            ),
+          ),
+          const SizedBox(height: 4.0),
+        ]
+      : [];
 
   static AlertElement addItemWithNameDialog({
     required BuildContext context,
     required TextEditingController textController,
     required Map<String, dynamic> translations,
     String? title,
-  }) =>
-      AlertElement(
-        title: title ?? translations['dialogAddItemTitle'] ?? 'Add a new item',
-        content: TextFieldElement(
-          controller: textController,
-          autofocus: true,
-          placeholder:
-              translations['dialogAddItemHintText'] ?? "Enter here the name",
-        ),
-        button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
-        onPressed1: () => Navigator.pop(context),
-        button2Label: translations['dialogAddItemButtonText'] ?? 'Add',
-        onPressed2: () {
-          if (textController.text.isNotEmpty) {
-            Navigator.pop(context, textController.text);
-          }
-        },
-      );
+  }) => AlertElement(
+    title: title ?? translations['dialogAddItemTitle'] ?? 'Add a new item',
+    content: TextFieldElement(
+      controller: textController,
+      autofocus: true,
+      placeholder:
+          translations['dialogAddItemHintText'] ?? "Enter here the name",
+    ),
+    button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
+    onPressed1: () => Navigator.pop(context),
+    button2Label: translations['dialogAddItemButtonText'] ?? 'Add',
+    onPressed2: () {
+      if (textController.text.isNotEmpty) {
+        Navigator.pop(context, textController.text);
+      }
+    },
+  );
 
   static AlertElement addItemDialog({
     required BuildContext context,
     required Map<String, dynamic> translations,
-  }) =>
-      AlertElement(
-        title: translations['dialogAddItemTitle'] ?? 'Add a new item?',
-        button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
-        onPressed1: () => Navigator.pop(context, false),
-        button2Label: translations['dialogAddItemButtonText'] ?? 'Add',
-        onPressed2: () => Navigator.pop(context, true),
-      );
+  }) => AlertElement(
+    title: translations['dialogAddItemTitle'] ?? 'Add a new item?',
+    button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
+    onPressed1: () => Navigator.pop(context, false),
+    button2Label: translations['dialogAddItemButtonText'] ?? 'Add',
+    onPressed2: () => Navigator.pop(context, true),
+  );
 
   static AlertElement removeItemDialog({
     required BuildContext context,
     required Map<String, dynamic> translations,
-  }) =>
-      AlertElement(
-        title: translations['dialogRemoveItemTitle'] ?? 'Remove item?',
-        button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
-        onPressed1: () => Navigator.pop(context, false),
-        button2Label: translations['dialogRemoveButtonText'] != null
-            ? (translations['dialogRemoveButtonText'] as String).toFirstUpper
-            : 'Remove',
-        onPressed2: () => Navigator.pop(context, true),
-      );
+  }) => AlertElement(
+    title: translations['dialogRemoveItemTitle'] ?? 'Remove item?',
+    button1Label: translations['dialogCancelButtonText'] ?? 'Cancel',
+    onPressed1: () => Navigator.pop(context, false),
+    button2Label: translations['dialogRemoveButtonText'] != null
+        ? (translations['dialogRemoveButtonText'] as String).toFirstUpper
+        : 'Remove',
+    onPressed2: () => Navigator.pop(context, true),
+  );
 
-  static showPlatformSpecificDialog({
+  static Future<dynamic> showPlatformSpecificDialog({
     required BuildContext context,
     required Function(BuildContext context) child,
     bool barrierDismissible = true,
-  }) async =>
-      Globals.inIosStyle()
-          ? await showCupertinoDialog(
-              context: context,
-              barrierDismissible: barrierDismissible,
-              builder: (context) {
-                return child(context);
-              })
-          : await showDialog(
-              context: context,
-              barrierDismissible: barrierDismissible,
-              builder: (context) {
-                return child(context);
-              });
+  }) async => Globals.inIosStyle()
+      ? await showCupertinoDialog(
+          context: context,
+          barrierDismissible: barrierDismissible,
+          builder: (context) {
+            return child(context);
+          },
+        )
+      : await showDialog(
+          context: context,
+          barrierDismissible: barrierDismissible,
+          builder: (context) {
+            return child(context);
+          },
+        );
 
   static IconTextButtonElement addButton({
     required BuildContext context,
@@ -117,38 +109,30 @@ class SharedWidgets {
     required Map<String, dynamic> translations,
     String? title,
     required void Function(dynamic value) onAccepted,
-  }) =>
-      IconTextButtonElement(
-        icon: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: Icon(
-            Icons.add,
-            color: Colors.white,
-            size: 20.0,
-          ),
-        ),
-        label: translations['addButtonText'] ?? 'add',
-        onPressed: () async {
-          dynamic value = await showPlatformSpecificDialog(
-            context: context,
-            child: (BuildContext context) => textController != null
-                ? addItemWithNameDialog(
-                    context: context,
-                    textController: textController,
-                    translations: translations,
-                    title: title,
-                  )
-                : addItemDialog(
-                    context: context,
-                    translations: translations,
-                  ),
-          );
-
-          if (value != null) {
-            onAccepted(value);
-          }
-        },
+  }) => IconTextButtonElement(
+    icon: const Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: Icon(Icons.add, color: Colors.white, size: 20.0),
+    ),
+    label: translations['addButtonText'] ?? 'add',
+    onPressed: () async {
+      dynamic value = await showPlatformSpecificDialog(
+        context: context,
+        child: (BuildContext context) => textController != null
+            ? addItemWithNameDialog(
+                context: context,
+                textController: textController,
+                translations: translations,
+                title: title,
+              )
+            : addItemDialog(context: context, translations: translations),
       );
+
+      if (value != null) {
+        onAccepted(value);
+      }
+    },
+  );
 
   static IconButtonElement addIconButton({
     required BuildContext context,
@@ -159,147 +143,130 @@ class SharedWidgets {
     required Map<String, dynamic> translations,
     required void Function(dynamic value) onAccepted,
     VoidCallback? onExit,
-  }) =>
-      IconButtonElement(
-          readOnly: disabled,
-          backgroundColor: Colors.transparent,
-          backgroundReadOnlyColor: Colors.transparent,
-          backgroundHoverColor: Colors.blue.shade800.withAlpha(30),
-          size: 40,
-          icon: Icon(
-            icon,
-            color: disabled
-                ? Globals.inMacosStyle() || Globals.inIosStyle()
-                    ? CupertinoColors.inactiveGray.color
-                    : Colors.grey
-                : Globals.brightness() == Brightness.dark
-                    ? Colors.blue.shade600
-                    : Colors.blue.shade800,
-            size: 20.0,
-          ),
-          onPressed: () async {
-            if (!disabled) {
-              dynamic value = await SharedWidgets.showPlatformSpecificDialog(
-                context: context,
-                child: (BuildContext context) => textController != null
-                    ? addItemWithNameDialog(
-                        context: context,
-                        textController: textController,
-                        translations: translations,
-                        title: title,
-                      )
-                    : addItemDialog(
-                        context: context,
-                        translations: translations,
-                      ),
-              );
+  }) => IconButtonElement(
+    readOnly: disabled,
+    backgroundColor: Colors.transparent,
+    backgroundReadOnlyColor: Colors.transparent,
+    backgroundHoverColor: Colors.blue.shade800.withAlpha(30),
+    size: 40,
+    icon: Icon(
+      icon,
+      color: disabled
+          ? Globals.inMacosStyle() || Globals.inIosStyle()
+                ? CupertinoColors.inactiveGray.color
+                : Colors.grey
+          : Globals.brightness() == Brightness.dark
+          ? Colors.blue.shade600
+          : Colors.blue.shade800,
+      size: 20.0,
+    ),
+    onPressed: () async {
+      if (!disabled) {
+        dynamic value = await SharedWidgets.showPlatformSpecificDialog(
+          context: context,
+          child: (BuildContext context) => textController != null
+              ? addItemWithNameDialog(
+                  context: context,
+                  textController: textController,
+                  translations: translations,
+                  title: title,
+                )
+              : addItemDialog(context: context, translations: translations),
+        );
 
-              if (value == null) {
-                if (onExit != null) {
-                  onExit();
-                }
-              } else {
-                onAccepted(value);
-              }
-            }
-          });
+        if (value == null) {
+          if (onExit != null) {
+            onExit();
+          }
+        } else {
+          onAccepted(value);
+        }
+      }
+    },
+  );
 
   static IconButtonElement restyledIconButton({
     required BuildContext context,
     required IconData icon,
     bool disabled = false,
     required VoidCallback onPressed,
-  }) =>
-      IconButtonElement(
-        readOnly: disabled,
-        backgroundColor: Colors.transparent,
-        backgroundReadOnlyColor: Colors.transparent,
-        backgroundHoverColor: Colors.blue.shade800.withAlpha(30),
-        size: 40,
-        icon: Icon(
-          icon,
-          color: disabled
-              ? Globals.inMacosStyle() || Globals.inIosStyle()
-                  ? CupertinoColors.inactiveGray.color
-                  : Colors.grey
-              : Globals.brightness() == Brightness.dark
-                  ? Colors.blue.shade600
-                  : Colors.blue.shade800,
-          size: 20.0,
-        ),
-        onPressed: () {
-          if (!disabled) {
-            onPressed();
-          }
-        },
-      );
+  }) => IconButtonElement(
+    readOnly: disabled,
+    backgroundColor: Colors.transparent,
+    backgroundReadOnlyColor: Colors.transparent,
+    backgroundHoverColor: Colors.blue.shade800.withAlpha(30),
+    size: 40,
+    icon: Icon(
+      icon,
+      color: disabled
+          ? Globals.inMacosStyle() || Globals.inIosStyle()
+                ? CupertinoColors.inactiveGray.color
+                : Colors.grey
+          : Globals.brightness() == Brightness.dark
+          ? Colors.blue.shade600
+          : Colors.blue.shade800,
+      size: 20.0,
+    ),
+    onPressed: () {
+      if (!disabled) {
+        onPressed();
+      }
+    },
+  );
 
   static IconTextButtonElement removeButton({
     required BuildContext context,
     required Map<String, dynamic> translations,
     required VoidCallback onAccepted,
-  }) =>
-      IconTextButtonElement(
-        onMacAsText: true,
-        style: ButtonStyle(
-          minimumSize:
-              WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),
-        ),
-        icon: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: Icon(
-            Icons.remove,
-            color: Colors.white,
-            size: 20.0,
-          ),
-        ),
-        label: translations['removeButtonText'] ?? 'remove',
-        onPressed: () async {
-          bool valid = await SharedWidgets.showPlatformSpecificDialog(
-            context: context,
-            child: (BuildContext context) => removeItemDialog(
-              context: context,
-              translations: translations,
-            ),
-          );
-          if (valid == true) {
-            onAccepted();
-          }
-        },
+  }) => IconTextButtonElement(
+    onMacAsText: true,
+    style: ButtonStyle(
+      minimumSize: WidgetStateProperty.all<Size>(
+        const Size(double.infinity, 20),
+      ),
+    ),
+    icon: const Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: Icon(Icons.remove, color: Colors.white, size: 20.0),
+    ),
+    label: translations['removeButtonText'] ?? 'remove',
+    onPressed: () async {
+      bool valid = await SharedWidgets.showPlatformSpecificDialog(
+        context: context,
+        child: (BuildContext context) =>
+            removeItemDialog(context: context, translations: translations),
       );
+      if (valid == true) {
+        onAccepted();
+      }
+    },
+  );
 
   static IconTextButtonElement linkButton({
     required String link,
     required Map<String, dynamic> translations,
     required VoidCallback onPressed,
-  }) =>
-      IconTextButtonElement(
-        onMacAsText: true,
-        style: ButtonStyle(
-          minimumSize:
-              WidgetStateProperty.all<Size>(const Size(double.infinity, 20)),
-        ),
-        icon: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          child: Icon(
-            Icons.link,
-            color: Colors.white,
-            size: 20.0,
-          ),
-        ),
-        label: translations['openLinkButtonText'] ?? 'open link',
-        onPressed: () async {
-          final Uri url = Uri.parse(link);
-          if (!await launchUrl(
-            url,
-            mode: LaunchMode.externalApplication,
-          )) {
-            if (kDebugMode) {
-              debugPrint('Could not launch url: $url');
-            }
-          }
-        },
-      );
+  }) => IconTextButtonElement(
+    onMacAsText: true,
+    style: ButtonStyle(
+      minimumSize: WidgetStateProperty.all<Size>(
+        const Size(double.infinity, 20),
+      ),
+    ),
+    icon: const Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      child: Icon(Icons.link, color: Colors.white, size: 20.0),
+    ),
+    label: translations['openLinkButtonText'] ?? 'open link',
+    onPressed: () async {
+      final Uri url = Uri.parse(link);
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        if (kDebugMode) {
+          debugPrint('Could not launch url: $url');
+        }
+      }
+    },
+  );
 
   static void showSnackBar({
     required BuildContext context,
@@ -312,9 +279,7 @@ class SharedWidgets {
         showTopSnackBar(
           Overlay.of(context),
           snackBarPosition: SnackBarPosition.bottom,
-          CustomSnackBar.success(
-            message: doneMessage,
-          ),
+          CustomSnackBar.success(message: doneMessage),
         );
       }
     } else {
@@ -322,9 +287,7 @@ class SharedWidgets {
         showTopSnackBar(
           Overlay.of(context),
           snackBarPosition: SnackBarPosition.bottom,
-          CustomSnackBar.error(
-            message: failMessage,
-          ),
+          CustomSnackBar.error(message: failMessage),
         );
       }
     }
@@ -334,57 +297,74 @@ class SharedWidgets {
     required BuildContext context,
     required String aboutAppMessage,
     required Map<String, dynamic> translations,
-  }) async =>
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        if (context.mounted) {
-          ApproveModal(
-            context: context,
-            icon: Container(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: SizedBox(
-                width: 64,
-                height: 64,
-                child: SvgPicture.asset(
-                  Globals.placeholderSvgAssetPath(),
-                  allowDrawingOutsideViewBox: false,
-                  fit: BoxFit.cover,
-                  clipBehavior: Clip.hardEdge,
-                ),
-              ),
+  }) async => SchedulerBinding.instance.addPostFrameCallback((_) async {
+    if (context.mounted) {
+      ApproveModal(
+        context: context,
+        icon: Container(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: SizedBox(
+            width: 64,
+            height: 64,
+            child: SvgPicture.asset(
+              Globals.placeholderSvgAssetPath(),
+              allowDrawingOutsideViewBox: false,
+              fit: BoxFit.cover,
+              clipBehavior: Clip.hardEdge,
             ),
-            title: "RoonMatrix",
-            question: aboutAppMessage,
-            okText: translations['okButtonText'] ?? 'OK',
-            cancelText: '',
-            onApproved: () {
-              //
-            },
-          ).show();
-        }
-      });
+          ),
+        ),
+        title: "RoonMatrix",
+        question: aboutAppMessage,
+        okText: translations['okButtonText'] ?? 'OK',
+        cancelText: '',
+        onApproved: () {
+          //
+        },
+      ).show();
+    }
+  });
+
+  static void openPage({
+    required BuildContext context,
+    required GlobalKey<NavigatorState> navigatorKey,
+    required Widget page,
+  }) {
+    navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => page),
+      (route) => route.isFirst,
+    ); // close all pages except main page
+    // navigatorKey.currentState!.push(
+    //   MaterialPageRoute(builder: (_) => page),
+    // );
+  }
 
   static void openSettingsPage({
     required BuildContext context,
     required Size minDesktopSize,
     required Size standardDesktopSize,
-  }) =>
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        if (context.mounted) {
-          await showGeneralDialog(
-            context: context,
-            //barrierColor: Colors.black12.withOpacity(0.6), // Background color
-            barrierDismissible: false,
-            barrierLabel: 'Dialog',
-            transitionDuration: const Duration(milliseconds: 0),
-            pageBuilder: (_, __, ___) {
+  }) => SchedulerBinding.instance.addPostFrameCallback((_) async {
+    if (context.mounted) {
+      await showGeneralDialog(
+        context: context,
+        //barrierColor: Colors.black12.withOpacity(0.6), // Background color
+        barrierDismissible: false,
+        barrierLabel: 'Dialog',
+        transitionDuration: const Duration(milliseconds: 0),
+        pageBuilder:
+            (
+              BuildContext context,
+              Animation<double> animation,
+              Animation<double> secondaryAnimation,
+            ) {
               return SettingsPage(
                 minDesktopSize: minDesktopSize,
                 standardDesktopSize: standardDesktopSize,
               );
             },
-          );
-        }
-      });
+      );
+    }
+  });
 
   static TableRow getTableRowFormatted({
     required String label,
@@ -392,34 +372,35 @@ class SharedWidgets {
     required double fontSize,
     required Color color,
     int? maxLines,
-  }) =>
-      TableRow(children: [
-        TableCell(
-          child: Container(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: color.withValues(alpha: 0.7),
-              ),
-            ),
-          ),
-        ),
-        TableCell(
+  }) => TableRow(
+    children: [
+      TableCell(
+        child: Container(
+          alignment: Alignment.centerLeft,
           child: Text(
-            text,
-            maxLines: maxLines ?? 5,
-            overflow: TextOverflow.ellipsis,
+            label,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: fontSize,
-              color: color,
+              color: color.withValues(alpha: 0.7),
             ),
           ),
         ),
-      ]);
+      ),
+      TableCell(
+        child: Text(
+          text,
+          maxLines: maxLines ?? 5,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: fontSize,
+            color: color,
+          ),
+        ),
+      ),
+    ],
+  );
 
   static double measureTextSize({
     required BuildContext context,
@@ -477,14 +458,13 @@ class SharedWidgets {
                   children: <Widget>[
                     CupertinoButton(
                       child: Text(
-                          translations['dialogCancelButtonText'] ?? 'Cancel'),
+                        translations['dialogCancelButtonText'] ?? 'Cancel',
+                      ),
                       onPressed: () {
                         Navigator.pop(modalContext);
                       },
                     ),
-                    Expanded(
-                      child: SizedBox(),
-                    ),
+                    Expanded(child: SizedBox()),
                     CupertinoButton(
                       child: Text(translations['okButtonText'] ?? 'OK'),
                       onPressed: () {
@@ -503,20 +483,21 @@ class SharedWidgets {
                     scrollController: FixedExtentScrollController(
                       initialItem: selected != null
                           ? isObject
-                              ? options.values.toList().indexOf(selected)
-                              : options.keys.toList().indexOf(selected)
+                                ? options.values.toList().indexOf(selected)
+                                : options.keys.toList().indexOf(selected)
                           : 0,
                     ),
                     onSelectedItemChanged: (int index) =>
                         onSelectedItemChanged(index),
-                    children:
-                        List<Widget>.generate(options.length, (int index) {
+                    children: List<Widget>.generate(options.length, (
+                      int index,
+                    ) {
                       return Center(
                         child: Text(
                           showValue
                               ? isObject
-                                  ? options.values.toList()[index]['name']
-                                  : options.values.toList()[index]
+                                    ? options.values.toList()[index]['name']
+                                    : options.values.toList()[index]
                               : options.keys.toList()[index],
                           style: TextStyle(fontSize: 13.0),
                         ),

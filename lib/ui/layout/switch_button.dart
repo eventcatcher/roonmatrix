@@ -26,7 +26,7 @@ class SwitchButton extends StatelessWidget {
   final double labelFontSize = 12.0;
   final Color iosActiveTrackColor = const Color.fromARGB(255, 20, 106, 237);
 
-  Widget labelWidget(context) => label != null
+  Widget labelWidget(BuildContext context) => label != null
       ? Text(
           label!,
           style: TextStyle(
@@ -39,18 +39,19 @@ class SwitchButton extends StatelessWidget {
       : Container();
 
   Widget switchWidget({bool noSpace = true}) => Container(
-        transform: noSpace ? Matrix4.translationValues(10.0, -0.0, 0.0) : null,
-        child: SwitchElement(
-          materialTapTargetSize:
-              Globals.inIosStyle() ? null : MaterialTapTargetSize.shrinkWrap,
-          value: enabled,
-          onChanged: (bool value) {
-            onChanged(value);
-          },
-          activeTrackColor: Globals.inIosStyle() ? null : iosActiveTrackColor,
-          activeColor: Globals.inIosStyle() ? null : Colors.white,
-        ),
-      );
+    transform: noSpace ? Matrix4.translationValues(10.0, -0.0, 0.0) : null,
+    child: SwitchElement(
+      materialTapTargetSize: Globals.inIosStyle()
+          ? null
+          : MaterialTapTargetSize.shrinkWrap,
+      value: enabled,
+      onChanged: (bool value) {
+        onChanged(value);
+      },
+      activeTrackColor: Globals.inIosStyle() ? null : iosActiveTrackColor,
+      activeColor: Globals.inIosStyle() ? null : Colors.white,
+    ),
+  );
 
   EdgeInsets getMargin() {
     EdgeInsets margin = EdgeInsets.zero;
@@ -84,14 +85,15 @@ class SwitchButton extends StatelessWidget {
           reverse
               ? switchWidget(noSpace: false)
               : expanded
-                  ? Expanded(child: labelWidget(context))
-                  : labelWidget(context),
+              ? Expanded(child: labelWidget(context))
+              : labelWidget(context),
           reverse
               ? Padding(
                   padding: EdgeInsets.only(
-                      left: Globals.inMacosStyle() || Globals.inIosStyle()
-                          ? 8.0
-                          : 0.0),
+                    left: Globals.inMacosStyle() || Globals.inIosStyle()
+                        ? 8.0
+                        : 0.0,
+                  ),
                   child: expanded
                       ? Expanded(child: labelWidget(context))
                       : labelWidget(context),

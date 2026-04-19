@@ -30,59 +30,73 @@ class _VerticalRadioSelectorState extends State<VerticalRadioSelector> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> widgets = widget.options
-        .map((String el) => Row(
-              children: [
-                SizedBox(
-                  width: 20.0,
-                  child: Center(
-                    child: Globals.inMacosStyle() || Globals.inIosStyle()
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: CupertinoRadio(
-                              value: el,
-                              groupValue: selectedOption,
-                              onChanged: (String? value) {
-                                setState(() => selectedOption = value ?? '');
-                                if (value != null) {
-                                  widget.onChanged(el);
-                                }
-                              },
+    return SizedBox(
+      child: Center(
+        child: RadioGroup<String>(
+          groupValue: selectedOption,
+          onChanged: (String? value) {
+            setState(() => selectedOption = value ?? '');
+            if (value != null) {
+              widget.onChanged(value);
+            }
+          },
+          child: Globals.inMacosStyle() || Globals.inIosStyle()
+              ? Column(
+                  children: <Widget>[
+                    ...widget.options.map(
+                      (String el) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+
+                        child: Row(
+                          children: [
+                            CupertinoRadio<String>(value: el),
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 4.0),
+                                child: Text(
+                                  el,
+                                  softWrap: true,
+                                  style: TextStyle(
+                                    fontSize: 12.0,
+                                    color: ColorDefs.textColor(
+                                      context: context,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          )
-                        : Radio<String>(
-                            value: el,
-                            groupValue: selectedOption,
-                            onChanged: (String? value) {
-                              setState(() => selectedOption = value ?? '');
-                              if (value != null) {
-                                widget.onChanged(el);
-                              }
-                            },
-                          ),
-                  ),
-                ),
-                Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 4.0),
-                    child: Text(
-                      el,
-                      softWrap: true,
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        color: ColorDefs.textColor(context: context),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
+                )
+              : Column(
+                  children: <Widget>[
+                    ...widget.options.map(
+                      (String el) => Row(
+                        children: [
+                          Radio<String>(value: el),
+                          Flexible(
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4.0),
+                              child: Text(
+                                el,
+                                softWrap: true,
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  color: ColorDefs.textColor(context: context),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ) as Widget)
-        .toList();
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets,
+        ),
+      ),
     );
   }
 }

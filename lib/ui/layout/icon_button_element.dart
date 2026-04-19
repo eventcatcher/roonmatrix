@@ -39,138 +39,133 @@ class IconButtonElement extends StatelessWidget {
             ? CupertinoColors.transparent
             : CupertinoColors.systemGrey,
         padding: EdgeInsets.all(10),
-        minSize: 10,
+        minimumSize: Size(10.0, 10.0),
         color: noBackground
             ? null
             : readOnly
-                ? backgroundReadOnlyColor ?? CupertinoColors.inactiveGray.color
-                : backgroundColor ??
-                    (moreInfo
-                        ? CupertinoColors.activeOrange.color
-                        : CupertinoColors.activeBlue.color),
+            ? backgroundReadOnlyColor ?? CupertinoColors.inactiveGray.color
+            : backgroundColor ??
+                  (moreInfo
+                      ? CupertinoColors.activeOrange.color
+                      : CupertinoColors.activeBlue.color),
         onPressed: readOnly ? null : onPressed,
         child: icon,
       );
     }
 
     macButton() => MacosIconButton(
-          backgroundColor: noBackground
-              ? null
-              : readOnly
-                  ? backgroundReadOnlyColor ??
-                      CupertinoColors.inactiveGray.color
-                  : backgroundColor ??
-                      (moreInfo
-                          ? CupertinoColors.activeOrange.color
-                          : CupertinoColors.activeBlue.color),
-          hoverColor: noBackground
-              ? null
-              : readOnly
-                  ? backgroundReadOnlyColor ??
-                      CupertinoColors.inactiveGray.color
-                  : backgroundHoverColor ??
-                      (moreInfo
-                          ? CupertinoColors.activeOrange.darkElevatedColor
-                          : CupertinoColors.activeBlue.darkElevatedColor),
-          disabledColor: CupertinoColors.systemGrey,
-          borderRadius: withCircle ? BorderRadius.circular(45.0) : null,
-          icon: icon,
-          pressedOpacity: 1,
-          boxConstraints: BoxConstraints(
-              minHeight: size, minWidth: size, maxWidth: size, maxHeight: size),
-          onPressed: onPressed,
-          mouseCursor: SystemMouseCursors.click,
-        );
+      backgroundColor: noBackground
+          ? null
+          : readOnly
+          ? backgroundReadOnlyColor ?? CupertinoColors.inactiveGray.color
+          : backgroundColor ??
+                (moreInfo
+                    ? CupertinoColors.activeOrange.color
+                    : CupertinoColors.activeBlue.color),
+      hoverColor: noBackground
+          ? null
+          : readOnly
+          ? backgroundReadOnlyColor ?? CupertinoColors.inactiveGray.color
+          : backgroundHoverColor ??
+                (moreInfo
+                    ? CupertinoColors.activeOrange.darkElevatedColor
+                    : CupertinoColors.activeBlue.darkElevatedColor),
+      disabledColor: CupertinoColors.systemGrey,
+      borderRadius: withCircle ? BorderRadius.circular(45.0) : null,
+      icon: icon,
+      pressedOpacity: 1,
+      boxConstraints: BoxConstraints(
+        minHeight: size,
+        minWidth: size,
+        maxWidth: size,
+        maxHeight: size,
+      ),
+      onPressed: onPressed,
+      mouseCursor: SystemMouseCursors.click,
+    );
 
     return Globals.inMacosStyle()
         ? withCircle
-            ? CircleAvatar(
-                radius: 20,
-                backgroundColor: noBackground
-                    ? null
-                    : readOnly
-                        ? backgroundReadOnlyColor ??
+              ? CircleAvatar(
+                  radius: 20,
+                  backgroundColor: noBackground
+                      ? null
+                      : readOnly
+                      ? backgroundReadOnlyColor ??
                             CupertinoColors.inactiveGray.color
-                        : backgroundColor ??
+                      : backgroundColor ??
                             (moreInfo
                                 ? CupertinoColors.activeOrange.color
                                 : CupertinoColors.activeBlue.color),
-                child: label != null
-                    ? MacosTooltip(
-                        message: label!,
-                        child: macButton(),
-                      )
-                    : macButton(),
-              )
-            : label != null
-                ? MacosTooltip(
-                    message: label!,
-                    child: macButton(),
-                  )
-                : macButton()
+                  child: label != null
+                      ? MacosTooltip(message: label!, child: macButton())
+                      : macButton(),
+                )
+              : label != null
+              ? MacosTooltip(message: label!, child: macButton())
+              : macButton()
         : withCircle
-            ? CircleAvatar(
-                radius: 18,
-                backgroundColor: noBackground
-                    ? null
-                    : readOnly
-                        ? backgroundReadOnlyColor ??
-                            CupertinoColors.inactiveGray.color
-                        : backgroundColor ??
-                            (moreInfo
-                                ? CupertinoColors.activeOrange.color
-                                : CupertinoColors.activeBlue.color),
+        ? CircleAvatar(
+            radius: 18,
+            backgroundColor: noBackground
+                ? null
+                : readOnly
+                ? backgroundReadOnlyColor ?? CupertinoColors.inactiveGray.color
+                : backgroundColor ??
+                      (moreInfo
+                          ? CupertinoColors.activeOrange.color
+                          : CupertinoColors.activeBlue.color),
+            child: IconButton(
+              color:
+                  backgroundColor ??
+                  (Globals.brightness() == Brightness.dark
+                      ? moreInfo
+                            ? Colors.orange.shade800
+                            : Colors.blue.shade800
+                      : moreInfo
+                      ? Colors.orange.shade600
+                      : Colors.blue.shade600),
+              icon: icon,
+              tooltip: label,
+              padding: EdgeInsets.zero,
+              onPressed: onPressed,
+            ),
+          )
+        : Ink(
+            width: size,
+            height: size,
+            decoration: ShapeDecoration(
+              color: noBackground
+                  ? null
+                  : readOnly
+                  ? backgroundReadOnlyColor ?? Colors.grey
+                  : backgroundColor ??
+                        (Globals.brightness() == Brightness.dark
+                            ? moreInfo
+                                  ? Colors.orange.shade800
+                                  : Colors.blue.shade800
+                            : moreInfo
+                            ? Colors.orange.shade600
+                            : Colors.blue.shade600),
+              shape: RoundedRectangleBorder(
+                borderRadius: Globals.borderRadius(),
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                decoration: BoxDecoration(borderRadius: Globals.borderRadius()),
                 child: IconButton(
-                  color: backgroundColor ??
-                      (Globals.brightness() == Brightness.dark
-                          ? moreInfo
-                              ? Colors.orange.shade800
-                              : Colors.blue.shade800
-                          : moreInfo
-                              ? Colors.orange.shade600
-                              : Colors.blue.shade600),
+                  padding: EdgeInsets.zero,
+                  color: Colors.white,
+                  splashRadius: 26,
+                  hoverColor: backgroundHoverColor,
                   icon: icon,
                   tooltip: label,
-                  padding: EdgeInsets.zero,
                   onPressed: onPressed,
                 ),
-              )
-            : Ink(
-                width: size,
-                height: size,
-                decoration: ShapeDecoration(
-                    color: noBackground
-                        ? null
-                        : readOnly
-                            ? backgroundReadOnlyColor ?? Colors.grey
-                            : backgroundColor ??
-                                (Globals.brightness() == Brightness.dark
-                                    ? moreInfo
-                                        ? Colors.orange.shade800
-                                        : Colors.blue.shade800
-                                    : moreInfo
-                                        ? Colors.orange.shade600
-                                        : Colors.blue.shade600),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: Globals.borderRadius(),
-                    )),
-                child: Material(
-                  color: Colors.transparent,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: Globals.borderRadius(),
-                    ),
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      color: Colors.white,
-                      splashRadius: 26,
-                      hoverColor: backgroundHoverColor,
-                      icon: icon,
-                      tooltip: label,
-                      onPressed: onPressed,
-                    ),
-                  ),
-                ),
-              );
+              ),
+            ),
+          );
   }
 }

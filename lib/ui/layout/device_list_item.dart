@@ -13,6 +13,7 @@ import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/layout/desktop_page_buttons.dart';
 import 'package:roonmatrix/ui/layout/mobile_page_buttons.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
 import 'package:roonmatrix/ui/layout/device_info.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -21,6 +22,7 @@ import 'package:updatable_ticker/updatable_ticker.dart';
 import 'package:updatable_vertical_ticker/updatable_vertical_ticker.dart';
 
 class DeviceListItem extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
   final GlobalKey itemListKey;
   final int index;
   final double width;
@@ -49,6 +51,7 @@ class DeviceListItem extends StatefulWidget {
 
   const DeviceListItem({
     super.key,
+    required this.navigatorKey,
     required this.itemListKey,
     required this.index,
     required this.width,
@@ -81,6 +84,7 @@ class DeviceListItem extends StatefulWidget {
 }
 
 class DeviceListItemState extends State<DeviceListItem> {
+  GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   GlobalKey get itemListKey => widget.itemListKey;
   int get index => widget.index;
   double get width => widget.width;
@@ -161,8 +165,8 @@ class DeviceListItemState extends State<DeviceListItem> {
     ledSingleModuleSize = ledSize * 8 + ledGap * 8;
     tickerWidth = ledTickerInDeviceListActive
         ? ledModules * ledSize * 8 +
-            2 * ledTickerPadding +
-            2 * ledTickerBorderSize
+              2 * ledTickerPadding +
+              2 * ledTickerBorderSize
         : ledModules * tickerFontSize * Globals.verticalTickerWidthFactor;
 
     updateProps();
@@ -189,14 +193,15 @@ class DeviceListItemState extends State<DeviceListItem> {
     }
 
     List<dynamic> list = mainBloc.getPixelsPerSecond(
-        ip: ip,
-        isScrollMatrixPage: false,
-        verticalOutput: verticalOutput,
-        verticalTickerActive: verticalTickerActive,
-        ledTickerActive: ledTickerInDeviceListActive,
-        fontSize: fontSize,
-        ledSize: ledSize,
-        sliderValue: sliderValue);
+      ip: ip,
+      isScrollMatrixPage: false,
+      verticalOutput: verticalOutput,
+      verticalTickerActive: verticalTickerActive,
+      ledTickerActive: ledTickerInDeviceListActive,
+      fontSize: fontSize,
+      ledSize: ledSize,
+      sliderValue: sliderValue,
+    );
 
     defaultDelay = list[0];
     scrollDelayMin = list[1];
@@ -248,11 +253,11 @@ class DeviceListItemState extends State<DeviceListItem> {
 
             tickerWidth = ledTickerInDeviceListActive
                 ? ledModules * ledSize * 8 +
-                    2 * ledTickerPadding +
-                    2 * ledTickerBorderSize
+                      2 * ledTickerPadding +
+                      2 * ledTickerBorderSize
                 : ledModules *
-                    tickerFontSize *
-                    Globals.verticalTickerWidthFactor;
+                      tickerFontSize *
+                      Globals.verticalTickerWidthFactor;
           });
         }
       });
@@ -301,7 +306,8 @@ class DeviceListItemState extends State<DeviceListItem> {
     String hash = md5.convert(utf8.encode(scrollText)).toString();
     if (kDebugMode) {
       debugPrint(
-          'DeviceListItem => new info received on index $index @ ${DateTime.now().toLocal()}), hash: $hash, scrollText: $scrollText');
+        'DeviceListItem => new info received on index $index @ ${DateTime.now().toLocal()}), hash: $hash, scrollText: $scrollText',
+      );
     }
 
     String zoneName = mainRepository.getZoneName(info: i);
@@ -339,8 +345,9 @@ class DeviceListItemState extends State<DeviceListItem> {
           child: Stack(
             children: [
               Padding(
-                padding:
-                    EdgeInsets.symmetric(vertical: tickerHorizontalPadding),
+                padding: EdgeInsets.symmetric(
+                  vertical: tickerHorizontalPadding,
+                ),
                 child: ListTile(
                   minVerticalPadding: 0.0,
                   contentPadding: EdgeInsets.all(0),
@@ -355,26 +362,22 @@ class DeviceListItemState extends State<DeviceListItem> {
                         width: deviceListCoverSize,
                         height: deviceListCoverSize,
                         child: Tooltip(
-                          message: translations['openCoverPageButtonLabel'] ??
+                          message:
+                              translations['openCoverPageButtonLabel'] ??
                               'Open album cover view and device control page',
                           waitDuration: Globals.tooltipWaitDuration,
                           child: IconButton(
                             padding: EdgeInsets.zero,
-                            onPressed: () => showGeneralDialog(
+                            onPressed: () => SharedWidgets.openPage(
                               context: context,
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                return CoverPage(
-                                  name: i['name'],
-                                  ip: ip,
-                                  translations: translations,
-                                  minDesktopSize: minDesktopSize,
-                                  standardDesktopSize: standardDesktopSize,
-                                );
-                              },
+                              navigatorKey: navigatorKey,
+                              page: CoverPage(
+                                name: i['name'],
+                                ip: ip,
+                                translations: translations,
+                                minDesktopSize: minDesktopSize,
+                                standardDesktopSize: standardDesktopSize,
+                              ),
                             ),
                             icon: AnimatedSwitcher(
                               duration: Globals
@@ -393,16 +396,17 @@ class DeviceListItemState extends State<DeviceListItem> {
                                           ? ColorDefs.idleZoneIconColor
                                           : null,
                                       key: ValueKey(
-                                          'DeviceCover-${widget.ip}-$coverUrl'),
+                                        'DeviceCover-${widget.ip}-$coverUrl',
+                                      ),
                                       errorBuilder:
                                           (context, error, stackTrace) {
-                                        return SvgPicture.asset(
-                                          Globals.placeholderSvgAssetPath(),
-                                          allowDrawingOutsideViewBox: false,
-                                          fit: BoxFit.cover,
-                                          clipBehavior: Clip.hardEdge,
-                                        );
-                                      },
+                                            return SvgPicture.asset(
+                                              Globals.placeholderSvgAssetPath(),
+                                              allowDrawingOutsideViewBox: false,
+                                              fit: BoxFit.cover,
+                                              clipBehavior: Clip.hardEdge,
+                                            );
+                                          },
                                     )
                                   : SvgPicture.asset(
                                       Globals.placeholderSvgAssetPath(),
@@ -434,8 +438,8 @@ class DeviceListItemState extends State<DeviceListItem> {
                             ? SizedBox(
                                 height:
                                     width <= Globals.mobilePageButtonsMaxWidth
-                                        ? Globals.mobileExpandableButtonSize
-                                        : null,
+                                    ? Globals.mobileExpandableButtonSize
+                                    : null,
                                 child: Row(
                                   // desktop variant
                                   mainAxisSize: MainAxisSize.min,
@@ -443,41 +447,49 @@ class DeviceListItemState extends State<DeviceListItem> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Flexible(
-                                      child: width >
+                                      child:
+                                          width >
                                               Globals
                                                   .deviceListItemSwitchBoundaryFullInfo
                                           ? Text(
                                               mainRepository
                                                   .getTimeZonePlaycountText(
-                                                translations: translations,
-                                                info: i,
-                                                zoneName: zoneName,
-                                              ),
+                                                    translations: translations,
+                                                    info: i,
+                                                    zoneName: zoneName,
+                                                  ),
                                               softWrap: true,
                                               maxLines: 2,
                                               overflow: TextOverflow.fade,
                                               style: TextStyle(
-                                                  fontSize: width >
-                                                          Globals
-                                                              .mobilePageButtonsMaxWidth
-                                                      ? 14.0
-                                                      : 12.0,
-                                                  height: 1.3),
+                                                fontSize:
+                                                    width >
+                                                        Globals
+                                                            .mobilePageButtonsMaxWidth
+                                                    ? 14.0
+                                                    : 12.0,
+                                                height: 1.3,
+                                              ),
                                             )
                                           : Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 12.0),
-                                              child: Text('${i['playcount']}',
-                                                  softWrap: true,
-                                                  overflow: TextOverflow.fade,
-                                                  style: const TextStyle(
-                                                      fontSize: 9,
-                                                      height: 1.3)),
+                                              padding: EdgeInsets.only(
+                                                right: 12.0,
+                                              ),
+                                              child: Text(
+                                                '${i['playcount']}',
+                                                softWrap: true,
+                                                overflow: TextOverflow.fade,
+                                                style: const TextStyle(
+                                                  fontSize: 9,
+                                                  height: 1.3,
+                                                ),
+                                              ),
                                             ),
                                     ),
                                     if (width >
                                         Globals.mobilePageButtonsMaxWidth)
                                       DesktopPageButtons(
+                                        navigatorKey: navigatorKey,
                                         translations: translations,
                                         ip: ip,
                                         info: info,
@@ -486,7 +498,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                         minDesktopSize: minDesktopSize,
                                         standardDesktopSize:
                                             standardDesktopSize,
-                                      )
+                                      ),
                                   ],
                                 ),
                               )
@@ -498,11 +510,12 @@ class DeviceListItemState extends State<DeviceListItem> {
                                     if (isSmallDeviceWidth == true)
                                       Padding(
                                         padding: EdgeInsets.only(right: 12.0),
-                                        child: Text('${i['playcount']}',
-                                            softWrap: true,
-                                            overflow: TextOverflow.fade,
-                                            style:
-                                                const TextStyle(fontSize: 9)),
+                                        child: Text(
+                                          '${i['playcount']}',
+                                          softWrap: true,
+                                          overflow: TextOverflow.fade,
+                                          style: const TextStyle(fontSize: 9),
+                                        ),
                                       ),
                                     if (!isSmallDeviceWidth)
                                       AnimatedOpacity(
@@ -511,18 +524,18 @@ class DeviceListItemState extends State<DeviceListItem> {
                                         child: Text(
                                           mainRepository
                                               .getTimeZonePlaycountText(
-                                            translations: translations,
-                                            info: i,
-                                            zoneName: zoneName,
-                                            withLineBreak: true,
-                                          ),
+                                                translations: translations,
+                                                info: i,
+                                                zoneName: zoneName,
+                                                withLineBreak: true,
+                                              ),
                                           softWrap: true,
                                           maxLines: 2,
                                           overflow: TextOverflow.fade,
                                           style: const TextStyle(fontSize: 11),
                                         ),
                                       ),
-                                    SizedBox(width: mobileInfoPaddingRight)
+                                    SizedBox(width: mobileInfoPaddingRight),
                                   ],
                                 ),
                               ),
@@ -537,6 +550,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                   top: 9.0,
                   right: 0.0,
                   child: MobilePageButtons(
+                    navigatorKey: navigatorKey,
                     translations: translations,
                     moreInfo: moreInfo,
                     zoneName: zoneName,
@@ -556,47 +570,45 @@ class DeviceListItemState extends State<DeviceListItem> {
                   ),
                 ),
               Positioned(
-                  top: (verticalOutput && verticalTickerActive
-                          ? ledTickerInDeviceListActive
+                top:
+                    (verticalOutput && verticalTickerActive
+                        ? ledTickerInDeviceListActive
                               ? verticalTickerTopOffset
                               : verticalTickerTopOffset - 1.5
-                          : tickerTopOffset) +
-                      (ledTickerInDeviceListActive
-                          ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
-                          : 0),
-                  left: deviceListCoverSize + 8,
-                  child: NotificationListener<SizeChangedLayoutNotification>(
-                    onNotification: (notification) {
-                      updateSizes('NotificationListener');
-                      build(context);
-                      return false;
-                    },
-                    child: SizeChangedLayoutNotifier(
-                      child: Container(
-                        alignment: ledTickerInDeviceListActive ||
-                                (verticalOutput && verticalTickerActive)
-                            ? Alignment.centerLeft
-                            : Alignment.center,
-                        key: ValueKey(
-                            'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                        width: MediaQuery.of(context).size.width -
-                            2 * tickerHorizontalPadding,
-                        height: tickerHeight,
-                        child: Tooltip(
-                          message:
-                              translations['openScrollMatrixPageButtonLabel'] ??
-                                  'Open ticker view',
-                          waitDuration: Globals.tooltipWaitDuration,
-                          child: InkWell(
-                            onTap: () => showGeneralDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              barrierLabel: 'Dialog',
-                              transitionDuration:
-                                  const Duration(milliseconds: 0),
-                              pageBuilder: (_, __, ___) {
-                                String scrollSpeedKey =
-                                    settingsBloc.getScrollSpeedKey(
+                        : tickerTopOffset) +
+                    (ledTickerInDeviceListActive
+                        ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
+                        : 0),
+                left: deviceListCoverSize + 8,
+                child: NotificationListener<SizeChangedLayoutNotification>(
+                  onNotification: (notification) {
+                    updateSizes('NotificationListener');
+                    build(context);
+                    return false;
+                  },
+                  child: SizeChangedLayoutNotifier(
+                    child: Container(
+                      alignment:
+                          ledTickerInDeviceListActive ||
+                              (verticalOutput && verticalTickerActive)
+                          ? Alignment.centerLeft
+                          : Alignment.center,
+                      key: ValueKey(
+                        'UpdatableTickerWrapper-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
+                      ),
+                      width:
+                          MediaQuery.of(context).size.width -
+                          2 * tickerHorizontalPadding,
+                      height: tickerHeight,
+                      child: Tooltip(
+                        message:
+                            translations['openScrollMatrixPageButtonLabel'] ??
+                            'Open ticker view',
+                        waitDuration: Globals.tooltipWaitDuration,
+                        child: InkWell(
+                          onTap: () {
+                            String scrollSpeedKey = settingsBloc
+                                .getScrollSpeedKey(
                                   ip: ip,
                                   variant: ScrollSpeedVariant(
                                     isStandAlone: true,
@@ -606,174 +618,188 @@ class DeviceListItemState extends State<DeviceListItem> {
                                   ),
                                 );
 
-                                return ScrollMatrixPage(
-                                  ip: ip,
-                                  scrollSpeedKey: scrollSpeedKey,
-                                  scrollSpeed: scrollSpeedScrollMatrix,
-                                  name: i['name'],
-                                  translations: translations,
-                                  minDesktopSize: minDesktopSize,
-                                  standardDesktopSize: standardDesktopSize,
-                                  verticalTickerActive: verticalTickerActive,
-                                  ledTickerOnTickerPageActive:
-                                      ledTickerOnTickerPageActive,
-                                  ledTickerPixelShiftActive:
-                                      ledTickerPixelShiftActive,
-                                  forceTickerUpdateActive:
-                                      forceTickerUpdateActive,
-                                  speedChanged: ({
-                                    required String scrollSpeedKey,
-                                    required double speed,
-                                  }) {
-                                    scrollSpeedScrollMatrix = speed;
-                                    settingsBloc.setScrollSpeedDevice(
-                                        key: scrollSpeedKey, speed: speed);
-                                  },
-                                );
-                              },
-                            ),
-                            child: verticalOutput && verticalTickerActive
-                                ? Container(
-                                    width: tickerWidth,
-                                    padding: ledTickerInDeviceListActive
-                                        ? EdgeInsets.all(ledTickerPadding)
-                                        : EdgeInsets.symmetric(
-                                            vertical: 2.0,
-                                          ),
-                                    decoration: ledTickerInDeviceListActive
-                                        ? BoxDecoration(
-                                            border: Border.all(
+                            SharedWidgets.openPage(
+                              context: context,
+                              navigatorKey: navigatorKey,
+                              page: ScrollMatrixPage(
+                                ip: ip,
+                                scrollSpeedKey: scrollSpeedKey,
+                                scrollSpeed: scrollSpeedScrollMatrix,
+                                name: i['name'],
+                                translations: translations,
+                                minDesktopSize: minDesktopSize,
+                                standardDesktopSize: standardDesktopSize,
+                                verticalTickerActive: verticalTickerActive,
+                                ledTickerOnTickerPageActive:
+                                    ledTickerOnTickerPageActive,
+                                ledTickerPixelShiftActive:
+                                    ledTickerPixelShiftActive,
+                                forceTickerUpdateActive:
+                                    forceTickerUpdateActive,
+                                speedChanged:
+                                    ({
+                                      required String scrollSpeedKey,
+                                      required double speed,
+                                    }) {
+                                      scrollSpeedScrollMatrix = speed;
+                                      settingsBloc.setScrollSpeedDevice(
+                                        key: scrollSpeedKey,
+                                        speed: speed,
+                                      );
+                                    },
+                              ),
+                            );
+                          },
+                          child: verticalOutput && verticalTickerActive
+                              ? Container(
+                                  width: tickerWidth,
+                                  padding: ledTickerInDeviceListActive
+                                      ? EdgeInsets.all(ledTickerPadding)
+                                      : EdgeInsets.symmetric(vertical: 2.0),
+                                  decoration: ledTickerInDeviceListActive
+                                      ? BoxDecoration(
+                                          border: Border.all(
                                             width: ledTickerBorderSize,
                                             color: Colors.blue,
-                                          ))
-                                        : BoxDecoration(
-                                            borderRadius:
-                                                Globals.borderRadius(),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Globals.brightness() ==
-                                                        Brightness.dark
-                                                    ? Colors.grey.shade700
+                                          ),
+                                        )
+                                      : BoxDecoration(
+                                          borderRadius: Globals.borderRadius(),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Globals.brightness() ==
+                                                      Brightness.dark
+                                                  ? Colors.grey.shade700
                                                         .withValues(alpha: 0.25)
-                                                    : Colors.grey.withValues(
-                                                        alpha: 0.25),
-                                                spreadRadius: 0,
-                                                blurRadius: 0,
-                                              ),
-                                            ],
-                                          ),
-                                    child: ledTickerInDeviceListActive
-                                        ? Container(
-                                            color: ledTickerPixelShiftActive
-                                                ? Colors.black
-                                                : Colors.grey.shade800,
-                                            child: UpdatableVerticalLedTicker(
-                                              key: ValueKey(
-                                                'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
-                                              ),
-                                              modules: ledModules,
-                                              useProportionalFont: true,
-                                              enableSmoothScrolling:
-                                                  ledTickerPixelShiftActive,
-                                              center: true,
-                                              ledSize: ledSize,
-                                              ledGap: ledGap,
-                                              onColor: ledOnColor,
-                                              offColor: ledOffColor,
-                                              texts: verticalTextLines,
-                                              scrollDuration: Duration(
-                                                  milliseconds:
-                                                      (scrollDelay * 8)
-                                                          .floor()),
-                                              linePause: Duration(
-                                                  seconds: i[
-                                                      'vertical_scroll_delay']),
-                                              cyclePause:
-                                                  Duration(seconds: cyclePause),
+                                                  : Colors.grey.withValues(
+                                                      alpha: 0.25,
+                                                    ),
+                                              spreadRadius: 0,
+                                              blurRadius: 0,
                                             ),
-                                          )
-                                        : UpdatableVerticalTicker(
-                                            key: ValueKey(
-                                              'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
-                                            ),
-                                            texts: verticalTextLines,
-                                            scrollDuration: Duration(
-                                                milliseconds:
-                                                    (scrollDelay * 8).floor()),
-                                            linePause: Duration(
-                                                seconds:
-                                                    i['vertical_scroll_delay']),
-                                            cyclePause:
-                                                Duration(seconds: cyclePause),
-                                            textStyle: TextStyle(
-                                              fontFamily:
-                                                  Globals.tickerFontFamily,
-                                              fontFamilyFallback: Globals
-                                                  .fontFamilyFallback, // fallback for Linux to get the correct symbols
-                                              fontSize: tickerFontSize,
-                                              color: ColorDefs.textColor(
-                                                  context: context),
-                                            ),
-                                          ),
-                                  )
-                                : ledTickerInDeviceListActive
-                                    ? Container(
-                                        width: tickerWidth,
-                                        padding:
-                                            EdgeInsets.all(ledTickerPadding),
-                                        decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: ledTickerBorderSize,
-                                                color: Colors.blue)),
-                                        child: Container(
+                                          ],
+                                        ),
+                                  child: ledTickerInDeviceListActive
+                                      ? Container(
                                           color: ledTickerPixelShiftActive
                                               ? Colors.black
                                               : Colors.grey.shade800,
-                                          child: UpdatableLedTicker(
+                                          child: UpdatableVerticalLedTicker(
                                             key: ValueKey(
-                                                'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                            updatableText: scrollText,
+                                              'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
+                                            ),
                                             modules: ledModules,
                                             useProportionalFont: true,
                                             enableSmoothScrolling:
                                                 ledTickerPixelShiftActive,
+                                            center: true,
                                             ledSize: ledSize,
                                             ledGap: ledGap,
                                             onColor: ledOnColor,
                                             offColor: ledOffColor,
-                                            pixelsPerSecond: pixelsPerSecond,
-                                            forceUpdate:
-                                                forceTickerUpdateActive,
-                                            separator: Globals.tickerSeparator,
+                                            texts: verticalTextLines,
+                                            scrollDuration: Duration(
+                                              milliseconds: (scrollDelay * 8)
+                                                  .floor(),
+                                            ),
+                                            linePause: Duration(
+                                              seconds:
+                                                  i['vertical_scroll_delay'],
+                                            ),
+                                            cyclePause: Duration(
+                                              seconds: cyclePause,
+                                            ),
+                                          ),
+                                        )
+                                      : UpdatableVerticalTicker(
+                                          key: ValueKey(
+                                            'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
+                                          ),
+                                          texts: verticalTextLines,
+                                          scrollDuration: Duration(
+                                            milliseconds: (scrollDelay * 8)
+                                                .floor(),
+                                          ),
+                                          linePause: Duration(
+                                            seconds: i['vertical_scroll_delay'],
+                                          ),
+                                          cyclePause: Duration(
+                                            seconds: cyclePause,
+                                          ),
+                                          textStyle: TextStyle(
+                                            fontFamily:
+                                                Globals.tickerFontFamily,
+                                            fontFamilyFallback: Globals
+                                                .fontFamilyFallback, // fallback for Linux to get the correct symbols
+                                            fontSize: tickerFontSize,
+                                            color: ColorDefs.textColor(
+                                              context: context,
+                                            ),
                                           ),
                                         ),
-                                      )
-                                    : UpdatableTicker(
-                                        key: ValueKey(
-                                            'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height'),
-                                        updatableText: scrollText,
-                                        style: TextStyle(
-                                          fontFamily: Globals.tickerFontFamily,
-                                          fontFamilyFallback: Globals
-                                              .fontFamilyFallback, // fallback for Linux to get the correct symbols
-                                          fontSize: tickerFontSize,
-                                          color: ColorDefs.textColor(
-                                            context: context,
-                                          ),
-                                        ),
-                                        pixelsPerSecond: getPixelsPerSecond(
-                                          ip: ip,
-                                          fontSize: tickerFontSize,
-                                          sliderValue: scrollSpeedDevice,
-                                        ),
-                                        forceUpdate: forceTickerUpdateActive,
-                                        separator: Globals.tickerSeparator,
+                                )
+                              : ledTickerInDeviceListActive
+                              ? Container(
+                                  width: tickerWidth,
+                                  padding: EdgeInsets.all(ledTickerPadding),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      width: ledTickerBorderSize,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                  child: Container(
+                                    color: ledTickerPixelShiftActive
+                                        ? Colors.black
+                                        : Colors.grey.shade800,
+                                    child: UpdatableLedTicker(
+                                      key: ValueKey(
+                                        'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
                                       ),
-                          ),
+                                      updatableText: scrollText,
+                                      modules: ledModules,
+                                      useProportionalFont: true,
+                                      enableSmoothScrolling:
+                                          ledTickerPixelShiftActive,
+                                      ledSize: ledSize,
+                                      ledGap: ledGap,
+                                      onColor: ledOnColor,
+                                      offColor: ledOffColor,
+                                      pixelsPerSecond: pixelsPerSecond,
+                                      forceUpdate: forceTickerUpdateActive,
+                                      separator: Globals.tickerSeparator,
+                                    ),
+                                  ),
+                                )
+                              : UpdatableTicker(
+                                  key: ValueKey(
+                                    'UpdatableTickerStartPage-${widget.ip}-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height',
+                                  ),
+                                  updatableText: scrollText,
+                                  style: TextStyle(
+                                    fontFamily: Globals.tickerFontFamily,
+                                    fontFamilyFallback: Globals
+                                        .fontFamilyFallback, // fallback for Linux to get the correct symbols
+                                    fontSize: tickerFontSize,
+                                    color: ColorDefs.textColor(
+                                      context: context,
+                                    ),
+                                  ),
+                                  pixelsPerSecond: getPixelsPerSecond(
+                                    ip: ip,
+                                    fontSize: tickerFontSize,
+                                    sliderValue: scrollSpeedDevice,
+                                  ),
+                                  forceUpdate: forceTickerUpdateActive,
+                                  separator: Globals.tickerSeparator,
+                                ),
                         ),
                       ),
                     ),
-                  )),
+                  ),
+                ),
+              ),
               if (Globals.isDesktopDevice() && widget.showSlider == true)
                 Positioned(
                   bottom: -10,

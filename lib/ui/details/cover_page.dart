@@ -75,17 +75,16 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   );
 
   BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
-        borderRadius: Globals.borderRadius(),
-        color:
-            Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
-        // color: Color.fromARGB(160, 0, 0, 0),
-      );
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
+    // color: Color.fromARGB(160, 0, 0, 0),
+  );
 
   BoxDecoration areaDecorationFilledDarkStyle() => BoxDecoration(
-        borderRadius: Globals.borderRadius(),
-        color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
-        // color: Color.fromARGB(160, 0, 0, 0),
-      );
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
+    // color: Color.fromARGB(160, 0, 0, 0),
+  );
 
   Map<String, dynamic> info = {};
   Map<String, String> options = {};
@@ -120,7 +119,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     super.initState();
   }
 
-  initSubscription() {
+  void initSubscription() {
     mainBlocSubscription = mainBloc.stream.listen((MainState mainState) {
       if (mainState is MainStateLoaded) {
         info = mainState.info[ip] ?? {};
@@ -310,15 +309,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         selectedZone!['artist'] != null) {
       String zoneName = selectedZone!['zone'] != null
           ? (selectedZone!['server'] == 'roon'
-                  ? selectedZone!['zone']
-                  : selectedZone!['server'])
-              .toString()
-              .toFirstUpper
+                    ? selectedZone!['zone']
+                    : selectedZone!['server'])
+                .toString()
+                .toFirstUpper
           : '';
 
       String hash = md5
-          .convert(utf8.encode(
-              '$zoneName-${selectedZone!['artist']}-${selectedZone!['album']}-${selectedZone!['track']}-${selectedZone!['status']}'))
+          .convert(
+            utf8.encode(
+              '$zoneName-${selectedZone!['artist']}-${selectedZone!['album']}-${selectedZone!['track']}-${selectedZone!['status']}',
+            ),
+          )
           .toString();
 
       CoverModel coverModel = CoverModel(
@@ -333,12 +335,14 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         status: selectedZone!['status'],
       );
 
-      final int fullTextLength = coverModel.zoneName.length +
+      final int fullTextLength =
+          coverModel.zoneName.length +
           coverModel.artist.length +
           coverModel.album.length +
           coverModel.album.length +
           coverModel.track.length;
-      bool longText = fullTextLength > fullTextLengthMax &&
+      bool longText =
+          fullTextLength > fullTextLengthMax &&
           (MediaQuery.of(context).size.height < (portraitMode ? 700 : 568) ||
               (!portraitMode && MediaQuery.of(context).size.width < 1024));
 
@@ -367,8 +371,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 4.0,
+                      vertical: 2.0,
+                    ),
                     child: Container(
                       padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
@@ -376,7 +382,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 4.0, vertical: 2.0),
+                          horizontal: 4.0,
+                          vertical: 2.0,
+                        ),
                         child: CoverTextOverlayExtended(
                           coverModel: coverModel,
                           fontSize: fontSize,
@@ -417,9 +425,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   key: ValueKey('Text-$idle-$hash'),
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    inner,
-                  ],
+                  children: [inner],
                 )
               : IntrinsicHeight(
                   key: ValueKey('Text-$idle-$hash'),
@@ -432,9 +438,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     return SizedBox(key: key);
   }
 
-  Map<String, dynamic> updateZoneSelection({
-    required String? newValue,
-  }) {
+  Map<String, dynamic> updateZoneSelection({required String? newValue}) {
     if (newValue != null) {
       String? selectedControlId;
       if (options[newValue] != null &&
@@ -447,7 +451,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
       if (selectedControlId != null) {
         mainBloc.zoneControl(
-            ip: ip, controlId: selectedControlId, cmd: 'switch');
+          ip: ip,
+          controlId: selectedControlId,
+          cmd: 'switch',
+        );
 
         Map<String, dynamic> data = mainBloc.getZoneDataForControlId(
           info: info,
@@ -475,9 +482,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         }
       }
     } else {
-      return {
-        "selectedZoneId": null,
-      };
+      return {"selectedZoneId": null};
     }
 
     return {};
@@ -493,52 +498,58 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     if (selectBoxWithoutPadding == true &&
         (Globals.inIosStyle() || !threeCols)) {
       return Row(
-        mainAxisAlignment:
-            portraitMode ? MainAxisAlignment.center : MainAxisAlignment.start,
+        mainAxisAlignment: portraitMode
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.start,
         children: [
           SizedBox(
             width: width != null ? width + (portraitMode ? 0 : 4) : null,
             child: Padding(
               padding: EdgeInsets.only(
-                  top: coverPadding, bottom: portraitMode ? coverPadding : 0),
+                top: coverPadding,
+                bottom: portraitMode ? coverPadding : 0,
+              ),
               child: Tooltip(
                 message: translations['selectZoneTooltip'] ?? 'Select zone',
                 waitDuration: Globals.tooltipWaitDuration,
                 child: SelectBox(
-                    key: ValueKey('ZoneSelectBox-$selectedZoneId'),
-                    translations: translations,
-                    aligned: 'inline',
-                    placeholder:
-                        '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                    inRow: true,
-                    noVerticalSpace: true,
-                    readOnly: false,
-                    maxWidth: width != null
-                        ? width -
+                  key: ValueKey('ZoneSelectBox-$selectedZoneId'),
+                  translations: translations,
+                  aligned: 'inline',
+                  placeholder:
+                      '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                  inRow: true,
+                  noVerticalSpace: true,
+                  readOnly: false,
+                  maxWidth: width != null
+                      ? width -
                             (portraitMode ? 20 : 16) -
                             (Globals.inMacosStyle() ? 15 : 0)
-                        : null,
-                    elementExpanded: true,
-                    selected:
-                        options[selectedZoneId] != null ? selectedZoneId : null,
-                    options: options,
-                    onChanged: (String? newValue) {
-                      Map<String, dynamic> updateData =
-                          updateZoneSelection(newValue: newValue);
-                      selectedZoneId =
-                          updateData['selectedZoneId'] ?? selectedZoneId;
-                      controlId = updateData['controlId'] ?? controlId;
-                      selectedZone = updateData['selectedZone'] ?? selectedZone;
-                      if (mounted && updateData.keys.isNotEmpty) {
-                        setState(() {
-                          selectedZoneId =
-                              updateData['selectedZoneId'] ?? selectedZoneId;
-                          controlId = updateData['controlId'] ?? controlId;
-                          selectedZone =
-                              updateData['selectedZone'] ?? selectedZone;
-                        });
-                      }
-                    }),
+                      : null,
+                  elementExpanded: true,
+                  selected: options[selectedZoneId] != null
+                      ? selectedZoneId
+                      : null,
+                  options: options,
+                  onChanged: (String? newValue) {
+                    Map<String, dynamic> updateData = updateZoneSelection(
+                      newValue: newValue,
+                    );
+                    selectedZoneId =
+                        updateData['selectedZoneId'] ?? selectedZoneId;
+                    controlId = updateData['controlId'] ?? controlId;
+                    selectedZone = updateData['selectedZone'] ?? selectedZone;
+                    if (mounted && updateData.keys.isNotEmpty) {
+                      setState(() {
+                        selectedZoneId =
+                            updateData['selectedZoneId'] ?? selectedZoneId;
+                        controlId = updateData['controlId'] ?? controlId;
+                        selectedZone =
+                            updateData['selectedZone'] ?? selectedZone;
+                      });
+                    }
+                  },
+                ),
               ),
             ),
           ),
@@ -565,37 +576,39 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
               message: translations['selectZoneTooltip'] ?? 'Select zone',
               waitDuration: Duration(seconds: 2),
               child: SelectBox(
-                  key: ValueKey('ZoneSelectBox-$selectedZoneId'),
-                  translations: translations,
-                  aligned: 'horizontal',
-                  placeholder:
-                      '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
-                  inRow: true,
-                  noVerticalSpace: false,
-                  elementExpanded:
-                      width != null && width <= 300, // maybe throws error
-                  readOnly: false,
-                  maxWidth: width != null && width <= 300 ? width - 70 : null,
-                  selected:
-                      options[selectedZoneId] != null ? selectedZoneId : null,
-                  options: options,
-                  onChanged: (String? newValue) {
-                    Map<String, dynamic> updateData =
-                        updateZoneSelection(newValue: newValue);
-                    selectedZoneId =
-                        updateData['selectedZoneId'] ?? selectedZoneId;
-                    controlId = updateData['controlId'] ?? controlId;
-                    selectedZone = updateData['selectedZone'] ?? selectedZone;
-                    if (mounted && updateData.keys.isNotEmpty) {
-                      setState(() {
-                        selectedZoneId =
-                            updateData['selectedZoneId'] ?? selectedZoneId;
-                        controlId = updateData['controlId'] ?? controlId;
-                        selectedZone =
-                            updateData['selectedZone'] ?? selectedZone;
-                      });
-                    }
-                  }),
+                key: ValueKey('ZoneSelectBox-$selectedZoneId'),
+                translations: translations,
+                aligned: 'horizontal',
+                placeholder:
+                    '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
+                inRow: true,
+                noVerticalSpace: false,
+                elementExpanded:
+                    width != null && width <= 300, // maybe throws error
+                readOnly: false,
+                maxWidth: width != null && width <= 300 ? width - 70 : null,
+                selected: options[selectedZoneId] != null
+                    ? selectedZoneId
+                    : null,
+                options: options,
+                onChanged: (String? newValue) {
+                  Map<String, dynamic> updateData = updateZoneSelection(
+                    newValue: newValue,
+                  );
+                  selectedZoneId =
+                      updateData['selectedZoneId'] ?? selectedZoneId;
+                  controlId = updateData['controlId'] ?? controlId;
+                  selectedZone = updateData['selectedZone'] ?? selectedZone;
+                  if (mounted && updateData.keys.isNotEmpty) {
+                    setState(() {
+                      selectedZoneId =
+                          updateData['selectedZoneId'] ?? selectedZoneId;
+                      controlId = updateData['controlId'] ?? controlId;
+                      selectedZone = updateData['selectedZone'] ?? selectedZone;
+                    });
+                  }
+                },
+              ),
             ),
           ],
         ),
@@ -608,122 +621,124 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     required bool portraitMode,
     required bool noRightPadding,
     required Map<String, dynamic>? selectedZone,
-  }) =>
-      Container(
-        margin: EdgeInsets.only(
-          bottom: portraitMode ? 16.0 : 0.0,
-        ),
-        width: double.infinity,
-        height: double.infinity,
-        padding: portraitMode
-            ? EdgeInsets.all(
-                0,
-              )
-            : EdgeInsets.all(coverPadding),
-        child: LayoutBuilder(builder: (context, constraints) {
-          double maxSize = max(constraints.maxWidth, constraints.maxHeight);
-          double minSize = min(constraints.maxWidth, constraints.maxHeight);
+  }) => Container(
+    margin: EdgeInsets.only(bottom: portraitMode ? 16.0 : 0.0),
+    width: double.infinity,
+    height: double.infinity,
+    padding: portraitMode ? EdgeInsets.all(0) : EdgeInsets.all(coverPadding),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        double maxSize = max(constraints.maxWidth, constraints.maxHeight);
+        double minSize = min(constraints.maxWidth, constraints.maxHeight);
 
-          if (minSize < zoneCornerLabelMinCoverSize) {
-            return ZoneCornerLabel(
-              zoneName: '-${selectedZone?['zone'] ?? name}',
-              coverWidth: Globals.zoneCornerFullSize,
-              asRoundVariant: true,
-            );
-          }
+        if (minSize < zoneCornerLabelMinCoverSize) {
+          return ZoneCornerLabel(
+            zoneName: '-${selectedZone?['zone'] ?? name}',
+            coverWidth: Globals.zoneCornerFullSize,
+            asRoundVariant: true,
+          );
+        }
 
-          return Center(
-            child: ClipRRect(
-              borderRadius: Globals.borderRadius(),
-              child: SimpleGestureDetector(
-                onHorizontalSwipe: (SwipeDirection direction) {
-                  if (Globals.isMobileDevice() &&
-                      direction == SwipeDirection.right) {
-                    mainBloc.zoneControl(
-                        ip: ip, controlId: controlId!, cmd: 'previous');
-                  }
-                  if (Globals.isMobileDevice() &&
-                      direction == SwipeDirection.left) {
-                    mainBloc.zoneControl(
-                        ip: ip, controlId: controlId!, cmd: 'next');
-                  }
-                },
-                child: Stack(
-                  children: [
-                    AnimatedSwitcher(
-                      duration: Globals.coverSwitchDefaultFadeAnimationDuration,
-                      child: mainRepository.coverExistInZone(zone: selectedZone)
-                          ? Image.network(
-                              selectedZone!['cover'],
-                              key: ValueKey(
-                                  'BigCover-$selectedZone-$idle-${selectedZone['cover']}'),
+        return Center(
+          child: ClipRRect(
+            borderRadius: Globals.borderRadius(),
+            child: SimpleGestureDetector(
+              onHorizontalSwipe: (SwipeDirection direction) {
+                if (Globals.isMobileDevice() &&
+                    direction == SwipeDirection.right) {
+                  mainBloc.zoneControl(
+                    ip: ip,
+                    controlId: controlId!,
+                    cmd: 'previous',
+                  );
+                }
+                if (Globals.isMobileDevice() &&
+                    direction == SwipeDirection.left) {
+                  mainBloc.zoneControl(
+                    ip: ip,
+                    controlId: controlId!,
+                    cmd: 'next',
+                  );
+                }
+              },
+              child: Stack(
+                children: [
+                  AnimatedSwitcher(
+                    duration: Globals.coverSwitchDefaultFadeAnimationDuration,
+                    child: mainRepository.coverExistInZone(zone: selectedZone)
+                        ? Image.network(
+                            selectedZone!['cover'],
+                            key: ValueKey(
+                              'BigCover-$selectedZone-$idle-${selectedZone['cover']}',
+                            ),
+                            fit: BoxFit.contain,
+                            alignment: portraitMode
+                                ? Alignment.topCenter
+                                : Alignment.centerLeft,
+                            colorBlendMode: idle
+                                ? ColorDefs.idleZoneColorBlendMode
+                                : null,
+                            color: idle ? ColorDefs.idleZoneColor : null,
+                            width: constraints.maxWidth <= constraints.maxHeight
+                                ? double.infinity
+                                : null,
+                            height:
+                                constraints.maxWidth >= constraints.maxHeight
+                                ? double.infinity
+                                : null,
+                            errorBuilder: (context, error, stackTrace) {
+                              return SizedBox(
+                                width: maxSize,
+                                height: maxSize,
+                                child: SvgPicture.asset(
+                                  Globals.placeholderSvgAssetPath(),
+                                  allowDrawingOutsideViewBox: false,
+                                  fit: BoxFit.contain,
+                                  alignment: portraitMode
+                                      ? Alignment.center
+                                      : Alignment.centerLeft,
+                                  colorFilter: idle
+                                      ? ColorDefs.idleZoneColorFilter
+                                      : null,
+                                ),
+                              );
+                            },
+                          )
+                        : SizedBox(
+                            width: maxSize,
+                            height: maxSize,
+                            child: SvgPicture.asset(
+                              Globals.placeholderSvgAssetPath(),
+                              allowDrawingOutsideViewBox: false,
                               fit: BoxFit.contain,
                               alignment: portraitMode
-                                  ? Alignment.topCenter
+                                  ? Alignment.center
                                   : Alignment.centerLeft,
-                              colorBlendMode: idle
-                                  ? ColorDefs.idleZoneColorBlendMode
+                              colorFilter: idle
+                                  ? ColorDefs.idleZoneColorFilter
                                   : null,
-                              color: idle ? ColorDefs.idleZoneColor : null,
-                              width:
-                                  constraints.maxWidth <= constraints.maxHeight
-                                      ? double.infinity
-                                      : null,
-                              height:
-                                  constraints.maxWidth >= constraints.maxHeight
-                                      ? double.infinity
-                                      : null,
-                              errorBuilder: (context, error, stackTrace) {
-                                return SizedBox(
-                                  width: maxSize,
-                                  height: maxSize,
-                                  child: SvgPicture.asset(
-                                    Globals.placeholderSvgAssetPath(),
-                                    allowDrawingOutsideViewBox: false,
-                                    fit: BoxFit.contain,
-                                    alignment: portraitMode
-                                        ? Alignment.center
-                                        : Alignment.centerLeft,
-                                    colorFilter: idle
-                                        ? ColorDefs.idleZoneColorFilter
-                                        : null,
-                                  ),
-                                );
-                              },
-                            )
-                          : SizedBox(
-                              width: maxSize,
-                              height: maxSize,
-                              child: SvgPicture.asset(
-                                Globals.placeholderSvgAssetPath(),
-                                allowDrawingOutsideViewBox: false,
-                                fit: BoxFit.contain,
-                                alignment: portraitMode
-                                    ? Alignment.center
-                                    : Alignment.centerLeft,
-                                colorFilter:
-                                    idle ? ColorDefs.idleZoneColorFilter : null,
-                              ),
                             ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      right: 0, //give the values according to your requirement
-                      child: Opacity(
-                        opacity: ColorDefs.zoneCornerLabelOpacity,
-                        child: ZoneCornerLabel(
-                          zoneName: '-${selectedZone?['zone'] ?? name}',
-                          coverWidth: Globals.zoneCornerFullSize,
-                        ),
+                          ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0, //give the values according to your requirement
+                    child: Opacity(
+                      opacity: ColorDefs.zoneCornerLabelOpacity,
+                      child: ZoneCornerLabel(
+                        zoneName: '-${selectedZone?['zone'] ?? name}',
+                        coverWidth: Globals.zoneCornerFullSize,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          );
-        }),
-      );
+          ),
+        );
+      },
+    ),
+  );
 
   Widget getControlArea({
     required bool portraitMode,
@@ -734,77 +749,76 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     required bool repeat,
     required bool isRadio,
     required String? selectedZoneId,
-  }) =>
-      Container(
-        width: portraitMode ? null : double.infinity,
-        height: portraitMode || threeCols ? null : double.infinity,
-        margin: portraitMode
-            ? EdgeInsets.only(
-                right: portraitMode ? 0 : coverPadding,
-                bottom: coverPadding,
-              )
-            : EdgeInsets.only(
-                right: coverPadding,
-                top: coverPadding,
-                bottom: coverPadding,
-              ),
-        decoration: Globals.brightness() == Brightness.dark
-            ? areaDecorationFilledDarkStyle()
-            : areaDecorationFilledLightStyle(),
-        child: Center(
-          child: ControlButtons(
-            key: ValueKey(
-                'ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
-            orientation: orientation,
-            translations: translations,
-            portraitMode: portraitMode,
-            padding: coverPadding,
-            ip: ip,
-            controlId: controlId ?? widget.controlId ?? '',
-            idle: idle,
-            shuffle: shuffle,
-            repeat: repeat,
-            isRadio: isRadio,
-            readOnly: selectedZoneId == null || selectedZoneId.isEmpty,
+  }) => Container(
+    width: portraitMode ? null : double.infinity,
+    height: portraitMode || threeCols ? null : double.infinity,
+    margin: portraitMode
+        ? EdgeInsets.only(
+            right: portraitMode ? 0 : coverPadding,
+            bottom: coverPadding,
+          )
+        : EdgeInsets.only(
+            right: coverPadding,
+            top: coverPadding,
+            bottom: coverPadding,
           ),
-        ),
-      );
+    decoration: Globals.brightness() == Brightness.dark
+        ? areaDecorationFilledDarkStyle()
+        : areaDecorationFilledLightStyle(),
+    child: Center(
+      child: ControlButtons(
+        key: ValueKey('ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
+        orientation: orientation,
+        translations: translations,
+        portraitMode: portraitMode,
+        padding: coverPadding,
+        ip: ip,
+        controlId: controlId ?? widget.controlId ?? '',
+        idle: idle,
+        shuffle: shuffle,
+        repeat: repeat,
+        isRadio: isRadio,
+        readOnly: selectedZoneId == null || selectedZoneId.isEmpty,
+      ),
+    ),
+  );
 
   Widget body({
     required BuildContext context,
     required MainBloc mainBloc,
-  }) =>
-      NotificationListener<SizeChangedLayoutNotification>(
-        onNotification: (notification) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            setState(() {});
-          });
-          //build(context);
-          return false;
-        },
-        child: SizeChangedLayoutNotifier(
-          child: SizedBox(
-            child: Stack(
-              children: [
-                !loaded
-                    ? SizedBox()
-                    : RoonmatrixAnimatedGradient(
-                        disabled: !withAnimatedBackground,
-                        child: OrientationBuilder(builder:
-                            (BuildContext context, Orientation orientation) {
-                          final bool threeCols =
-                              MediaQuery.of(context).size.width /
-                                      MediaQuery.of(context).size.height >
-                                  2.5;
-                          bool portraitMode = (Globals.isMobileDevice() &&
-                                  orientation == Orientation.portrait) ||
-                              (Globals.isDesktopDevice() &&
-                                  MediaQuery.of(context).size.height >
-                                      MediaQuery.of(context).size.width);
+  }) => NotificationListener<SizeChangedLayoutNotification>(
+    onNotification: (notification) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {});
+      });
+      //build(context);
+      return false;
+    },
+    child: SizeChangedLayoutNotifier(
+      child: SizedBox(
+        child: Stack(
+          children: [
+            !loaded
+                ? SizedBox()
+                : RoonmatrixAnimatedGradient(
+                    disabled: !withAnimatedBackground,
+                    child: OrientationBuilder(
+                      builder: (BuildContext context, Orientation orientation) {
+                        final bool threeCols =
+                            MediaQuery.of(context).size.width /
+                                MediaQuery.of(context).size.height >
+                            2.5;
+                        bool portraitMode =
+                            (Globals.isMobileDevice() &&
+                                orientation == Orientation.portrait) ||
+                            (Globals.isDesktopDevice() &&
+                                MediaQuery.of(context).size.height >
+                                    MediaQuery.of(context).size.width);
 
-                          windowWidth = MediaQuery.of(context).size.width;
+                        windowWidth = MediaQuery.of(context).size.width;
 
-                          return LayoutBuilder(builder: (context, constraints) {
+                        return LayoutBuilder(
+                          builder: (context, constraints) {
                             double maxContentHeight = constraints.maxHeight;
 
                             return portraitMode
@@ -819,109 +833,120 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                           CrossAxisAlignment.center,
                                       children: [
                                         widget.controlId == null
-                                            ? LayoutBuilder(builder:
-                                                (context, constraints) {
-                                                return getSelectBoxArea(
-                                                  portraitMode: portraitMode,
-                                                  threeCols: threeCols,
-                                                  withLabel:
-                                                      coverWidth != null &&
-                                                          coverWidth! > 300,
-                                                  options: options,
-                                                  width: min(
-                                                      constraints.maxWidth,
-                                                      coverWidth ?? 200),
-                                                );
-                                              })
-                                            : SizedBox(
-                                                height: 16.0,
-                                              ),
+                                            ? LayoutBuilder(
+                                                builder:
+                                                    (context, constraints) {
+                                                      return getSelectBoxArea(
+                                                        portraitMode:
+                                                            portraitMode,
+                                                        threeCols: threeCols,
+                                                        withLabel:
+                                                            coverWidth !=
+                                                                null &&
+                                                            coverWidth! > 300,
+                                                        options: options,
+                                                        width: min(
+                                                          constraints.maxWidth,
+                                                          coverWidth ?? 200,
+                                                        ),
+                                                      );
+                                                    },
+                                              )
+                                            : SizedBox(height: 16.0),
                                         Expanded(
                                           child: LayoutBuilder(
-                                              builder: (context, constraints) {
-                                            final double coverSize =
-                                                constraints.maxWidth;
-                                            final double minControlsHeight = 86;
-                                            double coverHeight = min(
-                                              coverSize,
-                                              constraints.maxHeight -
-                                                  minControlsHeight,
-                                            );
-                                            if (coverHeight <
-                                                MediaQuery.of(context)
-                                                        .size
-                                                        .height /
-                                                    2) {
-                                              coverHeight =
-                                                  MediaQuery.of(context)
-                                                          .size
-                                                          .height /
-                                                      2;
-                                            }
+                                            builder: (context, constraints) {
+                                              final double coverSize =
+                                                  constraints.maxWidth;
+                                              final double minControlsHeight =
+                                                  86;
+                                              double coverHeight = min(
+                                                coverSize,
+                                                constraints.maxHeight -
+                                                    minControlsHeight,
+                                              );
+                                              if (coverHeight <
+                                                  MediaQuery.of(
+                                                        context,
+                                                      ).size.height /
+                                                      2) {
+                                                coverHeight =
+                                                    MediaQuery.of(
+                                                      context,
+                                                    ).size.height /
+                                                    2;
+                                              }
 
-                                            coverWidth = coverHeight;
+                                              coverWidth = coverHeight;
 
-                                            final double controlsHeight = max(
-                                                  minControlsHeight,
-                                                  constraints.maxHeight -
-                                                      coverSize,
-                                                ) -
-                                                coverPadding;
+                                              final double controlsHeight =
+                                                  max(
+                                                    minControlsHeight,
+                                                    constraints.maxHeight -
+                                                        coverSize,
+                                                  ) -
+                                                  coverPadding;
 
-                                            if (kDebugMode) {
-                                              debugPrint(
-                                                  'portraitMode cover + controlArea => maxWidth: ${constraints.maxWidth}, coverWidth: $coverWidth, controlsHeight: $controlsHeight');
-                                            }
+                                              if (kDebugMode) {
+                                                debugPrint(
+                                                  'portraitMode cover + controlArea => maxWidth: ${constraints.maxWidth}, coverWidth: $coverWidth, controlsHeight: $controlsHeight',
+                                                );
+                                              }
 
-                                            return Column(
-                                              children: [
-                                                Expanded(
-                                                  child: getCoverArea(
-                                                    context: context,
-                                                    portraitMode: portraitMode,
-                                                    noRightPadding: true,
-                                                    selectedZone: selectedZone,
+                                              return Column(
+                                                children: [
+                                                  Expanded(
+                                                    child: getCoverArea(
+                                                      context: context,
+                                                      portraitMode:
+                                                          portraitMode,
+                                                      noRightPadding: true,
+                                                      selectedZone:
+                                                          selectedZone,
+                                                    ),
                                                   ),
-                                                ),
-                                                SizedBox(
-                                                  width: coverWidth!,
-                                                  height:
-                                                      controlsHeight.toDouble(),
-                                                  child: getControlArea(
-                                                    portraitMode: portraitMode,
-                                                    orientation: orientation,
-                                                    threeCols: threeCols,
-                                                    idle: idle,
-                                                    shuffle: shuffle,
-                                                    repeat: repeat,
-                                                    isRadio: isRadio,
-                                                    selectedZoneId:
-                                                        selectedZoneId,
+                                                  SizedBox(
+                                                    width: coverWidth!,
+                                                    height: controlsHeight
+                                                        .toDouble(),
+                                                    child: getControlArea(
+                                                      portraitMode:
+                                                          portraitMode,
+                                                      orientation: orientation,
+                                                      threeCols: threeCols,
+                                                      idle: idle,
+                                                      shuffle: shuffle,
+                                                      repeat: repeat,
+                                                      isRadio: isRadio,
+                                                      selectedZoneId:
+                                                          selectedZoneId,
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            );
-                                          }),
+                                                ],
+                                              );
+                                            },
+                                          ),
                                         ),
                                         Container(
-                                            constraints: coverWidth != null
-                                                ? BoxConstraints(
-                                                    minWidth: coverWidth!,
-                                                    maxWidth: coverWidth!,
-                                                  )
-                                                : null,
-                                            width: coverWidth != null
-                                                ? (coverWidth! - coverPadding)
-                                                : 200,
-                                            margin: EdgeInsets.only(
-                                              bottom: coverPadding,
-                                            ),
-                                            decoration: Globals.brightness() ==
-                                                    Brightness.dark
-                                                ? areaDecorationFilledDarkStyle()
-                                                : areaDecorationFilledLightStyle(),
-                                            child: LayoutBuilder(builder:
-                                                (context, constraints) {
+                                          constraints: coverWidth != null
+                                              ? BoxConstraints(
+                                                  minWidth: coverWidth!,
+                                                  maxWidth: coverWidth!,
+                                                )
+                                              : null,
+                                          width: coverWidth != null
+                                              ? (coverWidth! - coverPadding)
+                                              : 200,
+                                          margin: EdgeInsets.only(
+                                            bottom: coverPadding,
+                                          ),
+                                          decoration:
+                                              Globals.brightness() ==
+                                                  Brightness.dark
+                                              ? areaDecorationFilledDarkStyle()
+                                              : areaDecorationFilledLightStyle(),
+                                          child: LayoutBuilder(
+                                            builder: (context, constraints) {
                                               double width =
                                                   constraints.maxWidth;
                                               double height =
@@ -929,22 +954,24 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
                                               WidgetsBinding.instance
                                                   .addPostFrameCallback((_) {
-                                                final keyContext =
-                                                    portraitTextAreaKey
-                                                        .currentContext;
-                                                if (keyContext != null) {
-                                                  final box = keyContext
-                                                          .findRenderObject()
-                                                      as RenderBox;
-                                                  width = box.size.width;
-                                                  height = box.size.height;
+                                                    final keyContext =
+                                                        portraitTextAreaKey
+                                                            .currentContext;
+                                                    if (keyContext != null) {
+                                                      final box =
+                                                          keyContext
+                                                                  .findRenderObject()
+                                                              as RenderBox;
+                                                      width = box.size.width;
+                                                      height = box.size.height;
 
-                                                  if (kDebugMode) {
-                                                    debugPrint(
-                                                        'portraitMode textArea => size: $width x $height, maxWidth: ${constraints.maxWidth}');
-                                                  }
-                                                }
-                                              });
+                                                      if (kDebugMode) {
+                                                        debugPrint(
+                                                          'portraitMode textArea => size: $width x $height, maxWidth: ${constraints.maxWidth}',
+                                                        );
+                                                      }
+                                                    }
+                                                  });
 
                                               return getTextArea(
                                                 key: portraitTextAreaKey,
@@ -957,7 +984,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                   height: height,
                                                 ),
                                               );
-                                            })),
+                                            },
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   )
@@ -965,9 +994,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                     children: [
                                       windowWidth == null ||
                                               windowWidth! >
-                                                  MediaQuery.of(context)
-                                                          .size
-                                                          .height +
+                                                  MediaQuery.of(
+                                                        context,
+                                                      ).size.height +
                                                       250 // limit width to cover area height (no flex)
                                           ? Container(
                                               constraints: BoxConstraints(
@@ -993,111 +1022,126 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                       if (threeCols &&
                                           !threeColsWithoutSpace &&
                                           MediaQuery.of(context).size.width /
-                                                  MediaQuery.of(context)
-                                                      .size
-                                                      .height >
+                                                  MediaQuery.of(
+                                                    context,
+                                                  ).size.height >
                                               3.5) // add flexible fillup space between cover and control/text
                                         Flexible(child: Container()),
                                       threeCols
                                           ? threeColsWithoutSpace == true
-                                              ? Flexible(
-                                                  flex: 1,
-                                                  child: LayoutBuilder(builder:
-                                                      (context, constraints) {
-                                                    if (kDebugMode) {
-                                                      debugPrint(
-                                                          'threeColumnMode controlArea (flex) => size: ${constraints.maxWidth} x ${constraints.maxHeight}');
-                                                    }
-                                                    return getControlArea(
-                                                      portraitMode:
-                                                          portraitMode,
-                                                      orientation: orientation,
-                                                      threeCols: threeCols,
-                                                      idle: idle,
-                                                      shuffle: shuffle,
-                                                      repeat: repeat,
-                                                      isRadio: isRadio,
-                                                      selectedZoneId:
-                                                          selectedZoneId,
-                                                    );
-                                                  }),
-                                                )
-                                              : LayoutBuilder(builder:
-                                                  (context, constraints) {
-                                                  if (kDebugMode) {
-                                                    debugPrint(
-                                                        'threeColumnMode controlArea (limit width) => controlarea size: ${constraints.maxWidth} x ${constraints.maxHeight}');
-                                                  }
-                                                  return SizedBox(
-                                                    width:
-                                                        constraints.maxHeight,
-                                                    child: getControlArea(
-                                                      portraitMode:
-                                                          portraitMode,
-                                                      orientation: orientation,
-                                                      threeCols: threeCols,
-                                                      idle: idle,
-                                                      shuffle: shuffle,
-                                                      repeat: repeat,
-                                                      isRadio: isRadio,
-                                                      selectedZoneId:
-                                                          selectedZoneId,
+                                                ? Flexible(
+                                                    flex: 1,
+                                                    child: LayoutBuilder(
+                                                      builder: (context, constraints) {
+                                                        if (kDebugMode) {
+                                                          debugPrint(
+                                                            'threeColumnMode controlArea (flex) => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
+                                                          );
+                                                        }
+                                                        return getControlArea(
+                                                          portraitMode:
+                                                              portraitMode,
+                                                          orientation:
+                                                              orientation,
+                                                          threeCols: threeCols,
+                                                          idle: idle,
+                                                          shuffle: shuffle,
+                                                          repeat: repeat,
+                                                          isRadio: isRadio,
+                                                          selectedZoneId:
+                                                              selectedZoneId,
+                                                        );
+                                                      },
                                                     ),
-                                                  );
-                                                })
+                                                  )
+                                                : LayoutBuilder(
+                                                    builder: (context, constraints) {
+                                                      if (kDebugMode) {
+                                                        debugPrint(
+                                                          'threeColumnMode controlArea (limit width) => controlarea size: ${constraints.maxWidth} x ${constraints.maxHeight}',
+                                                        );
+                                                      }
+                                                      return SizedBox(
+                                                        width: constraints
+                                                            .maxHeight,
+                                                        child: getControlArea(
+                                                          portraitMode:
+                                                              portraitMode,
+                                                          orientation:
+                                                              orientation,
+                                                          threeCols: threeCols,
+                                                          idle: idle,
+                                                          shuffle: shuffle,
+                                                          repeat: repeat,
+                                                          isRadio: isRadio,
+                                                          selectedZoneId:
+                                                              selectedZoneId,
+                                                        ),
+                                                      );
+                                                    },
+                                                  )
                                           : Flexible(
                                               flex: 1,
                                               child: Column(
                                                 children: [
-                                                  if (MediaQuery.of(context)
-                                                          .size
-                                                          .width >
+                                                  if (MediaQuery.of(
+                                                        context,
+                                                      ).size.width >
                                                       565)
                                                     widget.controlId == null
-                                                        ? LayoutBuilder(builder:
-                                                            (context,
-                                                                constraints) {
-                                                            if (kDebugMode) {
-                                                              debugPrint(
-                                                                  'twoColumnMode selectboxArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}');
-                                                            }
-                                                            return getSelectBoxArea(
-                                                              portraitMode:
-                                                                  portraitMode,
-                                                              threeCols:
-                                                                  threeCols,
-                                                              options: options,
-                                                              withLabel: constraints
-                                                                      .maxWidth >=
-                                                                  380,
-                                                              width: constraints
-                                                                      .maxWidth -
-                                                                  20,
-                                                            );
-                                                          })
+                                                        ? LayoutBuilder(
+                                                            builder:
+                                                                (
+                                                                  context,
+                                                                  constraints,
+                                                                ) {
+                                                                  if (kDebugMode) {
+                                                                    debugPrint(
+                                                                      'twoColumnMode selectboxArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
+                                                                    );
+                                                                  }
+                                                                  return getSelectBoxArea(
+                                                                    portraitMode:
+                                                                        portraitMode,
+                                                                    threeCols:
+                                                                        threeCols,
+                                                                    options:
+                                                                        options,
+                                                                    withLabel:
+                                                                        constraints
+                                                                            .maxWidth >=
+                                                                        380,
+                                                                    width:
+                                                                        constraints
+                                                                            .maxWidth -
+                                                                        20,
+                                                                  );
+                                                                },
+                                                          )
                                                         : SizedBox(),
                                                   Flexible(
                                                     child: LayoutBuilder(
-                                                        builder: (context,
-                                                            constraints) {
-                                                      if (kDebugMode) {
-                                                        debugPrint(
-                                                            'twoColumnMode controlArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}');
-                                                      }
-                                                      return getControlArea(
-                                                        portraitMode:
-                                                            portraitMode,
-                                                        orientation:
-                                                            orientation,
-                                                        threeCols: threeCols,
-                                                        idle: idle,
-                                                        shuffle: shuffle,
-                                                        repeat: repeat,
-                                                        isRadio: isRadio,
-                                                        selectedZoneId:
-                                                            selectedZoneId,
-                                                      );
-                                                    }),
+                                                      builder: (context, constraints) {
+                                                        if (kDebugMode) {
+                                                          debugPrint(
+                                                            'twoColumnMode controlArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
+                                                          );
+                                                        }
+                                                        return getControlArea(
+                                                          portraitMode:
+                                                              portraitMode,
+                                                          orientation:
+                                                              orientation,
+                                                          threeCols: threeCols,
+                                                          idle: idle,
+                                                          shuffle: shuffle,
+                                                          repeat: repeat,
+                                                          isRadio: isRadio,
+                                                          selectedZoneId:
+                                                              selectedZoneId,
+                                                        );
+                                                      },
+                                                    ),
                                                   ),
                                                   Container(
                                                     margin: EdgeInsets.only(
@@ -1107,58 +1151,62 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                       bottom: coverPadding,
                                                       right: coverPadding,
                                                     ),
-                                                    decoration: Globals
-                                                                .brightness() ==
+                                                    decoration:
+                                                        Globals.brightness() ==
                                                             Brightness.dark
                                                         ? areaDecorationFilledDarkStyle()
                                                         : areaDecorationFilledLightStyle(),
                                                     child: LayoutBuilder(
-                                                        builder: (context,
-                                                            constraints) {
-                                                      double width =
-                                                          constraints.maxWidth;
-                                                      double height =
-                                                          constraints.maxHeight;
+                                                      builder: (context, constraints) {
+                                                        double width =
+                                                            constraints
+                                                                .maxWidth;
+                                                        double height =
+                                                            constraints
+                                                                .maxHeight;
 
-                                                      WidgetsBinding.instance
-                                                          .addPostFrameCallback(
-                                                              (_) {
-                                                        final keyContext =
-                                                            portraitTextAreaKey
-                                                                .currentContext;
-                                                        if (keyContext !=
-                                                            null) {
-                                                          final box = keyContext
-                                                                  .findRenderObject()
-                                                              as RenderBox;
-                                                          width =
-                                                              box.size.width;
-                                                          height =
-                                                              box.size.height;
+                                                        WidgetsBinding.instance.addPostFrameCallback((
+                                                          _,
+                                                        ) {
+                                                          final keyContext =
+                                                              portraitTextAreaKey
+                                                                  .currentContext;
+                                                          if (keyContext !=
+                                                              null) {
+                                                            final box =
+                                                                keyContext
+                                                                        .findRenderObject()
+                                                                    as RenderBox;
+                                                            width =
+                                                                box.size.width;
+                                                            height =
+                                                                box.size.height;
 
-                                                          if (kDebugMode) {
-                                                            debugPrint(
-                                                                'twoColumnMode textarea => size: $width x $height');
+                                                            if (kDebugMode) {
+                                                              debugPrint(
+                                                                'twoColumnMode textarea => size: $width x $height',
+                                                              );
+                                                            }
                                                           }
-                                                        }
-                                                      });
+                                                        });
 
-                                                      return getTextArea(
-                                                        key:
-                                                            portraitTextAreaKey,
-                                                        portraitMode:
-                                                            portraitMode,
-                                                        threeCols: threeCols,
-                                                        width: width,
-                                                        height: height,
-                                                        fontSize:
-                                                            getTextAreaFontSize(
+                                                        return getTextArea(
+                                                          key:
+                                                              portraitTextAreaKey,
+                                                          portraitMode:
+                                                              portraitMode,
+                                                          threeCols: threeCols,
                                                           width: width,
                                                           height: height,
-                                                        ),
-                                                      );
-                                                    }),
-                                                  )
+                                                          fontSize:
+                                                              getTextAreaFontSize(
+                                                                width: width,
+                                                                height: height,
+                                                              ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -1174,88 +1222,100 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                               bottom: coverPadding,
                                               right: coverPadding,
                                             ),
-                                            decoration: Globals.brightness() ==
+                                            decoration:
+                                                Globals.brightness() ==
                                                     Brightness.dark
                                                 ? areaDecorationFilledDarkStyle()
                                                 : areaDecorationFilledLightStyle(),
-                                            child: LayoutBuilder(builder:
-                                                (context, constraints) {
-                                              double width =
-                                                  constraints.maxWidth;
-                                              double height =
-                                                  constraints.maxHeight;
+                                            child: LayoutBuilder(
+                                              builder: (context, constraints) {
+                                                double width =
+                                                    constraints.maxWidth;
+                                                double height =
+                                                    constraints.maxHeight;
 
-                                              if (kDebugMode) {
-                                                debugPrint(
-                                                    'threeColumnMode selectbox + textarea => size: ${constraints.maxWidth} x ${constraints.maxHeight}');
-                                              }
-                                              return Column(
-                                                mainAxisAlignment:
-                                                    widget.controlId == null
-                                                        ? MainAxisAlignment
+                                                if (kDebugMode) {
+                                                  debugPrint(
+                                                    'threeColumnMode selectbox + textarea => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
+                                                  );
+                                                }
+                                                return Column(
+                                                  mainAxisAlignment:
+                                                      widget.controlId == null
+                                                      ? MainAxisAlignment
                                                             .spaceBetween
-                                                        : MainAxisAlignment
+                                                      : MainAxisAlignment
                                                             .center,
-                                                children: [
-                                                  if (widget.controlId ==
-                                                          null &&
-                                                      threeCols)
-                                                    Container(
-                                                      margin: EdgeInsets.only(
-                                                          left: coverPadding),
-                                                      child: getSelectBoxArea(
-                                                        portraitMode:
-                                                            portraitMode,
-                                                        threeCols: threeCols,
-                                                        withLabel: constraints
-                                                                .maxWidth >=
-                                                            380,
-                                                        width: constraints
-                                                                .maxWidth -
-                                                            30,
-                                                        options: options,
-                                                      ),
-                                                    ),
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      Padding(
-                                                        padding: EdgeInsets.only(
-                                                            bottom:
-                                                                coverPadding),
-                                                        child: getTextArea(
-                                                          key:
-                                                              portraitTextAreaKey,
+                                                  children: [
+                                                    if (widget.controlId ==
+                                                            null &&
+                                                        threeCols)
+                                                      Container(
+                                                        margin: EdgeInsets.only(
+                                                          left: coverPadding,
+                                                        ),
+                                                        child: getSelectBoxArea(
                                                           portraitMode:
                                                               portraitMode,
                                                           threeCols: threeCols,
-                                                          width: width,
-                                                          height: height,
-                                                          fontSize:
-                                                              getTextAreaFontSize(
-                                                            width: width,
-                                                            height: height,
-                                                          ),
+                                                          withLabel:
+                                                              constraints
+                                                                  .maxWidth >=
+                                                              380,
+                                                          width:
+                                                              constraints
+                                                                  .maxWidth -
+                                                              30,
+                                                          options: options,
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              );
-                                            }),
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.end,
+                                                      children: [
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                bottom:
+                                                                    coverPadding,
+                                                              ),
+                                                          child: getTextArea(
+                                                            key:
+                                                                portraitTextAreaKey,
+                                                            portraitMode:
+                                                                portraitMode,
+                                                            threeCols:
+                                                                threeCols,
+                                                            width: width,
+                                                            height: height,
+                                                            fontSize:
+                                                                getTextAreaFontSize(
+                                                                  width: width,
+                                                                  height:
+                                                                      height,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ),
                                     ],
                                   );
-                          });
-                        }),
-                      )
-              ],
-            ),
-          ),
+                          },
+                        );
+                      },
+                    ),
+                  ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1264,9 +1324,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         child: CupertinoPageScaffold(
           navigationBar: CupertinoNavigationBar(
             brightness: Globals.brightness(),
-            middle: Text(
-              title,
-            ),
+            middle: Text(title),
           ),
           child: SafeArea(
             child: body(context: context, mainBloc: mainBloc),
@@ -1284,7 +1342,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             body: body(context: context, mainBloc: mainBloc),
             resizeToFullWidth: () {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                  minDesktopSize: minDesktopSize);
+                minDesktopSize: minDesktopSize,
+              );
             },
           )
         : PageWithToolbarFlutterStyle(
@@ -1299,7 +1358,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             body: body(context: context, mainBloc: mainBloc),
             resizeToFullWidth: () {
               mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                  minDesktopSize: minDesktopSize);
+                minDesktopSize: minDesktopSize,
+              );
             },
           );
   }

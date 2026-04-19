@@ -47,7 +47,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     "main": TextEditingController(),
     "info": TextEditingController(),
     "config": TextEditingController(),
-    "log": TextEditingController()
+    "log": TextEditingController(),
   };
   final List<String> allowedDeviceTypes = ['roonmatrix', 'coverplayer'];
   final int pollingIntervalInSeconds = 30;
@@ -74,10 +74,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         if (Globals.inMacosStyle()) {
           String macosVersion = await Globals.getMacosVersion();
 
-          emit(state.copyWith(
-            update: DateTime.now(),
-            macosVersion: macosVersion,
-          ));
+          emit(
+            state.copyWith(update: DateTime.now(), macosVersion: macosVersion),
+          );
         }
       }
 
@@ -85,26 +84,26 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         String? ipStart = event.ipStart;
         String? ipEnd = event.ipEnd;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          ipStart: ipStart,
-          ipEnd: ipEnd,
-        ));
+        emit(
+          state.copyWith(
+            update: DateTime.now(),
+            ipStart: ipStart,
+            ipEnd: ipEnd,
+          ),
+        );
       }
 
       if (event is SetLogMessage) {
         String logMessage = event.msg;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          logMessage: logMessage,
-        ));
+        emit(state.copyWith(update: DateTime.now(), logMessage: logMessage));
       }
 
       if (event is ResetWebSocketServices) {
         if (kDebugMode) {
           debugPrint(
-              'ResetWebSocketServices @ ${DateTime.now().toLocal()}, services: ${services.length}');
+            'ResetWebSocketServices @ ${DateTime.now().toLocal()}, services: ${services.length}',
+          );
         }
         for (WebSocketService service in services) {
           service.dispose();
@@ -118,19 +117,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         Map<String, bool> pingList = Map.from(state.ping);
         pingList[ip] = ping;
-        emit(state.copyWith(
-          update: DateTime.now(),
-          ping: pingList,
-        ));
+        emit(state.copyWith(update: DateTime.now(), ping: pingList));
       }
 
       if (event is SetSelectedDeviceIp) {
         String ip = event.ip;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          selectedDeviceIp: ip,
-        ));
+        emit(state.copyWith(update: DateTime.now(), selectedDeviceIp: ip));
       }
 
       if (event is SetConnected) {
@@ -141,18 +134,21 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         connectedList[ip] = connected;
 
         String? activeDeviceIp = getFirstDeviceConnectedIp(
-            activeDeviceIp: state.activeDeviceIp ?? ip,
-            info: state.info,
-            connected: connectedList);
+          activeDeviceIp: state.activeDeviceIp ?? ip,
+          info: state.info,
+          connected: connectedList,
+        );
         if (kDebugMode && activeDeviceIp != state.activeDeviceIp) {
           debugPrint('activeDeviceIp: $activeDeviceIp');
         }
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          connected: connectedList,
-          activeDeviceIp: activeDeviceIp,
-        ));
+        emit(
+          state.copyWith(
+            update: DateTime.now(),
+            connected: connectedList,
+            activeDeviceIp: activeDeviceIp,
+          ),
+        );
       }
 
       if (event is AddWebSocketService) {
@@ -165,7 +161,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             exist = true;
             if (kDebugMode) {
               debugPrint(
-                  'ws123 WebSocketService @ ${DateTime.now().toLocal()}: ${service.url} => found and therefore not added again');
+                'ws123 WebSocketService @ ${DateTime.now().toLocal()}: ${service.url} => found and therefore not added again',
+              );
             }
 
             break;
@@ -174,55 +171,61 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         if (!exist) {
           WebSocketService service = WebSocketService(
-              ip: ip,
-              port: port,
-              onMessage: (String jsonStr) {
-                if (jsonStr.isNotEmpty &&
-                    jsonStr.startsWith('{') &&
-                    jsonStr.endsWith('}')) {
-                  dynamic info = jsonDecode(jsonStr);
-                  if (kDebugMode) {
-                    debugPrint(
-                        'WebSocketService received data @ ${DateTime.now().toLocal()} from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}');
-                  }
-                  add(LoadInfo(ip: ip, info: info));
+            ip: ip,
+            port: port,
+            onMessage: (String jsonStr) {
+              if (jsonStr.isNotEmpty &&
+                  jsonStr.startsWith('{') &&
+                  jsonStr.endsWith('}')) {
+                dynamic info = jsonDecode(jsonStr);
+                if (kDebugMode) {
+                  debugPrint(
+                    'WebSocketService received data @ ${DateTime.now().toLocal()} from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}',
+                  );
                 }
-              },
-              onPing: () {
-                setPing(ip: ip, ping: true);
-              },
-              onConnect: (bool connected) {
-                setConnected(ip: ip, connected: connected);
-                if (!connected) {
-                  List<WebSocketService> servicesToRemove = [];
-                  for (WebSocketService service in services) {
-                    if (url == service.url) {
-                      if (kDebugMode) {
-                        debugPrint(
-                            'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}');
-                      }
-                      service.dispose();
-                      servicesToRemove.add(service);
+                add(LoadInfo(ip: ip, info: info));
+              }
+            },
+            onPing: () {
+              setPing(ip: ip, ping: true);
+            },
+            onConnect: (bool connected) {
+              setConnected(ip: ip, connected: connected);
+              if (!connected) {
+                List<WebSocketService> servicesToRemove = [];
+                for (WebSocketService service in services) {
+                  if (url == service.url) {
+                    if (kDebugMode) {
+                      debugPrint(
+                        'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}',
+                      );
                     }
+                    service.dispose();
+                    servicesToRemove.add(service);
                   }
-                  if (servicesToRemove.isNotEmpty) {
-                    for (WebSocketService service in servicesToRemove) {
-                      services.remove(service);
-                    }
+                }
+                if (servicesToRemove.isNotEmpty) {
+                  for (WebSocketService service in servicesToRemove) {
+                    services.remove(service);
                   }
+                }
 
-                  Future.delayed(Duration(seconds: reconnectDelayInSeconds),
-                      () => addWebSocketService(ip: ip));
-                }
-              });
+                Future.delayed(
+                  Duration(seconds: reconnectDelayInSeconds),
+                  () => addWebSocketService(ip: ip),
+                );
+              }
+            },
+          );
 
           services.add(service..connect());
         }
       }
 
       if (event is LoadDevices) {
-        List<String> existingServiceUrls =
-            services.map((WebSocketService el) => el.url).toList();
+        List<String> existingServiceUrls = services
+            .map((WebSocketService el) => el.url)
+            .toList();
 
         for (String ip in event.devices) {
           String url = 'ws://$ip:$port/ws';
@@ -230,7 +233,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (!existingServiceUrls.contains(url)) {
             if (kDebugMode) {
               debugPrint(
-                  'add WebSocketService @ ${DateTime.now().toLocal()}: $url');
+                'add WebSocketService @ ${DateTime.now().toLocal()}: $url',
+              );
             }
 
             addWebSocketService(ip: ip);
@@ -242,14 +246,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
         }
 
-        List<String> newWebSocketUrls =
-            event.devices.map((String ip) => 'ws://$ip:$port/ws').toList();
+        List<String> newWebSocketUrls = event.devices
+            .map((String ip) => 'ws://$ip:$port/ws')
+            .toList();
         List<WebSocketService> servicesToRemove = [];
         for (WebSocketService service in services) {
           if (!newWebSocketUrls.contains(service.url)) {
             if (kDebugMode) {
               debugPrint(
-                  'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}');
+                'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}',
+              );
             }
             service.dispose();
             servicesToRemove.add(service);
@@ -265,11 +271,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           debugPrint('active websocket connections: ${services.length}');
         }
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          devices: event.devices,
-          idle: false,
-        ));
+        emit(
+          state.copyWith(
+            update: DateTime.now(),
+            devices: event.devices,
+            idle: false,
+          ),
+        );
       }
 
       if (event is LoadInfo) {
@@ -277,13 +285,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         info[event.ip] = event.info;
         if (kDebugMode) {
           debugPrint(
-              'LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}');
+            'LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}',
+          );
         }
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          info: info,
-        ));
+        emit(state.copyWith(update: DateTime.now(), info: info));
       }
 
       if (event is SetSearchFilter) {
@@ -293,10 +299,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         Map<String, String> searchFilter = Map.from(state.searchFilter);
         searchFilter[type] = filter;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          searchFilter: searchFilter,
-        ));
+        emit(
+          state.copyWith(update: DateTime.now(), searchFilter: searchFilter),
+        );
       }
 
       if (event is Searching) {
@@ -306,12 +311,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         ipEnd = prefs.getString('ipEnd');
         bool idle = event.idle ?? false;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          ipStart: ipStart,
-          ipEnd: ipEnd,
-          idle: idle,
-        ));
+        emit(
+          state.copyWith(
+            update: DateTime.now(),
+            ipStart: ipStart,
+            ipEnd: ipEnd,
+            idle: idle,
+          ),
+        );
 
         searchDevices();
       }
@@ -319,10 +326,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is GetInfo) {
         String ip = event.ip;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          subPageIdle: true,
-        ));
+        emit(state.copyWith(update: DateTime.now(), subPageIdle: true));
 
         String url = 'http://$ip:$port/info/';
         try {
@@ -331,15 +335,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           http.Response response = await client.get(uri);
           if (response.statusCode == 200) {
             if (response.body.substring(0, 1) == '{') {
-              Map<String, dynamic> json = jsonDecode(
-                      filterIllegalCharsFromJsonStr(
+              Map<String, dynamic> json =
+                  jsonDecode(
+                        filterIllegalCharsFromJsonStr(
                           text: utf8.decode(response.bodyBytes),
-                          messageHeader: 'GetInfo/info (raw)'))
-                  as Map<String, dynamic>;
+                          messageHeader: 'GetInfo/info (raw)',
+                        ),
+                      )
+                      as Map<String, dynamic>;
 
               Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
-              Map<String, dynamic> spotifyAuthUrls =
-                  Map<String, dynamic>.from(state.spotifyAuthUrls);
+              Map<String, dynamic> spotifyAuthUrls = Map<String, dynamic>.from(
+                state.spotifyAuthUrls,
+              );
 
               String spotifyAuthUrl = '';
               if (json.containsKey('spotify_auth_url')) {
@@ -351,30 +359,30 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               info[ip] = json;
 
               String? activeDeviceIp = getFirstDeviceConnectedIp(
-                  activeDeviceIp: state.activeDeviceIp ?? ip,
-                  info: info,
-                  connected: state.connected);
+                activeDeviceIp: state.activeDeviceIp ?? ip,
+                info: info,
+                connected: state.connected,
+              );
               if (kDebugMode && activeDeviceIp != state.activeDeviceIp) {
                 debugPrint('activeDeviceIp: $activeDeviceIp');
               }
 
-              emit(state.copyWith(
-                update: DateTime.now(),
-                info: info,
-                subPageIdle: false,
-                spotifyAuthUrls: spotifyAuthUrls,
-                activeDeviceIp: activeDeviceIp,
-              ));
+              emit(
+                state.copyWith(
+                  update: DateTime.now(),
+                  info: info,
+                  subPageIdle: false,
+                  spotifyAuthUrls: spotifyAuthUrls,
+                  activeDeviceIp: activeDeviceIp,
+                ),
+              );
             }
           }
         } catch (e) {
           if (kDebugMode) {
             debugPrint('GetInfo error by access to $url: $e');
           }
-          emit(state.copyWith(
-            update: DateTime.now(),
-            subPageIdle: false,
-          ));
+          emit(state.copyWith(update: DateTime.now(), subPageIdle: false));
         }
       }
 
@@ -384,10 +392,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           return;
         }
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          subPageIdle: true,
-        ));
+        emit(state.copyWith(update: DateTime.now(), subPageIdle: true));
 
         String url = 'http://$ip:$port/config/';
         try {
@@ -400,38 +405,42 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   jsonDecode(utf8.decode(response.bodyBytes))
                       as Map<String, dynamic>;
 
-              ConfigDefinition deviceDefinitions =
-                  ConfigDefinition.fromJson(json['definitions']);
+              ConfigDefinition deviceDefinitions = ConfigDefinition.fromJson(
+                json['definitions'],
+              );
               Map<String, ConfigDefinition> definitions =
                   Map<String, ConfigDefinition>.from(state.definitions);
               definitions[ip] = deviceDefinitions;
 
-              Map<String, dynamic> fieldValues =
-                  Map<String, dynamic>.from(state.fieldValues);
-              fieldValues[ip] =
-                  getFieldValues(defs: deviceDefinitions, json: json['config']);
+              Map<String, dynamic> fieldValues = Map<String, dynamic>.from(
+                state.fieldValues,
+              );
+              fieldValues[ip] = getFieldValues(
+                defs: deviceDefinitions,
+                json: json['config'],
+              );
 
-              Map<String, dynamic> config =
-                  Map<String, dynamic>.from(state.config);
+              Map<String, dynamic> config = Map<String, dynamic>.from(
+                state.config,
+              );
               config[ip] = json['config'];
 
-              emit(state.copyWith(
-                update: DateTime.now(),
-                config: config,
-                definitions: definitions,
-                fieldValues: fieldValues,
-                subPageIdle: false,
-              ));
+              emit(
+                state.copyWith(
+                  update: DateTime.now(),
+                  config: config,
+                  definitions: definitions,
+                  fieldValues: fieldValues,
+                  subPageIdle: false,
+                ),
+              );
             }
           }
         } catch (e) {
           if (kDebugMode) {
             debugPrint('GetConfig error by access to $url: $e');
           }
-          emit(state.copyWith(
-            update: DateTime.now(),
-            subPageIdle: false,
-          ));
+          emit(state.copyWith(update: DateTime.now(), subPageIdle: false));
         }
       }
 
@@ -439,20 +448,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         String ip = event.ip;
         int hours = event.hours;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          log: '',
-          subPageIdle: true,
-        ));
+        emit(
+          state.copyWith(update: DateTime.now(), log: '', subPageIdle: true),
+        );
 
         Map<String, String> headers = {
           "Content-Type": 'application/json',
           "Accept": 'application/json',
         };
 
-        Map<String, dynamic> payload = {
-          "hours": hours,
-        };
+        Map<String, dynamic> payload = {"hours": hours};
 
         String url = 'http://$ip:$port/log/';
         try {
@@ -461,39 +466,45 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (kDebugMode) {
             debugPrint('websocket log request @ ${DateTime.now().toLocal()}');
           }
-          http.Response response = await client.post(uri,
-              headers: headers, body: json.encode(payload));
+          http.Response response = await client.post(
+            uri,
+            headers: headers,
+            body: json.encode(payload),
+          );
           if (kDebugMode) {
             debugPrint(
-                'websocket log response  @ ${DateTime.now().toLocal()} => statuscode: ${response.statusCode}, bodyBytes: ${response.contentLength}');
+              'websocket log response  @ ${DateTime.now().toLocal()} => statuscode: ${response.statusCode}, bodyBytes: ${response.contentLength}',
+            );
           }
           if (response.statusCode == 200) {
             Uint8List bytes = response.bodyBytes;
             if (kDebugMode) {
               debugPrint(
-                  'websocket log @ ${DateTime.now().toLocal()} => decompress now...');
+                'websocket log @ ${DateTime.now().toLocal()} => decompress now...',
+              );
             }
             String log = decompressZlib(bytes);
             if (kDebugMode) {
               debugPrint(
-                  'websocket log @ ${DateTime.now().toLocal()} => decompress done, log size: ${log.length}');
+                'websocket log @ ${DateTime.now().toLocal()} => decompress done, log size: ${log.length}',
+              );
             }
 
-            emit(state.copyWith(
-              update: DateTime.now(),
-              log: log,
-              subPageIdle: false,
-            ));
+            emit(
+              state.copyWith(
+                update: DateTime.now(),
+                log: log,
+                subPageIdle: false,
+              ),
+            );
           }
         } catch (e) {
           if (kDebugMode) {
             debugPrint('GetLog error by access to $url: $e');
           }
-          emit(state.copyWith(
-            update: DateTime.now(),
-            log: '',
-            subPageIdle: false,
-          ));
+          emit(
+            state.copyWith(update: DateTime.now(), log: '', subPageIdle: false),
+          );
         }
       }
 
@@ -511,7 +522,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         Map<String, dynamic> payload = {
           "control_id": controlId,
           "cmd": cmd,
-          'enable': enable
+          'enable': enable,
         };
 
         String url = 'http://$ip:$port/zone_control/';
@@ -521,8 +532,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (kDebugMode) {
             debugPrint('send zone_control => payload: $payload');
           }
-          http.Response response = await client.post(uri,
-              headers: headers, body: json.encode(payload));
+          http.Response response = await client.post(
+            uri,
+            headers: headers,
+            body: json.encode(payload),
+          );
 
           if (response.statusCode == 200) {
             if (state.info.containsKey(ip)) {
@@ -530,15 +544,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               if (cmd == 'switch') {
                 info[ip]['control_id'] = controlId;
 
-                emit(state.copyWith(
-                  update: DateTime.now(),
-                  info: info,
-                ));
+                emit(state.copyWith(update: DateTime.now(), info: info));
               }
             }
             if (kDebugMode) {
               debugPrint(
-                  'zoneControl => ip: $ip, controlId: $controlId, cmd: $cmd${payload['enable'] != null ? ', enable: $enable' : ''}');
+                'zoneControl => ip: $ip, controlId: $controlId, cmd: $cmd${payload['enable'] != null ? ', enable: $enable' : ''}',
+              );
             }
           }
         } catch (e) {
@@ -556,9 +568,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           "Accept": 'application/json',
         };
 
-        Map<String, dynamic> payload = {
-          "url": event.url,
-        };
+        Map<String, dynamic> payload = {"url": event.url};
 
         String url = 'http://$ip:$port/spotify_auth_redirect_url/';
         try {
@@ -567,24 +577,31 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           if (kDebugMode) {
             debugPrint('send spotify_auth_redirect_url => payload: $payload');
           }
-          http.Response response = await client.post(uri,
-              headers: headers, body: json.encode(payload));
+          http.Response response = await client.post(
+            uri,
+            headers: headers,
+            body: json.encode(payload),
+          );
 
           if (response.statusCode == 200) {
             String success = response.body;
             if (kDebugMode) {
               debugPrint(
-                  'send spotify_auth_redirect_url => response: $success');
+                'send spotify_auth_redirect_url => response: $success',
+              );
             }
 
-            Map<String, dynamic> spotifyAuthUrls =
-                Map<String, dynamic>.from(state.spotifyAuthUrls);
+            Map<String, dynamic> spotifyAuthUrls = Map<String, dynamic>.from(
+              state.spotifyAuthUrls,
+            );
             spotifyAuthUrls[ip] = '*';
 
-            emit(state.copyWith(
-              update: DateTime.now(),
-              spotifyAuthUrls: spotifyAuthUrls,
-            ));
+            emit(
+              state.copyWith(
+                update: DateTime.now(),
+                spotifyAuthUrls: spotifyAuthUrls,
+              ),
+            );
           }
         } catch (e) {
           if (kDebugMode) {
@@ -603,45 +620,53 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is DisableListItemsRendering) {
         bool disable = event.disable;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          disableListItemsRendering: disable,
-        ));
+        emit(
+          state.copyWith(
+            update: DateTime.now(),
+            disableListItemsRendering: disable,
+          ),
+        );
       }
 
       if (event is SetTilesExpanded) {
-        emit(state.copyWith(
-          update: DateTime.now(),
-          tileExpanded: event.tileExpanded,
-        ));
+        emit(
+          state.copyWith(
+            update: DateTime.now(),
+            tileExpanded: event.tileExpanded,
+          ),
+        );
       }
 
       if (event is SetTileExpanded) {
         Map<String, bool> tileExpanded = Map.from(state.tileExpanded);
         tileExpanded[event.name] = event.expanded;
 
-        emit(state.copyWith(
-          update: DateTime.now(),
-          tileExpanded: tileExpanded,
-        ));
+        emit(
+          state.copyWith(update: DateTime.now(), tileExpanded: tileExpanded),
+        );
       }
 
       if (event is SelectDeviceBefore) {
         List<String> devices = getFilteredDevices();
         if (devices.isNotEmpty) {
-          int index =
-              devices.indexWhere((String ip) => ip == state.selectedDeviceIp);
+          int index = devices.indexWhere(
+            (String ip) => ip == state.selectedDeviceIp,
+          );
           if (index == -1) {
-            emit(state.copyWith(
-              update: DateTime.now(),
-              selectedDeviceIp: devices[devices.length - 1],
-            ));
+            emit(
+              state.copyWith(
+                update: DateTime.now(),
+                selectedDeviceIp: devices[devices.length - 1],
+              ),
+            );
           } else {
             if (index > 0) {
-              emit(state.copyWith(
-                update: DateTime.now(),
-                selectedDeviceIp: devices[index - 1],
-              ));
+              emit(
+                state.copyWith(
+                  update: DateTime.now(),
+                  selectedDeviceIp: devices[index - 1],
+                ),
+              );
             }
           }
         }
@@ -650,19 +675,24 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       if (event is SelectDeviceNext) {
         List<String> devices = getFilteredDevices();
         if (devices.isNotEmpty) {
-          int index =
-              devices.indexWhere((String ip) => ip == state.selectedDeviceIp);
+          int index = devices.indexWhere(
+            (String ip) => ip == state.selectedDeviceIp,
+          );
           if (index == -1) {
-            emit(state.copyWith(
-              update: DateTime.now(),
-              selectedDeviceIp: devices[0],
-            ));
+            emit(
+              state.copyWith(
+                update: DateTime.now(),
+                selectedDeviceIp: devices[0],
+              ),
+            );
           } else {
             if (index >= 0 && index < (devices.length - 1)) {
-              emit(state.copyWith(
-                update: DateTime.now(),
-                selectedDeviceIp: devices[index + 1],
-              ));
+              emit(
+                state.copyWith(
+                  update: DateTime.now(),
+                  selectedDeviceIp: devices[index + 1],
+                ),
+              );
             }
           }
         }
@@ -694,8 +724,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         List<int> encoded = utf8.encode(fileStr);
         final Uint8List fileData = Uint8List.fromList(encoded);
         const String mimeType = 'text/plain';
-        final XFile textFile =
-            XFile.fromData(fileData, mimeType: mimeType, name: fileName);
+        final XFile textFile = XFile.fromData(
+          fileData,
+          mimeType: mimeType,
+          name: fileName,
+        );
 
         if (kDebugMode) {
           debugPrint('stringExportToFile');
@@ -715,11 +748,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       String fileStr = '';
 
       if (type == 'info') {
-        Map<String, dynamic> info =
-            Map.from(state.info[ip] as Map<String, dynamic>);
+        Map<String, dynamic> info = Map.from(
+          state.info[ip] as Map<String, dynamic>,
+        );
         if (search.isNotEmpty) {
-          info.removeWhere((key, value) =>
-              !key.toLowerCase().contains(search.toLowerCase()));
+          info.removeWhere(
+            (key, value) => !key.toLowerCase().contains(search.toLowerCase()),
+          );
         }
 
         fileStr = info
@@ -764,15 +799,21 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         List<int> encoded = utf8.encode(fileStr);
         final Uint8List fileData = Uint8List.fromList(encoded);
         const String mimeType = 'text/plain';
-        final XFile textFile =
-            XFile.fromData(fileData, mimeType: mimeType, name: fileName);
+        final XFile textFile = XFile.fromData(
+          fileData,
+          mimeType: mimeType,
+          name: fileName,
+        );
 
         try {
           if (Globals.isDesktopDevice()) {
             await textFile.saveTo(result!.path);
           } else {
             await fileRepository.write(
-                subFolder: '', fileName: fileName, bytes: fileData);
+              subFolder: '',
+              fileName: fileName,
+              bytes: fileData,
+            );
           }
           return Future.value(true);
         } catch (e) {
@@ -787,9 +828,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return Future.value(null);
   }
 
-  String? getFieldType({
-    required ConfigDefinitionItem fieldDefinition,
-  }) {
+  String? getFieldType({required ConfigDefinitionItem fieldDefinition}) {
     String? fieldType;
 
     if (fieldDefinition.editable == true) {
@@ -846,7 +885,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               .firstWhereOrNull((ConfigDefinitionArea el) => el.name == areaKey)
               ?.items
               .firstWhereOrNull(
-                  (ConfigDefinitionItem el) => el.name == fieldKey);
+                (ConfigDefinitionItem el) => el.name == fieldKey,
+              );
           if (fieldDefinition != null) {
             String? fieldType = getFieldType(fieldDefinition: fieldDefinition);
             if (fieldType != null) {
@@ -854,8 +894,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 fieldValues[areaKey][fieldKey] = int.parse(area[fieldKey]);
               }
               if (fieldType == 'bool') {
-                fieldValues[areaKey][fieldKey] =
-                    bool.parse(area[fieldKey].toString().toLowerCase());
+                fieldValues[areaKey][fieldKey] = bool.parse(
+                  area[fieldKey].toString().toLowerCase(),
+                );
               }
               if (fieldType == 'text' ||
                   fieldType == 'multiline-text' ||
@@ -865,7 +906,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               }
               if (kDebugMode) {
                 debugPrint(
-                    'area: $areaKey, field: $fieldKey, value: ${fieldValues[areaKey][fieldKey]}, fieldType: $fieldType');
+                  'area: $areaKey, field: $fieldKey, value: ${fieldValues[areaKey][fieldKey]}, fieldType: $fieldType',
+                );
               }
             }
           }
@@ -876,10 +918,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return fieldValues;
   }
 
-  bool validateUrl({
-    required String text,
-    required String type,
-  }) {
+  bool validateUrl({required String text, required String type}) {
     bool valid = true;
 
     if (type.startsWith('url(')) {
@@ -900,10 +939,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return valid;
   }
 
-  bool validateNumber({
-    required int num,
-    required String type,
-  }) {
+  bool validateNumber({required int num, required String type}) {
     bool valid = true;
 
     if (type.startsWith('int(')) {
@@ -1005,12 +1041,15 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     for (int idx = 0; idx < fieldValues.length; idx++) {
       if (getFieldType(fieldDefinition: fieldDefinition) != null &&
-          getFieldType(fieldDefinition: fieldDefinition)!
-              .startsWith('listItems')) {
+          getFieldType(
+            fieldDefinition: fieldDefinition,
+          )!.startsWith('listItems')) {
         List<dynamic> items = fieldValues[idx];
         for (int key = 0; key < items.length; key++) {
-          bool itemValid =
-              validateText(text: fieldValues[idx][key], type: 'string');
+          bool itemValid = validateText(
+            text: fieldValues[idx][key],
+            type: 'string',
+          );
           if (itemValid == false) {
             return false;
           }
@@ -1034,16 +1073,20 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
 
           if (fieldType.startsWith('url')) {
-            bool itemValid =
-                validateUrl(text: fieldValues[idx][key], type: fieldType);
+            bool itemValid = validateUrl(
+              text: fieldValues[idx][key],
+              type: fieldType,
+            );
             if (itemValid == false) {
               return false;
             }
           }
 
           if (fieldType.startsWith('string') || fieldType.endsWith('string')) {
-            bool itemValid =
-                validateText(text: fieldValues[idx][key], type: fieldType);
+            bool itemValid = validateText(
+              text: fieldValues[idx][key],
+              type: fieldType,
+            );
             if (itemValid == false) {
               return false;
             }
@@ -1084,19 +1127,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           String? fieldType = getFieldType(fieldDefinition: fieldDefinition);
           if (fieldType != null) {
             if (fieldType == 'int') {
-              test = fieldValues[areaKey][fieldKey] != '' &&
+              test =
+                  fieldValues[areaKey][fieldKey] != '' &&
                   validateNumber(
-                      num: int.parse(fieldValues[areaKey][fieldKey].toString()),
-                      type: fieldDefinition.type.type);
+                    num: int.parse(fieldValues[areaKey][fieldKey].toString()),
+                    type: fieldDefinition.type.type,
+                  );
             } else if (fieldType == 'list') {
               test = validateList(
-                  jsonStr: fieldValues[areaKey][fieldKey].toString(),
-                  fieldDefinition: fieldDefinition);
+                jsonStr: fieldValues[areaKey][fieldKey].toString(),
+                fieldDefinition: fieldDefinition,
+              );
             } else {
               test = validateText(
-                  text: fieldValues[areaKey][fieldKey].toString(),
-                  fieldDefinition: fieldDefinition,
-                  type: fieldDefinition.type.type);
+                text: fieldValues[areaKey][fieldKey].toString(),
+                fieldDefinition: fieldDefinition,
+                type: fieldDefinition.type.type,
+              );
             }
 
             if (!test) break outerLoop;
@@ -1136,17 +1183,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       "Accept": 'application/json',
     };
 
-    Map<String, dynamic> payload = {
-      "message": message,
-      "option": option,
-    };
+    Map<String, dynamic> payload = {"message": message, "option": option};
 
     String url = 'http://$ip:$port/message/';
     try {
       Uri uri = Uri.parse(url);
 
-      http.Response response =
-          await client.post(uri, headers: headers, body: json.encode(payload));
+      http.Response response = await client.post(
+        uri,
+        headers: headers,
+        body: json.encode(payload),
+      );
       if (response.statusCode == 200) {
         if (kDebugMode) {
           debugPrint('message => ip: $ip, payload: $payload');
@@ -1191,12 +1238,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       String url = 'http://$ip:$port/setup/';
       try {
         Uri uri = Uri.parse(url);
-        Map<String, dynamic> payload = {
-          "data": jsonStr,
-        };
+        Map<String, dynamic> payload = {"data": jsonStr};
 
-        http.Response response = await client.post(uri,
-            headers: headers, body: json.encode(payload));
+        http.Response response = await client.post(
+          uri,
+          headers: headers,
+          body: json.encode(payload),
+        );
 
         if (response.statusCode == 200) {
           if (kDebugMode) {
@@ -1224,10 +1272,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       "Accept": 'application/json',
     };
 
-    Map<String, dynamic> payload = {
-      "control": control,
-      "value": value,
-    };
+    Map<String, dynamic> payload = {"control": control, "value": value};
 
     Map<String, dynamic> config = Map<String, dynamic>.from(state.config);
     config[ip]['SYSTEM'][control] = value;
@@ -1237,8 +1282,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     try {
       Uri uri = Uri.parse(url);
 
-      http.Response response =
-          await client.post(uri, headers: headers, body: json.encode(payload));
+      http.Response response = await client.post(
+        uri,
+        headers: headers,
+        body: json.encode(payload),
+      );
       if (response.statusCode == 200) {
         if (kDebugMode) {
           debugPrint('LiveControl => ip: $ip, payload: $payload');
@@ -1266,9 +1314,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       for (int idx = 0; idx < state.devices.length; idx++) {
         dynamic i = state.info[state.devices[idx]];
         if (search.isEmpty ||
-            (i['name'] as String)
-                .toLowerCase()
-                .contains(search.toLowerCase())) {
+            (i['name'] as String).toLowerCase().contains(
+              search.toLowerCase(),
+            )) {
           String zoneName = '';
           if (i['control_id'] != null) {
             String controlId = i['control_id'];
@@ -1299,15 +1347,21 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         List<int> encoded = utf8.encode(fileStr);
         final Uint8List fileData = Uint8List.fromList(encoded);
         const String mimeType = 'text/plain';
-        final XFile textFile =
-            XFile.fromData(fileData, mimeType: mimeType, name: fileName);
+        final XFile textFile = XFile.fromData(
+          fileData,
+          mimeType: mimeType,
+          name: fileName,
+        );
 
         try {
           if (Globals.isDesktopDevice()) {
             await textFile.saveTo(result!.path);
           } else {
             await fileRepository.write(
-                subFolder: '', fileName: fileName, bytes: fileData);
+              subFolder: '',
+              fileName: fileName,
+              bytes: fileData,
+            );
           }
           return Future.value(true);
         } catch (e) {
@@ -1344,14 +1398,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     for (int i = start; i <= end; i++) {
       String ip = '$subnet.$i';
-      futures.add(isPortOpen(ip, port, timeout).then((open) {
-        if (open) {
-          if (kDebugMode) {
-            debugPrint('Open: $ip:$port');
+      futures.add(
+        isPortOpen(ip, port, timeout).then((open) {
+          if (open) {
+            if (kDebugMode) {
+              debugPrint('Open: $ip:$port');
+            }
+            found.add(ip);
           }
-          found.add(ip);
-        }
-      }));
+        }),
+      );
     }
 
     if (futures.isNotEmpty) await Future.wait(futures);
@@ -1380,8 +1436,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         if (ipStart != null && ipEnd != null) {
           final int firstHostId = int.parse(ipStart!.split('.').last);
           final int lastHostId = int.parse(ipEnd!.split('.').last);
-          final String subnet =
-              ipStart!.substring(0, ipStart!.lastIndexOf('.'));
+          final String subnet = ipStart!.substring(
+            0,
+            ipStart!.lastIndexOf('.'),
+          );
 
           List<String> ipList = await parallelScan(
             subnet: subnet,
@@ -1405,18 +1463,22 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               http.Response response = await client.get(uri);
               if (response.statusCode == 200) {
                 if (response.body.substring(0, 1) == '{') {
-                  Map<String, dynamic> json = jsonDecode(
-                          filterIllegalCharsFromJsonStr(
+                  Map<String, dynamic> json =
+                      jsonDecode(
+                            filterIllegalCharsFromJsonStr(
                               text: utf8.decode(response.bodyBytes),
-                              messageHeader: 'searchDevices/type (raw)'))
-                      as Map<String, dynamic>;
+                              messageHeader: 'searchDevices/type (raw)',
+                            ),
+                          )
+                          as Map<String, dynamic>;
                   if (json['type'] != null &&
                       json['name'] != null &&
                       json['time'] != null &&
                       allowedDeviceTypes.contains(json['type'])) {
                     if (kDebugMode) {
                       debugPrint(
-                          '${json['type']} device found on ip: $ip, name: ${json['name']}, time: ${json['time']}');
+                        '${json['type']} device found on ip: $ip, name: ${json['name']}, time: ${json['time']}',
+                      );
                     }
 
                     devices.add(ip);
@@ -1469,11 +1531,15 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     if (channels.values.contains(zoneName) &&
         ((!idle && zone['status'] == 'playing') ||
             (idle == true && zone['status'] != 'playing'))) {
-      String controlId =
-          channels.keys.firstWhere((el) => channels[el] == zoneName);
+      String controlId = channels.keys.firstWhere(
+        (el) => channels[el] == zoneName,
+      );
       String hash = md5
-          .convert(utf8.encode(
-              '$controlId-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))
+          .convert(
+            utf8.encode(
+              '$controlId-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl',
+            ),
+          )
           .toString();
       bool isRadio = zone['total'] == null;
       CoverModel coverModel = CoverModel(
@@ -1510,15 +1576,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             (idle == true &&
                 showWebCoverNotRunning == true &&
                 zone['status'] == 'not running'))) {
-      bool isRadio = zone['zone'] == 'Apple Music' &&
+      bool isRadio =
+          zone['zone'] == 'Apple Music' &&
           zone['sourcetype'] == 'stream' &&
           zone['position'] ==
               '0'; // if this is a radio stream, set this prop to true (at the moment a radio stream is recognized by sourcetype is stream and playpos is 0, because playpos is not counting on radio streams)
       isRadio =
           false; // fix for AppleMusic because the delay is too big (every stream with position:0 will be disabling the prev/next button for isRadio == true, but the next infodata update will be loaded 10-15sec later)
       String hash = md5
-          .convert(utf8.encode(
-              '$zoneName-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl'))
+          .convert(
+            utf8.encode(
+              '$zoneName-${zone['artist']}-${zone['album']}-${zone['track']}-${zone['status']}-$coverUrl',
+            ),
+          )
           .toString();
       CoverModel coverModel = CoverModel(
         hash: hash,
@@ -1538,9 +1608,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return null;
   }
 
-  List<CoverModel> getCoversModel({
-    required bool showWebCoverNotRunning,
-  }) {
+  List<CoverModel> getCoversModel({required bool showWebCoverNotRunning}) {
     Map<String, dynamic> info = state.info;
     String? activeDeviceIp = state.activeDeviceIp;
 
@@ -1554,7 +1622,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         if (kDebugMode) {
           debugPrint(
-              'getCoversModel from connected device with ip: $activeDeviceIp');
+            'getCoversModel from connected device with ip: $activeDeviceIp',
+          );
         }
         Map<String, dynamic> roonPlayouts =
             info[activeDeviceIp]['roon_playouts'];
@@ -1657,7 +1726,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   TextEditingController getSearchController({required String type}) =>
       controllerSearch[type]!;
 
-  String getPrettyJSONString(jsonObject) {
+  String getPrettyJSONString(Map<String, dynamic> jsonObject) {
     JsonEncoder encoder = const JsonEncoder.withIndent("     ");
     String jsonStr = encoder.convert(jsonObject);
 
@@ -1667,10 +1736,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   void setPollingTimer() {
     if (kDebugMode) {
       debugPrint(
-          'setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds');
+        'setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds',
+      );
     }
-    timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds),
-        (Timer timer) {
+    timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds), (
+      Timer timer,
+    ) {
       searching(idle: state.devices.isEmpty);
     });
   }
@@ -1694,7 +1765,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }) {
     if (type.startsWith('int')) {
       return getNumberFieldErrorMessage(
-          value: value, translations: translations);
+        value: value,
+        translations: translations,
+      );
     }
 
     if (value == '') {
@@ -1728,17 +1801,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required Size minDesktopSize,
   }) async {
     Display primaryDisplay = await getPrimaryDisplay();
-    Size newSize =
-        Size(primaryDisplay.size.width - 8, minDesktopSize.height + 10);
+    Size newSize = Size(
+      primaryDisplay.size.width - 8,
+      minDesktopSize.height + 10,
+    );
 
     await windowManager.setPosition(Offset.zero);
     windowManager.setSize(newSize, animate: true);
   }
 
-  Future<void> windowResize({
-    required Size size,
-    Offset? position,
-  }) async {
+  Future<void> windowResize({required Size size, Offset? position}) async {
     Size newSize = Size(size.width, size.height);
 
     await windowManager.setPosition(position ?? Offset.zero);
@@ -1754,18 +1826,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
 
     return state.devices
-        .where((String el) =>
-            state.info.containsKey(el) &&
-            (state.info[el]['name'] as String)
-                .toLowerCase()
-                .contains((state.searchFilter['main'] as String).toLowerCase()))
+        .where(
+          (String el) =>
+              state.info.containsKey(el) &&
+              (state.info[el]['name'] as String).toLowerCase().contains(
+                (state.searchFilter['main'] as String).toLowerCase(),
+              ),
+        )
         .toList()
-      ..sort((String a, String b) => state.info.containsKey(a) &&
-              (state.info[a] as Map).containsKey('name')
-          ? (state.info[a]['name'] as String)
-              .toLowerCase()
-              .compareTo((state.info[b]['name'] as String).toLowerCase())
-          : a.compareTo(b));
+      ..sort(
+        (String a, String b) =>
+            state.info.containsKey(a) &&
+                (state.info[a] as Map).containsKey('name')
+            ? (state.info[a]['name'] as String).toLowerCase().compareTo(
+                (state.info[b]['name'] as String).toLowerCase(),
+              )
+            : a.compareTo(b),
+      );
   }
 
   String getConfigFieldLabel({
@@ -1773,7 +1850,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required ConfigDefinitionItem fieldDefinition,
     required String fieldType,
   }) {
-    String label = (translations['config']?[fieldDefinition.name] ??
+    String label =
+        (translations['config']?[fieldDefinition.name] ??
         fieldDefinition.label);
     if (!fieldType.startsWith('list') &&
         fieldType != 'list' &&
@@ -1786,9 +1864,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     return label;
   }
 
-  void setConfigExpandables({
-    required ConfigDefinition defs,
-  }) {
+  void setConfigExpandables({required ConfigDefinition defs}) {
     Map<String, bool> tileExpanded = {};
     for (ConfigDefinitionArea area in defs.area) {
       tileExpanded[area.name] = false;
@@ -1815,7 +1891,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       required String areaName,
       required String fieldName,
       required dynamic value,
-    }) updateFieldValues,
+    })
+    updateFieldValues,
   }) {
     List<Widget> widgets = [];
     Map<String, ConfigDefinitionArea> expandables = {};
@@ -1850,7 +1927,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         if (fieldType != null && fieldDefinition.editable == true) {
           if (kDebugMode) {
             debugPrint(
-                'area: ${area.name}, field: ${fieldDefinition.name}, value: ${fieldValues[area.name][fieldDefinition.name]}, fieldType: $fieldType');
+              'area: ${area.name}, field: ${fieldDefinition.name}, value: ${fieldValues[area.name][fieldDefinition.name]}, fieldType: $fieldType',
+            );
           }
 
           Widget? widgetField;
@@ -1877,20 +1955,22 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 inRow: false,
                 noVerticalSpace: false,
                 readOnly: false,
-                selected:
-                    fieldValues[area.name][fieldDefinition.name].toString(),
+                selected: fieldValues[area.name][fieldDefinition.name]
+                    .toString(),
                 options: fieldDefinition.type.options!.toMap(),
                 onChanged: (String? value) {
                   try {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: value!);
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: value!,
+                    );
                   } catch (e) {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: '');
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: '',
+                    );
                   }
                 },
               ),
@@ -1908,30 +1988,34 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 filter: (String text) {
                   if (text == '') {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: '');
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: '',
+                    );
                   }
                   return text;
                 },
                 errorMessageHandler: (String newValue) {
                   return getFieldErrorMessage(
-                      value: newValue,
-                      type: fieldDefinition.type.type,
-                      translations: translations);
+                    value: newValue,
+                    type: fieldDefinition.type.type,
+                    translations: translations,
+                  );
                 },
                 validation: (String text) =>
                     fieldDefinition.noValidation == true
-                        ? true
-                        : validateText(
-                            text: text,
-                            fieldDefinition: fieldDefinition,
-                            type: fieldDefinition.type.type),
+                    ? true
+                    : validateText(
+                        text: text,
+                        fieldDefinition: fieldDefinition,
+                        type: fieldDefinition.type.type,
+                      ),
                 onChanged: (value) {
                   updateFieldValues(
-                      areaName: area.name,
-                      fieldName: fieldDefinition.name,
-                      value: value);
+                    areaName: area.name,
+                    fieldName: fieldDefinition.name,
+                    value: value,
+                  );
                 },
               ),
             );
@@ -1947,36 +2031,41 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 translations: translations,
                 label: label,
                 maxLines: 6,
-                placeholder: translations['pleaseTypeSettingPlaceholder'] ??
+                placeholder:
+                    translations['pleaseTypeSettingPlaceholder'] ??
                     'Please insert secret here',
                 text: fieldValues[area.name][fieldDefinition.name],
                 filter: (String text) {
                   if (text == '') {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: '');
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: '',
+                    );
                   }
                   return text;
                 },
                 errorMessageHandler: (String newValue) {
                   return getFieldErrorMessage(
-                      value: newValue,
-                      type: fieldDefinition.type.type,
-                      translations: translations);
+                    value: newValue,
+                    type: fieldDefinition.type.type,
+                    translations: translations,
+                  );
                 },
                 validation: (String text) =>
                     fieldDefinition.noValidation == true
-                        ? true
-                        : validateText(
-                            text: text,
-                            fieldDefinition: fieldDefinition,
-                            type: fieldDefinition.type.type),
+                    ? true
+                    : validateText(
+                        text: text,
+                        fieldDefinition: fieldDefinition,
+                        type: fieldDefinition.type.type,
+                      ),
                 onChanged: (value) {
                   updateFieldValues(
-                      areaName: area.name,
-                      fieldName: fieldDefinition.name,
-                      value: value);
+                    areaName: area.name,
+                    fieldName: fieldDefinition.name,
+                    value: value,
+                  );
                 },
               ),
             );
@@ -1992,20 +2081,22 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 showValue: true,
                 noVerticalSpace: false,
                 readOnly: false,
-                selected:
-                    fieldValues[area.name][fieldDefinition.name].toString(),
+                selected: fieldValues[area.name][fieldDefinition.name]
+                    .toString(),
                 options: fieldDefinition.type.options!.toMap(),
                 onChanged: (String? value) {
                   try {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: int.parse(value!));
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: int.parse(value!),
+                    );
                   } catch (e) {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: '');
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: '',
+                    );
                   }
                 },
               ),
@@ -2024,17 +2115,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 filter: (String text) {
                   if (text == '') {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: '');
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: '',
+                    );
                   }
                   return text;
                 },
                 errorMessageHandler: (String newValue) {
                   return getFieldErrorMessage(
-                      value: newValue,
-                      type: fieldType,
-                      translations: translations);
+                    value: newValue,
+                    type: fieldType,
+                    translations: translations,
+                  );
                 },
                 validation: (String text) {
                   int? num = int.tryParse(text);
@@ -2042,19 +2135,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                     return false;
                   }
                   return validateNumber(
-                      num: num, type: fieldDefinition.type.type);
+                    num: num,
+                    type: fieldDefinition.type.type,
+                  );
                 },
                 onChanged: (value) {
                   try {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: int.parse(value));
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: int.parse(value),
+                    );
                   } catch (e) {
                     updateFieldValues(
-                        areaName: area.name,
-                        fieldName: fieldDefinition.name,
-                        value: '');
+                      areaName: area.name,
+                      fieldName: fieldDefinition.name,
+                      value: '',
+                    );
                   }
                 },
               ),
@@ -2062,122 +2159,146 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
           if (fieldType == 'bool') {
             widgetField = Padding(
-              padding:
-                  const EdgeInsets.only(top: 6.0, bottom: 6.0, right: 10.0),
+              padding: const EdgeInsets.only(
+                top: 6.0,
+                bottom: 6.0,
+                right: 10.0,
+              ),
               child: SwitchButton(
                 label: label,
                 enabled: fieldValues[area.name][fieldDefinition.name],
                 onChanged: (value) {
                   updateFieldValues(
-                      areaName: area.name,
-                      fieldName: fieldDefinition.name,
-                      value: value);
+                    areaName: area.name,
+                    fieldName: fieldDefinition.name,
+                    value: value,
+                  );
                 },
               ),
             );
           }
           if (fieldType.startsWith('listItems')) {
             List<dynamic> json = jsonDecode(
-                (fieldValues[area.name][fieldDefinition.name] as String)
-                    .replaceSpecialTagsWithQuotes());
+              (fieldValues[area.name][fieldDefinition.name] as String)
+                  .replaceSpecialTagsWithQuotes(),
+            );
             widgetField = ListItems(
               label: label,
               fieldValues: json,
               predefinedLength: fieldType.endsWith('PredefinedLength'),
               onChanged: (String value) {
                 updateFieldValues(
-                    areaName: area.name,
-                    fieldName: fieldDefinition.name,
-                    value: value);
+                  areaName: area.name,
+                  fieldName: fieldDefinition.name,
+                  value: value,
+                );
               },
             );
           }
           if (fieldType == 'keyValItems') {
             Map<String, dynamic> json = jsonDecode(
-                (fieldValues[area.name][fieldDefinition.name] as String)
-                    .replaceAll("'", '"'));
+              (fieldValues[area.name][fieldDefinition.name] as String)
+                  .replaceAll("'", '"'),
+            );
             widgetField = KeyValItems(
               label: label,
               fieldValues: json,
               onChanged: (String value) {
                 updateFieldValues(
-                    areaName: area.name,
-                    fieldName: fieldDefinition.name,
-                    value: value);
+                  areaName: area.name,
+                  fieldName: fieldDefinition.name,
+                  value: value,
+                );
               },
             );
           }
           if (fieldType == 'list') {
             List<dynamic> json = jsonDecode(
-                (fieldValues[area.name][fieldDefinition.name] as String)
-                    .replaceAll("'", '"'));
+              (fieldValues[area.name][fieldDefinition.name] as String)
+                  .replaceAll("'", '"'),
+            );
             widgetField = MapListItems(
               label: label,
               fieldDefinition: fieldDefinition,
               fieldValues: json,
               onChanged: (String value) {
                 updateFieldValues(
-                    areaName: area.name,
-                    fieldName: fieldDefinition.name,
-                    value: value);
+                  areaName: area.name,
+                  fieldName: fieldDefinition.name,
+                  value: value,
+                );
               },
             );
           }
           if (widgetField != null) {
             if (fieldDefinition.link != '') {
-              fields.add(Row(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(child: widgetField),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: Globals.inMacosStyle()
-                          ? 37.0
-                          : Globals.inIosStyle() || Platform.isWindows
-                              ? 36
-                              : 34.0,
-                      right: 16.0,
-                    ),
-                    child: IconButtonElement(
-                      label: translations['openLinkButtonText'] ?? 'open link',
-                      noBackground: false,
-                      withCircle: false,
-                      readOnly: ((fieldDefinition.link == '*'
-                                  ? fieldValues[area.name][fieldDefinition.name]
-                                  : fieldDefinition.link.toString()) as String)
-                              .isEmpty ||
-                          !isURL(
+              fields.add(
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: widgetField),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        top: Globals.inMacosStyle()
+                            ? 37.0
+                            : Globals.inIosStyle() || Platform.isWindows
+                            ? 36
+                            : 34.0,
+                        right: 16.0,
+                      ),
+                      child: IconButtonElement(
+                        label:
+                            translations['openLinkButtonText'] ?? 'open link',
+                        noBackground: false,
+                        withCircle: false,
+                        readOnly:
+                            ((fieldDefinition.link == '*'
+                                        ? fieldValues[area.name][fieldDefinition
+                                              .name]
+                                        : fieldDefinition.link.toString())
+                                    as String)
+                                .isEmpty ||
+                            !isURL(
                               (fieldDefinition.link == '*'
-                                  ? fieldValues[area.name][fieldDefinition.name]
-                                  : fieldDefinition.link.toString()) as String,
+                                      ? fieldValues[area.name][fieldDefinition
+                                            .name]
+                                      : fieldDefinition.link.toString())
+                                  as String,
                               requireTld: true,
-                              requireProtocol: true),
-                      size: 30,
-                      icon: Icon(Icons.link, color: Colors.white, size: 12),
-                      onPressed: ((fieldDefinition.link == '*'
-                                  ? fieldValues[area.name][fieldDefinition.name]
-                                  : fieldDefinition.link.toString()) as String)
-                              .isNotEmpty
-                          ? () async {
-                              final Uri url = Uri.parse(fieldDefinition.link ==
-                                      '*'
-                                  ? fieldValues[area.name][fieldDefinition.name]
-                                  : fieldDefinition.link.toString());
-                              if (!await launchUrl(
-                                url,
-                                mode: LaunchMode.externalApplication,
-                              )) {
-                                if (kDebugMode) {
-                                  debugPrint('Could not launch url: $url');
+                              requireProtocol: true,
+                            ),
+                        size: 30,
+                        icon: Icon(Icons.link, color: Colors.white, size: 12),
+                        onPressed:
+                            ((fieldDefinition.link == '*'
+                                        ? fieldValues[area.name][fieldDefinition
+                                              .name]
+                                        : fieldDefinition.link.toString())
+                                    as String)
+                                .isNotEmpty
+                            ? () async {
+                                final Uri url = Uri.parse(
+                                  fieldDefinition.link == '*'
+                                      ? fieldValues[area.name][fieldDefinition
+                                            .name]
+                                      : fieldDefinition.link.toString(),
+                                );
+                                if (!await launchUrl(
+                                  url,
+                                  mode: LaunchMode.externalApplication,
+                                )) {
+                                  if (kDebugMode) {
+                                    debugPrint('Could not launch url: $url');
+                                  }
                                 }
                               }
-                            }
-                          : () {},
+                            : () {},
+                      ),
                     ),
-                  ),
-                ],
-              ));
+                  ],
+                ),
+              );
             } else {
               fields.add(widgetField);
             }
@@ -2185,9 +2306,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
       Widget widgetArea = Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: Globals.borderRadius(),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: Globals.borderRadius()),
         color: ColorDefs.windowBackgroundColor(context: context),
         child: ExpansionTile(
           initiallyExpanded: state.tileExpanded[expandableLabel] ?? false,
@@ -2266,8 +2385,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
     }
-    options.addAll(Map.fromEntries(
-        roonOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key))));
+    options.addAll(
+      Map.fromEntries(
+        roonOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
+      ),
+    );
 
     Map<String, String> webOptions = {};
     for (String key in channels.keys) {
@@ -2278,15 +2400,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         if (info['web_playouts'][serverName] != null) {
           List<dynamic> zones = info['web_playouts'][serverName];
           Map<String, dynamic>? zone = zones.firstWhereOrNull(
-              (dynamic el) => (el['zone'] as String) == zoneName);
+            (dynamic el) => (el['zone'] as String) == zoneName,
+          );
           if (zone != null) {
             webOptions.putIfAbsent(key, () => channels[key]);
           }
         }
       }
     }
-    options.addAll(Map.fromEntries(
-        webOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key))));
+    options.addAll(
+      Map.fromEntries(
+        webOptions.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
+      ),
+    );
 
     return options;
   }
@@ -2315,18 +2441,21 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         if (info['web_playouts'][serverName] != null) {
           List<dynamic> zones = info['web_playouts'][serverName];
           zone = zones.firstWhereOrNull(
-              (dynamic el) => (el['zone'] as String) == zoneName);
+            (dynamic el) => (el['zone'] as String) == zoneName,
+          );
 
           if (zone != null) {
             zone['server'] = serverName;
-            isRadio = zone['zone'] == 'Apple Music' &&
+            isRadio =
+                zone['zone'] == 'Apple Music' &&
                 zone['sourcetype'] == 'stream' &&
                 zone['position'] ==
                     '0'; // if this is a radio stream, set this prop to true (at the moment a radio stream is recognized by sourcetype is stream and playpos is 0, because playpos is not counting on radio streams)
             zone['is_radio'] = isRadio;
             if (kDebugMode) {
               debugPrint(
-                  'zone: ${zone['zone']}, sourcetype: ${zone['sourcetype']}, playpos: ${zone['position']} => is_radio: $isRadio');
+                'zone: ${zone['zone']}, sourcetype: ${zone['sourcetype']}, playpos: ${zone['position']} => is_radio: $isRadio',
+              );
             }
           }
         }
@@ -2397,7 +2526,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
           }
           str = strListFixed.join(
-              ' '); // maybe troublemaker (should be replaced in python part on device)
+            ' ',
+          ); // maybe troublemaker (should be replaced in python part on device)
           str = str
               .replaceAll('< ', ', ')
               .replaceAll(' >', ': ')
@@ -2406,7 +2536,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           if (kDebugMode) {
             debugPrint(
-                "MainBloc/replaceIllegalCharsInTickerString => Failed to repair JSON.\nError: ${e.toString()}");
+              "MainBloc/replaceIllegalCharsInTickerString => Failed to repair JSON.\nError: ${e.toString()}",
+            );
           }
         }
       }
@@ -2437,8 +2568,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     String ledScrollDefinitionName = verticalOutput && verticalTickerActive
         ? 'led_vertical_scroll_delay'
         : 'led_scroll_delay';
-    defaultDelay =
-        int.parse(state.config[ip]['SYSTEM'][ledScrollDefinitionName]);
+    defaultDelay = int.parse(
+      state.config[ip]['SYSTEM'][ledScrollDefinitionName],
+    );
 
     if (state.definitions.containsKey(ip)) {
       ConfigDefinitionItem? item = state.definitions[ip]!.area
@@ -2448,8 +2580,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       if (item != null) {
         String type = item.type.type;
-        List<String> typeParts =
-            type.replaceFirst('int(', '').replaceAll(')', '').split(',');
+        List<String> typeParts = type
+            .replaceFirst('int(', '')
+            .replaceAll(')', '')
+            .split(',');
         scrollDelayMin = int.parse(typeParts[0]);
         scrollDelayMax = int.parse(typeParts[1]);
       } else {
@@ -2460,7 +2594,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             : 200; // default fallback value for coverplayer which has no matching SYSTEM definition
         if (kDebugMode) {
           debugPrint(
-              'getScrollDelayMinMax => get scrollDelayMin and scrollDelayMax fallback values');
+            'getScrollDelayMinMax => get scrollDelayMin and scrollDelayMax fallback values',
+          );
         }
       }
 
@@ -2469,7 +2604,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             4; // extend delay range with smaller delay for apps own ticker
       }
 
-      sliderDefaultValue = Globals.sliderMaxValue -
+      sliderDefaultValue =
+          Globals.sliderMaxValue -
           ((Globals.sliderMaxValue - Globals.sliderMinValue) /
               (scrollDelayMax - scrollDelayMin) *
               (defaultDelay - scrollDelayMin));
@@ -2483,7 +2619,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           : 200; // default fallback value for coverplayer which has no matching SYSTEM definition
       if (kDebugMode) {
         debugPrint(
-            'getScrollDelayMinMax => get scrollDelayMin and scrollDelayMax fallback values');
+          'getScrollDelayMinMax => get scrollDelayMin and scrollDelayMax fallback values',
+        );
       }
     }
 
@@ -2503,8 +2640,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     final double verticalFontFactor = 1.0;
     final double horizontalFontFactor = 1.3;
     final double pixelsPerSecondVerticalFontFactor = 1.0;
-    final double pixelsPerSecondHorizontalFontFactor =
-        isScrollMatrixPage ? 3.0 : 2.3;
+    final double pixelsPerSecondHorizontalFontFactor = isScrollMatrixPage
+        ? 3.0
+        : 2.3;
 
     List<dynamic> list = getScrollDelayMinMax(
       ip: ip,
@@ -2517,14 +2655,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     double sliderDefaultValue = list[3];
     if (kDebugMode) {
       debugPrint(
-          'speedcheck => getPixelsPerSecond ip: $ip, verticalOutput: $verticalOutput, defaultDelay: $defaultDelay, scrollDelayMin: $scrollDelayMin, scrollDelayMax: $scrollDelayMax, sliderDefaultValue: $sliderDefaultValue');
+        'speedcheck => getPixelsPerSecond ip: $ip, verticalOutput: $verticalOutput, defaultDelay: $defaultDelay, scrollDelayMin: $scrollDelayMin, scrollDelayMax: $scrollDelayMax, sliderDefaultValue: $sliderDefaultValue',
+      );
     }
 
     double sliderFactor = 1 - 1 / Globals.sliderMaxValue * sliderValue;
     double scrollDelay =
         scrollDelayMin + ((scrollDelayMax - scrollDelayMin) * sliderFactor);
     double dotsPerSecond = 1000 / scrollDelay;
-    double ledCharsPerSecond = dotsPerSecond /
+    double ledCharsPerSecond =
+        dotsPerSecond /
         8 *
         (verticalOutput && verticalTickerActive
             ? verticalFontFactor
@@ -2535,7 +2675,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     if (ledTickerActive) {
       pixelsPerSecond = dotsPerSecond;
     } else {
-      pixelsPerSecond = ledCharsPerSecond *
+      pixelsPerSecond =
+          ledCharsPerSecond *
           fontSize /
           (verticalOutput && verticalTickerActive
               ? pixelsPerSecondVerticalFontFactor
@@ -2544,7 +2685,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     if (kDebugMode) {
       debugPrint(
-          'actual sliderValue: $sliderValue, scrollDelay: $scrollDelay, dotsPerSecond: $dotsPerSecond, ledCharsPerSecond:$ledCharsPerSecond, pixelsPerSecond: $pixelsPerSecond, fontSize: $fontSize, ledSize: $ledSize');
+        'actual sliderValue: $sliderValue, scrollDelay: $scrollDelay, dotsPerSecond: $dotsPerSecond, ledCharsPerSecond:$ledCharsPerSecond, pixelsPerSecond: $pixelsPerSecond, fontSize: $fontSize, ledSize: $ledSize',
+      );
     }
 
     return [
@@ -2553,7 +2695,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       scrollDelayMax,
       sliderDefaultValue,
       scrollDelay,
-      pixelsPerSecond
+      pixelsPerSecond,
     ];
   }
 
@@ -2569,9 +2711,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(RestartPollingTimer());
   }
 
-  void addWebSocketService({
-    required String ip,
-  }) {
+  void addWebSocketService({required String ip}) {
     add(AddWebSocketService(ip: ip));
   }
 
@@ -2579,34 +2719,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(ResetWebSocketServices());
   }
 
-  void setIpRange({
-    required String? ipStart,
-    required String? ipEnd,
-  }) {
+  void setIpRange({required String? ipStart, required String? ipEnd}) {
     add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
   }
 
-  void setLogMessage({
-    required String msg,
-  }) {
+  void setLogMessage({required String msg}) {
     add(SetLogMessage(msg: msg));
   }
 
-  void searching({
-    bool? idle,
-  }) {
+  void searching({bool? idle}) {
     add(Searching(idle: idle));
   }
 
-  void getInfo({
-    required String ip,
-  }) {
+  void getInfo({required String ip}) {
     add(GetInfo(ip: ip));
   }
 
-  void getConfig({
-    required String ip,
-  }) {
+  void getConfig({required String ip}) {
     add(GetConfig(ip: ip));
   }
 
@@ -2617,43 +2746,27 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(UpdateStateConfig(ip: ip, config: config));
   }
 
-  void getLog({
-    required String ip,
-    required int hours,
-  }) {
+  void getLog({required String ip, required int hours}) {
     add(GetLog(ip: ip, hours: hours));
   }
 
-  void setPing({
-    required String ip,
-    required bool ping,
-  }) {
+  void setPing({required String ip, required bool ping}) {
     add(SetPing(ip: ip, ping: ping));
   }
 
-  void setSelectedDeviceIp({
-    required String ip,
-  }) {
+  void setSelectedDeviceIp({required String ip}) {
     add(SetSelectedDeviceIp(ip: ip));
   }
 
-  void setConnected({
-    required String ip,
-    required bool connected,
-  }) {
+  void setConnected({required String ip, required bool connected}) {
     add(SetConnected(ip: ip, connected: connected));
   }
 
-  void setTilesExpanded({
-    required Map<String, bool> tileExpanded,
-  }) {
+  void setTilesExpanded({required Map<String, bool> tileExpanded}) {
     add(SetTilesExpanded(tileExpanded: tileExpanded));
   }
 
-  void setTileExpanded({
-    required String name,
-    required bool expanded,
-  }) {
+  void setTileExpanded({required String name, required bool expanded}) {
     add(SetTileExpanded(name: name, expanded: expanded));
   }
 
@@ -2666,38 +2779,26 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd, enable: enable));
   }
 
-  void setSpotifyAuthRedirectUrl({
-    required String ip,
-    required String url,
-  }) {
+  void setSpotifyAuthRedirectUrl({required String ip, required String url}) {
     if (kDebugMode) {
       debugPrint('setSpotifyAuthRedirectUrl => ip: $ip, url: $url');
     }
     add(SetSpotifyAuthRedirectUrl(ip: ip, url: url));
   }
 
-  void setSearchFilter({
-    required String type,
-    required String filter,
-  }) {
+  void setSearchFilter({required String type, required String filter}) {
     add(SetSearchFilter(type: type, filter: filter));
   }
 
-  void disableListItemsRendering({
-    required bool disable,
-  }) {
+  void disableListItemsRendering({required bool disable}) {
     add(DisableListItemsRendering(disable: disable));
   }
 
-  void selectDeviceBefore({
-    required String ip,
-  }) {
+  void selectDeviceBefore({required String ip}) {
     add(SelectDeviceBefore(ip: ip));
   }
 
-  void selectDeviceNext({
-    required String ip,
-  }) {
+  void selectDeviceNext({required String ip}) {
     add(SelectDeviceNext(ip: ip));
   }
 

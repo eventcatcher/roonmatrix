@@ -91,9 +91,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
     mainBloc = BlocProvider.of<MainBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
 
-    mainStreamSubscription = mainBloc.stream.listen((
-      MainState mainState,
-    ) {
+    mainStreamSubscription = mainBloc.stream.listen((MainState mainState) {
       if (mainState is MainStateLoaded) {
         if (selectedDeviceIpBefore != mainState.selectedDeviceIp) {
           selectedDeviceIp = mainState.selectedDeviceIp;
@@ -117,58 +115,55 @@ class MenubarWidgetState extends State<MenubarWidget> {
         setState(() {
           deviceSelectedAndReady =
               selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null;
-          isMatrixDevice = (!(info[selectedDeviceIp] as Map<String, dynamic>)
-                  .containsKey('display_cover') ||
+          isMatrixDevice =
+              (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                'display_cover',
+              ) ||
               info[selectedDeviceIp]['display_cover'] == false);
         });
       }
     });
   }
 
-  void openPage({required BuildContext context, required Widget page}) {
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => page),
-    );
-  }
-
   MenuBarWidget windowsLinuxMenuBar({
     required BuildContext context,
     required Map<String, dynamic> translations,
     required Widget child,
-  }) =>
-      MenuBarWidget(
-        // Add a list of [BarButton]. The buttons in this List are
-        // displayed as the buttons on the bar itself
-        barButtons: windowsLinuxMenuBarButtons(
-            context: context, translations: translations),
+  }) => MenuBarWidget(
+    // Add a list of [BarButton]. The buttons in this List are
+    // displayed as the buttons on the bar itself
+    barButtons: windowsLinuxMenuBarButtons(
+      context: context,
+      translations: translations,
+    ),
 
-        // Style the menu bar itself. Hover over [MenuStyle] for all the options
-        barStyle: const MenuStyle(
-          padding: WidgetStatePropertyAll(EdgeInsets.zero),
-          backgroundColor: WidgetStatePropertyAll(Color(0xFF2b2b2b)),
-          maximumSize: WidgetStatePropertyAll(Size(double.infinity, 28.0)),
-        ),
+    // Style the menu bar itself. Hover over [MenuStyle] for all the options
+    barStyle: const MenuStyle(
+      padding: WidgetStatePropertyAll(EdgeInsets.zero),
+      backgroundColor: WidgetStatePropertyAll(Color(0xFF2b2b2b)),
+      maximumSize: WidgetStatePropertyAll(Size(double.infinity, 28.0)),
+    ),
 
-        // Style the menu bar buttons. Hover over [ButtonStyle] for all the options
-        barButtonStyle: const ButtonStyle(
-          padding:
-              WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 6.0)),
-          minimumSize: WidgetStatePropertyAll(Size(0.0, 32.0)),
-        ),
+    // Style the menu bar buttons. Hover over [ButtonStyle] for all the options
+    barButtonStyle: const ButtonStyle(
+      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 6.0)),
+      minimumSize: WidgetStatePropertyAll(Size(0.0, 32.0)),
+    ),
 
-        // Style the menu and submenu buttons. Hover over [ButtonStyle] for all the options
-        menuButtonStyle: const ButtonStyle(
-          minimumSize: WidgetStatePropertyAll(Size.fromHeight(36.0)),
-          padding: WidgetStatePropertyAll(
-              EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0)),
-        ),
+    // Style the menu and submenu buttons. Hover over [ButtonStyle] for all the options
+    menuButtonStyle: const ButtonStyle(
+      minimumSize: WidgetStatePropertyAll(Size.fromHeight(36.0)),
+      padding: WidgetStatePropertyAll(
+        EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+      ),
+    ),
 
-        // Enable or disable the bar
-        enabled: true,
+    // Enable or disable the bar
+    enabled: true,
 
-        // Set the child, i.e. the application under the menu bar
-        child: child,
-      );
+    // Set the child, i.e. the application under the menu bar
+    child: child,
+  );
 
   List<BarButton> windowsLinuxMenuBarButtons({
     required BuildContext context,
@@ -187,10 +182,14 @@ class MenubarWidgetState extends State<MenubarWidget> {
             MenuButton(
               onTap: () async => exportDeviceList(context),
               shortcutText: 'Ctrl+E',
-              shortcut:
-                  const SingleActivator(LogicalKeyboardKey.keyE, control: true),
-              text: Text(translations['menuEntryExportDeviceList'] ??
-                  'Export Device List'),
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.keyE,
+                control: true,
+              ),
+              text: Text(
+                translations['menuEntryExportDeviceList'] ??
+                    'Export Device List',
+              ),
               icon: const Icon(Icons.download),
             ),
             const MenuDivider(),
@@ -200,16 +199,23 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 barrierDismissible: false,
                 barrierLabel: 'Dialog',
                 transitionDuration: const Duration(milliseconds: 0),
-                pageBuilder: (_, __, ___) {
-                  return SettingsPage(
-                    minDesktopSize: minDesktopSize,
-                    standardDesktopSize: standardDesktopSize,
-                  );
-                },
+                pageBuilder:
+                    (
+                      BuildContext context,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                    ) {
+                      return SettingsPage(
+                        minDesktopSize: minDesktopSize,
+                        standardDesktopSize: standardDesktopSize,
+                      );
+                    },
               ),
               shortcutText: 'Ctrl+,',
-              shortcut: const SingleActivator(LogicalKeyboardKey.comma,
-                  control: true),
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.comma,
+                control: true,
+              ),
               text: Text(translations['menuEntryWinSettings'] ?? 'Preferences'),
               icon: const Icon(Icons.settings),
             ),
@@ -217,20 +223,19 @@ class MenubarWidgetState extends State<MenubarWidget> {
             MenuButton(
               onTap: () {
                 SharedWidgets.showPlatformSpecificDialog(
-                    context: context,
-                    child: (BuildContext context) => AlertElement(
-                          title: translations['dialogQuitQuestion'] ??
-                              'Do you really want to quit?',
-                          button1Label: translations['dialogYes'] ?? 'Yes',
-                          onPressed1: () => FlutterWindowClose.closeWindow(),
-                          button2Label: translations['dialogNo'] ?? 'No',
-                          onPressed2: () => Navigator.of(context).pop(false),
-                        ));
+                  context: context,
+                  child: (BuildContext context) => AlertElement(
+                    title:
+                        translations['dialogQuitQuestion'] ??
+                        'Do you really want to quit?',
+                    button1Label: translations['dialogYes'] ?? 'Yes',
+                    onPressed1: () => FlutterWindowClose.closeWindow(),
+                    button2Label: translations['dialogNo'] ?? 'No',
+                    onPressed2: () => Navigator.of(context).pop(false),
+                  ),
+                );
               },
-              shortcut: const SingleActivator(
-                LogicalKeyboardKey.f4,
-                alt: true,
-              ),
+              shortcut: const SingleActivator(LogicalKeyboardKey.f4, alt: true),
               shortcutText: 'ALT+F4',
               text: Text(translations['menuEntryWinQuit'] ?? 'Exit'),
               icon: const Icon(Icons.exit_to_app),
@@ -350,7 +355,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
               ),
               shortcutText: 'Ctrl+Shift+Alt+Left',
               text: Text(
-                  translations['backToMainViewLabel'] ?? 'Back to main page'),
+                translations['backToMainViewLabel'] ?? 'Back to main page',
+              ),
             ),
             MenuButton(
               onTap: () => mainBloc.selectDeviceBefore(ip: selectedDeviceIp),
@@ -361,8 +367,10 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 shift: true,
               ),
               shortcutText: 'Ctrl+Shift+Up',
-              text: Text(translations['selectDeviceBeforeLabel'] ??
-                  'Select previous device'),
+              text: Text(
+                translations['selectDeviceBeforeLabel'] ??
+                    'Select previous device',
+              ),
             ),
             MenuButton(
               onTap: () => mainBloc.selectDeviceNext(ip: selectedDeviceIp),
@@ -373,30 +381,30 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 shift: true,
               ),
               shortcutText: 'Ctrl+Shift+Down',
-              text: Text(translations['selectDeviceNextLabel'] ??
-                  'Select next device'),
+              text: Text(
+                translations['selectDeviceNextLabel'] ?? 'Select next device',
+              ),
             ),
             MenuButton(
               onTap: () =>
                   windowManager.setSize(standardDesktopSize, animate: true),
               icon: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: const Icon(
-                  FontAwesomeIcons.minimize,
-                  size: 16.0,
-                ),
+                child: const FaIcon(FontAwesomeIcons.minimize, size: 16.0),
               ),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.minus,
                 control: true,
               ),
               shortcutText: 'Ctrl+Minus',
-              text:
-                  Text(translations['minimizeResizeButtonLabel'] ?? 'Minimize'),
+              text: Text(
+                translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+              ),
             ),
             MenuButton(
               onTap: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                  minDesktopSize: minDesktopSize),
+                minDesktopSize: minDesktopSize,
+              ),
               icon: const Icon(Icons.width_full),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyW,
@@ -405,13 +413,15 @@ class MenubarWidgetState extends State<MenubarWidget> {
               ),
               shortcutText: 'Ctrl+Shift+W',
               text: Text(
-                  translations['fullWidthResizeButtonLabel'] ?? 'Full width'),
+                translations['fullWidthResizeButtonLabel'] ?? 'Full width',
+              ),
             ),
             const MenuDivider(),
             if (deviceSelectedAndReady) ...[
               MenuButton(
-                onTap: () => openPage(
+                onTap: () => SharedWidgets.openPage(
                   context: context,
+                  navigatorKey: navigatorKey,
                   page: ConfigPage(
                     name: info[selectedDeviceIp]['name'],
                     ip: selectedDeviceIp,
@@ -432,8 +442,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 text: Text(translations['configButtonText'] ?? 'Config'),
               ),
               MenuButton(
-                onTap: () => openPage(
+                onTap: () => SharedWidgets.openPage(
                   context: context,
+                  navigatorKey: navigatorKey,
                   page: CoverPage(
                     name: info[selectedDeviceIp]['name'],
                     ip: selectedDeviceIp,
@@ -453,8 +464,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
               ),
               if (isMatrixDevice)
                 MenuButton(
-                  onTap: () => openPage(
+                  onTap: () => SharedWidgets.openPage(
                     context: context,
+                    navigatorKey: navigatorKey,
                     page: MessagePage(
                       name: info[selectedDeviceIp]['name'],
                       ip: selectedDeviceIp,
@@ -473,8 +485,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 ),
               if (isMatrixDevice)
                 MenuButton(
-                  onTap: () => openPage(
+                  onTap: () => SharedWidgets.openPage(
                     context: context,
+                    navigatorKey: navigatorKey,
                     page: LiveControlPage(
                       name: info[selectedDeviceIp]['name'],
                       ip: selectedDeviceIp,
@@ -490,11 +503,13 @@ class MenubarWidgetState extends State<MenubarWidget> {
                   ),
                   shortcutText: 'Ctrl+Shift+L',
                   text: Text(
-                      translations['liveControlButtonText'] ?? 'Live Control'),
+                    translations['liveControlButtonText'] ?? 'Live Control',
+                  ),
                 ),
               MenuButton(
-                onTap: () => openPage(
+                onTap: () => SharedWidgets.openPage(
                   context: context,
+                  navigatorKey: navigatorKey,
                   page: InfoPage(
                     name: info[selectedDeviceIp]['name'],
                     ip: selectedDeviceIp,
@@ -512,8 +527,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 text: Text(translations['infoButtonText'] ?? 'Monitoring'),
               ),
               MenuButton(
-                onTap: () => openPage(
+                onTap: () => SharedWidgets.openPage(
                   context: context,
+                  navigatorKey: navigatorKey,
                   page: LogPage(
                     name: info[selectedDeviceIp]['name'],
                     ip: selectedDeviceIp,
@@ -554,8 +570,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
                     }
                   }
 
-                  openPage(
+                  SharedWidgets.openPage(
                     context: context,
+                    navigatorKey: navigatorKey,
                     page: MiniPlayerPage(
                       name: zoneName,
                       ip: selectedDeviceIp,
@@ -572,11 +589,13 @@ class MenubarWidgetState extends State<MenubarWidget> {
                   );
                 },
                 // icon: const Icon(Icons.play_arrow),
-                icon: SvgPicture.asset('assets/svg/albumcover.svg',
-                    allowDrawingOutsideViewBox: false,
-                    fit: BoxFit.contain,
-                    width: 24.0,
-                    alignment: Alignment.center),
+                icon: SvgPicture.asset(
+                  'assets/svg/albumcover.svg',
+                  allowDrawingOutsideViewBox: false,
+                  fit: BoxFit.contain,
+                  width: 24.0,
+                  alignment: Alignment.center,
+                ),
                 shortcut: const SingleActivator(
                   LogicalKeyboardKey.keyP,
                   control: true,
@@ -584,7 +603,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 ),
                 shortcutText: 'Ctrl+Shift+P',
                 text: Text(
-                    translations['miniPlayerPageHeaderText'] ?? 'Mini Player'),
+                  translations['miniPlayerPageHeaderText'] ?? 'Mini Player',
+                ),
               ),
             ],
           ],
@@ -599,12 +619,15 @@ class MenubarWidgetState extends State<MenubarWidget> {
           menuItems: [
             MenuButton(
               onTap: () => SharedWidgets.openAboutModal(
-                  context: context,
-                  aboutAppMessage: aboutAppMessage,
-                  translations: translations),
+                context: context,
+                aboutAppMessage: aboutAppMessage,
+                translations: translations,
+              ),
               icon: const Icon(Icons.info),
-              text: Text(translations['menuEntryAbout'] ??
-                  'About ${Globals.mainWindowTitle}'),
+              text: Text(
+                translations['menuEntryAbout'] ??
+                    'About ${Globals.mainWindowTitle}',
+              ),
             ),
           ],
         ),
@@ -615,25 +638,26 @@ class MenubarWidgetState extends State<MenubarWidget> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        bloc: translationsBloc,
-        builder: (context, TranslationsState translationsState) {
-          if (translationsState is TranslationsStateLoaded) {
-            translations = translationsState.translations;
-            aboutAppMessage = translationsState.aboutAppMessage;
-            translationsLoaded = translationsState.translationsLoaded;
-          }
+      bloc: translationsBloc,
+      builder: (context, TranslationsState translationsState) {
+        if (translationsState is TranslationsStateLoaded) {
+          translations = translationsState.translations;
+          aboutAppMessage = translationsState.aboutAppMessage;
+          translationsLoaded = translationsState.translationsLoaded;
+        }
 
-          if (translationsState is! TranslationsStateLoaded ||
-              !translationsLoaded) {
-            return SizedBox();
-          }
+        if (translationsState is! TranslationsStateLoaded ||
+            !translationsLoaded) {
+          return SizedBox();
+        }
 
-          return windowsLinuxMenuBar(
-            context: context,
-            translations: translations,
-            child: child,
-          );
-        });
+        return windowsLinuxMenuBar(
+          context: context,
+          translations: translations,
+          child: child,
+        );
+      },
+    );
   }
 
   @override

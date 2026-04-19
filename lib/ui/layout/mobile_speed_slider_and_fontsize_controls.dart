@@ -97,9 +97,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
       children: [
         if (Globals.isMobileDevice()) ...[
           if (width > sliderTextMobileMin)
-            Text(
-              '${translations['speed'] ?? 'speed:'}:',
-            ),
+            Text('${translations['speed'] ?? 'speed:'}:'),
           InkWell(
             onDoubleTap: () {
               speedChanged(sliderDefaultValue);
@@ -108,8 +106,9 @@ class _MobileSpeedSliderAndFontsizeControlsState
             child: Padding(
               padding: const EdgeInsets.only(top: 4.0),
               child: SizedBox(
-                width:
-                    width > sliderMobileMin ? sliderWidthBig : sliderWidthSmall,
+                width: width > sliderMobileMin
+                    ? sliderWidthBig
+                    : sliderWidthSmall,
                 child: Slider(
                   value: sliderValue,
                   min: Globals.sliderMinValue,
@@ -145,7 +144,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
-                          child: const Icon(FontAwesomeIcons.font),
+                          child: const FaIcon(FontAwesomeIcons.font),
                         ),
                         Container(
                           width: 20.0,
@@ -159,7 +158,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
                               borderRadius: Globals.borderRadius(),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -185,7 +184,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 2.0),
-                          child: const Icon(FontAwesomeIcons.font),
+                          child: const FaIcon(FontAwesomeIcons.font),
                         ),
                         Container(
                           width: 20.0,
@@ -199,7 +198,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
                               borderRadius: Globals.borderRadius(),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -225,7 +224,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 2.0),
-                          child: const Icon(FontAwesomeIcons.font),
+                          child: const FaIcon(FontAwesomeIcons.font),
                         ),
                         Container(
                           width: 20.0,
@@ -239,7 +238,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
                               borderRadius: Globals.borderRadius(),
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -249,10 +248,7 @@ class _MobileSpeedSliderAndFontsizeControlsState
           ),
         ],
         if (Globals.isDesktopDevice())
-          TitlebarInfoContent(
-            ip: ip,
-            translations: translations,
-          ),
+          TitlebarInfoContent(ip: ip, translations: translations),
         const SizedBox(width: 4.0),
       ],
     );

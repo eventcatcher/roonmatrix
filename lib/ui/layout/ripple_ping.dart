@@ -32,10 +32,8 @@ class _RipplePingState extends State<RipplePing>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: animationDuration,
-    )..addStatusListener((status) {
+    _controller = AnimationController(vsync: this, duration: animationDuration)
+      ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           _controller.reset();
           widget.onFinished();
@@ -66,7 +64,7 @@ class _RipplePingState extends State<RipplePing>
       height: widget.maxRadius * 2,
       child: AnimatedBuilder(
         animation: _controller,
-        builder: (_, __) {
+        builder: (BuildContext c, Widget? w) {
           final t = Curves.easeOutExpo.transform(_controller.value);
           return CustomPaint(
             painter: RipplePainter(

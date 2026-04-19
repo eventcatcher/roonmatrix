@@ -60,7 +60,7 @@ class KeyValItemsState extends State<KeyValItems> {
     super.dispose();
   }
 
-  void returnJson(fieldValues) {
+  void returnJson(Map<String, dynamic> fieldValues) {
     String json = jsonEncode(fieldValues).replaceDoubleQuotesWithSingleQuotes();
     onChanged(json);
   }
@@ -101,27 +101,28 @@ class KeyValItemsState extends State<KeyValItems> {
           Padding(
             padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, right: 16.0),
             child: IconButtonElement(
-                label: translations['removeButtonText'] ?? 'remove',
-                noBackground: false,
-                withCircle: false,
-                size: 30,
-                icon: Icon(Icons.remove, color: Colors.white, size: 12),
-                onPressed: () async {
-                  bool valid = await SharedWidgets.showPlatformSpecificDialog(
-                    context: context,
-                    child: (BuildContext context) =>
-                        SharedWidgets.removeItemDialog(
-                      context: context,
-                      translations: translations,
-                    ),
-                  );
-                  if (valid == true) {
-                    setState(() {
-                      fieldValues.remove(key);
-                      returnJson(fieldValues);
-                    });
-                  }
-                }),
+              label: translations['removeButtonText'] ?? 'remove',
+              noBackground: false,
+              withCircle: false,
+              size: 30,
+              icon: Icon(Icons.remove, color: Colors.white, size: 12),
+              onPressed: () async {
+                bool valid = await SharedWidgets.showPlatformSpecificDialog(
+                  context: context,
+                  child: (BuildContext context) =>
+                      SharedWidgets.removeItemDialog(
+                        context: context,
+                        translations: translations,
+                      ),
+                );
+                if (valid == true) {
+                  setState(() {
+                    fieldValues.remove(key);
+                    returnJson(fieldValues);
+                  });
+                }
+              },
+            ),
           ),
         ],
       );
@@ -148,7 +149,11 @@ class KeyValItemsState extends State<KeyValItems> {
 
         return Container(
           margin: const EdgeInsets.only(
-              left: 12.0, right: 12.0, top: 16.0, bottom: 5.0),
+            left: 12.0,
+            right: 12.0,
+            top: 16.0,
+            bottom: 5.0,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -159,8 +164,9 @@ class KeyValItemsState extends State<KeyValItems> {
                     : labelColor ?? ColorDefs.textColor(context: context),
               ),
               Container(
-                margin:
-                    EdgeInsets.only(bottom: noVerticalSpace == true ? 0 : 10),
+                margin: EdgeInsets.only(
+                  bottom: noVerticalSpace == true ? 0 : 10,
+                ),
                 child: Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: Globals.borderRadius(),
@@ -184,11 +190,14 @@ class KeyValItemsState extends State<KeyValItems> {
                                     if (newKey is String && newKey != '') {
                                       setState(() {
                                         fieldValues.putIfAbsent(
-                                            newKey, () => '');
+                                          newKey,
+                                          () => '',
+                                        );
                                         returnJson(fieldValues);
                                       });
                                     }
-                                  })
+                                  },
+                                )
                               : const SizedBox(),
                         ),
                       ),

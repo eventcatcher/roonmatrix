@@ -18,8 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
-import 'package:styled_text/tags/styled_text_tag.dart';
-import 'package:styled_text/widgets/styled_text.dart';
+import 'package:styled_text/styled_text.dart';
 
 class ConfigPage extends StatefulWidget {
   final String name;
@@ -83,83 +82,83 @@ class ConfigPageState extends State<ConfigPage> {
     required BuildContext widgetContext,
     required ColorScheme defaultColorScheme,
     required MainState mainState,
-  }) =>
-      SizedBox(
-        child: Column(
-          children: [
-            Expanded(
-              child: mainState.subPageIdle == true
-                  ? const LoadingIndicatorSmall()
-                  : ListView(
-                      shrinkWrap: true,
-                      children: [...formFields],
-                    ),
-            ),
-            if (Globals.inIosStyle()) const SizedBox(height: 14.0),
-            Padding(
-              padding: EdgeInsets.symmetric(
-                  vertical: Globals.isDesktopDevice() ? 16.0 : 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconTextButtonElement(
-                    onMacAsText: true,
-                    icon: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Icon(
-                        Icons.save,
-                        color: Colors.white,
-                        size: 20.0,
-                      ),
-                    ),
-                    label: (translations['saveButtonText'] ?? 'Save')
-                        .toString()
-                        .toFirstUpper,
-                    onPressed: !validData ||
-                            saveIdle == true ||
-                            mainState.subPageIdle == true
-                        ? null
-                        : () async {
-                            setState(() {
-                              saveIdle = true;
-                            });
-                            bool valid = await mainBloc.saveConfig(
-                                name: name, ip: ip, data: fieldValues);
-                            setState(() {
-                              saveIdle = false;
-                            });
-
-                            SharedWidgets.showSnackBar(
-                                // ignore: use_build_context_synchronously
-                                context: widgetContext,
-                                doneMessage: translations['saveDoneMessage'] ??
-                                    'Save config successfully done',
-                                failMessage:
-                                    translations['saveFailedMessage'] ??
-                                        'Save config failed!',
-                                valid: valid);
-
-                            if (valid == true) {
-                              if (widgetContext.mounted) {
-                                Timer.periodic(const Duration(seconds: 3),
-                                    (Timer timer) {
-                                  timer.cancel();
-                                  if (widgetContext.mounted) {
-                                    Navigator.of(widgetContext).pop();
-                                  }
-                                });
-                              }
-                            }
-                          },
-                  ),
-                ],
-              ),
-            ),
-            if (Globals.inIosStyle()) const SizedBox(height: 14.0),
-          ],
+  }) => SizedBox(
+    child: Column(
+      children: [
+        Expanded(
+          child: mainState.subPageIdle == true
+              ? const LoadingIndicatorSmall()
+              : ListView(shrinkWrap: true, children: [...formFields]),
         ),
-      );
+        if (Globals.inIosStyle()) const SizedBox(height: 14.0),
+        Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: Globals.isDesktopDevice() ? 16.0 : 0,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconTextButtonElement(
+                onMacAsText: true,
+                icon: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Icon(Icons.save, color: Colors.white, size: 20.0),
+                ),
+                label: (translations['saveButtonText'] ?? 'Save')
+                    .toString()
+                    .toFirstUpper,
+                onPressed:
+                    !validData ||
+                        saveIdle == true ||
+                        mainState.subPageIdle == true
+                    ? null
+                    : () async {
+                        setState(() {
+                          saveIdle = true;
+                        });
+                        bool valid = await mainBloc.saveConfig(
+                          name: name,
+                          ip: ip,
+                          data: fieldValues,
+                        );
+                        setState(() {
+                          saveIdle = false;
+                        });
+
+                        SharedWidgets.showSnackBar(
+                          // ignore: use_build_context_synchronously
+                          context: widgetContext,
+                          doneMessage:
+                              translations['saveDoneMessage'] ??
+                              'Save config successfully done',
+                          failMessage:
+                              translations['saveFailedMessage'] ??
+                              'Save config failed!',
+                          valid: valid,
+                        );
+
+                        if (valid == true) {
+                          if (widgetContext.mounted) {
+                            Timer.periodic(const Duration(seconds: 3), (
+                              Timer timer,
+                            ) {
+                              timer.cancel();
+                              if (widgetContext.mounted) {
+                                Navigator.of(widgetContext).pop();
+                              }
+                            });
+                          }
+                        }
+                      },
+              ),
+            ],
+          ),
+        ),
+        if (Globals.inIosStyle()) const SizedBox(height: 14.0),
+      ],
+    ),
+  );
 
   Widget tabView({
     required BuildContext widgetContext,
@@ -169,7 +168,8 @@ class ConfigPageState extends State<ConfigPage> {
   }) {
     return Container(
       padding: EdgeInsets.only(
-          top: Globals.inIosStyle() || Globals.inMacosStyle() ? 20.0 : 0.0),
+        top: Globals.inIosStyle() || Globals.inMacosStyle() ? 20.0 : 0.0,
+      ),
       child: Column(
         children: [
           Padding(
@@ -195,11 +195,12 @@ class ConfigPageState extends State<ConfigPage> {
                           tags: {
                             'b': StyledTextTag(
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  backgroundColor: Globals.brightness() ==
-                                          Brightness.dark
-                                      ? const Color.fromARGB(255, 135, 94, 6)
-                                      : const Color(0xFFffaf00)),
+                                fontWeight: FontWeight.bold,
+                                backgroundColor:
+                                    Globals.brightness() == Brightness.dark
+                                    ? const Color.fromARGB(255, 135, 94, 6)
+                                    : const Color(0xFFffaf00),
+                              ),
                             ),
                           },
                         ),
@@ -210,7 +211,8 @@ class ConfigPageState extends State<ConfigPage> {
           if (Globals.inIosStyle()) const SizedBox(height: 14.0),
           Padding(
             padding: EdgeInsets.symmetric(
-                vertical: Globals.isDesktopDevice() ? 16.0 : 0),
+              vertical: Globals.isDesktopDevice() ? 16.0 : 0,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -235,7 +237,10 @@ class ConfigPageState extends State<ConfigPage> {
                             saveIdle = true;
                           });
                           bool? valid = await mainBloc.exportData(
-                              name: name, ip: ip, type: 'config');
+                            name: name,
+                            ip: ip,
+                            type: 'config',
+                          );
                           setState(() {
                             saveIdle = false;
                           });
@@ -244,14 +249,16 @@ class ConfigPageState extends State<ConfigPage> {
                           }
 
                           SharedWidgets.showSnackBar(
-                              // ignore: use_build_context_synchronously
-                              context: widgetContext,
-                              doneMessage: translations['exportDoneMessage'] ??
-                                  'Export successfully done',
-                              failMessage:
-                                  translations['exportFailedMessage'] ??
-                                      'Export failed!',
-                              valid: valid);
+                            // ignore: use_build_context_synchronously
+                            context: widgetContext,
+                            doneMessage:
+                                translations['exportDoneMessage'] ??
+                                'Export successfully done',
+                            failMessage:
+                                translations['exportFailedMessage'] ??
+                                'Export failed!',
+                            valid: valid,
+                          );
                         },
                 ),
               ],
@@ -269,256 +276,270 @@ class ConfigPageState extends State<ConfigPage> {
     final ColorScheme defaultColorScheme = Theme.of(context).colorScheme;
 
     return BlocBuilder(
-        bloc: translationsBloc,
-        builder: (context, TranslationsState translationsState) {
-          if (translationsState is TranslationsStateLoaded) {
-            translations = translationsState.translations;
-            translationsLoaded = translationsState.translationsLoaded;
-            title =
-                '$name : ${translations['configPageHeaderText'] ?? 'Config'}';
-          }
+      bloc: translationsBloc,
+      builder: (context, TranslationsState translationsState) {
+        if (translationsState is TranslationsStateLoaded) {
+          translations = translationsState.translations;
+          translationsLoaded = translationsState.translationsLoaded;
+          title = '$name : ${translations['configPageHeaderText'] ?? 'Config'}';
+        }
 
-          if (translationsState is! TranslationsStateLoaded ||
-              !translationsLoaded) {
+        if (translationsState is! TranslationsStateLoaded ||
+            !translationsLoaded) {
+          if (Globals.inIosStyle()) {
+            return CupertinoPageScaffold(
+              navigationBar: CupertinoNavigationBar(
+                brightness: Globals.brightness(),
+                middle: Text(title),
+              ),
+              child: SizedBox(),
+            );
+          }
+          return Globals.inMacosStyle()
+              ? MacosScaffold(
+                  toolBar: ToolBar(
+                    title: Text(title),
+                    titleWidth: Globals.extendedTitleWidth,
+                    leading: MacosBackButton(
+                      onPressed: () => Navigator.pop(context),
+                      fillColor: Colors.transparent,
+                    ),
+                    actions: [],
+                  ),
+                  children: [
+                    ContentArea(
+                      builder: ((context, scrollController) {
+                        return MacosWindow(child: Material(child: SizedBox()));
+                      }),
+                    ),
+                  ],
+                )
+              : const SizedBox();
+        }
+
+        return BlocBuilder(
+          bloc: mainBloc,
+          builder: (context, MainState mainState) {
+            if (mainState is! MainStateLoaded) {
+              return Container();
+            }
+
+            String search = mainState.searchFilter['config']!;
+            macosVersion = mainState.macosVersion;
+            jsonStr = mainBloc.getPrettyJSONString(mainState.config[ip]);
+
+            if (search.isNotEmpty) {
+              jsonStr = jsonStr.replaceAllMapped(
+                RegExp(search, caseSensitive: false),
+                (match) {
+                  return '<b>${match.group(0)}</b>';
+                },
+              );
+            }
+
+            if (!mainState.definitions.containsKey(ip)) {
+              return const LoadingIndicatorSmall();
+            }
+
+            ConfigDefinition defs = mainState.definitions[ip]!;
+            fieldValues = mainState.fieldValues[ip];
+            validData = mainBloc.validateAll(
+              definitions: defs,
+              fieldValues: fieldValues,
+            );
+            if (!expandablesSetupDone) {
+              expandablesSetupDone = true;
+              mainBloc.setConfigExpandables(defs: defs);
+            }
+            formFields = mainBloc.getConfigFormFields(
+              context: context,
+              translations: translations,
+              fieldValues: fieldValues,
+              defs: defs,
+              updateFieldValues:
+                  ({
+                    required String areaName,
+                    required String fieldName,
+                    required dynamic value,
+                  }) {
+                    if (mounted) {
+                      setState(() => fieldValues[areaName][fieldName] = value);
+                    }
+                  },
+            );
+
             if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
                   brightness: Globals.brightness(),
                   middle: Text(title),
+                  leading: CupertinoNavigationBarBackButton(),
                 ),
-                child: SizedBox(),
-              );
-            }
-            return Globals.inMacosStyle()
-                ? MacosScaffold(
-                    toolBar: ToolBar(
-                      title: Text(title),
-                      titleWidth: Globals.extendedTitleWidth,
-                      leading: MacosBackButton(
-                        onPressed: () => Navigator.pop(context),
-                        fillColor: Colors.transparent,
-                      ),
-                      actions: [],
-                    ),
-                    children: [
-                      ContentArea(
-                        builder: ((context, scrollController) {
-                          return MacosWindow(
-                            child: Material(
-                              child: SizedBox(),
-                            ),
-                          );
-                        }),
-                      ),
-                    ],
-                  )
-                : const SizedBox();
-          }
-
-          return BlocBuilder(
-              bloc: mainBloc,
-              builder: (context, MainState mainState) {
-                if (mainState is! MainStateLoaded) {
-                  return Container();
-                }
-
-                String search = mainState.searchFilter['config']!;
-                macosVersion = mainState.macosVersion;
-                jsonStr = mainBloc.getPrettyJSONString(mainState.config[ip]);
-
-                if (search.isNotEmpty) {
-                  jsonStr = jsonStr.replaceAllMapped(
-                      RegExp(search, caseSensitive: false), (match) {
-                    return '<b>${match.group(0)}</b>';
-                  });
-                }
-
-                if (!mainState.definitions.containsKey(ip)) {
-                  return const LoadingIndicatorSmall();
-                }
-
-                ConfigDefinition defs = mainState.definitions[ip]!;
-                fieldValues = mainState.fieldValues[ip];
-                validData = mainBloc.validateAll(
-                    definitions: defs, fieldValues: fieldValues);
-                if (!expandablesSetupDone) {
-                  expandablesSetupDone = true;
-                  mainBloc.setConfigExpandables(defs: defs);
-                }
-                formFields = mainBloc.getConfigFormFields(
-                    context: context,
-                    translations: translations,
-                    fieldValues: fieldValues,
-                    defs: defs,
-                    updateFieldValues: ({
-                      required String areaName,
-                      required String fieldName,
-                      required dynamic value,
-                    }) {
-                      if (mounted) {
-                        setState(
-                            () => fieldValues[areaName][fieldName] = value);
-                      }
-                    });
-
-                if (Globals.inIosStyle()) {
-                  return CupertinoPageScaffold(
-                    navigationBar: CupertinoNavigationBar(
-                      brightness: Globals.brightness(),
-                      middle: Text(title),
-                      leading: CupertinoNavigationBarBackButton(),
-                    ),
-                    child: SafeArea(
-                      child: CupertinoTabScaffold(
-                        tabBar: CupertinoTabBar(
-                          items: <BottomNavigationBarItem>[
-                            BottomNavigationBarItem(
-                                icon: Icon(CupertinoIcons.pencil),
-                                label: translations['configPageTabEditLabel'] ??
-                                    'Edit'),
-                            BottomNavigationBarItem(
-                                icon: Icon(CupertinoIcons.eye),
-                                label: translations['configPageTabReadLabel'] ??
-                                    'View'),
-                          ],
+                child: SafeArea(
+                  child: CupertinoTabScaffold(
+                    tabBar: CupertinoTabBar(
+                      items: <BottomNavigationBarItem>[
+                        BottomNavigationBarItem(
+                          icon: Icon(CupertinoIcons.pencil),
+                          label:
+                              translations['configPageTabEditLabel'] ?? 'Edit',
                         ),
-                        tabBuilder: (context, index) {
-                          switch (index) {
-                            case 0:
-                              return CupertinoTabView(builder: (context) {
-                                return SafeArea(
-                                  child: CupertinoPageScaffold(
-                                    child: Center(
-                                      child: tabEdit(
-                                          widgetContext: widgetContext,
-                                          defaultColorScheme:
-                                              defaultColorScheme,
-                                          mainState: mainState),
+                        BottomNavigationBarItem(
+                          icon: Icon(CupertinoIcons.eye),
+                          label:
+                              translations['configPageTabReadLabel'] ?? 'View',
+                        ),
+                      ],
+                    ),
+                    tabBuilder: (context, index) {
+                      switch (index) {
+                        case 0:
+                          return CupertinoTabView(
+                            builder: (context) {
+                              return SafeArea(
+                                child: CupertinoPageScaffold(
+                                  child: Center(
+                                    child: tabEdit(
+                                      widgetContext: widgetContext,
+                                      defaultColorScheme: defaultColorScheme,
+                                      mainState: mainState,
                                     ),
                                   ),
-                                );
-                              });
-                            case 1:
-                              return CupertinoTabView(
-                                builder: (xcontext) {
-                                  return SafeArea(
-                                    child: CupertinoPageScaffold(
-                                      child: Center(
-                                        child: tabView(
-                                            widgetContext: widgetContext,
-                                            defaultColorScheme:
-                                                defaultColorScheme,
-                                            mainState: mainState,
-                                            jsonStr: jsonStr),
-                                      ),
-                                    ),
-                                  );
-                                },
+                                ),
                               );
-                            default:
-                              return SizedBox();
-                          }
-                        },
-                      ),
-                    ),
-                  );
-                }
+                            },
+                          );
+                        case 1:
+                          return CupertinoTabView(
+                            builder: (xcontext) {
+                              return SafeArea(
+                                child: CupertinoPageScaffold(
+                                  child: Center(
+                                    child: tabView(
+                                      widgetContext: widgetContext,
+                                      defaultColorScheme: defaultColorScheme,
+                                      mainState: mainState,
+                                      jsonStr: jsonStr,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        default:
+                          return SizedBox();
+                      }
+                    },
+                  ),
+                ),
+              );
+            }
 
-                return Globals.inMacosStyle()
-                    ? PageWithToolbarMacStyle(
-                        translations: translations,
-                        title: title,
-                        standardDesktopSize: standardDesktopSize,
-                        macosVersion: macosVersion,
-                        body: Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: MacosTabView(
-                            controller: _controller,
-                            tabs: [
-                              MacosTab(
-                                  label:
-                                      translations['configPageTabEditLabel'] ??
-                                          'Edit'),
-                              MacosTab(
-                                label: translations['configPageTabReadLabel'] ??
-                                    'View',
-                              ),
-                            ],
-                            children: [
-                              Center(
-                                child: tabEdit(
-                                    widgetContext: widgetContext,
-                                    defaultColorScheme: defaultColorScheme,
-                                    mainState: mainState),
-                              ),
-                              Center(
-                                child: tabView(
-                                    widgetContext: widgetContext,
-                                    defaultColorScheme: defaultColorScheme,
-                                    mainState: mainState,
-                                    jsonStr: jsonStr),
-                              ),
-                            ],
+            return Globals.inMacosStyle()
+                ? PageWithToolbarMacStyle(
+                    translations: translations,
+                    title: title,
+                    standardDesktopSize: standardDesktopSize,
+                    macosVersion: macosVersion,
+                    body: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: MacosTabView(
+                        controller: _controller,
+                        tabs: [
+                          MacosTab(
+                            label:
+                                translations['configPageTabEditLabel'] ??
+                                'Edit',
                           ),
-                        ),
-                        resizeToFullWidth: () {
-                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                              minDesktopSize: minDesktopSize);
-                        },
-                      )
-                    : PageWithToolbarFlutterStyle(
-                        scaffoldKey: scaffoldKey,
-                        translations: translations,
-                        title: title,
-                        sliderDefaultValue: 0.0,
-                        showSlider: false,
-                        withTabController: true,
-                        tabLength: 2,
-                        tabBar: PreferredSize(
-                          preferredSize: const Size.fromHeight(48.0),
-                          child: Material(
-                            color: Globals.brightness() == Brightness.dark
-                                ? Colors.blue.shade800
-                                : Colors.blue.shade400,
-                            child: TabBar(
-                              tabs: <Widget>[
-                                Tab(
-                                  text:
-                                      translations['configPageTabEditLabel'] ??
-                                          'Edit',
-                                ),
-                                Tab(
-                                  text:
-                                      translations['configPageTabReadLabel'] ??
-                                          'View',
-                                ),
-                              ],
+                          MacosTab(
+                            label:
+                                translations['configPageTabReadLabel'] ??
+                                'View',
+                          ),
+                        ],
+                        children: [
+                          Center(
+                            child: tabEdit(
+                              widgetContext: widgetContext,
+                              defaultColorScheme: defaultColorScheme,
+                              mainState: mainState,
                             ),
                           ),
-                        ),
-                        showExpandableSpeedSlider: false,
-                        scrollSpeedDevice: 1.0,
-                        standardDesktopSize: standardDesktopSize,
-                        drawer: null,
-                        body: TabBarView(
-                          children: <Widget>[
-                            tabEdit(
-                                widgetContext: widgetContext,
-                                defaultColorScheme: defaultColorScheme,
-                                mainState: mainState),
-                            tabView(
-                                widgetContext: widgetContext,
-                                defaultColorScheme: defaultColorScheme,
-                                mainState: mainState,
-                                jsonStr: jsonStr),
+                          Center(
+                            child: tabView(
+                              widgetContext: widgetContext,
+                              defaultColorScheme: defaultColorScheme,
+                              mainState: mainState,
+                              jsonStr: jsonStr,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    resizeToFullWidth: () {
+                      mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                        minDesktopSize: minDesktopSize,
+                      );
+                    },
+                  )
+                : PageWithToolbarFlutterStyle(
+                    scaffoldKey: scaffoldKey,
+                    translations: translations,
+                    title: title,
+                    sliderDefaultValue: 0.0,
+                    showSlider: false,
+                    withTabController: true,
+                    tabLength: 2,
+                    tabBar: PreferredSize(
+                      preferredSize: const Size.fromHeight(48.0),
+                      child: Material(
+                        color: Globals.brightness() == Brightness.dark
+                            ? Colors.blue.shade800
+                            : Colors.blue.shade400,
+                        child: TabBar(
+                          tabs: <Widget>[
+                            Tab(
+                              text:
+                                  translations['configPageTabEditLabel'] ??
+                                  'Edit',
+                            ),
+                            Tab(
+                              text:
+                                  translations['configPageTabReadLabel'] ??
+                                  'View',
+                            ),
                           ],
                         ),
-                        resizeToFullWidth: () {
-                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                              minDesktopSize: minDesktopSize);
-                        },
+                      ),
+                    ),
+                    showExpandableSpeedSlider: false,
+                    scrollSpeedDevice: 1.0,
+                    standardDesktopSize: standardDesktopSize,
+                    drawer: null,
+                    body: TabBarView(
+                      children: <Widget>[
+                        tabEdit(
+                          widgetContext: widgetContext,
+                          defaultColorScheme: defaultColorScheme,
+                          mainState: mainState,
+                        ),
+                        tabView(
+                          widgetContext: widgetContext,
+                          defaultColorScheme: defaultColorScheme,
+                          mainState: mainState,
+                          jsonStr: jsonStr,
+                        ),
+                      ],
+                    ),
+                    resizeToFullWidth: () {
+                      mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                        minDesktopSize: minDesktopSize,
                       );
-              });
-        });
+                    },
+                  );
+          },
+        );
+      },
+    );
   }
 }

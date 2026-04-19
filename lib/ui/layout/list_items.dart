@@ -64,7 +64,7 @@ class ListItemsState extends State<ListItems> {
     super.dispose();
   }
 
-  void returnJson(fieldValues) {
+  void returnJson(List<dynamic> fieldValues) {
     String json = jsonEncode(fieldValues).replaceQuotesWithSpecialTags();
 
     onChanged(json);
@@ -87,9 +87,9 @@ class ListItemsState extends State<ListItems> {
                     context: context,
                     child: (BuildContext context) =>
                         SharedWidgets.removeItemDialog(
-                      context: context,
-                      translations: translations,
-                    ),
+                          context: context,
+                          translations: translations,
+                        ),
                   );
                   if (valid == true) {
                     setState(() {
@@ -132,72 +132,79 @@ class ListItemsState extends State<ListItems> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        bloc: translationsBloc,
-        builder: (context, TranslationsState translationsState) {
-          if (translationsState is TranslationsStateLoaded) {
-            translations = translationsState.translations;
-            translationsLoaded = translationsState.translationsLoaded;
-          }
+      bloc: translationsBloc,
+      builder: (context, TranslationsState translationsState) {
+        if (translationsState is TranslationsStateLoaded) {
+          translations = translationsState.translations;
+          translationsLoaded = translationsState.translationsLoaded;
+        }
 
-          if (!translationsLoaded) {
-            return SizedBox();
-          }
-          widgets = getFields();
+        if (!translationsLoaded) {
+          return SizedBox();
+        }
+        widgets = getFields();
 
-          return Container(
-            margin: const EdgeInsets.only(
-                left: 12.0, right: 12.0, top: 16.0, bottom: 5.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ...SharedWidgets.labelWidget(
-                  label: label,
-                  labelColor: Globals.brightness() == Brightness.dark
-                      ? ColorDefs.textColor(context: context)
-                      : labelColor ?? ColorDefs.textColor(context: context),
+        return Container(
+          margin: const EdgeInsets.only(
+            left: 12.0,
+            right: 12.0,
+            top: 16.0,
+            bottom: 5.0,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ...SharedWidgets.labelWidget(
+                label: label,
+                labelColor: Globals.brightness() == Brightness.dark
+                    ? ColorDefs.textColor(context: context)
+                    : labelColor ?? ColorDefs.textColor(context: context),
+              ),
+              Container(
+                margin: EdgeInsets.only(
+                  bottom: noVerticalSpace == true ? 0 : 10,
                 ),
-                Container(
-                  margin:
-                      EdgeInsets.only(bottom: noVerticalSpace == true ? 0 : 10),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: Globals.borderRadius(),
-                    ),
-                    color: ColorDefs.areaBackgroundColor(context: context),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ...widgets,
-                        if (!predefinedLength) ...[
-                          const SizedBox(height: 6.0),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
-                              child: translationsLoaded
-                                  ? SharedWidgets.addButton(
-                                      context: context,
-                                      textController: textController,
-                                      translations: translations,
-                                      onAccepted: (dynamic value) {
-                                        setState(() {
-                                          fieldValues.add(textController.text);
-                                          textController.text = '';
-                                          returnJson(fieldValues);
-                                        });
-                                      })
-                                  : const SizedBox(),
-                            ),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: Globals.borderRadius(),
+                  ),
+                  color: ColorDefs.areaBackgroundColor(context: context),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...widgets,
+                      if (!predefinedLength) ...[
+                        const SizedBox(height: 6.0),
+                        Align(
+                          alignment: Alignment.topRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: translationsLoaded
+                                ? SharedWidgets.addButton(
+                                    context: context,
+                                    textController: textController,
+                                    translations: translations,
+                                    onAccepted: (dynamic value) {
+                                      setState(() {
+                                        fieldValues.add(textController.text);
+                                        textController.text = '';
+                                        returnJson(fieldValues);
+                                      });
+                                    },
+                                  )
+                                : const SizedBox(),
                           ),
-                        ],
-                        const SizedBox(height: 12.0),
+                        ),
                       ],
-                    ),
+                      const SizedBox(height: 12.0),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          );
-        });
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

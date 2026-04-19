@@ -67,15 +67,6 @@ class MenubarMacosCustomClass {
     });
   }
 
-  void openPage({required BuildContext context, required Widget page}) {
-    navigatorKey.currentState?.pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => page),
-        (route) => route.isFirst); // close all pages except main page
-    // navigatorKey.currentState!.push(
-    //   MaterialPageRoute(builder: (_) => page),
-    // );
-  }
-
   PlatformMenuBar macosMenubar({
     required BuildContext context,
     required String selectedDeviceIp,
@@ -86,9 +77,11 @@ class MenubarMacosCustomClass {
 
     bool deviceSelectedAndReady =
         selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null;
-    bool isMatrixDevice = selectedDeviceIp.isNotEmpty &&
-        (!(info[selectedDeviceIp] as Map<String, dynamic>)
-                .containsKey('display_cover') ||
+    bool isMatrixDevice =
+        selectedDeviceIp.isNotEmpty &&
+        (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+              'display_cover',
+            ) ||
             info[selectedDeviceIp]['display_cover'] == false);
 
     return PlatformMenuBar(
@@ -99,25 +92,31 @@ class MenubarMacosCustomClass {
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.about))
+                  PlatformProvidedMenuItemType.about,
+                ))
                   // const PlatformProvidedMenuItem(
                   //   type: PlatformProvidedMenuItemType.about,
                   // ),
                   PlatformMenuItem(
-                      label: translations['menuEntryAbout'] ??
-                          'About ${Globals.mainWindowTitle}',
-                      onSelected: () => SharedWidgets.openAboutModal(
-                          context: context,
-                          aboutAppMessage: aboutAppMessage,
-                          translations: translations)),
+                    label:
+                        translations['menuEntryAbout'] ??
+                        'About ${Globals.mainWindowTitle}',
+                    onSelected: () => SharedWidgets.openAboutModal(
+                      context: context,
+                      aboutAppMessage: aboutAppMessage,
+                      translations: translations,
+                    ),
+                  ),
               ],
             ),
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 PlatformMenuItem(
                   label: translations['menuEntrySettings'] ?? 'Settings',
-                  shortcut: const SingleActivator(LogicalKeyboardKey.comma,
-                      meta: true),
+                  shortcut: const SingleActivator(
+                    LogicalKeyboardKey.comma,
+                    meta: true,
+                  ),
                   onSelected: () {
                     showGeneralDialog(
                       context: context,
@@ -126,12 +125,17 @@ class MenubarMacosCustomClass {
                       barrierDismissible: false,
                       barrierLabel: 'Dialog',
                       transitionDuration: const Duration(milliseconds: 0),
-                      pageBuilder: (_, __, ___) {
-                        return SettingsPage(
-                          minDesktopSize: minDesktopSize,
-                          standardDesktopSize: standardDesktopSize,
-                        );
-                      },
+                      pageBuilder:
+                          (
+                            BuildContext context,
+                            Animation<double> animation,
+                            Animation<double> secondaryAnimation,
+                          ) {
+                            return SettingsPage(
+                              minDesktopSize: minDesktopSize,
+                              standardDesktopSize: standardDesktopSize,
+                            );
+                          },
                     );
                   },
                 ),
@@ -140,33 +144,45 @@ class MenubarMacosCustomClass {
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.servicesSubmenu))
+                  PlatformProvidedMenuItemType.servicesSubmenu,
+                ))
                   const PlatformProvidedMenuItem(
-                      type: PlatformProvidedMenuItemType.servicesSubmenu),
+                    type: PlatformProvidedMenuItemType.servicesSubmenu,
+                  ),
               ],
             ),
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.hide))
+                  PlatformProvidedMenuItemType.hide,
+                ))
                   const PlatformProvidedMenuItem(
-                      type: PlatformProvidedMenuItemType.hide),
+                    type: PlatformProvidedMenuItemType.hide,
+                  ),
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.hideOtherApplications))
+                  PlatformProvidedMenuItemType.hideOtherApplications,
+                ))
                   const PlatformProvidedMenuItem(
-                      type: PlatformProvidedMenuItemType.hideOtherApplications),
+                    type: PlatformProvidedMenuItemType.hideOtherApplications,
+                  ),
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.showAllApplications))
+                  PlatformProvidedMenuItemType.showAllApplications,
+                ))
                   const PlatformProvidedMenuItem(
-                      type: PlatformProvidedMenuItemType.showAllApplications),
+                    type: PlatformProvidedMenuItemType.showAllApplications,
+                  ),
               ],
             ),
-            PlatformMenuItemGroup(members: <PlatformMenuItem>[
-              if (PlatformProvidedMenuItem.hasMenu(
-                  PlatformProvidedMenuItemType.quit))
-                const PlatformProvidedMenuItem(
-                    type: PlatformProvidedMenuItemType.quit),
-            ]),
+            PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[
+                if (PlatformProvidedMenuItem.hasMenu(
+                  PlatformProvidedMenuItemType.quit,
+                ))
+                  const PlatformProvidedMenuItem(
+                    type: PlatformProvidedMenuItemType.quit,
+                  ),
+              ],
+            ),
           ],
         ),
         PlatformMenu(
@@ -175,7 +191,8 @@ class MenubarMacosCustomClass {
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 PlatformMenuItem(
-                  label: translations['menuEntryExportDeviceList'] ??
+                  label:
+                      translations['menuEntryExportDeviceList'] ??
                       'Export Device List',
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.keyE,
@@ -259,13 +276,17 @@ class MenubarMacosCustomClass {
                     PlatformMenuItemGroup(
                       members: <PlatformMenuItem>[
                         if (PlatformProvidedMenuItem.hasMenu(
-                            PlatformProvidedMenuItemType.startSpeaking))
+                          PlatformProvidedMenuItemType.startSpeaking,
+                        ))
                           const PlatformProvidedMenuItem(
-                              type: PlatformProvidedMenuItemType.startSpeaking),
+                            type: PlatformProvidedMenuItemType.startSpeaking,
+                          ),
                         if (PlatformProvidedMenuItem.hasMenu(
-                            PlatformProvidedMenuItemType.stopSpeaking))
+                          PlatformProvidedMenuItemType.stopSpeaking,
+                        ))
                           const PlatformProvidedMenuItem(
-                              type: PlatformProvidedMenuItemType.stopSpeaking),
+                            type: PlatformProvidedMenuItemType.stopSpeaking,
+                          ),
                       ],
                     ),
                   ],
@@ -280,7 +301,8 @@ class MenubarMacosCustomClass {
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.toggleFullScreen))
+                  PlatformProvidedMenuItemType.toggleFullScreen,
+                ))
                   const PlatformProvidedMenuItem(
                     type: PlatformProvidedMenuItemType.toggleFullScreen,
                   ),
@@ -300,7 +322,8 @@ class MenubarMacosCustomClass {
                 //   },
                 // ),
                 PlatformMenuItem(
-                  label: translations['backToMainViewLabel'] ??
+                  label:
+                      translations['backToMainViewLabel'] ??
                       'Back to main page',
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.arrowLeft,
@@ -308,11 +331,13 @@ class MenubarMacosCustomClass {
                     shift: true,
                     alt: false,
                   ),
-                  onSelected: () => navigatorKey.currentState
-                      ?.popUntil((route) => route.isFirst),
+                  onSelected: () => navigatorKey.currentState?.popUntil(
+                    (route) => route.isFirst,
+                  ),
                 ),
                 PlatformMenuItem(
-                  label: translations['selectDeviceBeforeLabel'] ??
+                  label:
+                      translations['selectDeviceBeforeLabel'] ??
                       'Select previous device',
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.arrowUp,
@@ -323,7 +348,8 @@ class MenubarMacosCustomClass {
                       mainBloc.selectDeviceBefore(ip: selectedDeviceIp),
                 ),
                 PlatformMenuItem(
-                  label: translations['selectDeviceNextLabel'] ??
+                  label:
+                      translations['selectDeviceNextLabel'] ??
                       'Select next device',
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.arrowDown,
@@ -345,7 +371,8 @@ class MenubarMacosCustomClass {
                       windowManager.setSize(standardDesktopSize, animate: true),
                 ),
                 PlatformMenuItem(
-                  label: translations['fullWidthResizeButtonLabel'] ??
+                  label:
+                      translations['fullWidthResizeButtonLabel'] ??
                       'Full width',
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.keyW,
@@ -354,7 +381,8 @@ class MenubarMacosCustomClass {
                   ),
                   onSelected: () =>
                       mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                          minDesktopSize: minDesktopSize),
+                        minDesktopSize: minDesktopSize,
+                      ),
                 ),
               ],
             ),
@@ -368,8 +396,9 @@ class MenubarMacosCustomClass {
                       control: true,
                       shift: true,
                     ),
-                    onSelected: () => openPage(
+                    onSelected: () => SharedWidgets.openPage(
                       context: context,
+                      navigatorKey: navigatorKey,
                       page: ConfigPage(
                         name: info[selectedDeviceIp]['name'],
                         ip: selectedDeviceIp,
@@ -388,8 +417,9 @@ class MenubarMacosCustomClass {
                       control: true,
                       shift: true,
                     ),
-                    onSelected: () => openPage(
+                    onSelected: () => SharedWidgets.openPage(
                       context: context,
+                      navigatorKey: navigatorKey,
                       page: CoverPage(
                         name: info[selectedDeviceIp]['name'],
                         ip: selectedDeviceIp,
@@ -407,8 +437,9 @@ class MenubarMacosCustomClass {
                         control: true,
                         shift: true,
                       ),
-                      onSelected: () => openPage(
+                      onSelected: () => SharedWidgets.openPage(
                         context: context,
+                        navigatorKey: navigatorKey,
                         page: MessagePage(
                           name: info[selectedDeviceIp]['name'],
                           ip: selectedDeviceIp,
@@ -418,15 +449,17 @@ class MenubarMacosCustomClass {
                       ),
                     ),
                     PlatformMenuItem(
-                      label: translations['liveControlButtonText'] ??
+                      label:
+                          translations['liveControlButtonText'] ??
                           'Live Control',
                       shortcut: const SingleActivator(
                         LogicalKeyboardKey.keyL,
                         control: true,
                         shift: true,
                       ),
-                      onSelected: () => openPage(
+                      onSelected: () => SharedWidgets.openPage(
                         context: context,
+                        navigatorKey: navigatorKey,
                         page: LiveControlPage(
                           name: info[selectedDeviceIp]['name'],
                           ip: selectedDeviceIp,
@@ -443,8 +476,9 @@ class MenubarMacosCustomClass {
                       control: true,
                       shift: true,
                     ),
-                    onSelected: () => openPage(
+                    onSelected: () => SharedWidgets.openPage(
                       context: context,
+                      navigatorKey: navigatorKey,
                       page: InfoPage(
                         name: info[selectedDeviceIp]['name'],
                         ip: selectedDeviceIp,
@@ -460,8 +494,9 @@ class MenubarMacosCustomClass {
                       control: true,
                       shift: true,
                     ),
-                    onSelected: () => openPage(
+                    onSelected: () => SharedWidgets.openPage(
                       context: context,
+                      navigatorKey: navigatorKey,
                       page: LogPage(
                         name: info[selectedDeviceIp]['name'],
                         ip: selectedDeviceIp,
@@ -471,7 +506,8 @@ class MenubarMacosCustomClass {
                     ),
                   ),
                   PlatformMenuItem(
-                    label: translations['miniPlayerPageHeaderText'] ??
+                    label:
+                        translations['miniPlayerPageHeaderText'] ??
                         'Mini Player',
                     shortcut: const SingleActivator(
                       LogicalKeyboardKey.keyP,
@@ -492,8 +528,9 @@ class MenubarMacosCustomClass {
                         }
                       }
 
-                      openPage(
+                      SharedWidgets.openPage(
                         context: context,
+                        navigatorKey: navigatorKey,
                         page: MiniPlayerPage(
                           name: zoneName,
                           ip: selectedDeviceIp,
@@ -521,21 +558,27 @@ class MenubarMacosCustomClass {
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.minimizeWindow))
+                  PlatformProvidedMenuItemType.minimizeWindow,
+                ))
                   const PlatformProvidedMenuItem(
-                      type: PlatformProvidedMenuItemType.minimizeWindow),
+                    type: PlatformProvidedMenuItemType.minimizeWindow,
+                  ),
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.zoomWindow))
+                  PlatformProvidedMenuItemType.zoomWindow,
+                ))
                   const PlatformProvidedMenuItem(
-                      type: PlatformProvidedMenuItemType.zoomWindow),
+                    type: PlatformProvidedMenuItemType.zoomWindow,
+                  ),
               ],
             ),
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
-                    PlatformProvidedMenuItemType.arrangeWindowsInFront))
+                  PlatformProvidedMenuItemType.arrangeWindowsInFront,
+                ))
                   const PlatformProvidedMenuItem(
-                      type: PlatformProvidedMenuItemType.arrangeWindowsInFront),
+                    type: PlatformProvidedMenuItemType.arrangeWindowsInFront,
+                  ),
               ],
             ),
           ],

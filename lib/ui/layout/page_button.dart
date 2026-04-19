@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/expandable_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
+import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class PageButton extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
   final String label;
   final IconData icon;
   final double? iconSize;
@@ -14,6 +16,7 @@ class PageButton extends StatefulWidget {
 
   const PageButton({
     super.key,
+    required this.navigatorKey,
     required this.label,
     required this.icon,
     this.iconSize,
@@ -27,6 +30,7 @@ class PageButton extends StatefulWidget {
 }
 
 class PageButtonState extends State<PageButton> {
+  GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   String get label => widget.label;
   IconData get icon => widget.icon;
   bool get moreInfo => widget.moreInfo;
@@ -36,14 +40,9 @@ class PageButtonState extends State<PageButton> {
       widget.expandableMenuController;
 
   final double paddingLeft = 8.0;
-  final Duration dialogDelayToCloseExpandedMenuBefore =
-      Duration(milliseconds: 500);
-
-  void openPage({required BuildContext context, required Widget page}) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => page),
-    );
-  }
+  final Duration dialogDelayToCloseExpandedMenuBefore = Duration(
+    milliseconds: 500,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +57,11 @@ class PageButtonState extends State<PageButton> {
               withCircle: true,
               icon: Icon(icon, color: Colors.white, size: iconSize),
               moreInfo: moreInfo,
-              onPressed: () => openPage(context: context, page: page),
+              onPressed: () => SharedWidgets.openPage(
+                context: context,
+                navigatorKey: navigatorKey,
+                page: page,
+              ),
             ),
           )
         : Padding(
@@ -71,21 +74,22 @@ class PageButtonState extends State<PageButton> {
               child: IconButton(
                 padding: EdgeInsets.zero,
                 onPressed: () {
-                  Future<void>.delayed(dialogDelayToCloseExpandedMenuBefore)
-                      .then((_) {
+                  Future<void>.delayed(
+                    dialogDelayToCloseExpandedMenuBefore,
+                  ).then((_) {
                     if (mounted && context.mounted) {
-                      openPage(context: context, page: page);
+                      SharedWidgets.openPage(
+                        context: context,
+                        navigatorKey: navigatorKey,
+                        page: page,
+                      );
                     }
                     if (expandableMenuController != null) {
                       expandableMenuController!.close();
                     }
                   });
                 },
-                icon: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: iconSize,
-                ),
+                icon: Icon(icon, color: Colors.white, size: iconSize),
               ),
             ),
           );
