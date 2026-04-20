@@ -112,11 +112,19 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
     switch (aligned) {
       case "left":
         margin = const EdgeInsets.only(
-            left: 16.0, right: 8.0, top: 16.0, bottom: 5.0);
+          left: 16.0,
+          right: 8.0,
+          top: 16.0,
+          bottom: 5.0,
+        );
         break;
       case "right":
         margin = const EdgeInsets.only(
-            left: 8.0, right: 16.0, top: 16.0, bottom: 5.0);
+          left: 8.0,
+          right: 16.0,
+          top: 16.0,
+          bottom: 5.0,
+        );
         break;
       case "horizontal":
         margin = const EdgeInsets.only(left: 16.0, right: 16.0);
@@ -126,7 +134,11 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
         break;
       default:
         margin = const EdgeInsets.only(
-            left: 16.0, right: 16.0, top: 6.0, bottom: 6.0);
+          left: 16.0,
+          right: 16.0,
+          top: 6.0,
+          bottom: 6.0,
+        );
     }
     if (inputType == const TextInputType.numberWithOptions(decimal: true)) {
       withCents = true;
@@ -145,7 +157,8 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
     if (decoupled == false && _userTextController.text != text) {
       _userTextController.text = widget.text;
       _userTextController.selection = TextSelection.fromPosition(
-          TextPosition(offset: _userTextController.text.length));
+        TextPosition(offset: _userTextController.text.length),
+      );
     }
 
     if (validation != null) {
@@ -188,9 +201,7 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 fontSize: 12.0,
               ),
             ),
-            const SizedBox(
-              height: 4.0,
-            ),
+            const SizedBox(height: 4.0),
           ],
           ConstrainedBox(
             constraints: const BoxConstraints.tightFor(height: 36),
@@ -204,21 +215,24 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                           offset: Offset(0.1, 0.5),
                           blurRadius: 0.1,
                           blurStyle: BlurStyle.normal,
-                        )
+                        ),
                       ],
-                      color:
-                          ColorDefs.textFieldBackgroundColor(context: context),
+                      color: ColorDefs.textFieldBackgroundColor(
+                        context: context,
+                      ),
                       borderRadius: Globals.borderRadius(),
                     ),
               padding: EdgeInsets.only(
-                  top: maxLength != null && placeholder == null
-                      ? noCounter
+                top: maxLength != null && placeholder == null
+                    ? noCounter
                           ? 4.0
                           : 12.0
-                      : 0.0),
+                    : 0.0,
+              ),
               child: TextFieldElement(
                 readOnly: readOnly,
-                placeholder: placeholder ??
+                placeholder:
+                    placeholder ??
                     translations['pleaseTypeSettingPlaceholder'] ??
                     'Please enter here',
                 maxLength: maxLength,
@@ -243,30 +257,31 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                 keyboardType: inputType,
                 inputFormatters: formatters,
                 decoration: RoonmatrixStyles.inputDecoration(
-                  placeholder: placeholder ??
+                  placeholder:
+                      placeholder ??
                       translations['pleaseTypeSettingPlaceholder'] ??
                       'Please enter here',
                   prefixIcon: prefixIcon,
-                  suffixIcon: suffixIcon ??
+                  suffixIcon:
+                      suffixIcon ??
                       InkWell(
+                        mouseCursor: SystemMouseCursors.click,
                         onTap: () {
                           _userTextController.clear();
                           if (onChanged != null) {
                             onChanged!('');
                           }
                         },
-                        child: Icon(
-                          Icons.clear,
-                          size: 24,
-                        ),
+                        child: Icon(Icons.clear, size: 24),
                       ),
                   noCounter: noCounter,
                   fillColor: (fillColorForValidationError != null && !valid)
                       ? fillColorForValidationError
                       : Globals.brightness() == Brightness.dark
-                          ? ColorDefs.elementBackgroundColorLighter(
-                              context: context)
-                          : Colors.white,
+                      ? ColorDefs.elementBackgroundColorLighter(
+                          context: context,
+                        )
+                      : Colors.white,
                   borderColor: Colors.transparent,
                   filled: filled,
                 ),
@@ -291,7 +306,9 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                     int comma = value.indexOf(',');
                     if (dot >= 0) {
                       value = value.replaceAll(
-                          '.', ','); // convert dot to comma (for samsung)
+                        '.',
+                        ',',
+                      ); // convert dot to comma (for samsung)
                     }
                     int centPart = comma >= 0 ? value.length - comma - 1 : 0;
                     if (centPart > 2) {
@@ -304,7 +321,8 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                   if (doTextCorrection == true) {
                     _userTextController.text = value;
                     _userTextController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: _userTextController.text.length));
+                      TextPosition(offset: _userTextController.text.length),
+                    );
                   }
                   if (mounted && validation != null) {
                     setState(() {
@@ -322,9 +340,10 @@ class EditableSinglelineTextState extends State<EditableSinglelineText> {
                   if (onChanged != null) {
                     if (debounce == true) {
                       EasyDebounce.debounce(
-                          mainRepository.getDebounceTag(label: label),
-                          Duration(milliseconds: debounceTime),
-                          () => onChanged!(value));
+                        mainRepository.getDebounceTag(label: label),
+                        Duration(milliseconds: debounceTime),
+                        () => onChanged!(value),
+                      );
                     } else {
                       onChanged!(value);
                     }

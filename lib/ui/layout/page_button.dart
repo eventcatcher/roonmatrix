@@ -72,6 +72,7 @@ class PageButtonState extends State<PageButton> {
                   ? CupertinoColors.activeOrange.color
                   : CupertinoColors.activeBlue.color,
               child: IconButton(
+                mouseCursor: SystemMouseCursors.click,
                 padding: EdgeInsets.zero,
                 onPressed: () {
                   Future<void>.delayed(

@@ -176,6 +176,7 @@ class _PageWithToolbarFlutterStyleState
                     translations['fullWidthResizeButtonLabel'] ?? 'Full width',
                 waitDuration: Globals.tooltipWaitDuration,
                 child: IconButton(
+                  mouseCursor: SystemMouseCursors.click,
                   iconSize: 16.0,
                   enableFeedback: true,
                   padding: EdgeInsets.zero,
@@ -195,6 +196,7 @@ class _PageWithToolbarFlutterStyleState
                       translations['minimizeResizeButtonLabel'] ?? 'Minimize',
                   waitDuration: Globals.tooltipWaitDuration,
                   child: IconButton(
+                    mouseCursor: SystemMouseCursors.click,
                     iconSize: 16.0,
                     enableFeedback: true,
                     padding: EdgeInsets.zero,
@@ -219,6 +221,7 @@ class _PageWithToolbarFlutterStyleState
                       translations['maximizeResizeButtonLabel'] ?? 'Maximize',
                   waitDuration: Globals.tooltipWaitDuration,
                   child: IconButton(
+                    mouseCursor: SystemMouseCursors.click,
                     iconSize: 16.0,
                     enableFeedback: true,
                     padding: EdgeInsets.zero,

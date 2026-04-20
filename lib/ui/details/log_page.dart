@@ -88,117 +88,121 @@ class LogPageState extends State<LogPage> {
     double splashRadius = 16.0,
     double fontSize = 16.0,
     Duration visibilityAnimation = const Duration(milliseconds: 2000),
-  }) =>
-      [
-        AnimatedOpacity(
-          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: visibilityAnimation,
-          child: Padding(
-            padding: EdgeInsets.only(left: filePartPaddingLeft, right: 2.0),
-            child: SizedBox(
-              width: 24.0,
-              child: IconButton(
-                padding: const EdgeInsets.only(bottom: 2.0),
-                splashRadius: splashRadius,
-                tooltip: translations['filterButtonLabel'] ??
-                    'Filter search results',
-                hoverColor: Colors.transparent,
-                onPressed: () {
-                  setState(() {
-                    filterLog = !filterLog;
-                  });
-                },
-                icon: Icon(
-                  Icons.filter_alt,
-                  size: 24,
-                  color: filterLog ? Colors.green : Colors.grey,
-                ),
-              ),
-            ),
-          ),
-        ),
-        AnimatedOpacity(
-          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: visibilityAnimation,
-          child: Padding(
+  }) => [
+    AnimatedOpacity(
+      opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
+      duration: visibilityAnimation,
+      child: Padding(
+        padding: EdgeInsets.only(left: filePartPaddingLeft, right: 2.0),
+        child: SizedBox(
+          width: 24.0,
+          child: IconButton(
+            mouseCursor: SystemMouseCursors.click,
             padding: const EdgeInsets.only(bottom: 2.0),
-            child: Text(
-              '${translations['filesize'] ?? 'filesize'}: ${logstr.length.readableFileSize(base1024: true)}',
-              style: TextStyle(
-                  fontSize: fontSize,
-                  color: ColorDefs.textColor(context: context)),
-            ),
-          ),
-        ),
-        SizedBox(width: 8.0),
-        AnimatedOpacity(
-          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: visibilityAnimation,
-          child: IconButton(
-            padding: EdgeInsets.zero,
             splashRadius: splashRadius,
-            tooltip: translations['paginationBackLabel'] ?? 'Previous page',
+            tooltip:
+                translations['filterButtonLabel'] ?? 'Filter search results',
             hoverColor: Colors.transparent,
             onPressed: () {
-              if (logfilePart > 1) {
-                setState(() {
-                  logfilePart -= 1;
-                  refreshLog = true;
-                });
-              }
+              setState(() {
+                filterLog = !filterLog;
+              });
             },
             icon: Icon(
-              Icons.arrow_left,
-              size: 40,
-              color: logfilePart > 1 ? Colors.green : Colors.grey,
+              Icons.filter_alt,
+              size: 24,
+              color: filterLog ? Colors.green : Colors.grey,
             ),
           ),
         ),
-        AnimatedOpacity(
-          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: visibilityAnimation,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              '$logfilePart / $logfileParts',
-              style: TextStyle(
-                  fontSize: fontSize,
-                  color: ColorDefs.textColor(context: context)),
-            ),
+      ),
+    ),
+    AnimatedOpacity(
+      opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
+      duration: visibilityAnimation,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 2.0),
+        child: Text(
+          '${translations['filesize'] ?? 'filesize'}: ${logstr.length.readableFileSize(base1024: true)}',
+          style: TextStyle(
+            fontSize: fontSize,
+            color: ColorDefs.textColor(context: context),
           ),
         ),
-        AnimatedOpacity(
-          opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
-          duration: visibilityAnimation,
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            splashRadius: splashRadius,
-            tooltip: translations['paginationNextLabel'] ?? 'Next page',
-            hoverColor: Colors.transparent,
-            onPressed: () {
-              if (logfilePart < logfileParts) {
-                setState(() {
-                  logfilePart += 1;
-                  refreshLog = true;
-                });
-              }
-            },
-            icon: Icon(
-              Icons.arrow_right,
-              size: 40,
-              color: logfilePart < logfileParts ? Colors.green : Colors.grey,
-            ),
+      ),
+    ),
+    SizedBox(width: 8.0),
+    AnimatedOpacity(
+      opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
+      duration: visibilityAnimation,
+      child: IconButton(
+        mouseCursor: SystemMouseCursors.click,
+        padding: EdgeInsets.zero,
+        splashRadius: splashRadius,
+        tooltip: translations['paginationBackLabel'] ?? 'Previous page',
+        hoverColor: Colors.transparent,
+        onPressed: () {
+          if (logfilePart > 1) {
+            setState(() {
+              logfilePart -= 1;
+              refreshLog = true;
+            });
+          }
+        },
+        icon: Icon(
+          Icons.arrow_left,
+          size: 40,
+          color: logfilePart > 1 ? Colors.green : Colors.grey,
+        ),
+      ),
+    ),
+    AnimatedOpacity(
+      opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
+      duration: visibilityAnimation,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Text(
+          '$logfilePart / $logfileParts',
+          style: TextStyle(
+            fontSize: fontSize,
+            color: ColorDefs.textColor(context: context),
           ),
         ),
-        if (refreshLog == true)
-          SizedBox(
-            width: 20.0,
-            height: 20.0,
-            child: CircularProgressIndicator(
-              color: ColorDefs.blueIconColor(context: context),
-            ),
-          ),
-      ];
+      ),
+    ),
+    AnimatedOpacity(
+      opacity: !refreshLog && logstr.isNotEmpty ? 1.0 : 0.0,
+      duration: visibilityAnimation,
+      child: IconButton(
+        mouseCursor: SystemMouseCursors.click,
+        padding: EdgeInsets.zero,
+        splashRadius: splashRadius,
+        tooltip: translations['paginationNextLabel'] ?? 'Next page',
+        hoverColor: Colors.transparent,
+        onPressed: () {
+          if (logfilePart < logfileParts) {
+            setState(() {
+              logfilePart += 1;
+              refreshLog = true;
+            });
+          }
+        },
+        icon: Icon(
+          Icons.arrow_right,
+          size: 40,
+          color: logfilePart < logfileParts ? Colors.green : Colors.grey,
+        ),
+      ),
+    ),
+    if (refreshLog == true)
+      SizedBox(
+        width: 20.0,
+        height: 20.0,
+        child: CircularProgressIndicator(
+          color: ColorDefs.blueIconColor(context: context),
+        ),
+      ),
+  ];
 
   Widget body({
     required BuildContext context,
@@ -232,12 +236,11 @@ class LogPageState extends State<LogPage> {
       children: [
         Globals.inMacosStyle() || Globals.inIosStyle()
             ? tooltipWarning
-            : Expanded(
-                child: tooltipWarning,
-              ),
+            : Expanded(child: tooltipWarning),
         Tooltip(
           margin: EdgeInsets.symmetric(
-              horizontal: Globals.isDesktopDevice() ? 64.0 : 16.0),
+            horizontal: Globals.isDesktopDevice() ? 64.0 : 16.0,
+          ),
           padding: EdgeInsets.all(16.0),
           richMessage: WidgetSpan(
             child: Column(
@@ -245,9 +248,10 @@ class LogPageState extends State<LogPage> {
                 Text(
                   translations['warningNoteHeader'] ?? "Please note",
                   style: TextStyle(
-                      fontSize: 20.0,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
+                    fontSize: 20.0,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   translations['hoursSelectionWarningText'] ??
@@ -262,11 +266,13 @@ class LogPageState extends State<LogPage> {
             color: Colors.transparent,
             child: InkWell(
               hoverColor: Colors.transparent,
+              mouseCursor: SystemMouseCursors.click,
               onTap: () {
                 ApproveModal(
                   context: context,
                   title: translations['warningNoteHeader'] ?? "Please note",
-                  question: translations['hoursSelectionWarningText'] ??
+                  question:
+                      translations['hoursSelectionWarningText'] ??
                       'A log can become very large, and loading the file can therefore sometimes take quite a long time before the log is displayed in the app. During this time, the app may not respond smoothly! It is therefore best to start with short time ranges of 1 or 2 hours. Do not load the maximum time range of 24 hours right away. For the analysis of larger time ranges, it is recommended to load the log first onto your computer or mobile device and then open it with a text or code editor. You can start the download by clicking on the export button.',
                   okText: translations['okButtonText'] ?? 'OK',
                   cancelText: '',
@@ -274,20 +280,21 @@ class LogPageState extends State<LogPage> {
               },
               child: Padding(
                 padding: EdgeInsets.only(
-                    right: Globals.inMacosStyle() ? 16.0 : 10.0),
+                  right: Globals.inMacosStyle() ? 16.0 : 10.0,
+                ),
                 child: Icon(
                   Icons.help,
                   color: ColorDefs.blueIconColor(context: context),
                   size: Globals.inIosStyle()
                       ? 48.0
                       : Globals.inMacosStyle()
-                          ? 24.0
-                          : 36.0,
+                      ? 24.0
+                      : 36.0,
                 ),
               ),
             ),
           ),
-        )
+        ),
       ],
     );
 
@@ -306,13 +313,11 @@ class LogPageState extends State<LogPage> {
           children: [
             MediaQuery.of(context).size.width >= Globals.widthSwitchBoundaryMid
                 ? Globals.isDesktopDevice() &&
-                        !Globals.inMacosStyle() &&
-                        !Globals.inIosStyle()
-                    ? IntrinsicWidth(child: selectBoxWithIcon)
-                    : selectBoxWithIcon
-                : Expanded(
-                    child: selectBoxWithIcon,
-                  ),
+                          !Globals.inMacosStyle() &&
+                          !Globals.inIosStyle()
+                      ? IntrinsicWidth(child: selectBoxWithIcon)
+                      : selectBoxWithIcon
+                : Expanded(child: selectBoxWithIcon),
             if (MediaQuery.of(context).size.width >=
                 Globals.widthSwitchBoundaryMid)
               SizedBox(
@@ -343,7 +348,8 @@ class LogPageState extends State<LogPage> {
                         logstr,
                         specialTextSpanBuilder: RichParser(),
                         style: TextStyle(
-                            color: ColorDefs.textColor(context: context)),
+                          color: ColorDefs.textColor(context: context),
+                        ),
                       ),
                     ),
                   ],
@@ -352,7 +358,8 @@ class LogPageState extends State<LogPage> {
         if (Globals.inIosStyle()) const SizedBox(height: 14.0),
         Padding(
           padding: EdgeInsets.symmetric(
-              vertical: Globals.isDesktopDevice() ? 16.0 : 0),
+            vertical: Globals.isDesktopDevice() ? 16.0 : 0,
+          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -361,11 +368,7 @@ class LogPageState extends State<LogPage> {
                 onMacAsText: true,
                 icon: const Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Icon(
-                    Icons.download,
-                    color: Colors.white,
-                    size: 20.0,
-                  ),
+                  child: Icon(Icons.download, color: Colors.white, size: 20.0),
                 ),
                 label: (translations['exportButtonText'] ?? 'Export')
                     .toString()
@@ -377,7 +380,10 @@ class LogPageState extends State<LogPage> {
                           saveIdle = true;
                         });
                         bool? valid = await mainBloc.exportData(
-                            name: name, ip: ip, type: 'log');
+                          name: name,
+                          ip: ip,
+                          type: 'log',
+                        );
                         setState(() {
                           saveIdle = false;
                         });
@@ -386,13 +392,16 @@ class LogPageState extends State<LogPage> {
                         }
 
                         SharedWidgets.showSnackBar(
-                            // ignore: use_build_context_synchronously
-                            context: context,
-                            doneMessage: translations['exportDoneMessage'] ??
-                                'Export successfully done',
-                            failMessage: translations['exportFailedMessage'] ??
-                                'Export failed!',
-                            valid: valid);
+                          // ignore: use_build_context_synchronously
+                          context: context,
+                          doneMessage:
+                              translations['exportDoneMessage'] ??
+                              'Export successfully done',
+                          failMessage:
+                              translations['exportFailedMessage'] ??
+                              'Export failed!',
+                          valid: valid,
+                        );
                       },
               ),
             ],
@@ -406,169 +415,177 @@ class LogPageState extends State<LogPage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        bloc: translationsBloc,
-        builder: (context, TranslationsState translationsState) {
-          if (translationsState is TranslationsStateLoaded) {
-            translations = translationsState.translations;
-            translationsLoaded = translationsState.translationsLoaded;
-            title = '$name :  ${translations['logPageHeaderText'] ?? 'Log'}';
-          }
+      bloc: translationsBloc,
+      builder: (context, TranslationsState translationsState) {
+        if (translationsState is TranslationsStateLoaded) {
+          translations = translationsState.translations;
+          translationsLoaded = translationsState.translationsLoaded;
+          title = '$name :  ${translations['logPageHeaderText'] ?? 'Log'}';
+        }
 
-          if (translationsState is! TranslationsStateLoaded ||
-              !translationsLoaded) {
+        if (translationsState is! TranslationsStateLoaded ||
+            !translationsLoaded) {
+          if (Globals.inIosStyle()) {
+            return CupertinoPageScaffold(
+              navigationBar: CupertinoNavigationBar(
+                brightness: Globals.brightness(),
+                middle: Text(title),
+              ),
+              child: SizedBox(),
+            );
+          }
+          return Globals.inMacosStyle()
+              ? MacosScaffold(
+                  toolBar: ToolBar(
+                    title: Text(title),
+                    titleWidth: Globals.extendedTitleWidth,
+                    leading: MacosBackButton(
+                      onPressed: () => Navigator.pop(context),
+                      fillColor: Colors.transparent,
+                    ),
+                    actions: [],
+                  ),
+                  children: [
+                    ContentArea(
+                      builder: ((context, scrollController) {
+                        return MacosWindow(child: Material(child: SizedBox()));
+                      }),
+                    ),
+                  ],
+                )
+              : Scaffold(
+                  appBar: AppBar(title: Text(title)),
+                  body: const SizedBox(),
+                );
+        }
+
+        return BlocBuilder(
+          bloc: mainBloc,
+          builder: (context, MainState mainState) {
+            if (mainState is! MainStateLoaded) {
+              return Container();
+            }
+
+            macosVersion = mainState.macosVersion;
+            String search = mainState.searchFilter['log']!;
+            String logstr = mainState.log;
+            if (logstr.isNotEmpty) {
+              if (logstr.endsWith('"')) {
+                logstr = logstr.substring(0, logstr.length - 1);
+              }
+              if (logstr.startsWith('"')) {
+                logstr = logstr.substring(1);
+              }
+              logstr = logstr
+                  .replaceAll('\\n', '\n')
+                  .removeNumericBrackets()
+                  .removeEmptyBrackets();
+              if (search.isNotEmpty) {
+                logstr = logstr.replaceAllMapped(
+                  RegExp(search, caseSensitive: false),
+                  (match) {
+                    return '[bg-orange]${match.group(0)}[/bg-orange]';
+                  },
+                );
+              }
+              logstr = logstr.onlyMatchedLinesFilter(
+                logstr: logstr,
+                filterLog: filterLog,
+                match: '[bg-orange]',
+              );
+
+              if (mainRepository.dateTimeHeadHasChanged(
+                newLog: logstr,
+                lastLog: lastLog,
+              )) {
+                Map<String, dynamic> data = mainRepository.generateLogParts(
+                  logstr: logstr,
+                  logfileSliceSize: logfileSliceSize,
+                );
+                int newLogfileParts = data['parts'];
+                logfilePartOffset = data['logfilePartOffset'];
+
+                if (newLogfileParts != logfileParts &&
+                    logfilePart > newLogfileParts) {
+                  logfilePart = 1;
+                }
+                logfileParts = newLogfileParts;
+              }
+              if (logfilePartOffset.length > 1 && logstr.isNotEmpty) {
+                logstr = logstr.substring(
+                  logfilePartOffset[logfilePart - 1],
+                  logfilePartOffset[logfilePart],
+                );
+              }
+
+              if (refreshLog == true) {
+                SchedulerBinding.instance.addPostFrameCallback((_) async {
+                  if (mounted) {
+                    setState(() {
+                      refreshLog = false;
+                    });
+                  }
+                });
+              }
+            }
+
             if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
                   brightness: Globals.brightness(),
                   middle: Text(title),
+                  leading: CupertinoNavigationBarBackButton(),
                 ),
-                child: SizedBox(),
+                child: SafeArea(
+                  child: body(
+                    context: context,
+                    mainState: mainState,
+                    logstr: logstr,
+                  ),
+                ),
               );
             }
+
             return Globals.inMacosStyle()
-                ? MacosScaffold(
-                    toolBar: ToolBar(
-                      title: Text(title),
-                      titleWidth: Globals.extendedTitleWidth,
-                      leading: MacosBackButton(
-                        onPressed: () => Navigator.pop(context),
-                        fillColor: Colors.transparent,
-                      ),
-                      actions: [],
-                    ),
-                    children: [
-                      ContentArea(
-                        builder: ((context, scrollController) {
-                          return MacosWindow(
-                            child: Material(
-                              child: SizedBox(),
-                            ),
-                          );
-                        }),
-                      ),
-                    ],
-                  )
-                : Scaffold(
-                    appBar: AppBar(
-                      title: Text(title),
-                    ),
-                    body: const SizedBox());
-          }
-
-          return BlocBuilder(
-              bloc: mainBloc,
-              builder: (context, MainState mainState) {
-                if (mainState is! MainStateLoaded) {
-                  return Container();
-                }
-
-                macosVersion = mainState.macosVersion;
-                String search = mainState.searchFilter['log']!;
-                String logstr = mainState.log;
-                if (logstr.isNotEmpty) {
-                  if (logstr.endsWith('"')) {
-                    logstr = logstr.substring(0, logstr.length - 1);
-                  }
-                  if (logstr.startsWith('"')) {
-                    logstr = logstr.substring(1);
-                  }
-                  logstr = logstr
-                      .replaceAll('\\n', '\n')
-                      .removeNumericBrackets()
-                      .removeEmptyBrackets();
-                  if (search.isNotEmpty) {
-                    logstr = logstr.replaceAllMapped(
-                        RegExp(search, caseSensitive: false), (match) {
-                      return '[bg-orange]${match.group(0)}[/bg-orange]';
-                    });
-                  }
-                  logstr = logstr.onlyMatchedLinesFilter(
-                    logstr: logstr,
-                    filterLog: filterLog,
-                    match: '[bg-orange]',
-                  );
-
-                  if (mainRepository.dateTimeHeadHasChanged(
-                      newLog: logstr, lastLog: lastLog)) {
-                    Map<String, dynamic> data = mainRepository.generateLogParts(
+                ? PageWithToolbarMacStyle(
+                    translations: translations,
+                    title: title,
+                    standardDesktopSize: standardDesktopSize,
+                    macosVersion: macosVersion,
+                    body: body(
+                      context: context,
+                      mainState: mainState,
                       logstr: logstr,
-                      logfileSliceSize: logfileSliceSize,
-                    );
-                    int newLogfileParts = data['parts'];
-                    logfilePartOffset = data['logfilePartOffset'];
-
-                    if (newLogfileParts != logfileParts &&
-                        logfilePart > newLogfileParts) {
-                      logfilePart = 1;
-                    }
-                    logfileParts = newLogfileParts;
-                  }
-                  if (logfilePartOffset.length > 1 && logstr.isNotEmpty) {
-                    logstr = logstr.substring(
-                        logfilePartOffset[logfilePart - 1],
-                        logfilePartOffset[logfilePart]);
-                  }
-
-                  if (refreshLog == true) {
-                    SchedulerBinding.instance.addPostFrameCallback((_) async {
-                      if (mounted) {
-                        setState(() {
-                          refreshLog = false;
-                        });
-                      }
-                    });
-                  }
-                }
-
-                if (Globals.inIosStyle()) {
-                  return CupertinoPageScaffold(
-                    navigationBar: CupertinoNavigationBar(
-                      brightness: Globals.brightness(),
-                      middle: Text(title),
-                      leading: CupertinoNavigationBarBackButton(),
                     ),
-                    child: SafeArea(
-                        child: body(
-                            context: context,
-                            mainState: mainState,
-                            logstr: logstr)),
-                  );
-                }
-
-                return Globals.inMacosStyle()
-                    ? PageWithToolbarMacStyle(
-                        translations: translations,
-                        title: title,
-                        standardDesktopSize: standardDesktopSize,
-                        macosVersion: macosVersion,
-                        body: body(
-                            context: context,
-                            mainState: mainState,
-                            logstr: logstr),
-                        resizeToFullWidth: () {
-                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                              minDesktopSize: minDesktopSize);
-                        },
-                      )
-                    : PageWithToolbarFlutterStyle(
-                        scaffoldKey: scaffoldKey,
-                        translations: translations,
-                        title: title,
-                        sliderDefaultValue: 0.0,
-                        showSlider: false,
-                        showExpandableSpeedSlider: false,
-                        scrollSpeedDevice: 1.0,
-                        standardDesktopSize: standardDesktopSize,
-                        body: body(
-                            context: context,
-                            mainState: mainState,
-                            logstr: logstr),
-                        resizeToFullWidth: () {
-                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                              minDesktopSize: minDesktopSize);
-                        },
+                    resizeToFullWidth: () {
+                      mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                        minDesktopSize: minDesktopSize,
                       );
-              });
-        });
+                    },
+                  )
+                : PageWithToolbarFlutterStyle(
+                    scaffoldKey: scaffoldKey,
+                    translations: translations,
+                    title: title,
+                    sliderDefaultValue: 0.0,
+                    showSlider: false,
+                    showExpandableSpeedSlider: false,
+                    scrollSpeedDevice: 1.0,
+                    standardDesktopSize: standardDesktopSize,
+                    body: body(
+                      context: context,
+                      mainState: mainState,
+                      logstr: logstr,
+                    ),
+                    resizeToFullWidth: () {
+                      mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                        minDesktopSize: minDesktopSize,
+                      );
+                    },
+                  );
+          },
+        );
+      },
+    );
   }
 }

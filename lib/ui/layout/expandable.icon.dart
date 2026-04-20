@@ -102,7 +102,9 @@ class ExpandableIconState extends State<ExpandableIcon>
     );
 
     final Animation<double> hamburgerCurve = CurvedAnimation(
-        parent: _hamburgerAnimationController, curve: Curves.easeOutQuart);
+      parent: _hamburgerAnimationController,
+      curve: Curves.easeOutQuart,
+    );
     _hamburgerAnimation = Tween(begin: 0.0, end: 1.0).animate(hamburgerCurve)
       ..addListener(() {
         setState(() {
@@ -119,7 +121,9 @@ class ExpandableIconState extends State<ExpandableIcon>
     );
 
     final Animation<double> arrowCurve = CurvedAnimation(
-        parent: _arrowAnimationController, curve: Curves.easeOutQuart);
+      parent: _arrowAnimationController,
+      curve: Curves.easeOutQuart,
+    );
     _arrowAnimation = Tween(begin: 0.0, end: 1.0).animate(arrowCurve)
       ..addListener(() {
         setState(() {
@@ -129,10 +133,12 @@ class ExpandableIconState extends State<ExpandableIcon>
 
     _expandableIconController.addListener(() {
       if (_expandableIconController.isExpanded) {
-        Future.delayed(Duration(milliseconds: (animationSpeed * 0.4).toInt()),
-            () {
-          _arrowAnimationController.forward();
-        });
+        Future.delayed(
+          Duration(milliseconds: (animationSpeed * 0.4).toInt()),
+          () {
+            _arrowAnimationController.forward();
+          },
+        );
       } else {
         _arrowAnimationController.reverse();
       }
@@ -157,6 +163,7 @@ class ExpandableIconState extends State<ExpandableIcon>
         child: Material(
           color: Colors.transparent,
           child: InkWell(
+            mouseCursor: SystemMouseCursors.click,
             highlightColor: Colors.black.withValues(alpha: 0.2),
             splashColor: Colors.black.withValues(alpha: 0.2),
             borderRadius: BorderRadius.all(Radius.circular(width)),
@@ -185,17 +192,21 @@ class ExpandableIconState extends State<ExpandableIcon>
         _animationLocker();
         _expandableIconController.setExpandStatus();
         onClicked();
-        Future.delayed(Duration(milliseconds: (animationSpeed * 0.4).toInt()),
-            () {
-          _hamburgerAnimationController.reverse();
-        });
+        Future.delayed(
+          Duration(milliseconds: (animationSpeed * 0.4).toInt()),
+          () {
+            _hamburgerAnimationController.reverse();
+          },
+        );
       } else {
         _animationLocker();
         _hamburgerAnimationController.forward();
-        Future.delayed(Duration(milliseconds: (animationSpeed * 0.4).toInt()),
-            () {
-          onClicked();
-        });
+        Future.delayed(
+          Duration(milliseconds: (animationSpeed * 0.4).toInt()),
+          () {
+            onClicked();
+          },
+        );
       }
     }
   }
@@ -205,11 +216,15 @@ class ExpandableIconState extends State<ExpandableIcon>
   void _animationLocker() {
     _isAnimating = true;
     Future.delayed(
-        Duration(
-            milliseconds: (animationSpeed * 0.4).toInt() +
-                (animationSpeed * 0.25).toInt() * 2), () {
-      _isAnimating = false;
-    });
+      Duration(
+        milliseconds:
+            (animationSpeed * 0.4).toInt() +
+            (animationSpeed * 0.25).toInt() * 2,
+      ),
+      () {
+        _isAnimating = false;
+      },
+    );
   }
 }
 
@@ -232,26 +247,30 @@ class MyPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final line1Point1 = Offset(
-        (iconWidth * .27) + ((iconWidth * .27) * arrowProgress),
-        ((((iconHeight * 0.35) +
-                (((((iconHeight * .32) / 2))) * hamburgerProgress)))) -
-            ((iconHeight * 0.20) * arrowProgress));
+      (iconWidth * .27) + ((iconWidth * .27) * arrowProgress),
+      ((((iconHeight * 0.35) +
+              (((((iconHeight * .32) / 2))) * hamburgerProgress)))) -
+          ((iconHeight * 0.20) * arrowProgress),
+    );
     final line1Point2 = Offset(
-        (iconWidth * .73),
-        ((((iconHeight * 0.35) +
-                (((((iconHeight * .32) / 2))) * hamburgerProgress))) -
-            ((iconHeight * .01) * arrowProgress)));
+      (iconWidth * .73),
+      ((((iconHeight * 0.35) +
+              (((((iconHeight * .32) / 2))) * hamburgerProgress))) -
+          ((iconHeight * .01) * arrowProgress)),
+    );
 
     final line2Point1 = Offset(
-        (iconWidth * .27) + ((iconWidth * .27) * arrowProgress),
-        (((iconHeight * 0.65) -
-                (((((iconHeight * .32) / 2))) * hamburgerProgress))) +
-            ((iconHeight * 0.20) * arrowProgress));
+      (iconWidth * .27) + ((iconWidth * .27) * arrowProgress),
+      (((iconHeight * 0.65) -
+              (((((iconHeight * .32) / 2))) * hamburgerProgress))) +
+          ((iconHeight * 0.20) * arrowProgress),
+    );
     final line2Point2 = Offset(
-        (iconWidth * .73),
-        ((((iconHeight * 0.65) -
-                (((((iconHeight * .32) / 2))) * hamburgerProgress)))) +
-            ((iconHeight * .01) * arrowProgress));
+      (iconWidth * .73),
+      ((((iconHeight * 0.65) -
+              (((((iconHeight * .32) / 2))) * hamburgerProgress)))) +
+          ((iconHeight * .01) * arrowProgress),
+    );
 
     final paint = Paint()
       ..color = iconColor

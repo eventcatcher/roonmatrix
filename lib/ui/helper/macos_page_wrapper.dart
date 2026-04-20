@@ -57,7 +57,8 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
         : 0;
     if (kDebugMode) {
       debugPrint(
-          'MacosPageWrapper/initState => macosVersionMajor: $macosVersionMajor');
+        'MacosPageWrapper/initState => macosVersionMajor: $macosVersionMajor',
+      );
     }
 
     super.initState();
@@ -71,7 +72,8 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
         : 0;
     if (kDebugMode) {
       debugPrint(
-          'MacosPageWrapper/didUpdateWidget => macosVersionMajor: $macosVersionMajor');
+        'MacosPageWrapper/didUpdateWidget => macosVersionMajor: $macosVersionMajor',
+      );
     }
   }
 
@@ -97,90 +99,90 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
 
   @override
   Widget build(BuildContext context) => MacosWindow(
-        child: MacosScaffold(
-          toolBar: isFullscreen && macosVersionMajor >= 13 ? null : toolBar,
-          children: [
-            ContentArea(
-              builder: ((context, scrollController) {
-                return Container(
-                  color: Colors.transparent,
-                  padding: EdgeInsets.only(
-                      top: isFullscreen && macosVersionMajor >= 13 ? 38 : 0),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Theme(
-                      data: ThemeData(
-                        useMaterial3: true,
-                        splashFactory: NoSplash.splashFactory,
-                      ),
-                      child: Column(
-                        children: [
-                          name != null &&
-                                  isFullscreen &&
-                                  macosVersionMajor >= 13
-                              ? Container(
-                                  padding: EdgeInsets.only(left: 16.0),
-                                  color: ColorDefs.toolbarBackgroundColor(
-                                      context: context),
-                                  height: 40.0,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    children: [
-                                      MacosBackButton(
-                                        fillColor: Colors.transparent,
-                                        hoverColor: Colors.transparent,
-                                        onPressed: () {
-                                          if (widget.backButtonPressed !=
-                                              null) {
-                                            widget.backButtonPressed!();
-                                          }
-                                          Navigator.pop(context);
-                                        },
-                                        //hoverColor: MacosColors.systemBlueColor,
-                                        mouseCursor: SystemMouseCursors.click,
-                                      ),
-                                      SizedBox(width: 4.0),
-                                      InkWell(
-                                        onTap: () {
-                                          if (widget.backButtonPressed !=
-                                              null) {
-                                            widget.backButtonPressed!();
-                                          }
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text(
-                                          name!,
-                                          style: TextStyle(
-                                            color: ColorDefs.textColor(
-                                                context: context),
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      if (additionalFullscreenTitleContent !=
-                                          null) ...[
-                                        Expanded(child: SizedBox()),
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                              right: 16.0),
-                                          child:
-                                              additionalFullscreenTitleContent!,
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                )
-                              : SizedBox(),
-                          Expanded(child: widget.body),
-                        ],
-                      ),
-                    ),
+    child: MacosScaffold(
+      toolBar: isFullscreen && macosVersionMajor >= 13 ? null : toolBar,
+      children: [
+        ContentArea(
+          builder: ((context, scrollController) {
+            return Container(
+              color: Colors.transparent,
+              padding: EdgeInsets.only(
+                top: isFullscreen && macosVersionMajor >= 13 ? 38 : 0,
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: Theme(
+                  data: ThemeData(
+                    useMaterial3: true,
+                    splashFactory: NoSplash.splashFactory,
                   ),
-                );
-              }),
-            ),
-          ],
+                  child: Column(
+                    children: [
+                      name != null && isFullscreen && macosVersionMajor >= 13
+                          ? Container(
+                              padding: EdgeInsets.only(left: 16.0),
+                              color: ColorDefs.toolbarBackgroundColor(
+                                context: context,
+                              ),
+                              height: 40.0,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  MacosBackButton(
+                                    fillColor: Colors.transparent,
+                                    hoverColor: Colors.transparent,
+                                    onPressed: () {
+                                      if (widget.backButtonPressed != null) {
+                                        widget.backButtonPressed!();
+                                      }
+                                      Navigator.pop(context);
+                                    },
+                                    //hoverColor: MacosColors.systemBlueColor,
+                                    mouseCursor: SystemMouseCursors.click,
+                                  ),
+                                  SizedBox(width: 4.0),
+                                  InkWell(
+                                    mouseCursor: SystemMouseCursors.click,
+                                    onTap: () {
+                                      if (widget.backButtonPressed != null) {
+                                        widget.backButtonPressed!();
+                                      }
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      name!,
+                                      style: TextStyle(
+                                        color: ColorDefs.textColor(
+                                          context: context,
+                                        ),
+                                        fontSize: 14.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  if (additionalFullscreenTitleContent !=
+                                      null) ...[
+                                    Expanded(child: SizedBox()),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 16.0,
+                                      ),
+                                      child: additionalFullscreenTitleContent!,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
+                      Expanded(child: widget.body),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
-      );
+      ],
+    ),
+  );
 }

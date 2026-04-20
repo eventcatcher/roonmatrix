@@ -367,6 +367,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                               'Open album cover view and device control page',
                           waitDuration: Globals.tooltipWaitDuration,
                           child: IconButton(
+                            mouseCursor: SystemMouseCursors.click,
                             padding: EdgeInsets.zero,
                             onPressed: () => SharedWidgets.openPage(
                               context: context,
@@ -606,6 +607,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                             'Open ticker view',
                         waitDuration: Globals.tooltipWaitDuration,
                         child: InkWell(
+                          mouseCursor: SystemMouseCursors.click,
                           onTap: () {
                             String scrollSpeedKey = settingsBloc
                                 .getScrollSpeedKey(

@@ -62,7 +62,8 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
             message: message,
             triggerMode: TooltipTriggerMode.manual,
             waitDuration: Globals.controlButtonTooltipWaitDuration,
-            verticalOffset: (coverWidth *
+            verticalOffset:
+                (coverWidth *
                     Globals.overlyPlayoutButtonSizeFactor *
                     sizeFactor) /
                 2,
@@ -72,27 +73,34 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
               clipBehavior: Clip.antiAlias,
               child: svg != null
                   ? SizedBox(
-                      width: (coverWidth *
+                      width:
+                          (coverWidth *
                           Globals.overlyPlayoutButtonSizeFactor *
                           sizeFactor),
-                      height: (coverWidth *
+                      height:
+                          (coverWidth *
                           Globals.overlyPlayoutButtonSizeFactor *
                           sizeFactor),
                       child: InkWell(
+                        mouseCursor: SystemMouseCursors.click,
                         hoverColor: ColorDefs.hoverButtonBackground,
                         child: Padding(
-                          padding: EdgeInsets.all(((coverWidth *
-                                      Globals.overlyPlayoutButtonSizeFactor) *
-                                  sizeFactor) /
-                              6),
+                          padding: EdgeInsets.all(
+                            ((coverWidth *
+                                        Globals.overlyPlayoutButtonSizeFactor) *
+                                    sizeFactor) /
+                                6,
+                          ),
                           child: svg,
                         ),
                         onTap: () => onPressed(),
                       ),
                     )
                   : IconButton(
+                      mouseCursor: SystemMouseCursors.click,
                       icon: icon,
-                      iconSize: (coverWidth *
+                      iconSize:
+                          (coverWidth *
                           Globals.overlyPlayoutButtonSizeFactor *
                           sizeFactor),
                       hoverColor: ColorDefs.hoverButtonBackground,

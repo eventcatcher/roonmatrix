@@ -116,6 +116,7 @@ class IconButtonElement extends StatelessWidget {
                           ? CupertinoColors.activeOrange.color
                           : CupertinoColors.activeBlue.color),
             child: IconButton(
+              mouseCursor: SystemMouseCursors.click,
               color:
                   backgroundColor ??
                   (Globals.brightness() == Brightness.dark
@@ -156,6 +157,7 @@ class IconButtonElement extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(borderRadius: Globals.borderRadius()),
                 child: IconButton(
+                  mouseCursor: SystemMouseCursors.click,
                   padding: EdgeInsets.zero,
                   color: Colors.white,
                   splashRadius: 26,

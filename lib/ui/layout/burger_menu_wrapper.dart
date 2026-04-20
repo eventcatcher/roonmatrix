@@ -75,9 +75,10 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
   }) {
     if (key == 'about') {
       SharedWidgets.openAboutModal(
-          context: context,
-          aboutAppMessage: aboutAppMessage,
-          translations: translations);
+        context: context,
+        aboutAppMessage: aboutAppMessage,
+        translations: translations,
+      );
     }
     if (key == 'settings') {
       SharedWidgets.openSettingsPage(
@@ -88,10 +89,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
     }
   }
 
-  Widget burgerMenuRaw({
-    required bool noPop,
-    required BuildContext context,
-  }) =>
+  Widget burgerMenuRaw({required bool noPop, required BuildContext context}) =>
       BurgerMenu(
         translations: translations,
         noPop: noPop,
@@ -108,46 +106,52 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
 
   @override
   Widget build(BuildContext context) => BlocBuilder(
-      bloc: translationsBloc,
-      builder: (context, TranslationsState translationsState) {
-        if (translationsState is TranslationsStateLoaded) {
-          translations = translationsState.translations;
-          aboutAppMessage = translationsState.aboutAppMessage;
-          translationsLoaded = translationsState.translationsLoaded;
-        }
+    bloc: translationsBloc,
+    builder: (context, TranslationsState translationsState) {
+      if (translationsState is TranslationsStateLoaded) {
+        translations = translationsState.translations;
+        aboutAppMessage = translationsState.aboutAppMessage;
+        translationsLoaded = translationsState.translationsLoaded;
+      }
 
-        if (translationsState is! TranslationsStateLoaded ||
-            !translationsLoaded) {
-          return const SizedBox();
-        }
+      if (translationsState is! TranslationsStateLoaded ||
+          !translationsLoaded) {
+        return const SizedBox();
+      }
 
-        return Globals.inIosStyle()
-            ? burgerMenuRaw(
-                noPop: true, context: scaffoldKey.currentContext ?? context)
-            : Drawer(
-                child: Stack(
-                  children: [
-                    burgerMenuRaw(
-                        noPop: false,
-                        context: scaffoldKey.currentContext ?? context),
-                    Positioned(
-                      top: (navigationTop ?? navigationTopFallback) +
-                          navigationTopOffset,
-                      left: navigationLeftOffset,
-                      child: InkWell(
-                        onTap: () => setState(() {
-                          isDrawerOpen = false;
-                          scaffoldKey.currentState?.openEndDrawer();
-                        }),
-                        child: Icon(
-                          CupertinoIcons.clear,
-                          color: Colors.white,
-                          size: 24.0,
-                        ),
+      return Globals.inIosStyle()
+          ? burgerMenuRaw(
+              noPop: true,
+              context: scaffoldKey.currentContext ?? context,
+            )
+          : Drawer(
+              child: Stack(
+                children: [
+                  burgerMenuRaw(
+                    noPop: false,
+                    context: scaffoldKey.currentContext ?? context,
+                  ),
+                  Positioned(
+                    top:
+                        (navigationTop ?? navigationTopFallback) +
+                        navigationTopOffset,
+                    left: navigationLeftOffset,
+                    child: InkWell(
+                      mouseCursor: SystemMouseCursors.click,
+                      onTap: () => setState(() {
+                        isDrawerOpen = false;
+                        scaffoldKey.currentState?.openEndDrawer();
+                      }),
+                      child: Icon(
+                        CupertinoIcons.clear,
+                        color: Colors.white,
+                        size: 24.0,
                       ),
                     ),
-                  ],
-                ),
-              );
-      });
+                  ),
+                ],
+              ),
+            );
+    },
+  );
 }

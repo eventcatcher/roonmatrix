@@ -82,6 +82,7 @@ class ListItemsState extends State<ListItems> {
         suffixIcon: predefinedLength
             ? null
             : IconButton(
+                mouseCursor: SystemMouseCursors.click,
                 onPressed: () async {
                   bool valid = await SharedWidgets.showPlatformSpecificDialog(
                     context: context,

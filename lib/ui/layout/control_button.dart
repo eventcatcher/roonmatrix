@@ -44,13 +44,14 @@ class ControlButton extends StatelessWidget {
           shape: const CircleBorder(),
           clipBehavior: Clip.antiAlias,
           child: IconButton(
+            mouseCursor: SystemMouseCursors.click,
             padding: EdgeInsets.zero,
             color: color,
             hoverColor: readOnly
                 ? Colors.transparent
                 : Globals.brightness() == Brightness.dark
-                    ? ColorDefs.hoverButtonBackground
-                    : ColorDefs.hoverButtonBackgrounDark,
+                ? ColorDefs.hoverButtonBackground
+                : ColorDefs.hoverButtonBackgrounDark,
             onPressed: readOnly ? null : () => onPressed(),
             icon: icon,
             iconSize: iconSize,
