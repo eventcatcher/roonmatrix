@@ -272,45 +272,46 @@ class MenubarAppleCustomClass {
               ),
             ),
           ),
-          PlatformMenuItem(
-            label: translations['miniPlayerPageHeaderText'] ?? 'Mini Player',
-            shortcut: const SingleActivator(
-              LogicalKeyboardKey.keyP,
-              control: true,
-              shift: true,
-            ),
-            onSelected: () {
-              Map<String, dynamic> i = info[selectedDeviceIp];
-              String controlId = i['control_id'];
-              String zoneName = '-';
-              if (i['channels'] != null && i['channels'][controlId] != null) {
-                if (i['channels'][controlId] == 'webserver' ||
-                    i['channels'][controlId] == 'spotifyconnect') {
-                  zoneName = controlId;
-                } else {
-                  zoneName = i['channels'][controlId];
+          if (Platform.isMacOS)
+            PlatformMenuItem(
+              label: translations['miniPlayerPageHeaderText'] ?? 'Mini Player',
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.keyP,
+                control: true,
+                shift: true,
+              ),
+              onSelected: () {
+                Map<String, dynamic> i = info[selectedDeviceIp];
+                String controlId = i['control_id'];
+                String zoneName = '-';
+                if (i['channels'] != null && i['channels'][controlId] != null) {
+                  if (i['channels'][controlId] == 'webserver' ||
+                      i['channels'][controlId] == 'spotifyconnect') {
+                    zoneName = controlId;
+                  } else {
+                    zoneName = i['channels'][controlId];
+                  }
                 }
-              }
 
-              SharedWidgets.openPage(
-                context: context,
-                navigatorKey: navigatorKey,
-                page: MiniPlayerPage(
-                  name: zoneName,
-                  ip: selectedDeviceIp,
-                  controlId: info['control_id'],
-                  miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
-                  miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
-                  miniPlayerShowTextInfoOnTrackChange:
-                      miniPlayerShowTextInfoOnTrackChange,
-                  miniPlayerTextInfoDuration: miniPlayerTextInfoDuration,
-                  translations: translations,
-                  minDesktopSize: minDesktopSize,
-                  standardDesktopSize: standardDesktopSize,
-                ),
-              );
-            },
-          ),
+                SharedWidgets.openPage(
+                  context: context,
+                  navigatorKey: navigatorKey,
+                  page: MiniPlayerPage(
+                    name: zoneName,
+                    ip: selectedDeviceIp,
+                    controlId: info['control_id'],
+                    miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
+                    miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
+                    miniPlayerShowTextInfoOnTrackChange:
+                        miniPlayerShowTextInfoOnTrackChange,
+                    miniPlayerTextInfoDuration: miniPlayerTextInfoDuration,
+                    translations: translations,
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
+                  ),
+                );
+              },
+            ),
         ],
       ),
   ];
