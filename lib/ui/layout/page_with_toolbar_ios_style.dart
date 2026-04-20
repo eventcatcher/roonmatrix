@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,8 @@ import 'package:roonmatrix/ui/layout/slider_mobile.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class PageWithToolbarIosStyle extends StatefulWidget {
+  final String iosVersion;
+  final String iosModel;
   final String title;
   final double sliderDefaultValue;
   final bool showSlider;
@@ -21,6 +25,8 @@ class PageWithToolbarIosStyle extends StatefulWidget {
 
   const PageWithToolbarIosStyle({
     super.key,
+    required this.iosVersion,
+    required this.iosModel,
     required this.title,
     required this.sliderDefaultValue,
     required this.showSlider,
@@ -61,7 +67,13 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
   void initState() {
     mainBloc = BlocProvider.of<MainBloc>(context);
     isDrawerOpen = widget.isDrawerOpen;
-    appBarWithActions = getAppBar();
+    int iosVersionMajor = widget.iosVersion.isNotEmpty
+        ? int.parse((widget.iosVersion).split('.').first)
+        : 0;
+    appBarWithActions = getAppBar(
+      iosVersionMajor: iosVersionMajor,
+      iosModel: widget.iosModel,
+    );
     double appBarHeight = appBarWithActions.preferredSize.height;
     setAppBarHeight(height: appBarHeight);
 
@@ -73,61 +85,71 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
     super.didUpdateWidget(oldWidget);
 
     isDrawerOpen = widget.isDrawerOpen;
-    appBarWithActions = getAppBar();
+    int iosVersionMajor = widget.iosVersion.isNotEmpty
+        ? int.parse((widget.iosVersion).split('.').first)
+        : 0;
+    appBarWithActions = getAppBar(
+      iosVersionMajor: iosVersionMajor,
+      iosModel: widget.iosModel,
+    );
     double appBarHeight = appBarWithActions.preferredSize.height;
     setAppBarHeight(height: appBarHeight);
   }
 
-  ObstructingPreferredSizeWidget getAppBar() => CupertinoNavigationBar(
-        key: ValueKey('navigationBar-$isDrawerOpen'),
-        brightness: Globals.brightness(),
-        middle: Text(title),
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: AnimatedIcon(
-              icon: AnimatedIcons.menu_close, progress: animationController),
-          onPressed: () {
-            setState(() {
-              isDrawerOpen = !isDrawerOpen;
-              setDrawerState(open: isDrawerOpen);
-              isDrawerOpen
-                  ? animationController.forward()
-                  : animationController.reverse();
-            });
-          },
-        ),
-        trailing: Globals.inIosStyle() && sliderUpdateValue != null
-            ? Container(
-                width: showExpandableSpeedSlider ? 188.0 : 150.0,
-                padding: showExpandableSpeedSlider
-                    ? EdgeInsets.only(top: 5.0, right: 8.0)
-                    : null,
-                child: showSlider
-                    ? showExpandableSpeedSlider
-                        ? SliderExpandable(
-                            width: 236.0,
-                            value: scrollSpeedDevice,
-                            updateValue: (double value) =>
-                                sliderUpdateValue!(speed: value),
-                          )
-                        : SliderMobile(
-                            min: Globals.sliderMinValue,
-                            max: Globals.sliderMaxValue,
-                            defaultValue: sliderDefaultValue,
-                            value: scrollSpeedDevice,
-                            updateValue: (double value) =>
-                                sliderUpdateValue!(speed: value),
-                          )
-                    : SizedBox(),
-              )
-            : null,
-      );
+  ObstructingPreferredSizeWidget getAppBar({
+    required int iosVersionMajor,
+    required String iosModel,
+  }) => CupertinoNavigationBar(
+    key: ValueKey('navigationBar-$isDrawerOpen'),
+    brightness: Globals.brightness(),
+    middle: Text(title),
+    leading: Platform.isIOS && iosModel == 'iPad' && iosVersionMajor >= 26
+        ? null
+        : CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: AnimatedIcon(
+              icon: AnimatedIcons.menu_close,
+              progress: animationController,
+            ),
+            onPressed: () {
+              setState(() {
+                isDrawerOpen = !isDrawerOpen;
+                setDrawerState(open: isDrawerOpen);
+                isDrawerOpen
+                    ? animationController.forward()
+                    : animationController.reverse();
+              });
+            },
+          ),
+    trailing: Globals.inIosStyle() && sliderUpdateValue != null
+        ? Container(
+            width: showExpandableSpeedSlider ? 188.0 : 150.0,
+            padding: showExpandableSpeedSlider
+                ? EdgeInsets.only(top: 5.0, right: 8.0)
+                : null,
+            child: showSlider
+                ? showExpandableSpeedSlider
+                      ? SliderExpandable(
+                          width: 236.0,
+                          value: scrollSpeedDevice,
+                          updateValue: (double value) =>
+                              sliderUpdateValue!(speed: value),
+                        )
+                      : SliderMobile(
+                          min: Globals.sliderMinValue,
+                          max: Globals.sliderMaxValue,
+                          defaultValue: sliderDefaultValue,
+                          value: scrollSpeedDevice,
+                          updateValue: (double value) =>
+                              sliderUpdateValue!(speed: value),
+                        )
+                : SizedBox(),
+          )
+        : null,
+  );
 
   @override
   Widget build(BuildContext context) => Material(
-        child: CupertinoPageScaffold(
-          navigationBar: appBarWithActions,
-          child: body,
-        ),
-      );
+    child: CupertinoPageScaffold(navigationBar: appBarWithActions, child: body),
+  );
 }

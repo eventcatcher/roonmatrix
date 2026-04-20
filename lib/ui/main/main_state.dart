@@ -23,34 +23,34 @@ abstract class MainState extends Equatable {
   final String logMessage;
   final Map<String, dynamic> spotifyAuthUrls;
   final String macosVersion;
+  final String iosVersion;
+  final String iosModel;
 
-  const MainState(
-      {this.update,
-      this.ipStart,
-      this.ipEnd,
-      this.searchFilter = const {
-        "main": "",
-        "info": "",
-        "config": "",
-        "log": ""
-      },
-      this.devices = const [],
-      this.activeDeviceIp,
-      this.selectedDeviceIp = '',
-      this.tileExpanded = const {},
-      this.connected = const {},
-      this.ping = const {},
-      this.info = const {},
-      this.config = const {},
-      this.definitions = const {},
-      this.fieldValues = const {},
-      this.log = '',
-      this.idle = false,
-      this.disableListItemsRendering = false,
-      this.subPageIdle = false,
-      this.logMessage = '',
-      this.spotifyAuthUrls = const {},
-      this.macosVersion = ''});
+  const MainState({
+    this.update,
+    this.ipStart,
+    this.ipEnd,
+    this.searchFilter = const {"main": "", "info": "", "config": "", "log": ""},
+    this.devices = const [],
+    this.activeDeviceIp,
+    this.selectedDeviceIp = '',
+    this.tileExpanded = const {},
+    this.connected = const {},
+    this.ping = const {},
+    this.info = const {},
+    this.config = const {},
+    this.definitions = const {},
+    this.fieldValues = const {},
+    this.log = '',
+    this.idle = false,
+    this.disableListItemsRendering = false,
+    this.subPageIdle = false,
+    this.logMessage = '',
+    this.spotifyAuthUrls = const {},
+    this.macosVersion = '',
+    this.iosVersion = '',
+    this.iosModel = '',
+  });
 
   MainState copyWith({
     DateTime? update,
@@ -74,6 +74,8 @@ abstract class MainState extends Equatable {
     String? logMessage,
     Map<String, dynamic>? spotifyAuthUrls,
     String? macosVersion,
+    String? iosVersion,
+    String? iosModel,
   }) {
     return MainStateLoaded(
       update: update ?? this.update,
@@ -98,6 +100,8 @@ abstract class MainState extends Equatable {
       logMessage: logMessage ?? this.logMessage,
       spotifyAuthUrls: spotifyAuthUrls ?? this.spotifyAuthUrls,
       macosVersion: macosVersion ?? this.macosVersion,
+      iosVersion: iosVersion ?? this.iosVersion,
+      iosModel: iosModel ?? this.iosModel,
     );
   }
 
@@ -121,6 +125,8 @@ abstract class MainState extends Equatable {
       logMessage,
       spotifyAuthUrls,
       macosVersion,
+      iosVersion,
+      iosModel,
     ];
 
     if (ipStart != null) {
@@ -173,6 +179,8 @@ class MainStateLoaded extends MainState {
     required super.logMessage,
     required super.spotifyAuthUrls,
     required super.macosVersion,
+    required super.iosVersion,
+    required super.iosModel,
   });
 
   @override

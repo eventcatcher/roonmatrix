@@ -13,7 +13,7 @@ import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
 import 'package:roonmatrix/ui/layout/menubar_macos_class.dart';
-import 'package:roonmatrix/ui/layout/menubar_macos_custom_class.dart';
+import 'package:roonmatrix/ui/layout/menubar_apple_custom_class.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -24,6 +24,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:ipados_menu_bar/ipados_menu_bar.dart';
 
 Future<void> _configureMacosWindowUtils() async {
   const MacosWindowUtilsConfig config = MacosWindowUtilsConfig(
@@ -40,6 +41,10 @@ Future<void> _configureMacosWindowUtils() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isIOS) {
+    WidgetsBinding.instance.platformMenuDelegate =
+        IPadOSPlatformMenuDelegate.create();
+  }
 
   if (Globals.inMacosStyle()) {
     await _configureMacosWindowUtils();
@@ -103,8 +108,8 @@ class RoonMatrixState extends State<RoonMatrix> {
   EditableTextState? lastFocusedEditable;
   Brightness? brightnessValue;
   MenubarMacosClass? menubarMacosClass;
-  MenubarMacosCustomClass? menubarMacosCustomClass;
-  Widget menubarMacosCustom = SizedBox();
+  MenubarAppleCustomClass? menubarAppleCustomClass;
+  Widget menubarAppleCustom = SizedBox();
   String? selectedDeviceIpBefore;
 
   late StreamSubscription connectionStatusStreamSubscription;
@@ -225,9 +230,9 @@ class RoonMatrixState extends State<RoonMatrix> {
         return translationsLoadingWindow(title: title);
       }
 
-      if (Platform.isMacOS) {
-        if (useCustomMacMenu == true) {
-          menubarMacosCustomClass = MenubarMacosCustomClass(
+      if (Platform.isMacOS || Platform.isIOS) {
+        if (useCustomMacMenu == true || Platform.isIOS) {
+          menubarAppleCustomClass = MenubarAppleCustomClass(
             minDesktopSize: minDesktopSize,
             standardDesktopSize: standardDesktopSize,
             navigatorKey: navigatorKey,
@@ -237,7 +242,7 @@ class RoonMatrixState extends State<RoonMatrix> {
             settingsBloc: settingsBloc,
             exportDeviceList: exportDeviceList,
           );
-          menubarMacosCustomClass!.init();
+          menubarAppleCustomClass!.init();
         } else {
           menubarMacosClass = MenubarMacosClass(
             minDesktopSize: minDesktopSize,
@@ -256,7 +261,7 @@ class RoonMatrixState extends State<RoonMatrix> {
         }
       }
 
-      return Platform.isMacOS && useCustomMacMenu
+      return (Platform.isMacOS || Platform.isIOS) && useCustomMacMenu
           ? BlocBuilder(
               bloc: mainBloc,
               builder: (context, MainState mainState) {
@@ -266,21 +271,39 @@ class RoonMatrixState extends State<RoonMatrix> {
                     info = mainState.info;
                     selectedDeviceIpBefore = selectedDeviceIp;
 
-                    menubarMacosCustom = menubarMacosCustomClass!.macosMenubar(
-                      context: context,
-                      selectedDeviceIp: selectedDeviceIp,
-                      info: info,
-                      child: MainShell(
-                        minDesktopSize: minDesktopSize,
-                        standardDesktopSize: standardDesktopSize,
-                        title: title,
-                        navigatorKey: navigatorKey,
-                        exportDeviceList: exportDeviceList,
-                      ),
-                    );
+                    if (Platform.isMacOS) {
+                      menubarAppleCustom = menubarAppleCustomClass!
+                          .macosMenubar(
+                            context: context,
+                            selectedDeviceIp: selectedDeviceIp,
+                            info: info,
+                            child: MainShell(
+                              minDesktopSize: minDesktopSize,
+                              standardDesktopSize: standardDesktopSize,
+                              title: title,
+                              navigatorKey: navigatorKey,
+                              exportDeviceList: exportDeviceList,
+                            ),
+                          );
+                    }
+
+                    if (Platform.isIOS) {
+                      menubarAppleCustom = menubarAppleCustomClass!.iosMenubar(
+                        context: context,
+                        selectedDeviceIp: selectedDeviceIp,
+                        info: info,
+                        child: MainShell(
+                          minDesktopSize: minDesktopSize,
+                          standardDesktopSize: standardDesktopSize,
+                          title: title,
+                          navigatorKey: navigatorKey,
+                          exportDeviceList: exportDeviceList,
+                        ),
+                      );
+                    }
                   }
                 }
-                return menubarMacosCustom;
+                return menubarAppleCustom;
               },
             )
           : MainShell(
@@ -362,6 +385,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   @override
   Future<void> dispose() async {
     menubarMacosClass?.dispose();
+    menubarAppleCustomClass?.dispose();
     connectionStatusStreamSubscription.cancel();
 
     super.dispose();

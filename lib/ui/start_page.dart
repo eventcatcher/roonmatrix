@@ -562,10 +562,13 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     ),
   );
 
-  Widget bodyWithMenuDrawerOverlay(BuildContext context) => Stack(
+  Widget bodyWithMenuDrawerOverlay({
+    required BuildContext context,
+    required bool withoutBurgerMenu,
+  }) => Stack(
     children: [
       SafeArea(child: body()),
-      if (isDrawerOpen)
+      if (!withoutBurgerMenu && isDrawerOpen)
         Positioned.fill(
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
@@ -577,44 +580,45 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
             },
           ),
         ),
-      AnimatedPositioned(
-        duration: Duration(milliseconds: 200),
-        curve: Curves.easeIn,
-        top: navigationTop,
-        bottom: 0.0,
-        left: isDrawerOpen ? 0 : drawerOffsetToHide,
-        child: Container(
-          width: 230,
-          //height: double.infinity,
-          decoration: BoxDecoration(
-            color: ColorDefs.windowBackgroundColor(context: context),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 5.0,
-              ),
-            ],
-          ),
+      if (!withoutBurgerMenu)
+        AnimatedPositioned(
+          duration: Duration(milliseconds: 200),
+          curve: Curves.easeIn,
+          top: navigationTop,
+          bottom: 0.0,
+          left: isDrawerOpen ? 0 : drawerOffsetToHide,
           child: Container(
-            width: double.infinity,
-            height: height,
-            color: Colors.transparent, // background color of burger menu
-            child: BurgerMenuWrapper(
-              scaffoldKey: scaffoldKey,
-              animationController: animationController,
-              navigationTop: navigationTop,
-              isDrawerOpen: isDrawerOpen,
-              minDesktopSize: minDesktopSize,
-              standardDesktopSize: standardDesktopSize,
-              setDrawerVisibility: ({required bool visibility}) {
-                setState(() {
-                  isDrawerOpen = visibility;
-                });
-              },
+            width: 230,
+            //height: double.infinity,
+            decoration: BoxDecoration(
+              color: ColorDefs.windowBackgroundColor(context: context),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 5.0,
+                ),
+              ],
+            ),
+            child: Container(
+              width: double.infinity,
+              height: height,
+              color: Colors.transparent, // background color of burger menu
+              child: BurgerMenuWrapper(
+                scaffoldKey: scaffoldKey,
+                animationController: animationController,
+                navigationTop: navigationTop,
+                isDrawerOpen: isDrawerOpen,
+                minDesktopSize: minDesktopSize,
+                standardDesktopSize: standardDesktopSize,
+                setDrawerVisibility: ({required bool visibility}) {
+                  setState(() {
+                    isDrawerOpen = visibility;
+                  });
+                },
+              ),
             ),
           ),
         ),
-      ),
     ],
   );
 
@@ -624,72 +628,92 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
     if (Globals.inIosStyle()) {
       return BlocBuilder(
-        bloc: settingsBloc,
-        builder: (context, SettingsState settingsState) {
-          if (settingsState is! SettingsStateLoaded) {
+        bloc: mainBloc,
+        builder: (context, MainState mainState) {
+          if (mainState is! MainStateLoaded) {
             return SizedBox();
           }
+          int iosVersionMajor = mainState.iosVersion.isNotEmpty
+              ? int.parse((mainState.iosVersion).split('.').first)
+              : 0;
 
-          scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
+          return BlocBuilder(
+            bloc: settingsBloc,
+            builder: (context, SettingsState settingsState) {
+              if (settingsState is! SettingsStateLoaded) {
+                return SizedBox();
+              }
 
-          bool ledTickerInDeviceListActive =
-              settingsState.ledTickerInDeviceListActive;
-          bool verticalTickerActive = settingsState.verticalTickerActive;
-          bool verticalOutput =
-              selectedDeviceIp.isNotEmpty &&
-                  mainBloc.state.info[selectedDeviceIp] != null
-              ? mainBloc.state.info[selectedDeviceIp]['vertical_output'] ??
-                    false
-              : false;
-          String scrollSpeedKey = settingsBloc.getScrollSpeedKey(
-            ip: selectedDeviceIp,
-            variant: ScrollSpeedVariant(
-              isStandAlone: false,
-              isLedVariant: ledTickerInDeviceListActive,
-              isVertical: verticalTickerActive && verticalOutput,
-            ),
-          );
-          List<dynamic> list = mainBloc.getScrollDelayMinMax(
-            ip: selectedDeviceIp,
-            verticalOutput: verticalOutput,
-            verticalTickerActive: verticalTickerActive,
-          );
-          double sliderDefaultValue = list[3];
+              scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
 
-          return PageWithToolbarIosStyle(
-            title: title,
-            sliderDefaultValue: sliderDefaultValue,
-            showSlider:
-                Globals.isMobileDevice() &&
-                definitions.containsKey(selectedDeviceIp),
-            showExpandableSpeedSlider: showExpandableSpeedSlider,
-            scrollSpeedDevice: scrollSpeedDeviceMap[scrollSpeedKey] ?? 1.0,
-            animationController: animationController,
-            isDrawerOpen: isDrawerOpen,
-            body: bodyWithMenuDrawerOverlay(context),
-            sliderUpdateValue: selectedDeviceIp.isNotEmpty
-                ? ({required double speed}) {
-                    setState(() {
-                      if (selectedDeviceIp.isNotEmpty) {
-                        scrollSpeedDeviceMap[scrollSpeedKey] = speed;
+              bool ledTickerInDeviceListActive =
+                  settingsState.ledTickerInDeviceListActive;
+              bool verticalTickerActive = settingsState.verticalTickerActive;
+              bool verticalOutput =
+                  selectedDeviceIp.isNotEmpty &&
+                      mainBloc.state.info[selectedDeviceIp] != null
+                  ? mainBloc.state.info[selectedDeviceIp]['vertical_output'] ??
+                        false
+                  : false;
+              String scrollSpeedKey = settingsBloc.getScrollSpeedKey(
+                ip: selectedDeviceIp,
+                variant: ScrollSpeedVariant(
+                  isStandAlone: false,
+                  isLedVariant: ledTickerInDeviceListActive,
+                  isVertical: verticalTickerActive && verticalOutput,
+                ),
+              );
+              List<dynamic> list = mainBloc.getScrollDelayMinMax(
+                ip: selectedDeviceIp,
+                verticalOutput: verticalOutput,
+                verticalTickerActive: verticalTickerActive,
+              );
+              double sliderDefaultValue = list[3];
+
+              return PageWithToolbarIosStyle(
+                title: title,
+                sliderDefaultValue: sliderDefaultValue,
+                showSlider:
+                    Globals.isMobileDevice() &&
+                    definitions.containsKey(selectedDeviceIp),
+                showExpandableSpeedSlider: showExpandableSpeedSlider,
+                scrollSpeedDevice: scrollSpeedDeviceMap[scrollSpeedKey] ?? 1.0,
+                animationController: animationController,
+                isDrawerOpen: isDrawerOpen,
+                iosVersion: mainState.iosVersion,
+                iosModel: mainState.iosModel,
+                body: bodyWithMenuDrawerOverlay(
+                  context: context,
+                  withoutBurgerMenu:
+                      Platform.isIOS &&
+                      mainState.iosModel == 'iPad' &&
+                      iosVersionMajor >= 26,
+                ),
+                sliderUpdateValue: selectedDeviceIp.isNotEmpty
+                    ? ({required double speed}) {
+                        setState(() {
+                          if (selectedDeviceIp.isNotEmpty) {
+                            scrollSpeedDeviceMap[scrollSpeedKey] = speed;
+                          }
+                          scrollSpeedDevice = speed;
+                          settingsBloc.setScrollSpeedDevice(
+                            key: scrollSpeedKey,
+                            speed: speed,
+                          );
+                        });
                       }
-                      scrollSpeedDevice = speed;
-                      settingsBloc.setScrollSpeedDevice(
-                        key: scrollSpeedKey,
-                        speed: speed,
-                      );
-                    });
-                  }
-                : null,
-            setAppBarHeight: ({required double height}) {
-              appBarHeight = height;
-              navigationTop =
-                  appBarHeight! + MediaQuery.of(context).padding.top;
-            },
-            setDrawerState: ({required bool open}) {
-              setState(() {
-                isDrawerOpen = open;
-              });
+                    : null,
+                setAppBarHeight: ({required double height}) {
+                  appBarHeight = height;
+                  navigationTop =
+                      appBarHeight! + MediaQuery.of(context).padding.top;
+                },
+                setDrawerState: ({required bool open}) {
+                  setState(() {
+                    isDrawerOpen = open;
+                  });
+                },
+              );
             },
           );
         },

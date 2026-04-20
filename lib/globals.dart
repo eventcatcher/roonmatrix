@@ -19,8 +19,10 @@ class Globals {
   static double defaultDesktopHeight = 768;
 
   static Size minDesktopSize = Size(minDesktopWidth, minDesktopHeight);
-  static Size standardDesktopSize =
-      Size(defaultDesktopWidth, defaultDesktopHeight);
+  static Size standardDesktopSize = Size(
+    defaultDesktopWidth,
+    defaultDesktopHeight,
+  );
 
   static bool isMobileDevice() =>
       Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
@@ -42,11 +44,31 @@ class Globals {
   static String mainWindowTitle = 'RoonMatrix';
 
   static Future<String> getMacosVersion() async {
-    final deviceInfo = DeviceInfoPlugin();
-    final macosInfo = await deviceInfo.macOsInfo;
-    final version = macosInfo.osRelease.replaceFirst('Version', '').trim();
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final MacOsDeviceInfo macosInfo = await deviceInfo.macOsInfo;
+    final String version = macosInfo.osRelease
+        .replaceFirst('Version', '')
+        .trim();
 
     return version;
+  }
+
+  static Future<String> getIosVersion() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    final String version = iosInfo.systemVersion
+        .replaceFirst('Version', '')
+        .trim();
+
+    return version;
+  }
+
+  static Future<String> getIosModel() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    final String model = iosInfo.model;
+
+    return model;
   }
 
   static String placeholderSvgAssetPath() =>
@@ -55,10 +77,7 @@ class Globals {
   static String placeholderPngAssetPath() => 'assets/icon/icon.png';
 
   static final String tickerFontFamily = 'Arial';
-  static final List<String> fontFamilyFallback = [
-    'NotoSans',
-    'Symbola',
-  ];
+  static final List<String> fontFamilyFallback = ['NotoSans', 'Symbola'];
 
   static final String tickerSeparator = '    ////    ';
 
@@ -90,28 +109,27 @@ class Globals {
 
   static final double overlyPlayoutButtonSizeFactor = 0.22;
 
-  static final Duration coverSwitchDefaultFadeAnimationDuration =
-      Duration(milliseconds: 700);
+  static final Duration coverSwitchDefaultFadeAnimationDuration = Duration(
+    milliseconds: 700,
+  );
 
-  static final Duration coverSwitchAnimatedPresetDuration =
-      const Duration(milliseconds: 1000);
+  static final Duration coverSwitchAnimatedPresetDuration = const Duration(
+    milliseconds: 1000,
+  );
 
   static final Duration tooltipWaitDuration = const Duration(seconds: 2);
 
-  static final Duration controlButtonTooltipWaitDuration =
-      const Duration(seconds: 3);
+  static final Duration controlButtonTooltipWaitDuration = const Duration(
+    seconds: 3,
+  );
 
   static final AnimatedSwitcherTransitionBuilder coverSwitchAnimatedPreset =
-      CoverTransition.presets(
-    CoverTransitionPreset.fadeScale,
-  );
+      CoverTransition.presets(CoverTransitionPreset.fadeScale);
 
   static BorderRadius borderRadius() =>
       BorderRadius.all(Radius.circular(Globals.inIosStyle() ? 8.0 : 5.0));
 
-  static String getZoneIcon({
-    required String zoneName,
-  }) {
+  static String getZoneIcon({required String zoneName}) {
     if (zoneName.endsWith('-SpotifyConnect')) {
       return 'assets/icon/spotifyconnect.png';
     }
@@ -125,13 +143,10 @@ class Globals {
     return 'assets/icon/roon.png';
   }
 
-  static String getZoneNameWithoutType({
-    required String zoneName,
-  }) =>
-      zoneName
-          .replaceFirst('-SpotifyConnect', '')
-          .replaceFirst('-Spotify', '')
-          .replaceFirst('-Apple Music', '');
+  static String getZoneNameWithoutType({required String zoneName}) => zoneName
+      .replaceFirst('-SpotifyConnect', '')
+      .replaceFirst('-Spotify', '')
+      .replaceFirst('-Apple Music', '');
 
   static double getWindowMinHeight() {
     double minHeight = Platform.isWindows ? 392 : 320;

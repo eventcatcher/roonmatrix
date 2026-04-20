@@ -71,11 +71,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     // ====================== //
     on<MainEvent>((event, emit) async {
       if (event is MainStateLoadDefaults) {
-        if (Globals.inMacosStyle()) {
+        if (Platform.isMacOS) {
           String macosVersion = await Globals.getMacosVersion();
 
           emit(
             state.copyWith(update: DateTime.now(), macosVersion: macosVersion),
+          );
+        }
+        if (Platform.isIOS) {
+          String iosVersion = await Globals.getIosVersion();
+          String iosModel = await Globals.getIosModel();
+
+          emit(
+            state.copyWith(
+              update: DateTime.now(),
+              iosVersion: iosVersion,
+              iosModel: iosModel,
+            ),
           );
         }
       }
