@@ -697,6 +697,25 @@ class MenubarAppleCustomClass {
             ),
           ],
         ),
+        // PlatformMenu(
+        //   label: translations['menuEntryHelp'] ?? 'Help',
+        //   menus: <PlatformMenuItem>[
+        //     PlatformMenuItemGroup(
+        //       members: <PlatformMenuItem>[
+        //         PlatformMenuItem(
+        //           label: translations['placeholderButtonText'] ?? 'placeholder',
+        //           shortcut: const SingleActivator(
+        //             LogicalKeyboardKey.keyP,
+        //             control: true,
+        //             shift: true,
+        //             alt: true,
+        //           ),
+        //           onSelected: () {},
+        //         ),
+        //       ],
+        //     ),
+        //   ],
+        // ),
       ],
       child: child,
     );
