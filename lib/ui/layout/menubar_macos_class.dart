@@ -13,6 +13,7 @@ import 'package:roonmatrix/ui/details/mini_player_page.dart';
 import 'package:roonmatrix/ui/helper/text_editing_service.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
@@ -39,16 +40,29 @@ class MenubarMacosClass {
 
   Map<String, dynamic> info = {};
   String selectedDeviceIp = '';
+  String selectedDeviceIpBefore = '';
   bool macMenuInitialized = false;
   bool miniPlayerAlwaysOnTop = true;
   bool miniPlayerPreventCloseApp = true;
   bool miniPlayerShowTextInfoOnTrackChange = true;
   int miniPlayerTextInfoDuration = 10;
 
+  StreamSubscription? mainStreamSubscription;
   StreamSubscription? settingsStreamSubscription;
 
   void init() {
     TextEditingService.instance.init();
+
+    mainStreamSubscription = mainBloc.stream.listen((MainState mainState) {
+      if (mainState is MainStateLoaded) {
+        if (selectedDeviceIpBefore != mainState.selectedDeviceIp) {
+          String selectedDeviceIp = mainState.selectedDeviceIp;
+          info = mainState.info;
+          selectedDeviceIpBefore = selectedDeviceIp;
+          updateMacMenuBar(selectedDeviceIp: selectedDeviceIp, info: info);
+        }
+      }
+    });
 
     settingsStreamSubscription = settingsBloc.stream.listen((
       SettingsState settingsState,
@@ -491,5 +505,6 @@ class MenubarMacosClass {
 
   void dispose() {
     settingsStreamSubscription?.cancel();
+    mainStreamSubscription?.cancel();
   }
 }

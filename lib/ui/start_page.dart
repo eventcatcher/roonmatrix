@@ -636,6 +636,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           int iosVersionMajor = mainState.iosVersion.isNotEmpty
               ? int.parse((mainState.iosVersion).split('.').first)
               : 0;
+          Map<String, ConfigDefinition> definitions = mainState.definitions;
+          Map<String, dynamic> info = mainState.info;
+          selectedDeviceIp = mainState.selectedDeviceIp;
 
           return BlocBuilder(
             bloc: settingsBloc,
@@ -650,10 +653,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                   settingsState.ledTickerInDeviceListActive;
               bool verticalTickerActive = settingsState.verticalTickerActive;
               bool verticalOutput =
-                  selectedDeviceIp.isNotEmpty &&
-                      mainBloc.state.info[selectedDeviceIp] != null
-                  ? mainBloc.state.info[selectedDeviceIp]['vertical_output'] ??
-                        false
+                  selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null
+                  ? info[selectedDeviceIp]['vertical_output'] ?? false
                   : false;
               String scrollSpeedKey = settingsBloc.getScrollSpeedKey(
                 ip: selectedDeviceIp,
@@ -745,91 +746,105 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     }
 
     return BlocBuilder(
-      bloc: settingsBloc,
-      builder: (context, SettingsState settingsState) {
-        if (settingsState is! SettingsStateLoaded) {
+      bloc: mainBloc,
+      builder: (context, MainState mainState) {
+        if (mainState is! MainStateLoaded) {
           return SizedBox();
         }
 
-        scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
+        Map<String, ConfigDefinition> definitions = mainState.definitions;
+        Map<String, dynamic> info = mainState.info;
+        selectedDeviceIp = mainState.selectedDeviceIp;
 
-        bool ledTickerInDeviceListActive =
-            settingsState.ledTickerInDeviceListActive;
-        bool verticalTickerActive = settingsState.verticalTickerActive;
-        bool verticalOutput =
-            selectedDeviceIp.isNotEmpty &&
-                mainBloc.state.info[selectedDeviceIp] != null
-            ? mainBloc.state.info[selectedDeviceIp]['vertical_output'] ?? false
-            : false;
-        String scrollSpeedKey = settingsBloc.getScrollSpeedKey(
-          ip: selectedDeviceIp,
-          variant: ScrollSpeedVariant(
-            isStandAlone: false,
-            isLedVariant: ledTickerInDeviceListActive,
-            isVertical: verticalTickerActive && verticalOutput,
-          ),
-        );
-        List<dynamic> list = mainBloc.getScrollDelayMinMax(
-          ip: selectedDeviceIp,
-          verticalOutput: verticalOutput,
-          verticalTickerActive: verticalTickerActive,
-        );
-        double sliderDefaultValue = list[3];
-
-        return PageWithToolbarFlutterStyle(
-          scaffoldKey: scaffoldKey,
-          translations: translations,
-          title: title,
-          sliderDefaultValue: sliderDefaultValue,
-          showSlider:
-              Globals.isMobileDevice() &&
-              definitions.containsKey(selectedDeviceIp),
-          showExpandableSpeedSlider: showExpandableSpeedSlider,
-          scrollSpeedDevice:
-              scrollSpeedDeviceMap[scrollSpeedKey] ?? scrollSpeedDevice,
-          standardDesktopSize: standardDesktopSize,
-          drawer:
-              Globals.inIosStyle() || Platform.isAndroid || Platform.isFuchsia
-              ? BurgerMenuWrapper(
-                  scaffoldKey: scaffoldKey,
-                  animationController: animationController,
-                  navigationTop: navigationTop,
-                  isDrawerOpen: isDrawerOpen,
-                  minDesktopSize: minDesktopSize,
-                  standardDesktopSize: standardDesktopSize,
-                  setDrawerVisibility: ({required bool visibility}) {
-                    setState(() {
-                      isDrawerOpen = visibility;
-                    });
-                  },
-                )
-              : null,
-          body: body(),
-          resizeToFullWidth: () {
-            mainBloc.windowResizeToFullWidthAndMinimumHeight(
-              minDesktopSize: minDesktopSize,
-            );
-          },
-          sliderUpdateValue: selectedDeviceIp.isNotEmpty
-              ? ({required double speed}) {
-                  setState(() {
-                    if (selectedDeviceIp.isNotEmpty) {
-                      scrollSpeedDeviceMap[scrollSpeedKey] = speed;
-                    }
-                    scrollSpeedDevice = speed;
-                    settingsBloc.setScrollSpeedDevice(
-                      key: scrollSpeedKey,
-                      speed: speed,
-                    );
-                  });
-                }
-              : null,
-          setAppBarHeight: ({required double height}) {
-            if (Platform.isAndroid || Platform.isFuchsia) {
-              appBarHeight = height;
-              navigationTop =
-                  appBarHeight! + MediaQuery.of(context).padding.top;
+        return BlocBuilder(
+          bloc: settingsBloc,
+          builder: (context, SettingsState settingsState) {
+            if (settingsState is! SettingsStateLoaded) {
+              return SizedBox();
             }
+
+            scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
+
+            bool ledTickerInDeviceListActive =
+                settingsState.ledTickerInDeviceListActive;
+            bool verticalTickerActive = settingsState.verticalTickerActive;
+            bool verticalOutput =
+                selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null
+                ? info[selectedDeviceIp]['vertical_output'] ?? false
+                : false;
+            String scrollSpeedKey = settingsBloc.getScrollSpeedKey(
+              ip: selectedDeviceIp,
+              variant: ScrollSpeedVariant(
+                isStandAlone: false,
+                isLedVariant: ledTickerInDeviceListActive,
+                isVertical: verticalTickerActive && verticalOutput,
+              ),
+            );
+            List<dynamic> list = mainBloc.getScrollDelayMinMax(
+              ip: selectedDeviceIp,
+              verticalOutput: verticalOutput,
+              verticalTickerActive: verticalTickerActive,
+            );
+            double sliderDefaultValue = list[3];
+
+            return PageWithToolbarFlutterStyle(
+              scaffoldKey: scaffoldKey,
+              translations: translations,
+              title: title,
+              sliderDefaultValue: sliderDefaultValue,
+              showSlider:
+                  Globals.isMobileDevice() &&
+                  definitions.containsKey(selectedDeviceIp),
+              showExpandableSpeedSlider: showExpandableSpeedSlider,
+              scrollSpeedDevice:
+                  scrollSpeedDeviceMap[scrollSpeedKey] ?? scrollSpeedDevice,
+              standardDesktopSize: standardDesktopSize,
+              drawer:
+                  Globals.inIosStyle() ||
+                      Platform.isAndroid ||
+                      Platform.isFuchsia
+                  ? BurgerMenuWrapper(
+                      scaffoldKey: scaffoldKey,
+                      animationController: animationController,
+                      navigationTop: navigationTop,
+                      isDrawerOpen: isDrawerOpen,
+                      minDesktopSize: minDesktopSize,
+                      standardDesktopSize: standardDesktopSize,
+                      setDrawerVisibility: ({required bool visibility}) {
+                        setState(() {
+                          isDrawerOpen = visibility;
+                        });
+                      },
+                    )
+                  : null,
+              body: body(),
+              resizeToFullWidth: () {
+                mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                  minDesktopSize: minDesktopSize,
+                );
+              },
+              sliderUpdateValue: selectedDeviceIp.isNotEmpty
+                  ? ({required double speed}) {
+                      setState(() {
+                        if (selectedDeviceIp.isNotEmpty) {
+                          scrollSpeedDeviceMap[scrollSpeedKey] = speed;
+                        }
+                        scrollSpeedDevice = speed;
+                        settingsBloc.setScrollSpeedDevice(
+                          key: scrollSpeedKey,
+                          speed: speed,
+                        );
+                      });
+                    }
+                  : null,
+              setAppBarHeight: ({required double height}) {
+                if (Platform.isAndroid || Platform.isFuchsia) {
+                  appBarHeight = height;
+                  navigationTop =
+                      appBarHeight! + MediaQuery.of(context).padding.top;
+                }
+              },
+            );
           },
         );
       },

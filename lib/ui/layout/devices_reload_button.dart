@@ -40,6 +40,7 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         InkWell(
+          mouseCursor: SystemMouseCursors.click,
           onTap: () {
             mainBloc.getSearchController(type: 'main').clear();
             mainBloc.setSearchFilter(type: 'main', filter: '');
@@ -49,10 +50,7 @@ class DevicesReloadButtonState extends State<DevicesReloadButton> {
             width: noDevicesFoundRectSize,
             height: noDevicesFoundRectSize,
             decoration: BoxDecoration(
-              border: Border.all(
-                color: borderColor(alpha: 1.0),
-                width: 5.0,
-              ),
+              border: Border.all(color: borderColor(alpha: 1.0), width: 5.0),
               borderRadius: Globals.borderRadius(),
               boxShadow: [
                 BoxShadow(
