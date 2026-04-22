@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:menu_bar/menu_bar.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
@@ -138,10 +139,15 @@ class MenubarWidgetState extends State<MenubarWidget> {
     ),
 
     // Style the menu bar itself. Hover over [MenuStyle] for all the options
-    barStyle: const MenuStyle(
+    barStyle: MenuStyle(
       padding: WidgetStatePropertyAll(EdgeInsets.zero),
-      backgroundColor: WidgetStatePropertyAll(Color(0xFF2b2b2b)),
+      backgroundColor: WidgetStatePropertyAll(
+        Color(
+          Globals.brightness() == Brightness.dark ? 0xFF2b2b2b : 0XFFF1F5F7,
+        ),
+      ),
       maximumSize: WidgetStatePropertyAll(Size(double.infinity, 28.0)),
+      shape: WidgetStatePropertyAll(RoundedRectangleBorder()),
     ),
 
     // Style the menu bar buttons. Hover over [ButtonStyle] for all the options
@@ -175,7 +181,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
       BarButton(
         text: Text(
           translations['menuEntryFile'] ?? 'File',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: ColorDefs.textColor(context: context)),
         ),
         submenu: SubMenu(
           menuItems: [
@@ -246,7 +252,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
       BarButton(
         text: Text(
           translations['menuEntryEdit'] ?? 'Edit',
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: ColorDefs.textColor(context: context)),
         ),
         submenu: SubMenu(
           menuItems: [
@@ -318,27 +324,27 @@ class MenubarWidgetState extends State<MenubarWidget> {
       BarButton(
         text: Text(
           translations['menuEntryView'] ?? 'View',
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: ColorDefs.textColor(context: context)),
         ),
         submenu: SubMenu(
           menuItems: [
-            MenuButton(
-              onTap: () {
-                if (navigatorKey.currentState != null &&
-                    navigatorKey.currentState!.canPop()) {
-                  navigatorKey.currentState?.pop();
-                }
-              },
-              icon: const Icon(Icons.arrow_back),
-              shortcut: const SingleActivator(
-                LogicalKeyboardKey.arrowLeft,
-                control: true,
-                shift: true,
-                alt: false,
-              ),
-              shortcutText: 'Ctrl+Shift+Left',
-              text: Text(translations['closePageLabel'] ?? 'Close page'),
-            ),
+            // MenuButton(
+            //   onTap: () {
+            //     if (navigatorKey.currentState != null &&
+            //         navigatorKey.currentState!.canPop()) {
+            //       navigatorKey.currentState?.pop();
+            //     }
+            //   },
+            //   icon: const Icon(Icons.arrow_back),
+            //   shortcut: const SingleActivator(
+            //     LogicalKeyboardKey.arrowLeft,
+            //     control: true,
+            //     shift: true,
+            //     alt: false,
+            //   ),
+            //   shortcutText: 'Ctrl+Shift+Left',
+            //   text: Text(translations['closePageLabel'] ?? 'Close page'),
+            // ),
             MenuButton(
               onTap: () {
                 if (navigatorKey.currentState != null &&
@@ -351,9 +357,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 LogicalKeyboardKey.arrowLeft,
                 control: true,
                 shift: true,
-                alt: true,
+                alt: false,
               ),
-              shortcutText: 'Ctrl+Shift+Alt+Left',
+              shortcutText: 'Ctrl+Shift+Left',
               text: Text(
                 translations['backToMainViewLabel'] ?? 'Back to main page',
               ),
@@ -613,7 +619,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
       BarButton(
         text: Text(
           translations['menuEntryHelp'] ?? 'Help',
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: ColorDefs.textColor(context: context)),
         ),
         submenu: SubMenu(
           menuItems: [
