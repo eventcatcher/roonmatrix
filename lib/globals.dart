@@ -56,9 +56,7 @@ class Globals {
   static Future<String> getIosVersion() async {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    final String version = iosInfo.systemVersion
-        .replaceFirst('Version', '')
-        .trim();
+    final String version = iosInfo.systemVersion.trim();
 
     return version;
   }
@@ -69,6 +67,19 @@ class Globals {
     final String model = iosInfo.model;
 
     return model;
+  }
+
+  static Future<int> getIosMajorVersion() async {
+    String version = await getIosVersion();
+    return int.tryParse(version.split('.').first) ?? 0;
+  }
+
+  static Future<bool> isIPad() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+
+    return iosInfo.model.toLowerCase().contains('ipad') ||
+        iosInfo.utsname.machine.toLowerCase().contains('ipad');
   }
 
   static String placeholderSvgAssetPath() =>

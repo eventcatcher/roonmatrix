@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:enhanced_platform_menu/enhanced_platform_menu_icon.dart';
+import 'package:enhanced_platform_menu/enhanced_platform_menu_item.dart';
+import 'package:enhanced_platform_menu/sf_symbols.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
@@ -19,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:window_manager/window_manager.dart';
 
-class MenubarAppleCustomClass {
+class MenubarAppleExtendedClass {
   final Size minDesktopSize;
   final Size standardDesktopSize;
   final GlobalKey<NavigatorState> navigatorKey;
@@ -29,7 +32,7 @@ class MenubarAppleCustomClass {
   final SettingsBloc settingsBloc;
   final Function(BuildContext context) exportDeviceList;
 
-  MenubarAppleCustomClass({
+  MenubarAppleExtendedClass({
     required this.standardDesktopSize,
     required this.minDesktopSize,
     required this.navigatorKey,
@@ -68,14 +71,14 @@ class MenubarAppleCustomClass {
     });
   }
 
-  List<PlatformMenuItemGroup> sharedViewItems({
+  List<EnhancedPlatformMenuItemGroup> sharedViewItems({
     required BuildContext context,
     required String selectedDeviceIp,
     required Map<String, dynamic> info,
     required bool deviceSelectedAndReady,
     required bool isMatrixDevice,
   }) => [
-    PlatformMenuItemGroup(
+    EnhancedPlatformMenuItemGroup(
       members: <PlatformMenuItem>[
         if (PlatformProvidedMenuItem.hasMenu(
           PlatformProvidedMenuItemType.toggleFullScreen,
@@ -83,13 +86,14 @@ class MenubarAppleCustomClass {
           const PlatformProvidedMenuItem(
             type: PlatformProvidedMenuItemType.toggleFullScreen,
           ),
-        // PlatformMenuItem(
+        // EnhancedPlatformMenuItem(
         //   label: translations['closePageLabel'] ?? 'Close page',
         //   shortcut: const SingleActivator(
-        //     LogicalKeyboardKey.arrowLeft,
-        //     control: true,
-        //     shift: true,
-        //     alt: true,
+        //     LogicalKeyboardKey.keyW,
+        //     meta: true,
+        //     control: false,
+        //     shift: false,
+        //     alt: false,
         //   ),
         //   onSelected: () {
         //     if (navigatorKey.currentState != null &&
@@ -98,10 +102,11 @@ class MenubarAppleCustomClass {
         //     }
         //   },
         // ),
-        PlatformMenuItem(
+        EnhancedPlatformMenuItem(
           label: translations['backToMainViewLabel'] ?? 'Back to main page',
+          icon: SFSymbolIcon(SFSymbols.backward),
           shortcut: const SingleActivator(
-            LogicalKeyboardKey.arrowLeft,
+            LogicalKeyboardKey.keyB,
             control: true,
             shift: true,
             alt: false,
@@ -109,29 +114,24 @@ class MenubarAppleCustomClass {
           onSelected: () =>
               navigatorKey.currentState?.popUntil((route) => route.isFirst),
         ),
-        PlatformMenuItem(
+        EnhancedPlatformMenuItem(
           label:
               translations['selectDeviceBeforeLabel'] ??
               'Select previous device',
-          shortcut: const SingleActivator(
-            LogicalKeyboardKey.arrowUp,
-            control: true,
-            shift: true,
-          ),
+          icon: SFSymbolIcon(SFSymbols.arrow_up),
+          shortcut: const SingleActivator(LogicalKeyboardKey.minus, meta: true),
           onSelected: () => mainBloc.selectDeviceBefore(ip: selectedDeviceIp),
         ),
-        PlatformMenuItem(
+        EnhancedPlatformMenuItem(
           label: translations['selectDeviceNextLabel'] ?? 'Select next device',
-          shortcut: const SingleActivator(
-            LogicalKeyboardKey.arrowDown,
-            control: true,
-            shift: true,
-          ),
+          icon: SFSymbolIcon(SFSymbols.arrow_down),
+          shortcut: const SingleActivator(LogicalKeyboardKey.add, meta: true),
           onSelected: () => mainBloc.selectDeviceNext(ip: selectedDeviceIp),
         ),
         if (Platform.isMacOS)
-          PlatformMenuItem(
+          EnhancedPlatformMenuItem(
             label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+            icon: SFSymbolIcon(SFSymbols.minus_magnifyingglass),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.minus,
               control: true,
@@ -141,8 +141,9 @@ class MenubarAppleCustomClass {
                 windowManager.setSize(standardDesktopSize, animate: true),
           ),
         if (Platform.isMacOS)
-          PlatformMenuItem(
+          EnhancedPlatformMenuItem(
             label: translations['fullWidthResizeButtonLabel'] ?? 'Full width',
+            icon: SFSymbolIcon(SFSymbols.arrow_left_and_right_square),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyW,
               control: true,
@@ -155,10 +156,11 @@ class MenubarAppleCustomClass {
       ],
     ),
     if (deviceSelectedAndReady == true)
-      PlatformMenuItemGroup(
-        members: <PlatformMenuItem>[
-          PlatformMenuItem(
+      EnhancedPlatformMenuItemGroup(
+        members: <EnhancedPlatformMenuItem>[
+          EnhancedPlatformMenuItem(
             label: translations['configButtonText'] ?? 'Config',
+            icon: SFSymbolIcon(SFSymbols.square_and_pencil),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyS,
               control: true,
@@ -178,8 +180,9 @@ class MenubarAppleCustomClass {
               ),
             ),
           ),
-          PlatformMenuItem(
+          EnhancedPlatformMenuItem(
             label: translations['controlButtonText'] ?? 'Control',
+            icon: SFSymbolIcon(SFSymbols.cross),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyC,
               control: true,
@@ -198,8 +201,9 @@ class MenubarAppleCustomClass {
             ),
           ),
           if (isMatrixDevice == true) ...[
-            PlatformMenuItem(
+            EnhancedPlatformMenuItem(
               label: translations['messageButtonText'] ?? 'Message',
+              icon: SFSymbolIcon(SFSymbols.captions_bubble),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyM,
                 control: true,
@@ -216,8 +220,9 @@ class MenubarAppleCustomClass {
                 ),
               ),
             ),
-            PlatformMenuItem(
+            EnhancedPlatformMenuItem(
               label: translations['liveControlButtonText'] ?? 'Live Control',
+              icon: SFSymbolIcon(SFSymbols.slider_horizontal_2_square),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyL,
                 control: true,
@@ -235,8 +240,9 @@ class MenubarAppleCustomClass {
               ),
             ),
           ],
-          PlatformMenuItem(
+          EnhancedPlatformMenuItem(
             label: translations['infoButtonText'] ?? 'Monitoring',
+            icon: SFSymbolIcon(SFSymbols.info_circle),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyI,
               control: true,
@@ -253,8 +259,9 @@ class MenubarAppleCustomClass {
               ),
             ),
           ),
-          PlatformMenuItem(
+          EnhancedPlatformMenuItem(
             label: translations['logButtonText'] ?? 'Log',
+            icon: SFSymbolIcon(SFSymbols.apple_terminal),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyD,
               control: true,
@@ -272,8 +279,9 @@ class MenubarAppleCustomClass {
             ),
           ),
           if (Platform.isMacOS)
-            PlatformMenuItem(
+            EnhancedPlatformMenuItem(
               label: translations['miniPlayerPageHeaderText'] ?? 'Mini Player',
+              icon: SFSymbolIcon(SFSymbols.music_note_tv),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyP,
                 control: true,
@@ -315,8 +323,9 @@ class MenubarAppleCustomClass {
       ),
   ];
 
-  PlatformMenuBar macosMenubar({
+  PlatformMenuBar appleMenubar({
     required BuildContext context,
+    required bool isIPad,
     required String selectedDeviceIp,
     required Map<String, dynamic> info,
     required Widget child,
@@ -333,37 +342,33 @@ class MenubarAppleCustomClass {
             info[selectedDeviceIp]['display_cover'] == false);
 
     return PlatformMenuBar(
-      menus: <PlatformMenuItem>[
-        PlatformMenu(
+      menus: <EnhancedPlatformMenu>[
+        EnhancedPlatformMenu.standard(
+          identifier: StandardMenuIdentifier.application,
           label: title,
           menus: <PlatformMenuItem>[
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                if (PlatformProvidedMenuItem.hasMenu(
-                  PlatformProvidedMenuItemType.about,
-                ))
-                  // const PlatformProvidedMenuItem(
-                  //   type: PlatformProvidedMenuItemType.about,
-                  // ),
-                  PlatformMenuItem(
-                    label:
-                        translations['menuEntryAbout'] ??
-                        'About ${Globals.mainWindowTitle}',
-                    onSelected: () => SharedWidgets.openAboutModal(
-                      context: context,
-                      aboutAppMessage: aboutAppMessage,
-                      translations: translations,
-                    ),
+            EnhancedPlatformMenuItemGroup(
+              members: <EnhancedPlatformMenuItem>[
+                EnhancedPlatformMenuItem(
+                  label:
+                      translations['menuEntryAbout'] ??
+                      'About ${Globals.mainWindowTitle}',
+                  onSelected: () => SharedWidgets.openAboutModal(
+                    context: context,
+                    aboutAppMessage: aboutAppMessage,
+                    translations: translations,
                   ),
+                ),
               ],
             ),
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                PlatformMenuItem(
+            EnhancedPlatformMenuItemGroup(
+              members: <EnhancedPlatformMenuItem>[
+                EnhancedPlatformMenuItem(
                   label: translations['menuEntrySettings'] ?? 'Settings',
-                  shortcut: const SingleActivator(
-                    LogicalKeyboardKey.comma,
-                    meta: true,
+                  shortcut: SingleActivator(
+                    isIPad ? LogicalKeyboardKey.keyS : LogicalKeyboardKey.comma,
+                    meta: !isIPad,
+                    control: isIPad,
                   ),
                   onSelected: () {
                     showGeneralDialog(
@@ -389,17 +394,18 @@ class MenubarAppleCustomClass {
                 ),
               ],
             ),
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                if (PlatformProvidedMenuItem.hasMenu(
-                  PlatformProvidedMenuItemType.servicesSubmenu,
-                ))
-                  const PlatformProvidedMenuItem(
-                    type: PlatformProvidedMenuItemType.servicesSubmenu,
-                  ),
-              ],
-            ),
-            PlatformMenuItemGroup(
+
+            // EnhancedPlatformMenuItemGroup(
+            //   members: <PlatformMenuItem>[
+            //     if (PlatformProvidedMenuItem.hasMenu(
+            //       PlatformProvidedMenuItemType.servicesSubmenu,
+            //     ))
+            //       const PlatformProvidedMenuItem(
+            //         type: PlatformProvidedMenuItemType.servicesSubmenu,
+            //       ),
+            //   ],
+            // ),
+            EnhancedPlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
                   PlatformProvidedMenuItemType.hide,
@@ -421,7 +427,7 @@ class MenubarAppleCustomClass {
                   ),
               ],
             ),
-            PlatformMenuItemGroup(
+            EnhancedPlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
                   PlatformProvidedMenuItemType.quit,
@@ -433,15 +439,17 @@ class MenubarAppleCustomClass {
             ),
           ],
         ),
-        PlatformMenu(
+        EnhancedPlatformMenu.standard(
+          identifier: StandardMenuIdentifier.file,
           label: translations['menuEntryFile'] ?? 'File',
-          menus: <PlatformMenuItem>[
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                PlatformMenuItem(
+          menus: [
+            EnhancedPlatformMenuItemGroup(
+              members: <EnhancedPlatformMenuItem>[
+                EnhancedPlatformMenuItem(
                   label:
                       translations['menuEntryExportDeviceList'] ??
                       'Export Device List',
+                  icon: SFSymbolIcon(SFSymbols.square_and_arrow_down),
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.keyE,
                     control: true,
@@ -452,50 +460,54 @@ class MenubarAppleCustomClass {
             ),
           ],
         ),
-        PlatformMenu(
+        EnhancedPlatformMenu.standard(
+          identifier: StandardMenuIdentifier.edit,
           label: translations['menuEntryEdit'] ?? 'Edit',
           menus: <PlatformMenuItem>[
-            PlatformMenuItemGroup(
+            // EnhancedPlatformMenuItemGroup(
+            //   members: <EnhancedPlatformMenuItem>[
+            //     EnhancedPlatformMenuItem(
+            //       label: translations['menuEntryUndo'] ?? 'Undo',
+            //       shortcut: const SingleActivator(
+            //         LogicalKeyboardKey.keyZ,
+            //         meta: true,
+            //       ),
+            //       //onSelected: () {},
+            //     ),
+            //     EnhancedPlatformMenuItem(
+            //       label: translations['menuEntryRedo'] ?? 'Redo',
+            //       shortcut: const SingleActivator(
+            //         LogicalKeyboardKey.keyZ,
+            //         meta: true,
+            //         shift: true,
+            //       ),
+            //       //onSelected: () {},
+            //     ),
+            //   ],
+            // ),
+            EnhancedPlatformMenuItemGroup(
               members: <PlatformMenuItem>[
-                PlatformMenuItem(
-                  label: translations['menuEntryUndo'] ?? 'Undo',
-                  shortcut: const SingleActivator(
-                    LogicalKeyboardKey.keyZ,
-                    meta: true,
-                  ),
-                  //onSelected: () {},
-                ),
-                PlatformMenuItem(
-                  label: translations['menuEntryRedo'] ?? 'Redo',
-                  shortcut: const SingleActivator(
-                    LogicalKeyboardKey.keyZ,
-                    meta: true,
-                    shift: true,
-                  ),
-                  //onSelected: () {},
-                ),
-              ],
-            ),
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                PlatformMenuItem(
+                EnhancedPlatformMenuItem(
                   label: translations['menuEntryCut'] ?? 'Cut',
+                  icon: SFSymbolIcon(SFSymbols.scissors),
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.keyX,
                     meta: true,
                   ),
                   onSelected: () => editingService.cut(),
                 ),
-                PlatformMenuItem(
+                EnhancedPlatformMenuItem(
                   label: translations['menuEntryCopy'] ?? 'Copy',
+                  icon: SFSymbolIcon(SFSymbols.document_on_document),
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.keyC,
                     meta: true,
                   ),
                   onSelected: () => editingService.copy(),
                 ),
-                PlatformMenuItem(
+                EnhancedPlatformMenuItem(
                   label: translations['menuEntryPaste'] ?? 'Paste',
+                  icon: SFSymbolIcon(SFSymbols.document_on_clipboard),
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.keyV,
                     meta: true,
@@ -504,10 +516,11 @@ class MenubarAppleCustomClass {
                 ),
               ],
             ),
-            PlatformMenuItemGroup(
+            EnhancedPlatformMenuItemGroup(
               members: <PlatformMenuItem>[
-                PlatformMenuItem(
+                EnhancedPlatformMenuItem(
                   label: translations['menuEntrySelectAll'] ?? 'Select All',
+                  //icon: SFSymbolIcon(SFSymbols.all),
                   shortcut: const SingleActivator(
                     LogicalKeyboardKey.keyA,
                     meta: true,
@@ -516,12 +529,12 @@ class MenubarAppleCustomClass {
                 ),
               ],
             ),
-            PlatformMenuItemGroup(
+            EnhancedPlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 PlatformMenu(
                   label: translations['menuEntrySpeach'] ?? 'Speach',
                   menus: <PlatformMenuItem>[
-                    PlatformMenuItemGroup(
+                    EnhancedPlatformMenuItemGroup(
                       members: <PlatformMenuItem>[
                         if (PlatformProvidedMenuItem.hasMenu(
                           PlatformProvidedMenuItemType.startSpeaking,
@@ -543,8 +556,11 @@ class MenubarAppleCustomClass {
             ),
           ],
         ),
-        PlatformMenu(
+
+        EnhancedPlatformMenu.standard(
+          identifier: StandardMenuIdentifier.view,
           label: translations['menuEntryView'] ?? 'View',
+          removeDefaultItems: isIPad,
           menus: <PlatformMenuItem>[
             ...sharedViewItems(
               context: context,
@@ -555,10 +571,12 @@ class MenubarAppleCustomClass {
             ),
           ],
         ),
-        PlatformMenu(
+
+        EnhancedPlatformMenu.standard(
+          identifier: StandardMenuIdentifier.window,
           label: translations['menuEntryWindow'] ?? 'Window',
           menus: <PlatformMenuItem>[
-            PlatformMenuItemGroup(
+            EnhancedPlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 if (PlatformProvidedMenuItem.hasMenu(
                   PlatformProvidedMenuItemType.minimizeWindow,
@@ -574,37 +592,38 @@ class MenubarAppleCustomClass {
                   ),
               ],
             ),
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                if (PlatformProvidedMenuItem.hasMenu(
-                  PlatformProvidedMenuItemType.arrangeWindowsInFront,
-                ))
-                  const PlatformProvidedMenuItem(
-                    type: PlatformProvidedMenuItemType.arrangeWindowsInFront,
-                  ),
-              ],
-            ),
+            // EnhancedPlatformMenuItemGroup(
+            //   members: <PlatformMenuItem>[
+            //     if (PlatformProvidedMenuItem.hasMenu(
+            //       PlatformProvidedMenuItemType.arrangeWindowsInFront,
+            //     ))
+            //       const PlatformProvidedMenuItem(
+            //         type: PlatformProvidedMenuItemType.arrangeWindowsInFront,
+            //       ),
+            //   ],
+            // ),
           ],
         ),
-        // PlatformMenu(
-        //   label: translations['menuEntryHelp'] ?? 'Help',
-        //   menus: <PlatformMenuItem>[
-        //     PlatformMenuItemGroup(
-        //       members: <PlatformMenuItem>[
-        //         PlatformMenuItem(
-        //           label: translations['placeholderButtonText'] ?? 'placeholder',
-        //           shortcut: const SingleActivator(
-        //             LogicalKeyboardKey.keyP,
-        //             control: true,
-        //             shift: true,
-        //             alt: true,
-        //           ),
-        //           onSelected: () {},
-        //         ),
-        //       ],
-        //     ),
-        //   ],
-        // ),
+        EnhancedPlatformMenu.standard(
+          identifier: StandardMenuIdentifier.help,
+          label: translations['menuEntryHelp'] ?? 'Help',
+          menus: <PlatformMenuItem>[
+            // EnhancedPlatformMenuItemGroup(
+            //   members: <PlatformMenuItem>[
+            //     PlatformMenuItem(
+            //       label: translations['placeholderButtonText'] ?? 'placeholder',
+            //       shortcut: const SingleActivator(
+            //         LogicalKeyboardKey.keyP,
+            //         control: true,
+            //         shift: true,
+            //         alt: true,
+            //       ),
+            //       onSelected: () {},
+            //     ),
+            //   ],
+            // ),
+          ],
+        ),
       ],
       child: child,
     );

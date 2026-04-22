@@ -24,7 +24,9 @@ abstract class MainState extends Equatable {
   final Map<String, dynamic> spotifyAuthUrls;
   final String macosVersion;
   final String iosVersion;
+  final int iosMajorVersion;
   final String iosModel;
+  final bool isIPad;
 
   const MainState({
     this.update,
@@ -49,7 +51,9 @@ abstract class MainState extends Equatable {
     this.spotifyAuthUrls = const {},
     this.macosVersion = '',
     this.iosVersion = '',
+    this.iosMajorVersion = 0,
     this.iosModel = '',
+    this.isIPad = false,
   });
 
   MainState copyWith({
@@ -75,7 +79,9 @@ abstract class MainState extends Equatable {
     Map<String, dynamic>? spotifyAuthUrls,
     String? macosVersion,
     String? iosVersion,
+    int? iosMajorVersion,
     String? iosModel,
+    bool? isIPad,
   }) {
     return MainStateLoaded(
       update: update ?? this.update,
@@ -101,7 +107,9 @@ abstract class MainState extends Equatable {
       spotifyAuthUrls: spotifyAuthUrls ?? this.spotifyAuthUrls,
       macosVersion: macosVersion ?? this.macosVersion,
       iosVersion: iosVersion ?? this.iosVersion,
+      iosMajorVersion: iosMajorVersion ?? this.iosMajorVersion,
       iosModel: iosModel ?? this.iosModel,
+      isIPad: isIPad ?? this.isIPad,
     );
   }
 
@@ -126,7 +134,9 @@ abstract class MainState extends Equatable {
       spotifyAuthUrls,
       macosVersion,
       iosVersion,
+      iosMajorVersion,
       iosModel,
+      isIPad,
     ];
 
     if (ipStart != null) {
@@ -180,7 +190,9 @@ class MainStateLoaded extends MainState {
     required super.spotifyAuthUrls,
     required super.macosVersion,
     required super.iosVersion,
+    required super.iosMajorVersion,
     required super.iosModel,
+    required super.isIPad,
   });
 
   @override

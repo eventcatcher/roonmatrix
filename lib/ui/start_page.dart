@@ -633,9 +633,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
           if (mainState is! MainStateLoaded) {
             return SizedBox();
           }
-          int iosVersionMajor = mainState.iosVersion.isNotEmpty
-              ? int.parse((mainState.iosVersion).split('.').first)
-              : 0;
+          bool isIPad = mainState.isIPad;
+          int iosMajorVersion = mainState.iosMajorVersion;
+
           Map<String, ConfigDefinition> definitions = mainState.definitions;
           Map<String, dynamic> info = mainState.info;
           selectedDeviceIp = mainState.selectedDeviceIp;
@@ -681,14 +681,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 scrollSpeedDevice: scrollSpeedDeviceMap[scrollSpeedKey] ?? 1.0,
                 animationController: animationController,
                 isDrawerOpen: isDrawerOpen,
-                iosVersion: mainState.iosVersion,
-                iosModel: mainState.iosModel,
+                iosMajorVersion: mainState.iosMajorVersion,
+                isIPad: mainState.isIPad,
                 body: bodyWithMenuDrawerOverlay(
                   context: context,
                   withoutBurgerMenu:
-                      Platform.isIOS &&
-                      mainState.iosModel == 'iPad' &&
-                      iosVersionMajor >= 26,
+                      Platform.isIOS && isIPad == true && iosMajorVersion >= 15,
                 ),
                 sliderUpdateValue: selectedDeviceIp.isNotEmpty
                     ? ({required double speed}) {

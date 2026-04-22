@@ -81,12 +81,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         if (Platform.isIOS) {
           String iosVersion = await Globals.getIosVersion();
           String iosModel = await Globals.getIosModel();
+          int iosMajorVersion = await Globals.getIosMajorVersion();
+          bool isIPad = await Globals.isIPad();
 
           emit(
             state.copyWith(
               update: DateTime.now(),
               iosVersion: iosVersion,
+              iosMajorVersion: iosMajorVersion,
               iosModel: iosModel,
+              isIPad: isIPad,
             ),
           );
         }

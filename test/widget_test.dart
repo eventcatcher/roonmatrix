@@ -14,11 +14,15 @@ void main() {
     // Build our app and trigger a frame.
     Size minDesktopSize = const Size(1280, 276);
     Size standardDesktopSize = const Size(1280, 768);
+    bool useCustomMacMenu = false;
 
-    await tester.pumpWidget(RoonMatrix(
-      minDesktopSize: minDesktopSize,
-      standardDesktopSize: standardDesktopSize,
-    ));
+    await tester.pumpWidget(
+      RoonMatrix(
+        minDesktopSize: minDesktopSize,
+        standardDesktopSize: standardDesktopSize,
+        useCustomMacMenu: useCustomMacMenu,
+      ),
+    );
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

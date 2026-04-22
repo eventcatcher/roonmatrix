@@ -9,8 +9,8 @@ import 'package:roonmatrix/ui/layout/slider_mobile.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class PageWithToolbarIosStyle extends StatefulWidget {
-  final String iosVersion;
-  final String iosModel;
+  final int iosMajorVersion;
+  final bool isIPad;
   final String title;
   final double sliderDefaultValue;
   final bool showSlider;
@@ -25,8 +25,8 @@ class PageWithToolbarIosStyle extends StatefulWidget {
 
   const PageWithToolbarIosStyle({
     super.key,
-    required this.iosVersion,
-    required this.iosModel,
+    required this.iosMajorVersion,
+    required this.isIPad,
     required this.title,
     required this.sliderDefaultValue,
     required this.showSlider,
@@ -67,12 +67,10 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
   void initState() {
     mainBloc = BlocProvider.of<MainBloc>(context);
     isDrawerOpen = widget.isDrawerOpen;
-    int iosVersionMajor = widget.iosVersion.isNotEmpty
-        ? int.parse((widget.iosVersion).split('.').first)
-        : 0;
+    int iosMajorVersion = widget.iosMajorVersion;
     appBarWithActions = getAppBar(
-      iosVersionMajor: iosVersionMajor,
-      iosModel: widget.iosModel,
+      iosMajorVersion: iosMajorVersion,
+      isIPad: widget.isIPad,
     );
     double appBarHeight = appBarWithActions.preferredSize.height;
     setAppBarHeight(height: appBarHeight);
@@ -85,25 +83,23 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
     super.didUpdateWidget(oldWidget);
 
     isDrawerOpen = widget.isDrawerOpen;
-    int iosVersionMajor = widget.iosVersion.isNotEmpty
-        ? int.parse((widget.iosVersion).split('.').first)
-        : 0;
+    int iosMajorVersion = widget.iosMajorVersion;
     appBarWithActions = getAppBar(
-      iosVersionMajor: iosVersionMajor,
-      iosModel: widget.iosModel,
+      iosMajorVersion: iosMajorVersion,
+      isIPad: widget.isIPad,
     );
     double appBarHeight = appBarWithActions.preferredSize.height;
     setAppBarHeight(height: appBarHeight);
   }
 
   ObstructingPreferredSizeWidget getAppBar({
-    required int iosVersionMajor,
-    required String iosModel,
+    required int iosMajorVersion,
+    required bool isIPad,
   }) => CupertinoNavigationBar(
     key: ValueKey('navigationBar-$isDrawerOpen'),
     brightness: Globals.brightness(),
     middle: Text(title),
-    leading: Platform.isIOS && iosModel == 'iPad' && iosVersionMajor >= 26
+    leading: Platform.isIOS && isIPad == true && iosMajorVersion >= 15
         ? null
         : CupertinoButton(
             padding: EdgeInsets.zero,
