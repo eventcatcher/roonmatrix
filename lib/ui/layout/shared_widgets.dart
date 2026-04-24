@@ -10,7 +10,6 @@ import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/text_field_element.dart';
-import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -325,27 +324,14 @@ class SharedWidgets {
     }
   });
 
-  static void openPage({
+  static Future<void> openPage({
     required BuildContext context,
     required GlobalKey<NavigatorState> navigatorKey,
+    bool asDialog = false,
     required Widget page,
-  }) {
-    navigatorKey.currentState?.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => page),
-      (route) => route.isFirst,
-    ); // close all pages except main page
-    // navigatorKey.currentState!.push(
-    //   MaterialPageRoute(builder: (_) => page),
-    // );
-  }
-
-  static void openSettingsPage({
-    required BuildContext context,
-    required Size minDesktopSize,
-    required Size standardDesktopSize,
-  }) => SchedulerBinding.instance.addPostFrameCallback((_) async {
-    if (context.mounted) {
-      await showGeneralDialog(
+  }) async {
+    if (asDialog == true) {
+      showGeneralDialog(
         context: context,
         //barrierColor: Colors.black12.withOpacity(0.6), // Background color
         barrierDismissible: false,
@@ -357,14 +343,20 @@ class SharedWidgets {
               Animation<double> animation,
               Animation<double> secondaryAnimation,
             ) {
-              return SettingsPage(
-                minDesktopSize: minDesktopSize,
-                standardDesktopSize: standardDesktopSize,
-              );
+              return page;
             },
       );
+    } else {
+      await navigatorKey.currentState?.pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => page),
+        (route) => route.isFirst,
+      ); // close all pages except main page
+
+      // await navigatorKey.currentState!.push(
+      //   MaterialPageRoute(builder: (_) => page),
+      // );
     }
-  });
+  }
 
   static TableRow getTableRowFormatted({
     required String label,

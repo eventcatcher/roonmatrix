@@ -24,6 +24,7 @@ import 'package:roonmatrix/ui/main/main_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/settings/settings_bloc.dart';
+import 'package:roonmatrix/ui/settings/settings_page.dart';
 import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
@@ -58,7 +59,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   final GlobalKey itemListKey = GlobalKey();
   final double exportButtonPaddingIos = 14.0;
   final bool showExpandableSpeedSlider = false;
-  final drawerOffsetToHide = -240.0;
+  final drawerOffsetToHide = -270.0;
+  final double burgerMenuWidth = 260.0;
 
   Map<String, dynamic> translations = {};
   Map<String, ConfigDefinition> definitions = {};
@@ -88,6 +90,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
+    selectedDeviceIp = mainBloc.state.selectedDeviceIp;
     animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 300),
@@ -189,10 +192,14 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 if ((mainState.ipStart == null || mainState.ipEnd == null) &&
                     !settingsPageLoaded) {
                   settingsPageLoaded = true;
-                  SharedWidgets.openSettingsPage(
+                  SharedWidgets.openPage(
                     context: context,
-                    minDesktopSize: minDesktopSize,
-                    standardDesktopSize: standardDesktopSize,
+                    navigatorKey: navigatorKey,
+                    asDialog: true,
+                    page: SettingsPage(
+                      minDesktopSize: minDesktopSize,
+                      standardDesktopSize: standardDesktopSize,
+                    ),
                   );
                 }
 
@@ -562,7 +569,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     ),
   );
 
-  Widget bodyWithMenuDrawerOverlay({
+  Widget bodyWithMenuDrawerCloseOnGesture({
     required BuildContext context,
     required bool withoutBurgerMenu,
   }) => Stack(
@@ -578,45 +585,6 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 animationController.reverse();
               });
             },
-          ),
-        ),
-      if (!withoutBurgerMenu)
-        AnimatedPositioned(
-          duration: Duration(milliseconds: 200),
-          curve: Curves.easeIn,
-          top: navigationTop,
-          bottom: 0.0,
-          left: isDrawerOpen ? 0 : drawerOffsetToHide,
-          child: Container(
-            width: 230,
-            //height: double.infinity,
-            decoration: BoxDecoration(
-              color: ColorDefs.windowBackgroundColor(context: context),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 5.0,
-                ),
-              ],
-            ),
-            child: Container(
-              width: double.infinity,
-              height: height,
-              color: Colors.transparent, // background color of burger menu
-              child: BurgerMenuWrapper(
-                scaffoldKey: scaffoldKey,
-                animationController: animationController,
-                navigationTop: navigationTop,
-                isDrawerOpen: isDrawerOpen,
-                minDesktopSize: minDesktopSize,
-                standardDesktopSize: standardDesktopSize,
-                setDrawerVisibility: ({required bool visibility}) {
-                  setState(() {
-                    isDrawerOpen = visibility;
-                  });
-                },
-              ),
-            ),
           ),
         ),
     ],
@@ -670,48 +638,131 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 verticalTickerActive: verticalTickerActive,
               );
               double sliderDefaultValue = list[3];
+              bool withoutBurgerMenu =
+                  Platform.isIOS && isIPad == true && iosMajorVersion >= 15;
 
-              return PageWithToolbarIosStyle(
-                title: title,
-                sliderDefaultValue: sliderDefaultValue,
-                showSlider:
-                    Globals.isMobileDevice() &&
-                    definitions.containsKey(selectedDeviceIp),
-                showExpandableSpeedSlider: showExpandableSpeedSlider,
-                scrollSpeedDevice: scrollSpeedDeviceMap[scrollSpeedKey] ?? 1.0,
-                animationController: animationController,
-                isDrawerOpen: isDrawerOpen,
-                iosMajorVersion: mainState.iosMajorVersion,
-                isIPad: mainState.isIPad,
-                body: bodyWithMenuDrawerOverlay(
-                  context: context,
-                  withoutBurgerMenu:
-                      Platform.isIOS && isIPad == true && iosMajorVersion >= 15,
-                ),
-                sliderUpdateValue: selectedDeviceIp.isNotEmpty
-                    ? ({required double speed}) {
-                        setState(() {
-                          if (selectedDeviceIp.isNotEmpty) {
-                            scrollSpeedDeviceMap[scrollSpeedKey] = speed;
+              return Stack(
+                children: [
+                  PageWithToolbarIosStyle(
+                    title: title,
+                    sliderDefaultValue: sliderDefaultValue,
+                    showSlider:
+                        Globals.isMobileDevice() &&
+                        definitions.containsKey(selectedDeviceIp),
+                    showExpandableSpeedSlider: showExpandableSpeedSlider,
+                    scrollSpeedDevice:
+                        scrollSpeedDeviceMap[scrollSpeedKey] ?? 1.0,
+                    animationController: animationController,
+                    isDrawerOpen: isDrawerOpen,
+                    iosMajorVersion: mainState.iosMajorVersion,
+                    isIPad: mainState.isIPad,
+                    body: bodyWithMenuDrawerCloseOnGesture(
+                      context: context,
+                      withoutBurgerMenu:
+                          Platform.isIOS &&
+                          isIPad == true &&
+                          iosMajorVersion >= 15,
+                    ),
+                    sliderUpdateValue: selectedDeviceIp.isNotEmpty
+                        ? ({required double speed}) {
+                            setState(() {
+                              if (selectedDeviceIp.isNotEmpty) {
+                                scrollSpeedDeviceMap[scrollSpeedKey] = speed;
+                              }
+                              scrollSpeedDevice = speed;
+                              settingsBloc.setScrollSpeedDevice(
+                                key: scrollSpeedKey,
+                                speed: speed,
+                              );
+                            });
                           }
-                          scrollSpeedDevice = speed;
-                          settingsBloc.setScrollSpeedDevice(
-                            key: scrollSpeedKey,
-                            speed: speed,
-                          );
-                        });
-                      }
-                    : null,
-                setAppBarHeight: ({required double height}) {
-                  appBarHeight = height;
-                  navigationTop =
-                      appBarHeight! + MediaQuery.of(context).padding.top;
-                },
-                setDrawerState: ({required bool open}) {
-                  setState(() {
-                    isDrawerOpen = open;
-                  });
-                },
+                        : null,
+                    setAppBarHeight: ({required double height}) {
+                      appBarHeight = height;
+                      navigationTop =
+                          appBarHeight! + MediaQuery.of(context).padding.top;
+                    },
+                    setDrawerState: ({required bool open}) {
+                      setState(() {
+                        isDrawerOpen = open;
+                      });
+                    },
+                  ),
+
+                  if (!withoutBurgerMenu) ...[
+                    AnimatedPositioned(
+                      duration: Duration(milliseconds: 200),
+                      top: isDrawerOpen
+                          ? MediaQuery.of(context).padding.top + 2
+                          : -40,
+                      left: isDrawerOpen
+                          ? MediaQuery.of(context).padding.left + 70.0
+                          : 76.0,
+                      child: SizedBox(
+                        height: 40.0,
+                        //color: ColorDefs.burgerMenuHeadlineColor(context: context),
+                        child: Center(
+                          child: Text(
+                            translations['mainMenuHeader'] ?? 'Main menu',
+                            style: TextStyle(
+                              color: Color(0xFF027AFF),
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    AnimatedPositioned(
+                      duration: Duration(milliseconds: 200),
+                      curve: Curves.easeIn,
+                      top: navigationTop,
+                      bottom: 0.0,
+                      left: isDrawerOpen
+                          ? 0
+                          : drawerOffsetToHide -
+                                MediaQuery.of(context).padding.left,
+                      child: Container(
+                        width:
+                            burgerMenuWidth +
+                            MediaQuery.of(context).padding.left,
+                        //height: double.infinity,
+                        decoration: BoxDecoration(
+                          color: ColorDefs.windowBackgroundColor(
+                            context: context,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 5.0,
+                            ),
+                          ],
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          height: height,
+                          color: Colors
+                              .transparent, // background color of burger menu
+                          child: BurgerMenuWrapper(
+                            navigatorKey: navigatorKey,
+                            scaffoldKey: scaffoldKey,
+                            selectedDeviceIp: selectedDeviceIp,
+                            info: info,
+                            animationController: animationController,
+                            navigationTop: navigationTop,
+                            isDrawerOpen: isDrawerOpen,
+                            minDesktopSize: minDesktopSize,
+                            standardDesktopSize: standardDesktopSize,
+                            setDrawerVisibility: ({required bool visibility}) {
+                              setState(() {
+                                isDrawerOpen = visibility;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               );
             },
           );
@@ -802,7 +853,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                       Platform.isAndroid ||
                       Platform.isFuchsia
                   ? BurgerMenuWrapper(
+                      navigatorKey: navigatorKey,
                       scaffoldKey: scaffoldKey,
+                      selectedDeviceIp: selectedDeviceIp,
+                      info: info,
                       animationController: animationController,
                       navigationTop: navigationTop,
                       isDrawerOpen: isDrawerOpen,

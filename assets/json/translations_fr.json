@@ -4,6 +4,7 @@
     "exportFailedMessage": "Échec de l'exportation !",
     "menuEntryExportDeviceList": "Exporter la liste des appareils",
     "menuEntrySettings": "Paramètres",
+    "menuEntryNavigation": "Bouger",
     "menuEntryWinSettings": "Paramètres",
     "menuEntryQuit": "Quitter",
     "menuEntryWinQuit": "Quitter",

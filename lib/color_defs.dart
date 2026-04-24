@@ -8,13 +8,17 @@ class ColorDefs {
   static final Color idleZoneColor = Globals.brightness() == Brightness.dark
       ? Colors.black.withValues(alpha: 0.15)
       : Colors.black.withValues(alpha: 0.2);
-  static final ColorFilter idleZoneColorFilter =
-      ColorFilter.mode(idleZoneColor, idleZoneColorBlendMode);
+  static final ColorFilter idleZoneColorFilter = ColorFilter.mode(
+    idleZoneColor,
+    idleZoneColorBlendMode,
+  );
   static final Color idleZoneIconColor = Globals.brightness() == Brightness.dark
       ? Colors.black.withValues(alpha: 0.25)
       : Colors.black.withValues(alpha: 0.3);
-  static final ColorFilter idleZoneIconColorFilter =
-      ColorFilter.mode(idleZoneIconColor, idleZoneColorBlendMode);
+  static final ColorFilter idleZoneIconColorFilter = ColorFilter.mode(
+    idleZoneIconColor,
+    idleZoneColorBlendMode,
+  );
 
   static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
   static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);
@@ -26,9 +30,7 @@ class ColorDefs {
   static final Color deviceSelectedBarColorDark = Colors.blue.shade900;
   static final Color deviceSelectedBarColorLight = Colors.blue.shade300;
 
-  static Color textColor({
-    required BuildContext context,
-  }) {
+  static Color textColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? CupertinoColors.white
@@ -42,14 +44,10 @@ class ColorDefs {
     return Theme.of(context).colorScheme.inverseSurface;
   }
 
-  static Color iconColor({
-    required BuildContext context,
-  }) =>
+  static Color iconColor({required BuildContext context}) =>
       textColor(context: context);
 
-  static Color hintColor({
-    required BuildContext context,
-  }) {
+  static Color hintColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return CupertinoColors.systemGrey;
     }
@@ -59,9 +57,7 @@ class ColorDefs {
     return Theme.of(context).hintColor;
   }
 
-  static Color windowBackgroundColor({
-    required BuildContext context,
-  }) {
+  static Color windowBackgroundColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? MacosColors.underPageBackgroundColor
@@ -75,9 +71,7 @@ class ColorDefs {
     return Theme.of(context).colorScheme.surface;
   }
 
-  static Color borderColor({
-    required BuildContext context,
-  }) {
+  static Color borderColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? const Color.fromARGB(255, 60, 60, 60)
@@ -91,9 +85,7 @@ class ColorDefs {
     return Theme.of(context).colorScheme.surface;
   }
 
-  static Color elementBackgroundColorLighter({
-    required BuildContext context,
-  }) {
+  static Color elementBackgroundColorLighter({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? Theme.of(context).primaryColorLight
@@ -107,21 +99,15 @@ class ColorDefs {
     return Theme.of(context).colorScheme.surface;
   }
 
-  static Color elementBackgroundColor({
-    required BuildContext context,
-  }) =>
+  static Color elementBackgroundColor({required BuildContext context}) =>
       windowBackgroundColor(context: context);
 
-  static Color selectboxBackgroundColor({
-    required BuildContext context,
-  }) =>
+  static Color selectboxBackgroundColor({required BuildContext context}) =>
       Globals.brightness() == Brightness.dark
-          ? Colors.grey.shade800
-          : MacosColors.white;
+      ? Colors.grey.shade800
+      : MacosColors.white;
 
-  static Color areaBackgroundColor({
-    required BuildContext context,
-  }) {
+  static Color areaBackgroundColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? MacosColors.gridColor
@@ -137,17 +123,13 @@ class ColorDefs {
         : Colors.grey.shade100;
   }
 
-  static Color buttonAreaBackgroundColor({
-    required BuildContext context,
-  }) {
+  static Color buttonAreaBackgroundColor({required BuildContext context}) {
     return Globals.brightness() == Brightness.dark
         ? Color.fromARGB(255, 60, 60, 60)
         : Colors.grey.shade300;
   }
 
-  static Color toolbarBackgroundColor({
-    required BuildContext context,
-  }) {
+  static Color toolbarBackgroundColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? MacosColors.controlColor
@@ -163,9 +145,7 @@ class ColorDefs {
         : const Color.fromARGB(255, 195, 219, 239);
   }
 
-  static Color coverRowBackgroundColor({
-    required BuildContext context,
-  }) {
+  static Color coverRowBackgroundColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? MacosColors.gridColor
@@ -181,9 +161,7 @@ class ColorDefs {
         : Colors.grey.shade200;
   }
 
-  static Color resetIconColor({
-    required BuildContext context,
-  }) {
+  static Color resetIconColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? const Color.fromARGB(255, 171, 39, 32)
@@ -199,9 +177,7 @@ class ColorDefs {
         : Colors.red.shade700;
   }
 
-  static Color tileBackgroundColor({
-    required BuildContext context,
-  }) {
+  static Color tileBackgroundColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? MacosColors.gridColor
@@ -217,9 +193,7 @@ class ColorDefs {
         : Colors.blue.shade100;
   }
 
-  static Color selectedIconColor({
-    required BuildContext context,
-  }) {
+  static Color selectedIconColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return CupertinoColors.systemBlue;
     }
@@ -229,9 +203,7 @@ class ColorDefs {
     return Colors.white;
   }
 
-  static Color buttonBlueColor({
-    required BuildContext context,
-  }) {
+  static Color buttonBlueColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? MacosColors.gridColor
@@ -247,9 +219,7 @@ class ColorDefs {
         : Colors.blue.shade700;
   }
 
-  static Color blueIconColor({
-    required BuildContext context,
-  }) {
+  static Color blueIconColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
           ? CupertinoColors.white
@@ -265,16 +235,12 @@ class ColorDefs {
         : Colors.blue.shade700;
   }
 
-  static Color buttonRowBackgroundColor({
-    required BuildContext context,
-  }) =>
+  static Color buttonRowBackgroundColor({required BuildContext context}) =>
       Globals.brightness() == Brightness.dark
-          ? Colors.grey.shade600
-          : Colors.blue.shade300;
+      ? Colors.grey.shade600
+      : Colors.blue.shade300;
 
-  static Color textFieldBackgroundColor({
-    required BuildContext context,
-  }) {
+  static Color textFieldBackgroundColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       //return windowBackgroundColor(context: context);
       return Globals.brightness() == Brightness.dark
@@ -290,9 +256,7 @@ class ColorDefs {
     return windowBackgroundColor(context: context);
   }
 
-  static Color toolbarResizeButtonColor({
-    required BuildContext context,
-  }) {
+  static Color toolbarResizeButtonColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return CupertinoColors.systemGrey;
     }
@@ -304,9 +268,7 @@ class ColorDefs {
         : Colors.white;
   }
 
-  static Color burgerMenuHeadlineColor({
-    required BuildContext context,
-  }) {
-    return Globals.inIosStyle() ? CupertinoColors.systemGrey : Colors.blue;
+  static Color burgerMenuHeadlineColor({required BuildContext context}) {
+    return buttonRowBackgroundColor(context: context);
   }
 }

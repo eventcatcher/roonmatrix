@@ -4,6 +4,7 @@
     "exportFailedMessage": "Export failed!",
     "menuEntryExportDeviceList": "Export Device List",
     "menuEntrySettings": "Settings",
+    "menuEntryNavigation": "Move",
     "menuEntryWinSettings": "Preferences",
     "menuEntryQuit": "Quit",
     "menuEntryWinQuit": "Exit",
