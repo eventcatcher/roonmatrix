@@ -361,11 +361,11 @@ class MenubarWidgetState extends State<MenubarWidget> {
               onTap: () => mainBloc.selectDeviceBefore(ip: selectedDeviceIp),
               icon: const Icon(Icons.keyboard_arrow_up),
               shortcut: const SingleActivator(
-                LogicalKeyboardKey.minus,
+                LogicalKeyboardKey.keyB,
                 control: true,
                 alt: true,
               ),
-              shortcutText: 'Ctrl+Alt+minus',
+              shortcutText: 'Ctrl+Alt+B',
               text: Text(
                 translations['selectDeviceBeforeLabel'] ??
                     'Select previous device',
@@ -375,11 +375,11 @@ class MenubarWidgetState extends State<MenubarWidget> {
               onTap: () => mainBloc.selectDeviceNext(ip: selectedDeviceIp),
               icon: const Icon(Icons.keyboard_arrow_down),
               shortcut: const SingleActivator(
-                LogicalKeyboardKey.add,
+                LogicalKeyboardKey.keyN,
                 control: true,
                 alt: true,
               ),
-              shortcutText: 'Ctrl+Alt+plus',
+              shortcutText: 'Ctrl+Alt+N',
               text: Text(
                 translations['selectDeviceNextLabel'] ?? 'Select next device',
               ),
@@ -392,9 +392,10 @@ class MenubarWidgetState extends State<MenubarWidget> {
               icon: const Icon(Icons.width_full),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyW,
+                meta: true,
                 control: true,
               ),
-              shortcutText: 'Ctrl+W',
+              shortcutText: 'Meta+Ctrl+W',
               text: Text(
                 translations['fullWidthResizeButtonLabel'] ?? 'Full width',
               ),
@@ -409,10 +410,11 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 child: const Icon(Icons.photo_size_select_small),
               ),
               shortcut: const SingleActivator(
-                LogicalKeyboardKey.minus,
+                LogicalKeyboardKey.keyB,
+                meta: true,
                 control: true,
               ),
-              shortcutText: 'Ctrl+Minus',
+              shortcutText: 'Meta+Ctrl+B',
               text: Text(
                 translations['minimizeResizeButtonLabel'] ?? 'Minimize',
               ),
@@ -425,7 +427,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 child: const Icon(Icons.photo_size_select_large),
               ),
               shortcut: const SingleActivator(
-                LogicalKeyboardKey.equal,
+                LogicalKeyboardKey.keyN,
+                meta: true,
                 control: true,
               ),
               shortcutText: 'Ctrl+Equal',
@@ -440,7 +443,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 child: const Icon(Icons.photo_size_select_actual_outlined),
               ),
               shortcut: const SingleActivator(
-                LogicalKeyboardKey.add,
+                LogicalKeyboardKey.keyM,
+                meta: true,
                 control: true,
               ),
               shortcutText: 'Ctrl+Plus',

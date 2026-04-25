@@ -97,7 +97,7 @@ class MenubarAppleCustomClass {
               translations['selectDeviceBeforeLabel'] ??
               'Select previous device',
           shortcut: const SingleActivator(
-            LogicalKeyboardKey.minus,
+            LogicalKeyboardKey.keyB,
             control: true,
             alt: true,
           ),
@@ -106,7 +106,7 @@ class MenubarAppleCustomClass {
         PlatformMenuItem(
           label: translations['selectDeviceNextLabel'] ?? 'Select next device',
           shortcut: const SingleActivator(
-            LogicalKeyboardKey.add,
+            LogicalKeyboardKey.keyN,
             control: true,
             alt: true,
           ),
@@ -117,6 +117,7 @@ class MenubarAppleCustomClass {
             label: translations['fullWidthResizeButtonLabel'] ?? 'Full width',
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyW,
+              meta: true,
               control: true,
             ),
             onSelected: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
@@ -126,7 +127,8 @@ class MenubarAppleCustomClass {
           PlatformMenuItem(
             label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
             shortcut: const SingleActivator(
-              LogicalKeyboardKey.minus,
+              LogicalKeyboardKey.keyB,
+              meta: true,
               control: true,
             ),
             onSelected: () => windowManager.setSize(
@@ -137,7 +139,8 @@ class MenubarAppleCustomClass {
           PlatformMenuItem(
             label: translations['mediumResizeButtonLabel'] ?? 'Medium size',
             shortcut: const SingleActivator(
-              LogicalKeyboardKey.equal,
+              LogicalKeyboardKey.keyN,
+              meta: true,
               control: true,
             ),
             onSelected: () =>
@@ -146,7 +149,8 @@ class MenubarAppleCustomClass {
           PlatformMenuItem(
             label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
             shortcut: const SingleActivator(
-              LogicalKeyboardKey.add,
+              LogicalKeyboardKey.keyM,
+              meta: true,
               control: true,
             ),
             onSelected: () => windowManager.maximize(),

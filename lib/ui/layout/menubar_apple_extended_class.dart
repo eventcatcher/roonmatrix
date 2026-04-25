@@ -102,7 +102,7 @@ class MenubarAppleExtendedClass {
               'Select previous device',
           icon: SFSymbolIcon(SFSymbols.arrow_up),
           shortcut: const SingleActivator(
-            LogicalKeyboardKey.minus,
+            LogicalKeyboardKey.keyB,
             control: true,
             alt: true,
           ),
@@ -112,7 +112,7 @@ class MenubarAppleExtendedClass {
           label: translations['selectDeviceNextLabel'] ?? 'Select next device',
           icon: SFSymbolIcon(SFSymbols.arrow_down),
           shortcut: const SingleActivator(
-            LogicalKeyboardKey.add,
+            LogicalKeyboardKey.keyN,
             control: true,
             alt: true,
           ),
@@ -124,6 +124,7 @@ class MenubarAppleExtendedClass {
             icon: SFSymbolIcon(SFSymbols.arrow_left_and_right_square),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyW,
+              meta: true,
               control: true,
             ),
             onSelected: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
@@ -134,7 +135,8 @@ class MenubarAppleExtendedClass {
             label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
             icon: SFSymbolIcon(SFSymbols.minus_magnifyingglass),
             shortcut: const SingleActivator(
-              LogicalKeyboardKey.minus,
+              LogicalKeyboardKey.keyB,
+              meta: true,
               control: true,
             ),
             onSelected: () => windowManager.setSize(
@@ -146,7 +148,8 @@ class MenubarAppleExtendedClass {
             label: translations['mediumResizeButtonLabel'] ?? 'Medium size',
             icon: SFSymbolIcon(SFSymbols.magnifyingglass),
             shortcut: const SingleActivator(
-              LogicalKeyboardKey.equal,
+              LogicalKeyboardKey.keyN,
+              meta: true,
               control: true,
             ),
             onSelected: () =>
@@ -156,7 +159,8 @@ class MenubarAppleExtendedClass {
             label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
             icon: SFSymbolIcon(SFSymbols.plus_magnifyingglass),
             shortcut: const SingleActivator(
-              LogicalKeyboardKey.add,
+              LogicalKeyboardKey.keyM,
+              meta: true,
               control: true,
             ),
             onSelected: () => windowManager.maximize(),
