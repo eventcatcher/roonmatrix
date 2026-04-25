@@ -391,7 +391,10 @@ class MenubarWidgetState extends State<MenubarWidget> {
               onTap: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
                 minDesktopSize: minDesktopSize,
               ),
-              icon: const FaIcon(FontAwesomeIcons.arrowsLeftRight),
+              icon: const Padding(
+                padding: EdgeInsets.only(left: 5.0, right: 7.0),
+                child: FaIcon(FontAwesomeIcons.arrowsLeftRight, size: 18.0),
+              ),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyW,
                 control: true,
