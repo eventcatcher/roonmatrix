@@ -351,8 +351,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyB,
                 control: true,
+                shift: true,
               ),
-              shortcutText: 'Ctrl+B',
+              shortcutText: 'Ctrl+Shift+B',
               text: Text(
                 translations['backToMainViewLabel'] ?? 'Back to main page',
               ),
@@ -392,10 +393,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
               icon: const Icon(Icons.width_full),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyW,
-                meta: true,
                 control: true,
               ),
-              shortcutText: 'Meta+Ctrl+W',
+              shortcutText: 'Ctrl+W',
               text: Text(
                 translations['fullWidthResizeButtonLabel'] ?? 'Full width',
               ),
@@ -411,10 +411,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
               ),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyB,
-                meta: true,
                 control: true,
               ),
-              shortcutText: 'Meta+Ctrl+B',
+              shortcutText: 'Ctrl+B',
               text: Text(
                 translations['minimizeResizeButtonLabel'] ?? 'Minimize',
               ),
@@ -428,10 +427,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
               ),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyN,
-                meta: true,
                 control: true,
               ),
-              shortcutText: 'Ctrl+Equal',
+              shortcutText: 'Ctrl+N',
               text: Text(
                 translations['mediumResizeButtonLabel'] ?? 'Medium size',
               ),
@@ -444,10 +442,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
               ),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyM,
-                meta: true,
                 control: true,
               ),
-              shortcutText: 'Ctrl+Plus',
+              shortcutText: 'Ctrl+M',
               text: Text(
                 translations['maximizeResizeButtonLabel'] ?? 'Maximize',
               ),

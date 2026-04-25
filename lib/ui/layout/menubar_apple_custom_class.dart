@@ -88,6 +88,7 @@ class MenubarAppleCustomClass {
           shortcut: const SingleActivator(
             LogicalKeyboardKey.keyB,
             control: true,
+            shift: true,
           ),
           onSelected: () =>
               navigatorKey.currentState?.popUntil((route) => route.isFirst),
@@ -117,7 +118,6 @@ class MenubarAppleCustomClass {
             label: translations['fullWidthResizeButtonLabel'] ?? 'Full width',
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyW,
-              meta: true,
               control: true,
             ),
             onSelected: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
@@ -128,7 +128,6 @@ class MenubarAppleCustomClass {
             label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyB,
-              meta: true,
               control: true,
             ),
             onSelected: () => windowManager.setSize(
@@ -140,7 +139,6 @@ class MenubarAppleCustomClass {
             label: translations['mediumResizeButtonLabel'] ?? 'Medium size',
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyN,
-              meta: true,
               control: true,
             ),
             onSelected: () =>
@@ -150,7 +148,6 @@ class MenubarAppleCustomClass {
             label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyM,
-              meta: true,
               control: true,
             ),
             onSelected: () => windowManager.maximize(),

@@ -92,6 +92,7 @@ class MenubarAppleExtendedClass {
           shortcut: const SingleActivator(
             LogicalKeyboardKey.keyB,
             control: true,
+            shift: true,
           ),
           onSelected: () =>
               navigatorKey.currentState?.popUntil((route) => route.isFirst),
@@ -124,7 +125,6 @@ class MenubarAppleExtendedClass {
             icon: SFSymbolIcon(SFSymbols.arrow_left_and_right_square),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyW,
-              meta: true,
               control: true,
             ),
             onSelected: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
@@ -136,7 +136,6 @@ class MenubarAppleExtendedClass {
             icon: SFSymbolIcon(SFSymbols.minus_magnifyingglass),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyB,
-              meta: true,
               control: true,
             ),
             onSelected: () => windowManager.setSize(
@@ -149,7 +148,6 @@ class MenubarAppleExtendedClass {
             icon: SFSymbolIcon(SFSymbols.magnifyingglass),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyN,
-              meta: true,
               control: true,
             ),
             onSelected: () =>
@@ -160,7 +158,6 @@ class MenubarAppleExtendedClass {
             icon: SFSymbolIcon(SFSymbols.plus_magnifyingglass),
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyM,
-              meta: true,
               control: true,
             ),
             onSelected: () => windowManager.maximize(),
