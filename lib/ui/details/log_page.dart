@@ -301,7 +301,7 @@ class LogPageState extends State<LogPage> {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(right: 8.0),
+          padding: const EdgeInsets.only(top: 8.0, right: 8.0),
           child: SearchField(
             type: 'log',
             controller: mainBloc.getSearchController(type: 'log'),
