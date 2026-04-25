@@ -173,7 +173,7 @@ class ConfigPageState extends State<ConfigPage> {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(top: 8.0, right: 8.0),
             child: SearchField(
               type: 'config',
               controller: mainBloc.getSearchController(type: 'config'),
