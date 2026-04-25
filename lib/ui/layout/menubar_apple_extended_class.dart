@@ -104,6 +104,7 @@ class MenubarAppleExtendedClass {
           shortcut: const SingleActivator(
             LogicalKeyboardKey.minus,
             control: true,
+            alt: true,
           ),
           onSelected: () => mainBloc.selectDeviceBefore(ip: selectedDeviceIp),
         ),
@@ -113,6 +114,7 @@ class MenubarAppleExtendedClass {
           shortcut: const SingleActivator(
             LogicalKeyboardKey.add,
             control: true,
+            alt: true,
           ),
           onSelected: () => mainBloc.selectDeviceNext(ip: selectedDeviceIp),
         ),
@@ -123,7 +125,6 @@ class MenubarAppleExtendedClass {
             shortcut: const SingleActivator(
               LogicalKeyboardKey.keyW,
               control: true,
-              shift: true,
             ),
             onSelected: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
               minDesktopSize: minDesktopSize,
@@ -135,7 +136,6 @@ class MenubarAppleExtendedClass {
             shortcut: const SingleActivator(
               LogicalKeyboardKey.minus,
               control: true,
-              shift: true,
             ),
             onSelected: () => windowManager.setSize(
               Size(Globals.minDesktopWidth, Globals.minDesktopHeight + 24),
@@ -148,7 +148,6 @@ class MenubarAppleExtendedClass {
             shortcut: const SingleActivator(
               LogicalKeyboardKey.equal,
               control: true,
-              shift: true,
             ),
             onSelected: () =>
                 windowManager.setSize(standardDesktopSize, animate: true),
@@ -159,7 +158,6 @@ class MenubarAppleExtendedClass {
             shortcut: const SingleActivator(
               LogicalKeyboardKey.add,
               control: true,
-              shift: true,
             ),
             onSelected: () => windowManager.maximize(),
           ),

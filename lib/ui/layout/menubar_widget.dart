@@ -363,8 +363,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.minus,
                 control: true,
+                alt: true,
               ),
-              shortcutText: 'Ctrl+minus',
+              shortcutText: 'Ctrl+Alt+minus',
               text: Text(
                 translations['selectDeviceBeforeLabel'] ??
                     'Select previous device',
@@ -376,8 +377,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.add,
                 control: true,
+                alt: true,
               ),
-              shortcutText: 'Ctrl+plus',
+              shortcutText: 'Ctrl+Alt+plus',
               text: Text(
                 translations['selectDeviceNextLabel'] ?? 'Select next device',
               ),
@@ -391,9 +393,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyW,
                 control: true,
-                shift: true,
               ),
-              shortcutText: 'Ctrl+Shift+W',
+              shortcutText: 'Ctrl+W',
               text: Text(
                 translations['fullWidthResizeButtonLabel'] ?? 'Full width',
               ),
@@ -410,9 +411,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.minus,
                 control: true,
-                shift: true,
               ),
-              shortcutText: 'Ctrl+Shift+Minus',
+              shortcutText: 'Ctrl+Minus',
               text: Text(
                 translations['minimizeResizeButtonLabel'] ?? 'Minimize',
               ),
@@ -427,9 +427,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.equal,
                 control: true,
-                shift: true,
               ),
-              shortcutText: 'Ctrl+Shift+Equal',
+              shortcutText: 'Ctrl+Equal',
               text: Text(
                 translations['mediumResizeButtonLabel'] ?? 'Medium size',
               ),
@@ -443,9 +442,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.add,
                 control: true,
-                shift: true,
               ),
-              shortcutText: 'Ctrl+Shift+Plus',
+              shortcutText: 'Ctrl+Plus',
               text: Text(
                 translations['maximizeResizeButtonLabel'] ?? 'Maximize',
               ),
