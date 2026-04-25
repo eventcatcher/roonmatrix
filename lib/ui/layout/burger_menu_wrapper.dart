@@ -248,6 +248,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
     required BuildContext context,
   }) {
     return BurgerMenu(
+      key: ValueKey('BurgerMenu-$selectedDeviceIp-${Globals.brightness()}'),
       translations: translations,
       selectedDeviceIp: selectedDeviceIp,
       info: info,
