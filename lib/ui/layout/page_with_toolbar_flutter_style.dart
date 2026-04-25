@@ -188,57 +188,49 @@ class _PageWithToolbarFlutterStyleState
                 ),
               ),
             ),
-            if (Platform.isMacOS && showResizeButtons == true)
-              Padding(
-                padding: EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
-                child: Tooltip(
-                  message:
-                      translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-                  waitDuration: Globals.tooltipWaitDuration,
-                  child: IconButton(
-                    mouseCursor: SystemMouseCursors.click,
-                    iconSize: 16.0,
-                    enableFeedback: true,
-                    padding: EdgeInsets.zero,
-                    onPressed: () => windowManager.setSize(
-                      Size(Globals.minDesktopWidth, Globals.minDesktopHeight),
-                      animate: true,
-                    ),
-                    icon: Icon(
-                      Icons.photo_size_select_small,
-                      color: ColorDefs.toolbarResizeButtonColor(
-                        context: context,
-                      ),
-                    ),
+            Padding(
+              padding: EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
+              child: Tooltip(
+                message:
+                    translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+                waitDuration: Globals.tooltipWaitDuration,
+                child: IconButton(
+                  mouseCursor: SystemMouseCursors.click,
+                  iconSize: 16.0,
+                  enableFeedback: true,
+                  padding: EdgeInsets.zero,
+                  onPressed: () => windowManager.setSize(
+                    Size(Globals.minDesktopWidth, Globals.minDesktopHeight),
+                    animate: true,
+                  ),
+                  icon: Icon(
+                    Icons.photo_size_select_small,
+                    color: ColorDefs.toolbarResizeButtonColor(context: context),
                   ),
                 ),
               ),
-            if (showResizeButtons == true)
-              Padding(
-                padding: const EdgeInsets.only(right: 4.0),
-                child: Tooltip(
-                  message:
-                      translations['mediumResizeButtonLabel'] ?? 'Medium size',
-                  waitDuration: Globals.tooltipWaitDuration,
-                  child: IconButton(
-                    mouseCursor: SystemMouseCursors.click,
-                    iconSize: 16.0,
-                    enableFeedback: true,
-                    padding: EdgeInsets.zero,
-                    onPressed: () => windowManager.setSize(
-                      standardDesktopSize,
-                      animate: true,
-                    ),
-                    icon: Icon(
-                      Icons.photo_size_select_large,
-                      color: ColorDefs.toolbarResizeButtonColor(
-                        context: context,
-                      ),
-                    ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 4.0),
+              child: Tooltip(
+                message:
+                    translations['mediumResizeButtonLabel'] ?? 'Medium size',
+                waitDuration: Globals.tooltipWaitDuration,
+                child: IconButton(
+                  mouseCursor: SystemMouseCursors.click,
+                  iconSize: 16.0,
+                  enableFeedback: true,
+                  padding: EdgeInsets.zero,
+                  onPressed: () =>
+                      windowManager.setSize(standardDesktopSize, animate: true),
+                  icon: Icon(
+                    Icons.photo_size_select_large,
+                    color: ColorDefs.toolbarResizeButtonColor(context: context),
                   ),
                 ),
               ),
-            if (Platform.isMacOS && showResizeButtons == true)
+            ),
+            if (Platform.isMacOS)
               Padding(
                 padding: const EdgeInsets.only(right: 4.0),
                 child: Tooltip(
