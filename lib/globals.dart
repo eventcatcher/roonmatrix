@@ -167,7 +167,7 @@ class Globals {
     if (Platform.isMacOS &&
         Globals.inMacosStyle() == false &&
         Globals.inIosStyle() == false) {
-      minHeight = 364;
+      minHeight = 380;
     }
 
     return minHeight;

@@ -33,6 +33,7 @@
     "menuEntryWindow": "Window",
     "fullWidthResizeButtonLabel": "Full width",
     "minimizeResizeButtonLabel": "Minimize",
+    "mediumResizeButtonLabel": "Medium size",
     "maximizeResizeButtonLabel": "Maximize",
     "openCoverPageButtonLabel": "Open album cover view and device control page",
     "openScrollMatrixPageButtonLabel": "Open ticker view",

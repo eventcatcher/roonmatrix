@@ -107,7 +107,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         label:
             translations['spotifyConnectAuthText'] ??
             'Spotify Connect Authorize',
-        icon: Icons.phone_enabled,
+        icon: Icon(Icons.phone_enabled, color: Colors.white),
         moreInfo: true,
         page: SpotifyConnectWebAuthPage(
           name: zoneData['name'],
@@ -123,7 +123,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     PageButton(
       navigatorKey: navigatorKey,
       label: translations['configButtonText'] ?? 'Config',
-      icon: Icons.settings_outlined,
+      icon: Icon(Icons.handyman_outlined, color: Colors.white, size: 18),
       moreInfo: false,
       page: ConfigPage(
         name: zoneData['name'],
@@ -139,7 +139,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     PageButton(
       navigatorKey: navigatorKey,
       label: translations['controlButtonText'] ?? 'Control',
-      icon: Icons.control_camera,
+      icon: Icon(Icons.control_camera, color: Colors.white),
       moreInfo: false,
       page: CoverPage(
         name: zoneData['name'],
@@ -155,7 +155,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['messageButtonText'] ?? 'Message',
-        icon: Icons.message_outlined,
+        icon: Icon(Icons.message_outlined, color: Colors.white, size: 18),
         moreInfo: false,
         page: MessagePage(
           ip: ip,
@@ -170,7 +170,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['liveControlButtonText'] ?? 'Live Control',
-        icon: Icons.visibility_outlined,
+        icon: Icon(Icons.visibility_outlined, color: Colors.white, size: 20),
         moreInfo: false,
         page: LiveControlPage(
           ip: ip,
@@ -193,7 +193,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['infoButtonText'] ?? 'Monitoring',
-        icon: Icons.info_outline,
+        icon: Icon(Icons.info_outlined, color: Colors.white),
         moreInfo: true,
         page: InfoPage(
           name: zoneData['name'],
@@ -206,7 +206,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['logButtonText'] ?? 'Log',
-        icon: Icons.terminal,
+        icon: Icon(Icons.terminal, color: Colors.white, size: 22),
         moreInfo: true,
         page: LogPage(
           name: zoneData['name'],

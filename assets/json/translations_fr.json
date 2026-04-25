@@ -33,6 +33,7 @@
     "menuEntryWindow": "Fenêtre",
     "fullWidthResizeButtonLabel": "Largeur totale",
     "minimizeResizeButtonLabel": "Réduire",
+    "mediumResizeButtonLabel": "Taille moyenne",
     "maximizeResizeButtonLabel": "Optimiser",
     "openCoverPageButtonLabel": "Ouvrir la page d'affichage des pochettes d'album et de contrôle des appareils",
     "openScrollMatrixPageButtonLabel": "Afficher le téléscripteur",

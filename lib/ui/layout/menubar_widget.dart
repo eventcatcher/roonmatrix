@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
@@ -256,19 +255,32 @@ class MenubarWidgetState extends State<MenubarWidget> {
         ),
         submenu: SubMenu(
           menuItems: [
-            MenuButton(
-              onTap: () {
-                editingService.undo();
-              },
-              icon: const Icon(Icons.undo),
-              shortcut: const SingleActivator(
-                LogicalKeyboardKey.keyZ,
-                control: true,
-              ),
-              shortcutText: 'Ctrl+Z',
-              text: Text(translations['menuEntryUndo'] ?? 'Undo'),
-            ),
-            const MenuDivider(),
+            // MenuButton(
+            //   onTap: () {
+            //     editingService.undo();
+            //   },
+            //   icon: const Icon(Icons.undo),
+            //   shortcut: const SingleActivator(
+            //     LogicalKeyboardKey.keyZ,
+            //     control: true,
+            //   ),
+            //   shortcutText: 'Ctrl+Z',
+            //   text: Text(translations['menuEntryUndo'] ?? 'Undo'),
+            // ),
+            // MenuButton(
+            //   onTap: () {
+            //     editingService.undo();
+            //   },
+            //   icon: const Icon(Icons.undo),
+            //   shortcut: const SingleActivator(
+            //     LogicalKeyboardKey.keyZ,
+            //     control: true,
+            //     shift: true,
+            //   ),
+            //   shortcutText: 'Ctrl+Shift+Z',
+            //   text: Text(translations['menuEntryUndo'] ?? 'Redo'),
+            // ),
+            // const MenuDivider(),
             MenuButton(
               onTap: () {
                 editingService.cut();
@@ -328,23 +340,6 @@ class MenubarWidgetState extends State<MenubarWidget> {
         ),
         submenu: SubMenu(
           menuItems: [
-            // MenuButton(
-            //   onTap: () {
-            //     if (navigatorKey.currentState != null &&
-            //         navigatorKey.currentState!.canPop()) {
-            //       navigatorKey.currentState?.pop();
-            //     }
-            //   },
-            //   icon: const Icon(Icons.arrow_back),
-            //   shortcut: const SingleActivator(
-            //     LogicalKeyboardKey.arrowLeft,
-            //     control: true,
-            //     shift: true,
-            //     alt: false,
-            //   ),
-            //   shortcutText: 'Ctrl+Shift+Left',
-            //   text: Text(translations['closePageLabel'] ?? 'Close page'),
-            // ),
             MenuButton(
               onTap: () {
                 if (navigatorKey.currentState != null &&
@@ -354,12 +349,10 @@ class MenubarWidgetState extends State<MenubarWidget> {
               },
               icon: const Icon(Icons.home),
               shortcut: const SingleActivator(
-                LogicalKeyboardKey.arrowLeft,
+                LogicalKeyboardKey.keyB,
                 control: true,
-                shift: true,
-                alt: false,
               ),
-              shortcutText: 'Ctrl+Shift+Left',
+              shortcutText: 'Ctrl+B',
               text: Text(
                 translations['backToMainViewLabel'] ?? 'Back to main page',
               ),
@@ -368,11 +361,10 @@ class MenubarWidgetState extends State<MenubarWidget> {
               onTap: () => mainBloc.selectDeviceBefore(ip: selectedDeviceIp),
               icon: const Icon(Icons.keyboard_arrow_up),
               shortcut: const SingleActivator(
-                LogicalKeyboardKey.arrowUp,
+                LogicalKeyboardKey.minus,
                 control: true,
-                shift: true,
               ),
-              shortcutText: 'Ctrl+Shift+Up',
+              shortcutText: 'Ctrl+minus',
               text: Text(
                 translations['selectDeviceBeforeLabel'] ??
                     'Select previous device',
@@ -382,31 +374,15 @@ class MenubarWidgetState extends State<MenubarWidget> {
               onTap: () => mainBloc.selectDeviceNext(ip: selectedDeviceIp),
               icon: const Icon(Icons.keyboard_arrow_down),
               shortcut: const SingleActivator(
-                LogicalKeyboardKey.arrowDown,
+                LogicalKeyboardKey.add,
                 control: true,
-                shift: true,
               ),
-              shortcutText: 'Ctrl+Shift+Down',
+              shortcutText: 'Ctrl+plus',
               text: Text(
                 translations['selectDeviceNextLabel'] ?? 'Select next device',
               ),
             ),
-            MenuButton(
-              onTap: () =>
-                  windowManager.setSize(standardDesktopSize, animate: true),
-              icon: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: const FaIcon(FontAwesomeIcons.minimize, size: 16.0),
-              ),
-              shortcut: const SingleActivator(
-                LogicalKeyboardKey.minus,
-                control: true,
-              ),
-              shortcutText: 'Ctrl+Minus',
-              text: Text(
-                translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-              ),
-            ),
+            const MenuDivider(),
             MenuButton(
               onTap: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
                 minDesktopSize: minDesktopSize,
@@ -420,6 +396,58 @@ class MenubarWidgetState extends State<MenubarWidget> {
               shortcutText: 'Ctrl+Shift+W',
               text: Text(
                 translations['fullWidthResizeButtonLabel'] ?? 'Full width',
+              ),
+            ),
+            MenuButton(
+              onTap: () => windowManager.setSize(
+                Size(Globals.minDesktopWidth, Globals.minDesktopHeight + 24),
+                animate: true,
+              ),
+              icon: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: const Icon(Icons.photo_size_select_small),
+              ),
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.minus,
+                control: true,
+                shift: true,
+              ),
+              shortcutText: 'Ctrl+Shift+Minus',
+              text: Text(
+                translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+              ),
+            ),
+            MenuButton(
+              onTap: () =>
+                  windowManager.setSize(standardDesktopSize, animate: true),
+              icon: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: const Icon(Icons.photo_size_select_large),
+              ),
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.equal,
+                control: true,
+                shift: true,
+              ),
+              shortcutText: 'Ctrl+Shift+Equal',
+              text: Text(
+                translations['mediumResizeButtonLabel'] ?? 'Medium size',
+              ),
+            ),
+            MenuButton(
+              onTap: () => windowManager.maximize(),
+              icon: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: const Icon(Icons.photo_size_select_actual_outlined),
+              ),
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.add,
+                control: true,
+                shift: true,
+              ),
+              shortcutText: 'Ctrl+Shift+Plus',
+              text: Text(
+                translations['maximizeResizeButtonLabel'] ?? 'Maximize',
               ),
             ),
             const MenuDivider(),
@@ -438,7 +466,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
                     },
                   ),
                 ),
-                icon: const Icon(Icons.edit),
+                icon: const Icon(Icons.handyman_outlined),
                 shortcut: const SingleActivator(
                   LogicalKeyboardKey.keyS,
                   control: true,

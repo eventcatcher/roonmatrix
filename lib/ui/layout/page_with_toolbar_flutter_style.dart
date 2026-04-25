@@ -188,7 +188,7 @@ class _PageWithToolbarFlutterStyleState
                 ),
               ),
             ),
-            if (showResizeButtons == true)
+            if (Platform.isMacOS && showResizeButtons == true)
               Padding(
                 padding: EdgeInsets.only(right: Platform.isMacOS ? 16.0 : 4.0),
                 child: Tooltip(
@@ -201,11 +201,36 @@ class _PageWithToolbarFlutterStyleState
                     enableFeedback: true,
                     padding: EdgeInsets.zero,
                     onPressed: () => windowManager.setSize(
+                      Size(Globals.minDesktopWidth, Globals.minDesktopHeight),
+                      animate: true,
+                    ),
+                    icon: Icon(
+                      Icons.photo_size_select_small,
+                      color: ColorDefs.toolbarResizeButtonColor(
+                        context: context,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            if (showResizeButtons == true)
+              Padding(
+                padding: const EdgeInsets.only(right: 4.0),
+                child: Tooltip(
+                  message:
+                      translations['mediumResizeButtonLabel'] ?? 'Medium size',
+                  waitDuration: Globals.tooltipWaitDuration,
+                  child: IconButton(
+                    mouseCursor: SystemMouseCursors.click,
+                    iconSize: 16.0,
+                    enableFeedback: true,
+                    padding: EdgeInsets.zero,
+                    onPressed: () => windowManager.setSize(
                       standardDesktopSize,
                       animate: true,
                     ),
-                    icon: FaIcon(
-                      FontAwesomeIcons.minimize,
+                    icon: Icon(
+                      Icons.photo_size_select_large,
                       color: ColorDefs.toolbarResizeButtonColor(
                         context: context,
                       ),
@@ -226,8 +251,8 @@ class _PageWithToolbarFlutterStyleState
                     enableFeedback: true,
                     padding: EdgeInsets.zero,
                     onPressed: () => windowManager.maximize(),
-                    icon: FaIcon(
-                      FontAwesomeIcons.maximize,
+                    icon: Icon(
+                      Icons.photo_size_select_actual_outlined,
                       color: ColorDefs.toolbarResizeButtonColor(
                         context: context,
                       ),

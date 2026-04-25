@@ -80,7 +80,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
             label:
                 translations['spotifyConnectAuthText'] ??
                 'Spotify Connect Authorize',
-            icon: Icons.phone_enabled,
+            icon: Icon(Icons.phone_enabled, color: Colors.white),
             moreInfo: true,
             page: SpotifyConnectWebAuthPage(
               name: info[ip]['name'],
@@ -97,7 +97,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
         PageButton(
           navigatorKey: navigatorKey,
           label: translations['configButtonText'] ?? 'Config',
-          icon: Icons.settings,
+          icon: Icon(Icons.handyman_outlined, color: Colors.white, size: 20),
           moreInfo: false,
           page: ConfigPage(
             name: info[ip]['name'],
@@ -112,7 +112,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
         PageButton(
           navigatorKey: navigatorKey,
           label: translations['controlButtonText'] ?? 'Control',
-          icon: Icons.control_camera,
+          icon: Icon(Icons.control_camera, color: Colors.white),
           moreInfo: false,
           page: CoverPage(
             name: info[ip]['name'],
@@ -127,8 +127,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['messageButtonText'] ?? 'Message',
-            icon: Icons.message_outlined,
-            iconSize: 18.0,
+            icon: Icon(Icons.message_outlined, color: Colors.white, size: 18.0),
             moreInfo: false,
             page: MessagePage(
               ip: ip,
@@ -142,7 +141,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['liveControlButtonText'] ?? 'Live Control',
-            icon: Icons.visibility_outlined,
+            icon: Icon(Icons.visibility_outlined, color: Colors.white),
             moreInfo: false,
             page: LiveControlPage(
               ip: ip,
@@ -155,7 +154,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['infoButtonText'] ?? 'Monitoring',
-            icon: Icons.info_outline,
+            icon: Icon(Icons.info_outlined, color: Colors.white),
             moreInfo: true,
             page: InfoPage(
               name: info[ip]['name'],
@@ -167,7 +166,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['logButtonText'] ?? 'Log',
-            icon: Icons.terminal,
+            icon: Icon(Icons.terminal, color: Colors.white),
             moreInfo: true,
             page: LogPage(
               name: info[ip]['name'],

@@ -83,28 +83,11 @@ class MenubarAppleCustomClass {
           const PlatformProvidedMenuItem(
             type: PlatformProvidedMenuItemType.toggleFullScreen,
           ),
-        // PlatformMenuItem(
-        //   label: translations['closePageLabel'] ?? 'Close page',
-        //   shortcut: const SingleActivator(
-        //     LogicalKeyboardKey.arrowLeft,
-        //     control: true,
-        //     shift: true,
-        //     alt: true,
-        //   ),
-        //   onSelected: () {
-        //     if (navigatorKey.currentState != null &&
-        //         navigatorKey.currentState!.canPop()) {
-        //       navigatorKey.currentState?.pop();
-        //     }
-        //   },
-        // ),
         PlatformMenuItem(
           label: translations['backToMainViewLabel'] ?? 'Back to main page',
           shortcut: const SingleActivator(
-            LogicalKeyboardKey.arrowLeft,
+            LogicalKeyboardKey.keyB,
             control: true,
-            shift: true,
-            alt: false,
           ),
           onSelected: () =>
               navigatorKey.currentState?.popUntil((route) => route.isFirst),
@@ -114,33 +97,20 @@ class MenubarAppleCustomClass {
               translations['selectDeviceBeforeLabel'] ??
               'Select previous device',
           shortcut: const SingleActivator(
-            LogicalKeyboardKey.arrowUp,
+            LogicalKeyboardKey.minus,
             control: true,
-            shift: true,
           ),
           onSelected: () => mainBloc.selectDeviceBefore(ip: selectedDeviceIp),
         ),
         PlatformMenuItem(
           label: translations['selectDeviceNextLabel'] ?? 'Select next device',
           shortcut: const SingleActivator(
-            LogicalKeyboardKey.arrowDown,
+            LogicalKeyboardKey.add,
             control: true,
-            shift: true,
           ),
           onSelected: () => mainBloc.selectDeviceNext(ip: selectedDeviceIp),
         ),
-        if (Platform.isMacOS)
-          PlatformMenuItem(
-            label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-            shortcut: const SingleActivator(
-              LogicalKeyboardKey.minus,
-              control: true,
-              shift: true,
-            ),
-            onSelected: () =>
-                windowManager.setSize(standardDesktopSize, animate: true),
-          ),
-        if (Platform.isMacOS)
+        if (Platform.isMacOS) ...[
           PlatformMenuItem(
             label: translations['fullWidthResizeButtonLabel'] ?? 'Full width',
             shortcut: const SingleActivator(
@@ -152,6 +122,38 @@ class MenubarAppleCustomClass {
               minDesktopSize: minDesktopSize,
             ),
           ),
+          PlatformMenuItem(
+            label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+            shortcut: const SingleActivator(
+              LogicalKeyboardKey.minus,
+              control: true,
+              shift: true,
+            ),
+            onSelected: () => windowManager.setSize(
+              Size(Globals.minDesktopWidth, Globals.minDesktopHeight + 24),
+              animate: true,
+            ),
+          ),
+          PlatformMenuItem(
+            label: translations['mediumResizeButtonLabel'] ?? 'Medium size',
+            shortcut: const SingleActivator(
+              LogicalKeyboardKey.equal,
+              control: true,
+              shift: true,
+            ),
+            onSelected: () =>
+                windowManager.setSize(standardDesktopSize, animate: true),
+          ),
+          PlatformMenuItem(
+            label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
+            shortcut: const SingleActivator(
+              LogicalKeyboardKey.add,
+              control: true,
+              shift: true,
+            ),
+            onSelected: () => windowManager.maximize(),
+          ),
+        ],
       ],
     ),
     if (deviceSelectedAndReady == true)
@@ -455,27 +457,27 @@ class MenubarAppleCustomClass {
         PlatformMenu(
           label: translations['menuEntryEdit'] ?? 'Edit',
           menus: <PlatformMenuItem>[
-            PlatformMenuItemGroup(
-              members: <PlatformMenuItem>[
-                PlatformMenuItem(
-                  label: translations['menuEntryUndo'] ?? 'Undo',
-                  shortcut: const SingleActivator(
-                    LogicalKeyboardKey.keyZ,
-                    meta: true,
-                  ),
-                  //onSelected: () {},
-                ),
-                PlatformMenuItem(
-                  label: translations['menuEntryRedo'] ?? 'Redo',
-                  shortcut: const SingleActivator(
-                    LogicalKeyboardKey.keyZ,
-                    meta: true,
-                    shift: true,
-                  ),
-                  //onSelected: () {},
-                ),
-              ],
-            ),
+            // PlatformMenuItemGroup(
+            //   members: <PlatformMenuItem>[
+            //     PlatformMenuItem(
+            //       label: translations['menuEntryUndo'] ?? 'Undo',
+            //       shortcut: const SingleActivator(
+            //         LogicalKeyboardKey.keyZ,
+            //         meta: true,
+            //       ),
+            //       //onSelected: () {},
+            //     ),
+            //     PlatformMenuItem(
+            //       label: translations['menuEntryRedo'] ?? 'Redo',
+            //       shortcut: const SingleActivator(
+            //         LogicalKeyboardKey.keyZ,
+            //         meta: true,
+            //         shift: true,
+            //       ),
+            //       //onSelected: () {},
+            //     ),
+            //   ],
+            // ),
             PlatformMenuItemGroup(
               members: <PlatformMenuItem>[
                 PlatformMenuItem(

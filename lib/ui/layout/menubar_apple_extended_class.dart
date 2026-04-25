@@ -86,30 +86,12 @@ class MenubarAppleExtendedClass {
           const PlatformProvidedMenuItem(
             type: PlatformProvidedMenuItemType.toggleFullScreen,
           ),
-        // EnhancedPlatformMenuItem(
-        //   label: translations['closePageLabel'] ?? 'Close page',
-        //   shortcut: const SingleActivator(
-        //     LogicalKeyboardKey.keyW,
-        //     meta: true,
-        //     control: false,
-        //     shift: false,
-        //     alt: false,
-        //   ),
-        //   onSelected: () {
-        //     if (navigatorKey.currentState != null &&
-        //         navigatorKey.currentState!.canPop()) {
-        //       navigatorKey.currentState?.pop();
-        //     }
-        //   },
-        // ),
         EnhancedPlatformMenuItem(
           label: translations['backToMainViewLabel'] ?? 'Back to main page',
           icon: SFSymbolIcon(SFSymbols.backward),
           shortcut: const SingleActivator(
             LogicalKeyboardKey.keyB,
             control: true,
-            shift: true,
-            alt: false,
           ),
           onSelected: () =>
               navigatorKey.currentState?.popUntil((route) => route.isFirst),
@@ -119,28 +101,22 @@ class MenubarAppleExtendedClass {
               translations['selectDeviceBeforeLabel'] ??
               'Select previous device',
           icon: SFSymbolIcon(SFSymbols.arrow_up),
-          shortcut: const SingleActivator(LogicalKeyboardKey.minus, meta: true),
+          shortcut: const SingleActivator(
+            LogicalKeyboardKey.minus,
+            control: true,
+          ),
           onSelected: () => mainBloc.selectDeviceBefore(ip: selectedDeviceIp),
         ),
         EnhancedPlatformMenuItem(
           label: translations['selectDeviceNextLabel'] ?? 'Select next device',
           icon: SFSymbolIcon(SFSymbols.arrow_down),
-          shortcut: const SingleActivator(LogicalKeyboardKey.add, meta: true),
+          shortcut: const SingleActivator(
+            LogicalKeyboardKey.add,
+            control: true,
+          ),
           onSelected: () => mainBloc.selectDeviceNext(ip: selectedDeviceIp),
         ),
-        if (Platform.isMacOS)
-          EnhancedPlatformMenuItem(
-            label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-            icon: SFSymbolIcon(SFSymbols.minus_magnifyingglass),
-            shortcut: const SingleActivator(
-              LogicalKeyboardKey.minus,
-              control: true,
-              shift: true,
-            ),
-            onSelected: () =>
-                windowManager.setSize(standardDesktopSize, animate: true),
-          ),
-        if (Platform.isMacOS)
+        if (Platform.isMacOS) ...[
           EnhancedPlatformMenuItem(
             label: translations['fullWidthResizeButtonLabel'] ?? 'Full width',
             icon: SFSymbolIcon(SFSymbols.arrow_left_and_right_square),
@@ -153,6 +129,41 @@ class MenubarAppleExtendedClass {
               minDesktopSize: minDesktopSize,
             ),
           ),
+          EnhancedPlatformMenuItem(
+            label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
+            icon: SFSymbolIcon(SFSymbols.minus_magnifyingglass),
+            shortcut: const SingleActivator(
+              LogicalKeyboardKey.minus,
+              control: true,
+              shift: true,
+            ),
+            onSelected: () => windowManager.setSize(
+              Size(Globals.minDesktopWidth, Globals.minDesktopHeight + 24),
+              animate: true,
+            ),
+          ),
+          EnhancedPlatformMenuItem(
+            label: translations['mediumResizeButtonLabel'] ?? 'Medium size',
+            icon: SFSymbolIcon(SFSymbols.magnifyingglass),
+            shortcut: const SingleActivator(
+              LogicalKeyboardKey.equal,
+              control: true,
+              shift: true,
+            ),
+            onSelected: () =>
+                windowManager.setSize(standardDesktopSize, animate: true),
+          ),
+          EnhancedPlatformMenuItem(
+            label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
+            icon: SFSymbolIcon(SFSymbols.plus_magnifyingglass),
+            shortcut: const SingleActivator(
+              LogicalKeyboardKey.add,
+              control: true,
+              shift: true,
+            ),
+            onSelected: () => windowManager.maximize(),
+          ),
+        ],
       ],
     ),
     if (deviceSelectedAndReady == true)

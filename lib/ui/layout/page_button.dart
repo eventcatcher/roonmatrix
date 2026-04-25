@@ -8,8 +8,7 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 class PageButton extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final String label;
-  final IconData icon;
-  final double? iconSize;
+  final Icon icon;
   final bool moreInfo;
   final Widget page;
   final ExpandableMenuController? expandableMenuController;
@@ -19,7 +18,6 @@ class PageButton extends StatefulWidget {
     required this.navigatorKey,
     required this.label,
     required this.icon,
-    this.iconSize,
     required this.moreInfo,
     required this.page,
     this.expandableMenuController,
@@ -32,9 +30,8 @@ class PageButton extends StatefulWidget {
 class PageButtonState extends State<PageButton> {
   GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   String get label => widget.label;
-  IconData get icon => widget.icon;
+  Icon get icon => widget.icon;
   bool get moreInfo => widget.moreInfo;
-  double? get iconSize => widget.iconSize;
   Widget get page => widget.page;
   ExpandableMenuController? get expandableMenuController =>
       widget.expandableMenuController;
@@ -55,7 +52,7 @@ class PageButtonState extends State<PageButton> {
               label: label,
               noBackground: false,
               withCircle: true,
-              icon: Icon(icon, color: Colors.white, size: iconSize),
+              icon: icon,
               moreInfo: moreInfo,
               onPressed: () => SharedWidgets.openPage(
                 context: context,
@@ -90,7 +87,7 @@ class PageButtonState extends State<PageButton> {
                     }
                   });
                 },
-                icon: Icon(icon, color: Colors.white, size: iconSize),
+                icon: icon,
               ),
             ),
           );

@@ -149,8 +149,23 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
             label: translations['minimizeResizeButtonLabel'] ?? 'Minimize',
             tooltipMessage:
                 translations['minimizeResizeButtonLabel'] ?? 'Minimize',
-            icon: FaIcon(
-              FontAwesomeIcons.minimize,
+            icon: Icon(
+              Icons.photo_size_select_small,
+              size: iconSize,
+              color: ColorDefs.toolbarResizeButtonColor(context: context),
+            ),
+            onPressed: () => windowManager.setSize(
+              Size(Globals.minDesktopWidth, Globals.minDesktopHeight + 24),
+              animate: true,
+            ),
+            showLabel: false,
+          ),
+          ToolBarIconButton(
+            label: translations['mediumResizeButtonLabel'] ?? 'Medium size',
+            tooltipMessage:
+                translations['mediumResizeButtonLabel'] ?? 'Medium size',
+            icon: Icon(
+              Icons.photo_size_select_large,
               size: iconSize,
               color: ColorDefs.toolbarResizeButtonColor(context: context),
             ),
@@ -162,8 +177,8 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
             label: translations['maximizeResizeButtonLabel'] ?? 'Maximize',
             tooltipMessage:
                 translations['maximizeResizeButtonLabel'] ?? 'Maximize',
-            icon: FaIcon(
-              FontAwesomeIcons.maximize,
+            icon: Icon(
+              Icons.photo_size_select_actual_outlined,
               size: iconSize,
               color: ColorDefs.toolbarResizeButtonColor(context: context),
             ),
