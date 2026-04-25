@@ -112,14 +112,20 @@ class _PageWithToolbarMacStyleState extends State<PageWithToolbarMacStyle>
     toolBar: ToolBar(
       titleWidth: Globals.extendedTitleWidth,
       title: title == Globals.mainWindowTitle
-          ? Text(title)
+          ? Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Text(title),
+            )
           : MacosTappableTextBackButton(
               text: title,
               onPressed: backButtonPressed,
             ),
       leading: title == Globals.mainWindowTitle
           ? null
-          : MacosTappableIconBackButton(onPressed: backButtonPressed),
+          : Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: MacosTappableIconBackButton(onPressed: backButtonPressed),
+            ),
       actions: [
         if (actions != null && actions!.isNotEmpty) ...[
           const ToolBarSpacer(),
