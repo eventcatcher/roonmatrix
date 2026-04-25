@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:menu_bar/menu_bar.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
@@ -390,7 +391,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
               onTap: () => mainBloc.windowResizeToFullWidthAndMinimumHeight(
                 minDesktopSize: minDesktopSize,
               ),
-              icon: const Icon(Icons.width_full),
+              icon: const FaIcon(FontAwesomeIcons.arrowsLeftRight),
               shortcut: const SingleActivator(
                 LogicalKeyboardKey.keyW,
                 control: true,
