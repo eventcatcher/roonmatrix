@@ -192,15 +192,20 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 if ((mainState.ipStart == null || mainState.ipEnd == null) &&
                     !settingsPageLoaded) {
                   settingsPageLoaded = true;
-                  SharedWidgets.openPage(
-                    context: context,
-                    navigatorKey: navigatorKey,
-                    asDialog: true,
-                    page: SettingsPage(
-                      minDesktopSize: minDesktopSize,
-                      standardDesktopSize: standardDesktopSize,
-                    ),
-                  );
+
+                  SchedulerBinding.instance.addPostFrameCallback((_) async {
+                    if (mounted) {
+                      SharedWidgets.openPage(
+                        context: context,
+                        navigatorKey: navigatorKey,
+                        asDialog: true,
+                        page: SettingsPage(
+                          minDesktopSize: minDesktopSize,
+                          standardDesktopSize: standardDesktopSize,
+                        ),
+                      );
+                    }
+                  });
                 }
 
                 List<String> devices = mainBloc.getFilteredDevices();

@@ -269,16 +269,12 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
             }
 
             SchedulerBinding.instance.addPostFrameCallback((_) async {
-              if (mounted) {
-                setState(() async {
-                  await openBurgerMenuItem(
-                    key: key,
-                    selectedDeviceIp: selectedDeviceIp,
-                    info: info,
-                    context: context,
-                  );
-                });
-              }
+              await openBurgerMenuItem(
+                key: key,
+                selectedDeviceIp: selectedDeviceIp,
+                info: info,
+                context: context,
+              );
             });
           },
     );
