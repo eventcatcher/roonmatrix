@@ -17,6 +17,7 @@ import 'package:roonmatrix/ui/details/live_control_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/mini_player_page.dart';
+import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
 import 'package:roonmatrix/ui/helper/text_editing_service.dart';
 import 'package:roonmatrix/ui/layout/alert_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -58,6 +59,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
 
   Map<String, dynamic> translations = {};
   Map<String, dynamic> info = {};
+  Map<String, dynamic> spotifyAuthUrls = {};
   String selectedDeviceIp = '';
   String selectedDeviceIpBefore = '';
   String aboutAppMessage = '';
@@ -99,7 +101,11 @@ class MenubarWidgetState extends State<MenubarWidget> {
           info = mainState.info;
           selectedDeviceIpBefore = selectedDeviceIp;
 
-          updateFlutterMenuBar(selectedDeviceIp: selectedDeviceIp, info: info);
+          updateFlutterMenuBar(
+            selectedDeviceIp: selectedDeviceIp,
+            info: info,
+            urls: mainState.spotifyAuthUrls,
+          );
         }
       }
     });
@@ -110,6 +116,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
   Future<void> updateFlutterMenuBar({
     required String selectedDeviceIp,
     required Map<String, dynamic> info,
+    required Map<String, dynamic> urls,
   }) async {
     SchedulerBinding.instance.addPostFrameCallback((_) async {
       if (mounted) {
@@ -121,6 +128,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 'display_cover',
               ) ||
               info[selectedDeviceIp]['display_cover'] == false);
+          spotifyAuthUrls = urls;
         });
       }
     });
@@ -455,6 +463,36 @@ class MenubarWidgetState extends State<MenubarWidget> {
             ),
             const MenuDivider(),
             if (deviceSelectedAndReady) ...[
+              if ((spotifyAuthUrls[selectedDeviceIp] ?? '*') != '*')
+                MenuButton(
+                  onTap: () => SharedWidgets.openPage(
+                    context: context,
+                    navigatorKey: navigatorKey,
+                    page: SpotifyConnectWebAuthPage(
+                      name: info[selectedDeviceIp]['name'],
+                      ip: selectedDeviceIp,
+                      url: spotifyAuthUrls[selectedDeviceIp] ?? '*',
+                      minDesktopSize: minDesktopSize,
+                      standardDesktopSize: standardDesktopSize,
+                      callbackUrl: ({required String url}) =>
+                          mainBloc.setSpotifyAuthRedirectUrl(
+                            ip: selectedDeviceIp,
+                            url: url,
+                          ),
+                    ),
+                  ),
+                  icon: const Icon(Icons.phone_locked),
+                  shortcut: const SingleActivator(
+                    LogicalKeyboardKey.keyA,
+                    control: true,
+                    shift: true,
+                  ),
+                  shortcutText: 'Ctrl+Shift+A',
+                  text: Text(
+                    translations['spotifyConnectAuthText'] ??
+                        'Spotify Connect Authorize',
+                  ),
+                ),
               MenuButton(
                 onTap: () => SharedWidgets.openPage(
                   context: context,

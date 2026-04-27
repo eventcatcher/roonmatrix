@@ -9,6 +9,7 @@ import 'package:roonmatrix/ui/details/live_control_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/mini_player_page.dart';
+import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
 import 'package:roonmatrix/ui/helper/text_editing_service.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -72,6 +73,7 @@ class MenubarAppleCustomClass {
     required BuildContext context,
     required String selectedDeviceIp,
     required Map<String, dynamic> info,
+    required Map<String, dynamic> spotifyAuthUrls,
     required bool deviceSelectedAndReady,
     required bool isMatrixDevice,
   }) => [
@@ -158,6 +160,33 @@ class MenubarAppleCustomClass {
     if (deviceSelectedAndReady == true)
       PlatformMenuItemGroup(
         members: <PlatformMenuItem>[
+          if ((spotifyAuthUrls[selectedDeviceIp] ?? '*') != '*')
+            PlatformMenuItem(
+              label:
+                  translations['spotifyConnectAuthText'] ??
+                  'Spotify Connect Authorize',
+              shortcut: const SingleActivator(
+                LogicalKeyboardKey.keyA,
+                control: true,
+                shift: true,
+              ),
+              onSelected: () => SharedWidgets.openPage(
+                context: context,
+                navigatorKey: navigatorKey,
+                page: SpotifyConnectWebAuthPage(
+                  name: info[selectedDeviceIp]['name'],
+                  ip: selectedDeviceIp,
+                  url: spotifyAuthUrls[selectedDeviceIp] ?? '*',
+                  minDesktopSize: minDesktopSize,
+                  standardDesktopSize: standardDesktopSize,
+                  callbackUrl: ({required String url}) =>
+                      mainBloc.setSpotifyAuthRedirectUrl(
+                        ip: selectedDeviceIp,
+                        url: url,
+                      ),
+                ),
+              ),
+            ),
           PlatformMenuItem(
             label: translations['configButtonText'] ?? 'Config',
             shortcut: const SingleActivator(
@@ -320,6 +349,7 @@ class MenubarAppleCustomClass {
     required BuildContext context,
     required String selectedDeviceIp,
     required Map<String, dynamic> info,
+    required Map<String, dynamic> spotifyAuthUrls,
     required Widget child,
   }) {
     final editingService = TextEditingService.instance;
@@ -551,6 +581,7 @@ class MenubarAppleCustomClass {
               context: context,
               selectedDeviceIp: selectedDeviceIp,
               info: info,
+              spotifyAuthUrls: spotifyAuthUrls,
               deviceSelectedAndReady: deviceSelectedAndReady,
               isMatrixDevice: isMatrixDevice,
             ),

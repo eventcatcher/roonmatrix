@@ -10,6 +10,7 @@ import 'package:roonmatrix/ui/details/live_control_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/mini_player_page.dart';
+import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
 import 'package:roonmatrix/ui/layout/burger_menu.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -23,6 +24,7 @@ class BurgerMenuWrapper extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String selectedDeviceIp;
   final Map<String, dynamic> info;
+  final Map<String, dynamic> spotifyAuthUrls;
   final AnimationController animationController;
   final double? navigationTop;
   final bool isDrawerOpen;
@@ -36,6 +38,7 @@ class BurgerMenuWrapper extends StatefulWidget {
     required this.scaffoldKey,
     required this.selectedDeviceIp,
     required this.info,
+    required this.spotifyAuthUrls,
     required this.animationController,
     this.navigationTop,
     required this.isDrawerOpen,
@@ -92,6 +95,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
     required String? key,
     required String selectedDeviceIp,
     required Map<String, dynamic> info,
+    required Map<String, dynamic> spotifyAuthUrls,
     required BuildContext context,
   }) async {
     if (key == 'about') {
@@ -123,6 +127,21 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
     }
     if (key == 'selectDeviceNext') {
       mainBloc.selectDeviceNext(ip: selectedDeviceIp);
+    }
+    if (key == 'spotifyConnectAuth') {
+      SharedWidgets.openPage(
+        context: context,
+        navigatorKey: navigatorKey,
+        page: SpotifyConnectWebAuthPage(
+          name: info[selectedDeviceIp]['name'],
+          ip: selectedDeviceIp,
+          url: spotifyAuthUrls[selectedDeviceIp] ?? '*',
+          minDesktopSize: minDesktopSize,
+          standardDesktopSize: standardDesktopSize,
+          callbackUrl: ({required String url}) => mainBloc
+              .setSpotifyAuthRedirectUrl(ip: selectedDeviceIp, url: url),
+        ),
+      );
     }
     if (key == 'config') {
       SharedWidgets.openPage(
@@ -244,6 +263,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
   Widget burgerMenuRaw({
     required String selectedDeviceIp,
     required Map<String, dynamic> info,
+    required Map<String, dynamic> spotifyAuthUrls,
     required bool noPop,
     required BuildContext context,
   }) {
@@ -252,6 +272,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
       translations: translations,
       selectedDeviceIp: selectedDeviceIp,
       info: info,
+      spotifyAuthUrls: spotifyAuthUrls,
       noPop: noPop,
       navigationTop: navigationTop,
       onClose:
@@ -273,6 +294,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
                 key: key,
                 selectedDeviceIp: selectedDeviceIp,
                 info: info,
+                spotifyAuthUrls: spotifyAuthUrls,
                 context: context,
               );
             });
@@ -299,6 +321,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
           ? burgerMenuRaw(
               selectedDeviceIp: widget.selectedDeviceIp,
               info: widget.info,
+              spotifyAuthUrls: widget.spotifyAuthUrls,
               noPop: true,
               context: context,
             )
@@ -308,6 +331,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
                   burgerMenuRaw(
                     selectedDeviceIp: widget.selectedDeviceIp,
                     info: widget.info,
+                    spotifyAuthUrls: widget.spotifyAuthUrls,
                     noPop: false,
                     context: context,
                   ),

@@ -107,7 +107,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         label:
             translations['spotifyConnectAuthText'] ??
             'Spotify Connect Authorize',
-        icon: Icon(Icons.phone_enabled, color: Colors.white),
+        icon: Icon(Icons.phone_locked, color: Colors.white),
         moreInfo: true,
         page: SpotifyConnectWebAuthPage(
           name: zoneData['name'],

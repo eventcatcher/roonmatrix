@@ -612,6 +612,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
           Map<String, ConfigDefinition> definitions = mainState.definitions;
           Map<String, dynamic> info = mainState.info;
+          Map<String, dynamic> spotifyAuthUrls = mainState.spotifyAuthUrls;
           selectedDeviceIp = mainState.selectedDeviceIp;
 
           return BlocBuilder(
@@ -753,6 +754,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                             scaffoldKey: scaffoldKey,
                             selectedDeviceIp: selectedDeviceIp,
                             info: info,
+                            spotifyAuthUrls: spotifyAuthUrls,
                             animationController: animationController,
                             navigationTop: navigationTop,
                             isDrawerOpen: isDrawerOpen,
@@ -809,6 +811,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
         Map<String, ConfigDefinition> definitions = mainState.definitions;
         Map<String, dynamic> info = mainState.info;
+        Map<String, dynamic> spotifyAuthUrls = mainState.spotifyAuthUrls;
         selectedDeviceIp = mainState.selectedDeviceIp;
 
         return BlocBuilder(
@@ -863,6 +866,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                       scaffoldKey: scaffoldKey,
                       selectedDeviceIp: selectedDeviceIp,
                       info: info,
+                      spotifyAuthUrls: spotifyAuthUrls,
                       animationController: animationController,
                       navigationTop: navigationTop,
                       isDrawerOpen: isDrawerOpen,

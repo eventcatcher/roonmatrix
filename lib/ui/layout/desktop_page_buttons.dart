@@ -80,7 +80,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
             label:
                 translations['spotifyConnectAuthText'] ??
                 'Spotify Connect Authorize',
-            icon: Icon(Icons.phone_enabled, color: Colors.white),
+            icon: Icon(Icons.phone_locked, color: Colors.white),
             moreInfo: true,
             page: SpotifyConnectWebAuthPage(
               name: info[ip]['name'],

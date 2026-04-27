@@ -269,6 +269,8 @@ class RoonMatrixState extends State<RoonMatrix> {
                 selectedDeviceIp = mainState.selectedDeviceIp;
                 info = mainState.info;
                 selectedDeviceIpBefore = selectedDeviceIp;
+                Map<String, dynamic> spotifyAuthUrls =
+                    mainState.spotifyAuthUrls;
                 bool isIPad = mainState.isIPad;
                 int iosMajorVersion = mainState.iosMajorVersion;
 
@@ -278,6 +280,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                         context: context,
                         selectedDeviceIp: selectedDeviceIp,
                         info: info,
+                        spotifyAuthUrls: spotifyAuthUrls,
                         child: MainShell(
                           minDesktopSize: minDesktopSize,
                           standardDesktopSize: standardDesktopSize,
@@ -297,6 +300,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                           isIPad: isIPad,
                           selectedDeviceIp: selectedDeviceIp,
                           info: info,
+                          spotifyAuthUrls: spotifyAuthUrls,
                           child: MainShell(
                             minDesktopSize: minDesktopSize,
                             standardDesktopSize: standardDesktopSize,

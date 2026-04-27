@@ -12,6 +12,7 @@ class BurgerMenu extends StatefulWidget {
   final Map<String, dynamic> translations;
   final String selectedDeviceIp;
   final Map<String, dynamic> info;
+  final Map<String, dynamic> spotifyAuthUrls;
   final double? navigationTop;
   final bool noPop;
   final Future<void> Function({
@@ -26,6 +27,7 @@ class BurgerMenu extends StatefulWidget {
     required this.translations,
     required this.selectedDeviceIp,
     required this.info,
+    required this.spotifyAuthUrls,
     required this.navigationTop,
     this.noPop = false,
     required this.onClose,
@@ -55,6 +57,7 @@ class BurgerMenuState extends State<BurgerMenu> {
   bool deviceSelectedAndReady = false;
   bool isMatrixDevice = false;
   Map<String, dynamic> info = {};
+  Map<String, dynamic> spotifyAuthUrls = {};
   List<BurgerMenuItemData> popupData = [];
   Widget menuWidget = SizedBox();
 
@@ -65,6 +68,7 @@ class BurgerMenuState extends State<BurgerMenu> {
   void initState() {
     selectedDeviceIp = widget.selectedDeviceIp;
     info = widget.info;
+    spotifyAuthUrls = widget.spotifyAuthUrls;
     mainBloc = BlocProvider.of<MainBloc>(context);
 
     mainStreamSubscription = mainBloc.stream.listen((MainState mainState) {
@@ -75,6 +79,7 @@ class BurgerMenuState extends State<BurgerMenu> {
               setState(() {
                 selectedDeviceIp = mainState.selectedDeviceIp;
                 info = mainState.info;
+                spotifyAuthUrls = mainState.spotifyAuthUrls;
                 initPopupData();
               });
             }
@@ -156,6 +161,17 @@ class BurgerMenuState extends State<BurgerMenu> {
           name: translations['menuEntryView'] ?? 'View',
         ),
       );
+
+      if ((spotifyAuthUrls[selectedDeviceIp] ?? '*') != '*') {
+        popupData.add(
+          BurgerMenuItemData(
+            key: "spotifyConnectAuth",
+            name:
+                translations['spotifyConnectAuthText'] ??
+                'Spotify Connect Authorize',
+          ),
+        );
+      }
 
       popupData.add(
         BurgerMenuItemData(
