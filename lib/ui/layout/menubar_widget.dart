@@ -96,7 +96,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
 
     mainStreamSubscription = mainBloc.stream.listen((MainState mainState) {
       if (mainState is MainStateLoaded) {
-        if (selectedDeviceIpBefore != mainState.selectedDeviceIp) {
+        if (selectedDeviceIpBefore != mainState.selectedDeviceIp ||
+            spotifyAuthUrls != mainState.spotifyAuthUrls) {
           selectedDeviceIp = mainState.selectedDeviceIp;
           info = mainState.info;
           selectedDeviceIpBefore = selectedDeviceIp;
