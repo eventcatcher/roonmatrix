@@ -108,6 +108,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   bool translationsLoaded = false;
   bool saveIdle = false;
   bool macMenuInitialized = false;
+  bool menuBarBuildDone = false;
 
   EditableTextState? lastFocusedEditable;
   Brightness? brightnessValue;
@@ -265,7 +266,8 @@ class RoonMatrixState extends State<RoonMatrix> {
           bloc: mainBloc,
           builder: (context, MainState mainState) {
             if (mainState is MainStateLoaded) {
-              if (selectedDeviceIpBefore != mainState.selectedDeviceIp) {
+              if (!menuBarBuildDone ||
+                  selectedDeviceIpBefore != mainState.selectedDeviceIp) {
                 selectedDeviceIp = mainState.selectedDeviceIp;
                 info = mainState.info;
                 selectedDeviceIpBefore = selectedDeviceIp;
@@ -289,6 +291,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                           exportDeviceList: exportDeviceList,
                         ),
                       );
+                  menuBarBuildDone = true;
                 } else {
                   if (Platform.isMacOS ||
                       (Platform.isIOS &&
@@ -309,6 +312,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                             exportDeviceList: exportDeviceList,
                           ),
                         );
+                    menuBarBuildDone = true;
                   }
                 }
               }
