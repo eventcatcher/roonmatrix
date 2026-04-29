@@ -389,6 +389,8 @@ class MenubarAppleExtendedClass {
             ) ||
             info[selectedDeviceIp]['display_cover'] == false);
 
+    print('appleMenubar => isIPad: $isIPad');
+
     return PlatformMenuBar(
       menus: <EnhancedPlatformMenu>[
         EnhancedPlatformMenu.standard(
