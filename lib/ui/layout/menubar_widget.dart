@@ -475,11 +475,18 @@ class MenubarWidgetState extends State<MenubarWidget> {
                       url: spotifyAuthUrls[selectedDeviceIp] ?? '*',
                       minDesktopSize: minDesktopSize,
                       standardDesktopSize: standardDesktopSize,
-                      callbackUrl: ({required String url}) =>
-                          mainBloc.setSpotifyAuthRedirectUrl(
-                            ip: selectedDeviceIp,
-                            url: url,
-                          ),
+                      callbackUrl: ({required String url}) {
+                        mainBloc.setSpotifyAuthRedirectUrl(
+                          ip: selectedDeviceIp,
+                          url: url,
+                        );
+                        if (navigatorKey.currentState != null &&
+                            navigatorKey.currentState!.canPop()) {
+                          navigatorKey.currentState?.popUntil(
+                            (route) => route.isFirst,
+                          );
+                        }
+                      },
                     ),
                   ),
                   icon: const Icon(Icons.phone_locked),

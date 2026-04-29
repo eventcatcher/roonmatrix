@@ -90,7 +90,10 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
               standardDesktopSize: standardDesktopSize,
               callbackUrl: ({required String url}) {
                 mainBloc.setSpotifyAuthRedirectUrl(ip: ip, url: url);
-                Navigator.pop(context);
+                if (navigatorKey.currentState != null &&
+                    navigatorKey.currentState!.canPop()) {
+                  navigatorKey.currentState?.popUntil((route) => route.isFirst);
+                }
               },
             ),
           ),

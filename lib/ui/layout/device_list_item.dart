@@ -567,6 +567,12 @@ class DeviceListItemState extends State<DeviceListItem> {
                     },
                     setSpotifyAuthRedirectUrl: ({required String url}) {
                       mainBloc.setSpotifyAuthRedirectUrl(ip: ip, url: url);
+                      if (navigatorKey.currentState != null &&
+                          navigatorKey.currentState!.canPop()) {
+                        navigatorKey.currentState?.popUntil(
+                          (route) => route.isFirst,
+                        );
+                      }
                     },
                   ),
                 ),
