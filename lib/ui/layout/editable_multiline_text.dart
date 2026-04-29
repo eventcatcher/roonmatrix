@@ -13,6 +13,7 @@ class EditableMultilineText extends StatefulWidget {
   final String text;
   final String? placeholder;
   final bool? withDebounce;
+  final bool? readOnly;
   final TextEditingController? textController;
   final void Function(String value)? onChanged;
   final String Function(String text)? filter;
@@ -30,6 +31,7 @@ class EditableMultilineText extends StatefulWidget {
     this.text = '',
     this.placeholder,
     this.withDebounce = true,
+    this.readOnly = false,
     this.textController,
     this.onChanged,
     this.filter,
@@ -50,7 +52,8 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
   double? get height => widget.height;
   String get text => widget.text;
   String? get placeholder => widget.placeholder;
-  bool? get withDebounce => widget.withDebounce;
+  bool get withDebounce => widget.withDebounce!;
+  bool get readOnly => widget.readOnly!;
   TextEditingController? get textController => widget.textController;
   void Function(String value)? get onChanged => widget.onChanged;
   String Function(String text)? get filter => widget.filter;
@@ -130,8 +133,8 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           border: Border.all(
                             color:
                                 Globals.inMacosStyle() || Globals.inIosStyle()
-                                    ? ColorDefs.borderColor(context: context)
-                                    : Colors.grey.shade400,
+                                ? ColorDefs.borderColor(context: context)
+                                : Colors.grey.shade400,
                             //width: 0,
                             style: BorderStyle.solid,
                           ),
@@ -140,7 +143,8 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                       ? CupertinoTextField(
                           controller: textController ?? _userTextController,
                           undoController: UndoHistoryController(),
-                          placeholder: placeholder ??
+                          placeholder:
+                              placeholder ??
                               translations['pleaseTypeMessagePlaceholder'] ??
                               'Please write message here',
                           textAlign: TextAlign.start,
@@ -157,6 +161,7 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           ),
                           maxLines: maxLines,
                           maxLength: null,
+                          readOnly: readOnly,
                           keyboardType: TextInputType.multiline,
                           onChanged: (String value) {
                             bool doTextCorrection = false;
@@ -174,7 +179,8 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                                   textController ?? _userTextController;
                               c.text = value;
                               c.selection = TextSelection.fromPosition(
-                                  TextPosition(offset: c.text.length));
+                                TextPosition(offset: c.text.length),
+                              );
                             }
 
                             if (mounted && validation != null) {
@@ -187,14 +193,16 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                             }
 
                             if (onChanged != null) {
-                              return withDebounce!
+                              return withDebounce
                                   ? EasyDebounce.debounce(
                                       '$label-debouncer',
                                       Duration(milliseconds: debounceTime),
-                                      () => onChanged!(value))
+                                      () => onChanged!(value),
+                                    )
                                   : onChanged!(value);
                             }
-                          })
+                          },
+                        )
                       : TextField(
                           controller: textController ?? _userTextController,
                           undoController: UndoHistoryController(),
@@ -207,12 +215,13 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                           decoration: InputDecoration(
                             hintText:
                                 translations['pleaseTypeMessagePlaceholder'] ??
-                                    'Please write message here',
+                                'Please write message here',
                             border: InputBorder.none, // removes blue focus line
                             contentPadding: EdgeInsets.all(9.0),
                           ),
                           maxLines: maxLines,
                           maxLength: null,
+                          readOnly: readOnly,
                           keyboardType: TextInputType.multiline,
                           onChanged: (String value) {
                             bool doTextCorrection = false;
@@ -230,15 +239,17 @@ class EditableMultilineTextState extends State<EditableMultilineText> {
                                   textController ?? _userTextController;
                               c.text = value;
                               c.selection = TextSelection.fromPosition(
-                                  TextPosition(offset: c.text.length));
+                                TextPosition(offset: c.text.length),
+                              );
                             }
 
                             if (onChanged != null) {
-                              withDebounce!
+                              withDebounce
                                   ? EasyDebounce.debounce(
                                       '$label-debouncer',
                                       Duration(milliseconds: debounceTime),
-                                      () => onChanged!(value))
+                                      () => onChanged!(value),
+                                    )
                                   : onChanged!(value);
                             }
                           },

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -7,6 +9,7 @@ import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/web_page_bloc.dart';
 import 'package:roonmatrix/ui/details/web_page_state.dart';
+import 'package:roonmatrix/ui/helper/manual_spotify_registration.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/loading_indicator_small.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -50,6 +53,8 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
   bool doReload = false;
   bool reloadDone = false;
   bool success = false;
+
+  bool unsupportedEmbeddedWebLoginPlatform = Platform.isLinux;
 
   InAppWebViewController? webViewController;
   PullToRefreshController? pullToRefreshController;
@@ -127,10 +132,15 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
 
     ApproveModal(
       context: context,
-      title: translations['spotifyLoginText'] ?? "Spotify Login",
-      question:
-          translations['spotifyConnectLoginText'] ??
-          "Spotify Connect login was successful",
+      title: unsupportedEmbeddedWebLoginPlatform
+          ? translations['spotifyConnectAuthText'] ??
+                "Spotify Connect Authorize"
+          : translations['spotifyLoginText'] ?? "Spotify Login",
+      question: unsupportedEmbeddedWebLoginPlatform
+          ? translations['spotifyConnectAuthValidText'] ??
+                "Spotify Connect authorization was successful"
+          : translations['spotifyConnectLoginText'] ??
+                "Spotify Connect login was successful",
       okText: translations['okButtonText'] ?? 'OK',
       cancelText: '',
       onApproved: () => callbackUrl(url: url),
@@ -160,39 +170,40 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
             return SafeArea(
               child: Column(
                 children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(
-                        Globals.brightness() == Brightness.dark
-                            ? 0xFF2b2b2b
-                            : 0XFFF1F5F7,
-                      ),
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Globals.brightness() == Brightness.dark
-                              ? Colors.white
-                              : Colors.grey.shade300,
-                          width: 1,
+                  if (!unsupportedEmbeddedWebLoginPlatform)
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Color(
+                          Globals.brightness() == Brightness.dark
+                              ? 0xFF2b2b2b
+                              : 0XFFF1F5F7,
+                        ),
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Globals.brightness() == Brightness.dark
+                                ? Colors.white
+                                : Colors.grey.shade300,
+                            width: 1,
+                          ),
                         ),
                       ),
-                    ),
 
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12.0,
-                        vertical: 4.0,
-                      ),
-                      child: Text(
-                        softWrap: true,
-                        maxLines: 3,
-                        title,
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          color: ColorDefs.textColor(context: context),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0,
+                          vertical: 4.0,
+                        ),
+                        child: Text(
+                          softWrap: true,
+                          maxLines: 3,
+                          title,
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            color: ColorDefs.textColor(context: context),
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   Expanded(
                     child: Stack(
                       children: [
@@ -211,6 +222,22 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                                     ),
                                   ),
                                 ),
+                              )
+                            : unsupportedEmbeddedWebLoginPlatform == true
+                            ? ManualSpotifyRegistration(
+                                url: url,
+                                translations: translations,
+                                callbackUrl: ({required String url}) {
+                                  SchedulerBinding.instance
+                                      .addPostFrameCallback((_) async {
+                                        if (mounted) {
+                                          setState(() {
+                                            success = true;
+                                          });
+                                        }
+                                      });
+                                  showPageWithSuccessDialog(url: url);
+                                },
                               )
                             : InAppWebView(
                                 key: webViewKey,
@@ -321,35 +348,36 @@ class _WebPageDisplayState extends State<WebPageDisplay> {
                                   }
                                 },
                               ),
-                        progress < 1.0
+                        progress < 1.0 && !unsupportedEmbeddedWebLoginPlatform
                             ? LinearProgressIndicator(value: progress)
                             : Container(),
                       ],
                     ),
                   ),
-                  OverflowBar(
-                    alignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      ElevatedButton(
-                        child: Icon(Icons.arrow_back),
-                        onPressed: () {
-                          webViewController?.goBack();
-                        },
-                      ),
-                      ElevatedButton(
-                        child: Icon(Icons.arrow_forward),
-                        onPressed: () {
-                          webViewController?.goForward();
-                        },
-                      ),
-                      ElevatedButton(
-                        child: Icon(Icons.refresh),
-                        onPressed: () {
-                          webViewController?.reload();
-                        },
-                      ),
-                    ],
-                  ),
+                  if (!unsupportedEmbeddedWebLoginPlatform)
+                    OverflowBar(
+                      alignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        ElevatedButton(
+                          child: Icon(Icons.arrow_back),
+                          onPressed: () {
+                            webViewController?.goBack();
+                          },
+                        ),
+                        ElevatedButton(
+                          child: Icon(Icons.arrow_forward),
+                          onPressed: () {
+                            webViewController?.goForward();
+                          },
+                        ),
+                        ElevatedButton(
+                          child: Icon(Icons.refresh),
+                          onPressed: () {
+                            webViewController?.reload();
+                          },
+                        ),
+                      ],
+                    ),
                 ],
               ),
             );
