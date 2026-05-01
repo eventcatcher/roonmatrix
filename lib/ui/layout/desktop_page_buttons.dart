@@ -46,6 +46,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
 
   final double paddingLeft = 8.0;
 
+  bool isRaspberryPiDevice = true;
+
   late MainBloc mainBloc;
   late String ip;
   late Map<String, dynamic> info;
@@ -53,8 +55,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
   @override
   void initState() {
     mainBloc = BlocProvider.of<MainBloc>(context);
-    ip = widget.ip;
-    info = widget.info;
+    updateProperties();
 
     super.initState();
   }
@@ -63,8 +64,21 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
   void didUpdateWidget(DesktopPageButtons oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    updateProperties();
+  }
+
+  void updateProperties() {
     ip = widget.ip;
     info = widget.info;
+
+    isRaspberryPiDevice =
+        ip.isNotEmpty &&
+        info[ip] != null &&
+        (!(info[ip] as Map<String, dynamic>).containsKey('is_raspberry_pi') ||
+            ((info[ip] as Map<String, dynamic>).containsKey(
+                  'is_raspberry_pi',
+                ) &&
+                info[ip]['is_raspberry_pi'] == true));
   }
 
   @override
@@ -125,8 +139,9 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
             standardDesktopSize: standardDesktopSize,
           ),
         ),
-        if (!info[ip].containsKey('display_cover') ||
-            info[ip]['display_cover'] == false)
+        if (isRaspberryPiDevice == true &&
+            (!info[ip].containsKey('display_cover') ||
+                info[ip]['display_cover'] == false)) ...[
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['messageButtonText'] ?? 'Message',
@@ -139,8 +154,6 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
               standardDesktopSize: standardDesktopSize,
             ),
           ),
-        if (!info[ip].containsKey('display_cover') ||
-            info[ip]['display_cover'] == false)
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['liveControlButtonText'] ?? 'Live Control',
@@ -153,6 +166,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
               standardDesktopSize: standardDesktopSize,
             ),
           ),
+        ],
         if (moreInfo == true) ...[
           PageButton(
             navigatorKey: navigatorKey,

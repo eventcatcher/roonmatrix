@@ -76,6 +76,7 @@ class MenubarAppleCustomClass {
     required Map<String, dynamic> spotifyAuthUrls,
     required bool deviceSelectedAndReady,
     required bool isMatrixDevice,
+    required bool isRaspberryPiDevice,
   }) => [
     PlatformMenuItemGroup(
       members: <PlatformMenuItem>[
@@ -234,7 +235,7 @@ class MenubarAppleCustomClass {
               ),
             ),
           ),
-          if (isMatrixDevice == true) ...[
+          if (isMatrixDevice == true && isRaspberryPiDevice == true) ...[
             PlatformMenuItem(
               label: translations['messageButtonText'] ?? 'Message',
               shortcut: const SingleActivator(
@@ -369,6 +370,16 @@ class MenubarAppleCustomClass {
               'display_cover',
             ) ||
             info[selectedDeviceIp]['display_cover'] == false);
+    bool isRaspberryPiDevice =
+        selectedDeviceIp.isNotEmpty &&
+        info[selectedDeviceIp] != null &&
+        (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+              'is_raspberry_pi',
+            ) ||
+            ((info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                  'is_raspberry_pi',
+                ) &&
+                info[selectedDeviceIp]['is_raspberry_pi'] == true));
 
     return PlatformMenuBar(
       menus: <PlatformMenuItem>[
@@ -591,6 +602,7 @@ class MenubarAppleCustomClass {
               spotifyAuthUrls: spotifyAuthUrls,
               deviceSelectedAndReady: deviceSelectedAndReady,
               isMatrixDevice: isMatrixDevice,
+              isRaspberryPiDevice: isRaspberryPiDevice,
             ),
           ],
         ),

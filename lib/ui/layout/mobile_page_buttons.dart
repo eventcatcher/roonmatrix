@@ -76,6 +76,11 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
   }
 
   void generateButtons() {
+    bool isRaspberryPiDevice =
+        !zoneData.containsKey('is_raspberry_pi') ||
+        (zoneData.containsKey('is_raspberry_pi') &&
+            zoneData['is_raspberry_pi'] == true);
+
     mobileButtonsList = [
       ...mobilePageButtonsForDebugging(
         zoneName: zoneName,
@@ -89,6 +94,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         ip: ip,
         spotifyAuthUrl: spotifyAuthUrl,
         zoneData: zoneData,
+        isRaspberryPiDevice: isRaspberryPiDevice,
         expandableMenuController: expandableMenuController,
       ).reversed,
     ];
@@ -99,6 +105,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     required String ip,
     required String spotifyAuthUrl,
     required Map<String, dynamic> zoneData,
+    required bool isRaspberryPiDevice,
     required ExpandableMenuController? expandableMenuController,
   }) => [
     if (spotifyAuthUrl != '*')
@@ -150,8 +157,9 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       ),
       expandableMenuController: expandableMenuController,
     ),
-    if (!zoneData.containsKey('display_cover') ||
-        zoneData['display_cover'] == false)
+    if (isRaspberryPiDevice == true &&
+        (!zoneData.containsKey('display_cover') ||
+            zoneData['display_cover'] == false)) ...[
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['messageButtonText'] ?? 'Message',
@@ -165,8 +173,6 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         ),
         expandableMenuController: expandableMenuController,
       ),
-    if (!zoneData.containsKey('display_cover') ||
-        zoneData['display_cover'] == false)
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['liveControlButtonText'] ?? 'Live Control',
@@ -180,6 +186,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         ),
         expandableMenuController: expandableMenuController,
       ),
+    ],
   ];
 
   List<Widget> mobilePageButtonsForDebugging({

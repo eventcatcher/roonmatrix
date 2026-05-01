@@ -64,6 +64,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
   String selectedDeviceIpBefore = '';
   String aboutAppMessage = '';
   bool isMatrixDevice = false;
+  bool isRaspberryPiDevice = true;
   bool deviceSelectedAndReady = false;
   bool saveIdle = false;
   bool translationsLoaded = false;
@@ -129,6 +130,16 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 'display_cover',
               ) ||
               info[selectedDeviceIp]['display_cover'] == false);
+          isRaspberryPiDevice =
+              selectedDeviceIp.isNotEmpty &&
+              info[selectedDeviceIp] != null &&
+              (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                    'is_raspberry_pi',
+                  ) ||
+                  ((info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                        'is_raspberry_pi',
+                      ) &&
+                      info[selectedDeviceIp]['is_raspberry_pi'] == true));
           spotifyAuthUrls = urls;
         });
       }
@@ -545,7 +556,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 shortcutText: 'Ctrl+Shift+C',
                 text: Text(translations['controlButtonText'] ?? 'Control'),
               ),
-              if (isMatrixDevice)
+              if (isMatrixDevice == true && isRaspberryPiDevice == true) ...[
                 MenuButton(
                   onTap: () => SharedWidgets.openPage(
                     context: context,
@@ -566,7 +577,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
                   shortcutText: 'Ctrl+Shift+M',
                   text: Text(translations['messageButtonText'] ?? 'Message'),
                 ),
-              if (isMatrixDevice)
+
                 MenuButton(
                   onTap: () => SharedWidgets.openPage(
                     context: context,
@@ -589,6 +600,7 @@ class MenubarWidgetState extends State<MenubarWidget> {
                     translations['liveControlButtonText'] ?? 'Live Control',
                   ),
                 ),
+              ],
               MenuButton(
                 onTap: () => SharedWidgets.openPage(
                   context: context,

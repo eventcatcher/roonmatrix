@@ -79,6 +79,7 @@ class MenubarAppleExtendedClass {
     required Map<String, dynamic> spotifyAuthUrls,
     required bool deviceSelectedAndReady,
     required bool isMatrixDevice,
+    required bool isRaspberryPiDevice,
   }) => [
     EnhancedPlatformMenuItemGroup(
       members: <PlatformMenuItem>[
@@ -247,7 +248,7 @@ class MenubarAppleExtendedClass {
               ),
             ),
           ),
-          if (isMatrixDevice == true) ...[
+          if (isMatrixDevice == true && isRaspberryPiDevice == true) ...[
             EnhancedPlatformMenuItem(
               label: translations['messageButtonText'] ?? 'Message',
               icon: SFSymbolIcon(SFSymbols.captions_bubble),
@@ -388,8 +389,16 @@ class MenubarAppleExtendedClass {
               'display_cover',
             ) ||
             info[selectedDeviceIp]['display_cover'] == false);
-
-    print('appleMenubar => isIPad: $isIPad');
+    bool isRaspberryPiDevice =
+        selectedDeviceIp.isNotEmpty &&
+        info[selectedDeviceIp] != null &&
+        (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+              'is_raspberry_pi',
+            ) ||
+            ((info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                  'is_raspberry_pi',
+                ) &&
+                info[selectedDeviceIp]['is_raspberry_pi'] == true));
 
     return PlatformMenuBar(
       menus: <EnhancedPlatformMenu>[
@@ -619,6 +628,7 @@ class MenubarAppleExtendedClass {
               spotifyAuthUrls: spotifyAuthUrls,
               deviceSelectedAndReady: deviceSelectedAndReady,
               isMatrixDevice: isMatrixDevice,
+              isRaspberryPiDevice: isRaspberryPiDevice,
             ),
           ],
         ),

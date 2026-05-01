@@ -56,6 +56,7 @@ class BurgerMenuState extends State<BurgerMenu> {
   String selectedDeviceIpBefore = '';
   bool deviceSelectedAndReady = false;
   bool isMatrixDevice = false;
+  bool isRaspberryPiDevice = true;
   Map<String, dynamic> info = {};
   Map<String, dynamic> spotifyAuthUrls = {};
   List<BurgerMenuItemData> popupData = [];
@@ -108,6 +109,16 @@ class BurgerMenuState extends State<BurgerMenu> {
               'display_cover',
             ) ||
             info[selectedDeviceIp]['display_cover'] == false);
+    isRaspberryPiDevice =
+        selectedDeviceIp.isNotEmpty &&
+        info[selectedDeviceIp] != null &&
+        (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+              'is_raspberry_pi',
+            ) ||
+            ((info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                  'is_raspberry_pi',
+                ) &&
+                info[selectedDeviceIp]['is_raspberry_pi'] == true));
 
     popupData.add(
       BurgerMenuItemData(
@@ -129,13 +140,6 @@ class BurgerMenuState extends State<BurgerMenu> {
       BurgerMenuItemData(
         key: "separator-navigation",
         name: translations['menuEntryNavigation'] ?? 'Navigation',
-      ),
-    );
-
-    popupData.add(
-      BurgerMenuItemData(
-        key: "backToMain",
-        name: translations['backToMainViewLabel'] ?? 'Back to main page',
       ),
     );
 
@@ -187,7 +191,7 @@ class BurgerMenuState extends State<BurgerMenu> {
         ),
       );
 
-      if (isMatrixDevice == true) {
+      if (isMatrixDevice == true && isRaspberryPiDevice == true) {
         popupData.add(
           BurgerMenuItemData(
             key: "message",
