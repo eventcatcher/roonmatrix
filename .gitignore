@@ -145,3 +145,11 @@ app.*.symbols
 
 # FVM Version Cache
 .fvm/
+
+# python-embed related
+*.zip
+*.hash
+/app/src/__pypackages__/*.*
+/app/src/__pycache__/*.*
+/app/src/config/*.*
+/app/src/logs/*.*
