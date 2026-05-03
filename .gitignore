@@ -149,7 +149,7 @@ app.*.symbols
 # python-embed related
 *.zip
 *.hash
-/app/src/__pypackages__/*.*
-/app/src/__pycache__/*.*
-/app/src/config/*.*
-/app/src/logs/*.*
+/app/src/__pypackages__/**
+/app/src/__pycache__/**
+/app/src/config/**
+/app/src/logs/**
