@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
+import 'package:serious_python/serious_python.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> _configureMacosWindowUtils() async {
@@ -123,6 +124,19 @@ class RoonMatrixState extends State<RoonMatrix> {
   late ConnectionStatusBloc connectionStatusBloc;
   late MainBloc mainBloc;
 
+  Future<void> pythonRuntimeInit() async {
+    // await PythonRuntimeSigner.prepare();
+    await SeriousPython.run(
+      'assets/backend/roonmatrix.zip',
+      appFileName: 'roonmatrix.py',
+    );
+    // SeriousPython.run(
+    //   'assets/backend/roonmatrix.zip',
+    //   appFileName: 'roonmatrix.py',
+    //   modulePaths: ['/app/src/__pypackages__'],
+    // );
+  }
+
   @override
   void initState() {
     fileRepository.init();
@@ -152,6 +166,8 @@ class RoonMatrixState extends State<RoonMatrix> {
         });
       }
     });
+
+    pythonRuntimeInit();
 
     super.initState();
   }
