@@ -80,6 +80,7 @@ dependencies:
   updatable_vertical_ticker: ^1.1.4
   simple_gesture_detector: ^0.2.1
   enhanced_platform_menu: ^0.2.1
+  audio_video_progress_bar: ^2.0.3
 
 dependency_overrides:
 

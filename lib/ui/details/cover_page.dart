@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -68,6 +69,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
   final bool threeColsWithoutSpace = false;
   final bool selectBoxWithoutPadding = true;
+  final bool showProgressBar = true;
 
   final BoxDecoration areaDecorationBorderStyle = BoxDecoration(
     borderRadius: Globals.borderRadius(),
@@ -85,6 +87,12 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
     // color: Color.fromARGB(160, 0, 0, 0),
   );
+
+  Timer? progressBarTimer;
+  Widget progressBarWidget = SizedBox();
+  int lastProgressPosition = 0;
+  int progressBarPosition = 0;
+  String lastProgressId = '';
 
   Map<String, dynamic> info = {};
   Map<String, String> options = {};
@@ -157,6 +165,15 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         if (info != {} && info['control_id'] != null) {
           String? controlIdUpdated = widget.controlId ?? info['control_id'];
 
+          if (showProgressBar == true) {
+            Map<String, dynamic> xdata = mainBloc.getZoneDataForControlId(
+              info: info,
+              controlId: controlIdUpdated,
+              isRadio: isRadio,
+            );
+            setProgressBarArea(zoneData: xdata['zone']);
+          }
+
           if (info['web_playouts_raw'] != webPlayoutsRaw ||
               info['roon_playouts_raw'] != roonPlayoutsRaw ||
               controlId == null ||
@@ -170,7 +187,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
               isRadio: isRadio,
             );
             if (data['zone'] != null) {
-              (data['zone'] as Map<String, dynamic>).remove('position');
+              //(data['zone'] as Map<String, dynamic>).remove('position');
             }
 
             if ((data['zone'] != null && selectedZone != data['zone']) ||
@@ -243,6 +260,110 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     }
 
     return fontSize;
+  }
+
+  void setProgressBarArea({required Map<String, dynamic>? zoneData}) {
+    if (zoneData != null && zoneData.isNotEmpty) {
+      String id = zoneData['id'] ?? '';
+      int actualProgressPosition = zoneData['position'] != null
+          ? int.parse(zoneData['position'].toString())
+          : 0;
+      int total = zoneData['total'] != null
+          ? int.parse(zoneData['total'].toString())
+          : 0;
+      if (actualProgressPosition > lastProgressPosition ||
+          lastProgressPosition == 0 ||
+          lastProgressId != id) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            setState(() {
+              progressBarPosition = actualProgressPosition;
+              lastProgressPosition = actualProgressPosition;
+              lastProgressId = id;
+              if (kDebugMode) {
+                debugPrint(
+                  'setProgressBarArea (update) => id: $id, progress: $progressBarPosition',
+                );
+              }
+              progressBarWidget = getProgressBar(
+                progress: actualProgressPosition,
+                total: total,
+              );
+
+              if (progressBarTimer != null && progressBarTimer!.isActive) {
+                progressBarTimer!.cancel();
+                if (kDebugMode) {
+                  debugPrint('setProgressBarArea => cancel timer');
+                }
+              }
+
+              progressBarTimer = Timer.periodic(Duration(seconds: 1), (
+                Timer timer,
+              ) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    setState(() {
+                      if (progressBarPosition < total) {
+                        progressBarPosition = progressBarPosition + 1;
+                      }
+                      lastProgressPosition = progressBarPosition;
+                      if (kDebugMode) {
+                        debugPrint(
+                          'setProgressBarArea (timer) => id: $id, position: $progressBarPosition',
+                        );
+                      }
+                      progressBarWidget = getProgressBar(
+                        progress: progressBarPosition,
+                        total: total,
+                      );
+                    });
+                  }
+                });
+              });
+            });
+          }
+        });
+      }
+    }
+  }
+
+  Widget getProgressBar({required int progress, required int total}) {
+    return Container(
+      margin: EdgeInsets.only(bottom: coverPadding),
+      constraints: coverWidth != null
+          ? BoxConstraints(minWidth: coverWidth!, maxWidth: coverWidth!)
+          : null,
+
+      decoration: Globals.brightness() == Brightness.dark
+          ? areaDecorationFilledDarkStyle()
+          : areaDecorationFilledLightStyle(),
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: coverPadding,
+          right: coverPadding,
+          top: 24.0,
+          bottom: 8.0,
+        ),
+        child: ProgressBar(
+          progress: Duration(seconds: progress),
+          total: Duration(seconds: total),
+          progressBarColor: Colors.red,
+          baseBarColor: ColorDefs.textColor(
+            context: context,
+          ).withValues(alpha: 0.24),
+          thumbColor: Colors.green,
+          barHeight: 3.0,
+          thumbRadius: 5.0,
+          timeLabelTextStyle: TextStyle(
+            fontSize: 12.0,
+            color: ColorDefs.textColor(context: context),
+          ),
+          onSeek: (duration) {
+            //_player.seek(duration);
+          },
+        ),
+      ),
+    );
   }
 
   Widget getTextArea({
@@ -927,6 +1048,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             },
                                           ),
                                         ),
+                                        if (showProgressBar == true)
+                                          progressBarWidget,
                                         Container(
                                           constraints: coverWidth != null
                                               ? BoxConstraints(
@@ -1143,6 +1266,26 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                       },
                                                     ),
                                                   ),
+                                                  if (showProgressBar == true)
+                                                    LayoutBuilder(
+                                                      builder: (context, constraints) {
+                                                        double width =
+                                                            constraints
+                                                                .maxWidth;
+                                                        return SizedBox(
+                                                          width: width,
+                                                          child: Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                  right:
+                                                                      coverPadding,
+                                                                ),
+                                                            child:
+                                                                progressBarWidget,
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
                                                   Container(
                                                     margin: EdgeInsets.only(
                                                       top: threeCols
@@ -1273,6 +1416,20 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                       mainAxisAlignment:
                                                           MainAxisAlignment.end,
                                                       children: [
+                                                        if (showProgressBar ==
+                                                            true)
+                                                          SizedBox(
+                                                            width: width,
+                                                            child: Padding(
+                                                              padding:
+                                                                  EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        coverPadding,
+                                                                  ),
+                                                              child:
+                                                                  progressBarWidget,
+                                                            ),
+                                                          ),
                                                         Padding(
                                                           padding:
                                                               EdgeInsets.only(
