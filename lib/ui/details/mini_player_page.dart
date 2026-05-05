@@ -78,18 +78,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
   final Duration opacityDuration = const Duration(milliseconds: 200);
 
-  BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
-    borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
-    // color: Color.fromARGB(160, 0, 0, 0),
-  );
-
-  BoxDecoration areaDecorationFilledDarkStyle() => BoxDecoration(
-    borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
-    // color: Color.fromARGB(160, 0, 0, 0),
-  );
-
   Map<String, dynamic> info = {};
   Map<String, dynamic> webPlayoutsRaw = {};
   Map<String, dynamic> roonPlayoutsRaw = {};
@@ -345,16 +333,20 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
               controlId: controlIdUpdated,
               isRadio: isRadio,
             );
-            if (data['zone'] != null) {
-              (data['zone'] as Map<String, dynamic>).remove('position');
+            Map<String, dynamic>? dataZone = data['zone'] != null
+                ? Map.from(data['zone'])
+                : null;
+
+            if (dataZone != null) {
+              dataZone.remove('position');
             }
 
-            if ((data['zone'] != null && selectedZone != data['zone']) ||
+            if ((dataZone != null && selectedZone != dataZone) ||
                 controlIdUpdated != controlId) {
               SchedulerBinding.instance.addPostFrameCallback((_) async {
                 if (mounted) {
                   setState(() {
-                    Map<String, dynamic>? zone = data['zone'];
+                    Map<String, dynamic>? zone = dataZone;
 
                     controlId = controlIdUpdated;
 

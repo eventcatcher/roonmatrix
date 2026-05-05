@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -19,6 +18,7 @@ import 'package:roonmatrix/ui/layout/control_buttons.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
+import 'package:roonmatrix/ui/layout/progress_bar_widget.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/select_box.dart';
 import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
@@ -75,24 +75,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     borderRadius: Globals.borderRadius(),
     border: Border.all(color: Colors.black, width: 0, style: BorderStyle.solid),
   );
-
-  BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
-    borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
-    // color: Color.fromARGB(160, 0, 0, 0),
-  );
-
-  BoxDecoration areaDecorationFilledDarkStyle() => BoxDecoration(
-    borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
-    // color: Color.fromARGB(160, 0, 0, 0),
-  );
-
-  Timer? progressBarTimer;
-  Widget progressBarWidget = SizedBox();
-  int lastProgressPosition = 0;
-  int progressBarPosition = 0;
-  String lastProgressId = '';
 
   Map<String, dynamic> info = {};
   Map<String, String> options = {};
@@ -165,15 +147,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         if (info != {} && info['control_id'] != null) {
           String? controlIdUpdated = widget.controlId ?? info['control_id'];
 
-          if (showProgressBar == true) {
-            Map<String, dynamic> xdata = mainBloc.getZoneDataForControlId(
-              info: info,
-              controlId: controlIdUpdated,
-              isRadio: isRadio,
-            );
-            setProgressBarArea(zoneData: xdata['zone']);
-          }
-
           if (info['web_playouts_raw'] != webPlayoutsRaw ||
               info['roon_playouts_raw'] != roonPlayoutsRaw ||
               controlId == null ||
@@ -186,16 +159,19 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
               controlId: controlIdUpdated,
               isRadio: isRadio,
             );
-            if (data['zone'] != null) {
-              //(data['zone'] as Map<String, dynamic>).remove('position');
+            Map<String, dynamic>? dataZone = data['zone'] != null
+                ? Map.from(data['zone'])
+                : null;
+            if (dataZone != null) {
+              dataZone.remove('position');
             }
 
-            if ((data['zone'] != null && selectedZone != data['zone']) ||
+            if ((dataZone != null && selectedZone != dataZone) ||
                 controlIdUpdated != controlId) {
               SchedulerBinding.instance.addPostFrameCallback((_) async {
                 if (mounted) {
                   setState(() {
-                    Map<String, dynamic>? zone = data['zone'];
+                    Map<String, dynamic>? zone = dataZone;
 
                     controlId = controlIdUpdated;
 
@@ -260,110 +236,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     }
 
     return fontSize;
-  }
-
-  void setProgressBarArea({required Map<String, dynamic>? zoneData}) {
-    if (zoneData != null && zoneData.isNotEmpty) {
-      String id = zoneData['id'] ?? '';
-      int actualProgressPosition = zoneData['position'] != null
-          ? int.parse(zoneData['position'].toString())
-          : 0;
-      int total = zoneData['total'] != null
-          ? int.parse(zoneData['total'].toString())
-          : 0;
-      if (actualProgressPosition > lastProgressPosition ||
-          lastProgressPosition == 0 ||
-          lastProgressId != id) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              progressBarPosition = actualProgressPosition;
-              lastProgressPosition = actualProgressPosition;
-              lastProgressId = id;
-              if (kDebugMode) {
-                debugPrint(
-                  'setProgressBarArea (update) => id: $id, progress: $progressBarPosition',
-                );
-              }
-              progressBarWidget = getProgressBar(
-                progress: actualProgressPosition,
-                total: total,
-              );
-
-              if (progressBarTimer != null && progressBarTimer!.isActive) {
-                progressBarTimer!.cancel();
-                if (kDebugMode) {
-                  debugPrint('setProgressBarArea => cancel timer');
-                }
-              }
-
-              progressBarTimer = Timer.periodic(Duration(seconds: 1), (
-                Timer timer,
-              ) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    setState(() {
-                      if (progressBarPosition < total) {
-                        progressBarPosition = progressBarPosition + 1;
-                      }
-                      lastProgressPosition = progressBarPosition;
-                      if (kDebugMode) {
-                        debugPrint(
-                          'setProgressBarArea (timer) => id: $id, position: $progressBarPosition',
-                        );
-                      }
-                      progressBarWidget = getProgressBar(
-                        progress: progressBarPosition,
-                        total: total,
-                      );
-                    });
-                  }
-                });
-              });
-            });
-          }
-        });
-      }
-    }
-  }
-
-  Widget getProgressBar({required int progress, required int total}) {
-    return Container(
-      margin: EdgeInsets.only(bottom: coverPadding),
-      constraints: coverWidth != null
-          ? BoxConstraints(minWidth: coverWidth!, maxWidth: coverWidth!)
-          : null,
-
-      decoration: Globals.brightness() == Brightness.dark
-          ? areaDecorationFilledDarkStyle()
-          : areaDecorationFilledLightStyle(),
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: coverPadding,
-          right: coverPadding,
-          top: 24.0,
-          bottom: 8.0,
-        ),
-        child: ProgressBar(
-          progress: Duration(seconds: progress),
-          total: Duration(seconds: total),
-          progressBarColor: Colors.red,
-          baseBarColor: ColorDefs.textColor(
-            context: context,
-          ).withValues(alpha: 0.24),
-          thumbColor: Colors.green,
-          barHeight: 3.0,
-          thumbRadius: 5.0,
-          timeLabelTextStyle: TextStyle(
-            fontSize: 12.0,
-            color: ColorDefs.textColor(context: context),
-          ),
-          onSeek: (duration) {
-            //_player.seek(duration);
-          },
-        ),
-      ),
-    );
   }
 
   Widget getTextArea({
@@ -685,8 +557,12 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         bottom: portraitMode ? coverPadding : 0,
       ),
       decoration: Globals.brightness() == Brightness.dark
-          ? areaDecorationFilledDarkStyle()
-          : areaDecorationFilledLightStyle(),
+          ? ColorDefs.areaDecorationFilledDarkStyle(
+              withAnimatedBackground: withAnimatedBackground,
+            )
+          : ColorDefs.areaDecorationFilledLightStyle(
+              withAnimatedBackground: withAnimatedBackground,
+            ),
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Row(
@@ -884,8 +760,12 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
             bottom: coverPadding,
           ),
     decoration: Globals.brightness() == Brightness.dark
-        ? areaDecorationFilledDarkStyle()
-        : areaDecorationFilledLightStyle(),
+        ? ColorDefs.areaDecorationFilledDarkStyle(
+            withAnimatedBackground: withAnimatedBackground,
+          )
+        : ColorDefs.areaDecorationFilledLightStyle(
+            withAnimatedBackground: withAnimatedBackground,
+          ),
     child: Center(
       child: ControlButtons(
         key: ValueKey('ControButtonsDesktop-$idle-$shuffle-$repeat-$isRadio'),
@@ -1049,7 +929,16 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                           ),
                                         ),
                                         if (showProgressBar == true)
-                                          progressBarWidget,
+                                          SizedBox(
+                                            width: coverWidth != null
+                                                ? coverWidth!
+                                                : 200,
+                                            child: ProgressBarWidget(
+                                              ip: ip,
+                                              controlId: controlId,
+                                              coverPadding: coverPadding,
+                                            ),
+                                          ),
                                         Container(
                                           constraints: coverWidth != null
                                               ? BoxConstraints(
@@ -1066,8 +955,14 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                           decoration:
                                               Globals.brightness() ==
                                                   Brightness.dark
-                                              ? areaDecorationFilledDarkStyle()
-                                              : areaDecorationFilledLightStyle(),
+                                              ? ColorDefs.areaDecorationFilledDarkStyle(
+                                                  withAnimatedBackground:
+                                                      withAnimatedBackground,
+                                                )
+                                              : ColorDefs.areaDecorationFilledLightStyle(
+                                                  withAnimatedBackground:
+                                                      withAnimatedBackground,
+                                                ),
                                           child: LayoutBuilder(
                                             builder: (context, constraints) {
                                               double width =
@@ -1280,8 +1175,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                   right:
                                                                       coverPadding,
                                                                 ),
-                                                            child:
-                                                                progressBarWidget,
+                                                            child: ProgressBarWidget(
+                                                              ip: ip,
+                                                              controlId:
+                                                                  controlId,
+                                                              coverPadding:
+                                                                  coverPadding,
+                                                            ),
                                                           ),
                                                         );
                                                       },
@@ -1297,8 +1197,14 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                     decoration:
                                                         Globals.brightness() ==
                                                             Brightness.dark
-                                                        ? areaDecorationFilledDarkStyle()
-                                                        : areaDecorationFilledLightStyle(),
+                                                        ? ColorDefs.areaDecorationFilledDarkStyle(
+                                                            withAnimatedBackground:
+                                                                withAnimatedBackground,
+                                                          )
+                                                        : ColorDefs.areaDecorationFilledLightStyle(
+                                                            withAnimatedBackground:
+                                                                withAnimatedBackground,
+                                                          ),
                                                     child: LayoutBuilder(
                                                       builder: (context, constraints) {
                                                         double width =
@@ -1368,8 +1274,14 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             decoration:
                                                 Globals.brightness() ==
                                                     Brightness.dark
-                                                ? areaDecorationFilledDarkStyle()
-                                                : areaDecorationFilledLightStyle(),
+                                                ? ColorDefs.areaDecorationFilledDarkStyle(
+                                                    withAnimatedBackground:
+                                                        withAnimatedBackground,
+                                                  )
+                                                : ColorDefs.areaDecorationFilledLightStyle(
+                                                    withAnimatedBackground:
+                                                        withAnimatedBackground,
+                                                  ),
                                             child: LayoutBuilder(
                                               builder: (context, constraints) {
                                                 double width =
@@ -1426,8 +1338,13 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                     horizontal:
                                                                         coverPadding,
                                                                   ),
-                                                              child:
-                                                                  progressBarWidget,
+                                                              child: ProgressBarWidget(
+                                                                ip: ip,
+                                                                controlId:
+                                                                    controlId,
+                                                                coverPadding:
+                                                                    coverPadding,
+                                                              ),
                                                             ),
                                                           ),
                                                         Padding(
