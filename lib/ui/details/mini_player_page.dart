@@ -18,6 +18,7 @@ import 'package:roonmatrix/ui/layout/cover_overlay_button.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
+import 'package:roonmatrix/ui/layout/progress_bar_widget.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -69,7 +70,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   final Color textAreaBackgroundColor = Color.fromARGB(200, 0, 0, 0);
   final int textInfoOnTrackChangeDurationInSeconds = 10;
 
-  final double coverPadding = 0.0;
+  final double coverPadding = 16.0;
   final double zoneCornerLabelMinCoverSize = 150;
   final bool withAnimatedBackground = false;
   final int buttonStatusSwitchTimeoutInSeconds = 10;
@@ -572,12 +573,10 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
                             coverWidth = coverHeight;
 
-                            final double controlsHeight =
-                                max(
-                                  minControlsHeight,
-                                  constraints.maxHeight - coverSize,
-                                ) -
-                                coverPadding;
+                            final double controlsHeight = max(
+                              minControlsHeight,
+                              constraints.maxHeight - coverSize,
+                            );
 
                             if (kDebugMode) {
                               debugPrint(
@@ -624,16 +623,29 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                               horizontal: 4.0,
                                               vertical: 2.0,
                                             ),
-                                            child: SizedBox(
-                                              child: CoverTextOverlayExtended(
-                                                coverModel: coverModel!,
-                                                fontSize:
-                                                    (coverWidth ?? 0) / 32,
-                                                translations: translations,
-                                                coverRowArtist: true,
-                                                coverRowAlbum: true,
-                                                coverRowTrack: true,
-                                              ),
+                                            child: Column(
+                                              children: [
+                                                ProgressBarWidget(
+                                                  ip: ip,
+                                                  controlId: controlId,
+                                                  coverPadding: coverPadding,
+                                                  brightness: Brightness.dark,
+                                                ),
+                                                SizedBox(
+                                                  child:
+                                                      CoverTextOverlayExtended(
+                                                        coverModel: coverModel!,
+                                                        fontSize:
+                                                            (coverWidth ?? 0) /
+                                                            32,
+                                                        translations:
+                                                            translations,
+                                                        coverRowArtist: true,
+                                                        coverRowAlbum: true,
+                                                        coverRowTrack: true,
+                                                      ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),

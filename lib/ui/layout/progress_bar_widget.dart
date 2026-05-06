@@ -14,12 +14,14 @@ class ProgressBarWidget extends StatefulWidget {
   final String ip;
   final String? controlId;
   final double coverPadding;
+  final Brightness? brightness;
 
   const ProgressBarWidget({
     super.key,
     required this.ip,
     this.controlId,
     required this.coverPadding,
+    this.brightness,
   });
 
   @override
@@ -29,6 +31,7 @@ class ProgressBarWidget extends StatefulWidget {
 class ProgressBarWidgetState extends State<ProgressBarWidget> {
   String get ip => widget.ip;
   double get coverPadding => widget.coverPadding;
+  Brightness? get brightness => widget.brightness;
 
   final int toleranceInSeconds = 5;
 
@@ -183,7 +186,9 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
           ? BoxConstraints(minWidth: coverWidth!, maxWidth: coverWidth!)
           : null,
 
-      decoration: Globals.brightness() == Brightness.dark
+      decoration:
+          Globals.brightness() == Brightness.dark ||
+              brightness == Brightness.dark
           ? ColorDefs.areaDecorationFilledDarkStyle(
               withAnimatedBackground: false,
             )
@@ -201,15 +206,17 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
           progress: Duration(seconds: progress),
           total: Duration(seconds: total),
           progressBarColor: Colors.red,
-          baseBarColor: ColorDefs.textColor(
-            context: context,
-          ).withValues(alpha: 0.24),
+          baseBarColor: brightness == Brightness.dark
+              ? Colors.white.withValues(alpha: 0.24)
+              : ColorDefs.textColor(context: context).withValues(alpha: 0.24),
           thumbColor: Colors.green,
           barHeight: 3.0,
           thumbRadius: 5.0,
           timeLabelTextStyle: TextStyle(
             fontSize: 12.0,
-            color: ColorDefs.textColor(context: context),
+            color: brightness == Brightness.dark
+                ? Colors.white
+                : ColorDefs.textColor(context: context),
           ),
           onSeek: (duration) {
             //_player.seek(duration);
