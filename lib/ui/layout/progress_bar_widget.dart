@@ -40,6 +40,7 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
   int lastProgressPosition = 0;
   int progressBarPosition = 0;
   String lastProgressId = '';
+  int total = 0;
   bool isRadio = false;
   bool idle = false;
 
@@ -101,6 +102,10 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
                         isRadio =
                             false; // fix for AppleMusic because the delay is too big (every stream with position:0 will be disabling the prev/next button for isRadio == true, but the next infodata update will be loaded 10-15sec later)
                       }
+                      total =
+                          data['zone'] != null && data['zone']['total'] != null
+                          ? int.parse(data['zone']['total'].toString())
+                          : 0;
                     }
                   });
                 }
@@ -119,9 +124,7 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
       int actualProgressPosition = zoneData['position'] != null
           ? int.parse(zoneData['position'].toString())
           : 0;
-      int total = zoneData['total'] != null
-          ? int.parse(zoneData['total'].toString())
-          : 0;
+      int total = isRadio == true ? actualProgressPosition : this.total;
       if ((actualProgressPosition != lastProgressPosition &&
               (actualProgressPosition - progressBarPosition).abs() >
                   toleranceInSeconds) ||
@@ -135,13 +138,15 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
               lastProgressId = id;
               if (kDebugMode) {
                 debugPrint(
-                  'setProgressBarArea (update) => id: $id, progress: $progressBarPosition',
+                  'setProgressBarArea (update) => id: $id, progress: $progressBarPosition, total: $total, isRadio: $isRadio',
                 );
               }
-              progressBarWidget = getProgressBar(
-                progress: actualProgressPosition,
-                total: total,
-              );
+              progressBarWidget = total == 0
+                  ? SizedBox()
+                  : getProgressBar(
+                      progress: actualProgressPosition,
+                      total: total,
+                    );
 
               if (progressBarTimer != null && progressBarTimer!.isActive) {
                 progressBarTimer!.cancel();
@@ -156,18 +161,24 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   if (mounted) {
                     setState(() {
-                      if (progressBarPosition < total && !idle) {
-                        progressBarPosition = progressBarPosition + 1;
+                      if ((isRadio == true || progressBarPosition < total) &&
+                          !idle) {
+                        progressBarPosition += 1;
+                        if (isRadio == true) {
+                          total = progressBarPosition;
+                        }
                       }
                       if (kDebugMode) {
                         debugPrint(
-                          'setProgressBarArea (timer) => id: $id, position: $progressBarPosition',
+                          'setProgressBarArea (timer) => id: $id, position: $progressBarPosition, total: $total, isRadio: $isRadio',
                         );
                       }
-                      progressBarWidget = getProgressBar(
-                        progress: progressBarPosition,
-                        total: total,
-                      );
+                      progressBarWidget = total == 0
+                          ? SizedBox()
+                          : getProgressBar(
+                              progress: progressBarPosition,
+                              total: total,
+                            );
                     });
                   }
                 });
