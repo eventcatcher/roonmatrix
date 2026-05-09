@@ -62,6 +62,20 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
   }
 
   void initSubscription() {
+    info = mainBloc.state.info[ip] ?? {};
+
+    if (info != {} && info['control_id'] != null) {
+      String? controlIdUpdated = widget.controlId ?? info['control_id'];
+
+      Map<String, dynamic> data = mainBloc.getZoneDataForControlId(
+        info: info,
+        controlId: controlIdUpdated,
+        isRadio: isRadio,
+      );
+
+      setProgressBarArea(zoneData: data['zone']);
+    }
+
     mainBlocSubscription = mainBloc.stream.listen((MainState mainState) {
       if (mainState is MainStateLoaded) {
         info = mainState.info[ip] ?? {};
