@@ -67,7 +67,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   final double minTextAreaHeightDesktop = 128.0;
   final double minTextAreaHeightMobile = 100.0;
   final bool withAnimatedBackground = false;
-  final double swiperMinHeight = 224;
+  final double swiperMinHeightPortrait = 224;
+  final double swiperMinHeightLandscape = 500;
   final double minControlsHeight = 86;
 
   final bool threeColsWithoutSpace = false;
@@ -891,7 +892,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                 coverSize,
                                                 constraints.maxHeight -
                                                     (showSwiper
-                                                        ? swiperMinHeight
+                                                        ? swiperMinHeightPortrait
                                                         : minControlsHeight),
                                               );
                                               if (coverHeight <
@@ -911,7 +912,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                               final double controlsHeight =
                                                   max(
                                                     showSwiper
-                                                        ? swiperMinHeight
+                                                        ? swiperMinHeightPortrait
                                                         : minControlsHeight,
                                                     constraints.maxHeight -
                                                         coverSize,
@@ -949,159 +950,166 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                           : null,
                                                       width: coverWidth!,
                                                       height: controlsHeight,
-                                                      child: Stack(
-                                                        children: [
-                                                          Swiper.children(
-                                                            autoplay: false,
-                                                            outer: true,
-                                                            scale: 0.7,
-                                                            pagination: const SwiperPagination(
-                                                              margin:
-                                                                  EdgeInsets.fromLTRB(
-                                                                    0.0,
-                                                                    4.0,
-                                                                    0.0,
-                                                                    4.0,
-                                                                  ),
-                                                              builder:
-                                                                  DotSwiperPaginationBuilder(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    activeColor:
-                                                                        Colors
-                                                                            .blue,
-                                                                    size: 10.0,
-                                                                    activeSize:
-                                                                        10.0,
-                                                                  ),
-                                                            ),
-                                                            children: <Widget>[
-                                                              Column(
-                                                                children: [
-                                                                  if (showProgressBar ==
-                                                                      true)
-                                                                    SizedBox(
-                                                                      width:
-                                                                          coverWidth ??
-                                                                          200,
-                                                                      child: ProgressBarWidget(
-                                                                        ip: ip,
-                                                                        controlId:
-                                                                            controlId,
-                                                                        coverPadding:
-                                                                            coverPadding,
-                                                                      ),
-                                                                    ),
-                                                                  Expanded(
-                                                                    child: Container(
-                                                                      constraints:
-                                                                          coverWidth !=
-                                                                              null
-                                                                          ? BoxConstraints(
-                                                                              minWidth: coverWidth!,
-                                                                              maxWidth: coverWidth!,
-                                                                            )
-                                                                          : null,
-                                                                      width:
-                                                                          coverWidth !=
-                                                                              null
-                                                                          ? (coverWidth! -
-                                                                                coverPadding)
-                                                                          : 200,
-                                                                      margin: EdgeInsets.only(
-                                                                        bottom:
-                                                                            showSwiper ==
-                                                                                true
-                                                                            ? 0
-                                                                            : coverPadding,
-                                                                      ),
-                                                                      decoration:
-                                                                          Globals.brightness() ==
-                                                                              Brightness.dark
-                                                                          ? ColorDefs.areaDecorationFilledDarkStyle(
-                                                                              withAnimatedBackground: withAnimatedBackground,
-                                                                            )
-                                                                          : ColorDefs.areaDecorationFilledLightStyle(
-                                                                              withAnimatedBackground: withAnimatedBackground,
-                                                                            ),
-                                                                      child: LayoutBuilder(
-                                                                        builder:
-                                                                            (
-                                                                              context,
-                                                                              constraints,
-                                                                            ) {
-                                                                              double
-                                                                              width = constraints.maxWidth;
-                                                                              double
-                                                                              height = constraints.maxHeight;
-
-                                                                              WidgetsBinding.instance.addPostFrameCallback(
-                                                                                (
-                                                                                  _,
-                                                                                ) {
-                                                                                  final keyContext = portraitTextAreaKey.currentContext;
-                                                                                  if (keyContext !=
-                                                                                      null) {
-                                                                                    final box =
-                                                                                        keyContext.findRenderObject()
-                                                                                            as RenderBox;
-                                                                                    width = box.size.width;
-                                                                                    height = box.size.height;
-
-                                                                                    if (kDebugMode) {
-                                                                                      debugPrint(
-                                                                                        'portraitMode textArea => size: $width x $height, maxWidth: ${constraints.maxWidth}',
-                                                                                      );
-                                                                                    }
-                                                                                  }
-                                                                                },
-                                                                              );
-
-                                                                              return getTextArea(
-                                                                                key: portraitTextAreaKey,
-                                                                                portraitMode: portraitMode,
-                                                                                threeCols: threeCols,
-                                                                                width: width,
-                                                                                height: height,
-                                                                                fontSize: getTextAreaFontSize(
-                                                                                  showSwiper: showSwiper,
-                                                                                  threeCols: threeCols,
-                                                                                  width: width,
-                                                                                  height: height,
-                                                                                ),
-                                                                              );
-                                                                            },
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
+                                                      child: Swiper.children(
+                                                        autoplay: false,
+                                                        outer: true,
+                                                        scale: 0.7,
+                                                        pagination: const SwiperPagination(
+                                                          margin:
+                                                              EdgeInsets.fromLTRB(
+                                                                0.0,
+                                                                4.0,
+                                                                0.0,
+                                                                4.0,
                                                               ),
-                                                              SizedBox(
-                                                                width:
-                                                                    coverWidth!,
-                                                                height:
-                                                                    controlsHeight,
-                                                                child: getControlArea(
-                                                                  portraitMode:
-                                                                      portraitMode,
-                                                                  showSwiper:
-                                                                      showSwiper,
-                                                                  orientation:
-                                                                      orientation,
-                                                                  threeCols:
-                                                                      threeCols,
-                                                                  idle: idle,
-                                                                  shuffle:
-                                                                      shuffle,
-                                                                  repeat:
-                                                                      repeat,
-                                                                  isRadio:
-                                                                      isRadio,
-                                                                  selectedZoneId:
-                                                                      selectedZoneId,
+                                                          builder:
+                                                              DotSwiperPaginationBuilder(
+                                                                color:
+                                                                    Colors.grey,
+                                                                activeColor:
+                                                                    Colors.blue,
+                                                                size: 10.0,
+                                                                activeSize:
+                                                                    10.0,
+                                                              ),
+                                                        ),
+                                                        children: <Widget>[
+                                                          Column(
+                                                            children: [
+                                                              Expanded(
+                                                                child: Container(
+                                                                  constraints:
+                                                                      coverWidth !=
+                                                                          null
+                                                                      ? BoxConstraints(
+                                                                          minWidth:
+                                                                              coverWidth!,
+                                                                          maxWidth:
+                                                                              coverWidth!,
+                                                                        )
+                                                                      : null,
+                                                                  width:
+                                                                      coverWidth !=
+                                                                          null
+                                                                      ? (coverWidth! -
+                                                                            coverPadding)
+                                                                      : 200,
+                                                                  margin: EdgeInsets.only(
+                                                                    bottom:
+                                                                        showSwiper ==
+                                                                            true
+                                                                        ? 0
+                                                                        : coverPadding,
+                                                                  ),
+                                                                  decoration:
+                                                                      Globals.brightness() ==
+                                                                          Brightness
+                                                                              .dark
+                                                                      ? ColorDefs.areaDecorationFilledDarkStyle(
+                                                                          withAnimatedBackground:
+                                                                              withAnimatedBackground,
+                                                                        )
+                                                                      : ColorDefs.areaDecorationFilledLightStyle(
+                                                                          withAnimatedBackground:
+                                                                              withAnimatedBackground,
+                                                                        ),
+                                                                  child: LayoutBuilder(
+                                                                    builder:
+                                                                        (
+                                                                          context,
+                                                                          constraints,
+                                                                        ) {
+                                                                          double
+                                                                          width =
+                                                                              constraints.maxWidth;
+                                                                          double
+                                                                          height =
+                                                                              constraints.maxHeight;
+
+                                                                          WidgetsBinding.instance.addPostFrameCallback((
+                                                                            _,
+                                                                          ) {
+                                                                            final keyContext =
+                                                                                portraitTextAreaKey.currentContext;
+                                                                            if (keyContext !=
+                                                                                null) {
+                                                                              final box =
+                                                                                  keyContext.findRenderObject()
+                                                                                      as RenderBox;
+                                                                              width = box.size.width;
+                                                                              height = box.size.height;
+
+                                                                              if (kDebugMode) {
+                                                                                debugPrint(
+                                                                                  'portraitMode textArea => size: $width x $height, maxWidth: ${constraints.maxWidth}',
+                                                                                );
+                                                                              }
+                                                                            }
+                                                                          });
+
+                                                                          return getTextArea(
+                                                                            key:
+                                                                                portraitTextAreaKey,
+                                                                            portraitMode:
+                                                                                portraitMode,
+                                                                            threeCols:
+                                                                                threeCols,
+                                                                            width:
+                                                                                width,
+                                                                            height:
+                                                                                height,
+                                                                            fontSize: getTextAreaFontSize(
+                                                                              showSwiper: showSwiper,
+                                                                              threeCols: threeCols,
+                                                                              width: width,
+                                                                              height: height,
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                  ),
                                                                 ),
                                                               ),
+                                                              if (showProgressBar ==
+                                                                  true)
+                                                                Container(
+                                                                  padding:
+                                                                      EdgeInsets.only(
+                                                                        top:
+                                                                            coverPadding,
+                                                                      ),
+                                                                  width:
+                                                                      coverWidth ??
+                                                                      200,
+                                                                  child: ProgressBarWidget(
+                                                                    ip: ip,
+                                                                    controlId:
+                                                                        controlId,
+                                                                    coverPadding:
+                                                                        coverPadding,
+                                                                  ),
+                                                                ),
                                                             ],
+                                                          ),
+                                                          SizedBox(
+                                                            width: coverWidth!,
+                                                            height:
+                                                                controlsHeight,
+                                                            child: getControlArea(
+                                                              portraitMode:
+                                                                  portraitMode,
+                                                              showSwiper:
+                                                                  showSwiper,
+                                                              orientation:
+                                                                  orientation,
+                                                              threeCols:
+                                                                  threeCols,
+                                                              idle: idle,
+                                                              shuffle: shuffle,
+                                                              repeat: repeat,
+                                                              isRadio: isRadio,
+                                                              selectedZoneId:
+                                                                  selectedZoneId,
+                                                            ),
                                                           ),
                                                         ],
                                                       ),
@@ -1131,16 +1139,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             },
                                           ),
                                         ),
-                                        if (showProgressBar == true &&
-                                            !showSwiper)
-                                          SizedBox(
-                                            width: coverWidth ?? 200,
-                                            child: ProgressBarWidget(
-                                              ip: ip,
-                                              controlId: controlId,
-                                              coverPadding: coverPadding,
-                                            ),
-                                          ),
+
                                         if (!showSwiper)
                                           Container(
                                             constraints: coverWidth != null
@@ -1209,6 +1208,21 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                   ),
                                                 );
                                               },
+                                            ),
+                                          ),
+                                        if (showProgressBar == true &&
+                                            !showSwiper)
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              bottom: coverPadding,
+                                            ),
+                                            child: SizedBox(
+                                              width: coverWidth ?? 200,
+                                              child: ProgressBarWidget(
+                                                ip: ip,
+                                                controlId: controlId,
+                                                coverPadding: coverPadding,
+                                              ),
                                             ),
                                           ),
                                       ],
@@ -1345,133 +1359,336 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                 },
                                                           )
                                                         : SizedBox(),
-                                                  Flexible(
-                                                    child: LayoutBuilder(
-                                                      builder: (context, constraints) {
-                                                        if (kDebugMode) {
-                                                          debugPrint(
-                                                            'twoColumnMode controlArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
-                                                          );
-                                                        }
-                                                        return getControlArea(
-                                                          portraitMode:
-                                                              portraitMode,
-                                                          showSwiper: false,
-                                                          orientation:
-                                                              orientation,
-                                                          threeCols: threeCols,
-                                                          idle: idle,
-                                                          shuffle: shuffle,
-                                                          repeat: repeat,
-                                                          isRadio: isRadio,
-                                                          selectedZoneId:
-                                                              selectedZoneId,
-                                                        );
-                                                      },
-                                                    ),
-                                                  ),
-                                                  if (showProgressBar == true)
-                                                    LayoutBuilder(
-                                                      builder: (context, constraints) {
-                                                        double width =
-                                                            constraints
-                                                                .maxWidth;
-                                                        return SizedBox(
-                                                          width: width,
-                                                          child: Padding(
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                                  right:
-                                                                      coverPadding,
+
+                                                  if (showSwiper == true &&
+                                                      MediaQuery.of(
+                                                            context,
+                                                          ).size.height <
+                                                          swiperMinHeightLandscape)
+                                                    Expanded(
+                                                      child: Swiper.children(
+                                                        autoplay: false,
+                                                        outer: false,
+                                                        scale: 0.7,
+                                                        pagination: const SwiperPagination(
+                                                          margin:
+                                                              EdgeInsets.fromLTRB(
+                                                                0.0,
+                                                                16.0,
+                                                                16.0,
+                                                                24.0,
+                                                              ),
+                                                          builder:
+                                                              DotSwiperPaginationBuilder(
+                                                                color:
+                                                                    Colors.grey,
+                                                                activeColor:
+                                                                    Colors.blue,
+                                                                size: 10.0,
+                                                                activeSize:
+                                                                    10.0,
+                                                              ),
+                                                        ),
+                                                        children: <Widget>[
+                                                          Column(
+                                                            children: [
+                                                              if (showProgressBar ==
+                                                                  true)
+                                                                LayoutBuilder(
+                                                                  builder:
+                                                                      (
+                                                                        context,
+                                                                        constraints,
+                                                                      ) {
+                                                                        double
+                                                                        width =
+                                                                            constraints.maxWidth;
+                                                                        return SizedBox(
+                                                                          width:
+                                                                              width,
+                                                                          child: Padding(
+                                                                            padding: EdgeInsets.only(
+                                                                              right: coverPadding,
+                                                                              top: coverPadding,
+                                                                              bottom: coverPadding,
+                                                                            ),
+                                                                            child: ProgressBarWidget(
+                                                                              ip: ip,
+                                                                              controlId: controlId,
+                                                                              coverPadding: coverPadding,
+                                                                            ),
+                                                                          ),
+                                                                        );
+                                                                      },
                                                                 ),
-                                                            child: ProgressBarWidget(
-                                                              ip: ip,
-                                                              controlId:
-                                                                  controlId,
-                                                              coverPadding:
-                                                                  coverPadding,
+                                                              Expanded(
+                                                                child: Container(
+                                                                  margin: EdgeInsets.only(
+                                                                    top:
+                                                                        threeCols
+                                                                        ? coverPadding
+                                                                        : 0.0,
+                                                                    bottom:
+                                                                        coverPadding,
+                                                                    right:
+                                                                        coverPadding,
+                                                                  ),
+                                                                  decoration:
+                                                                      Globals.brightness() ==
+                                                                          Brightness
+                                                                              .dark
+                                                                      ? ColorDefs.areaDecorationFilledDarkStyle(
+                                                                          withAnimatedBackground:
+                                                                              withAnimatedBackground,
+                                                                        )
+                                                                      : ColorDefs.areaDecorationFilledLightStyle(
+                                                                          withAnimatedBackground:
+                                                                              withAnimatedBackground,
+                                                                        ),
+                                                                  child: LayoutBuilder(
+                                                                    builder:
+                                                                        (
+                                                                          context,
+                                                                          constraints,
+                                                                        ) {
+                                                                          double
+                                                                          width =
+                                                                              constraints.maxWidth;
+                                                                          double
+                                                                          height =
+                                                                              constraints.maxHeight;
+
+                                                                          WidgetsBinding.instance.addPostFrameCallback((
+                                                                            _,
+                                                                          ) {
+                                                                            final keyContext =
+                                                                                portraitTextAreaKey.currentContext;
+                                                                            if (keyContext !=
+                                                                                null) {
+                                                                              final box =
+                                                                                  keyContext.findRenderObject()
+                                                                                      as RenderBox;
+                                                                              width = box.size.width;
+                                                                              height = box.size.height;
+
+                                                                              if (kDebugMode) {
+                                                                                debugPrint(
+                                                                                  'twoColumnMode textarea => size: $width x $height',
+                                                                                );
+                                                                              }
+                                                                            }
+                                                                          });
+
+                                                                          return getTextArea(
+                                                                            key:
+                                                                                portraitTextAreaKey,
+                                                                            portraitMode:
+                                                                                portraitMode,
+                                                                            threeCols:
+                                                                                threeCols,
+                                                                            width:
+                                                                                width,
+                                                                            height:
+                                                                                height,
+                                                                            fontSize: getTextAreaFontSize(
+                                                                              showSwiper: false,
+                                                                              threeCols: threeCols,
+                                                                              width: width,
+                                                                              height: height,
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Flexible(
+                                                            child: LayoutBuilder(
+                                                              builder:
+                                                                  (
+                                                                    context,
+                                                                    constraints,
+                                                                  ) {
+                                                                    if (kDebugMode) {
+                                                                      debugPrint(
+                                                                        'twoColumnMode controlArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
+                                                                      );
+                                                                    }
+                                                                    return getControlArea(
+                                                                      portraitMode:
+                                                                          portraitMode,
+                                                                      showSwiper:
+                                                                          false,
+                                                                      orientation:
+                                                                          orientation,
+                                                                      threeCols:
+                                                                          threeCols,
+                                                                      idle:
+                                                                          idle,
+                                                                      shuffle:
+                                                                          shuffle,
+                                                                      repeat:
+                                                                          repeat,
+                                                                      isRadio:
+                                                                          isRadio,
+                                                                      selectedZoneId:
+                                                                          selectedZoneId,
+                                                                    );
+                                                                  },
                                                             ),
                                                           ),
-                                                        );
-                                                      },
+                                                        ],
+                                                      ),
                                                     ),
-                                                  Container(
-                                                    margin: EdgeInsets.only(
-                                                      top: threeCols
-                                                          ? coverPadding
-                                                          : 0.0,
-                                                      bottom: coverPadding,
-                                                      right: coverPadding,
-                                                    ),
-                                                    decoration:
-                                                        Globals.brightness() ==
-                                                            Brightness.dark
-                                                        ? ColorDefs.areaDecorationFilledDarkStyle(
-                                                            withAnimatedBackground:
-                                                                withAnimatedBackground,
-                                                          )
-                                                        : ColorDefs.areaDecorationFilledLightStyle(
-                                                            withAnimatedBackground:
-                                                                withAnimatedBackground,
-                                                          ),
-                                                    child: LayoutBuilder(
-                                                      builder: (context, constraints) {
-                                                        double width =
-                                                            constraints
-                                                                .maxWidth;
-                                                        double height =
-                                                            constraints
-                                                                .maxHeight;
 
-                                                        WidgetsBinding.instance.addPostFrameCallback((
-                                                          _,
-                                                        ) {
-                                                          final keyContext =
-                                                              portraitTextAreaKey
-                                                                  .currentContext;
-                                                          if (keyContext !=
-                                                              null) {
-                                                            final box =
-                                                                keyContext
-                                                                        .findRenderObject()
-                                                                    as RenderBox;
-                                                            width =
-                                                                box.size.width;
-                                                            height =
-                                                                box.size.height;
-
-                                                            if (kDebugMode) {
-                                                              debugPrint(
-                                                                'twoColumnMode textarea => size: $width x $height',
-                                                              );
-                                                            }
+                                                  if (!showSwiper ||
+                                                      MediaQuery.of(
+                                                            context,
+                                                          ).size.height >=
+                                                          swiperMinHeightLandscape) ...[
+                                                    Flexible(
+                                                      child: LayoutBuilder(
+                                                        builder: (context, constraints) {
+                                                          if (kDebugMode) {
+                                                            debugPrint(
+                                                              'twoColumnMode controlArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
+                                                            );
                                                           }
-                                                        });
-
-                                                        return getTextArea(
-                                                          key:
-                                                              portraitTextAreaKey,
-                                                          portraitMode:
-                                                              portraitMode,
-                                                          threeCols: threeCols,
-                                                          width: width,
-                                                          height: height,
-                                                          fontSize:
-                                                              getTextAreaFontSize(
-                                                                showSwiper:
-                                                                    false,
-                                                                threeCols:
-                                                                    threeCols,
-                                                                width: width,
-                                                                height: height,
-                                                              ),
-                                                        );
-                                                      },
+                                                          return getControlArea(
+                                                            portraitMode:
+                                                                portraitMode,
+                                                            showSwiper: false,
+                                                            orientation:
+                                                                orientation,
+                                                            threeCols:
+                                                                threeCols,
+                                                            idle: idle,
+                                                            shuffle: shuffle,
+                                                            repeat: repeat,
+                                                            isRadio: isRadio,
+                                                            selectedZoneId:
+                                                                selectedZoneId,
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
-                                                  ),
+
+                                                    Container(
+                                                      margin: EdgeInsets.only(
+                                                        top: threeCols
+                                                            ? coverPadding
+                                                            : 0.0,
+                                                        bottom: coverPadding,
+                                                        right: coverPadding,
+                                                      ),
+                                                      decoration:
+                                                          Globals.brightness() ==
+                                                              Brightness.dark
+                                                          ? ColorDefs.areaDecorationFilledDarkStyle(
+                                                              withAnimatedBackground:
+                                                                  withAnimatedBackground,
+                                                            )
+                                                          : ColorDefs.areaDecorationFilledLightStyle(
+                                                              withAnimatedBackground:
+                                                                  withAnimatedBackground,
+                                                            ),
+                                                      child: LayoutBuilder(
+                                                        builder: (context, constraints) {
+                                                          double width =
+                                                              constraints
+                                                                  .maxWidth;
+                                                          double height =
+                                                              constraints
+                                                                  .maxHeight;
+
+                                                          WidgetsBinding.instance.addPostFrameCallback((
+                                                            _,
+                                                          ) {
+                                                            final keyContext =
+                                                                portraitTextAreaKey
+                                                                    .currentContext;
+                                                            if (keyContext !=
+                                                                null) {
+                                                              final box =
+                                                                  keyContext
+                                                                          .findRenderObject()
+                                                                      as RenderBox;
+                                                              width = box
+                                                                  .size
+                                                                  .width;
+                                                              height = box
+                                                                  .size
+                                                                  .height;
+
+                                                              if (kDebugMode) {
+                                                                debugPrint(
+                                                                  'twoColumnMode textarea => size: $width x $height',
+                                                                );
+                                                              }
+                                                            }
+                                                          });
+
+                                                          return getTextArea(
+                                                            key:
+                                                                portraitTextAreaKey,
+                                                            portraitMode:
+                                                                portraitMode,
+                                                            threeCols:
+                                                                threeCols,
+                                                            width: width,
+                                                            height: height,
+                                                            fontSize:
+                                                                getTextAreaFontSize(
+                                                                  showSwiper:
+                                                                      false,
+                                                                  threeCols:
+                                                                      threeCols,
+                                                                  width: width,
+                                                                  height:
+                                                                      height,
+                                                                ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    if (showProgressBar == true)
+                                                      Padding(
+                                                        padding:
+                                                            EdgeInsets.only(
+                                                              bottom:
+                                                                  coverPadding,
+                                                            ),
+                                                        child: LayoutBuilder(
+                                                          builder: (context, constraints) {
+                                                            double width =
+                                                                constraints
+                                                                    .maxWidth;
+                                                            return SizedBox(
+                                                              width: width,
+                                                              child: Padding(
+                                                                padding:
+                                                                    EdgeInsets.only(
+                                                                      right:
+                                                                          coverPadding,
+                                                                    ),
+                                                                child: ProgressBarWidget(
+                                                                  ip: ip,
+                                                                  controlId:
+                                                                      controlId,
+                                                                  coverPadding:
+                                                                      coverPadding,
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                        ),
+                                                      ),
+                                                  ],
                                                 ],
                                               ),
                                             ),
+
                                       if (threeCols)
                                         Flexible(
                                           flex: 1,
@@ -1537,46 +1754,30 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                           options: options,
                                                         ),
                                                       ),
-                                                    Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment.end,
-                                                      children: [
-                                                        if (showProgressBar ==
-                                                            true)
-                                                          SizedBox(
-                                                            width: width,
+                                                    Expanded(
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Expanded(
                                                             child: Padding(
-                                                              padding:
-                                                                  EdgeInsets.symmetric(
-                                                                    horizontal:
-                                                                        coverPadding,
-                                                                  ),
-                                                              child: ProgressBarWidget(
-                                                                ip: ip,
-                                                                controlId:
-                                                                    controlId,
-                                                                coverPadding:
+                                                              padding: EdgeInsets.only(
+                                                                top:
                                                                     coverPadding,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
                                                                 bottom:
                                                                     coverPadding,
                                                               ),
-                                                          child: getTextArea(
-                                                            key:
-                                                                portraitTextAreaKey,
-                                                            portraitMode:
-                                                                portraitMode,
-                                                            threeCols:
-                                                                threeCols,
-                                                            width: width,
-                                                            height: height,
-                                                            fontSize:
-                                                                getTextAreaFontSize(
+                                                              child: getTextArea(
+                                                                key:
+                                                                    portraitTextAreaKey,
+                                                                portraitMode:
+                                                                    portraitMode,
+                                                                threeCols:
+                                                                    threeCols,
+                                                                width: width,
+                                                                height: height,
+                                                                fontSize: getTextAreaFontSize(
                                                                   showSwiper:
                                                                       false,
                                                                   threeCols:
@@ -1585,9 +1786,33 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                   height:
                                                                       height,
                                                                 ),
+                                                              ),
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ],
+                                                          if (showProgressBar ==
+                                                              true)
+                                                            SizedBox(
+                                                              width: width,
+                                                              child: Padding(
+                                                                padding: EdgeInsets.only(
+                                                                  left:
+                                                                      coverPadding,
+                                                                  right:
+                                                                      coverPadding,
+                                                                  bottom:
+                                                                      coverPadding,
+                                                                ),
+                                                                child: ProgressBarWidget(
+                                                                  ip: ip,
+                                                                  controlId:
+                                                                      controlId,
+                                                                  coverPadding:
+                                                                      coverPadding,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ],
                                                 );

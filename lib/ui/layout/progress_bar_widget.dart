@@ -206,7 +206,6 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
 
   Widget getProgressBar({required int progress, required int total}) {
     return Container(
-      margin: EdgeInsets.only(bottom: coverPadding),
       constraints: coverWidth != null
           ? BoxConstraints(minWidth: coverWidth!, maxWidth: coverWidth!)
           : null,
