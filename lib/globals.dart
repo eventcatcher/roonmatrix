@@ -41,7 +41,7 @@ class Globals {
   static bool selectBoxInMacStyle() =>
       showSelectBoxInMacStyle == true && inMacosStyle();
 
-  static String mainWindowTitle = 'RoonMatrix';
+  static String mainWindowTitle = 'Roonmatrix';
 
   static Future<String> getMacosVersion() async {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();

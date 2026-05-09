@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "de.eventcatcher" "\0"
-            VALUE "FileDescription", "roonmatrix" "\0"
+            VALUE "FileDescription", "Roonmatrix" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "roonmatrix" "\0"
+            VALUE "InternalName", "Roonmatrix" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 de.eventcatcher. All rights reserved." "\0"
-            VALUE "OriginalFilename", "roonmatrix.exe" "\0"
-            VALUE "ProductName", "roonmatrix" "\0"
+            VALUE "OriginalFilename", "Roonmatrix.exe" "\0"
+            VALUE "ProductName", "Roonmatrix" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

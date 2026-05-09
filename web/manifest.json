@@ -1,6 +1,6 @@
 {
-    "name": "roonmatrix",
-    "short_name": "roonmatrix",
+    "name": "Roonmatrix",
+    "short_name": "Roonmatrix",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

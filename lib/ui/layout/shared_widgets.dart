@@ -313,7 +313,7 @@ class SharedWidgets {
             ),
           ),
         ),
-        title: "RoonMatrix",
+        title: "Roonmatrix",
         question: aboutAppMessage,
         okText: translations['okButtonText'] ?? 'OK',
         cancelText: '',

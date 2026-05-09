@@ -28,7 +28,7 @@ jobs:
 
     env:
       APPIMAGE_DIR: appimage
-      APPDIR_NAME: RoonMatrix.AppDir
+      APPDIR_NAME: Roonmatrix.AppDir
 
     steps:
       - name: Checkout repository
@@ -120,7 +120,7 @@ jobs:
         if: ${{ env.BUILD_TYPE == 'nightly' }}
         uses: actions/upload-artifact@v4
         with:
-          name: RoonMatrix-nightly
+          name: Roonmatrix-nightly
           path: appimage/*.AppImage
 
       - name: Summary
