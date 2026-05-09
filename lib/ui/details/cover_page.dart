@@ -1503,40 +1503,38 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                               ),
                                                             ],
                                                           ),
-                                                          Flexible(
-                                                            child: LayoutBuilder(
-                                                              builder:
-                                                                  (
-                                                                    context,
-                                                                    constraints,
-                                                                  ) {
-                                                                    if (kDebugMode) {
-                                                                      debugPrint(
-                                                                        'twoColumnMode controlArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
-                                                                      );
-                                                                    }
-                                                                    return getControlArea(
-                                                                      portraitMode:
-                                                                          portraitMode,
-                                                                      showSwiper:
-                                                                          false,
-                                                                      orientation:
-                                                                          orientation,
-                                                                      threeCols:
-                                                                          threeCols,
-                                                                      idle:
-                                                                          idle,
-                                                                      shuffle:
-                                                                          shuffle,
-                                                                      repeat:
-                                                                          repeat,
-                                                                      isRadio:
-                                                                          isRadio,
-                                                                      selectedZoneId:
-                                                                          selectedZoneId,
+
+                                                          LayoutBuilder(
+                                                            builder:
+                                                                (
+                                                                  context,
+                                                                  constraints,
+                                                                ) {
+                                                                  if (kDebugMode) {
+                                                                    debugPrint(
+                                                                      'twoColumnMode controlArea => size: ${constraints.maxWidth} x ${constraints.maxHeight}',
                                                                     );
-                                                                  },
-                                                            ),
+                                                                  }
+                                                                  return getControlArea(
+                                                                    portraitMode:
+                                                                        portraitMode,
+                                                                    showSwiper:
+                                                                        false,
+                                                                    orientation:
+                                                                        orientation,
+                                                                    threeCols:
+                                                                        threeCols,
+                                                                    idle: idle,
+                                                                    shuffle:
+                                                                        shuffle,
+                                                                    repeat:
+                                                                        repeat,
+                                                                    isRadio:
+                                                                        isRadio,
+                                                                    selectedZoneId:
+                                                                        selectedZoneId,
+                                                                  );
+                                                                },
                                                           ),
                                                         ],
                                                       ),
