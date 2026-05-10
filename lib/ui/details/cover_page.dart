@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:card_swiper/card_swiper.dart';
@@ -954,6 +955,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                         autoplay: false,
                                                         outer: true,
                                                         scale: 0.7,
+                                                        control:
+                                                            Platform.isLinux
+                                                            ? const SwiperControl(
+                                                                size: 14.0,
+                                                                padding:
+                                                                    EdgeInsetsGeometry.only(
+                                                                      left: 8.0,
+                                                                      right:
+                                                                          4.0,
+                                                                    ),
+                                                              )
+                                                            : null,
                                                         pagination: const SwiperPagination(
                                                           margin:
                                                               EdgeInsets.fromLTRB(
@@ -1370,6 +1383,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                         autoplay: false,
                                                         outer: false,
                                                         scale: 0.7,
+                                                        control:
+                                                            Platform.isLinux
+                                                            ? const SwiperControl(
+                                                                size: 14.0,
+                                                                padding:
+                                                                    EdgeInsetsGeometry.only(
+                                                                      left: 8.0,
+                                                                      right:
+                                                                          20.0,
+                                                                    ),
+                                                              )
+                                                            : null,
                                                         pagination: const SwiperPagination(
                                                           margin:
                                                               EdgeInsets.fromLTRB(
