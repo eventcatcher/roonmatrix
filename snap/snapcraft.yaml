@@ -19,7 +19,7 @@ grade: stable
 
 apps:
   roonmatrix:
-    command: roonmatrix
+    command: Roonmatrix
     extensions: [gnome]
     environment:
       GDK_BACKEND: x11
@@ -52,6 +52,12 @@ parts:
     # This appears to be needed when building in the Snap Store.
     build-packages:
       - curl
+      - clang
+      - cmake
+      - ninja-build
+      - pkg-config
+      - llvm
+      - lld
 
 platforms:
   amd64:
