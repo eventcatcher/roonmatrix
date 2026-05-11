@@ -18,6 +18,7 @@ import 'package:roonmatrix/ui/layout/cover_overlay_button.dart';
 import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
+import 'package:roonmatrix/ui/layout/progress_bar_widget.dart';
 import 'package:roonmatrix/ui/layout/roommatrix_animated_gradient.dart';
 import 'package:roonmatrix/ui/layout/zone_corner_label.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
@@ -69,7 +70,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   final Color textAreaBackgroundColor = Color.fromARGB(200, 0, 0, 0);
   final int textInfoOnTrackChangeDurationInSeconds = 10;
 
-  final double coverPadding = 0.0;
+  final double coverPadding = 16.0;
   final double zoneCornerLabelMinCoverSize = 150;
   final bool withAnimatedBackground = false;
   final int buttonStatusSwitchTimeoutInSeconds = 10;
@@ -77,18 +78,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   final bool selectBoxWithoutPadding = true;
 
   final Duration opacityDuration = const Duration(milliseconds: 200);
-
-  BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
-    borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
-    // color: Color.fromARGB(160, 0, 0, 0),
-  );
-
-  BoxDecoration areaDecorationFilledDarkStyle() => BoxDecoration(
-    borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
-    // color: Color.fromARGB(160, 0, 0, 0),
-  );
 
   Map<String, dynamic> info = {};
   Map<String, dynamic> webPlayoutsRaw = {};
@@ -345,16 +334,20 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
               controlId: controlIdUpdated,
               isRadio: isRadio,
             );
-            if (data['zone'] != null) {
-              (data['zone'] as Map<String, dynamic>).remove('position');
+            Map<String, dynamic>? dataZone = data['zone'] != null
+                ? Map.from(data['zone'])
+                : null;
+
+            if (dataZone != null) {
+              dataZone.remove('position');
             }
 
-            if ((data['zone'] != null && selectedZone != data['zone']) ||
+            if ((dataZone != null && selectedZone != dataZone) ||
                 controlIdUpdated != controlId) {
               SchedulerBinding.instance.addPostFrameCallback((_) async {
                 if (mounted) {
                   setState(() {
-                    Map<String, dynamic>? zone = data['zone'];
+                    Map<String, dynamic>? zone = dataZone;
 
                     controlId = controlIdUpdated;
 
@@ -580,12 +573,10 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
                             coverWidth = coverHeight;
 
-                            final double controlsHeight =
-                                max(
-                                  minControlsHeight,
-                                  constraints.maxHeight - coverSize,
-                                ) -
-                                coverPadding;
+                            final double controlsHeight = max(
+                              minControlsHeight,
+                              constraints.maxHeight - coverSize,
+                            );
 
                             if (kDebugMode) {
                               debugPrint(
@@ -632,16 +623,29 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                               horizontal: 4.0,
                                               vertical: 2.0,
                                             ),
-                                            child: SizedBox(
-                                              child: CoverTextOverlayExtended(
-                                                coverModel: coverModel!,
-                                                fontSize:
-                                                    (coverWidth ?? 0) / 32,
-                                                translations: translations,
-                                                coverRowArtist: true,
-                                                coverRowAlbum: true,
-                                                coverRowTrack: true,
-                                              ),
+                                            child: Column(
+                                              children: [
+                                                ProgressBarWidget(
+                                                  ip: ip,
+                                                  controlId: controlId,
+                                                  coverPadding: coverPadding,
+                                                  brightness: Brightness.dark,
+                                                ),
+                                                SizedBox(
+                                                  child:
+                                                      CoverTextOverlayExtended(
+                                                        coverModel: coverModel!,
+                                                        fontSize:
+                                                            (coverWidth ?? 0) /
+                                                            32,
+                                                        translations:
+                                                            translations,
+                                                        coverRowArtist: true,
+                                                        coverRowAlbum: true,
+                                                        coverRowTrack: true,
+                                                      ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),

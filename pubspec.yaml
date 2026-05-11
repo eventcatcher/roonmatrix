@@ -1,5 +1,5 @@
 name: roonmatrix
-description: This app is the frontend for the roonmatrix LED-Matrix Hardware to display device and playout data, and control the playout.
+description: This app is the frontend for the Roonmatrix LED-Matrix Hardware to display device and playout data, and control the playout.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -17,7 +17,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.2.3+87
+version: 1.2.3+90
 
 environment:
   sdk: ">=3.11.5 <4.0.0"
@@ -80,6 +80,8 @@ dependencies:
   updatable_vertical_ticker: ^1.1.4
   simple_gesture_detector: ^0.2.1
   enhanced_platform_menu: ^0.2.1
+  audio_video_progress_bar: ^2.0.3
+  card_swiper: ^3.0.1
   serious_python: ^0.9.11
   path: ^1.9.1
 
@@ -103,7 +105,7 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path_ios: "assets/icon/roundedIcon.png"
+  image_path_ios: "assets/icon/icon.png"
   image_path: "assets/icon/icon.png"
   web:
     generate: false
@@ -116,7 +118,7 @@ flutter_launcher_icons:
     icon_size: 256 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/icon/roundedIcon.png"
+    image_path: "assets/icon/icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -162,6 +164,7 @@ flutter:
 
   assets:
   # svg
+    - assets/svg/roonmatrix-app-icon.svg
     - assets/svg/8-8-led-matrix-display-unit.svg
     - assets/svg/albumcover.svg
   # png
@@ -193,7 +196,7 @@ flutter:
         - asset: assets/fonts/Symbola.ttf
 
 msix_config:
-  display_name: RoonMatrix
+  display_name: Roonmatrix
   publisher_display_name: Stephan Wilhelm
   publisher: "CN=FBB63578-BCA1-45A6-8B91-36157AAE0E70"
   identity_name: StephanWilhelm.Roonmatrix
@@ -202,7 +205,7 @@ msix_config:
   capabilities: privateNetworkClientServer
   languages: en-us, de-de
   output_path: C:\build\msix
-  output_name: roonmatrix
+  output_name: Roonmatrix
   store: true
   install_certificate: false
   signtool_options: "/v"

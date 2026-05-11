@@ -20,6 +20,22 @@ class ColorDefs {
     idleZoneColorBlendMode,
   );
 
+  static BoxDecoration areaDecorationFilledLightStyle({
+    required bool withAnimatedBackground,
+  }) => BoxDecoration(
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 220, 220, 220),
+    // color: Color.fromARGB(160, 0, 0, 0),
+  );
+
+  static BoxDecoration areaDecorationFilledDarkStyle({
+    required bool withAnimatedBackground,
+  }) => BoxDecoration(
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(withAnimatedBackground ? 255 : 130, 70, 70, 70),
+    // color: Color.fromARGB(160, 0, 0, 0),
+  );
+
   static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
   static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);
   static final double zoneCornerLabelOpacity = 0.7;

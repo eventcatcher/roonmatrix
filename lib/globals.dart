@@ -41,7 +41,7 @@ class Globals {
   static bool selectBoxInMacStyle() =>
       showSelectBoxInMacStyle == true && inMacosStyle();
 
-  static String mainWindowTitle = 'RoonMatrix';
+  static String mainWindowTitle = 'Roonmatrix';
 
   static Future<String> getMacosVersion() async {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -84,6 +84,8 @@ class Globals {
 
   static String placeholderSvgAssetPath() =>
       'assets/svg/8-8-led-matrix-display-unit.svg';
+
+  static String appIconAssetPath() => 'assets/svg/roonmatrix-app-icon.svg';
 
   static String placeholderPngAssetPath() => 'assets/icon/icon.png';
 

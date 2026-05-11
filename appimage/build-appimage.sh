@@ -2,16 +2,16 @@
 set -euo pipefail
 
 # -----------------------------
-# Build RoonMatrix AppImage
+# Build Roonmatrix AppImage
 # -----------------------------
 PROJECT_ROOT="${GITHUB_WORKSPACE:-$(dirname "$(realpath "$0")")/..}"
-APPDIR="$PROJECT_ROOT/appimage/RoonMatrix.AppDir"
+APPDIR="$PROJECT_ROOT/appimage/Roonmatrix.AppDir"
 
 # Detect architecture
 ARCH=${1:-x86_64}
-APPIMAGE_NAME="RoonMatrix-${VERSION:-unknown}-$ARCH.AppImage"
+APPIMAGE_NAME="Roonmatrix-${VERSION:-unknown}-$ARCH.AppImage"
 
-echo "Building RoonMatrix AppImage for $ARCH"
+echo "Building Roonmatrix AppImage for $ARCH"
 
 # -----------------------------
 # Clean AppDir
@@ -31,7 +31,7 @@ else
   VERSION="0.0.0"
 fi
 echo "Version: $VERSION"
-APPIMAGE_NAME="RoonMatrix-${VERSION}-$ARCH.AppImage"
+APPIMAGE_NAME="Roonmatrix-${VERSION}-$ARCH.AppImage"
 
 # -----------------------------
 # Copy Flutter shared libraries
@@ -52,12 +52,12 @@ fi
 # -----------------------------
 # Desktop entry
 # -----------------------------
-DESKTOP_FILE="$APPDIR/usr/share/applications/RoonMatrix.desktop"
+DESKTOP_FILE="$APPDIR/usr/share/applications/Roonmatrix.desktop"
 cat > "$DESKTOP_FILE" <<EOF
 [Desktop Entry]
-Name=RoonMatrix
-Exec=roonmatrix
-Icon=RoonMatrix
+Name=Roonmatrix
+Exec=Roonmatrix
+Icon=Roonmatrix
 Type=Application
 Categories=Utility;
 EOF
@@ -67,7 +67,7 @@ chmod 644 "$DESKTOP_FILE"
 # Copy icon
 # -----------------------------
 ICON_SRC="$PROJECT_ROOT/assets/icon/icon.png"
-ICON_FILE="$APPDIR/usr/share/icons/hicolor/256x256/apps/RoonMatrix.png"
+ICON_FILE="$APPDIR/usr/share/icons/hicolor/256x256/apps/Roonmatrix.png"
 cp "$ICON_SRC" "$ICON_FILE"
 
 # -----------------------------
@@ -83,9 +83,9 @@ fi
 # -----------------------------
 # Copy Flutter binary & data
 # -----------------------------
-BINARY="$PROJECT_ROOT/build/linux/x64/release/bundle/roonmatrix"
+BINARY="$PROJECT_ROOT/build/linux/x64/release/bundle/Roonmatrix"
 if [ ! -f "$BINARY" ]; then
-  BINARY="$PROJECT_ROOT/build/linux/release/bundle/roonmatrix"
+  BINARY="$PROJECT_ROOT/build/linux/release/bundle/Roonmatrix"
 fi
 
 if [ ! -f "$BINARY" ]; then
@@ -122,7 +122,7 @@ export GDK_BACKEND=x11
 export GDK_GL=gles
 export GDK_FRAME_CLOCK=stable
 
-exec "$HERE/usr/bin/roonmatrix" "$@"
+exec "$HERE/usr/bin/Roonmatrix" "$@"
 EOF
 chmod +x "$APPDIR/AppRun"
 

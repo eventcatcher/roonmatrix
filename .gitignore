@@ -124,7 +124,7 @@ unlinked_spec.ds
 **/linux/flutter/generated_plugins.cmake
 
 # AppImage
-appimage/RoonMatrix.AppDir/
+appimage/Roonmatrix.AppDir/
 *.AppImage
 
 # Coverage
