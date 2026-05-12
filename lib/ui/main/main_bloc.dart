@@ -52,7 +52,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final List<String> allowedDeviceTypes = ['roonmatrix', 'coverplayer'];
   final int pollingIntervalInSeconds = 30;
   final int reconnectDelayInSeconds = 3;
-  final int port = 8000;
+  final int portRestServer = 8000;
+  final int portWebSocket = 8100;
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
@@ -169,7 +170,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       if (event is AddWebSocketService) {
         String ip = event.ip;
-        String url = 'ws://$ip:$port/ws';
+        String url = 'ws://$ip:$portWebSocket/ws';
         bool exist = false;
 
         for (WebSocketService service in services) {
@@ -177,7 +178,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             exist = true;
             if (kDebugMode) {
               debugPrint(
-                'ws123 WebSocketService @ ${DateTime.now().toLocal()}: ${service.url} => found and therefore not added again',
+                'WebSocketService @ ${DateTime.now().toLocal()}: ${service.url} => found and therefore not added again',
               );
             }
 
@@ -188,7 +189,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         if (!exist) {
           WebSocketService service = WebSocketService(
             ip: ip,
-            port: port,
+            port: portWebSocket,
             onMessage: (String jsonStr) {
               if (jsonStr.isNotEmpty &&
                   jsonStr.startsWith('{') &&
@@ -196,13 +197,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 dynamic info = jsonDecode(jsonStr);
                 if (kDebugMode) {
                   debugPrint(
-                    'WebSocketService received data @ ${DateTime.now().toLocal()} from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}',
+                    'WebSocketService received data from device ${info['name']} @ ${DateTime.now().toLocal()}, app_displaystr: ${info['app_displaystr']}',
                   );
                 }
                 add(LoadInfo(ip: ip, info: info));
               }
             },
             onPing: () {
+              if (kDebugMode) {
+                debugPrint(
+                  'WebSocketService received ping from ip $ip @ ${DateTime.now().toLocal()}',
+                );
+              }
               setPing(ip: ip, ping: true);
             },
             onConnect: (bool connected) {
@@ -213,7 +219,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   if (url == service.url) {
                     if (kDebugMode) {
                       debugPrint(
-                        'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}',
+                        'remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}',
                       );
                     }
                     service.dispose();
@@ -244,7 +250,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             .toList();
 
         for (String ip in event.devices) {
-          String url = 'ws://$ip:$port/ws';
+          String url = 'ws://$ip:$portWebSocket/ws';
 
           if (!existingServiceUrls.contains(url)) {
             if (kDebugMode) {
@@ -263,14 +269,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
 
         List<String> newWebSocketUrls = event.devices
-            .map((String ip) => 'ws://$ip:$port/ws')
+            .map((String ip) => 'ws://$ip:$portWebSocket/ws')
             .toList();
         List<WebSocketService> servicesToRemove = [];
         for (WebSocketService service in services) {
           if (!newWebSocketUrls.contains(service.url)) {
             if (kDebugMode) {
               debugPrint(
-                'ws123 remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}',
+                'remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}',
               );
             }
             service.dispose();
@@ -344,7 +350,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         emit(state.copyWith(update: DateTime.now(), subPageIdle: true));
 
-        String url = 'http://$ip:$port/info/';
+        String url = 'http://$ip:$portRestServer/info/';
         try {
           Uri uri = Uri.parse(url);
 
@@ -410,7 +416,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         emit(state.copyWith(update: DateTime.now(), subPageIdle: true));
 
-        String url = 'http://$ip:$port/config/';
+        String url = 'http://$ip:$portRestServer/config/';
         try {
           Uri uri = Uri.parse(url);
 
@@ -475,7 +481,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         Map<String, dynamic> payload = {"hours": hours};
 
-        String url = 'http://$ip:$port/log/';
+        String url = 'http://$ip:$portRestServer/log/';
         try {
           Uri uri = Uri.parse(url);
 
@@ -541,7 +547,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           'enable': enable,
         };
 
-        String url = 'http://$ip:$port/zone_control/';
+        String url = 'http://$ip:$portRestServer/zone_control/';
         try {
           Uri uri = Uri.parse(url);
 
@@ -586,7 +592,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         Map<String, dynamic> payload = {"url": event.url};
 
-        String url = 'http://$ip:$port/spotify_auth_redirect_url/';
+        String url = 'http://$ip:$portRestServer/spotify_auth_redirect_url/';
         try {
           Uri uri = Uri.parse(url);
 
@@ -1201,7 +1207,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     Map<String, dynamic> payload = {"message": message, "option": option};
 
-    String url = 'http://$ip:$port/message/';
+    String url = 'http://$ip:$portRestServer/message/';
     try {
       Uri uri = Uri.parse(url);
 
@@ -1251,7 +1257,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         Future.value(false);
       }
 
-      String url = 'http://$ip:$port/setup/';
+      String url = 'http://$ip:$portRestServer/setup/';
       try {
         Uri uri = Uri.parse(url);
         Map<String, dynamic> payload = {"data": jsonStr};
@@ -1294,7 +1300,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     config[ip]['SYSTEM'][control] = value;
     updateStateConfig(ip: ip, config: config);
 
-    String url = 'http://$ip:$port/livecontrol/';
+    String url = 'http://$ip:$portRestServer/livecontrol/';
     try {
       Uri uri = Uri.parse(url);
 
@@ -1461,7 +1467,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             subnet: subnet,
             start: firstHostId,
             end: lastHostId,
-            port: port,
+            port: portRestServer,
           );
 
           for (String ip in ipList) {
@@ -1469,7 +1475,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               debugPrint('found device on ip: $ip');
             }
 
-            String url = 'http://$ip:$port/';
+            String url = 'http://$ip:$portRestServer/';
             Uri uri = Uri.parse(url);
 
             if (kDebugMode) {
