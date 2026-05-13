@@ -16,6 +16,8 @@ class ConnectionStatusBloc
   final ConnectionNetworkType _connectionNetworkTypePlugin =
       ConnectionNetworkType();
 
+  final int connectionTimeoutInSeconds = 5; // was 3 before in-app variant
+
   int connectivityCheckCounter = 0;
   int connectivityCheckCounterBackup = 0;
   bool actualConnectedStatus = true;
@@ -46,11 +48,7 @@ class ConnectionStatusBloc
     // ====================== //
     on<ConnectionStatusEvent>((event, emit) async {
       if (event is SetConnectionStatusStateLoadDefaults) {
-        emit(
-          ConnectionStatusStateLoaded(
-            connected: actualConnectedStatus,
-          ),
-        );
+        emit(ConnectionStatusStateLoaded(connected: actualConnectedStatus));
 
         if (actualConnectedStatus == true) {}
       }
@@ -67,11 +65,7 @@ class ConnectionStatusBloc
               'ConnectionStatusBloc/ConnectionStatusChanged -> hasChanged: $hasChanged, connected: $connected',
             );
           }
-          emit(
-            ConnectionStatusStateLoaded(
-              connected: connected,
-            ),
-          );
+          emit(ConnectionStatusStateLoaded(connected: connected));
         }
       }
     });
@@ -82,14 +76,10 @@ class ConnectionStatusBloc
   // ==================== //
 
   void loadDefaults() {
-    add(
-      SetConnectionStatusStateLoadDefaults(),
-    );
+    add(SetConnectionStatusStateLoadDefaults());
   }
 
-  void connectionStatusChanged({
-    required bool connected,
-  }) {
+  void connectionStatusChanged({required bool connected}) {
     add(ConnectionStatusChanged(connected: connected));
   }
 
@@ -109,16 +99,14 @@ class ConnectionStatusBloc
   Future<bool> checkInternetStatus() async {
     try {
       final HttpClient client = HttpClient()
-        ..connectionTimeout = const Duration(seconds: 3);
-      final HttpClientRequest request =
-          await client.headUrl(Uri.parse('https://www.google.com'));
+        ..connectionTimeout = Duration(seconds: connectionTimeoutInSeconds);
+      final HttpClientRequest request = await client.headUrl(
+        Uri.parse('https://www.google.com'),
+      );
       final HttpClientResponse response = await request.close();
       return response.statusCode >= 200 && response.statusCode < 400;
     } catch (e) {
-      log(
-        e.toString(),
-        name: 'ConnectionStatusBloc/checkInternetStatus/error',
-      );
+      log(e.toString(), name: 'ConnectionStatusBloc/checkInternetStatus/error');
       return false;
     }
   }
@@ -154,9 +142,7 @@ class ConnectionStatusBloc
     restartConnectivityCheckTimer();
   }
 
-  Timer initConnectivityMasterTimer({
-    required Function callback,
-  }) {
+  Timer initConnectivityMasterTimer({required Function callback}) {
     connectivityTimerControllerCallback = callback;
     connectivityCheckMasterTimer = Timer.periodic(
       const Duration(seconds: 60),
@@ -189,9 +175,7 @@ class ConnectionStatusBloc
 
   void restartConnectivityCheckTimer() {
     if (kDebugMode) {
-      debugPrint(
-        'ConnectionStatusBloc/restartConnectivityCheckTimer',
-      );
+      debugPrint('ConnectionStatusBloc/restartConnectivityCheckTimer');
     }
     connectivityCheckTimer?.cancel();
     connectivityCheckTimer = Timer.periodic(
@@ -243,14 +227,14 @@ class ConnectionStatusBloc
       networkStatusSubscription = _connectionNetworkTypePlugin
           .onNetworkStateChanged
           .listen((NetworkStatus networkStatus) {
-        if (kDebugMode) {
-          debugPrint(
-            'ConnectionStatusBloc/restartConnectivitySubscription/onNetworkStateChanged listener => change detected of ${networkStatus.name} from onNetworkStateChanged listener @ ${DateTime.now().toLocal()}',
-          );
-        }
+            if (kDebugMode) {
+              debugPrint(
+                'ConnectionStatusBloc/restartConnectivitySubscription/onNetworkStateChanged listener => change detected of ${networkStatus.name} from onNetworkStateChanged listener @ ${DateTime.now().toLocal()}',
+              );
+            }
 
-        updateConnectionStatus([ConnectivityResult.mobile]);
-      });
+            updateConnectionStatus([ConnectivityResult.mobile]);
+          });
     }
   }
 
@@ -258,7 +242,8 @@ class ConnectionStatusBloc
     List<ConnectivityResult> result, {
     bool fromTimer = false,
   }) async {
-    bool connected = result.contains(ConnectivityResult.ethernet) ||
+    bool connected =
+        result.contains(ConnectivityResult.ethernet) ||
         result.contains(ConnectivityResult.mobile) ||
         result.contains(ConnectivityResult.wifi) ||
         result.contains(ConnectivityResult.vpn);
@@ -299,7 +284,7 @@ class ConnectionStatusBloc
   }
 
   Future<List<ConnectivityResult>>
-      readConnectivityAndUpdateConnectionStatus() async {
+  readConnectivityAndUpdateConnectionStatus() async {
     List<ConnectivityResult> result = [];
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
