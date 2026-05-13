@@ -46,7 +46,9 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
 
   final double paddingLeft = 8.0;
 
+  bool isMatrixDevice = false;
   bool isRaspberryPiDevice = true;
+  bool isAppEmbedded = false;
 
   late MainBloc mainBloc;
   late String ip;
@@ -71,6 +73,11 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
     ip = widget.ip;
     info = widget.info;
 
+    isMatrixDevice =
+        ip.isNotEmpty &&
+        (!(info[ip] as Map<String, dynamic>).containsKey('display_cover') ||
+            info[ip]['display_cover'] == false);
+
     isRaspberryPiDevice =
         ip.isNotEmpty &&
         info[ip] != null &&
@@ -79,6 +86,12 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
                   'is_raspberry_pi',
                 ) &&
                 info[ip]['is_raspberry_pi'] == true));
+
+    isAppEmbedded =
+        ip.isNotEmpty &&
+        info[ip] != null &&
+        (info[ip] as Map<String, dynamic>).containsKey('is_app_embedded') &&
+        info[ip]['is_app_embedded'] == true;
   }
 
   @override
@@ -139,9 +152,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
             standardDesktopSize: standardDesktopSize,
           ),
         ),
-        if (isRaspberryPiDevice == true &&
-            (!info[ip].containsKey('display_cover') ||
-                info[ip]['display_cover'] == false)) ...[
+        if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+            isAppEmbedded == true)
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['messageButtonText'] ?? 'Message',
@@ -154,6 +166,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
               standardDesktopSize: standardDesktopSize,
             ),
           ),
+        if (isMatrixDevice == true && isRaspberryPiDevice == true)
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['liveControlButtonText'] ?? 'Live Control',
@@ -166,7 +179,6 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
               standardDesktopSize: standardDesktopSize,
             ),
           ),
-        ],
         if (moreInfo == true) ...[
           PageButton(
             navigatorKey: navigatorKey,

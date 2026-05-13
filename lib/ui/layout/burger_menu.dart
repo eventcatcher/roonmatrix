@@ -57,6 +57,7 @@ class BurgerMenuState extends State<BurgerMenu> {
   bool deviceSelectedAndReady = false;
   bool isMatrixDevice = false;
   bool isRaspberryPiDevice = true;
+  bool isAppEmbedded = false;
   Map<String, dynamic> info = {};
   Map<String, dynamic> spotifyAuthUrls = {};
   List<BurgerMenuItemData> popupData = [];
@@ -102,6 +103,7 @@ class BurgerMenuState extends State<BurgerMenu> {
 
     deviceSelectedAndReady =
         selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null;
+
     isMatrixDevice =
         selectedDeviceIp.isNotEmpty &&
         info[selectedDeviceIp] != null &&
@@ -109,16 +111,22 @@ class BurgerMenuState extends State<BurgerMenu> {
               'display_cover',
             ) ||
             info[selectedDeviceIp]['display_cover'] == false);
+
     isRaspberryPiDevice =
         selectedDeviceIp.isNotEmpty &&
         info[selectedDeviceIp] != null &&
         (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
               'is_raspberry_pi',
             ) ||
-            ((info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
-                  'is_raspberry_pi',
-                ) &&
-                info[selectedDeviceIp]['is_raspberry_pi'] == true));
+            (info[selectedDeviceIp]['is_raspberry_pi'] == true));
+
+    isAppEmbedded =
+        selectedDeviceIp.isNotEmpty &&
+        info[selectedDeviceIp] != null &&
+        (info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+          'is_app_embedded',
+        ) &&
+        info[selectedDeviceIp]['is_app_embedded'] == true;
 
     popupData.add(
       BurgerMenuItemData(
@@ -191,14 +199,17 @@ class BurgerMenuState extends State<BurgerMenu> {
         ),
       );
 
-      if (isMatrixDevice == true && isRaspberryPiDevice == true) {
+      if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+          isAppEmbedded == true) {
         popupData.add(
           BurgerMenuItemData(
             key: "message",
             name: translations['messageButtonText'] ?? 'Message',
           ),
         );
+      }
 
+      if (isMatrixDevice == true && isRaspberryPiDevice == true) {
         popupData.add(
           BurgerMenuItemData(
             key: "liveControl",

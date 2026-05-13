@@ -81,6 +81,14 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         (zoneData.containsKey('is_raspberry_pi') &&
             zoneData['is_raspberry_pi'] == true);
 
+    bool isMatrixDevice =
+        (!zoneData.containsKey('display_cover') ||
+        zoneData['display_cover'] == false);
+
+    bool isAppEmbedded =
+        (zoneData.containsKey('is_app_embedded') &&
+        zoneData['is_app_embedded'] == true);
+
     mobileButtonsList = [
       ...mobilePageButtonsForDebugging(
         zoneName: zoneName,
@@ -94,7 +102,9 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         ip: ip,
         spotifyAuthUrl: spotifyAuthUrl,
         zoneData: zoneData,
+        isMatrixDevice: isMatrixDevice,
         isRaspberryPiDevice: isRaspberryPiDevice,
+        isAppEmbedded: isAppEmbedded,
         expandableMenuController: expandableMenuController,
       ).reversed,
     ];
@@ -105,7 +115,9 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     required String ip,
     required String spotifyAuthUrl,
     required Map<String, dynamic> zoneData,
+    required bool isMatrixDevice,
     required bool isRaspberryPiDevice,
+    required bool isAppEmbedded,
     required ExpandableMenuController? expandableMenuController,
   }) => [
     if (spotifyAuthUrl != '*')
@@ -157,9 +169,8 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       ),
       expandableMenuController: expandableMenuController,
     ),
-    if (isRaspberryPiDevice == true &&
-        (!zoneData.containsKey('display_cover') ||
-            zoneData['display_cover'] == false)) ...[
+    if ((isRaspberryPiDevice == true && isMatrixDevice == true) ||
+        isAppEmbedded == true)
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['messageButtonText'] ?? 'Message',
@@ -173,6 +184,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         ),
         expandableMenuController: expandableMenuController,
       ),
+    if (isRaspberryPiDevice == true && isMatrixDevice == true)
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['liveControlButtonText'] ?? 'Live Control',
@@ -186,7 +198,6 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         ),
         expandableMenuController: expandableMenuController,
       ),
-    ],
   ];
 
   List<Widget> mobilePageButtonsForDebugging({

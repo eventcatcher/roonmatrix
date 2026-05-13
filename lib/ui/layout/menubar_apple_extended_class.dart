@@ -80,6 +80,7 @@ class MenubarAppleExtendedClass {
     required bool deviceSelectedAndReady,
     required bool isMatrixDevice,
     required bool isRaspberryPiDevice,
+    required bool isAppEmbedded,
   }) => [
     EnhancedPlatformMenuItemGroup(
       members: <PlatformMenuItem>[
@@ -248,7 +249,8 @@ class MenubarAppleExtendedClass {
               ),
             ),
           ),
-          if (isMatrixDevice == true && isRaspberryPiDevice == true) ...[
+          if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+              isAppEmbedded == true)
             EnhancedPlatformMenuItem(
               label: translations['messageButtonText'] ?? 'Message',
               icon: SFSymbolIcon(SFSymbols.captions_bubble),
@@ -268,6 +270,7 @@ class MenubarAppleExtendedClass {
                 ),
               ),
             ),
+          if (isMatrixDevice == true && isRaspberryPiDevice == true)
             EnhancedPlatformMenuItem(
               label: translations['liveControlButtonText'] ?? 'Live Control',
               icon: SFSymbolIcon(SFSymbols.slider_horizontal_2_square),
@@ -287,7 +290,6 @@ class MenubarAppleExtendedClass {
                 ),
               ),
             ),
-          ],
           EnhancedPlatformMenuItem(
             label: translations['infoButtonText'] ?? 'Monitoring',
             icon: SFSymbolIcon(SFSymbols.info_circle),
@@ -383,22 +385,29 @@ class MenubarAppleExtendedClass {
 
     bool deviceSelectedAndReady =
         selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null;
+
     bool isMatrixDevice =
         selectedDeviceIp.isNotEmpty &&
         (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
               'display_cover',
             ) ||
             info[selectedDeviceIp]['display_cover'] == false);
+
     bool isRaspberryPiDevice =
         selectedDeviceIp.isNotEmpty &&
         info[selectedDeviceIp] != null &&
         (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
               'is_raspberry_pi',
             ) ||
-            ((info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
-                  'is_raspberry_pi',
-                ) &&
-                info[selectedDeviceIp]['is_raspberry_pi'] == true));
+            (info[selectedDeviceIp]['is_raspberry_pi'] == true));
+
+    bool isAppEmbedded =
+        selectedDeviceIp.isNotEmpty &&
+        info[selectedDeviceIp] != null &&
+        (info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+          'is_app_embedded',
+        ) &&
+        info[selectedDeviceIp]['is_app_embedded'] == true;
 
     return PlatformMenuBar(
       menus: <EnhancedPlatformMenu>[
@@ -629,6 +638,7 @@ class MenubarAppleExtendedClass {
               deviceSelectedAndReady: deviceSelectedAndReady,
               isMatrixDevice: isMatrixDevice,
               isRaspberryPiDevice: isRaspberryPiDevice,
+              isAppEmbedded: isAppEmbedded,
             ),
           ],
         ),
