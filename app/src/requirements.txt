@@ -6,7 +6,6 @@ feedparser
 unidecode
 urllib3
 sdnotify
-#fastapi
 rich
 freetype-py
 PyJWT
