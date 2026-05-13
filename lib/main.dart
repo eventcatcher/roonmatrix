@@ -25,6 +25,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:serious_python/serious_python.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> _configureMacosWindowUtils() async {
@@ -125,16 +126,16 @@ class RoonMatrixState extends State<RoonMatrix> {
   late MainBloc mainBloc;
 
   Future<void> pythonRuntimeInit() async {
-    // await PythonRuntimeSigner.prepare();
-    await SeriousPython.run(
-      'assets/backend/roonmatrix.zip',
-      appFileName: 'roonmatrix.py',
-    );
-    // SeriousPython.run(
-    //   'assets/backend/roonmatrix.zip',
-    //   appFileName: 'roonmatrix.py',
-    //   modulePaths: ['/app/src/__pypackages__'],
-    // );
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool startInAppDeviceServer =
+        prefs.getBool('startInAppDeviceServer') ?? false;
+
+    if (startInAppDeviceServer == true) {
+      await SeriousPython.run(
+        'assets/backend/roonmatrix.zip',
+        appFileName: 'roonmatrix.py',
+      );
+    }
   }
 
   @override

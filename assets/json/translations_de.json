@@ -179,6 +179,7 @@
     "insertSpotifyCallbackUrlPlaceholder": "Bitte füge hier die Callback-URL ein",
     "transmitSpotifyAuthCodeButtonLabel": "Übertrage den Authorisierungscode an das Gerät",
     "spotifyConnectAuthValidText": "Die Spotify Connect-Autorisierung war erfolgreich",
+    "startInAppDeviceServerLabel": "In-App-Geräteserver aktivieren (virtuelles Gerät, sichtbar nach Neustart der App)",
     "config": {
         "hostname": "Hostname [Wichtig]",
         "password": "Passwort [Wichtig]",

@@ -179,6 +179,7 @@
     "insertSpotifyCallbackUrlPlaceholder": "Veuillez saisir ici l'URL de rappel",
     "transmitSpotifyAuthCodeButtonLabel": "Transmettez le code d'autorisation à l'appareil",
     "spotifyConnectAuthValidText": "L'autorisation Spotify Connect s'est déroulée avec succès",
+    "startInAppDeviceServerLabel": "Activer le serveur de périphériques intégré à l'application (périphérique virtuel, visible après le redémarrage de l'application)",
     "config": {
 		"hostname": "Nom d'hôte (important)",
         "password": "Mot de passe (important)",

@@ -16,10 +16,7 @@ class SetIpRange extends SettingsEvent {
   final String ipStart;
   final String ipEnd;
 
-  const SetIpRange({
-    required this.ipStart,
-    required this.ipEnd,
-  });
+  const SetIpRange({required this.ipStart, required this.ipEnd});
 
   @override
   List<Object> get props => [ipStart, ipEnd];
@@ -28,9 +25,7 @@ class SetIpRange extends SettingsEvent {
 class SetMoreInfoMode extends SettingsEvent {
   final bool enabled;
 
-  const SetMoreInfoMode({
-    required this.enabled,
-  });
+  const SetMoreInfoMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -39,9 +34,7 @@ class SetMoreInfoMode extends SettingsEvent {
 class SetCoverRowActiveMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowActiveMode({
-    required this.enabled,
-  });
+  const SetCoverRowActiveMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -50,9 +43,7 @@ class SetCoverRowActiveMode extends SettingsEvent {
 class SetCoverRowArtistMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowArtistMode({
-    required this.enabled,
-  });
+  const SetCoverRowArtistMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -61,9 +52,7 @@ class SetCoverRowArtistMode extends SettingsEvent {
 class SetCoverRowAlbumMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowAlbumMode({
-    required this.enabled,
-  });
+  const SetCoverRowAlbumMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -72,9 +61,7 @@ class SetCoverRowAlbumMode extends SettingsEvent {
 class SetCoverRowTrackMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowTrackMode({
-    required this.enabled,
-  });
+  const SetCoverRowTrackMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -83,9 +70,7 @@ class SetCoverRowTrackMode extends SettingsEvent {
 class SetCoverRowDynamicSizeMode extends SettingsEvent {
   final bool enabled;
 
-  const SetCoverRowDynamicSizeMode({
-    required this.enabled,
-  });
+  const SetCoverRowDynamicSizeMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -95,10 +80,7 @@ class GetScrollSpeedVariant extends SettingsEvent {
   final String ip;
   final ScrollSpeedVariant variant;
 
-  const GetScrollSpeedVariant({
-    required this.ip,
-    required this.variant,
-  });
+  const GetScrollSpeedVariant({required this.ip, required this.variant});
 
   @override
   List<Object> get props => [ip, variant];
@@ -108,10 +90,7 @@ class SetScrollSpeedDevice extends SettingsEvent {
   final String key;
   final double speed;
 
-  const SetScrollSpeedDevice({
-    required this.key,
-    required this.speed,
-  });
+  const SetScrollSpeedDevice({required this.key, required this.speed});
 
   @override
   List<Object> get props => [key, speed];
@@ -120,9 +99,7 @@ class SetScrollSpeedDevice extends SettingsEvent {
 class SetVerticalTickerActiveMode extends SettingsEvent {
   final bool enabled;
 
-  const SetVerticalTickerActiveMode({
-    required this.enabled,
-  });
+  const SetVerticalTickerActiveMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -131,9 +108,7 @@ class SetVerticalTickerActiveMode extends SettingsEvent {
 class SetLedTickerInDeviceListActiveMode extends SettingsEvent {
   final bool enabled;
 
-  const SetLedTickerInDeviceListActiveMode({
-    required this.enabled,
-  });
+  const SetLedTickerInDeviceListActiveMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -142,9 +117,7 @@ class SetLedTickerInDeviceListActiveMode extends SettingsEvent {
 class SetLedTickerOnTickerPageActiveMode extends SettingsEvent {
   final bool enabled;
 
-  const SetLedTickerOnTickerPageActiveMode({
-    required this.enabled,
-  });
+  const SetLedTickerOnTickerPageActiveMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -153,9 +126,7 @@ class SetLedTickerOnTickerPageActiveMode extends SettingsEvent {
 class SetLedTickerPixelShiftActiveMode extends SettingsEvent {
   final bool enabled;
 
-  const SetLedTickerPixelShiftActiveMode({
-    required this.enabled,
-  });
+  const SetLedTickerPixelShiftActiveMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -164,9 +135,7 @@ class SetLedTickerPixelShiftActiveMode extends SettingsEvent {
 class SetForceTickerUpdateActiveMode extends SettingsEvent {
   final bool enabled;
 
-  const SetForceTickerUpdateActiveMode({
-    required this.enabled,
-  });
+  const SetForceTickerUpdateActiveMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -175,9 +144,7 @@ class SetForceTickerUpdateActiveMode extends SettingsEvent {
 class SetMiniPlayerAlwaysOnTopMode extends SettingsEvent {
   final bool enabled;
 
-  const SetMiniPlayerAlwaysOnTopMode({
-    required this.enabled,
-  });
+  const SetMiniPlayerAlwaysOnTopMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -186,9 +153,7 @@ class SetMiniPlayerAlwaysOnTopMode extends SettingsEvent {
 class SetMiniPlayerPreventCloseAppMode extends SettingsEvent {
   final bool enabled;
 
-  const SetMiniPlayerPreventCloseAppMode({
-    required this.enabled,
-  });
+  const SetMiniPlayerPreventCloseAppMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -197,9 +162,7 @@ class SetMiniPlayerPreventCloseAppMode extends SettingsEvent {
 class SetMiniPlayerShowTextInfoOnTrackChangeMode extends SettingsEvent {
   final bool enabled;
 
-  const SetMiniPlayerShowTextInfoOnTrackChangeMode({
-    required this.enabled,
-  });
+  const SetMiniPlayerShowTextInfoOnTrackChangeMode({required this.enabled});
 
   @override
   List<Object> get props => [enabled];
@@ -208,10 +171,17 @@ class SetMiniPlayerShowTextInfoOnTrackChangeMode extends SettingsEvent {
 class SetMiniPlayerTextInfoDuration extends SettingsEvent {
   final int seconds;
 
-  const SetMiniPlayerTextInfoDuration({
-    required this.seconds,
-  });
+  const SetMiniPlayerTextInfoDuration({required this.seconds});
 
   @override
   List<Object> get props => [seconds];
+}
+
+class SetStartInAppDeviceServer extends SettingsEvent {
+  final bool enabled;
+
+  const SetStartInAppDeviceServer({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
 }

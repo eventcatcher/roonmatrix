@@ -66,6 +66,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool miniPlayerPreventCloseApp = false;
   bool miniPlayerShowTextInfoOnTrackChange = false;
   int miniPlayerTextInfoDuration = 10;
+  bool startInAppDeviceServer = false;
 
   bool translationsLoaded = false;
   bool rangeValid = false;
@@ -340,6 +341,18 @@ class _SettingsPageState extends State<SettingsPage> {
               enabled: moreInfo,
               onChanged: (value) {
                 settingsBloc.setMoreInfoMode(enabled: value);
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
+            child: SwitchButton(
+              label:
+                  translations['startInAppDeviceServerLabel'] ??
+                  'Enable In-App Device Server (local running virtual device, visible after app restart)',
+              enabled: startInAppDeviceServer,
+              onChanged: (value) {
+                settingsBloc.setStartInAppDeviceServer(enabled: value);
               },
             ),
           ),
@@ -686,6 +699,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         settingsState.miniPlayerShowTextInfoOnTrackChange;
                     miniPlayerTextInfoDuration =
                         settingsState.miniPlayerTextInfoDuration;
+                    startInAppDeviceServer =
+                        settingsState.startInAppDeviceServer;
 
                     if (!loaded) {
                       SchedulerBinding.instance.addPostFrameCallback((_) async {
