@@ -1007,13 +1007,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                       ? (coverWidth! -
                                                                             coverPadding)
                                                                       : 200,
-                                                                  margin: EdgeInsets.only(
-                                                                    bottom:
-                                                                        showSwiper ==
-                                                                            true
-                                                                        ? 0
-                                                                        : coverPadding,
-                                                                  ),
                                                                   decoration:
                                                                       Globals.brightness() ==
                                                                           Brightness
@@ -1060,22 +1053,19 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                             }
                                                                           });
 
-                                                                          return getTextArea(
-                                                                            key:
-                                                                                portraitTextAreaKey,
-                                                                            portraitMode:
-                                                                                portraitMode,
-                                                                            threeCols:
-                                                                                threeCols,
-                                                                            width:
-                                                                                width,
-                                                                            height:
-                                                                                height,
-                                                                            fontSize: getTextAreaFontSize(
-                                                                              showSwiper: showSwiper,
+                                                                          return Container(
+                                                                            child: getTextArea(
+                                                                              key: portraitTextAreaKey,
+                                                                              portraitMode: portraitMode,
                                                                               threeCols: threeCols,
                                                                               width: width,
                                                                               height: height,
+                                                                              fontSize: getTextAreaFontSize(
+                                                                                showSwiper: showSwiper,
+                                                                                threeCols: threeCols,
+                                                                                width: width,
+                                                                                height: height,
+                                                                              ),
                                                                             ),
                                                                           );
                                                                         },
@@ -1084,12 +1074,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                               ),
                                                               if (showProgressBar ==
                                                                   true)
-                                                                Container(
-                                                                  padding:
-                                                                      EdgeInsets.only(
-                                                                        top:
-                                                                            coverPadding,
-                                                                      ),
+                                                                SizedBox(
                                                                   width:
                                                                       coverWidth ??
                                                                       200,
@@ -1164,9 +1149,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                             width: coverWidth != null
                                                 ? (coverWidth! - coverPadding)
                                                 : 200,
-                                            margin: EdgeInsets.only(
-                                              bottom: coverPadding,
-                                            ),
                                             decoration:
                                                 Globals.brightness() ==
                                                     Brightness.dark
@@ -1434,7 +1416,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                           child: Padding(
                                                                             padding: EdgeInsets.only(
                                                                               right: coverPadding,
-                                                                              top: coverPadding,
                                                                               bottom: coverPadding,
                                                                             ),
                                                                             child: ProgressBarWidget(
@@ -1602,7 +1583,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                         top: threeCols
                                                             ? coverPadding
                                                             : 0.0,
-                                                        bottom: coverPadding,
+
                                                         right: coverPadding,
                                                       ),
                                                       decoration:

@@ -206,6 +206,7 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
 
   Widget getProgressBar({required int progress, required int total}) {
     return Container(
+      margin: EdgeInsets.only(top: coverPadding),
       constraints: coverWidth != null
           ? BoxConstraints(minWidth: coverWidth!, maxWidth: coverWidth!)
           : null,
@@ -252,7 +253,19 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return progressBarWidget;
+    return AnimatedSwitcher(
+      duration: Globals.coverSwitchDefaultFadeAnimationDuration * 0.6,
+      transitionBuilder: (child, animation) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset(0, 1),
+            end: Offset(0, 0),
+          ).animate(animation),
+          child: child,
+        );
+      },
+      child: progressBarWidget,
+    );
   }
 
   @override
