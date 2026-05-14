@@ -72,26 +72,22 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
   void updateProperties() {
     ip = widget.ip;
     info = widget.info;
+    bool deviceSelectedAndReady = ip.isNotEmpty && info[ip] != null;
 
-    isMatrixDevice =
-        ip.isNotEmpty &&
-        (!(info[ip] as Map<String, dynamic>).containsKey('display_cover') ||
-            info[ip]['display_cover'] == false);
+    if (deviceSelectedAndReady == true) {
+      isMatrixDevice =
+          (!(info[ip] as Map<String, dynamic>).containsKey('display_cover') ||
+          info[ip]['display_cover'] == false);
 
-    isRaspberryPiDevice =
-        ip.isNotEmpty &&
-        info[ip] != null &&
-        (!(info[ip] as Map<String, dynamic>).containsKey('is_raspberry_pi') ||
-            ((info[ip] as Map<String, dynamic>).containsKey(
-                  'is_raspberry_pi',
-                ) &&
-                info[ip]['is_raspberry_pi'] == true));
+      isRaspberryPiDevice =
+          (!(info[ip] as Map<String, dynamic>).containsKey('is_raspberry_pi') ||
+          ((info[ip] as Map<String, dynamic>).containsKey('is_raspberry_pi') &&
+              info[ip]['is_raspberry_pi'] == true));
 
-    isAppEmbedded =
-        ip.isNotEmpty &&
-        info[ip] != null &&
-        (info[ip] as Map<String, dynamic>).containsKey('is_app_embedded') &&
-        info[ip]['is_app_embedded'] == true;
+      isAppEmbedded =
+          (info[ip] as Map<String, dynamic>).containsKey('is_app_embedded') &&
+          info[ip]['is_app_embedded'] == true;
+    }
   }
 
   @override

@@ -272,7 +272,7 @@ class DeviceListItemState extends State<DeviceListItem> {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> i = info[ip];
+    Map<String, dynamic> i = info[ip] ?? {};
 
     double tickerHeight = ledTickerInDeviceListActive
         ? ledSingleModuleSize + ledTickerPadding * 2 + ledTickerBorderSize * 2

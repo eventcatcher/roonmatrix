@@ -368,23 +368,21 @@ class MenubarAppleCustomClass {
         selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null;
 
     bool isMatrixDevice =
-        selectedDeviceIp.isNotEmpty &&
+        deviceSelectedAndReady == true &&
         (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
               'display_cover',
             ) ||
             info[selectedDeviceIp]['display_cover'] == false);
 
     bool isRaspberryPiDevice =
-        selectedDeviceIp.isNotEmpty &&
-        info[selectedDeviceIp] != null &&
+        deviceSelectedAndReady == true &&
         (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
               'is_raspberry_pi',
             ) ||
             info[selectedDeviceIp]['is_raspberry_pi'] == true);
 
     bool isAppEmbedded =
-        selectedDeviceIp.isNotEmpty &&
-        info[selectedDeviceIp] != null &&
+        deviceSelectedAndReady == true &&
         (info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
           'is_app_embedded',
         ) &&

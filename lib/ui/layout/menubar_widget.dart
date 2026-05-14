@@ -127,27 +127,29 @@ class MenubarWidgetState extends State<MenubarWidget> {
           deviceSelectedAndReady =
               selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null;
 
-          isMatrixDevice =
-              (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
-                'display_cover',
-              ) ||
-              info[selectedDeviceIp]['display_cover'] == false);
+          if (deviceSelectedAndReady == true) {
+            isMatrixDevice =
+                (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                  'display_cover',
+                ) ||
+                info[selectedDeviceIp]['display_cover'] == false);
 
-          isRaspberryPiDevice =
-              selectedDeviceIp.isNotEmpty &&
-              info[selectedDeviceIp] != null &&
-              (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
-                    'is_raspberry_pi',
-                  ) ||
-                  info[selectedDeviceIp]['is_raspberry_pi'] == true);
+            isRaspberryPiDevice =
+                selectedDeviceIp.isNotEmpty &&
+                info[selectedDeviceIp] != null &&
+                (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                      'is_raspberry_pi',
+                    ) ||
+                    info[selectedDeviceIp]['is_raspberry_pi'] == true);
 
-          isAppEmbedded =
-              selectedDeviceIp.isNotEmpty &&
-              info[selectedDeviceIp] != null &&
-              (info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
-                'is_app_embedded',
-              ) &&
-              info[selectedDeviceIp]['is_app_embedded'] == true;
+            isAppEmbedded =
+                selectedDeviceIp.isNotEmpty &&
+                info[selectedDeviceIp] != null &&
+                (info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+                  'is_app_embedded',
+                ) &&
+                info[selectedDeviceIp]['is_app_embedded'] == true;
+          }
 
           spotifyAuthUrls = urls;
         });

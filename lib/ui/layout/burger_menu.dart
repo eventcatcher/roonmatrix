@@ -104,29 +104,25 @@ class BurgerMenuState extends State<BurgerMenu> {
     deviceSelectedAndReady =
         selectedDeviceIp.isNotEmpty && info[selectedDeviceIp] != null;
 
-    isMatrixDevice =
-        selectedDeviceIp.isNotEmpty &&
-        info[selectedDeviceIp] != null &&
-        (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
-              'display_cover',
-            ) ||
-            info[selectedDeviceIp]['display_cover'] == false);
+    if (deviceSelectedAndReady == true) {
+      isMatrixDevice =
+          (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+            'display_cover',
+          ) ||
+          info[selectedDeviceIp]['display_cover'] == false);
 
-    isRaspberryPiDevice =
-        selectedDeviceIp.isNotEmpty &&
-        info[selectedDeviceIp] != null &&
-        (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
-              'is_raspberry_pi',
-            ) ||
-            (info[selectedDeviceIp]['is_raspberry_pi'] == true));
+      isRaspberryPiDevice =
+          (!(info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+            'is_raspberry_pi',
+          ) ||
+          (info[selectedDeviceIp]['is_raspberry_pi'] == true));
 
-    isAppEmbedded =
-        selectedDeviceIp.isNotEmpty &&
-        info[selectedDeviceIp] != null &&
-        (info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
-          'is_app_embedded',
-        ) &&
-        info[selectedDeviceIp]['is_app_embedded'] == true;
+      isAppEmbedded =
+          (info[selectedDeviceIp] as Map<String, dynamic>).containsKey(
+            'is_app_embedded',
+          ) &&
+          info[selectedDeviceIp]['is_app_embedded'] == true;
+    }
 
     popupData.add(
       BurgerMenuItemData(
