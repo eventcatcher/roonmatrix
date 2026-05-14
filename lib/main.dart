@@ -5,6 +5,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:enhanced_platform_menu/enhanced_platform_menu_delegate.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -130,11 +131,19 @@ class RoonMatrixState extends State<RoonMatrix> {
     bool startInAppDeviceServer =
         prefs.getBool('startInAppDeviceServer') ?? false;
 
+    if (kDebugMode) {
+      debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
+    }
     if (startInAppDeviceServer == true) {
-      await SeriousPython.run(
+      String? response = await SeriousPython.run(
         'assets/backend/roonmatrix.zip',
         appFileName: 'roonmatrix.py',
       );
+      if (kDebugMode) {
+        debugPrint(
+          'virtual device started${response != null && response.isNotEmpty ? ' (response: $response)' : ''}',
+        );
+      }
     }
   }
 
@@ -168,7 +177,9 @@ class RoonMatrixState extends State<RoonMatrix> {
       }
     });
 
-    pythonRuntimeInit();
+    if (Globals.isDesktopDevice() == true) {
+      pythonRuntimeInit();
+    }
 
     super.initState();
   }
