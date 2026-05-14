@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:json_repair_flutter/json_repair_flutter.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/globals.dart';
@@ -1413,23 +1414,42 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required int start,
     required int end,
     required int port,
+    required bool withLocalHostIp,
   }) async {
     final List<Future> futures = <Future>[];
     final List<String> found = [];
     const timeout = Duration(milliseconds: 300);
 
-    for (int i = start; i <= end; i++) {
-      String ip = '$subnet.$i';
+    final info = NetworkInfo();
+    String localHostIp = (await info.getWifiIP()) ?? '127.0.0.1';
+
+    if (withLocalHostIp == true) {
       futures.add(
-        isPortOpen(ip, port, timeout).then((open) {
+        isPortOpen(localHostIp, port, timeout).then((open) {
           if (open) {
             if (kDebugMode) {
-              debugPrint('Open: $ip:$port');
+              debugPrint('Open: $localHostIp:$port');
             }
-            found.add(ip);
+            found.add(localHostIp);
           }
         }),
       );
+    }
+
+    for (int i = start; i <= end; i++) {
+      String ip = '$subnet.$i';
+      if (ip != localHostIp || !withLocalHostIp) {
+        futures.add(
+          isPortOpen(ip, port, timeout).then((open) {
+            if (open) {
+              if (kDebugMode) {
+                debugPrint('Open: $ip:$port');
+              }
+              found.add(ip);
+            }
+          }),
+        );
+      }
     }
 
     if (futures.isNotEmpty) await Future.wait(futures);
@@ -1450,6 +1470,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       List<String> devices = [];
       isScanning = true;
 
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool startInAppDeviceServer =
+          prefs.getBool('startInAppDeviceServer') ?? false;
+
       try {
         if (kDebugMode) {
           debugPrint('start networkscan');
@@ -1468,6 +1492,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             start: firstHostId,
             end: lastHostId,
             port: portRestServer,
+            withLocalHostIp: startInAppDeviceServer,
           );
 
           for (String ip in ipList) {

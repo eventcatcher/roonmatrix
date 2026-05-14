@@ -84,6 +84,7 @@ dependencies:
   card_swiper: ^3.0.1
   serious_python: ^1.0.0
   path: ^1.9.1
+  network_info_plus: ^7.0.0
 
 dependency_overrides:
 
