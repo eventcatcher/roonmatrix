@@ -12,6 +12,7 @@ abstract class MainState extends Equatable {
   final Map<String, bool> tileExpanded;
   final Map<String, bool> connected;
   final Map<String, bool> ping;
+  final Map<String, Set<String>> notifications;
   final Map<String, dynamic> info;
   final Map<String, dynamic> config;
   final Map<String, ConfigDefinition> definitions;
@@ -39,6 +40,7 @@ abstract class MainState extends Equatable {
     this.tileExpanded = const {},
     this.connected = const {},
     this.ping = const {},
+    this.notifications = const {},
     this.info = const {},
     this.config = const {},
     this.definitions = const {},
@@ -67,6 +69,7 @@ abstract class MainState extends Equatable {
     Map<String, bool>? tileExpanded,
     Map<String, bool>? connected,
     Map<String, bool>? ping,
+    Map<String, Set<String>>? notifications,
     Map<String, dynamic>? info,
     Map<String, dynamic>? config,
     Map<String, ConfigDefinition>? definitions,
@@ -94,6 +97,7 @@ abstract class MainState extends Equatable {
       tileExpanded: tileExpanded ?? this.tileExpanded,
       connected: connected ?? this.connected,
       ping: ping ?? this.ping,
+      notifications: notifications ?? this.notifications,
       info: info ?? this.info,
       config: config ?? this.config,
       definitions: definitions ?? this.definitions,
@@ -121,6 +125,7 @@ abstract class MainState extends Equatable {
       selectedDeviceIp,
       connected,
       ping,
+      notifications,
       info,
       tileExpanded,
       config,
@@ -178,6 +183,7 @@ class MainStateLoaded extends MainState {
     required super.tileExpanded,
     required super.connected,
     required super.ping,
+    required super.notifications,
     required super.info,
     required super.config,
     required super.definitions,

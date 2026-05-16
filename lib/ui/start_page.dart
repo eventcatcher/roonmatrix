@@ -5,6 +5,7 @@ import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition.dart';
 import 'package:roonmatrix/model/scroll_speed_variant.dart';
+import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
 import 'package:roonmatrix/ui/helper/lifecycle_page_wrapper.dart';
 import 'package:roonmatrix/ui/layout/burger_menu_wrapper.dart';
@@ -79,6 +80,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
   bool settingsPageLoaded = false;
   bool isDrawerOpen = false;
   bool showExportButton = true;
+  bool notificationModalOpen = false;
 
   late SettingsBloc settingsBloc;
   late TranslationsBloc translationsBloc;
@@ -217,7 +219,54 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 bool idle = mainState.idle;
                 Map<String, bool> connected = mainState.connected;
                 Map<String, bool> ping = mainState.ping;
+                Map<String, Set<String>> notifications =
+                    mainState.notifications;
                 definitions = mainState.definitions;
+
+                String notificationStr = '';
+                List<dynamic> roonActivationNotificationsToRemove = [];
+                for (String ip in notifications.keys) {
+                  if (notifications[ip] != null) {
+                    Set<String> messages = notifications[ip]!;
+                    if (messages.contains('roon-activation-alert')) {
+                      String str =
+                          translations['notificationRoonActivation'] ??
+                          'Please enable the device [DEVICENAME] in the Roon settings for extensions.';
+                      notificationStr +=
+                          "${str.replaceAll('[DEVICENAME]', "'${info[ip]['name']}'")}\n\n";
+                      roonActivationNotificationsToRemove.add(ip);
+                    }
+                  }
+                }
+                if (notificationStr.isNotEmpty) {
+                  SchedulerBinding.instance.addPostFrameCallback((_) async {
+                    if (mounted && !notificationModalOpen) {
+                      notificationModalOpen = true;
+                      if (kDebugMode) {
+                        debugPrint('open notification modal now...');
+                      }
+                      ApproveModal(
+                        context: context,
+                        title:
+                            translations['notificationsApproveTitle'] ??
+                            "Notifications",
+                        question: notificationStr,
+                        okText: translations['okButtonText'] ?? 'OK',
+                        cancelText: '',
+                        onApproved: () {
+                          for (String ip
+                              in roonActivationNotificationsToRemove) {
+                            mainBloc.removeNotification(
+                              ip: ip,
+                              message: 'roon-activation-alert',
+                            );
+                          }
+                          notificationModalOpen = false;
+                        },
+                      ).show();
+                    }
+                  });
+                }
 
                 if (kDebugMode) {
                   debugPrint(

@@ -138,6 +138,65 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         emit(state.copyWith(update: DateTime.now(), ping: pingList));
       }
 
+      if (event is SetNotification) {
+        String ip = event.ip;
+        String message = event.message;
+
+        Map<String, Set<String>> notifications = Map.from(state.notifications);
+        Set<String> messages = notifications[ip] ?? {};
+        messages.add(message);
+        notifications[ip] = messages;
+        emit(
+          state.copyWith(update: DateTime.now(), notifications: notifications),
+        );
+      }
+
+      if (event is RemoveNotification) {
+        String ip = event.ip;
+        String message = event.message;
+
+        Map<String, Set<String>> notifications = Map.from(state.notifications);
+        Set<String> messages = notifications[ip] != null
+            ? notifications[ip] = {}
+            : notifications[ip]!;
+        messages.remove(message);
+        notifications[ip] = messages;
+        emit(
+          state.copyWith(update: DateTime.now(), notifications: notifications),
+        );
+
+        Map<String, String> headers = {
+          "Content-Type": 'application/json; charset=utf-8',
+          "Accept": 'application/json',
+        };
+
+        Map<String, dynamic> payload = {"message": message};
+
+        String url = 'http://$ip:$portRestServer/remove_notification/';
+        try {
+          Uri uri = Uri.parse(url);
+
+          if (kDebugMode) {
+            debugPrint('send remove_notification => payload: $payload');
+          }
+          http.Response response = await client.post(
+            uri,
+            headers: headers,
+            body: json.encode(payload),
+          );
+
+          if (response.statusCode == 200) {
+            if (kDebugMode) {
+              debugPrint('RemoveNotification successful');
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('RemoveNotification error by access to $url: $e');
+          }
+        }
+      }
+
       if (event is SetSelectedDeviceIp) {
         String ip = event.ip;
 
@@ -191,7 +250,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           WebSocketService service = WebSocketService(
             ip: ip,
             port: portWebSocket,
-            onMessage: (String jsonStr) {
+            onInfoMessage: (String jsonStr) {
               if (jsonStr.isNotEmpty &&
                   jsonStr.startsWith('{') &&
                   jsonStr.endsWith('}')) {
@@ -203,6 +262,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 }
                 add(LoadInfo(ip: ip, info: info));
               }
+            },
+            onNotification: (String message) {
+              setNotification(ip: ip, message: message);
             },
             onPing: () {
               if (kDebugMode) {
@@ -2799,6 +2861,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   void setPing({required String ip, required bool ping}) {
     add(SetPing(ip: ip, ping: ping));
+  }
+
+  void setNotification({required String ip, required String message}) {
+    add(SetNotification(ip: ip, message: message));
+  }
+
+  void removeNotification({required String ip, required String message}) {
+    add(RemoveNotification(ip: ip, message: message));
   }
 
   void setSelectedDeviceIp({required String ip}) {

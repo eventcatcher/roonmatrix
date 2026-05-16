@@ -138,6 +138,10 @@ class RoonMatrixState extends State<RoonMatrix> {
       String? response = await SeriousPython.run(
         'assets/backend/roonmatrix.zip',
         appFileName: 'roonmatrix.py',
+        environmentVariables: {
+          "embedded": "true",
+          "platform": Platform.operatingSystem,
+        },
       );
       if (kDebugMode) {
         debugPrint(

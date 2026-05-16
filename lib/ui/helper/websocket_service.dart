@@ -6,15 +6,17 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 class WebSocketService {
   final String ip;
   final int port;
-  final Function(String message) onMessage;
+  final Function(String message) onInfoMessage;
   final VoidCallback onPing;
+  final Function(String message) onNotification;
   final Function(bool connected) onConnect;
 
   WebSocketService({
     required this.ip,
     required this.port,
-    required this.onMessage,
+    required this.onInfoMessage,
     required this.onPing,
+    required this.onNotification,
     required this.onConnect,
   });
 
@@ -30,7 +32,8 @@ class WebSocketService {
     String url = 'ws://$ip:$port/ws';
     if (kDebugMode) {
       debugPrint(
-          "ws123 WebSocketService @ ${DateTime.now().toLocal()} => connect to $url");
+        "ws123 WebSocketService @ ${DateTime.now().toLocal()} => connect to $url",
+      );
     }
     final Uri wsUrl = Uri.parse(url);
     _channel = WebSocketChannel.connect(wsUrl);
@@ -39,7 +42,8 @@ class WebSocketService {
     } on SocketException catch (e) {
       if (kDebugMode) {
         debugPrint(
-            "ws123 WebSocketService @ ${DateTime.now().toLocal()} => SocketException => connect error $e, url: $url");
+          "ws123 WebSocketService @ ${DateTime.now().toLocal()} => SocketException => connect error $e, url: $url",
+        );
       }
 
       onConnect(false);
@@ -47,7 +51,8 @@ class WebSocketService {
     } on WebSocketChannelException catch (e) {
       if (kDebugMode) {
         debugPrint(
-            "ws123 WebSocketService @ ${DateTime.now().toLocal()} => WebSocketChannelException => connect error $e, url: $url");
+          "ws123 WebSocketService @ ${DateTime.now().toLocal()} => WebSocketChannelException => connect error $e, url: $url",
+        );
       }
 
       onConnect(false);
@@ -58,19 +63,22 @@ class WebSocketService {
     DateTime lastPing = DateTime.now();
 
     Timer timer = Timer.periodic(Duration(seconds: 5), (Timer timer) {
-      DateTime afterPing = lastPing
-          .add(Duration(seconds: pingSecondsPeriodic + pingSecondTimeout));
+      DateTime afterPing = lastPing.add(
+        Duration(seconds: pingSecondsPeriodic + pingSecondTimeout),
+      );
       bool timeout = DateTime.now().isAfter(afterPing);
 
       if (kDebugMode) {
         debugPrint(
-            "WebSocketService @ ${DateTime.now().toLocal()} => timeout check: $timeout");
+          "WebSocketService @ ${DateTime.now().toLocal()} => timeout check: $timeout",
+        );
       }
       if (timeout) {
         timer.cancel();
         if (kDebugMode) {
           debugPrint(
-              "WebSocketService @ ${DateTime.now().toLocal()} => => => timeout from $url");
+            "WebSocketService @ ${DateTime.now().toLocal()} => => => timeout from $url",
+          );
         }
         onConnect(false);
       }
@@ -88,14 +96,22 @@ class WebSocketService {
               message.endsWith('}')) {
             if (kDebugMode) {
               debugPrint(
-                  "WebSocketService @ ${DateTime.now().toLocal()} => received data from $url");
+                "WebSocketService @ ${DateTime.now().toLocal()} => received data from $url",
+              );
             }
-            onMessage.call(message);
+            onInfoMessage.call(message);
           } else {
+            if (kDebugMode) {
+              debugPrint('WebSocketService received notification: $message');
+            }
+            if (message == 'roon-activation-alert') {
+              onNotification.call(message);
+            }
             onPing();
             if (kDebugMode) {
               debugPrint(
-                  "WebSocketService @ ${DateTime.now().toLocal()} => received message from $url: $message");
+                "WebSocketService @ ${DateTime.now().toLocal()} => received message from $url: $message",
+              );
             }
           }
         }
@@ -104,7 +120,8 @@ class WebSocketService {
         timer.cancel();
         if (kDebugMode) {
           debugPrint(
-              "ws123 WebSocketService @ ${DateTime.now().toLocal()} => disconnected from $url. try again to connect...");
+            "ws123 WebSocketService @ ${DateTime.now().toLocal()} => disconnected from $url. try again to connect...",
+          );
         }
         onConnect(false);
       },
@@ -112,7 +129,8 @@ class WebSocketService {
         timer.cancel();
         if (kDebugMode) {
           debugPrint(
-              "WebSocketService @ ${DateTime.now().toLocal()} => error for $url: ${error.toString()}");
+            "WebSocketService @ ${DateTime.now().toLocal()} => error for $url: ${error.toString()}",
+          );
         }
         onConnect(false);
       },

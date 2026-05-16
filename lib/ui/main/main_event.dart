@@ -21,9 +21,7 @@ class RestartPollingTimer extends MainEvent {
 class AddWebSocketService extends MainEvent {
   final String ip;
 
-  const AddWebSocketService({
-    required this.ip,
-  });
+  const AddWebSocketService({required this.ip});
 
   @override
   List<Object> get props => [ip];
@@ -39,9 +37,7 @@ class ResetWebSocketServices extends MainEvent {
 class SetLogMessage extends MainEvent {
   final String msg;
 
-  const SetLogMessage({
-    required this.msg,
-  });
+  const SetLogMessage({required this.msg});
 
   @override
   List<Object> get props => [msg];
@@ -50,9 +46,7 @@ class SetLogMessage extends MainEvent {
 class Searching extends MainEvent {
   final bool? idle;
 
-  const Searching({
-    this.idle,
-  });
+  const Searching({this.idle});
 
   @override
   List<Object> get props => [idle ?? false];
@@ -62,10 +56,7 @@ class SetSearchFilter extends MainEvent {
   final String type;
   final String filter;
 
-  const SetSearchFilter({
-    required this.type,
-    required this.filter,
-  });
+  const SetSearchFilter({required this.type, required this.filter});
 
   @override
   List<Object> get props => [type, filter];
@@ -74,9 +65,7 @@ class SetSearchFilter extends MainEvent {
 class LoadDevices extends MainEvent {
   final List<String> devices;
 
-  const LoadDevices({
-    required this.devices,
-  });
+  const LoadDevices({required this.devices});
 
   @override
   List<Object> get props => [devices];
@@ -86,10 +75,7 @@ class LoadInfo extends MainEvent {
   final String ip;
   final dynamic info;
 
-  const LoadInfo({
-    required this.ip,
-    required this.info,
-  });
+  const LoadInfo({required this.ip, required this.info});
 
   @override
   List<Object> get props => [ip, info];
@@ -98,9 +84,7 @@ class LoadInfo extends MainEvent {
 class GetInfo extends MainEvent {
   final String ip;
 
-  const GetInfo({
-    required this.ip,
-  });
+  const GetInfo({required this.ip});
 
   @override
   List<Object> get props => [ip];
@@ -109,9 +93,7 @@ class GetInfo extends MainEvent {
 class GetConfig extends MainEvent {
   final String ip;
 
-  const GetConfig({
-    required this.ip,
-  });
+  const GetConfig({required this.ip});
 
   @override
   List<Object> get props => [ip];
@@ -121,10 +103,7 @@ class UpdateStateConfig extends MainEvent {
   final String ip;
   final Map<String, dynamic> config;
 
-  const UpdateStateConfig({
-    required this.ip,
-    required this.config,
-  });
+  const UpdateStateConfig({required this.ip, required this.config});
 
   @override
   List<Object> get props => [ip, config];
@@ -134,10 +113,7 @@ class GetLog extends MainEvent {
   final String ip;
   final int hours;
 
-  const GetLog({
-    required this.ip,
-    required this.hours,
-  });
+  const GetLog({required this.ip, required this.hours});
 
   @override
   List<Object> get props => [ip, hours];
@@ -164,10 +140,7 @@ class SetSpotifyAuthRedirectUrl extends MainEvent {
   final String ip;
   final String url;
 
-  const SetSpotifyAuthRedirectUrl({
-    required this.ip,
-    required this.url,
-  });
+  const SetSpotifyAuthRedirectUrl({required this.ip, required this.url});
 
   @override
   List<Object> get props => [ip, url];
@@ -176,9 +149,7 @@ class SetSpotifyAuthRedirectUrl extends MainEvent {
 class SelectDeviceBefore extends MainEvent {
   final String ip;
 
-  const SelectDeviceBefore({
-    required this.ip,
-  });
+  const SelectDeviceBefore({required this.ip});
 
   @override
   List<Object> get props => [ip];
@@ -187,9 +158,7 @@ class SelectDeviceBefore extends MainEvent {
 class SelectDeviceNext extends MainEvent {
   final String ip;
 
-  const SelectDeviceNext({
-    required this.ip,
-  });
+  const SelectDeviceNext({required this.ip});
 
   @override
   List<Object> get props => [ip];
@@ -199,10 +168,7 @@ class SetIpRange extends MainEvent {
   final String? ipStart;
   final String? ipEnd;
 
-  const SetIpRange({
-    required this.ipStart,
-    required this.ipEnd,
-  });
+  const SetIpRange({required this.ipStart, required this.ipEnd});
 
   @override
   List<Object> get props {
@@ -222,21 +188,36 @@ class SetPing extends MainEvent {
   final String ip;
   final bool ping;
 
-  const SetPing({
-    required this.ip,
-    required this.ping,
-  });
+  const SetPing({required this.ip, required this.ping});
 
   @override
   List<Object> get props => [ip, ping];
 }
 
+class SetNotification extends MainEvent {
+  final String ip;
+  final String message;
+
+  const SetNotification({required this.ip, required this.message});
+
+  @override
+  List<Object> get props => [ip, message];
+}
+
+class RemoveNotification extends MainEvent {
+  final String ip;
+  final String message;
+
+  const RemoveNotification({required this.ip, required this.message});
+
+  @override
+  List<Object> get props => [ip, message];
+}
+
 class SetSelectedDeviceIp extends MainEvent {
   final String ip;
 
-  const SetSelectedDeviceIp({
-    required this.ip,
-  });
+  const SetSelectedDeviceIp({required this.ip});
 
   @override
   List<Object> get props => [ip];
@@ -246,10 +227,7 @@ class SetConnected extends MainEvent {
   final String ip;
   final bool connected;
 
-  const SetConnected({
-    required this.ip,
-    required this.connected,
-  });
+  const SetConnected({required this.ip, required this.connected});
 
   @override
   List<Object> get props => [ip, connected];
@@ -258,9 +236,7 @@ class SetConnected extends MainEvent {
 class DisableListItemsRendering extends MainEvent {
   final bool disable;
 
-  const DisableListItemsRendering({
-    required this.disable,
-  });
+  const DisableListItemsRendering({required this.disable});
 
   @override
   List<Object> get props => [disable];
@@ -269,9 +245,7 @@ class DisableListItemsRendering extends MainEvent {
 class SetTilesExpanded extends MainEvent {
   final Map<String, bool> tileExpanded;
 
-  const SetTilesExpanded({
-    required this.tileExpanded,
-  });
+  const SetTilesExpanded({required this.tileExpanded});
 
   @override
   List<Object> get props => [tileExpanded];
@@ -281,10 +255,7 @@ class SetTileExpanded extends MainEvent {
   final String name;
   final bool expanded;
 
-  const SetTileExpanded({
-    required this.name,
-    required this.expanded,
-  });
+  const SetTileExpanded({required this.name, required this.expanded});
 
   @override
   List<Object> get props => [name, expanded];

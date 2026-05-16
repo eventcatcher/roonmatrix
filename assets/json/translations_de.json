@@ -180,6 +180,8 @@
     "transmitSpotifyAuthCodeButtonLabel": "Übertrage den Authorisierungscode an das Gerät",
     "spotifyConnectAuthValidText": "Die Spotify Connect-Autorisierung war erfolgreich",
     "startInAppDeviceServerLabel": "In-App-Geräteserver aktivieren (virtuelles Gerät, sichtbar nach Neustart der App)",
+    "notificationsApproveTitle": "Benachrichtigungen",
+    "notificationRoonActivation": "Bitte aktiviere das Gerät [DEVICENAME] in den Roon Einstellungen für Erweiterungen.",
     "config": {
         "hostname": "Hostname [Wichtig]",
         "password": "Passwort [Wichtig]",

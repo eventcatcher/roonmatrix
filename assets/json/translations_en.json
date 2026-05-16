@@ -180,6 +180,8 @@
     "transmitSpotifyAuthCodeButtonLabel": "Send the authorization code to the device",
     "spotifyConnectAuthValidText": "Spotify Connect authorization was successful",
     "startInAppDeviceServerLabel": "Enable In-App Device Server (virtual device, visible after app restart)",
+    "notificationsApproveTitle": "Notifications",
+    "notificationRoonActivation": "Please enable the device [DEVICENAME] in the Roon settings for extensions.",
     "config": {
         "hostname": "Hostname (Important)",
         "password": "Password (Important)",
