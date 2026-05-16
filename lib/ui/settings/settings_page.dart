@@ -344,18 +344,19 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
-            child: SwitchButton(
-              label:
-                  translations['startInAppDeviceServerLabel'] ??
-                  'Enable In-App Device Server (local running virtual device, visible after app restart)',
-              enabled: startInAppDeviceServer,
-              onChanged: (value) {
-                settingsBloc.setStartInAppDeviceServer(enabled: value);
-              },
+          if (Globals.isDesktopDevice() == true)
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
+              child: SwitchButton(
+                label:
+                    translations['startInAppDeviceServerLabel'] ??
+                    'Enable In-App Device Server (local running virtual device, visible after app restart)',
+                enabled: startInAppDeviceServer,
+                onChanged: (value) {
+                  settingsBloc.setStartInAppDeviceServer(enabled: value);
+                },
+              ),
             ),
-          ),
           Padding(
             padding: const EdgeInsets.only(
               right: 10.0,
