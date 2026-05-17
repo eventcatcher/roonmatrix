@@ -24,6 +24,7 @@ class BurgerMenuWrapper extends StatefulWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final String selectedDeviceIp;
   final Map<String, dynamic> info;
+  final bool isVirtualDevice;
   final Map<String, dynamic> spotifyAuthUrls;
   final AnimationController animationController;
   final double? navigationTop;
@@ -38,6 +39,7 @@ class BurgerMenuWrapper extends StatefulWidget {
     required this.scaffoldKey,
     required this.selectedDeviceIp,
     required this.info,
+    required this.isVirtualDevice,
     required this.spotifyAuthUrls,
     required this.animationController,
     this.navigationTop,
@@ -197,6 +199,7 @@ class _BurgerMenuWrapperState extends State<BurgerMenuWrapper> {
           ip: selectedDeviceIp,
           minDesktopSize: minDesktopSize,
           standardDesktopSize: standardDesktopSize,
+          isVirtualDevice: widget.isVirtualDevice,
         ),
       );
     }

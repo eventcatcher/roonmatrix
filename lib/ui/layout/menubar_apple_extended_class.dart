@@ -250,7 +250,8 @@ class MenubarAppleExtendedClass {
             ),
           ),
           if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
-              isAppEmbedded == true)
+              isAppEmbedded == true ||
+              !isRaspberryPiDevice)
             EnhancedPlatformMenuItem(
               label: translations['messageButtonText'] ?? 'Message',
               icon: SFSymbolIcon(SFSymbols.captions_bubble),
@@ -270,7 +271,9 @@ class MenubarAppleExtendedClass {
                 ),
               ),
             ),
-          if (isMatrixDevice == true && isRaspberryPiDevice == true)
+          if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+              isAppEmbedded == true ||
+              !isRaspberryPiDevice)
             EnhancedPlatformMenuItem(
               label: translations['liveControlButtonText'] ?? 'Live Control',
               icon: SFSymbolIcon(SFSymbols.slider_horizontal_2_square),
@@ -287,6 +290,8 @@ class MenubarAppleExtendedClass {
                   ip: selectedDeviceIp,
                   minDesktopSize: minDesktopSize,
                   standardDesktopSize: standardDesktopSize,
+                  isVirtualDevice:
+                      isAppEmbedded == true || !isRaspberryPiDevice,
                 ),
               ),
             ),

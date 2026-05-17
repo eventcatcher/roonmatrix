@@ -149,7 +149,8 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           ),
         ),
         if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
-            isAppEmbedded == true)
+            isAppEmbedded == true ||
+            !isRaspberryPiDevice)
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['messageButtonText'] ?? 'Message',
@@ -162,7 +163,9 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
               standardDesktopSize: standardDesktopSize,
             ),
           ),
-        if (isMatrixDevice == true && isRaspberryPiDevice == true)
+        if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+            isAppEmbedded == true ||
+            !isRaspberryPiDevice)
           PageButton(
             navigatorKey: navigatorKey,
             label: translations['liveControlButtonText'] ?? 'Live Control',
@@ -173,6 +176,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
               name: info[ip]['name'],
               minDesktopSize: minDesktopSize,
               standardDesktopSize: standardDesktopSize,
+              isVirtualDevice: isAppEmbedded == true || !isRaspberryPiDevice,
             ),
           ),
         if (moreInfo == true) ...[

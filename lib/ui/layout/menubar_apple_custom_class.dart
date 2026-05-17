@@ -237,7 +237,8 @@ class MenubarAppleCustomClass {
             ),
           ),
           if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
-              isAppEmbedded == true)
+              isAppEmbedded == true ||
+              !isRaspberryPiDevice)
             PlatformMenuItem(
               label: translations['messageButtonText'] ?? 'Message',
               shortcut: const SingleActivator(
@@ -256,7 +257,9 @@ class MenubarAppleCustomClass {
                 ),
               ),
             ),
-          if (isMatrixDevice == true && isRaspberryPiDevice == true)
+          if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+              isAppEmbedded == true ||
+              !isRaspberryPiDevice)
             PlatformMenuItem(
               label: translations['liveControlButtonText'] ?? 'Live Control',
               shortcut: const SingleActivator(
@@ -272,6 +275,8 @@ class MenubarAppleCustomClass {
                   ip: selectedDeviceIp,
                   minDesktopSize: minDesktopSize,
                   standardDesktopSize: standardDesktopSize,
+                  isVirtualDevice:
+                      isAppEmbedded == true || !isRaspberryPiDevice,
                 ),
               ),
             ),

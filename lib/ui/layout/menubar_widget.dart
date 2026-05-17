@@ -568,7 +568,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 text: Text(translations['controlButtonText'] ?? 'Control'),
               ),
               if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
-                  isAppEmbedded == true)
+                  isAppEmbedded == true ||
+                  !isRaspberryPiDevice)
                 MenuButton(
                   onTap: () => SharedWidgets.openPage(
                     context: context,
@@ -589,7 +590,9 @@ class MenubarWidgetState extends State<MenubarWidget> {
                   shortcutText: 'Ctrl+Shift+M',
                   text: Text(translations['messageButtonText'] ?? 'Message'),
                 ),
-              if (isMatrixDevice == true && isRaspberryPiDevice == true)
+              if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+                  isAppEmbedded == true ||
+                  !isRaspberryPiDevice)
                 MenuButton(
                   onTap: () => SharedWidgets.openPage(
                     context: context,
@@ -599,6 +602,8 @@ class MenubarWidgetState extends State<MenubarWidget> {
                       ip: selectedDeviceIp,
                       minDesktopSize: minDesktopSize,
                       standardDesktopSize: standardDesktopSize,
+                      isVirtualDevice:
+                          isAppEmbedded == true || !isRaspberryPiDevice,
                     ),
                   ),
                   icon: const Icon(Icons.visibility_outlined),

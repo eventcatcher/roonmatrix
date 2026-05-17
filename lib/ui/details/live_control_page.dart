@@ -27,6 +27,7 @@ class LiveControlPage extends StatefulWidget {
   final String ip;
   final Size minDesktopSize;
   final Size standardDesktopSize;
+  final bool isVirtualDevice;
 
   const LiveControlPage({
     super.key,
@@ -34,6 +35,7 @@ class LiveControlPage extends StatefulWidget {
     required this.ip,
     required this.minDesktopSize,
     required this.standardDesktopSize,
+    required this.isVirtualDevice,
   });
 
   @override
@@ -45,6 +47,7 @@ class LiveControlPageState extends State<LiveControlPage> {
   String get ip => widget.ip;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
+  bool get isVirtualDevice => widget.isVirtualDevice;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -109,7 +112,8 @@ class LiveControlPageState extends State<LiveControlPage> {
         Flexible(
           child: HorizontalSlider(
             key: ValueKey('SliderVerticalScrollDelay-$selectedDeviceIp'),
-            label: translations['config']?['vertical_scroll_delay'] ??
+            label:
+                translations['config']?['vertical_scroll_delay'] ??
                 'Vertical scroll delay',
             smallHeight: smallHeight,
             sliderValue: verticalScrollDelay,
@@ -121,7 +125,8 @@ class LiveControlPageState extends State<LiveControlPage> {
                 ? verticalScrollDelay
                 : verticalScrollMax,
             divisions: verticalScrollDivisions,
-            valueType: translations['config']?[verticalScrollDelayUnit] ??
+            valueType:
+                translations['config']?[verticalScrollDelayUnit] ??
                 verticalScrollDelayUnit ??
                 translations['config']?['seconds'] ??
                 'seconds',
@@ -156,24 +161,25 @@ class LiveControlPageState extends State<LiveControlPage> {
           key: ValueKey('SliderScrollSpeed-$selectedDeviceIp'),
           label: verticalOutput == true
               ? translations['config'] != null &&
-                      translations['config']['led_vertical_scroll_delay'] !=
-                          null
-                  ? (translations['config']['led_vertical_scroll_delay']
-                          as String)
-                      .replaceAll('LED ', '')
-                  : 'Vertical scroll delay (line by line)'
+                        translations['config']['led_vertical_scroll_delay'] !=
+                            null
+                    ? (translations['config']['led_vertical_scroll_delay']
+                              as String)
+                          .replaceAll('LED ', '')
+                    : 'Vertical scroll delay (line by line)'
               : translations['config'] != null &&
-                      translations['config']['led_scroll_delay'] != null
-                  ? (translations['config']['led_scroll_delay'] as String)
-                      .replaceAll('LED ', '')
-                  : 'Horizontal scroll delay (line by line)',
+                    translations['config']['led_scroll_delay'] != null
+              ? (translations['config']['led_scroll_delay'] as String)
+                    .replaceAll('LED ', '')
+              : 'Horizontal scroll delay (line by line)',
           smallHeight: smallHeight,
           sliderValue: scrollSpeed,
           labelWidth: labelWidth,
           min: scrollSpeed < scrollMin ? scrollSpeed : scrollMin,
           max: scrollSpeed > scrollMax ? scrollSpeed : scrollMax,
           divisions: scrollDivisions,
-          valueType: translations['config']?[ledScrollDelayUnit] ??
+          valueType:
+              translations['config']?[ledScrollDelayUnit] ??
               ledScrollDelayUnit ??
               translations['config']?['ms'] ??
               'ms',
@@ -205,46 +211,47 @@ class LiveControlPageState extends State<LiveControlPage> {
           },
         ),
       ),
-      Flexible(
-        child: HorizontalSlider(
-          key: ValueKey('SliderContrast-$selectedDeviceIp'),
-          label: translations['config']?['led_contrast'] != null
-              ? (translations['config']?['led_contrast'] as String)
-                  .replaceAll('LED ', '')
-              : 'contrast',
-          smallHeight: smallHeight,
-          sliderValue: contrast,
-          labelWidth: labelWidth,
-          min: contrast < contrastMin ? contrast : contrastMin,
-          max: contrast > contrastMax ? contrast : contrastMax,
-          divisions: contrastDivisions,
-          valueType: '%',
-          orientation: orientation,
-          onChanged: (double value) {
-            EasyDebounce.debounce(
-              'livecontrol-contrastSetLiveControl-debouncer',
-              debounceSetLiveControlDuration,
-              () {
-                mainBloc.saveLiveControl(
-                  ip: selectedDeviceIp,
-                  control: 'led_contrast',
-                  value: value.floor().toString(),
-                );
-              },
-            );
-            EasyDebounce.debounce(
-              'livecontrol-contrastGetinfo-debouncer',
-              debounceGetInfoDuration,
-              () {
-                mainBloc.getInfo(ip: selectedDeviceIp);
-              },
-            );
-            setState(() {
-              contrast = value;
-            });
-          },
+      if (!isVirtualDevice)
+        Flexible(
+          child: HorizontalSlider(
+            key: ValueKey('SliderContrast-$selectedDeviceIp'),
+            label: translations['config']?['led_contrast'] != null
+                ? (translations['config']?['led_contrast'] as String)
+                      .replaceAll('LED ', '')
+                : 'contrast',
+            smallHeight: smallHeight,
+            sliderValue: contrast,
+            labelWidth: labelWidth,
+            min: contrast < contrastMin ? contrast : contrastMin,
+            max: contrast > contrastMax ? contrast : contrastMax,
+            divisions: contrastDivisions,
+            valueType: '%',
+            orientation: orientation,
+            onChanged: (double value) {
+              EasyDebounce.debounce(
+                'livecontrol-contrastSetLiveControl-debouncer',
+                debounceSetLiveControlDuration,
+                () {
+                  mainBloc.saveLiveControl(
+                    ip: selectedDeviceIp,
+                    control: 'led_contrast',
+                    value: value.floor().toString(),
+                  );
+                },
+              );
+              EasyDebounce.debounce(
+                'livecontrol-contrastGetinfo-debouncer',
+                debounceGetInfoDuration,
+                () {
+                  mainBloc.getInfo(ip: selectedDeviceIp);
+                },
+              );
+              setState(() {
+                contrast = value;
+              });
+            },
+          ),
         ),
-      ),
     ];
   }
 
@@ -268,43 +275,46 @@ class LiveControlPageState extends State<LiveControlPage> {
     return Container(
       padding: const EdgeInsets.all(8),
       child: Center(
-          child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          SelectBox(
-            translations: translations,
-            aligned: 'horizontal',
-            label: Globals.inIosStyle()
-                ? null
-                : '${translations['deviceName'] ?? 'Device name'}:',
-            placeholder:
-                '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
-            inRow: false,
-            noVerticalSpace: false,
-            readOnly: false,
-            expanded: Globals.inIosStyle(),
-            elementExpanded: Globals.inIosStyle(),
-            selected: selectedDeviceName,
-            options: options,
-            onChanged: (String? newValue) {
-              if (newValue != null) {
-                mainBloc.getConfig(ip: options[newValue]!);
-                setState(() {
-                  selectedDeviceName = newValue;
-                  selectedDeviceIp = options[newValue]!;
-                  controlVarInit = false;
-                });
-              }
-            },
-          ),
-          SizedBox(
-              height: (Platform.isIOS || Platform.isAndroid) &&
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            SelectBox(
+              translations: translations,
+              aligned: 'horizontal',
+              label: Globals.inIosStyle()
+                  ? null
+                  : '${translations['deviceName'] ?? 'Device name'}:',
+              placeholder:
+                  '${translations['deviceSelectionPlaceholder'] ?? 'Select device'}...',
+              inRow: false,
+              noVerticalSpace: false,
+              readOnly: false,
+              expanded: Globals.inIosStyle(),
+              elementExpanded: Globals.inIosStyle(),
+              selected: selectedDeviceName,
+              options: options,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  mainBloc.getConfig(ip: options[newValue]!);
+                  setState(() {
+                    selectedDeviceName = newValue;
+                    selectedDeviceIp = options[newValue]!;
+                    controlVarInit = false;
+                  });
+                }
+              },
+            ),
+            SizedBox(
+              height:
+                  (Platform.isIOS || Platform.isAndroid) &&
                       orientation == Orientation.landscape
                   ? 0
-                  : 8.0),
-          ...sliders,
-        ],
-      )),
+                  : 8.0,
+            ),
+            ...sliders,
+          ],
+        ),
+      ),
     );
   }
 
@@ -319,14 +329,17 @@ class LiveControlPageState extends State<LiveControlPage> {
 
     fieldDefinition = definitions != null
         ? definitions.area
-            .firstWhereOrNull((ConfigDefinitionArea el) => el.name == 'SYSTEM')!
-            .items
-            .toList()
+              .firstWhereOrNull(
+                (ConfigDefinitionArea el) => el.name == 'SYSTEM',
+              )!
+              .items
+              .toList()
         : [];
 
-    ConfigDefinitionItem? verticalScrollDelayDef =
-        fieldDefinition.firstWhereOrNull(
-            (ConfigDefinitionItem el) => el.name == 'vertical_scroll_delay');
+    ConfigDefinitionItem? verticalScrollDelayDef = fieldDefinition
+        .firstWhereOrNull(
+          (ConfigDefinitionItem el) => el.name == 'vertical_scroll_delay',
+        );
     verticalScrollDelayUnit = verticalScrollDelayDef?.unit;
     if (verticalScrollDelayUnit != null &&
         verticalScrollDelayUnit!.contains('-')) {
@@ -346,11 +359,12 @@ class LiveControlPageState extends State<LiveControlPage> {
     }
 
     ConfigDefinitionItem? scrollDelayDef = fieldDefinition.firstWhereOrNull(
-        (ConfigDefinitionItem el) =>
-            el.name ==
-            (verticalOutput == true
-                ? 'led_vertical_scroll_delay'
-                : 'led_scroll_delay'));
+      (ConfigDefinitionItem el) =>
+          el.name ==
+          (verticalOutput == true
+              ? 'led_vertical_scroll_delay'
+              : 'led_scroll_delay'),
+    );
     ledScrollDelayUnit = scrollDelayDef?.unit;
     if (ledScrollDelayUnit != null && ledScrollDelayUnit!.contains('-')) {
       ledScrollDelayUnit = '($ledScrollDelayUnit)';
@@ -359,21 +373,26 @@ class LiveControlPageState extends State<LiveControlPage> {
     if (scrollDelayType != null &&
         scrollDelayType.startsWith('int(') &&
         scrollDelayType.endsWith(')')) {
-      List<String> scrollDelayTypeParts =
-          scrollDelayType.replaceAll('int(', '').replaceAll(')', '').split(',');
+      List<String> scrollDelayTypeParts = scrollDelayType
+          .replaceAll('int(', '')
+          .replaceAll(')', '')
+          .split(',');
       scrollMin = double.parse(scrollDelayTypeParts[0]);
       scrollMax = double.parse(scrollDelayTypeParts[1]);
       scrollDivisions = (scrollMax - scrollMin).toInt();
     }
 
     ConfigDefinitionItem? contrastDef = fieldDefinition.firstWhereOrNull(
-        (ConfigDefinitionItem el) => el.name == 'led_contrast');
+      (ConfigDefinitionItem el) => el.name == 'led_contrast',
+    );
     String? contrastType = contrastDef?.type.type;
     if (contrastType != null &&
         contrastType.startsWith('int(') &&
         contrastType.endsWith(')')) {
-      List<String> contrastTypeParts =
-          contrastType.replaceAll('int(', '').replaceAll(')', '').split(',');
+      List<String> contrastTypeParts = contrastType
+          .replaceAll('int(', '')
+          .replaceAll(')', '')
+          .split(',');
       contrastMin = double.parse(contrastTypeParts[0]);
       contrastMax = double.parse(contrastTypeParts[1]);
     }
@@ -389,8 +408,9 @@ class LiveControlPageState extends State<LiveControlPage> {
         try {
           verticalOutput = info['vertical_output'] ?? false;
 
-          verticalScrollDelay =
-              double.parse(info['vertical_scroll_delay'].toString());
+          verticalScrollDelay = double.parse(
+            info['vertical_scroll_delay'].toString(),
+          );
           scrollSpeed = verticalOutput == true
               ? double.parse(info['led_vertical_scroll_delay'].toString())
               : double.parse(info['led_scroll_delay'].toString());
@@ -414,152 +434,153 @@ class LiveControlPageState extends State<LiveControlPage> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        bloc: translationsBloc,
-        builder: (context, TranslationsState translationsState) {
-          if (translationsState is TranslationsStateLoaded) {
-            translations = translationsState.translations;
-            translationsLoaded = translationsState.translationsLoaded;
-            title =
-                '$name : ${translations['liveControlPageHeaderText'] ?? 'Live Control'}';
-          }
+      bloc: translationsBloc,
+      builder: (context, TranslationsState translationsState) {
+        if (translationsState is TranslationsStateLoaded) {
+          translations = translationsState.translations;
+          translationsLoaded = translationsState.translationsLoaded;
+          title =
+              '$name : ${translations['liveControlPageHeaderText'] ?? 'Live Control'}';
+        }
 
-          if (translationsState is! TranslationsStateLoaded ||
-              !translationsLoaded) {
-            if (Globals.inIosStyle()) {
-              return CupertinoPageScaffold(
-                navigationBar: CupertinoNavigationBar(
-                  brightness: Globals.brightness(),
-                  middle: Text(title),
-                ),
-                child: SizedBox(),
-              );
+        if (translationsState is! TranslationsStateLoaded ||
+            !translationsLoaded) {
+          if (Globals.inIosStyle()) {
+            return CupertinoPageScaffold(
+              navigationBar: CupertinoNavigationBar(
+                brightness: Globals.brightness(),
+                middle: Text(title),
+              ),
+              child: SizedBox(),
+            );
+          }
+          return Globals.inMacosStyle()
+              ? MacosScaffold(
+                  toolBar: ToolBar(
+                    title: Text(
+                      title,
+                      style: TextStyle(
+                        color: ColorDefs.textColor(context: context),
+                      ),
+                    ),
+                    titleWidth: Globals.extendedTitleWidth,
+                    leading: MacosBackButton(
+                      onPressed: () => Navigator.pop(context),
+                      fillColor: Colors.transparent,
+                    ),
+                    actions: [],
+                  ),
+                  children: [
+                    ContentArea(
+                      builder: ((context, scrollController) {
+                        return MacosWindow(child: Material(child: SizedBox()));
+                      }),
+                    ),
+                  ],
+                )
+              : Scaffold(
+                  appBar: AppBar(title: Text(title)),
+                  body: const SizedBox(),
+                );
+        }
+
+        return BlocBuilder(
+          bloc: mainBloc,
+          builder: (context, MainState mainState) {
+            if (mainState is! MainStateLoaded ||
+                !mainState.definitions.containsKey(ip)) {
+              return const SizedBox();
             }
-            return Globals.inMacosStyle()
-                ? MacosScaffold(
-                    toolBar: ToolBar(
-                      title: Text(
-                        title,
-                        style: TextStyle(
-                          color: ColorDefs.textColor(context: context),
-                        ),
-                      ),
-                      titleWidth: Globals.extendedTitleWidth,
-                      leading: MacosBackButton(
-                        onPressed: () => Navigator.pop(context),
-                        fillColor: Colors.transparent,
-                      ),
-                      actions: [],
-                    ),
-                    children: [
-                      ContentArea(
-                        builder: ((context, scrollController) {
-                          return MacosWindow(
-                            child: Material(
-                              child: SizedBox(),
-                            ),
-                          );
-                        }),
-                      ),
-                    ],
-                  )
-                : Scaffold(
-                    appBar: AppBar(
-                      title: Text(title),
-                    ),
-                    body: const SizedBox());
-          }
 
-          return BlocBuilder(
-              bloc: mainBloc,
-              builder: (context, MainState mainState) {
-                if (mainState is! MainStateLoaded ||
-                    !mainState.definitions.containsKey(ip)) {
-                  return const SizedBox();
-                }
+            macosVersion = mainState.macosVersion;
+            List<String> devices = mainState.devices;
+            Map<String, dynamic> infos = mainState.info;
+            ConfigDefinition? definitions = mainState.definitions[ip];
 
-                macosVersion = mainState.macosVersion;
-                List<String> devices = mainState.devices;
-                Map<String, dynamic> infos = mainState.info;
-                ConfigDefinition? definitions = mainState.definitions[ip];
+            updateVars(
+              devices: devices,
+              infos: infos,
+              definitions: definitions,
+              selectedDeviceIp: selectedDeviceIp,
+            );
 
-                updateVars(
-                  devices: devices,
-                  infos: infos,
-                  definitions: definitions,
+            return OrientationBuilder(
+              builder: (BuildContext context, Orientation orientation) {
+                sliders = buildSliders(
                   selectedDeviceIp: selectedDeviceIp,
+                  orientation: orientation,
                 );
 
-                return OrientationBuilder(
-                    builder: (BuildContext context, Orientation orientation) {
-                  sliders = buildSliders(
-                      selectedDeviceIp: selectedDeviceIp,
-                      orientation: orientation);
-
-                  if (Globals.inIosStyle()) {
-                    return Material(
-                      child: CupertinoPageScaffold(
-                        navigationBar: CupertinoNavigationBar(
-                          brightness: Globals.brightness(),
-                          middle: Text(title),
-                          leading: CupertinoNavigationBarBackButton(),
-                        ),
-                        child: SafeArea(
-                          child: body(
-                            devices: devices,
-                            infos: infos,
-                            definitions: definitions,
-                            options: options,
-                            sliders: sliders,
-                            orientation: orientation,
-                          ),
+                if (Globals.inIosStyle()) {
+                  return Material(
+                    child: CupertinoPageScaffold(
+                      navigationBar: CupertinoNavigationBar(
+                        brightness: Globals.brightness(),
+                        middle: Text(title),
+                        leading: CupertinoNavigationBarBackButton(),
+                      ),
+                      child: SafeArea(
+                        child: body(
+                          devices: devices,
+                          infos: infos,
+                          definitions: definitions,
+                          options: options,
+                          sliders: sliders,
+                          orientation: orientation,
                         ),
                       ),
-                    );
-                  }
+                    ),
+                  );
+                }
 
-                  return Globals.inMacosStyle()
-                      ? PageWithToolbarMacStyle(
-                          translations: translations,
-                          title: title,
-                          standardDesktopSize: standardDesktopSize,
-                          macosVersion: macosVersion,
-                          body: body(
-                            devices: devices,
-                            infos: infos,
-                            definitions: definitions,
-                            options: options,
-                            sliders: sliders,
-                            orientation: orientation,
-                          ),
-                          resizeToFullWidth: () {
-                            mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                                minDesktopSize: minDesktopSize);
-                          },
-                        )
-                      : PageWithToolbarFlutterStyle(
-                          scaffoldKey: scaffoldKey,
-                          translations: translations,
-                          title: title,
-                          sliderDefaultValue: 0.0,
-                          showSlider: false,
-                          showExpandableSpeedSlider: false,
-                          scrollSpeedDevice: 1.0,
-                          standardDesktopSize: standardDesktopSize,
-                          body: body(
-                            devices: devices,
-                            infos: infos,
-                            definitions: definitions,
-                            options: options,
-                            sliders: sliders,
-                            orientation: orientation,
-                          ),
-                          resizeToFullWidth: () {
-                            mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                                minDesktopSize: minDesktopSize);
-                          },
-                        );
-                });
-              });
-        });
+                return Globals.inMacosStyle()
+                    ? PageWithToolbarMacStyle(
+                        translations: translations,
+                        title: title,
+                        standardDesktopSize: standardDesktopSize,
+                        macosVersion: macosVersion,
+                        body: body(
+                          devices: devices,
+                          infos: infos,
+                          definitions: definitions,
+                          options: options,
+                          sliders: sliders,
+                          orientation: orientation,
+                        ),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                            minDesktopSize: minDesktopSize,
+                          );
+                        },
+                      )
+                    : PageWithToolbarFlutterStyle(
+                        scaffoldKey: scaffoldKey,
+                        translations: translations,
+                        title: title,
+                        sliderDefaultValue: 0.0,
+                        showSlider: false,
+                        showExpandableSpeedSlider: false,
+                        scrollSpeedDevice: 1.0,
+                        standardDesktopSize: standardDesktopSize,
+                        body: body(
+                          devices: devices,
+                          infos: infos,
+                          definitions: definitions,
+                          options: options,
+                          sliders: sliders,
+                          orientation: orientation,
+                        ),
+                        resizeToFullWidth: () {
+                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                            minDesktopSize: minDesktopSize,
+                          );
+                        },
+                      );
+              },
+            );
+          },
+        );
+      },
+    );
   }
 }

@@ -169,8 +169,9 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       ),
       expandableMenuController: expandableMenuController,
     ),
-    if ((isRaspberryPiDevice == true && isMatrixDevice == true) ||
-        isAppEmbedded == true)
+    if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+        isAppEmbedded == true ||
+        !isRaspberryPiDevice)
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['messageButtonText'] ?? 'Message',
@@ -184,7 +185,9 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         ),
         expandableMenuController: expandableMenuController,
       ),
-    if (isRaspberryPiDevice == true && isMatrixDevice == true)
+    if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+        isAppEmbedded == true ||
+        !isRaspberryPiDevice)
       PageButton(
         navigatorKey: navigatorKey,
         label: translations['liveControlButtonText'] ?? 'Live Control',
@@ -195,6 +198,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
           name: zoneData['name'],
           minDesktopSize: minDesktopSize,
           standardDesktopSize: standardDesktopSize,
+          isVirtualDevice: isAppEmbedded == true || !isRaspberryPiDevice,
         ),
         expandableMenuController: expandableMenuController,
       ),

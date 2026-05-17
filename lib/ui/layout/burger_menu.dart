@@ -196,7 +196,8 @@ class BurgerMenuState extends State<BurgerMenu> {
       );
 
       if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
-          isAppEmbedded == true) {
+          isAppEmbedded == true ||
+          !isRaspberryPiDevice) {
         popupData.add(
           BurgerMenuItemData(
             key: "message",
@@ -205,7 +206,9 @@ class BurgerMenuState extends State<BurgerMenu> {
         );
       }
 
-      if (isMatrixDevice == true && isRaspberryPiDevice == true) {
+      if ((isMatrixDevice == true && isRaspberryPiDevice == true) ||
+          isAppEmbedded == true ||
+          !isRaspberryPiDevice) {
         popupData.add(
           BurgerMenuItemData(
             key: "liveControl",
