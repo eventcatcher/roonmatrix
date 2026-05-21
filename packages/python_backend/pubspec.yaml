@@ -1,0 +1,24 @@
+name: python_backend
+description: Desktop-only Serious Python backend wrapper
+version: 1.0.0
+
+publish_to: 'none'
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  serious_python: ^1.0.0
+
+platforms:
+  macos:
+  windows:
+  linux:
+
+
+flutter:
+  assets:
+      - assets/backend/

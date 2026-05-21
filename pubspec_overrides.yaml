@@ -1,0 +1,3 @@
+dependency_overrides:
+  serious_python:
+    path: packages/empty_plugins/serious_python

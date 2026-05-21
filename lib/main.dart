@@ -25,9 +25,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
-import 'package:serious_python/serious_python.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:python_backend/python_runtime.dart';
 
 Future<void> _configureMacosWindowUtils() async {
   const MacosWindowUtilsConfig config = MacosWindowUtilsConfig(
@@ -126,27 +126,17 @@ class RoonMatrixState extends State<RoonMatrix> {
   late ConnectionStatusBloc connectionStatusBloc;
   late MainBloc mainBloc;
 
-  Future<void> pythonRuntimeInit() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool startInAppDeviceServer =
-        prefs.getBool('startInAppDeviceServer') ?? false;
+  Future<void> startPythonRuntimeIfRequirementsFulfilled() async {
+    if (Globals.isDesktopDevice() == true) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool startInAppDeviceServer =
+          prefs.getBool('startInAppDeviceServer') ?? false;
 
-    if (kDebugMode) {
-      debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
-    }
-    if (startInAppDeviceServer == true) {
-      String? response = await SeriousPython.run(
-        'assets/backend/roonmatrix.zip',
-        appFileName: 'roonmatrix.py',
-        environmentVariables: {
-          "embedded": "true",
-          "platform": Platform.operatingSystem,
-        },
-      );
       if (kDebugMode) {
-        debugPrint(
-          'virtual device started${response != null && response.isNotEmpty ? ' (response: $response)' : ''}',
-        );
+        debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
+      }
+      if (startInAppDeviceServer == true) {
+        pythonRuntimeInit();
       }
     }
   }
@@ -181,9 +171,7 @@ class RoonMatrixState extends State<RoonMatrix> {
       }
     });
 
-    if (Globals.isDesktopDevice() == true) {
-      pythonRuntimeInit();
-    }
+    startPythonRuntimeIfRequirementsFulfilled();
 
     super.initState();
   }

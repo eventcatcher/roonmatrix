@@ -82,9 +82,10 @@ dependencies:
   enhanced_platform_menu: ^0.2.1
   audio_video_progress_bar: ^2.0.3
   card_swiper: ^3.0.1
-  serious_python: ^1.0.0
   path: ^1.9.1
   network_info_plus: ^7.0.0
+  python_backend:
+    path: packages/python_backend
 
 dependency_overrides:
 
@@ -178,9 +179,6 @@ flutter:
     - assets/json/translations_en.json
     - assets/json/translations_de.json
     - assets/json/translations_fr.json
-
-  # python backend (playout processing)
-    - assets/backend/roonmatrix.zip
 
   fonts:
     - family: Lightdot
