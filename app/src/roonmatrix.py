@@ -20,6 +20,7 @@ scriptVersion = '1.3.1, date: 16.05.2026'
 APP_NAME = "roonmatrix"
 
 import argparse
+import os
 from os import path, system, environ, stat, remove, rename, getcwd, makedirs, umask
 from threading import Timer
 from datetime import datetime, timedelta, timezone
@@ -62,6 +63,12 @@ from roonapi import RoonApi, RoonDiscovery
 from weatherbit.api import Api
 import feedparser
 from spotify_connect import SpotifyConnect
+
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w")
+
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w")
 
 def is_running_on_raspberry_pi():
     try:
@@ -1168,7 +1175,7 @@ else:
                 self.address_string(),
                 format % args
             )
-            flexprint(f"[magenta]{msg}[/magenta]")
+            flexprint(f"[magenta]RestHandler log: {msg}[/magenta]")
     
 		# In Windows, sys.stderr or sys.stdout is set to None within the Python runtime (serious_python). Therefore, the log_error function is overridden here.
         #BaseHTTPRequestHandler.send_response() internally calls log_request(), which in turn uses log_message()—and by default, that function writes to sys.stderr.write.
@@ -1177,7 +1184,7 @@ else:
                 self.address_string(),
                 format % args
             )
-            flexprint(f"[red]{msg}[/red]")
+            flexprint(f"[red]RestHandler log: {msg}[/red]")
 
         def send_octet_stream(self, obj, status=200):
             self.send_response(status)
