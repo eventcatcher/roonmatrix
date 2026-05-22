@@ -16,8 +16,24 @@
 # start service: sudo systemctl start roonmatrix.service
 # live log:      journalctl -f
 
-scriptVersion = '1.3.1, date: 16.05.2026'
+scriptVersion = '1.3.1, date: 22.05.2026'
 APP_NAME = "roonmatrix"
+
+startlog = False	# default true: log start and config information
+errorlog = False	# default true: log errors
+log = False			# default true: log infos on or off
+
+debug = False		# default false: log debug messages (memory and variable information)
+silent = True		# default False: print no warnings and no error messages to the console output
+
+import sys
+
+if silent is True:
+    import warnings ; warnings.warn = lambda *args,**kwargs: None
+    def supressErrors(*args):
+        pass
+    suppressionHandle = sys.stderr
+    sys.stderr = supressErrors()
 
 import argparse
 import os
@@ -35,7 +51,6 @@ from urllib.error import URLError, HTTPError
 from urllib import parse
 import configparser
 import json
-import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import asyncio
 from functools import wraps
@@ -67,13 +82,13 @@ from spotify_connect import SpotifyConnect
 BASE_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
 os.chdir(BASE_DIR)
 
-if sys.stdout is None:
+if sys.stdout is None or log is False:
     sys.stdout = open(os.devnull, "w")
 
-if sys.stderr is None:
+if sys.stderr is None or log is False:
     sys.stderr = open(os.devnull, "w")
 
-if sys.stdin is None:
+if sys.stdin is None or log is False:
     sys.stdin = open(os.devnull, "r")
 
 def log_exception(exc_type, exc_value, exc_traceback):
@@ -100,35 +115,36 @@ def is_running_on_raspberry_pi():
     except Exception:
         return False
 
-startlog = True # log start and config information
-errorlog = True # log errors
-log = True      # log infos on or off
-debug = False   # log debug messages (memory and variable information)
 logger = None
 
-print('')
-print('start roonmatrix python script @ ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-print('parse args now...')
+if log is True:
+    print('')
+    print('start roonmatrix python script @ ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+if startlog is True:
+    print('parse args now...')
 parser = argparse.ArgumentParser()
 parser.add_argument("-e", "--embedded", default=False, action='store_true',
                     help="started as app embedded script")
 args = parser.parse_args()
 is_app_embedded = args.embedded
 
-if debug is True:
+if startlog is True:
     print('parse env now...')
+if debug is True:
     print('')
     for key in environ:
         print('env ' + str(key) + ', value: ' + str(environ[key]))
     print('')
 
 if is_app_embedded is False and 'embedded' in environ:
-    print('found env embedded: ' + str(environ['embedded']))
-    print('')
+    if startlog is True:
+        print('found env embedded: ' + str(environ['embedded']))
+        print('')
     is_app_embedded = True
 
-print('started as app embedded script: ' + str(is_app_embedded))
-print('')
+if startlog is True:
+    print('started as app embedded script: ' + str(is_app_embedded))
+    print('')
 
 use_fastapi_on_pi = True # use fastapi package on raspberry pi devices
 is_raspberry_pi = is_running_on_raspberry_pi()
@@ -169,7 +185,8 @@ else:
 if debug is True:
     import psutil
 
-print('import packages done...')
+if startlog is True:
+    print('import packages done...')
 
 display_cover = False
 downloadserver = 'https://www.wilhelm-devblog.de/translations_device/'
@@ -181,7 +198,8 @@ if is_raspberry_pi:
 else:
     dirs = PlatformDirs(APP_NAME.title(), appauthor=False, ensure_exists=True)
     configs_dir = dirs.user_config_dir + '/'
-print('configs path: ' + configs_dir)
+if startlog is True:
+    print('configs path: ' + configs_dir)
 
 base_translations_path = configs_dir + 'translations/'
 if is_raspberry_pi is False and not path.exists(base_translations_path):
@@ -198,8 +216,9 @@ if is_app_embedded is True or is_raspberry_pi is False or path.exists("/dev/shm"
         Path(TEMP_STATE_DIR).mkdir(parents=True, exist_ok=True)
     
 TEMP_STATE_FILE = f"{TEMP_STATE_DIR}/control_zone_state.json"
-print('current_path: ' + current_path)
-print('TEMP_STATE_FILE: ' + TEMP_STATE_FILE)
+if startlog is True:
+    print('current_path: ' + current_path)
+    print('TEMP_STATE_FILE: ' + TEMP_STATE_FILE)
 
 logdir = ''
  
@@ -299,7 +318,8 @@ else:
 idfile = roon_write_path + 'coreid.txt'
 tokenfile = roon_write_path + 'roontoken.txt'
 # read config file
-print('read main ini')
+if startlog is True:
+    print('read main ini')
 config = configparser.ConfigParser()
 config.read(configReadFile)
 
