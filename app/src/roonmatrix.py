@@ -77,10 +77,21 @@ if sys.stdin is None:
     sys.stdin = open(os.devnull, "r")
 
 def log_exception(exc_type, exc_value, exc_traceback):
-    with open("python_crash.log", "a", encoding="utf-8") as f:
+    crashlog_file = os.path.join(
+        tempfile.gettempdir(),
+        "roonmatrix_python_crash.log"
+    )
+    with open(crashlog_file, "a", encoding="utf-8") as f:
         traceback.print_exception(exc_type, exc_value, exc_traceback, file=f)
 
 sys.excepthook = log_exception
+
+testfile = os.path.join(
+    tempfile.gettempdir(),
+    "roonmatrix_python_started.txt"
+)
+with open(testfile, "w", encoding="utf-8") as f:
+    f.write("started")
 
 def is_running_on_raspberry_pi():
     try:
@@ -95,6 +106,8 @@ log = True      # log infos on or off
 debug = False   # log debug messages (memory and variable information)
 logger = None
 
+print('')
+print('start roonmatrix python script @ ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 print('parse args now...')
 parser = argparse.ArgumentParser()
 parser.add_argument("-e", "--embedded", default=False, action='store_true',
