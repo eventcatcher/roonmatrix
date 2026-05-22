@@ -64,11 +64,23 @@ from weatherbit.api import Api
 import feedparser
 from spotify_connect import SpotifyConnect
 
+BASE_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
+os.chdir(BASE_DIR)
+
 if sys.stdout is None:
     sys.stdout = open(os.devnull, "w")
 
 if sys.stderr is None:
     sys.stderr = open(os.devnull, "w")
+
+if sys.stdin is None:
+    sys.stdin = open(os.devnull, "r")
+
+def log_exception(exc_type, exc_value, exc_traceback):
+    with open("python_crash.log", "a", encoding="utf-8") as f:
+        traceback.print_exception(exc_type, exc_value, exc_traceback, file=f)
+
+sys.excepthook = log_exception
 
 def is_running_on_raspberry_pi():
     try:
