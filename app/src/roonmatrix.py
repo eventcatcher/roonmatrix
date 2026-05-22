@@ -1161,6 +1161,24 @@ else:
 
     class MyRestHandler(BaseHTTPRequestHandler):
 
+		# In Windows, sys.stderr or sys.stdout is set to None within the Python runtime (serious_python). Therefore, the log_message function is overridden here.
+        #BaseHTTPRequestHandler.send_response() internally calls log_request(), which in turn uses log_message()—and by default, that function writes to sys.stderr.write.
+        def log_message(self, format, *args):
+            msg = "%s - %s" % (
+                self.address_string(),
+                format % args
+            )
+            flexprint(f"[magenta]{msg}[/magenta]")
+    
+		# In Windows, sys.stderr or sys.stdout is set to None within the Python runtime (serious_python). Therefore, the log_error function is overridden here.
+        #BaseHTTPRequestHandler.send_response() internally calls log_request(), which in turn uses log_message()—and by default, that function writes to sys.stderr.write.
+        def log_error(self, format, *args):
+            msg = "%s - %s" % (
+                self.address_string(),
+                format % args
+            )
+            flexprint(f"[red]{msg}[/red]")
+
         def send_octet_stream(self, obj, status=200):
             self.send_response(status)
             self.send_header("Content-Type", 'application/octet-stream')
