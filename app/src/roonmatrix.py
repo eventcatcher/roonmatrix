@@ -19,12 +19,12 @@
 scriptVersion = '1.3.1, date: 22.05.2026'
 APP_NAME = "roonmatrix"
 
-startlog = False	# default true: log start and config information
-errorlog = False	# default true: log errors
-log = False			# default true: log infos on or off
+startlog = True	# default true: log start and config information
+errorlog = True	# default true: log errors
+log = True			# default true: log infos on or off
 
 debug = False		# default false: log debug messages (memory and variable information)
-silent = True		# default False: print no warnings and no error messages to the console output
+silent = False		# default False: print no warnings and no error messages to the console output
 
 import sys
 
@@ -79,8 +79,8 @@ from weatherbit.api import Api
 import feedparser
 from spotify_connect import SpotifyConnect
 
-BASE_DIR = os.path.dirname(os.path.abspath(sys.argv[0]))
-os.chdir(BASE_DIR)
+# In Windows, sys.stderr and/or sys.stdout inside Python runtime (serious_python) is not working and results in a exception which will stop running the script. 
+# Therefore, this log functions are overridden here.
 
 if sys.stdout is None or log is False:
     sys.stdout = open(os.devnull, "w")
@@ -191,13 +191,13 @@ if startlog is True:
 display_cover = False
 downloadserver = 'https://www.wilhelm-devblog.de/translations_device/'
 
-current_path = path.dirname(path.abspath(__file__)) + '/'
+current_path = (path.dirname(path.abspath(__file__)) + '/').replace('\\','/')
 
 if is_raspberry_pi:
     configs_dir = current_path
 else:
     dirs = PlatformDirs(APP_NAME.title(), appauthor=False, ensure_exists=True)
-    configs_dir = dirs.user_config_dir + '/'
+    configs_dir = (dirs.user_config_dir + '/').replace('\\','/')
 if startlog is True:
     print('configs path: ' + configs_dir)
 
@@ -1212,25 +1212,6 @@ else:
     # REST-Webserver without fastAPI plugin (for inapp server)
 
     class MyRestHandler(BaseHTTPRequestHandler):
-
-		# In Windows, sys.stderr or sys.stdout is set to None within the Python runtime (serious_python). Therefore, the log_message function is overridden here.
-        #BaseHTTPRequestHandler.send_response() internally calls log_request(), which in turn uses log_message()—and by default, that function writes to sys.stderr.write.
-        def log_message(self, format, *args):
-            msg = "%s - %s" % (
-                self.address_string(),
-                format % args
-            )
-            flexprint(f"[magenta]RestHandler log: {msg}[/magenta]")
-    
-		# In Windows, sys.stderr or sys.stdout is set to None within the Python runtime (serious_python). Therefore, the log_error function is overridden here.
-        #BaseHTTPRequestHandler.send_response() internally calls log_request(), which in turn uses log_message()—and by default, that function writes to sys.stderr.write.
-        def log_error(self, format, *args):
-            msg = "%s - %s" % (
-                self.address_string(),
-                format % args
-            )
-            flexprint(f"[red]RestHandler log: {msg}[/red]")
-
         def send_octet_stream(self, obj, status=200):
             self.send_response(status)
             self.send_header("Content-Type", 'application/octet-stream')
