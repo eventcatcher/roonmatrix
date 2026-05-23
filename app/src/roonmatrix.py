@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Roonmatrix App - display roon, spotify and apple music playout informations and more on 8x8 led matrix display
-# version 1.3.0, date: 16.05.2026
+# version 2.0.0, date: 23.05.2026
 #
 # show what is playing on roon zones and via webservers on Spotify and Apple Music
 # show actual weather, rss feeds and clock
@@ -16,7 +16,7 @@
 # start service: sudo systemctl start roonmatrix.service
 # live log:      journalctl -f
 
-scriptVersion = '1.3.1, date: 22.05.2026'
+scriptVersion = '2.0.0, date: 23.05.2026'
 APP_NAME = "roonmatrix"
 
 startlog = True	# default true: log start and config information
@@ -100,13 +100,6 @@ def log_exception(exc_type, exc_value, exc_traceback):
         traceback.print_exception(exc_type, exc_value, exc_traceback, file=f)
 
 sys.excepthook = log_exception
-
-testfile = os.path.join(
-    tempfile.gettempdir(),
-    "roonmatrix_python_started.txt"
-)
-with open(testfile, "w", encoding="utf-8") as f:
-    f.write("started")
 
 def is_running_on_raspberry_pi():
     try:
