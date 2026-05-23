@@ -9,7 +9,7 @@ Future<void> pythonRuntimeInit() async {
   }
 
   String? response = await SeriousPython.run(
-    'assets/backend/roonmatrix.zip',
+    'packages/python_backend/assets/backend/roonmatrix.zip',
     appFileName: 'roonmatrix.py',
     environmentVariables: {
       "embedded": "true",
