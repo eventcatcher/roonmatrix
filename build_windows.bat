@@ -9,7 +9,7 @@ call flutter clean
 echo flutter clean finished
 
 echo Delete AppData Roaming Folder...
-rd /s /q "%userprofile%\AppData\Roaming\de.eventcatcher\roonmatrix\flet\assets"
+rd /s /q "%userprofile%\AppData\Roaming\de.eventcatcher\roonmatrix\flet"
 
 echo Running flutter pub get...
 call flutter pub get
