@@ -144,6 +144,10 @@ is_raspberry_pi = is_running_on_raspberry_pi()
 with_restserver_fastapi = is_app_embedded is False and use_fastapi_on_pi is True
 with_async_request = is_app_embedded is False
 
+platform = 'raspberry-pi' if is_raspberry_pi is True else 'unknown'
+if 'platform' in environ:
+    platform = str(environ['platform'])
+
 if is_raspberry_pi is True:
     import RPi.GPIO as GPIO
     import crypt
@@ -874,6 +878,7 @@ if startlog is True:
     flexprint('[bold deep_sky_blue4]display cover: ' + str(display_cover) + '[/bold deep_sky_blue4]')
     flexprint('[bold deep_sky_blue4]is app embedded: ' + str(is_app_embedded) + '[/bold deep_sky_blue4]')
     flexprint('[bold deep_sky_blue4]is raspberry pi device: ' + str(is_raspberry_pi) + '[/bold deep_sky_blue4]')
+    flexprint('[bold deep_sky_blue4]platform: ' + platform + '[/bold deep_sky_blue4]')
     flexprint('[bold deep_sky_blue4]use fastapi: ' + str(with_restserver_fastapi) + '[/bold deep_sky_blue4]')
     flexprint('[bold deep_sky_blue4]with async request: ' + str(with_async_request) + '[/bold deep_sky_blue4]')
     flexprint('')
@@ -1651,7 +1656,7 @@ def filter_lines_by_hours(base_filepath, hours_back):
                 break
 
         for filepath in reversed(log_files):
-            with open(filepath, 'r', encoding='utf-8') as file:
+            with open(filepath, 'r', encoding='cp1252' if platform == 'windows' else 'utf-8') as file:
                 for line in file:
                     try:
                         timestamp_str = line[:17].strip()
@@ -1918,6 +1923,7 @@ def getInfoData():
         "scriptVersion": scriptVersion,
         "is_app_embedded": is_app_embedded,
         "is_raspberry_pi": is_raspberry_pi,
+        "platform": platform,
         "display_cover": display_cover,
         "countrycode": countrycode,
         "debug": debug,
