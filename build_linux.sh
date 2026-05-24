@@ -1,6 +1,6 @@
 rm -f pubspec_overrides.yaml
 
-flutter clean
-flutter pub get
+fvm flutter clean
+fvm flutter pub get
 
-flutter build linux --release
+fvm flutter build linux --release

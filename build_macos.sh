@@ -1,7 +1,7 @@
 rm -f pubspec_overrides.yaml
 
-flutter clean
-flutter pub get
+fvm flutter clean
+fvm flutter pub get
 
 rm -rf macos/Pods macos/.symlinks macos/Podfile.lock
 

@@ -1,7 +1,7 @@
 cp pubspec_mobile_overrides.yaml pubspec_overrides.yaml
 
-flutter clean
-flutter pub get
+fvm flutter clean
+fvm flutter pub get
 
 rm -rf ios/Pods ios/.symlinks ios/Podfile.lock
 
