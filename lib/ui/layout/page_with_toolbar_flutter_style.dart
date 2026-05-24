@@ -165,7 +165,7 @@ class _PageWithToolbarFlutterStyleState
     actions: [
       Row(
         children: [
-          if (actions != null) ...actions!,
+          ...?actions,
           if (Globals.isDesktopDevice() &&
               !isFullscreen &&
               showResizeButtons == true) ...[
