@@ -108,7 +108,22 @@ cp "$ICON_SRC" "$ICON_FILE"
 # Local Flutter build
 # -----------------------------
 if [ -z "${GITHUB_ACTIONS:-}" ]; then
+  echo "build Python packages (1st run).."
+  export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/app/src/__pypackages__  
+  cd packages/python_backend
+  dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
+  cd ../../
+
+  echo "build Python packages (2nd run)..."
+  export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/app/src/__pypackages__  
+  cd packages/python_backend
+  dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
+  cd ../../
+
   echo "Running local Flutter build..."
+  rm -f pubspec_overrides.yaml
+  flutter clean
+  flutter pub get
   flutter build linux --release
 else
   echo "Skipping local Flutter build => running in GitHub Actions"
