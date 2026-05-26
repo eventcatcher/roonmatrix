@@ -133,6 +133,23 @@ jobs:
           chmod +x appimagetool
           sudo mv appimagetool /usr/local/bin/
 
+      - name: Inspect python libs
+        run: |
+          find build/linux -name "libpython*"
+
+      - name: Fix python lib symlinks
+        run: |
+          find build/linux -name "libpython*" || true
+          LIB_DIR=$(find build/linux -type d -path "*bundle/lib" | head -1)
+          echo "Using LIB_DIR=$LIB_DIR"
+          cd "$LIB_DIR"
+          if [ -f libpython3.so ] && [ ! -f libpython3.12.so.1.0 ]; then
+            cp libpython3.so libpython3.12.so.1.0
+          fi
+          ln -sf libpython3.12.so.1.0 libpython3.12.so
+          ln -sf libpython3.12.so libpython3.so
+          ls -la
+
       - name: Build AppImage
         run: |
           chmod +x $APPIMAGE_DIR/build-appimage.sh
