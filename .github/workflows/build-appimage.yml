@@ -94,13 +94,13 @@ jobs:
         working-directory: packages/python_backend
         run: |
           export SERIOUS_PYTHON_SITE_PACKAGES="$GITHUB_WORKSPACE/app/src/__pypackages__"
-          dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
+          dart run serious_python:main package ../../app/src -p Linux --asset ./assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
 
       - name: Build Python packages - run 2/2
         working-directory: packages/python_backend
         run: |
           export SERIOUS_PYTHON_SITE_PACKAGES="$GITHUB_WORKSPACE/app/src/__pypackages__"
-          dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
+          dart run serious_python:main package ../../app/src -p Linux --asset ./assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
 
       - name: Inspect ZIP
         run: |
@@ -114,18 +114,6 @@ jobs:
           echo ""
           echo "ZIP contents count:"
           unzip -l packages/python_backend/assets/backend/roonmatrix.zip | tail -1
-
-      - name: Inspect generated archive
-        run: |
-          unzip -l packages/python_backend/assets/backend/roonmatrix.zip | head -200
-
-      - name: Debug app/src symlinks
-        run: |
-          find app/src -type l -ls
-
-      - name: Debug suspicious paths
-        run: |
-          find app/src -iname "*ufw*" || true
 
       - name: Build Flutter Linux release
         env:
