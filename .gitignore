@@ -151,5 +151,4 @@ app.*.symbols
 *.hash
 /app/src/__pypackages__/**
 /app/src/__pycache__/**
-/app/src/config/**
 /app/src/logs/**
