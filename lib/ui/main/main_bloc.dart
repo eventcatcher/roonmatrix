@@ -1483,9 +1483,21 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     final List<String> found = [];
     const timeout = Duration(milliseconds: 300);
 
-    final info = NetworkInfo();
-    String localHostIp = (await info.getWifiIP()) ?? '127.0.0.1';
+    String localHostIp = '127.0.0.1';
+    try {
+      final info = NetworkInfo();
+      localHostIp = (await info.getWifiIP()) ?? '127.0.0.1';
+    } catch (e) {
+      debugPrint('error to get network ip: $e => use fallback to 127.0.0.1');
+    }
     debugPrint('virtual in-app device ip: $localHostIp');
+
+    // get debug log in linux snap:
+    // final file = File('/home/parallels/flutter_debug.log');
+    // await file.writeAsString(
+    //   'virtual in-app device ip: $localHostIp\n',
+    //   mode: FileMode.append,
+    // );
 
     if (withLocalHostIp == true) {
       futures.add(
