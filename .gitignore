@@ -152,3 +152,5 @@ app.*.symbols
 /app/src/__pypackages__/**
 /app/src/__pycache__/**
 /app/src/logs/**
+!/app/src/__pypackages__/.gitkeep
+!/app/src/logs/.gitkeep
