@@ -83,6 +83,13 @@ jobs:
           fi
           echo "Build type: $BUILD_TYPE, version: $VERSION"
 
+      - name: Cleanup before packaging
+        run: |
+          rm -rf app/src/.venv
+          rm -rf app/src/build
+          rm -rf app/src/dist
+          rm -rf app/src/.dart_tool
+
       - name: Build Python packages - run 1/2
         working-directory: packages/python_backend
         run: |
@@ -95,13 +102,30 @@ jobs:
           export SERIOUS_PYTHON_SITE_PACKAGES="$GITHUB_WORKSPACE/app/src/__pypackages__"
           dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
 
-      - name: Debug symlinks
+      - name: Inspect ZIP
         run: |
-          find app/src/__pypackages__ -type l -ls
+          echo "ZIP file:"
+          ls -lh packages/python_backend/assets/backend/roonmatrix.zip
 
-      - name: Remove symlinks from __pypackages__
+          echo ""
+          echo "Disk usage:"
+          du -h packages/python_backend/assets/backend/roonmatrix.zip
+
+          echo ""
+          echo "ZIP contents count:"
+          unzip -l packages/python_backend/assets/backend/roonmatrix.zip | tail -1
+
+      - name: Inspect generated archive
         run: |
-          find app/src/__pypackages__ -type l -delete
+          unzip -l packages/python_backend/assets/backend/roonmatrix.zip | head -200
+
+      - name: Debug app/src symlinks
+        run: |
+          find app/src -type l -ls
+
+      - name: Debug suspicious paths
+        run: |
+          find app/src -iname "*ufw*" || true
 
       - name: Build Flutter Linux release
         env:
