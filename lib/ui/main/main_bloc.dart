@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -1484,6 +1485,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     final info = NetworkInfo();
     String localHostIp = (await info.getWifiIP()) ?? '127.0.0.1';
+    debugPrint('virtual in-app device ip: $localHostIp');
 
     if (withLocalHostIp == true) {
       futures.add(
