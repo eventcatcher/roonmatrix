@@ -44,10 +44,8 @@ FLUTTER_LIB_DIR_GENERIC="$PROJECT_ROOT/build/linux/release/bundle/lib"
 if [ -d "$FLUTTER_LIB_DIR_X64" ]; then
   echo "Copying Flutter shared libraries from x64..."
   cp -a "$FLUTTER_LIB_DIR_X64/." "$APPDIR/usr/bin/lib/"
-  echo "Contents of $APPDIR/usr/bin/lib:"
-  ls -la "$APPDIR/usr/bin/lib/"
-  echo "Python libs in AppDir:"
-  find "$APPDIR/usr/bin/lib/" -name "libpython*"
+  mkdir -p "$APPDIR/usr/lib"
+  cp -a "$FLUTTER_LIB_DIR_X64/." "$APPDIR/usr/lib/"
 elif [ -d "$FLUTTER_LIB_DIR_GENERIC" ]; then
   echo "Copying Flutter shared libraries from generic path..."
   cp -a "$FLUTTER_LIB_DIR_GENERIC/." "$APPDIR/usr/bin/lib/"
