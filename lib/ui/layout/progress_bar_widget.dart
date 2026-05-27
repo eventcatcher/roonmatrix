@@ -14,14 +14,18 @@ class ProgressBarWidget extends StatefulWidget {
   final String ip;
   final String? controlId;
   final double coverPadding;
+  final double verticalPadding;
   final Brightness? brightness;
+  final bool isCoverOverlay;
 
   const ProgressBarWidget({
     super.key,
     required this.ip,
     this.controlId,
     required this.coverPadding,
+    this.verticalPadding = 0,
     this.brightness,
+    this.isCoverOverlay = false,
   });
 
   @override
@@ -207,14 +211,20 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
   Widget getProgressBar({required int progress, required int total}) {
     return Container(
       margin: EdgeInsets.only(top: coverPadding),
+      padding: widget.verticalPadding > 0
+          ? EdgeInsets.symmetric(vertical: widget.verticalPadding)
+          : null,
       constraints: coverWidth != null
           ? BoxConstraints(minWidth: coverWidth!, maxWidth: coverWidth!)
           : null,
 
-      decoration:
-          Globals.brightness() == Brightness.dark ||
-              brightness == Brightness.dark
-          ? ColorDefs.areaDecorationFilledDarkStyle(
+      decoration: widget.isCoverOverlay
+          ? ColorDefs.areaDecorationFilledOverlayDarkStyle(
+              withAnimatedBackground: false,
+            )
+          : Globals.brightness() == Brightness.dark ||
+                brightness == Brightness.dark
+          ? ColorDefs.areaDecorationFilledOverlayDarkStyle(
               withAnimatedBackground: false,
             )
           : ColorDefs.areaDecorationFilledLightStyle(

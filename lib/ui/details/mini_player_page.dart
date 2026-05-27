@@ -607,17 +607,15 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                         opacity: hovered ? 1.0 : 0.0,
                                         duration: opacityDuration,
                                         child: Container(
+                                          width: coverWidth != null
+                                              ? coverWidth! - 32.0
+                                              : 80,
                                           constraints: BoxConstraints(
                                             maxWidth: coverWidth != null
                                                 ? coverWidth! - 32.0
                                                 : 80,
                                           ),
                                           padding: EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                Globals.borderRadius(),
-                                            color: textAreaBackgroundColor,
-                                          ),
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 4.0,
@@ -625,13 +623,21 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                             ),
                                             child: Column(
                                               children: [
-                                                ProgressBarWidget(
-                                                  ip: ip,
-                                                  controlId: controlId,
-                                                  coverPadding: coverPadding,
-                                                  brightness: Brightness.dark,
-                                                ),
-                                                SizedBox(
+                                                Container(
+                                                  width: coverWidth != null
+                                                      ? coverWidth! - 32.0
+                                                      : 80,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        Globals.borderRadius(),
+                                                    color:
+                                                        textAreaBackgroundColor,
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12.0,
+                                                        vertical: 2.0,
+                                                      ),
                                                   child:
                                                       CoverTextOverlayExtended(
                                                         coverModel: coverModel!,
@@ -644,6 +650,13 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                                         coverRowAlbum: true,
                                                         coverRowTrack: true,
                                                       ),
+                                                ),
+                                                ProgressBarWidget(
+                                                  ip: ip,
+                                                  controlId: controlId,
+                                                  coverPadding: coverPadding,
+                                                  brightness: Brightness.dark,
+                                                  isCoverOverlay: true,
                                                 ),
                                               ],
                                             ),

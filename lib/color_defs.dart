@@ -36,6 +36,13 @@ class ColorDefs {
     // color: Color.fromARGB(160, 0, 0, 0),
   );
 
+  static BoxDecoration areaDecorationFilledOverlayDarkStyle({
+    required bool withAnimatedBackground,
+  }) => BoxDecoration(
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(withAnimatedBackground ? 255 : 200, 0, 0, 0),
+  );
+
   static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
   static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);
   static final double zoneCornerLabelOpacity = 0.7;
