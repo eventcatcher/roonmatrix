@@ -397,6 +397,17 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                       padding: EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         borderRadius: Globals.borderRadius(),
+                        color: Globals.brightness() == Brightness.dark
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade300,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Globals.brightness() == Brightness.dark
+                                ? Colors.white.withValues(alpha: 0.5)
+                                : Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 5.0,
+                          ),
+                        ],
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
