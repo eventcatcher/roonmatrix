@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/color_defs.dart';
@@ -67,10 +69,7 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
                     Globals.overlyPlayoutButtonSizeFactor *
                     sizeFactor) /
                 2,
-            child: Material(
-              color: Colors.transparent,
-              shape: const CircleBorder(),
-              clipBehavior: Clip.antiAlias,
+            child: Container(
               child: svg != null
                   ? SizedBox(
                       width:
@@ -83,7 +82,6 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
                           sizeFactor),
                       child: InkWell(
                         mouseCursor: SystemMouseCursors.click,
-                        hoverColor: ColorDefs.hoverButtonBackground,
                         child: Padding(
                           padding: EdgeInsets.all(
                             ((coverWidth *
@@ -96,18 +94,53 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
                         onTap: () => onPressed(),
                       ),
                     )
-                  : IconButton(
-                      mouseCursor: SystemMouseCursors.click,
-                      icon: icon,
-                      iconSize:
-                          (coverWidth *
-                          Globals.overlyPlayoutButtonSizeFactor *
-                          sizeFactor),
-                      hoverColor: ColorDefs.hoverButtonBackground,
-                      color: Globals.brightness() == Brightness.dark
-                          ? ColorDefs.controlIconColorLight
-                          : ColorDefs.controlIconColorDark,
-                      onPressed: () => onPressed(),
+                  : Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Globals.brightness() == Brightness.dark
+                            ? Colors.black.withValues(alpha: 0.6)
+                            : Colors.white.withValues(alpha: 0.6),
+                        boxShadow: [
+                          // dunkler Schatten
+                          BoxShadow(
+                            color: Globals.brightness() == Brightness.dark
+                                ? Colors.white.withValues(alpha: 0.45)
+                                : Colors.black.withValues(alpha: 0.45),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                            offset: const Offset(0, 2),
+                          ),
+
+                          // heller Glow
+                          BoxShadow(
+                            color: Globals.brightness() == Brightness.dark
+                                ? Colors.black.withValues(alpha: 0.25)
+                                : Colors.white.withValues(alpha: 0.25),
+                            blurRadius: 8,
+                            spreadRadius: -2,
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        mouseCursor: SystemMouseCursors.click,
+                        icon: icon,
+                        iconSize:
+                            (coverWidth *
+                            Globals.overlyPlayoutButtonSizeFactor *
+                            sizeFactor),
+                        hoverColor: Globals.brightness() == Brightness.dark
+                            ? ColorDefs.hoverOverlayButtonBackgroundDark
+                            : ColorDefs.hoverOverlayButtonBackgroundLight,
+                        highlightColor: Globals.brightness() == Brightness.dark
+                            ? ColorDefs.hoverOverlayButtonBackgroundDark
+                                  .withValues(alpha: 0.5)
+                            : ColorDefs.hoverOverlayButtonBackgroundLight
+                                  .withValues(alpha: 0.5),
+                        color: Globals.brightness() == Brightness.dark
+                            ? ColorDefs.controlIconColorLight
+                            : ColorDefs.controlIconColorDark,
+                        onPressed: () => onPressed(),
+                      ),
                     ),
             ),
           ),

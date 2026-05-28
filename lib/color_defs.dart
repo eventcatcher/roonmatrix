@@ -45,6 +45,18 @@ class ColorDefs {
 
   static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
   static final Color hoverButtonBackgrounDark = Color.fromARGB(60, 60, 60, 60);
+  static final Color hoverOverlayButtonBackgroundLight = Color.fromARGB(
+    60,
+    255,
+    255,
+    255,
+  );
+  static final Color hoverOverlayButtonBackgroundDark = Color.fromARGB(
+    60,
+    0,
+    0,
+    0,
+  );
   static final double zoneCornerLabelOpacity = 0.7;
 
   static final Color controlIconColorDark = Colors.blue.shade900;

@@ -337,13 +337,19 @@ class _CoverWidgetState extends State<CoverWidget> {
                                         ? Icon(
                                             Icons.pause,
                                             color: statusUpdateInProgress
-                                                ? Colors.grey.shade700
+                                                ? Globals.brightness() ==
+                                                          Brightness.dark
+                                                      ? Colors.grey.shade500
+                                                      : Colors.grey.shade700
                                                 : null,
                                           )
                                         : Icon(
                                             Icons.play_arrow,
                                             color: statusUpdateInProgress
-                                                ? Colors.grey.shade700
+                                                ? Globals.brightness() ==
+                                                          Brightness.dark
+                                                      ? Colors.grey.shade500
+                                                      : Colors.grey.shade700
                                                 : null,
                                           ),
                                     message: coverModel.status == 'playing'
@@ -387,7 +393,10 @@ class _CoverWidgetState extends State<CoverWidget> {
                                       icon: Icon(
                                         Icons.skip_previous,
                                         color: statusUpdateInProgress
-                                            ? Colors.grey.shade700
+                                            ? Globals.brightness() ==
+                                                      Brightness.dark
+                                                  ? Colors.grey.shade500
+                                                  : Colors.grey.shade700
                                             : null,
                                       ),
                                       message:
@@ -422,7 +431,10 @@ class _CoverWidgetState extends State<CoverWidget> {
                                       icon: Icon(
                                         Icons.skip_next,
                                         color: statusUpdateInProgress
-                                            ? Colors.grey.shade700
+                                            ? Globals.brightness() ==
+                                                      Brightness.dark
+                                                  ? Colors.grey.shade500
+                                                  : Colors.grey.shade700
                                             : null,
                                       ),
                                       message:

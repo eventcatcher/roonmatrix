@@ -1120,24 +1120,26 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                               ),
                                                             ],
                                                           ),
-                                                          SwiperButton(
-                                                            swiperController:
-                                                                swiperController,
-                                                            isNext: false,
-                                                            top:
-                                                                (controlsHeight /
-                                                                    2) -
-                                                                36,
-                                                          ),
-                                                          SwiperButton(
-                                                            swiperController:
-                                                                swiperController,
-                                                            isNext: true,
-                                                            top:
-                                                                (controlsHeight /
-                                                                    2) -
-                                                                36,
-                                                          ),
+                                                          if (Globals.isDesktopDevice())
+                                                            SwiperButton(
+                                                              swiperController:
+                                                                  swiperController,
+                                                              isNext: false,
+                                                              top:
+                                                                  (controlsHeight /
+                                                                      2) -
+                                                                  36,
+                                                            ),
+                                                          if (Globals.isDesktopDevice())
+                                                            SwiperButton(
+                                                              swiperController:
+                                                                  swiperController,
+                                                              isNext: true,
+                                                              top:
+                                                                  (controlsHeight /
+                                                                      2) -
+                                                                  36,
+                                                            ),
                                                         ],
                                                       ),
                                                     ),
@@ -1564,28 +1566,30 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                   ),
                                                                 ],
                                                               ),
-                                                              SwiperButton(
-                                                                swiperController:
-                                                                    swiperController,
-                                                                isNext: false,
-                                                                top:
-                                                                    (constraints
-                                                                            .maxHeight /
-                                                                        2) -
-                                                                    24,
-                                                              ),
-                                                              SwiperButton(
-                                                                swiperController:
-                                                                    swiperController,
-                                                                isNext: true,
-                                                                top:
-                                                                    (constraints
-                                                                            .maxHeight /
-                                                                        2) -
-                                                                    24,
-                                                                right:
-                                                                    coverPadding,
-                                                              ),
+                                                              if (Globals.isDesktopDevice())
+                                                                SwiperButton(
+                                                                  swiperController:
+                                                                      swiperController,
+                                                                  isNext: false,
+                                                                  top:
+                                                                      (constraints
+                                                                              .maxHeight /
+                                                                          2) -
+                                                                      24,
+                                                                ),
+                                                              if (Globals.isDesktopDevice())
+                                                                SwiperButton(
+                                                                  swiperController:
+                                                                      swiperController,
+                                                                  isNext: true,
+                                                                  top:
+                                                                      (constraints
+                                                                              .maxHeight /
+                                                                          2) -
+                                                                      24,
+                                                                  right:
+                                                                      coverPadding,
+                                                                ),
                                                             ],
                                                           );
                                                         },
