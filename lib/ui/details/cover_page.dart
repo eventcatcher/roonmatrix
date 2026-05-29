@@ -273,8 +273,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     required double height,
     required double fontSize,
   }) {
-    final CrossAxisAlignment textAlignment = CrossAxisAlignment.center;
-
     if (selectedZone == null ||
         selectedZone!.isEmpty ||
         selectedZone!['cover'] == null) {

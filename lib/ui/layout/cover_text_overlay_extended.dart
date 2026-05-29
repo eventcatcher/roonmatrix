@@ -1,8 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/model/cover_model.dart';
-import 'package:roonmatrix/ui/layout/info_row.dart';
-import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class CoverTextOverlayExtended extends StatefulWidget {
   final CoverModel coverModel;
@@ -42,7 +40,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   bool get coverRowTrack => widget.coverRowTrack;
   bool get longText => widget.longText;
 
-  final double maxFontSize = 40.0;
+  final double maxFontSize = 18.0;
   final FontWeight fontWeight = FontWeight.w600;
 
   late CoverModel coverModel;
