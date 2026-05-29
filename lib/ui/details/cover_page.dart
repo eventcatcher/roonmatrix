@@ -376,20 +376,21 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
 
       Widget inner = Container(
         width: width,
-        height: height - 20,
+        height: height - 5,
         constraints: threeCols
             ? null
             : BoxConstraints(
                 minHeight: Globals.isMobileDevice()
                     ? minTextAreaHeightMobile
                     : minTextAreaHeightDesktop,
+                //maxHeight: height - 32,
               ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
           child: LayoutBuilder(
             builder: (context, constraints) {
               print(
-                'x43859f7 ${constraints.maxWidth} x ${constraints.maxHeight}',
+                'x43859f7 is: $width x $height, max: ${constraints.maxWidth} x ${constraints.maxHeight}',
               );
 
               return Container(

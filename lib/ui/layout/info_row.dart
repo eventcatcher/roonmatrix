@@ -32,10 +32,11 @@ class InfoRow extends StatelessWidget {
           AutoSizeText(
             label,
             group: group,
-            maxLines: 1,
-            minFontSize: 10,
+            maxLines: maxLines,
+            minFontSize: 2,
             maxFontSize: 18,
-            stepGranularity: 2,
+            stepGranularity: 0.5,
+            //presetFontSizes: [18, 16, 14, 12, 10, 8],
             textAlign: TextAlign.right,
             style: TextStyle(
               fontWeight: FontWeight.bold,
@@ -51,11 +52,12 @@ class InfoRow extends StatelessWidget {
             child: AutoSizeText(
               text,
               group: group,
-              maxLines: 1,
-              minFontSize: 10,
+              maxLines: maxLines,
+              minFontSize: 2,
               maxFontSize: 18,
-              stepGranularity: 2,
+              stepGranularity: 0.5,
               wrapWords: true,
+              //presetFontSizes: [18, 16, 14, 12, 10, 8],
               overflowReplacement: Text(
                 text,
                 maxLines: maxLines,
