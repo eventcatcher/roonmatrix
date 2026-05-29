@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
@@ -62,6 +63,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey portraitTextAreaKey = GlobalKey();
   final SwiperController swiperController = SwiperController();
+  final AutoSizeGroup myGroup = AutoSizeGroup();
 
   final double coverPadding = 16.0;
   final double zoneCornerLabelMinCoverSize = 150;
@@ -390,11 +392,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                 'x43859f7 ${constraints.maxWidth} x ${constraints.maxHeight}',
               );
 
-              final responsiveFont =
-                  ((constraints.maxWidth * 0.028) +
-                          (constraints.maxHeight * 0.015))
-                      .clamp(10.0, 18.0);
-
               return Container(
                 padding: EdgeInsets.all(2),
                 decoration: BoxDecoration(
@@ -418,7 +415,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   ),
                   child: CoverTextOverlayExtended(
                     coverModel: coverModel,
-                    fontSize: responsiveFont,
+                    fontSize: 18,
+                    group: myGroup,
                     color: Globals.brightness() == Brightness.dark
                         ? Colors.white
                         : Colors.black,

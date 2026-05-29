@@ -5,6 +5,7 @@ class InfoRow extends StatelessWidget {
   final String label;
   final String text;
   final double fontSize;
+  final AutoSizeGroup? group;
   final Color color;
   final int? maxLines;
 
@@ -13,6 +14,7 @@ class InfoRow extends StatelessWidget {
     required this.label,
     required this.text,
     required this.fontSize,
+    this.group,
     required this.color,
     this.maxLines = 5,
   });
@@ -24,29 +26,32 @@ class InfoRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 70, maxWidth: 120),
-            child: AutoSizeText(
-              label,
-              maxLines: maxLines,
-              minFontSize: 10,
-              maxFontSize: 18,
-              stepGranularity: 2,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-                color: color.withValues(alpha: 0.7),
-              ),
+          //ConstrainedBox(
+          //constraints: const BoxConstraints(minWidth: 70, maxWidth: 120),
+          //child:
+          AutoSizeText(
+            label,
+            group: group,
+            maxLines: 1,
+            minFontSize: 10,
+            maxFontSize: 18,
+            stepGranularity: 2,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize,
+              color: color.withValues(alpha: 0.7),
             ),
           ),
 
+          //),
           const SizedBox(width: 6),
 
           Expanded(
             child: AutoSizeText(
               text,
-              maxLines: maxLines,
+              group: group,
+              maxLines: 1,
               minFontSize: 10,
               maxFontSize: 18,
               stepGranularity: 2,

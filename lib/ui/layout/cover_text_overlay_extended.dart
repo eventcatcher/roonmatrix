@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/layout/info_row.dart';
@@ -6,6 +7,7 @@ import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 class CoverTextOverlayExtended extends StatefulWidget {
   final CoverModel coverModel;
   final double fontSize;
+  final AutoSizeGroup? group;
   final Color color;
   final Map<String, dynamic> translations;
   final bool coverRowArtist;
@@ -17,6 +19,7 @@ class CoverTextOverlayExtended extends StatefulWidget {
     super.key,
     required this.coverModel,
     this.fontSize = 12.0,
+    this.group,
     this.color = Colors.white,
     required this.translations,
     required this.coverRowArtist,
@@ -65,6 +68,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
         text:
             '${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}',
         fontSize: fontSize,
+        group: widget.group,
         color: color,
         maxLines: longText ? 1 : 2,
       ),
@@ -73,6 +77,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
         label: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
         text: coverModel.artist,
         fontSize: fontSize,
+        group: widget.group,
         color: color,
         maxLines: longText ? 2 : 5,
       ),
@@ -81,6 +86,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
         label: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
         text: coverModel.album,
         fontSize: fontSize,
+        group: widget.group,
         color: color,
         maxLines: longText ? 3 : 5,
       ),
@@ -88,6 +94,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
         label: '${translations['coverTrackHeader'] ?? 'Track'}: ',
         text: coverModel.track,
         fontSize: fontSize,
+        group: widget.group,
         color: color,
         maxLines: longText ? 3 : 5,
       ),
