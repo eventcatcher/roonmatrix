@@ -43,7 +43,7 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   bool get longText => widget.longText;
 
   final double maxFontSize = 40.0;
-  String text = '';
+  final FontWeight fontWeight = FontWeight.w600;
 
   late CoverModel coverModel;
 
@@ -59,40 +59,49 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
     super.didUpdateWidget(oldWidget);
 
     coverModel = widget.coverModel;
-
-    text =
-        '${translations['coverZoneHeader'] ?? 'Zone'}: ${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}';
-    text += '\n';
-    text +=
-        '${translations['coverArtistHeader'] ?? 'Artist'}: ${coverModel.artist}';
-    text += '\n';
-    text +=
-        '${translations['coverAlbumHeader'] ?? 'Album'}: ${coverModel.album}';
-    text += '\n';
-    text +=
-        '${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}';
   }
 
   @override
   Widget build(BuildContext context) => Center(
-    child: AutoSizeText(
-      text,
+    child: AutoSizeText.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
+            style: TextStyle(fontWeight: fontWeight),
+          ),
+          TextSpan(
+            text:
+                '${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}',
+          ),
+          TextSpan(text: '\n'),
+          TextSpan(
+            text: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
+            style: TextStyle(fontWeight: fontWeight),
+          ),
+          TextSpan(text: coverModel.artist),
+          TextSpan(text: '\n'),
+          TextSpan(
+            text: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
+            style: TextStyle(fontWeight: fontWeight),
+          ),
+          TextSpan(text: coverModel.album),
+          TextSpan(text: '\n'),
+          TextSpan(
+            text: '${translations['coverTrackHeader'] ?? 'Track'}: ',
+            style: TextStyle(fontWeight: fontWeight),
+          ),
+          TextSpan(text: coverModel.track),
+        ],
+      ),
       maxLines: 15,
       minFontSize: 2,
       maxFontSize: maxFontSize,
       stepGranularity: 0.5,
       wrapWords: true,
+
       //presetFontSizes: [18, 16, 14, 12, 10, 8],
-      overflowReplacement: Text(
-        text,
-        maxLines: 5,
-        overflow: TextOverflow.ellipsis,
-      ),
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: maxFontSize,
-        color: color,
-      ),
+      style: TextStyle(fontSize: maxFontSize, color: color),
     ),
   );
 }
