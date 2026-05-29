@@ -42,6 +42,9 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   bool get coverRowTrack => widget.coverRowTrack;
   bool get longText => widget.longText;
 
+  final double maxFontSize = 40.0;
+  String text = '';
+
   late CoverModel coverModel;
 
   @override
@@ -56,48 +59,40 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
     super.didUpdateWidget(oldWidget);
 
     coverModel = widget.coverModel;
+
+    text =
+        '${translations['coverZoneHeader'] ?? 'Zone'}: ${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}';
+    text += '\n';
+    text +=
+        '${translations['coverArtistHeader'] ?? 'Artist'}: ${coverModel.artist}';
+    text += '\n';
+    text +=
+        '${translations['coverAlbumHeader'] ?? 'Album'}: ${coverModel.album}';
+    text += '\n';
+    text +=
+        '${translations['coverTrackHeader'] ?? 'Track'}: ${coverModel.track}';
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-
-    children: [
-      InfoRow(
-        label: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
-        text:
-            '${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}',
-        fontSize: fontSize,
-        group: widget.group,
-        color: color,
-        maxLines: longText ? 1 : 2,
+  Widget build(BuildContext context) => Center(
+    child: AutoSizeText(
+      text,
+      maxLines: 15,
+      minFontSize: 2,
+      maxFontSize: maxFontSize,
+      stepGranularity: 0.5,
+      wrapWords: true,
+      //presetFontSizes: [18, 16, 14, 12, 10, 8],
+      overflowReplacement: Text(
+        text,
+        maxLines: 5,
+        overflow: TextOverflow.ellipsis,
       ),
-
-      InfoRow(
-        label: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
-        text: coverModel.artist,
-        fontSize: fontSize,
-        group: widget.group,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: maxFontSize,
         color: color,
-        maxLines: longText ? 2 : 5,
       ),
-
-      InfoRow(
-        label: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
-        text: coverModel.album,
-        fontSize: fontSize,
-        group: widget.group,
-        color: color,
-        maxLines: longText ? 3 : 5,
-      ),
-      InfoRow(
-        label: '${translations['coverTrackHeader'] ?? 'Track'}: ',
-        text: coverModel.track,
-        fontSize: fontSize,
-        group: widget.group,
-        color: color,
-        maxLines: longText ? 3 : 5,
-      ),
-    ],
+    ),
   );
 }

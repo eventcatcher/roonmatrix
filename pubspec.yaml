@@ -87,6 +87,7 @@ dependencies:
   python_backend:
     path: packages/python_backend
   auto_size_text: ^3.0.0
+  size_tailored_text: ^1.1.0
 
 dependency_overrides:
 
