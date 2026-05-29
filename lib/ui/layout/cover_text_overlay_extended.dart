@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/model/cover_model.dart';
+import 'package:roonmatrix/ui/layout/info_row.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class CoverTextOverlayExtended extends StatefulWidget {
@@ -55,41 +56,41 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   }
 
   @override
-  Widget build(BuildContext context) => Table(
-        columnWidths: {0: IntrinsicColumnWidth(), 1: IntrinsicColumnWidth()},
-        children: [
-          SharedWidgets.getTableRowFormatted(
-            label: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
-            text:
-                '${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}',
-            fontSize: fontSize,
-            color: color,
-            maxLines: longText ? 1 : 2,
-          ),
-          if (coverRowArtist == true)
-            SharedWidgets.getTableRowFormatted(
-              label: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
-              text: coverModel.artist,
-              fontSize: fontSize,
-              color: color,
-              maxLines: longText ? 2 : 5,
-            ),
-          if (coverRowAlbum == true)
-            SharedWidgets.getTableRowFormatted(
-              label: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
-              text: coverModel.album,
-              fontSize: fontSize,
-              color: color,
-              maxLines: longText ? 3 : 5,
-            ),
-          if (coverRowTrack == true && coverModel.track.isNotEmpty)
-            SharedWidgets.getTableRowFormatted(
-              label: '${translations['coverTrackHeader'] ?? 'Track'}: ',
-              text: coverModel.track,
-              fontSize: fontSize,
-              color: color,
-              maxLines: longText ? 3 : 5,
-            ),
-        ],
-      );
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+
+    children: [
+      InfoRow(
+        label: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
+        text:
+            '${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}',
+        fontSize: fontSize,
+        color: color,
+        maxLines: longText ? 1 : 2,
+      ),
+
+      InfoRow(
+        label: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
+        text: coverModel.artist,
+        fontSize: fontSize,
+        color: color,
+        maxLines: longText ? 2 : 5,
+      ),
+
+      InfoRow(
+        label: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
+        text: coverModel.album,
+        fontSize: fontSize,
+        color: color,
+        maxLines: longText ? 3 : 5,
+      ),
+      InfoRow(
+        label: '${translations['coverTrackHeader'] ?? 'Track'}: ',
+        text: coverModel.track,
+        fontSize: fontSize,
+        color: color,
+        maxLines: longText ? 3 : 5,
+      ),
+    ],
+  );
 }

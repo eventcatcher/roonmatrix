@@ -373,6 +373,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
       // }
 
       Widget inner = Container(
+        width: width,
+        height: height - 20,
         constraints: threeCols
             ? null
             : BoxConstraints(
@@ -380,59 +382,56 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                     ? minTextAreaHeightMobile
                     : minTextAreaHeightDesktop,
               ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: textAlignment,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 4.0,
-                      vertical: 2.0,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              print(
+                'x43859f7 ${constraints.maxWidth} x ${constraints.maxHeight}',
+              );
+
+              final responsiveFont =
+                  ((constraints.maxWidth * 0.028) +
+                          (constraints.maxHeight * 0.015))
+                      .clamp(10.0, 18.0);
+
+              return Container(
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  borderRadius: Globals.borderRadius(),
+                  color: Globals.brightness() == Brightness.dark
+                      ? Colors.grey.shade800
+                      : Colors.grey.shade300,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Globals.brightness() == Brightness.dark
+                          ? Colors.white.withValues(alpha: 0.5)
+                          : Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 5.0,
                     ),
-                    child: Container(
-                      padding: EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        borderRadius: Globals.borderRadius(),
-                        color: Globals.brightness() == Brightness.dark
-                            ? Colors.grey.shade800
-                            : Colors.grey.shade300,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Globals.brightness() == Brightness.dark
-                                ? Colors.white.withValues(alpha: 0.5)
-                                : Colors.black.withValues(alpha: 0.3),
-                            blurRadius: 5.0,
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4.0,
-                          vertical: 2.0,
-                        ),
-                        child: CoverTextOverlayExtended(
-                          coverModel: coverModel,
-                          fontSize: fontSize,
-                          color: Globals.brightness() == Brightness.dark
-                              ? Colors.white
-                              : Colors.black,
-                          translations: translations,
-                          coverRowArtist: true,
-                          coverRowAlbum: true,
-                          coverRowTrack: true,
-                          longText: longText,
-                        ),
-                      ),
-                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4.0,
+                    vertical: 2.0,
                   ),
-                ],
-              ),
-            ),
-          ],
+                  child: CoverTextOverlayExtended(
+                    coverModel: coverModel,
+                    fontSize: responsiveFont,
+                    color: Globals.brightness() == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                    translations: translations,
+                    coverRowArtist: true,
+                    coverRowAlbum: true,
+                    coverRowTrack: true,
+                    longText: longText,
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       );
 

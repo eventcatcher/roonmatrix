@@ -86,6 +86,7 @@ dependencies:
   network_info_plus: ^7.0.0
   python_backend:
     path: packages/python_backend
+  auto_size_text: ^3.0.0
 
 dependency_overrides:
 
