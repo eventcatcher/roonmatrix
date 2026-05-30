@@ -4,26 +4,22 @@ import 'package:roonmatrix/model/cover_model.dart';
 
 class CoverTextOverlayExtended extends StatefulWidget {
   final CoverModel coverModel;
-  final double fontSize;
-  final AutoSizeGroup? group;
+  final double maxFontSize;
   final Color color;
   final Map<String, dynamic> translations;
   final bool coverRowArtist;
   final bool coverRowAlbum;
   final bool coverRowTrack;
-  final bool longText;
 
   const CoverTextOverlayExtended({
     super.key,
+    required this.maxFontSize,
     required this.coverModel,
-    this.fontSize = 12.0,
-    this.group,
     this.color = Colors.white,
     required this.translations,
     required this.coverRowArtist,
     required this.coverRowAlbum,
     required this.coverRowTrack,
-    this.longText = false,
   });
 
   @override
@@ -32,15 +28,12 @@ class CoverTextOverlayExtended extends StatefulWidget {
 }
 
 class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
-  double get fontSize => widget.fontSize;
   Color get color => widget.color;
   Map<String, dynamic> get translations => widget.translations;
   bool get coverRowArtist => widget.coverRowArtist;
   bool get coverRowAlbum => widget.coverRowAlbum;
   bool get coverRowTrack => widget.coverRowTrack;
-  bool get longText => widget.longText;
 
-  final double maxFontSize = 18.0;
   final FontWeight fontWeight = FontWeight.w600;
 
   late CoverModel coverModel;
@@ -93,11 +86,10 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
     ),
     maxLines: 15,
     minFontSize: 2,
-    maxFontSize: maxFontSize,
+    maxFontSize: widget.maxFontSize,
     stepGranularity: 0.5,
     wrapWords: true,
-
     //presetFontSizes: [18, 16, 14, 12, 10, 8],
-    style: TextStyle(fontSize: maxFontSize, color: color),
+    style: TextStyle(fontSize: widget.maxFontSize, color: color),
   );
 }

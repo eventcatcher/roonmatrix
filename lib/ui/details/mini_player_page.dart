@@ -455,7 +455,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                               width: maxSize,
                               height: maxSize,
                               child: SvgPicture.asset(
-                                Globals.placeholderSvgAssetPath(),
+                                Globals.placeholderSvgAssetPath,
                                 allowDrawingOutsideViewBox: false,
                                 fit: BoxFit.contain,
                                 alignment: portraitMode
@@ -472,7 +472,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                           width: maxSize,
                           height: maxSize,
                           child: SvgPicture.asset(
-                            Globals.placeholderSvgAssetPath(),
+                            Globals.placeholderSvgAssetPath,
                             allowDrawingOutsideViewBox: false,
                             fit: BoxFit.contain,
                             alignment: portraitMode
@@ -624,6 +624,12 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                             child: Column(
                                               children: [
                                                 Container(
+                                                  constraints: BoxConstraints(
+                                                    maxHeight:
+                                                        coverWidth != null
+                                                        ? coverWidth! / 2
+                                                        : 20,
+                                                  ),
                                                   width: coverWidth != null
                                                       ? coverWidth! - 32.0
                                                       : 80,
@@ -638,18 +644,18 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                                         horizontal: 12.0,
                                                         vertical: 2.0,
                                                       ),
-                                                  child:
-                                                      CoverTextOverlayExtended(
-                                                        coverModel: coverModel!,
-                                                        fontSize:
-                                                            (coverWidth ?? 0) /
-                                                            32,
-                                                        translations:
-                                                            translations,
-                                                        coverRowArtist: true,
-                                                        coverRowAlbum: true,
-                                                        coverRowTrack: true,
-                                                      ),
+                                                  child: CoverTextOverlayExtended(
+                                                    maxFontSize:
+                                                        Globals.adaptiveMaxFontSizeForCoverText(
+                                                          width:
+                                                              coverWidth ?? 20,
+                                                        ),
+                                                    coverModel: coverModel!,
+                                                    translations: translations,
+                                                    coverRowArtist: true,
+                                                    coverRowAlbum: true,
+                                                    coverRowTrack: true,
+                                                  ),
                                                 ),
                                                 ProgressBarWidget(
                                                   ip: ip,
@@ -667,6 +673,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                   ),
                                 if (coverModel != null)
                                   CoverOverlayButton(
+                                    showDarkMode: true,
                                     alignment: Alignment.center,
                                     coverWidth: coverWidth ?? 0,
                                     isPlaying: coverModel!.status == 'playing',
@@ -755,6 +762,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                   Padding(
                                     padding: const EdgeInsets.only(left: 4.0),
                                     child: CoverOverlayButton(
+                                      showDarkMode: true,
                                       alignment: Alignment.centerLeft,
                                       coverWidth: coverWidth ?? 0,
                                       isPlaying:
@@ -791,6 +799,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                   Padding(
                                     padding: const EdgeInsets.only(right: 4.0),
                                     child: CoverOverlayButton(
+                                      showDarkMode: true,
                                       alignment: Alignment.centerRight,
                                       coverWidth: coverWidth ?? 0,
                                       isPlaying:

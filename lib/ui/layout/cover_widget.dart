@@ -221,7 +221,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                           ) {
                                             setState(() {
                                               img = AssetImage(
-                                                Globals.placeholderPngAssetPath(),
+                                                Globals.placeholderPngAssetPath,
                                               );
                                             });
                                           },
@@ -463,7 +463,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                           : Stack(
                               children: [
                                 SvgPicture.asset(
-                                  Globals.placeholderSvgAssetPath(),
+                                  Globals.placeholderSvgAssetPath,
                                   colorFilter: ColorDefs.idleZoneColorFilter,
                                   allowDrawingOutsideViewBox: false,
                                   width: double.infinity,
@@ -519,6 +519,10 @@ class _CoverWidgetState extends State<CoverWidget> {
                               (coverRowArtist == true || coverRowAlbum == true)
                           ? CoverTextOverlayExtended(
                               coverModel: coverModel,
+                              maxFontSize:
+                                  Globals.adaptiveMaxFontSizeForCoverText(
+                                    width: coverWidth,
+                                  ),
                               translations: translations,
                               coverRowArtist: coverRowArtist,
                               coverRowAlbum: coverRowAlbum,

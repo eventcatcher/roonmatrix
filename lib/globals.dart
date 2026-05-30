@@ -12,17 +12,34 @@ class Globals {
       true; // show app in iOS ui style (running on macos or iOS)
   static final bool showSelectBoxInMacStyle = true;
 
-  static double minDesktopWidth = 398;
-  static double defaultDesktopWidth = 1280;
+  static final double minDesktopWidth = 398;
+  static final double defaultDesktopWidth = 1280;
 
-  static double minDesktopHeight = Globals.getWindowMinHeight();
-  static double defaultDesktopHeight = 768;
+  static final double minDesktopHeight = Globals.getWindowMinHeight();
+  static final double defaultDesktopHeight = 768;
 
-  static Size minDesktopSize = Size(minDesktopWidth, minDesktopHeight);
-  static Size standardDesktopSize = Size(
+  static final Size minDesktopSize = Size(minDesktopWidth, minDesktopHeight);
+  static final Size standardDesktopSize = Size(
     defaultDesktopWidth,
     defaultDesktopHeight,
   );
+
+  static final double maxFontSizeForCoverText = 48.0;
+  static final double midFontSizeForCoverText = 24.0;
+  static final double stdFontSizeForCoverText = 16.0;
+
+  static double adaptiveMaxFontSizeForCoverText({required double width}) {
+    double size = width > 700
+        ? maxFontSizeForCoverText
+        : width > 500
+        ? midFontSizeForCoverText
+        : stdFontSizeForCoverText;
+
+    print('adaptiveMaxFontSizeForCoverText for width: $width, size: $size');
+    return size;
+  }
+
+  static final String mainWindowTitle = 'Roonmatrix';
 
   static bool isMobileDevice() =>
       Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
@@ -40,8 +57,6 @@ class Globals {
 
   static bool selectBoxInMacStyle() =>
       showSelectBoxInMacStyle == true && inMacosStyle();
-
-  static String mainWindowTitle = 'Roonmatrix';
 
   static Future<String> getMacosVersion() async {
     final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
@@ -82,12 +97,12 @@ class Globals {
         iosInfo.utsname.machine.toLowerCase().contains('ipad');
   }
 
-  static String placeholderSvgAssetPath() =>
+  static final String placeholderSvgAssetPath =
       'assets/svg/8-8-led-matrix-display-unit.svg';
 
-  static String appIconAssetPath() => 'assets/svg/roonmatrix-app-icon.svg';
+  static final String appIconAssetPath = 'assets/svg/roonmatrix-app-icon.svg';
 
-  static String placeholderPngAssetPath() => 'assets/icon/icon.png';
+  static final String placeholderPngAssetPath = 'assets/icon/icon.png';
 
   static final String tickerFontFamily = 'Arial';
   static final List<String> fontFamilyFallback = ['NotoSans', 'Symbola'];

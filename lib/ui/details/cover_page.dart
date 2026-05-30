@@ -63,7 +63,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey portraitTextAreaKey = GlobalKey();
   final SwiperController swiperController = SwiperController();
-  final AutoSizeGroup myGroup = AutoSizeGroup();
 
   final double coverPadding = 16.0;
   final double zoneCornerLabelMinCoverSize = 150;
@@ -231,39 +230,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     });
   }
 
-  double getTextAreaFontSize({
-    required bool showSwiper,
-    required bool threeCols,
-    required double width,
-    required double height,
-  }) {
-    double heightNetto = height;
-
-    if (threeCols == true) {
-      heightNetto -= 140;
-    }
-    double dimension = width * heightNetto;
-    double fontSize = Globals.isDesktopDevice() ? 20 : 16;
-
-    if (dimension < 135000) {
-      fontSize = 16;
-    }
-
-    if (dimension < 80000) {
-      fontSize = 14;
-    }
-
-    if (dimension < 50000 || dimension == double.infinity) {
-      fontSize = 12;
-    }
-
-    // print(
-    //   'dimension: ${width * heightNetto}, width: $width, height: $heightNetto, fontSize: $fontSize',
-    // );
-
-    return fontSize;
-  }
-
   Widget getTextArea({
     required GlobalKey key,
     required bool portraitMode,
@@ -271,108 +237,14 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     required bool threeCols,
     required double width,
     required double height,
-    required double fontSize,
   }) {
+    Widget inner = SizedBox();
+
     if (selectedZone == null ||
         selectedZone!.isEmpty ||
         selectedZone!['cover'] == null) {
       // zone is inactive
-      return Row(
-        key: key,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-                bottom: 2.0,
-              ),
-              child: Column(
-                children: [
-                  Wrap(
-                    children: [
-                      Text(
-                        '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone?['server'] == 'roon' ? selectedZone!['zone'] : selectedZone?['server'] ?? '').toString().toFirstUpper}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: fontSize,
-                          color: Globals.brightness() == Brightness.dark
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                      ),
-                      Text(
-                        ' (${translations['inactive'] ?? 'inactive zone'})',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: fontSize,
-                          color: Globals.brightness() == Brightness.dark
-                              ? Colors.red.shade400
-                              : Colors.red.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    if (selectedZone != null &&
-        selectedZone!.isNotEmpty &&
-        selectedZone!['artist'] != null) {
-      String zoneName = selectedZone!['zone'] != null
-          ? (selectedZone!['server'] == 'roon'
-                    ? selectedZone!['zone']
-                    : selectedZone!['server'])
-                .toString()
-                .toFirstUpper
-          : '';
-
-      String hash = md5
-          .convert(
-            utf8.encode(
-              '$zoneName-${selectedZone!['artist']}-${selectedZone!['album']}-${selectedZone!['track']}-${selectedZone!['status']}',
-            ),
-          )
-          .toString();
-
-      CoverModel coverModel = CoverModel(
-        hash: hash,
-        controlId: zoneName,
-        zoneName: zoneName,
-        isRadio: false,
-        coverUrl: '',
-        artist: selectedZone!['artist'],
-        album: selectedZone!['album'],
-        track: selectedZone!['track'],
-        status: selectedZone!['status'],
-      );
-
-      final int fullTextLength =
-          coverModel.zoneName.length +
-          coverModel.artist.length +
-          coverModel.album.length +
-          coverModel.album.length +
-          coverModel.track.length;
-      bool longText =
-          fullTextLength > fullTextLengthMax &&
-          (MediaQuery.of(context).size.height < (portraitMode ? 700 : 568) ||
-              (!portraitMode && MediaQuery.of(context).size.width < 1024));
-
-      if (longText && fontSize >= 14) {
-        fontSize = fontSize > 14 ? 14 : 11;
-      }
-      // if (kDebugMode) {
-      //   debugPrint(
-      //       'fullTextLength: $fullTextLength, width: ${MediaQuery.of(context).size.width}, height: ${MediaQuery.of(context).size.height}, longText: $longText, fontSize: $fontSize, fontSizeFinal: $fontSizeFinal');
-      // }
-
-      Widget inner = Container(
+      inner = Container(
         width: width,
         height: height - 5,
         constraints: threeCols
@@ -385,70 +257,166 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
               ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Center(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 16.0),
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    borderRadius: Globals.borderRadius(),
+          child: Center(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: Globals.borderRadius(),
+                color: Globals.brightness() == Brightness.dark
+                    ? Colors.grey.shade800
+                    : Colors.grey.shade300,
+                boxShadow: [
+                  BoxShadow(
                     color: Globals.brightness() == Brightness.dark
-                        ? Colors.grey.shade800
-                        : Colors.grey.shade300,
-                    boxShadow: [
-                      BoxShadow(
+                        ? Colors.white.withValues(alpha: 0.5)
+                        : Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 5.0,
+                  ),
+                ],
+              ),
+              child: AutoSizeText.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone?['server'] == 'roon' ? selectedZone!['zone'] : selectedZone?['server'] ?? '').toString().toFirstUpper}',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    TextSpan(
+                      text: ' (${translations['inactive'] ?? 'inactive zone'})',
+                      style: TextStyle(
                         color: Globals.brightness() == Brightness.dark
-                            ? Colors.white.withValues(alpha: 0.5)
-                            : Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 5.0,
+                            ? Colors.red.shade400
+                            : Colors.red.shade700,
                       ),
-                    ],
-                  ),
-                  child: CoverTextOverlayExtended(
-                    coverModel: coverModel,
-                    fontSize: 18,
-                    group: myGroup,
-                    color: Globals.brightness() == Brightness.dark
-                        ? Colors.white
-                        : Colors.black,
-                    translations: translations,
-                    coverRowArtist: true,
-                    coverRowAlbum: true,
-                    coverRowTrack: true,
-                    longText: longText,
-                  ),
+                    ),
+                  ],
                 ),
-              );
-            },
+                maxLines: 2,
+                minFontSize: 2,
+                maxFontSize: Globals.adaptiveMaxFontSizeForCoverText(
+                  width: width,
+                ),
+                stepGranularity: 0.5,
+                wrapWords: true,
+                style: TextStyle(
+                  fontSize: Globals.adaptiveMaxFontSizeForCoverText(
+                    width: width,
+                  ),
+                  color: Globals.brightness() == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+                ),
+              ),
+            ),
           ),
         ),
       );
+    } else {
+      if (selectedZone != null &&
+          selectedZone!.isNotEmpty &&
+          selectedZone!['artist'] != null) {
+        String zoneName = selectedZone!['zone'] != null
+            ? (selectedZone!['server'] == 'roon'
+                      ? selectedZone!['zone']
+                      : selectedZone!['server'])
+                  .toString()
+                  .toFirstUpper
+            : '';
 
-      return Container(
-        padding: showSwiper == true
-            ? EdgeInsets.symmetric(horizontal: swiperContentPadding)
-            : null,
-        child: ClipRRect(
-          key: key,
-          child: AnimatedSwitcher(
-            duration: Globals.coverSwitchDefaultFadeAnimationDuration * 0.6,
-            transitionBuilder: (child, animation) {
-              return SlideTransition(
-                position: Tween<Offset>(
-                  begin: Offset(0, 1),
-                  end: Offset(0, 0),
-                ).animate(animation),
-                child: child,
-              );
-            },
-            child: inner,
+        String hash = md5
+            .convert(
+              utf8.encode(
+                '$zoneName-${selectedZone!['artist']}-${selectedZone!['album']}-${selectedZone!['track']}-${selectedZone!['status']}',
+              ),
+            )
+            .toString();
+
+        CoverModel coverModel = CoverModel(
+          hash: hash,
+          controlId: zoneName,
+          zoneName: zoneName,
+          isRadio: false,
+          coverUrl: '',
+          artist: selectedZone!['artist'],
+          album: selectedZone!['album'],
+          track: selectedZone!['track'],
+          status: selectedZone!['status'],
+        );
+
+        inner = Container(
+          width: width,
+          height: height - 5,
+          constraints: threeCols
+              ? null
+              : BoxConstraints(
+                  minHeight: Globals.isMobileDevice()
+                      ? minTextAreaHeightMobile
+                      : minTextAreaHeightDesktop,
+                  //maxHeight: height - 32,
+                ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+            child: Center(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 16.0),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: Globals.borderRadius(),
+                  color: Globals.brightness() == Brightness.dark
+                      ? Colors.grey.shade800
+                      : Colors.grey.shade300,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Globals.brightness() == Brightness.dark
+                          ? Colors.white.withValues(alpha: 0.5)
+                          : Colors.black.withValues(alpha: 0.3),
+                      blurRadius: 5.0,
+                    ),
+                  ],
+                ),
+                child: CoverTextOverlayExtended(
+                  coverModel: coverModel,
+                  maxFontSize: Globals.adaptiveMaxFontSizeForCoverText(
+                    width: width,
+                  ),
+                  color: Globals.brightness() == Brightness.dark
+                      ? Colors.white
+                      : Colors.black,
+                  translations: translations,
+                  coverRowArtist: true,
+                  coverRowAlbum: true,
+                  coverRowTrack: true,
+                ),
+              ),
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
 
-    return SizedBox(key: key);
+    return Container(
+      padding: showSwiper == true
+          ? EdgeInsets.symmetric(horizontal: swiperContentPadding)
+          : null,
+      child: ClipRRect(
+        key: key,
+        child: AnimatedSwitcher(
+          duration: Globals.coverSwitchDefaultFadeAnimationDuration * 0.6,
+          transitionBuilder: (child, animation) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: Offset(0, 1),
+                end: Offset(0, 0),
+              ).animate(animation),
+              child: child,
+            );
+          },
+          child: inner,
+        ),
+      ),
+    );
   }
 
   Map<String, dynamic> updateZoneSelection({required String? newValue}) {
@@ -708,7 +676,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                 width: maxSize,
                                 height: maxSize,
                                 child: SvgPicture.asset(
-                                  Globals.placeholderSvgAssetPath(),
+                                  Globals.placeholderSvgAssetPath,
                                   allowDrawingOutsideViewBox: false,
                                   fit: BoxFit.contain,
                                   alignment: portraitMode
@@ -725,7 +693,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                             width: maxSize,
                             height: maxSize,
                             child: SvgPicture.asset(
-                              Globals.placeholderSvgAssetPath(),
+                              Globals.placeholderSvgAssetPath,
                               allowDrawingOutsideViewBox: false,
                               fit: BoxFit.contain,
                               alignment: portraitMode
@@ -1056,14 +1024,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                   portraitMode: portraitMode,
                                                                                   showSwiper: showSwiper,
                                                                                   threeCols: threeCols,
-                                                                                  width: width,
+                                                                                  width: constraints.maxWidth,
                                                                                   height: height,
-                                                                                  fontSize: getTextAreaFontSize(
-                                                                                    showSwiper: showSwiper,
-                                                                                    threeCols: threeCols,
-                                                                                    width: width,
-                                                                                    height: height,
-                                                                                  ),
                                                                                 ),
                                                                               );
                                                                             },
@@ -1194,20 +1156,10 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                           showSwiper,
                                                                       threeCols:
                                                                           threeCols,
-                                                                      width:
-                                                                          coverWidth!,
+                                                                      width: constraints
+                                                                          .maxWidth,
                                                                       height:
-                                                                          50,
-                                                                      fontSize: getTextAreaFontSize(
-                                                                        showSwiper:
-                                                                            false,
-                                                                        threeCols:
-                                                                            threeCols,
-                                                                        width:
-                                                                            coverWidth!,
-                                                                        height:
-                                                                            50,
-                                                                      ),
+                                                                          controlsHeight,
                                                                     ),
                                                                   ),
                                                                 ),
@@ -1496,12 +1448,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                     threeCols: threeCols,
                                                                                     width: width,
                                                                                     height: height,
-                                                                                    fontSize: getTextAreaFontSize(
-                                                                                      showSwiper: false,
-                                                                                      threeCols: threeCols,
-                                                                                      width: width,
-                                                                                      height: height,
-                                                                                    ),
                                                                                   );
                                                                                 },
                                                                           ),
@@ -1713,16 +1659,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                             width,
                                                                         height:
                                                                             height,
-                                                                        fontSize: getTextAreaFontSize(
-                                                                          showSwiper:
-                                                                              false,
-                                                                          threeCols:
-                                                                              threeCols,
-                                                                          width:
-                                                                              width,
-                                                                          height:
-                                                                              height,
-                                                                        ),
                                                                       );
                                                                     },
                                                               ),
@@ -1885,16 +1821,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                   width: width,
                                                                   height:
                                                                       height,
-                                                                  fontSize: getTextAreaFontSize(
-                                                                    showSwiper:
-                                                                        false,
-                                                                    threeCols:
-                                                                        threeCols,
-                                                                    width:
-                                                                        width,
-                                                                    height:
-                                                                        height,
-                                                                  ),
                                                                 ),
                                                               ),
                                                             ),

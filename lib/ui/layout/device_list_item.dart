@@ -402,7 +402,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                       errorBuilder:
                                           (context, error, stackTrace) {
                                             return SvgPicture.asset(
-                                              Globals.placeholderSvgAssetPath(),
+                                              Globals.placeholderSvgAssetPath,
                                               allowDrawingOutsideViewBox: false,
                                               fit: BoxFit.cover,
                                               clipBehavior: Clip.hardEdge,
@@ -410,7 +410,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                                           },
                                     )
                                   : SvgPicture.asset(
-                                      Globals.placeholderSvgAssetPath(),
+                                      Globals.placeholderSvgAssetPath,
                                       allowDrawingOutsideViewBox: false,
                                       fit: BoxFit.cover,
                                       colorFilter: idle

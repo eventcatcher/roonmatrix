@@ -4,6 +4,7 @@ import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 
 class CoverOverlayButton extends StatefulWidget {
+  final bool showDarkMode;
   final Alignment alignment;
   final double coverWidth;
   final bool isPlaying;
@@ -16,6 +17,7 @@ class CoverOverlayButton extends StatefulWidget {
 
   const CoverOverlayButton({
     super.key,
+    this.showDarkMode = false,
     required this.alignment,
     required this.coverWidth,
     required this.isPlaying,
@@ -95,13 +97,17 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
                   : Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Globals.brightness() == Brightness.dark
+                        color:
+                            Globals.brightness() == Brightness.dark ||
+                                widget.showDarkMode == true
                             ? Colors.black.withValues(alpha: 0.6)
                             : Colors.white.withValues(alpha: 0.6),
                         boxShadow: [
                           // dunkler Schatten
                           BoxShadow(
-                            color: Globals.brightness() == Brightness.dark
+                            color:
+                                Globals.brightness() == Brightness.dark ||
+                                    widget.showDarkMode == true
                                 ? Colors.white.withValues(alpha: 0.45)
                                 : Colors.black.withValues(alpha: 0.45),
                             blurRadius: 12,
@@ -111,7 +117,9 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
 
                           // heller Glow
                           BoxShadow(
-                            color: Globals.brightness() == Brightness.dark
+                            color:
+                                Globals.brightness() == Brightness.dark ||
+                                    widget.showDarkMode == true
                                 ? Colors.black.withValues(alpha: 0.25)
                                 : Colors.white.withValues(alpha: 0.25),
                             blurRadius: 8,
@@ -126,15 +134,21 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
                             (coverWidth *
                             Globals.overlyPlayoutButtonSizeFactor *
                             sizeFactor),
-                        hoverColor: Globals.brightness() == Brightness.dark
+                        hoverColor:
+                            Globals.brightness() == Brightness.dark ||
+                                widget.showDarkMode == true
                             ? ColorDefs.hoverOverlayButtonBackgroundDark
                             : ColorDefs.hoverOverlayButtonBackgroundLight,
-                        highlightColor: Globals.brightness() == Brightness.dark
+                        highlightColor:
+                            Globals.brightness() == Brightness.dark ||
+                                widget.showDarkMode == true
                             ? ColorDefs.hoverOverlayButtonBackgroundDark
                                   .withValues(alpha: 0.5)
                             : ColorDefs.hoverOverlayButtonBackgroundLight
                                   .withValues(alpha: 0.5),
-                        color: Globals.brightness() == Brightness.dark
+                        color:
+                            Globals.brightness() == Brightness.dark ||
+                                widget.showDarkMode == true
                             ? ColorDefs.controlIconColorLight
                             : ColorDefs.controlIconColorDark,
                         onPressed: () => onPressed(),
