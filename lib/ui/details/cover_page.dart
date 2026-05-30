@@ -233,7 +233,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   Widget getTextArea({
     required GlobalKey key,
     required bool portraitMode,
-    required bool showSwiper,
     required bool threeCols,
     required double width,
     required double height,
@@ -396,25 +395,20 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
       }
     }
 
-    return Container(
-      padding: showSwiper == true
-          ? EdgeInsets.symmetric(horizontal: swiperContentPadding)
-          : null,
-      child: ClipRRect(
-        key: key,
-        child: AnimatedSwitcher(
-          duration: Globals.coverSwitchDefaultFadeAnimationDuration * 0.6,
-          transitionBuilder: (child, animation) {
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: Offset(0, 1),
-                end: Offset(0, 0),
-              ).animate(animation),
-              child: child,
-            );
-          },
-          child: inner,
-        ),
+    return ClipRRect(
+      key: key,
+      child: AnimatedSwitcher(
+        duration: Globals.coverSwitchDefaultFadeAnimationDuration * 0.6,
+        transitionBuilder: (child, animation) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: Offset(0, 1),
+              end: Offset(0, 0),
+            ).animate(animation),
+            child: child,
+          );
+        },
+        child: inner,
       ),
     );
   }
@@ -1022,7 +1016,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                 child: getTextArea(
                                                                                   key: portraitTextAreaKey,
                                                                                   portraitMode: portraitMode,
-                                                                                  showSwiper: showSwiper,
                                                                                   threeCols: threeCols,
                                                                                   width: constraints.maxWidth,
                                                                                   height: height,
@@ -1160,8 +1153,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                           portraitTextAreaKey,
                                                                       portraitMode:
                                                                           portraitMode,
-                                                                      showSwiper:
-                                                                          showSwiper,
                                                                       threeCols:
                                                                           threeCols,
                                                                       width: constraints
@@ -1452,7 +1443,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                   return getTextArea(
                                                                                     key: portraitTextAreaKey,
                                                                                     portraitMode: portraitMode,
-                                                                                    showSwiper: showSwiper,
                                                                                     threeCols: threeCols,
                                                                                     width: width,
                                                                                     height: height,
@@ -1659,8 +1649,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                             portraitTextAreaKey,
                                                                         portraitMode:
                                                                             portraitMode,
-                                                                        showSwiper:
-                                                                            false,
                                                                         threeCols:
                                                                             threeCols,
                                                                         width:
@@ -1822,8 +1810,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                       portraitTextAreaKey,
                                                                   portraitMode:
                                                                       portraitMode,
-                                                                  showSwiper:
-                                                                      false,
                                                                   threeCols:
                                                                       threeCols,
                                                                   width: width,
