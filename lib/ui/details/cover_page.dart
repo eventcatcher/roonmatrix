@@ -244,6 +244,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         selectedZone!['cover'] == null) {
       // zone is inactive
       inner = Container(
+        key: ValueKey('Text-$idle-inactive'),
         // width: width,
         // height: height - 5,
         constraints: threeCols
@@ -345,6 +346,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         );
 
         inner = Container(
+          key: ValueKey('Text-$idle-$hash'),
           //width: width,
           //height: height - 5,
           constraints: threeCols
