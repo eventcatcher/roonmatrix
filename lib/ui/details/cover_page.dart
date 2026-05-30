@@ -1079,21 +1079,29 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                             SwiperButton(
                                                               swiperController:
                                                                   swiperController,
+                                                              outer: true,
                                                               isNext: false,
-                                                              top:
-                                                                  (controlsHeight /
-                                                                      2) -
-                                                                  36,
+                                                              center:
+                                                                  (constraints.maxWidth <
+                                                                          coverWidth!
+                                                                      ? constraints
+                                                                            .maxWidth
+                                                                      : coverWidth!) /
+                                                                  2,
                                                             ),
                                                           if (Globals.isDesktopDevice())
                                                             SwiperButton(
                                                               swiperController:
                                                                   swiperController,
+                                                              outer: true,
                                                               isNext: true,
-                                                              top:
-                                                                  (controlsHeight /
-                                                                      2) -
-                                                                  36,
+                                                              center:
+                                                                  (constraints.maxWidth <
+                                                                          coverWidth!
+                                                                      ? constraints
+                                                                            .maxWidth
+                                                                      : coverWidth!) /
+                                                                  2,
                                                             ),
                                                         ],
                                                       ),
@@ -1522,25 +1530,25 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                 SwiperButton(
                                                                   swiperController:
                                                                       swiperController,
+                                                                  outer: false,
                                                                   isNext: false,
-                                                                  top:
+                                                                  center:
                                                                       (constraints
-                                                                              .maxHeight /
-                                                                          2) -
-                                                                      24,
+                                                                              .maxWidth -
+                                                                          coverPadding) /
+                                                                      2,
                                                                 ),
                                                               if (Globals.isDesktopDevice())
                                                                 SwiperButton(
                                                                   swiperController:
                                                                       swiperController,
+                                                                  outer: false,
                                                                   isNext: true,
-                                                                  top:
+                                                                  center:
                                                                       (constraints
-                                                                              .maxHeight /
-                                                                          2) -
-                                                                      24,
-                                                                  right:
-                                                                      coverPadding,
+                                                                              .maxWidth +
+                                                                          coverPadding) /
+                                                                      2,
                                                                 ),
                                                             ],
                                                           );

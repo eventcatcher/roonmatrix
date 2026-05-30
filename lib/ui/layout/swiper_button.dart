@@ -4,18 +4,18 @@ import 'package:roonmatrix/globals.dart';
 
 class SwiperButton extends StatefulWidget {
   final SwiperController swiperController;
+  final bool outer;
   final bool isNext;
-  final double top;
-  final double right;
+  final double center;
   final double size;
 
   const SwiperButton({
     super.key,
     required this.swiperController,
+    required this.outer,
     required this.isNext,
-    required this.top,
-    this.right = 0,
-    this.size = 48.0,
+    required this.center,
+    this.size = 40.0,
   });
 
   @override
@@ -28,25 +28,24 @@ class _SwiperButtonState extends State<SwiperButton> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: widget.top,
-      left: widget.isNext ? null : 0,
-      right: widget.isNext ? widget.right : null,
+      bottom: widget.outer ? -8 : 12,
+      left: widget.isNext ? null : widget.center - 50,
+      right: widget.isNext ? widget.center - 50 : null,
       child: MouseRegion(
+        cursor: SystemMouseCursors.click,
         onEnter: (_) => Globals.isDesktopDevice()
             ? setState(() => swiperButtonHovered = true)
             : null,
         onExit: (_) => Globals.isDesktopDevice()
             ? setState(() => swiperButtonHovered = false)
             : null,
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          constraints: BoxConstraints(),
-          onPressed: () {
+        child: GestureDetector(
+          onTap: () {
             widget.isNext
                 ? widget.swiperController.next()
                 : widget.swiperController.previous();
           },
-          icon: Icon(
+          child: Icon(
             widget.isNext ? Icons.arrow_right : Icons.arrow_left,
             size: widget.size,
             color: swiperButtonHovered == true
