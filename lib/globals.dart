@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/ui/helper/cover_transition.dart';
 import 'package:roonmatrix/ui/helper/cover_transition_preset.dart';
 
 class Globals {
+  static final String mainWindowTitle = 'Roonmatrix';
+
   static final bool showMacStyle =
       true; // show app in macos ui style (running on macos)
   static final bool showIosStyle =
@@ -27,75 +30,6 @@ class Globals {
   static final double maxFontSizeForCoverText = 48.0;
   static final double midFontSizeForCoverText = 24.0;
   static final double stdFontSizeForCoverText = 16.0;
-
-  static double adaptiveMaxFontSizeForCoverText({required double width}) {
-    double size = width > 700
-        ? maxFontSizeForCoverText
-        : width > 500
-        ? midFontSizeForCoverText
-        : stdFontSizeForCoverText;
-
-    print('adaptiveMaxFontSizeForCoverText for width: $width, size: $size');
-    return size;
-  }
-
-  static final String mainWindowTitle = 'Roonmatrix';
-
-  static bool isMobileDevice() =>
-      Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
-
-  static bool isDesktopDevice() =>
-      Platform.isMacOS || Platform.isWindows || Platform.isLinux;
-
-  static bool isLinux() => Platform.isLinux;
-
-  static bool inIosStyle() =>
-      (showIosStyle == true && Platform.isIOS) ||
-      (!showMacStyle && showIosStyle == true && Platform.isMacOS);
-
-  static bool inMacosStyle() => showMacStyle == true && Platform.isMacOS;
-
-  static bool selectBoxInMacStyle() =>
-      showSelectBoxInMacStyle == true && inMacosStyle();
-
-  static Future<String> getMacosVersion() async {
-    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    final MacOsDeviceInfo macosInfo = await deviceInfo.macOsInfo;
-    final String version = macosInfo.osRelease
-        .replaceFirst('Version', '')
-        .trim();
-
-    return version;
-  }
-
-  static Future<String> getIosVersion() async {
-    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    final String version = iosInfo.systemVersion.trim();
-
-    return version;
-  }
-
-  static Future<String> getIosModel() async {
-    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-    final String model = iosInfo.model;
-
-    return model;
-  }
-
-  static Future<int> getIosMajorVersion() async {
-    String version = await getIosVersion();
-    return int.tryParse(version.split('.').first) ?? 0;
-  }
-
-  static Future<bool> isIPad() async {
-    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-
-    return iosInfo.model.toLowerCase().contains('ipad') ||
-        iosInfo.utsname.machine.toLowerCase().contains('ipad');
-  }
 
   static final String placeholderSvgAssetPath =
       'assets/svg/8-8-led-matrix-display-unit.svg';
@@ -153,6 +87,77 @@ class Globals {
 
   static final AnimatedSwitcherTransitionBuilder coverSwitchAnimatedPreset =
       CoverTransition.presets(CoverTransitionPreset.fadeScale);
+
+  static double adaptiveMaxFontSizeForCoverText({required double width}) {
+    double size = width > 700
+        ? maxFontSizeForCoverText
+        : width > 500
+        ? midFontSizeForCoverText
+        : stdFontSizeForCoverText;
+
+    if (kDebugMode) {
+      debugPrint(
+        'adaptiveMaxFontSizeForCoverText for width: $width, size: $size',
+      );
+    }
+    return size;
+  }
+
+  static bool isMobileDevice() =>
+      Platform.isIOS || Platform.isAndroid || Platform.isFuchsia;
+
+  static bool isDesktopDevice() =>
+      Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+
+  static bool isLinux() => Platform.isLinux;
+
+  static bool inIosStyle() =>
+      (showIosStyle == true && Platform.isIOS) ||
+      (!showMacStyle && showIosStyle == true && Platform.isMacOS);
+
+  static bool inMacosStyle() => showMacStyle == true && Platform.isMacOS;
+
+  static bool selectBoxInMacStyle() =>
+      showSelectBoxInMacStyle == true && inMacosStyle();
+
+  static Future<String> getMacosVersion() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final MacOsDeviceInfo macosInfo = await deviceInfo.macOsInfo;
+    final String version = macosInfo.osRelease
+        .replaceFirst('Version', '')
+        .trim();
+
+    return version;
+  }
+
+  static Future<String> getIosVersion() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    final String version = iosInfo.systemVersion.trim();
+
+    return version;
+  }
+
+  static Future<String> getIosModel() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+    final String model = iosInfo.model;
+
+    return model;
+  }
+
+  static Future<int> getIosMajorVersion() async {
+    String version = await getIosVersion();
+    return int.tryParse(version.split('.').first) ?? 0;
+  }
+
+  static Future<bool> isIPad() async {
+    final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+
+    return iosInfo.model.toLowerCase().contains('ipad') ||
+        iosInfo.utsname.machine.toLowerCase().contains('ipad');
+  }
 
   static BorderRadius borderRadius() =>
       BorderRadius.all(Radius.circular(Globals.inIosStyle() ? 8.0 : 5.0));
