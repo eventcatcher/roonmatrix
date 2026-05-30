@@ -244,8 +244,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         selectedZone!['cover'] == null) {
       // zone is inactive
       inner = Container(
-        width: width,
-        height: height - 5,
+        // width: width,
+        // height: height - 5,
         constraints: threeCols
             ? null
             : BoxConstraints(
@@ -255,11 +255,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                 //maxHeight: height - 32,
               ),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+          padding: EdgeInsets.all(8.0),
           child: Center(
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              padding: EdgeInsets.all(8),
+              //margin: EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 borderRadius: Globals.borderRadius(),
                 color: Globals.brightness() == Brightness.dark
@@ -345,8 +345,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         );
 
         inner = Container(
-          width: width,
-          height: height - 5,
+          //width: width,
+          //height: height - 5,
           constraints: threeCols
               ? null
               : BoxConstraints(
@@ -356,11 +356,11 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                   //maxHeight: height - 32,
                 ),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
+            padding: EdgeInsets.all(8.0),
             child: Center(
               child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 16.0),
-                padding: EdgeInsets.all(8),
+                //margin: EdgeInsets.symmetric(horizontal: 16.0),
+                padding: EdgeInsets.all(8.0),
                 decoration: BoxDecoration(
                   borderRadius: Globals.borderRadius(),
                   color: Globals.brightness() == Brightness.dark
