@@ -60,46 +60,44 @@ class _CoverTextOverlayExtendedState extends State<CoverTextOverlayExtended> {
   }
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: AutoSizeText.rich(
-      TextSpan(
-        children: [
-          TextSpan(
-            text: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
-            style: TextStyle(fontWeight: fontWeight),
-          ),
-          TextSpan(
-            text:
-                '${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}',
-          ),
-          TextSpan(text: '\n'),
-          TextSpan(
-            text: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
-            style: TextStyle(fontWeight: fontWeight),
-          ),
-          TextSpan(text: coverModel.artist),
-          TextSpan(text: '\n'),
-          TextSpan(
-            text: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
-            style: TextStyle(fontWeight: fontWeight),
-          ),
-          TextSpan(text: coverModel.album),
-          TextSpan(text: '\n'),
-          TextSpan(
-            text: '${translations['coverTrackHeader'] ?? 'Track'}: ',
-            style: TextStyle(fontWeight: fontWeight),
-          ),
-          TextSpan(text: coverModel.track),
-        ],
-      ),
-      maxLines: 15,
-      minFontSize: 2,
-      maxFontSize: maxFontSize,
-      stepGranularity: 0.5,
-      wrapWords: true,
-
-      //presetFontSizes: [18, 16, 14, 12, 10, 8],
-      style: TextStyle(fontSize: maxFontSize, color: color),
+  Widget build(BuildContext context) => AutoSizeText.rich(
+    TextSpan(
+      children: [
+        TextSpan(
+          text: '${translations['coverZoneHeader'] ?? 'Zone'}: ',
+          style: TextStyle(fontWeight: fontWeight),
+        ),
+        TextSpan(
+          text:
+              '${coverModel.zoneName} ${coverModel.status == 'paused' ? ' (${translations['paused'] ?? 'paused'})' : ''}',
+        ),
+        TextSpan(text: '\n'),
+        TextSpan(
+          text: '${translations['coverArtistHeader'] ?? 'Artist'}: ',
+          style: TextStyle(fontWeight: fontWeight),
+        ),
+        TextSpan(text: coverModel.artist),
+        TextSpan(text: '\n'),
+        TextSpan(
+          text: '${translations['coverAlbumHeader'] ?? 'Album'}: ',
+          style: TextStyle(fontWeight: fontWeight),
+        ),
+        TextSpan(text: coverModel.album),
+        TextSpan(text: '\n'),
+        TextSpan(
+          text: '${translations['coverTrackHeader'] ?? 'Track'}: ',
+          style: TextStyle(fontWeight: fontWeight),
+        ),
+        TextSpan(text: coverModel.track),
+      ],
     ),
+    maxLines: 15,
+    minFontSize: 2,
+    maxFontSize: maxFontSize,
+    stepGranularity: 0.5,
+    wrapWords: true,
+
+    //presetFontSizes: [18, 16, 14, 12, 10, 8],
+    style: TextStyle(fontSize: maxFontSize, color: color),
   );
 }
