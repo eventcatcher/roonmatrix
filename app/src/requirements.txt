@@ -2,10 +2,8 @@ requests==2.32.3
 chardet==5.2.0
 python-dateutil
 pyweatherbit
-feedparser
 unidecode
 urllib3
-sdnotify
 rich
 freetype-py
 PyJWT
@@ -17,3 +15,4 @@ pyweatherbit
 certifi
 websockets==13.1
 platformdirs
+fastfeedparser

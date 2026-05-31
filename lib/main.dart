@@ -127,18 +127,18 @@ class RoonMatrixState extends State<RoonMatrix> {
   late MainBloc mainBloc;
 
   Future<void> startPythonRuntimeIfRequirementsFulfilled() async {
-    if (Globals.isDesktopDevice() == true) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool startInAppDeviceServer =
-          prefs.getBool('startInAppDeviceServer') ?? false;
+    //if (Globals.isDesktopDevice() == true) {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool startInAppDeviceServer =
+        prefs.getBool('startInAppDeviceServer') ?? false;
 
-      if (kDebugMode) {
-        debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
-      }
-      if (startInAppDeviceServer == true) {
-        pythonRuntimeInit();
-      }
+    if (kDebugMode) {
+      debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
     }
+    if (startInAppDeviceServer == true) {
+      pythonRuntimeInit();
+    }
+    //}
   }
 
   @override
