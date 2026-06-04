@@ -397,6 +397,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             );
                                           },
                                           child: DeviceListItem(
+                                            // key: ValueKey(
+                                            //   'DeviceListItem-$ip-${spotifyAuthUrls[ip] ?? '*'}',
+                                            // ),
                                             navigatorKey: navigatorKey,
                                             itemListKey: itemListKey,
                                             index: index,

@@ -69,129 +69,135 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
     required BuildContext context,
     required MainState mainState,
     required String url,
-  }) =>
-      Column(
-        children: [
-          Expanded(
-            child: mainState.subPageIdle == true
-                ? const LoadingIndicatorSmall()
-                : WebPageDisplay(
-                    title: 'URL: $url',
-                    url: url,
-                    translations: translations,
-                    callbackUrl: callbackUrl),
-          ),
-          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
-          if (Globals.inIosStyle()) const SizedBox(height: 14.0),
-        ],
-      );
+  }) => Column(
+    children: [
+      Expanded(
+        child: url.isEmpty
+            ? Text('url is missing...', style: TextStyle(fontSize: 48.0))
+            : mainState.subPageIdle == true
+            ? const LoadingIndicatorSmall()
+            : WebPageDisplay(
+                title: 'URL: $url',
+                url: url,
+                translations: translations,
+                callbackUrl: callbackUrl,
+              ),
+      ),
+      if (Globals.inIosStyle()) const SizedBox(height: 14.0),
+      if (Globals.inIosStyle()) const SizedBox(height: 14.0),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder(
-        bloc: translationsBloc,
-        builder: (context, TranslationsState translationsState) {
-          if (translationsState is TranslationsStateLoaded) {
-            translations = translationsState.translations;
-            translationsLoaded = translationsState.translationsLoaded;
-            title =
-                '$name : ${translations['spotifyConnectAuthText'] ?? 'Spotify Connect Authorize'}';
-          }
+      bloc: translationsBloc,
+      builder: (context, TranslationsState translationsState) {
+        if (translationsState is TranslationsStateLoaded) {
+          translations = translationsState.translations;
+          translationsLoaded = translationsState.translationsLoaded;
+          title =
+              '$name : ${translations['spotifyConnectAuthText'] ?? 'Spotify Connect Authorize'}';
+        }
 
-          if (translationsState is! TranslationsStateLoaded ||
-              !translationsLoaded) {
+        if (translationsState is! TranslationsStateLoaded ||
+            !translationsLoaded) {
+          if (Globals.inIosStyle()) {
+            return CupertinoPageScaffold(
+              navigationBar: CupertinoNavigationBar(
+                brightness: Globals.brightness(),
+                middle: Text(title),
+              ),
+              child: SizedBox(),
+            );
+          }
+          return Globals.inMacosStyle()
+              ? MacosScaffold(
+                  toolBar: ToolBar(
+                    title: Text(title),
+                    titleWidth: Globals.extendedTitleWidth,
+                    leading: MacosBackButton(
+                      onPressed: () => Navigator.pop(context),
+                      fillColor: Colors.transparent,
+                    ),
+                    actions: [],
+                  ),
+                  children: [
+                    ContentArea(
+                      builder: ((context, scrollController) {
+                        return MacosWindow(child: Material(child: SizedBox()));
+                      }),
+                    ),
+                  ],
+                )
+              : Scaffold(
+                  appBar: AppBar(title: Text(title)),
+                  body: const SizedBox(),
+                );
+        }
+
+        return BlocBuilder(
+          bloc: mainBloc,
+          builder: (context, MainState mainState) {
+            if (mainState is! MainStateLoaded) {
+              return SizedBox();
+            }
+
+            macosVersion = mainState.macosVersion;
+
             if (Globals.inIosStyle()) {
               return CupertinoPageScaffold(
                 navigationBar: CupertinoNavigationBar(
                   brightness: Globals.brightness(),
                   middle: Text(title),
+                  leading: CupertinoNavigationBarBackButton(),
                 ),
-                child: SizedBox(),
+                child: SafeArea(
+                  child: body(context: context, mainState: mainState, url: url),
+                ),
               );
             }
+
             return Globals.inMacosStyle()
-                ? MacosScaffold(
-                    toolBar: ToolBar(
-                      title: Text(title),
-                      titleWidth: Globals.extendedTitleWidth,
-                      leading: MacosBackButton(
-                        onPressed: () => Navigator.pop(context),
-                        fillColor: Colors.transparent,
-                      ),
-                      actions: [],
+                ? PageWithToolbarMacStyle(
+                    translations: translations,
+                    title: title,
+                    standardDesktopSize: standardDesktopSize,
+                    macosVersion: macosVersion,
+                    body: body(
+                      context: context,
+                      mainState: mainState,
+                      url: url,
                     ),
-                    children: [
-                      ContentArea(
-                        builder: ((context, scrollController) {
-                          return MacosWindow(
-                            child: Material(
-                              child: SizedBox(),
-                            ),
-                          );
-                        }),
-                      ),
-                    ],
-                  )
-                : Scaffold(
-                    appBar: AppBar(
-                      title: Text(title),
-                    ),
-                    body: const SizedBox());
-          }
-
-          return BlocBuilder(
-              bloc: mainBloc,
-              builder: (context, MainState mainState) {
-                if (mainState is! MainStateLoaded) {
-                  return SizedBox();
-                }
-
-                macosVersion = mainState.macosVersion;
-
-                if (Globals.inIosStyle()) {
-                  return CupertinoPageScaffold(
-                    navigationBar: CupertinoNavigationBar(
-                      brightness: Globals.brightness(),
-                      middle: Text(title),
-                      leading: CupertinoNavigationBarBackButton(),
-                    ),
-                    child: SafeArea(
-                      child: body(
-                          context: context, mainState: mainState, url: url),
-                    ),
-                  );
-                }
-
-                return Globals.inMacosStyle()
-                    ? PageWithToolbarMacStyle(
-                        translations: translations,
-                        title: title,
-                        standardDesktopSize: standardDesktopSize,
-                        macosVersion: macosVersion,
-                        body: body(
-                            context: context, mainState: mainState, url: url),
-                        resizeToFullWidth: () {
-                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                              minDesktopSize: minDesktopSize);
-                        },
-                      )
-                    : PageWithToolbarFlutterStyle(
-                        scaffoldKey: scaffoldKey,
-                        translations: translations,
-                        title: title,
-                        sliderDefaultValue: 0.0,
-                        showSlider: false,
-                        showExpandableSpeedSlider: false,
-                        scrollSpeedDevice: 1.0,
-                        standardDesktopSize: standardDesktopSize,
-                        body: body(
-                            context: context, mainState: mainState, url: url),
-                        resizeToFullWidth: () {
-                          mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                              minDesktopSize: minDesktopSize);
-                        },
+                    resizeToFullWidth: () {
+                      mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                        minDesktopSize: minDesktopSize,
                       );
-              });
-        });
+                    },
+                  )
+                : PageWithToolbarFlutterStyle(
+                    scaffoldKey: scaffoldKey,
+                    translations: translations,
+                    title: title,
+                    sliderDefaultValue: 0.0,
+                    showSlider: false,
+                    showExpandableSpeedSlider: false,
+                    scrollSpeedDevice: 1.0,
+                    standardDesktopSize: standardDesktopSize,
+                    body: body(
+                      context: context,
+                      mainState: mainState,
+                      url: url,
+                    ),
+                    resizeToFullWidth: () {
+                      mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                        minDesktopSize: minDesktopSize,
+                      );
+                    },
+                  );
+          },
+        );
+      },
+    );
   }
 }

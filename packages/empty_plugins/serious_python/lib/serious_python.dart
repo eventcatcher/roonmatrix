@@ -6,4 +6,6 @@ class SeriousPython {
   }) async {
     return null;
   }
+
+  static void terminate() {}
 }

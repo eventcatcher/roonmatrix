@@ -255,7 +255,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
           right: 0.0,
           child: ExpandableMenu(
             key: ValueKey(
-              'ExpandableMenu-$ip-$moreInfo',
+              'ExpandableMenu-$ip-$spotifyAuthUrl-$moreInfo',
             ), // main item expandable for mobile
             width: Globals.mobileExpandableButtonSize,
             height: Globals.mobileExpandableButtonSize,

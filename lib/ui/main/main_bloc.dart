@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:json_repair_flutter/json_repair_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/globals.dart';
@@ -40,6 +41,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:validators/validators.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:python_backend/python_runtime.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
   final FileRepository fileRepository;
@@ -366,15 +368,48 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
 
       if (event is LoadInfo) {
+        Map<String, dynamic> newInfo = event.info;
         Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
-        info[event.ip] = event.info;
+
+        Map<String, dynamic> spotifyAuthUrls = Map<String, dynamic>.from(
+          state.spotifyAuthUrls,
+        );
+
+        String spotifyAuthUrl = '';
+        if (newInfo.containsKey('spotify_auth_url')) {
+          spotifyAuthUrl = newInfo['spotify_auth_url'];
+          spotifyAuthUrls[event.ip] = spotifyAuthUrl;
+          newInfo.remove('spotify_auth_url');
+        }
+        if (newInfo.containsKey('is_app_embedded') &&
+            newInfo.containsKey('reboot_python') &&
+            newInfo.containsKey('config_updated_at')) {
+          bool isAppEmbedded = newInfo['is_app_embedded'];
+          bool rebootPython = newInfo['reboot_python'];
+          //String configUpdatedAt = newInfo['config_updated_at'];
+          if (isAppEmbedded == true && rebootPython == true) {
+            Future.delayed(Duration(seconds: 5), () {
+              //pythonRuntimeRestart();
+              Restart.restartApp();
+            });
+          }
+        }
+
+        info[event.ip] = newInfo;
+
         if (kDebugMode) {
           debugPrint(
             'LoadInfo, ip: ${event.ip}, app_displaystr: ${info[event.ip]['app_displaystr']}',
           );
         }
 
-        emit(state.copyWith(update: DateTime.now(), info: info));
+        emit(
+          state.copyWith(
+            update: DateTime.now(),
+            info: info,
+            spotifyAuthUrls: spotifyAuthUrls,
+          ),
+        );
       }
 
       if (event is SetSearchFilter) {
@@ -439,6 +474,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 spotifyAuthUrl = json['spotify_auth_url'];
                 spotifyAuthUrls[ip] = spotifyAuthUrl;
                 json.remove('spotify_auth_url');
+              }
+              if (json.containsKey('is_app_embedded') &&
+                  json.containsKey('reboot_python') &&
+                  json.containsKey('config_updated_at')) {
+                bool isAppEmbedded = json['is_app_embedded'];
+                bool rebootPython = json['reboot_python'];
+                //String configUpdatedAt = json['config_updated_at'];
+                if (isAppEmbedded == true && rebootPython == true) {
+                  Future.delayed(Duration(seconds: 5), () {
+                    //pythonRuntimeRestart();
+                    Restart.restartApp();
+                  });
+                }
               }
 
               info[ip] = json;

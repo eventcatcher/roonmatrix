@@ -19,9 +19,22 @@ Future<void> pythonRuntimeInit() async {
       "configs_dir": dir.path,
     },
   );
+  //SeriousPython.terminate();
 
   debugPrint(
     'virtual device started${response != null && response.isNotEmpty ? ' (response: $response)' : ''}',
   );
   debugPrint('pythonRuntimeInit END');
+}
+
+Future<void> pythonRuntimeRestart() async {
+  debugPrint('pythonRuntimeRestart START');
+  // if (!(Platform.isMacOS || Platform.isLinux || Platform.isWindows)) {
+  //   return;
+  // }
+
+  SeriousPython.terminate();
+  pythonRuntimeInit();
+
+  debugPrint('pythonRuntimeInit RESTART END');
 }

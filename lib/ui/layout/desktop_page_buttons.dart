@@ -96,6 +96,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
       return SizedBox();
     }
     return Row(
+      key: ValueKey('desktop-page-buttons-$ip-$spotifyAuthUrl'),
       children: [
         if (spotifyAuthUrl != '*')
           PageButton(
