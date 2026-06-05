@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:json_repair_flutter/json_repair_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'package:restart_app/restart_app.dart';
+import 'package:restart_app/restart_app.dart' as restart_app;
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/file_repository.dart';
 import 'package:roonmatrix/globals.dart';
@@ -38,10 +38,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:terminate_restart/terminate_restart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:validators/validators.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:python_backend/python_runtime.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
   final FileRepository fileRepository;
@@ -89,12 +89,34 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           bool isIPad = await Globals.isIPad();
 
           emit(
-            state.copyWith(
+            MainStateLoaded(
               update: DateTime.now(),
+              ipStart: state.ipStart,
+              ipEnd: state.ipEnd,
+              searchFilter: state.searchFilter,
+              devices: [],
+              activeDeviceIp: null,
+              selectedDeviceIp: '',
+              tileExpanded: {},
+              connected: {},
+              ping: {},
+              notifications: {},
+              info: {},
+              config: {},
+              definitions: {},
+              fieldValues: {},
+              log: '',
+              idle: false,
+              disableListItemsRendering: false,
+              subPageIdle: false,
+              logMessage: '',
+              spotifyAuthUrls: {},
+              macosVersion: '',
               iosVersion: iosVersion,
               iosMajorVersion: iosMajorVersion,
               iosModel: iosModel,
               isIPad: isIPad,
+              showRestartApproveModal: false,
             ),
           );
         }
@@ -203,6 +225,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         String ip = event.ip;
 
         emit(state.copyWith(update: DateTime.now(), selectedDeviceIp: ip));
+      }
+
+      if (event is SetRestartApproveMode) {
+        bool showRestartApproveModal = event.enabled;
+
+        emit(
+          state.copyWith(
+            update: DateTime.now(),
+            showRestartApproveModal: showRestartApproveModal,
+          ),
+        );
       }
 
       if (event is SetConnected) {
@@ -388,9 +421,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           bool rebootPython = newInfo['reboot_python'];
           //String configUpdatedAt = newInfo['config_updated_at'];
           if (isAppEmbedded == true && rebootPython == true) {
-            Future.delayed(Duration(seconds: 5), () {
+            Future.delayed(Duration(seconds: 5), () async {
               //pythonRuntimeRestart();
-              Restart.restartApp();
+              restartAppAndPythonRuntime();
             });
           }
         }
@@ -482,9 +515,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 bool rebootPython = json['reboot_python'];
                 //String configUpdatedAt = json['config_updated_at'];
                 if (isAppEmbedded == true && rebootPython == true) {
-                  Future.delayed(Duration(seconds: 5), () {
-                    //pythonRuntimeRestart();
-                    Restart.restartApp();
+                  Future.delayed(Duration(seconds: 5), () async {
+                    //pythonRuntimeRestart()
+                    restartAppAndPythonRuntime();
                   });
                 }
               }
@@ -2869,6 +2902,40 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     ];
   }
 
+  Future<void> restartAppAndPythonRuntime() async {
+    if (Platform.isIOS) {
+      final bool withConfirmation = false;
+
+      if (withConfirmation == true) {
+        setRestartApproveMode(enabled: true);
+      } else {
+        await TerminateRestart.instance.restartApp(
+          options: const TerminateRestartOptions(
+            terminate: true,
+            clearData: true,
+            preserveKeychain: true,
+            preserveUserDefaults: true,
+          ),
+        );
+      }
+    } else {
+      final restart_app.RestartCapability capability =
+          await restart_app.Restart.restartCapability();
+      restart_app.RestartMode mode =
+          restart_app.RestartMode.notificationFallback;
+      if (capability.fullProcessRestart == true) {
+        debugPrint('set RestartMode to process');
+        mode = restart_app.RestartMode.process;
+      }
+      if (capability.flutterEngineRestart == true) {
+        mode = restart_app.RestartMode.flutterEngine;
+        debugPrint('set RestartMode to flutterEngine');
+      }
+      loadDefaults();
+      restart_app.Restart.restartApp(mode: mode, forceKill: true);
+    }
+  }
+
   // ==================== //
   // public event methods //
   // ==================== //
@@ -2934,6 +3001,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   void setSelectedDeviceIp({required String ip}) {
     add(SetSelectedDeviceIp(ip: ip));
+  }
+
+  void setRestartApproveMode({required bool enabled}) {
+    add(SetRestartApproveMode(enabled: enabled));
   }
 
   void setConnected({required String ip, required bool connected}) {

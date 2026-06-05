@@ -73,7 +73,11 @@ class SpotifyConnectWebAuthPageState extends State<SpotifyConnectWebAuthPage> {
     children: [
       Expanded(
         child: url.isEmpty
-            ? Text('url is missing...', style: TextStyle(fontSize: 48.0))
+            ? Text(
+                translations['spotifyConnectAuthUrlMissing'] ??
+                    'Spotify Connect Login URL is missing...',
+                style: TextStyle(fontSize: 48.0),
+              )
             : mainState.subPageIdle == true
             ? const LoadingIndicatorSmall()
             : WebPageDisplay(

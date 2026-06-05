@@ -26,6 +26,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:terminate_restart/terminate_restart.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:python_backend/python_runtime.dart';
 
@@ -46,6 +47,8 @@ void main() async {
   final bool useCustomMacMenu = false;
 
   WidgetsFlutterBinding.ensureInitialized();
+  TerminateRestart.instance.initialize();
+
   if (!useCustomMacMenu) {
     WidgetsBinding.instance.platformMenuDelegate =
         EnhancedPlatformMenuDelegate();
@@ -56,10 +59,12 @@ void main() async {
   }
 
   runApp(
-    RoonMatrix(
-      minDesktopSize: Globals.minDesktopSize,
-      standardDesktopSize: Globals.standardDesktopSize,
-      useCustomMacMenu: useCustomMacMenu,
+    TerminateRestart.wrapWithRestart(
+      child: RoonMatrix(
+        minDesktopSize: Globals.minDesktopSize,
+        standardDesktopSize: Globals.standardDesktopSize,
+        useCustomMacMenu: useCustomMacMenu,
+      ),
     ),
   );
 
@@ -119,6 +124,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   MenubarAppleCustomClass? menubarAppleCustomClass;
   Widget? mainPageWithMenuForApple;
   String? selectedDeviceIpBefore;
+  bool restartApproveModalOpened = false;
 
   late StreamSubscription connectionStatusStreamSubscription;
   late TranslationsBloc translationsBloc;
@@ -295,6 +301,38 @@ class RoonMatrixState extends State<RoonMatrix> {
                     mainState.spotifyAuthUrls;
                 bool isIPad = mainState.isIPad;
                 int iosMajorVersion = mainState.iosMajorVersion;
+                bool showRestartApproveModal =
+                    mainState.showRestartApproveModal;
+
+                if (showRestartApproveModal == true &&
+                    !restartApproveModalOpened) {
+                  restartApproveModalOpened = true;
+                  SchedulerBinding.instance.addPostFrameCallback((_) async {
+                    if (mounted) {
+                      await TerminateRestart.instance.restartAppWithConfirmation(
+                        context,
+                        title:
+                            translations['restartAppConfirmationTitle'] ??
+                            'Restart of App required',
+                        message:
+                            translations['restartAppConfirmationMessage'] ??
+                            'Configuration data has been changed, so the app needs to be restarted. Restart now?',
+                        confirmText:
+                            translations['restartAppConfirmationConfirmText'] ??
+                            'Yes',
+                        cancelText:
+                            translations['restartAppConfirmationCancelText'] ??
+                            'Later',
+                        terminate: true,
+                        clearData: false,
+                        preserveKeychain: true,
+                      );
+                      Future.delayed(Duration(seconds: 60), () {
+                        restartApproveModalOpened = false;
+                      });
+                    }
+                  });
+                }
 
                 if (useCustomMacMenu == true && Platform.isMacOS) {
                   mainPageWithMenuForApple = menubarAppleCustomClass!

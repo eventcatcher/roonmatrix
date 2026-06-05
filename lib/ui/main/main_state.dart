@@ -28,6 +28,7 @@ abstract class MainState extends Equatable {
   final int iosMajorVersion;
   final String iosModel;
   final bool isIPad;
+  final bool showRestartApproveModal;
 
   const MainState({
     this.update,
@@ -56,6 +57,7 @@ abstract class MainState extends Equatable {
     this.iosMajorVersion = 0,
     this.iosModel = '',
     this.isIPad = false,
+    this.showRestartApproveModal = false,
   });
 
   MainState copyWith({
@@ -85,6 +87,7 @@ abstract class MainState extends Equatable {
     int? iosMajorVersion,
     String? iosModel,
     bool? isIPad,
+    bool? showRestartApproveModal,
   }) {
     return MainStateLoaded(
       update: update ?? this.update,
@@ -114,6 +117,8 @@ abstract class MainState extends Equatable {
       iosMajorVersion: iosMajorVersion ?? this.iosMajorVersion,
       iosModel: iosModel ?? this.iosModel,
       isIPad: isIPad ?? this.isIPad,
+      showRestartApproveModal:
+          showRestartApproveModal ?? this.showRestartApproveModal,
     );
   }
 
@@ -142,6 +147,7 @@ abstract class MainState extends Equatable {
       iosMajorVersion,
       iosModel,
       isIPad,
+      showRestartApproveModal,
     ];
 
     if (ipStart != null) {
@@ -199,6 +205,7 @@ class MainStateLoaded extends MainState {
     required super.iosMajorVersion,
     required super.iosModel,
     required super.isIPad,
+    required super.showRestartApproveModal,
   });
 
   @override

@@ -223,6 +223,15 @@ class SetSelectedDeviceIp extends MainEvent {
   List<Object> get props => [ip];
 }
 
+class SetRestartApproveMode extends MainEvent {
+  final bool enabled;
+
+  const SetRestartApproveMode({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
+}
+
 class SetConnected extends MainEvent {
   final String ip;
   final bool connected;

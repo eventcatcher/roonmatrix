@@ -182,6 +182,11 @@
     "startInAppDeviceServerLabel": "In-App-Geräteserver aktivieren (virtuelles Gerät, sichtbar nach Neustart der App)",
     "notificationsApproveTitle": "Benachrichtigungen",
     "notificationRoonActivation": "Bitte aktiviere das Gerät [DEVICENAME] in den Roon Einstellungen für Erweiterungen.",
+    "restartAppConfirmationTitle": "Neustart der App erforderlich",
+    "restartAppConfirmationMessage": "Es wurden Konfigurationsdaten geändert, daher ist ein Neustart der App erforderlich. Jetzt neu starten?",
+    "restartAppConfirmationConfirmText": "Ja",
+    "restartAppConfirmationCancelText": "Später",
+    "spotifyConnectAuthUrlMissing": "Die Anmelde-URL für Spotify Connect fehlt...",
     "config": {
         "hostname": "Hostname [Wichtig]",
         "password": "Passwort [Wichtig]",

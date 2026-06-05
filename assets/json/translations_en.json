@@ -182,6 +182,11 @@
     "startInAppDeviceServerLabel": "Enable In-App Device Server (virtual device, visible after app restart)",
     "notificationsApproveTitle": "Notifications",
     "notificationRoonActivation": "Please enable the device [DEVICENAME] in the Roon settings for extensions.",
+    "restartAppConfirmationTitle": "Restart of App required",
+    "restartAppConfirmationMessage": "Configuration data has been changed, so the app needs to be restarted. Restart now?",
+    "restartAppConfirmationConfirmText": "Yes",
+    "restartAppConfirmationCancelText": "Later",
+    "spotifyConnectAuthUrlMissing": "Spotify Connect Login URL is missing...",
     "config": {
         "hostname": "Hostname (Important)",
         "password": "Password (Important)",

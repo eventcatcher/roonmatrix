@@ -182,6 +182,11 @@
     "startInAppDeviceServerLabel": "Activer le serveur de périphériques intégré à l'application (périphérique virtuel, visible après le redémarrage de l'application)",
     "notificationsApproveTitle": "Notifications",
     "notificationRoonActivation": "Veuillez activer le périphérique [DEVICENAME] dans les paramètres Roon pour lui accorder les extensions.",
+    "restartAppConfirmationTitle": "Redémarrage de l'application requis",
+    "restartAppConfirmationMessage": "Les données de configuration ont été modifiées ; l'application doit donc être redémarrée. Voulez-vous la redémarrer maintenant ?",
+    "restartAppConfirmationConfirmText": "Oui",
+    "restartAppConfirmationCancelText": "Plus tard",
+    "spotifyConnectAuthUrlMissing": "L'URL de connexion à Spotify Connect est manquante...",
     "config": {
 		"hostname": "Nom d'hôte (important)",
         "password": "Mot de passe (important)",
