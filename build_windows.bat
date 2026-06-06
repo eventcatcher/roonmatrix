@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+set "SERIOUS_PYTHON_SITE_PACKAGES=%userprofile%\dev\gits\roonmatrix\app\src\__pypackages__"
+
 echo Removing pubspec_overrides.yaml...
 if exist pubspec_overrides.yaml del /f /q pubspec_overrides.yaml
 
