@@ -26,6 +26,9 @@ log = True			# default true: log infos on or off
 debug = False		# default false: log debug messages (memory and variable information)
 silent = False		# default False: print no warnings and no error messages to the console output
 
+with open("C:\Users\swilhelm\AppData\Roaming\de.eventcatcher\Roonmatrix\start.txt", "a") as text_file:
+    text_file.write("start @ " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    
 import sys
 
 if silent is True:
