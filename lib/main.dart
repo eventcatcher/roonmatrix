@@ -138,9 +138,8 @@ class RoonMatrixState extends State<RoonMatrix> {
     bool startInAppDeviceServer =
         prefs.getBool('startInAppDeviceServer') ?? false;
 
-    if (kDebugMode) {
-      debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
-    }
+    debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
+
     if (startInAppDeviceServer == true) {
       pythonRuntimeInit();
     }
