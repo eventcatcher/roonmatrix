@@ -2951,6 +2951,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   void sendExitNow() async {
     if (inAppVirtualDeviceIp.isNotEmpty) {
       String ip = inAppVirtualDeviceIp;
+      debugPrint('sendExitNow to $ip');
 
       String url = 'http://$ip:$portRestServer/exit_now/';
       try {
