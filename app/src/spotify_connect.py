@@ -179,13 +179,7 @@ class SpotifyConnect:
             except Exception as e:
                 # no Token exist or not refreshable
                 self.flexprint("[bold red]Invalid Spotify Connect authentification:[/bold red]", e)
-                self.flexprint(traceback.format_exc())
-                try:
-                    auth_url = self.auth_manager.get_authorize_url()
-                except Exception as e:
-                    self.flexprint("[bold red]error on get_authorize_url:[/bold red]", e)
-                    self.flexprint(traceback.format_exc())
-                self.flexprint("auth_url: " + str(auth_url))
+                auth_url = self.auth_manager.get_authorize_url()
                 self.flexprint('[bold red]spotify connect token not exist => request by app[/bold red]')
                 self.spotify_connect_auth_url_callback(auth_url)
                 self.spotify_connect_auth_success = False
