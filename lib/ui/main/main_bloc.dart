@@ -2948,7 +2948,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
   }
 
-  void sendExitNow() async {
+  Future<void> sendExitNow() async {
     if (inAppVirtualDeviceIp.isNotEmpty) {
       String ip = inAppVirtualDeviceIp;
       debugPrint('sendExitNow to $ip');
