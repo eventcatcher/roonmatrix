@@ -99,6 +99,13 @@ class GetConfig extends MainEvent {
   List<Object> get props => [ip];
 }
 
+class GetExitNow extends MainEvent {
+  const GetExitNow();
+
+  @override
+  List<Object> get props => [];
+}
+
 class UpdateStateConfig extends MainEvent {
   final String ip;
   final Map<String, dynamic> config;

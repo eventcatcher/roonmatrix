@@ -57,10 +57,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final int reconnectDelayInSeconds = 3;
   final int portRestServer = 8000;
   final int portWebSocket = 8100;
+  final bool restartWithConfirmation = Platform.isIOS && false;
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
   List<WebSocketService> services = [];
+  String inAppVirtualDeviceIp = '';
 
   bool isScanning = false;
 
@@ -421,6 +423,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           bool rebootPython = newInfo['reboot_python'];
           //String configUpdatedAt = newInfo['config_updated_at'];
           if (isAppEmbedded == true && rebootPython == true) {
+            if (inAppVirtualDeviceIp.isNotEmpty && !restartWithConfirmation) {
+              getExitNow();
+            }
             Future.delayed(Duration(seconds: 5), () async {
               //pythonRuntimeRestart();
               restartAppAndPythonRuntime();
@@ -515,6 +520,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 bool rebootPython = json['reboot_python'];
                 //String configUpdatedAt = json['config_updated_at'];
                 if (isAppEmbedded == true && rebootPython == true) {
+                  if (inAppVirtualDeviceIp.isNotEmpty &&
+                      !restartWithConfirmation) {
+                    getExitNow();
+                  }
                   Future.delayed(Duration(seconds: 5), () async {
                     //pythonRuntimeRestart()
                     restartAppAndPythonRuntime();
@@ -607,6 +616,29 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             debugPrint('GetConfig error by access to $url: $e');
           }
           emit(state.copyWith(update: DateTime.now(), subPageIdle: false));
+        }
+      }
+
+      if (event is GetExitNow) {
+        if (inAppVirtualDeviceIp.isNotEmpty) {
+          String ip = inAppVirtualDeviceIp;
+
+          emit(state.copyWith(update: DateTime.now(), subPageIdle: true));
+
+          String url = 'http://$ip:$portRestServer/exit_now/';
+          try {
+            Uri uri = Uri.parse(url);
+
+            http.Response response = await client.get(uri);
+            if (response.statusCode == 200) {
+              //
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint('GetExitNow error by access to $url: $e');
+            }
+            emit(state.copyWith(update: DateTime.now(), subPageIdle: false));
+          }
         }
       }
 
@@ -1587,6 +1619,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               debugPrint('Open: $localHostIp:$port');
             }
             found.add(localHostIp);
+            inAppVirtualDeviceIp = localHostIp;
           }
         }),
       );
@@ -2904,9 +2937,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   Future<void> restartAppAndPythonRuntime() async {
     if (Platform.isIOS) {
-      final bool withConfirmation = false;
-
-      if (withConfirmation == true) {
+      if (restartWithConfirmation == true) {
         setRestartApproveMode(enabled: true);
       } else {
         await TerminateRestart.instance.restartApp(
@@ -2974,6 +3005,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   void getConfig({required String ip}) {
     add(GetConfig(ip: ip));
+  }
+
+  void getExitNow() {
+    add(GetExitNow());
   }
 
   void updateStateConfig({

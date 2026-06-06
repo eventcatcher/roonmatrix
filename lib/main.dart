@@ -5,7 +5,6 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:enhanced_platform_menu/enhanced_platform_menu_delegate.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
@@ -308,24 +307,29 @@ class RoonMatrixState extends State<RoonMatrix> {
                   restartApproveModalOpened = true;
                   SchedulerBinding.instance.addPostFrameCallback((_) async {
                     if (mounted) {
-                      await TerminateRestart.instance.restartAppWithConfirmation(
-                        context,
-                        title:
-                            translations['restartAppConfirmationTitle'] ??
-                            'Restart of App required',
-                        message:
-                            translations['restartAppConfirmationMessage'] ??
-                            'Configuration data has been changed, so the app needs to be restarted. Restart now?',
-                        confirmText:
-                            translations['restartAppConfirmationConfirmText'] ??
-                            'Yes',
-                        cancelText:
-                            translations['restartAppConfirmationCancelText'] ??
-                            'Later',
-                        terminate: true,
-                        clearData: false,
-                        preserveKeychain: true,
-                      );
+                      bool approved = await TerminateRestart.instance
+                          .restartAppWithConfirmation(
+                            context,
+                            title:
+                                translations['restartAppConfirmationTitle'] ??
+                                'Restart of App required',
+                            message:
+                                translations['restartAppConfirmationMessage'] ??
+                                'Configuration data has been changed, so the app needs to be restarted. Restart now?',
+                            confirmText:
+                                translations['restartAppConfirmationConfirmText'] ??
+                                'Yes',
+                            cancelText:
+                                translations['restartAppConfirmationCancelText'] ??
+                                'Later',
+                            terminate: true,
+                            clearData: false,
+                            preserveKeychain: true,
+                          );
+                      if (approved == true) {
+                        mainBloc.getExitNow();
+                      }
+
                       Future.delayed(Duration(seconds: 60), () {
                         restartApproveModalOpened = false;
                       });
