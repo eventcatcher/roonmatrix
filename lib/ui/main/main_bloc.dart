@@ -2935,13 +2935,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           await restart_app.Restart.restartCapability();
       restart_app.RestartMode mode =
           restart_app.RestartMode.notificationFallback;
-      if (capability.fullProcessRestart == true) {
-        debugPrint('set RestartMode to process');
-        mode = restart_app.RestartMode.process;
-      }
       if (capability.flutterEngineRestart == true) {
         mode = restart_app.RestartMode.flutterEngine;
         debugPrint('set RestartMode to flutterEngine');
+      }
+      if (capability.fullProcessRestart == true) {
+        mode = restart_app.RestartMode.process;
+        debugPrint('set RestartMode to process');
       }
       loadDefaults();
       restart_app.Restart.restartApp(mode: mode, forceKill: true);
