@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:menu_bar/menu_bar.dart';
+import 'package:python_backend/python_runtime.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
@@ -739,6 +740,11 @@ class MenubarWidgetState extends State<MenubarWidget> {
                 translations['menuEntryAbout'] ??
                     'About ${Globals.mainWindowTitle}',
               ),
+            ),
+            MenuButton(
+              onTap: () => pythonRuntimeInit(),
+              icon: const Icon(Icons.gamepad),
+              text: Text('start python'),
             ),
           ],
         ),
