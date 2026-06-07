@@ -2920,7 +2920,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Future<void> restartAppAndPythonRuntime() async {
     if (restartWithConfirmation == true) {
       setRestartApproveMode(enabled: true);
-      return;
     }
 
     if (Platform.isIOS) {

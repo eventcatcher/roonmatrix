@@ -118,6 +118,8 @@ class RoonMatrixState extends State<RoonMatrix> {
   bool saveIdle = false;
   bool macMenuInitialized = false;
   bool menuBarBuildDone = false;
+  bool showRestartApproveModal = false;
+  bool restartApproveModalOpened = false;
 
   EditableTextState? lastFocusedEditable;
   Brightness? brightnessValue;
@@ -125,7 +127,6 @@ class RoonMatrixState extends State<RoonMatrix> {
   MenubarAppleCustomClass? menubarAppleCustomClass;
   Widget? mainPageWithMenuForApple;
   String? selectedDeviceIpBefore;
-  bool restartApproveModalOpened = false;
 
   late StreamSubscription connectionStatusStreamSubscription;
   late TranslationsBloc translationsBloc;
@@ -247,6 +248,34 @@ class RoonMatrixState extends State<RoonMatrix> {
     });
   }
 
+  void showApprovalToCloseApp({required BuildContext context}) {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        restartApproveModalOpened = true;
+        ApproveModal(
+          context: context,
+          title:
+              translations['restartAppConfirmationTitle'] ??
+              'Restart of App required',
+          question:
+              translations['closeAppConfirmationMessage'] ??
+              'Configuration data has been changed, so the app needs to be restarted. You must restart manually. Close now?',
+          okText: translations['restartAppConfirmationConfirmText'] ?? 'Yes',
+          cancelText:
+              translations['restartAppConfirmationCancelText'] ?? 'Later',
+          onApproved: () {
+            FlutterWindowClose.closeWindow();
+          },
+          onCanceled: () {
+            // Future.delayed(Duration(seconds: 60), () {
+            //   restartApproveModalOpened = false;
+            // });
+          },
+        ).show();
+      }
+    });
+  }
+
   Widget home({required TranslationsBloc translationsBloc}) => BlocBuilder(
     bloc: translationsBloc,
     builder: (context, TranslationsState translationsState) {
@@ -293,7 +322,9 @@ class RoonMatrixState extends State<RoonMatrix> {
           builder: (context, MainState mainState) {
             if (mainState is MainStateLoaded) {
               if (!menuBarBuildDone ||
-                  selectedDeviceIpBefore != mainState.selectedDeviceIp) {
+                  selectedDeviceIpBefore != mainState.selectedDeviceIp ||
+                  showRestartApproveModal !=
+                      mainState.showRestartApproveModal) {
                 selectedDeviceIp = mainState.selectedDeviceIp;
                 info = mainState.info;
                 selectedDeviceIpBefore = selectedDeviceIp;
@@ -301,8 +332,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                     mainState.spotifyAuthUrls;
                 bool isIPad = mainState.isIPad;
                 int iosMajorVersion = mainState.iosMajorVersion;
-                bool showRestartApproveModal =
-                    mainState.showRestartApproveModal;
+                showRestartApproveModal = mainState.showRestartApproveModal;
 
                 if (showRestartApproveModal == true &&
                     !restartApproveModalOpened) {
@@ -338,34 +368,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                       }
                     });
                   } else {
-                    SchedulerBinding.instance.addPostFrameCallback((_) async {
-                      if (mounted) {
-                        restartApproveModalOpened = true;
-                        ApproveModal(
-                          context: context,
-                          title:
-                              translations['restartAppConfirmationTitle'] ??
-                              'Restart of App required',
-                          question:
-                              translations['closeAppConfirmationMessage'] ??
-                              'Configuration data has been changed, so the app needs to be restarted. You must restart manually. Close now?',
-                          okText:
-                              translations['restartAppConfirmationConfirmText'] ??
-                              'Yes',
-                          cancelText:
-                              translations['restartAppConfirmationCancelText'] ??
-                              'Later',
-                          onApproved: () {
-                            FlutterWindowClose.closeWindow();
-                          },
-                          onCanceled: () {
-                            // Future.delayed(Duration(seconds: 60), () {
-                            //   restartApproveModalOpened = false;
-                            // });
-                          },
-                        ).show();
-                      }
-                    });
+                    showApprovalToCloseApp(context: context);
                   }
                 }
 
@@ -423,12 +426,28 @@ class RoonMatrixState extends State<RoonMatrix> {
         );
       }
 
-      return MainShell(
-        minDesktopSize: minDesktopSize,
-        standardDesktopSize: standardDesktopSize,
-        title: title,
-        navigatorKey: navigatorKey,
-        exportDeviceList: exportDeviceList,
+      return BlocBuilder(
+        bloc: mainBloc,
+        builder: (context, MainState mainState) {
+          if (mainState is MainStateLoaded) {
+            if (showRestartApproveModal != mainState.showRestartApproveModal) {
+              showRestartApproveModal = mainState.showRestartApproveModal;
+
+              if (showRestartApproveModal == true &&
+                  !restartApproveModalOpened) {
+                showApprovalToCloseApp(context: context);
+              }
+            }
+          }
+
+          return MainShell(
+            minDesktopSize: minDesktopSize,
+            standardDesktopSize: standardDesktopSize,
+            title: title,
+            navigatorKey: navigatorKey,
+            exportDeviceList: exportDeviceList,
+          );
+        },
       );
     },
   );
