@@ -6,6 +6,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:enhanced_platform_menu/enhanced_platform_menu_delegate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_window_close/flutter_window_close.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/data/file_repository.dart';
@@ -13,6 +14,7 @@ import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/connection_status_bloc.dart';
 import 'package:roonmatrix/ui/helper/connection_status_state.dart';
+import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/menubar_apple_extended_class.dart';
 import 'package:roonmatrix/ui/layout/menubar_apple_custom_class.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
@@ -305,36 +307,65 @@ class RoonMatrixState extends State<RoonMatrix> {
                 if (showRestartApproveModal == true &&
                     !restartApproveModalOpened) {
                   restartApproveModalOpened = true;
-                  SchedulerBinding.instance.addPostFrameCallback((_) async {
-                    if (mounted) {
-                      bool approved = await TerminateRestart.instance
-                          .restartAppWithConfirmation(
-                            context,
-                            title:
-                                translations['restartAppConfirmationTitle'] ??
-                                'Restart of App required',
-                            message:
-                                translations['restartAppConfirmationMessage'] ??
-                                'Configuration data has been changed, so the app needs to be restarted. Restart now?',
-                            confirmText:
-                                translations['restartAppConfirmationConfirmText'] ??
-                                'Yes',
-                            cancelText:
-                                translations['restartAppConfirmationCancelText'] ??
-                                'Later',
-                            terminate: true,
-                            clearData: false,
-                            preserveKeychain: true,
-                          );
-                      if (approved == true) {
-                        mainBloc.getExitNow();
+                  if (Platform.isIOS) {
+                    SchedulerBinding.instance.addPostFrameCallback((_) async {
+                      if (mounted) {
+                        bool approved = await TerminateRestart.instance
+                            .restartAppWithConfirmation(
+                              context,
+                              title:
+                                  translations['restartAppConfirmationTitle'] ??
+                                  'Restart of App required',
+                              message:
+                                  translations['restartAppConfirmationMessage'] ??
+                                  'Configuration data has been changed, so the app needs to be restarted. Restart now?',
+                              confirmText:
+                                  translations['restartAppConfirmationConfirmText'] ??
+                                  'Yes',
+                              cancelText:
+                                  translations['restartAppConfirmationCancelText'] ??
+                                  'Later',
+                              terminate: true,
+                              clearData: false,
+                              preserveKeychain: true,
+                            );
+                        if (approved == true) {
+                          mainBloc.getExitNow();
+                        }
+                        // Future.delayed(Duration(seconds: 60), () {
+                        //   restartApproveModalOpened = false;
+                        // });
                       }
-
-                      Future.delayed(Duration(seconds: 60), () {
-                        restartApproveModalOpened = false;
-                      });
-                    }
-                  });
+                    });
+                  } else {
+                    SchedulerBinding.instance.addPostFrameCallback((_) async {
+                      if (mounted) {
+                        ApproveModal(
+                          context: context,
+                          title:
+                              translations['restartAppConfirmationTitle'] ??
+                              'Restart of App required',
+                          question:
+                              translations['closeAppConfirmationMessage'] ??
+                              'Configuration data has been changed, so the app needs to be restarted. You must restart manually. Close now?',
+                          okText:
+                              translations['restartAppConfirmationConfirmText'] ??
+                              'Yes',
+                          cancelText:
+                              translations['restartAppConfirmationCancelText'] ??
+                              'Later',
+                          onApproved: () {
+                            FlutterWindowClose.closeWindow();
+                          },
+                          onCanceled: () {
+                            // Future.delayed(Duration(seconds: 60), () {
+                            //   restartApproveModalOpened = false;
+                            // });
+                          },
+                        );
+                      }
+                    });
+                  }
                 }
 
                 if (useCustomMacMenu == true && Platform.isMacOS) {

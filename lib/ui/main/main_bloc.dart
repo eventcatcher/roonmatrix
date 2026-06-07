@@ -57,7 +57,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final int reconnectDelayInSeconds = 3;
   final int portRestServer = 8000;
   final int portWebSocket = 8100;
-  final bool restartWithConfirmation = false; // Platform.isIOS
+  final bool restartWithConfirmation =
+      Platform.isWindows || Platform.isLinux; // || Platform.isIOS
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
@@ -423,9 +424,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           bool rebootPython = newInfo['reboot_python'];
           //String configUpdatedAt = newInfo['config_updated_at'];
           if (isAppEmbedded == true && rebootPython == true) {
-            if (inAppVirtualDeviceIp.isNotEmpty && !restartWithConfirmation) {
-              sendExitNow();
-            }
+            // if (inAppVirtualDeviceIp.isNotEmpty && !restartWithConfirmation) {
+            //   sendExitNow();
+            // }
             Future.delayed(Duration(seconds: 5), () async {
               //pythonRuntimeRestart();
               restartAppAndPythonRuntime();
@@ -520,10 +521,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 bool rebootPython = json['reboot_python'];
                 //String configUpdatedAt = json['config_updated_at'];
                 if (isAppEmbedded == true && rebootPython == true) {
-                  if (inAppVirtualDeviceIp.isNotEmpty &&
-                      !restartWithConfirmation) {
-                    sendExitNow();
-                  }
+                  // if (inAppVirtualDeviceIp.isNotEmpty &&
+                  //     !restartWithConfirmation) {
+                  //   sendExitNow();
+                  // }
                   Future.delayed(Duration(seconds: 5), () async {
                     //pythonRuntimeRestart()
                     restartAppAndPythonRuntime();
@@ -2917,20 +2918,22 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   Future<void> restartAppAndPythonRuntime() async {
+    if (restartWithConfirmation == true) {
+      setRestartApproveMode(enabled: true);
+      return;
+    }
+
     if (Platform.isIOS) {
-      if (restartWithConfirmation == true) {
-        setRestartApproveMode(enabled: true);
-      } else {
-        await TerminateRestart.instance.restartApp(
-          options: const TerminateRestartOptions(
-            terminate: true,
-            clearData: true,
-            preserveKeychain: true,
-            preserveUserDefaults: true,
-          ),
-        );
-      }
-    } else {
+      await TerminateRestart.instance.restartApp(
+        options: const TerminateRestartOptions(
+          terminate: true,
+          clearData: true,
+          preserveKeychain: true,
+          preserveUserDefaults: true,
+        ),
+      );
+    }
+    if (Platform.isAndroid || Platform.isMacOS) {
       final restart_app.RestartCapability capability =
           await restart_app.Restart.restartCapability();
       restart_app.RestartMode mode =
@@ -2959,7 +2962,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
         http.Response response = await client.get(uri);
         if (response.statusCode == 200) {
-          //
+          if (kDebugMode) {
+            debugPrint('sendExitNow successfully done');
+          }
         }
       } catch (e) {
         if (kDebugMode) {

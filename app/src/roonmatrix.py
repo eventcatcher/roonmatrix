@@ -25,7 +25,7 @@ log = True			# default true: log infos on or off
 
 debug = False		# default false: log debug messages (memory and variable information)
 silent = False		# default False: print no warnings and no error messages to the console output
-    
+
 import sys
 
 if silent is True:
@@ -76,9 +76,6 @@ from roonapi import RoonApi, RoonDiscovery
 from weatherbit.api import Api
 import fastfeedparser
 from spotify_connect import SpotifyConnect
-
-with open("C:/Users/swilhelm/AppData/Roaming/de.eventcatcher/Roonmatrix/start.txt", "a") as text_file:
-    text_file.write("start @ " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 # In Windows, sys.stderr and/or sys.stdout inside Python runtime (serious_python) is not working and results in a exception which will stop running the script. 
 # Therefore, this log functions are overridden here.
@@ -1283,7 +1280,7 @@ if with_restserver_fastapi is True:
     @app.get("/exit_now/")
     async def rest_exit_now():
         global exit_now
-        flexprint('REST received exit_now')
+        flexprint('received exit_now')
         exit_now = True # close script
         return 'ok'
 
@@ -1425,7 +1422,7 @@ else:
 
             if self.path == '/exit_now/':
                 global exit_now
-                flexprint('REST received exit_now')
+                flexprint('received exit_now')
                 exit_now = True
                 self.send_text('ok')
                 return
@@ -6961,9 +6958,8 @@ try:
             webcheck_timer.cancel()
         if weather_timer is not None:
             weather_timer.cancel()
-        #executor.shutdown(wait=False)
+        executor.shutdown(wait=False)
         raise Exception('exit python script')
-        #remove_all_threads()
             
 except Exception as e:
     if errorlog is True: 
