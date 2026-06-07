@@ -363,7 +363,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                             //   restartApproveModalOpened = false;
                             // });
                           },
-                        );
+                        ).show();
                       }
                     });
                   }
