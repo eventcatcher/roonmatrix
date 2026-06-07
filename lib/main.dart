@@ -306,10 +306,10 @@ class RoonMatrixState extends State<RoonMatrix> {
 
                 if (showRestartApproveModal == true &&
                     !restartApproveModalOpened) {
-                  restartApproveModalOpened = true;
                   if (Platform.isIOS) {
                     SchedulerBinding.instance.addPostFrameCallback((_) async {
                       if (mounted) {
+                        restartApproveModalOpened = true;
                         bool approved = await TerminateRestart.instance
                             .restartAppWithConfirmation(
                               context,
@@ -340,6 +340,7 @@ class RoonMatrixState extends State<RoonMatrix> {
                   } else {
                     SchedulerBinding.instance.addPostFrameCallback((_) async {
                       if (mounted) {
+                        restartApproveModalOpened = true;
                         ApproveModal(
                           context: context,
                           title:
