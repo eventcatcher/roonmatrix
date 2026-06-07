@@ -2419,6 +2419,7 @@ def save_config(payload):
             flexprint('=> do reboot now')
             reboot = True
         if doReboot is True and is_app_embedded is True:
+            setGlobalVarsFromConfigData()
             reboot_python = doReboot
         
         return True
