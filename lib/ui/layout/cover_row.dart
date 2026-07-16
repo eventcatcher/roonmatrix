@@ -6,6 +6,7 @@ import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/ui/layout/cover_widget.dart';
+import 'package:roonmatrix/ui/layout/horizontal_scroll_button.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 
 class CoverRow extends StatefulWidget {
@@ -85,6 +86,7 @@ class _CoverRowState extends State<CoverRow> {
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
 
+  final ScrollController scrollController = ScrollController();
   final int flexCoverRow = 1;
 
   late MainRepository mainRepository;
@@ -132,6 +134,7 @@ class _CoverRowState extends State<CoverRow> {
       physics:
           const BouncingScrollPhysics(), // PageScrollPhysics <-- pagewide scrolling
       initialItemCount: coverList.length,
+      controller: scrollController,
       itemBuilder: (context, index, animation) {
         final coverModelItem = coverList[index];
 
@@ -170,9 +173,33 @@ class _CoverRowState extends State<CoverRow> {
     return coverRowDynamicSize == true
         ? Expanded(
             flex: flexCoverRow,
-            child: Container(
-              color: ColorDefs.coverRowBackgroundColor(context: context),
-              child: coverRowList,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Stack(
+                  children: [
+                    Container(
+                      color: ColorDefs.coverRowBackgroundColor(
+                        context: context,
+                      ),
+                      child: coverRowList,
+                    ),
+                    if (Globals.isDesktopDevice()) ...[
+                      HorizontalScrollButton(
+                        scrollController: scrollController,
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight,
+                        isRight: false,
+                      ),
+                      HorizontalScrollButton(
+                        scrollController: scrollController,
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight,
+                        isRight: true,
+                      ),
+                    ],
+                  ],
+                );
+              },
             ),
           )
         : ConstrainedBox(
@@ -180,18 +207,40 @@ class _CoverRowState extends State<CoverRow> {
             child: Align(
               // flexible child
               alignment: Alignment.center,
-              child: Column(
-                children: [
-                  Flexible(
-                    fit: FlexFit.loose,
-                    child: Container(
-                      color: ColorDefs.coverRowBackgroundColor(
-                        context: context,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Column(
+                    children: [
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: Stack(
+                          children: [
+                            Container(
+                              color: ColorDefs.coverRowBackgroundColor(
+                                context: context,
+                              ),
+                              child: coverRowList,
+                            ),
+                            if (Globals.isDesktopDevice()) ...[
+                              HorizontalScrollButton(
+                                scrollController: scrollController,
+                                width: constraints.maxWidth,
+                                height: constraints.maxHeight,
+                                isRight: false,
+                              ),
+                              HorizontalScrollButton(
+                                scrollController: scrollController,
+                                width: constraints.maxWidth,
+                                height: constraints.maxHeight,
+                                isRight: true,
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
-                      child: coverRowList,
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
             ),
           );
