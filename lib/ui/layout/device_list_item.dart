@@ -560,6 +560,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                     zoneData: i,
                     minDesktopSize: minDesktopSize,
                     standardDesktopSize: standardDesktopSize,
+                    bigExpandableButtonSize: true,
                     isExpanded: ({required bool mode}) {
                       setState(() {
                         infoOpacityLevel = mode == true ? 0.0 : 1.0;
@@ -808,10 +809,16 @@ class DeviceListItemState extends State<DeviceListItem> {
                   ),
                 ),
               ),
-              if (Globals.isDesktopDevice() && widget.showSlider == true)
+              if (Globals.isDesktopDevice() &&
+                  widget.showSlider == true &&
+                  infoOpacityLevel > 0)
                 Positioned(
                   bottom: -10,
-                  right: 0,
+                  right:
+                      Globals.isDesktopDevice() &&
+                          width <= Globals.mobilePageButtonsMaxWidth
+                      ? 70
+                      : 0,
                   child: SliderHoverOverlay(
                     label: '${translations['speed'] ?? 'speed:'}:',
                     width: tickerSpeedSliderWidth,

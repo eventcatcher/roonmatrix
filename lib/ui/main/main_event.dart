@@ -143,6 +143,22 @@ class ZoneControl extends MainEvent {
   List<Object> get props => [ip, controlId, cmd, enable];
 }
 
+class ResetSpotifyTokens extends MainEvent {
+  final String ip;
+
+  const ResetSpotifyTokens({required this.ip});
+
+  @override
+  List<Object> get props => [ip];
+}
+
+class ResetSpotifyTokensState extends MainEvent {
+  const ResetSpotifyTokensState();
+
+  @override
+  List<Object> get props => [];
+}
+
 class SetSpotifyAuthRedirectUrl extends MainEvent {
   final String ip;
   final String url;

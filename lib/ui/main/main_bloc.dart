@@ -25,6 +25,7 @@ import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
 import 'package:roonmatrix/ui/layout/editable_singleline_text.dart';
 import 'package:roonmatrix/ui/layout/headline.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
+import 'package:roonmatrix/ui/layout/icon_text_button_element.dart';
 import 'package:roonmatrix/ui/layout/key_val_items.dart';
 import 'package:roonmatrix/ui/layout/list_items.dart';
 import 'package:roonmatrix/ui/layout/map_list_items.dart';
@@ -120,6 +121,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               iosModel: iosModel,
               isIPad: isIPad,
               showRestartApproveModal: false,
+              resetSpotifyTokens: false,
             ),
           );
         }
@@ -736,6 +738,59 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         } catch (e) {
           if (kDebugMode) {
             debugPrint('ZoneControl error by access to $url: $e');
+          }
+        }
+      }
+
+      if (event is ResetSpotifyTokensState) {
+        emit(state.copyWith(update: DateTime.now(), resetSpotifyTokens: false));
+      }
+
+      if (event is ResetSpotifyTokens) {
+        String ip = event.ip;
+
+        Map<String, String> headers = {
+          "Content-Type": 'application/json; charset=utf-8',
+          "Accept": 'application/json',
+        };
+
+        Map<String, dynamic> payload = {};
+
+        String url = 'http://$ip:$portRestServer/reset_spotify_tokens/';
+        try {
+          Uri uri = Uri.parse(url);
+
+          if (kDebugMode) {
+            debugPrint('send reset_spotify_tokens => payload: $payload');
+          }
+          http.Response response = await client.post(
+            uri,
+            headers: headers,
+            body: json.encode(payload),
+          );
+
+          if (response.statusCode == 200) {
+            String success = response.body;
+            if (kDebugMode) {
+              debugPrint('send reset_spotify_tokens => response: $success');
+            }
+
+            Map<String, dynamic> spotifyAuthUrls = Map<String, dynamic>.from(
+              state.spotifyAuthUrls,
+            );
+            spotifyAuthUrls[ip] = '';
+
+            emit(
+              state.copyWith(
+                update: DateTime.now(),
+                spotifyAuthUrls: spotifyAuthUrls,
+                resetSpotifyTokens: true,
+              ),
+            );
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('ResetSpotifyTokens error: $e');
           }
         }
       }
@@ -1865,6 +1920,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           for (dynamic zone in zones) {
             if (zone != null) {
               String zoneName = '$serverName-${zone['zone']}';
+              print('zoneName: $zoneName');
+
+              if (zoneName.endsWith('-SpotifyConnect') &&
+                  info[activeDeviceIp]['enable_spotify_connect'] == true &&
+                  info[activeDeviceIp]['spotify_connect_authorized'] == false) {
+                continue;
+              }
 
               CoverModel? coverModel = getWebCoverModel(
                 channels: channels,
@@ -2105,6 +2167,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     required Map<String, dynamic> translations,
     required Map fieldValues,
     required ConfigDefinition defs,
+    required String ip,
     required void Function({
       required String areaName,
       required String fieldName,
@@ -2519,6 +2582,38 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               );
             } else {
               fields.add(widgetField);
+              if (fieldDefinition.name == 'enable_spotify_connect') {
+                widgetField = Padding(
+                  key: ValueKey(
+                    'resetSpotifyTokens-${state.resetSpotifyTokens}',
+                  ),
+                  padding: const EdgeInsets.only(left: 15.0, bottom: 15.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      IconTextButtonElement(
+                        onMacAsText: true,
+                        icon: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Icon(
+                            state.resetSpotifyTokens
+                                ? Icons.done
+                                : Icons.logout,
+                            color: Colors.white,
+                            size: 20.0,
+                          ),
+                        ),
+                        label: getResetSpotifyTokensLabel(ip: ip),
+                        onPressed: () async {
+                          resetSpotifyTokens(ip: ip);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+                fields.add(widgetField);
+              }
             }
           }
         }
@@ -2973,6 +3068,18 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
   }
 
+  String getResetSpotifyTokensLabel({required String ip}) {
+    String label = '';
+    if (Globals.inMacosStyle()) {
+      label += '${state.resetSpotifyTokens ? '\u2713' : '\u21BB'} ';
+    }
+    label +=
+        translations['spotifyConnectAuthReset'] ??
+        'Renew Spotify Connect Authorization';
+
+    return label;
+  }
+
   // ==================== //
   // public event methods //
   // ==================== //
@@ -3067,6 +3174,20 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     bool enable = false,
   }) {
     add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd, enable: enable));
+  }
+
+  void resetSpotifyTokens({required String ip}) {
+    if (kDebugMode) {
+      debugPrint('resetSpotifyTokens => ip: $ip');
+    }
+    add(ResetSpotifyTokens(ip: ip));
+  }
+
+  void resetSpotifyTokensState() {
+    if (kDebugMode) {
+      debugPrint('resetSpotifyTokensState');
+    }
+    add(ResetSpotifyTokensState());
   }
 
   void setSpotifyAuthRedirectUrl({required String ip, required String url}) {

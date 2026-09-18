@@ -29,6 +29,7 @@ abstract class MainState extends Equatable {
   final String iosModel;
   final bool isIPad;
   final bool showRestartApproveModal;
+  final bool resetSpotifyTokens;
 
   const MainState({
     this.update,
@@ -58,6 +59,7 @@ abstract class MainState extends Equatable {
     this.iosModel = '',
     this.isIPad = false,
     this.showRestartApproveModal = false,
+    this.resetSpotifyTokens = false,
   });
 
   MainState copyWith({
@@ -88,6 +90,7 @@ abstract class MainState extends Equatable {
     String? iosModel,
     bool? isIPad,
     bool? showRestartApproveModal,
+    bool? resetSpotifyTokens,
   }) {
     return MainStateLoaded(
       update: update ?? this.update,
@@ -119,6 +122,7 @@ abstract class MainState extends Equatable {
       isIPad: isIPad ?? this.isIPad,
       showRestartApproveModal:
           showRestartApproveModal ?? this.showRestartApproveModal,
+      resetSpotifyTokens: resetSpotifyTokens ?? this.resetSpotifyTokens,
     );
   }
 
@@ -148,6 +152,7 @@ abstract class MainState extends Equatable {
       iosModel,
       isIPad,
       showRestartApproveModal,
+      resetSpotifyTokens,
     ];
 
     if (ipStart != null) {
@@ -206,6 +211,7 @@ class MainStateLoaded extends MainState {
     required super.iosModel,
     required super.isIPad,
     required super.showRestartApproveModal,
+    required super.resetSpotifyTokens,
   });
 
   @override

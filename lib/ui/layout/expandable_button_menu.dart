@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:roonmatrix/ui/layout/expandable.icon.dart';
+import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/ui/layout/expandable_buttons_icon.dart';
 
-/// This class is main class of [ExpandableMenu] widget.
-class ExpandableMenu extends StatefulWidget {
+/// This class is main class of [ExpandableButtonMenu] widget.
+class ExpandableButtonMenu extends StatefulWidget {
   /// This property declare width of widget when
   /// it's not expanded in initial state.
   final double width;
@@ -38,7 +39,7 @@ class ExpandableMenu extends StatefulWidget {
 
   final Function(bool mode)? isExpanded;
 
-  const ExpandableMenu({
+  const ExpandableButtonMenu({
     super.key,
     this.width = 70.0,
     this.height = 70.0,
@@ -53,10 +54,10 @@ class ExpandableMenu extends StatefulWidget {
   });
 
   @override
-  State<ExpandableMenu> createState() => ExpandableMenuState();
+  State<ExpandableButtonMenu> createState() => ExpandableButtonMenuState();
 }
 
-class ExpandableMenuState extends State<ExpandableMenu>
+class ExpandableButtonMenuState extends State<ExpandableButtonMenu>
     with TickerProviderStateMixin {
   double get width => widget.width;
   double get height => widget.height;
@@ -77,6 +78,8 @@ class ExpandableMenuState extends State<ExpandableMenu>
 
   final ExpandableMenuController expandableMenuController =
       ExpandableMenuController();
+
+  final double buttonPadding = 8.0;
 
   /// This private property declare items in widgets.
   List<Widget> _listWidget = <Widget>[];
@@ -107,7 +110,9 @@ class ExpandableMenuState extends State<ExpandableMenu>
   @override
   void initState() {
     if (kDebugMode) {
-      debugPrint('ExpandableMenu initState (items: ${items.length})');
+      debugPrint(
+        'ExpandableButtonMenu initState (items: ${items.length}), size: $width x $height',
+      );
     }
     //Set state controller if set
     if (controller != null) {
@@ -144,18 +149,21 @@ class ExpandableMenuState extends State<ExpandableMenu>
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      if (_spacerKey.currentContext != null &&
-          _spacerKey.currentContext!.size != null) {
-        _width = _spacerKey.currentContext!.size!.width;
-        _listWidth = _width - width;
-      }
+      _listWidth =
+          (width * Globals.mobileExpandableInnerIconSizeFactor +
+              buttonPadding) *
+          items.length; // add padding width to each item
+      _width =
+          _listWidth + width; // width of icons with padding plus toggle icon
     });
   }
 
   @override
-  void didUpdateWidget(ExpandableMenu oldWidget) {
+  void didUpdateWidget(ExpandableButtonMenu oldWidget) {
     if (kDebugMode) {
-      debugPrint('ExpandableMenu didUpdateWidget (items: ${items.length})');
+      debugPrint(
+        'ExpandableButtonMenu didUpdateWidget (items: ${items.length})',
+      );
     }
     _listWidget = items;
     super.didUpdateWidget(oldWidget);
@@ -164,7 +172,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
   @override
   void dispose() {
     if (kDebugMode) {
-      debugPrint('ExpandableMenu dispose (items: ${items.length})');
+      debugPrint('ExpandableButtonMenu dispose (items: ${items.length})');
     }
     _containerAnimationController.dispose();
     super.dispose();
@@ -173,7 +181,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) {
-      debugPrint('ExpandableMenu build (items: ${items.length})');
+      debugPrint('ExpandableButtonMenu build (items: ${items.length})');
     }
     if (getController != null) {
       getController!(expandableMenuController);
@@ -182,7 +190,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
     return Row(
       children: [
         Spacer(key: _spacerKey),
-        Container(width: 20.0),
+        Container(width: 20.0), // left margin before menu part
         Container(
           clipBehavior: Clip.antiAlias,
           width: _width * _containerProgress,
@@ -198,7 +206,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(width: width * .15),
-              ExpandableIcon(
+              ExpandableButtonIcon(
                 width: width,
                 height: height,
                 iconColor: iconColor,
@@ -277,12 +285,12 @@ class ExpandableMenuState extends State<ExpandableMenu>
 
 /// Controller [ExpandableMenuController] makes it possible to toggle states
 class ExpandableMenuController {
-  ExpandableMenuState? _state;
+  ExpandableButtonMenuState? _state;
   ExpandableIconController? _stateIcon;
 
   /// Sets states for the icon and menu to current controller
   void setControllerState(
-    ExpandableMenuState state,
+    ExpandableButtonMenuState state,
     ExpandableIconController stateIcon,
   ) {
     _state = state;

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/globals.dart';
 
-/// [ExpandableIcon] is icon of [ExpandableMenu] widget.
+/// [ExpandableButtonIcon] is icon of [ExpandableButtonMenu] widget.
 /// This widget when users clicked on widget will change icon
 /// from an hamburger icon to arrow icon.
 /// When user clicks on menu icon widgets will invoke onClick function.
-class ExpandableIcon extends StatefulWidget {
+class ExpandableButtonIcon extends StatefulWidget {
   /// This Function invoke when user clicked on
   /// arrow icon(When menu is expanded) or
   /// hamburger icon(when menu is not expanded).
@@ -20,13 +20,13 @@ class ExpandableIcon extends StatefulWidget {
   /// This property is color of icon(Hamburger icon and arrow icon).
   final Color iconColor;
 
-  /// This property makes it possible to controll the [ExpandableIcon]
+  /// This property makes it possible to controll the [ExpandableButtonIcon]
   final ExpandableIconController? controller;
 
   /// This property sets the main animationspeed
   final int animationSpeed;
 
-  const ExpandableIcon({
+  const ExpandableButtonIcon({
     super.key,
     required this.onClicked,
     required this.width,
@@ -37,10 +37,10 @@ class ExpandableIcon extends StatefulWidget {
   });
 
   @override
-  State<ExpandableIcon> createState() => ExpandableIconState();
+  State<ExpandableButtonIcon> createState() => ExpandableButtonIconState();
 }
 
-class ExpandableIconState extends State<ExpandableIcon>
+class ExpandableButtonIconState extends State<ExpandableButtonIcon>
     with TickerProviderStateMixin {
   Function get onClicked => widget.onClicked;
   double get width => widget.width;
@@ -310,9 +310,9 @@ class MyPainter extends CustomPainter {
 /// This class is controller for control expand icon.
 class ExpandableIconController extends ChangeNotifier {
   bool isExpanded = false;
-  ExpandableIconState? state;
+  ExpandableButtonIconState? state;
 
-  void setControllerState(ExpandableIconState state) {
+  void setControllerState(ExpandableButtonIconState state) {
     this.state = state;
   }
 

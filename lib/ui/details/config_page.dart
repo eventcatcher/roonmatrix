@@ -73,7 +73,10 @@ class ConfigPageState extends State<ConfigPage> {
 
     translationsBloc = BlocProvider.of<TranslationsBloc>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
+    mainBloc.resetSpotifyTokensState();
     mainBloc.getConfig(ip: ip);
+
+    print('spotifyAuthUrls: ${mainBloc.state.spotifyAuthUrls}');
 
     super.initState();
   }
@@ -356,6 +359,7 @@ class ConfigPageState extends State<ConfigPage> {
               translations: translations,
               fieldValues: fieldValues,
               defs: defs,
+              ip: ip,
               updateFieldValues:
                   ({
                     required String areaName,

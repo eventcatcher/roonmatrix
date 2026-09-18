@@ -1,13 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:roonmatrix/globals.dart';
-import 'package:roonmatrix/ui/layout/expandable_menu.dart';
+import 'package:roonmatrix/ui/layout/expandable_button_menu.dart';
 import 'package:roonmatrix/ui/layout/icon_button_element.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 
 class PageButton extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final String label;
+  final double size;
   final Icon icon;
   final bool moreInfo;
   final Widget page;
@@ -17,6 +18,7 @@ class PageButton extends StatefulWidget {
     super.key,
     required this.navigatorKey,
     required this.label,
+    required this.size,
     required this.icon,
     required this.moreInfo,
     required this.page,
@@ -30,6 +32,7 @@ class PageButton extends StatefulWidget {
 class PageButtonState extends State<PageButton> {
   GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   String get label => widget.label;
+  double get size => widget.size;
   Icon get icon => widget.icon;
   bool get moreInfo => widget.moreInfo;
   Widget get page => widget.page;
@@ -63,18 +66,32 @@ class PageButtonState extends State<PageButton> {
           )
         : Padding(
             padding: const EdgeInsets.only(left: 8.0),
-            child: CircleAvatar(
-              radius: 15,
-              backgroundColor: moreInfo
-                  ? CupertinoColors.activeOrange.color
-                  : CupertinoColors.activeBlue.color,
-              child: IconButton(
-                mouseCursor: SystemMouseCursors.click,
-                padding: EdgeInsets.zero,
-                onPressed: () {
-                  Future<void>.delayed(
-                    dialogDelayToCloseExpandedMenuBefore,
-                  ).then((_) {
+            child: ElevatedButton(
+              style: ButtonStyle(
+                shape: WidgetStateProperty.all(CircleBorder()),
+                minimumSize: WidgetStateProperty.all(Size.zero),
+                fixedSize: WidgetStateProperty.all(
+                  Size.square(
+                    size * Globals.mobileExpandableInnerIconSizeFactor,
+                  ),
+                ),
+                padding: WidgetStateProperty.all(EdgeInsets.zero),
+                backgroundColor: WidgetStateProperty.all(
+                  moreInfo
+                      ? CupertinoColors.activeOrange.color
+                      : CupertinoColors.activeBlue.color,
+                ), // <-- Button color
+                overlayColor: WidgetStateProperty.resolveWith<Color?>((states) {
+                  if (states.contains(WidgetState.pressed)) {
+                    return Colors.green.shade700; // <-- Splash color
+                  }
+                  return Colors.transparent;
+                }),
+              ),
+              child: icon,
+              onPressed: () {
+                Future<void>.delayed(dialogDelayToCloseExpandedMenuBefore).then(
+                  (_) {
                     if (mounted && context.mounted) {
                       SharedWidgets.openPage(
                         context: context,
@@ -85,11 +102,38 @@ class PageButtonState extends State<PageButton> {
                     if (expandableMenuController != null) {
                       expandableMenuController!.close();
                     }
-                  });
-                },
-                icon: icon,
-              ),
+                  },
+                );
+              },
             ),
+
+            // CircleAvatar(
+            //   radius: size / 2 * Globals.mobileExpandableInnerIconSizeFactor,
+            //   backgroundColor: moreInfo
+            //       ? CupertinoColors.activeOrange.color
+            //       : CupertinoColors.activeBlue.color,
+            //   child: IconButton(
+            //     mouseCursor: SystemMouseCursors.click,
+            //     padding: EdgeInsets.zero,
+            //     onPressed: () {
+            //       Future<void>.delayed(
+            //         dialogDelayToCloseExpandedMenuBefore,
+            //       ).then((_) {
+            //         if (mounted && context.mounted) {
+            //           SharedWidgets.openPage(
+            //             context: context,
+            //             navigatorKey: navigatorKey,
+            //             page: page,
+            //           );
+            //         }
+            //         if (expandableMenuController != null) {
+            //           expandableMenuController!.close();
+            //         }
+            //       });
+            //     },
+            //     icon: icon,
+            //   ),
+            // ),
           );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/details/config_page.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/info_page.dart';
@@ -101,6 +102,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
         if (spotifyAuthUrl != '*')
           PageButton(
             navigatorKey: navigatorKey,
+            size: Globals.desktopButtonSize,
             label:
                 translations['spotifyConnectAuthText'] ??
                 'Spotify Connect Authorize',
@@ -123,6 +125,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           ),
         PageButton(
           navigatorKey: navigatorKey,
+          size: Globals.desktopButtonSize,
           label: translations['configButtonText'] ?? 'Config',
           icon: Icon(Icons.handyman_outlined, color: Colors.white, size: 20),
           moreInfo: false,
@@ -138,6 +141,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
         ),
         PageButton(
           navigatorKey: navigatorKey,
+          size: Globals.desktopButtonSize,
           label: translations['controlButtonText'] ?? 'Control',
           icon: Icon(Icons.control_camera, color: Colors.white),
           moreInfo: false,
@@ -154,6 +158,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
             !isRaspberryPiDevice)
           PageButton(
             navigatorKey: navigatorKey,
+            size: Globals.desktopButtonSize,
             label: translations['messageButtonText'] ?? 'Message',
             icon: Icon(Icons.message_outlined, color: Colors.white, size: 18.0),
             moreInfo: false,
@@ -169,6 +174,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
             !isRaspberryPiDevice)
           PageButton(
             navigatorKey: navigatorKey,
+            size: Globals.desktopButtonSize,
             label: translations['liveControlButtonText'] ?? 'Live Control',
             icon: Icon(Icons.visibility_outlined, color: Colors.white),
             moreInfo: false,
@@ -183,6 +189,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
         if (moreInfo == true) ...[
           PageButton(
             navigatorKey: navigatorKey,
+            size: Globals.desktopButtonSize,
             label: translations['infoButtonText'] ?? 'Monitoring',
             icon: Icon(Icons.info_outlined, color: Colors.white),
             moreInfo: true,
@@ -195,6 +202,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
           ),
           PageButton(
             navigatorKey: navigatorKey,
+            size: Globals.desktopButtonSize,
             label: translations['logButtonText'] ?? 'Log',
             icon: Icon(Icons.terminal, color: Colors.white),
             moreInfo: true,

@@ -45,8 +45,13 @@ class Globals {
 
   static final double verticalTickerWidthFactor = 0.65;
 
+  static final double desktopButtonSize = 40.0;
+
   static final double mobileButtonSize = 40.0;
   static final double mobileExpandableButtonSize = 38.0;
+  static final double mobileExpandableButtonSizeBig = 66.0;
+  static final double mobileExpandableInnerIconSizeFactor = 0.8;
+
   static final double mobileFontSizeSmall = 32.0;
   static final double mobileFontSizeMedium = 64.0;
   static final double mobileFontSizeBig = 128.0;

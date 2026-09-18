@@ -8,7 +8,7 @@ import 'package:roonmatrix/ui/details/live_control_page.dart';
 import 'package:roonmatrix/ui/details/log_page.dart';
 import 'package:roonmatrix/ui/details/message_page.dart';
 import 'package:roonmatrix/ui/details/spotify_connect_web_auth_page.dart';
-import 'package:roonmatrix/ui/layout/expandable_menu.dart';
+import 'package:roonmatrix/ui/layout/expandable_button_menu.dart';
 import 'package:roonmatrix/ui/layout/page_button.dart';
 
 class MobilePageButtons extends StatefulWidget {
@@ -21,6 +21,7 @@ class MobilePageButtons extends StatefulWidget {
   final Map<String, dynamic> zoneData;
   final Size minDesktopSize;
   final Size standardDesktopSize;
+  final bool bigExpandableButtonSize;
   final Function({required bool mode}) isExpanded;
   final Function({required String url}) setSpotifyAuthRedirectUrl;
 
@@ -35,6 +36,7 @@ class MobilePageButtons extends StatefulWidget {
     required this.zoneData,
     required this.minDesktopSize,
     required this.standardDesktopSize,
+    this.bigExpandableButtonSize = false,
     required this.isExpanded,
     required this.setSpotifyAuthRedirectUrl,
   });
@@ -53,12 +55,14 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
   Map<String, dynamic> get zoneData => widget.zoneData;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
+  bool get bigExpandableButtonSize => widget.bigExpandableButtonSize;
   Function({required bool mode}) get isExpanded => widget.isExpanded;
   Function({required String url}) get setSpotifyAuthRedirectUrl =>
       widget.setSpotifyAuthRedirectUrl;
 
   final double baseWidth = 100.0;
   final int animationSpeed = 400;
+  final double buttonSizeInnerFactor = 0.5;
 
   List<Widget> mobileButtonsList = [];
   ExpandableMenuController? expandableMenuController;
@@ -74,6 +78,10 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     generateButtons();
     super.didUpdateWidget(oldWidget);
   }
+
+  double getExpandableButtonSize() => bigExpandableButtonSize == true
+      ? Globals.mobileExpandableButtonSizeBig
+      : Globals.mobileExpandableButtonSize;
 
   void generateButtons() {
     bool isRaspberryPiDevice =
@@ -123,10 +131,15 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     if (spotifyAuthUrl != '*')
       PageButton(
         navigatorKey: navigatorKey,
+        size: getExpandableButtonSize(),
         label:
             translations['spotifyConnectAuthText'] ??
             'Spotify Connect Authorize',
-        icon: Icon(Icons.phone_locked, color: Colors.white),
+        icon: Icon(
+          Icons.phone_locked,
+          color: Colors.white,
+          size: getExpandableButtonSize() * buttonSizeInnerFactor,
+        ),
         moreInfo: true,
         page: SpotifyConnectWebAuthPage(
           name: zoneData['name'],
@@ -141,8 +154,13 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       ),
     PageButton(
       navigatorKey: navigatorKey,
+      size: getExpandableButtonSize(),
       label: translations['configButtonText'] ?? 'Config',
-      icon: Icon(Icons.handyman_outlined, color: Colors.white, size: 18),
+      icon: Icon(
+        Icons.handyman_outlined,
+        color: Colors.white,
+        size: getExpandableButtonSize() * buttonSizeInnerFactor,
+      ),
       moreInfo: false,
       page: ConfigPage(
         name: zoneData['name'],
@@ -157,8 +175,13 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     ),
     PageButton(
       navigatorKey: navigatorKey,
+      size: getExpandableButtonSize(),
       label: translations['controlButtonText'] ?? 'Control',
-      icon: Icon(Icons.control_camera, color: Colors.white),
+      icon: Icon(
+        Icons.control_camera,
+        color: Colors.white,
+        size: getExpandableButtonSize() * buttonSizeInnerFactor,
+      ),
       moreInfo: false,
       page: CoverPage(
         name: zoneData['name'],
@@ -174,8 +197,13 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         !isRaspberryPiDevice)
       PageButton(
         navigatorKey: navigatorKey,
+        size: getExpandableButtonSize(),
         label: translations['messageButtonText'] ?? 'Message',
-        icon: Icon(Icons.message_outlined, color: Colors.white, size: 18),
+        icon: Icon(
+          Icons.message_outlined,
+          color: Colors.white,
+          size: getExpandableButtonSize() * buttonSizeInnerFactor,
+        ),
         moreInfo: false,
         page: MessagePage(
           ip: ip,
@@ -190,8 +218,13 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
         !isRaspberryPiDevice)
       PageButton(
         navigatorKey: navigatorKey,
+        size: getExpandableButtonSize(),
         label: translations['liveControlButtonText'] ?? 'Live Control',
-        icon: Icon(Icons.visibility_outlined, color: Colors.white, size: 20),
+        icon: Icon(
+          Icons.visibility_outlined,
+          color: Colors.white,
+          size: getExpandableButtonSize() * buttonSizeInnerFactor + 2,
+        ),
         moreInfo: false,
         page: LiveControlPage(
           ip: ip,
@@ -214,8 +247,13 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
     if (moreInfo == true) ...[
       PageButton(
         navigatorKey: navigatorKey,
+        size: getExpandableButtonSize(),
         label: translations['infoButtonText'] ?? 'Monitoring',
-        icon: Icon(Icons.info_outlined, color: Colors.white),
+        icon: Icon(
+          Icons.info_outlined,
+          color: Colors.white,
+          size: getExpandableButtonSize() * buttonSizeInnerFactor,
+        ),
         moreInfo: true,
         page: InfoPage(
           name: zoneData['name'],
@@ -227,8 +265,13 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
       ),
       PageButton(
         navigatorKey: navigatorKey,
+        size: getExpandableButtonSize(),
         label: translations['logButtonText'] ?? 'Log',
-        icon: Icon(Icons.terminal, color: Colors.white, size: 22),
+        icon: Icon(
+          Icons.terminal,
+          color: Colors.white,
+          size: getExpandableButtonSize() * buttonSizeInnerFactor + 4,
+        ),
         moreInfo: true,
         page: LogPage(
           name: zoneData['name'],
@@ -243,22 +286,20 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width:
-        baseWidth +
-        Globals.mobileExpandableButtonSize * mobileButtonsList.length,
-    height: Globals.mobileExpandableButtonSize,
+    width: baseWidth + getExpandableButtonSize() * mobileButtonsList.length,
+    height: getExpandableButtonSize(),
     child: Stack(
       children: [
         Positioned(
           top: 0.0,
           left: 0.0,
           right: 0.0,
-          child: ExpandableMenu(
+          child: ExpandableButtonMenu(
             key: ValueKey(
               'ExpandableMenu-$ip-$spotifyAuthUrl-$moreInfo',
             ), // main item expandable for mobile
-            width: Globals.mobileExpandableButtonSize,
-            height: Globals.mobileExpandableButtonSize,
+            width: getExpandableButtonSize(),
+            height: getExpandableButtonSize(),
             animationSpeed: animationSpeed,
             backgroundColor: ColorDefs.buttonRowBackgroundColor(
               context: context,
