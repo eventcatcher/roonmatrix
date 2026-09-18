@@ -69,6 +69,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
 
   @override
   void initState() {
+    isExpanded(mode: false);
     generateButtons();
     super.initState();
   }

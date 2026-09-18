@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
@@ -76,7 +77,9 @@ class ConfigPageState extends State<ConfigPage> {
     mainBloc.resetSpotifyTokensState();
     mainBloc.getConfig(ip: ip);
 
-    print('spotifyAuthUrls: ${mainBloc.state.spotifyAuthUrls}');
+    if (kDebugMode) {
+      debugPrint('spotifyAuthUrls: ${mainBloc.state.spotifyAuthUrls}');
+    }
 
     super.initState();
   }

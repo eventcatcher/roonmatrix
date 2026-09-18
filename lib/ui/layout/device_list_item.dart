@@ -12,6 +12,8 @@ import 'package:roonmatrix/model/scroll_speed_variant.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
 import 'package:roonmatrix/ui/layout/desktop_page_buttons.dart';
+import 'package:roonmatrix/ui/layout/device_list_item_bloc.dart';
+import 'package:roonmatrix/ui/layout/device_list_item_state.dart';
 import 'package:roonmatrix/ui/layout/mobile_page_buttons.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
 import 'package:roonmatrix/ui/layout/slider_hover_overlay.dart';
@@ -80,10 +82,10 @@ class DeviceListItem extends StatefulWidget {
   });
 
   @override
-  State<DeviceListItem> createState() => DeviceListItemState();
+  State<DeviceListItem> createState() => _DeviceListItemState();
 }
 
-class DeviceListItemState extends State<DeviceListItem> {
+class _DeviceListItemState extends State<DeviceListItem> {
   GlobalKey<NavigatorState> get navigatorKey => widget.navigatorKey;
   GlobalKey get itemListKey => widget.itemListKey;
   int get index => widget.index;
@@ -144,6 +146,7 @@ class DeviceListItemState extends State<DeviceListItem> {
   late MainRepository mainRepository;
   late MainBloc mainBloc;
   late SettingsBloc settingsBloc;
+  late DeviceListItemBloc deviceListItemBloc;
   late String ip;
   late bool connected;
   late bool ping;
@@ -159,6 +162,7 @@ class DeviceListItemState extends State<DeviceListItem> {
     mainRepository = RepositoryProvider.of<MainRepository>(context);
     mainBloc = BlocProvider.of<MainBloc>(context);
     settingsBloc = BlocProvider.of<SettingsBloc>(context);
+    deviceListItemBloc = DeviceListItemBloc();
 
     ledTickerInDeviceListActiveBefore = ledTickerInDeviceListActive;
     verticalTickerActiveBefore = verticalTickerActive;
@@ -435,148 +439,148 @@ class DeviceListItemState extends State<DeviceListItem> {
                         },
                       ),
                       Expanded(
-                        child: Globals.isDesktopDevice()
-                            ? SizedBox(
-                                height:
-                                    width <= Globals.mobilePageButtonsMaxWidth
-                                    ? Globals.mobileExpandableButtonSize
-                                    : null,
-                                child: Row(
-                                  // desktop variant
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Flexible(
-                                      child:
-                                          width >
-                                              Globals
-                                                  .deviceListItemSwitchBoundaryFullInfo
-                                          ? Text(
+                        child: BlocBuilder(
+                          bloc: deviceListItemBloc,
+                          builder: (context, DeviceListItemState deviceListItemState) {
+                            if (deviceListItemState
+                                is! DeviceListItemStateLoaded) {
+                              return SizedBox();
+                            }
+                            return Globals.isDesktopDevice()
+                                ? SizedBox(
+                                    height:
+                                        width <=
+                                            Globals.mobilePageButtonsMaxWidth
+                                        ? Globals.mobileExpandableButtonSize
+                                        : null,
+                                    child: Row(
+                                      // desktop variant
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Flexible(
+                                          child:
+                                              width >
+                                                  Globals
+                                                      .deviceListItemSwitchBoundaryFullInfo
+                                              ? AnimatedOpacity(
+                                                  opacity:
+                                                      deviceListItemState
+                                                              .expandableMenuOpened &&
+                                                          width <=
+                                                              Globals
+                                                                  .mobilePageButtonsMaxWidth
+                                                      ? 0.0
+                                                      : 1.0,
+                                                  duration: Duration(
+                                                    milliseconds: 400,
+                                                  ),
+                                                  child: Text(
+                                                    mainRepository
+                                                        .getTimeZonePlaycountText(
+                                                          translations:
+                                                              translations,
+                                                          info: i,
+                                                          zoneName: zoneName,
+                                                        ),
+                                                    softWrap: true,
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.fade,
+                                                    style: TextStyle(
+                                                      fontSize:
+                                                          width >
+                                                              Globals
+                                                                  .mobilePageButtonsMaxWidth
+                                                          ? 14.0
+                                                          : 12.0,
+                                                      height: 1.3,
+                                                    ),
+                                                  ),
+                                                )
+                                              : Padding(
+                                                  padding: EdgeInsets.only(
+                                                    right: 12.0,
+                                                  ),
+                                                  child: Text(
+                                                    '${i['playcount']}',
+                                                    softWrap: true,
+                                                    overflow: TextOverflow.fade,
+                                                    style: const TextStyle(
+                                                      fontSize: 9,
+                                                      height: 1.3,
+                                                    ),
+                                                  ),
+                                                ),
+                                        ),
+                                        if (width >
+                                            Globals.mobilePageButtonsMaxWidth)
+                                          DesktopPageButtons(
+                                            navigatorKey: navigatorKey,
+                                            translations: translations,
+                                            ip: ip,
+                                            info: info,
+                                            spotifyAuthUrl: spotifyAuthUrl,
+                                            moreInfo: moreInfo,
+                                            minDesktopSize: minDesktopSize,
+                                            standardDesktopSize:
+                                                standardDesktopSize,
+                                          ),
+                                      ],
+                                    ),
+                                  )
+                                : SizedBox(
+                                    height: Globals.mobileExpandableButtonSize,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        if (isSmallDeviceWidth == true)
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                              right: 12.0,
+                                            ),
+                                            child: Text(
+                                              '${i['playcount']}',
+                                              softWrap: true,
+                                              overflow: TextOverflow.fade,
+                                              style: const TextStyle(
+                                                fontSize: 9,
+                                              ),
+                                            ),
+                                          ),
+                                        if (!isSmallDeviceWidth)
+                                          AnimatedOpacity(
+                                            opacity: infoOpacityLevel,
+                                            duration: Duration(
+                                              milliseconds: 400,
+                                            ),
+                                            child: Text(
                                               mainRepository
                                                   .getTimeZonePlaycountText(
                                                     translations: translations,
                                                     info: i,
                                                     zoneName: zoneName,
+                                                    withLineBreak: true,
                                                   ),
                                               softWrap: true,
                                               maxLines: 2,
                                               overflow: TextOverflow.fade,
-                                              style: TextStyle(
-                                                fontSize:
-                                                    width >
-                                                        Globals
-                                                            .mobilePageButtonsMaxWidth
-                                                    ? 14.0
-                                                    : 12.0,
-                                                height: 1.3,
-                                              ),
-                                            )
-                                          : Padding(
-                                              padding: EdgeInsets.only(
-                                                right: 12.0,
-                                              ),
-                                              child: Text(
-                                                '${i['playcount']}',
-                                                softWrap: true,
-                                                overflow: TextOverflow.fade,
-                                                style: const TextStyle(
-                                                  fontSize: 9,
-                                                  height: 1.3,
-                                                ),
+                                              style: const TextStyle(
+                                                fontSize: 11,
                                               ),
                                             ),
+                                          ),
+                                        SizedBox(width: mobileInfoPaddingRight),
+                                      ],
                                     ),
-                                    if (width >
-                                        Globals.mobilePageButtonsMaxWidth)
-                                      DesktopPageButtons(
-                                        navigatorKey: navigatorKey,
-                                        translations: translations,
-                                        ip: ip,
-                                        info: info,
-                                        spotifyAuthUrl: spotifyAuthUrl,
-                                        moreInfo: moreInfo,
-                                        minDesktopSize: minDesktopSize,
-                                        standardDesktopSize:
-                                            standardDesktopSize,
-                                      ),
-                                  ],
-                                ),
-                              )
-                            : SizedBox(
-                                height: Globals.mobileExpandableButtonSize,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    if (isSmallDeviceWidth == true)
-                                      Padding(
-                                        padding: EdgeInsets.only(right: 12.0),
-                                        child: Text(
-                                          '${i['playcount']}',
-                                          softWrap: true,
-                                          overflow: TextOverflow.fade,
-                                          style: const TextStyle(fontSize: 9),
-                                        ),
-                                      ),
-                                    if (!isSmallDeviceWidth)
-                                      AnimatedOpacity(
-                                        opacity: infoOpacityLevel,
-                                        duration: Duration(milliseconds: 400),
-                                        child: Text(
-                                          mainRepository
-                                              .getTimeZonePlaycountText(
-                                                translations: translations,
-                                                info: i,
-                                                zoneName: zoneName,
-                                                withLineBreak: true,
-                                              ),
-                                          softWrap: true,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.fade,
-                                          style: const TextStyle(fontSize: 11),
-                                        ),
-                                      ),
-                                    SizedBox(width: mobileInfoPaddingRight),
-                                  ],
-                                ),
-                              ),
+                                  );
+                          },
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-              if (Globals.isMobileDevice() ||
-                  width <= Globals.mobilePageButtonsMaxWidth)
-                Positioned(
-                  top: 9.0,
-                  right: 0.0,
-                  child: MobilePageButtons(
-                    navigatorKey: navigatorKey,
-                    translations: translations,
-                    moreInfo: moreInfo,
-                    zoneName: zoneName,
-                    ip: ip,
-                    spotifyAuthUrl: spotifyAuthUrl,
-                    zoneData: i,
-                    minDesktopSize: minDesktopSize,
-                    standardDesktopSize: standardDesktopSize,
-                    bigExpandableButtonSize: true,
-                    isExpanded: ({required bool mode}) {
-                      setState(() {
-                        infoOpacityLevel = mode == true ? 0.0 : 1.0;
-                      });
-                    },
-                    setSpotifyAuthRedirectUrl: ({required String url}) {
-                      mainBloc.setSpotifyAuthRedirectUrl(ip: ip, url: url);
-                      if (navigatorKey.currentState != null &&
-                          navigatorKey.currentState!.canPop()) {
-                        navigatorKey.currentState?.popUntil(
-                          (route) => route.isFirst,
-                        );
-                      }
-                    },
-                  ),
-                ),
               Positioned(
                 top:
                     (verticalOutput && verticalTickerActive
@@ -809,9 +813,7 @@ class DeviceListItemState extends State<DeviceListItem> {
                   ),
                 ),
               ),
-              if (Globals.isDesktopDevice() &&
-                  widget.showSlider == true &&
-                  infoOpacityLevel > 0)
+              if (Globals.isDesktopDevice() && widget.showSlider == true)
                 Positioned(
                   bottom: -10,
                   right:
@@ -819,27 +821,78 @@ class DeviceListItemState extends State<DeviceListItem> {
                           width <= Globals.mobilePageButtonsMaxWidth
                       ? 70
                       : 0,
-                  child: SliderHoverOverlay(
-                    label: '${translations['speed'] ?? 'speed:'}:',
-                    width: tickerSpeedSliderWidth,
-                    min: Globals.sliderMinValue,
-                    max: Globals.sliderMaxValue,
-                    defaultValue: sliderDefaultValue,
-                    value: scrollSpeedDevice,
-                    updateValue: (double value) {
-                      String key = settingsBloc.getScrollSpeedKey(
-                        ip: ip,
-                        variant: ScrollSpeedVariant(
-                          isStandAlone: false,
-                          isLedVariant: ledTickerInDeviceListActive,
-                          isVertical: verticalTickerActive && verticalOutput,
-                        ),
-                      );
+                  child: BlocBuilder(
+                    bloc: deviceListItemBloc,
+                    builder:
+                        (context, DeviceListItemState deviceListItemState) {
+                          if (deviceListItemState
+                              is! DeviceListItemStateLoaded) {
+                            return SizedBox();
+                          }
 
-                      settingsBloc.setScrollSpeedDevice(key: key, speed: value);
-                      setState(() {
-                        scrollSpeedDevice = value;
-                      });
+                          return deviceListItemState.expandableMenuOpened &&
+                                  width <= Globals.mobilePageButtonsMaxWidth
+                              ? SizedBox()
+                              : SliderHoverOverlay(
+                                  label:
+                                      '${translations['speed'] ?? 'speed:'}:',
+                                  width: tickerSpeedSliderWidth,
+                                  min: Globals.sliderMinValue,
+                                  max: Globals.sliderMaxValue,
+                                  defaultValue: sliderDefaultValue,
+                                  value: scrollSpeedDevice,
+                                  updateValue: (double value) {
+                                    String key = settingsBloc.getScrollSpeedKey(
+                                      ip: ip,
+                                      variant: ScrollSpeedVariant(
+                                        isStandAlone: false,
+                                        isLedVariant:
+                                            ledTickerInDeviceListActive,
+                                        isVertical:
+                                            verticalTickerActive &&
+                                            verticalOutput,
+                                      ),
+                                    );
+
+                                    settingsBloc.setScrollSpeedDevice(
+                                      key: key,
+                                      speed: value,
+                                    );
+                                    setState(() {
+                                      scrollSpeedDevice = value;
+                                    });
+                                  },
+                                );
+                        },
+                  ),
+                ),
+              if (Globals.isMobileDevice() ||
+                  width <= Globals.mobilePageButtonsMaxWidth)
+                Positioned(
+                  top: 9.0,
+                  right: 0.0,
+                  child: MobilePageButtons(
+                    navigatorKey: navigatorKey,
+                    translations: translations,
+                    moreInfo: moreInfo,
+                    zoneName: zoneName,
+                    ip: ip,
+                    spotifyAuthUrl: spotifyAuthUrl,
+                    zoneData: i,
+                    minDesktopSize: minDesktopSize,
+                    standardDesktopSize: standardDesktopSize,
+                    bigExpandableButtonSize: true,
+                    isExpanded: ({required bool mode}) {
+                      deviceListItemBloc.setExpandableMenuOpened(enabled: mode);
+                    },
+                    setSpotifyAuthRedirectUrl: ({required String url}) {
+                      mainBloc.setSpotifyAuthRedirectUrl(ip: ip, url: url);
+                      if (navigatorKey.currentState != null &&
+                          navigatorKey.currentState!.canPop()) {
+                        navigatorKey.currentState?.popUntil(
+                          (route) => route.isFirst,
+                        );
+                      }
                     },
                   ),
                 ),

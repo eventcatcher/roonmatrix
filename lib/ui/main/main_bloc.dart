@@ -1920,7 +1920,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           for (dynamic zone in zones) {
             if (zone != null) {
               String zoneName = '$serverName-${zone['zone']}';
-              print('zoneName: $zoneName');
+              if (kDebugMode) {
+                debugPrint('zoneName: $zoneName');
+              }
 
               if (zoneName.endsWith('-SpotifyConnect') &&
                   info[activeDeviceIp]['enable_spotify_connect'] == true &&
