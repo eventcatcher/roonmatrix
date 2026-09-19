@@ -241,8 +241,6 @@
         "force_roon_update": "Ausgabedaten sofort erneuern bei Roon Zonen-Updates",
         "force_active_roon_zone_only": "Ausgabedaten nur für aktive Roon-Zone sofort erneuern",
         "discovery_delay": "Roon Zonenerkennung Verzögerungszeit",
-        "roon_blocked_activation": "Auf Aktivierung in Roon warten (ein: App beim Start blockieren, aus: kein Warten mit Wiederholungsversuch)",
-        "roon_activation_retry_seconds": "Zeit in Sekunden bis zum nächsten Versuch, Roon zu aktivieren",
         "core_ip": "Core IP (reset: leere ip und port)",
         "core_port": "Core Port (reset: leere ip und port)",
         "webservers_show": "Zeige Webserver Zonen-Infomationen",

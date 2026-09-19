@@ -241,8 +241,6 @@
         "force_roon_update": "Forcer les mises à jour Roon", 
         "force_active_roon_zone_only": "Forcer uniquement la zone Roon active",
         "discovery_delay": "Délai de découverte Roon",
-        "roon_blocked_activation": "Attendre l'activation dans Roon (activé : blocage de l'application au démarrage ; désactivé : pas d'attente avec nouvelle tentative)",
-        "roon_activation_retry_seconds": "Délai (en secondes) avant de réessayer l'activation de Roon",
         "core_ip": "Adresse IP centrale (IP et port vides pour réinitialiser)",
         "core_port": "Port central (IP et port vides pour réinitialiser)",
         "webservers_show": "Afficher les informations sur la zone du serveur web",

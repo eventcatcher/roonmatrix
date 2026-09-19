@@ -241,8 +241,6 @@
         "force_roon_update": "Force roon updates",
         "force_active_roon_zone_only": "Force active roon zone only",
         "discovery_delay": "Roon Discovery delay",
-        "roon_blocked_activation": "Wait for activation in Roon (on: blocking app on start, off: no waiting with retry)",
-        "roon_activation_retry_seconds": "Time in seconds to retry Roon activation",
         "core_ip": "Core IP address (empty ip and port to reset)",
         "core_port": "Core port (empty ip and port to reset)",
         "webservers_show": "Show webserver zone informations",

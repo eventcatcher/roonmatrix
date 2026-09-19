@@ -65,10 +65,11 @@ class PageButtonState extends State<PageButton> {
             ),
           )
         : Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: EdgeInsets.only(left: paddingLeft),
             child: ElevatedButton(
               style: ButtonStyle(
                 shape: WidgetStateProperty.all(CircleBorder()),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 minimumSize: WidgetStateProperty.all(Size.zero),
                 fixedSize: WidgetStateProperty.all(
                   Size.square(

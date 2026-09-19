@@ -106,9 +106,13 @@ class _DeviceListItemState extends State<DeviceListItem> {
   bool get forceTickerUpdateActive => widget.forceTickerUpdateActive;
   void Function(String caller) get updateSizes => widget.updateSizes;
 
+  final bool bigExpandableButtonSizeOnDesktop = false;
+  final bool bigExpandableButtonSizeOnMobile = true;
+
   final int cyclePause = 2;
   final double deviceListCoverSize = 68.0;
-  final double mobileInfoPaddingRight = 40.0;
+  final double bigExpandableButtonsPaddingRight = 72.0;
+  final double smallExpandableButtonsPaddingRight = 48.0;
   final Color tileColor = Colors.lightBlueAccent;
 
   final double tickerTopOffset = 53.0;
@@ -124,13 +128,13 @@ class _DeviceListItemState extends State<DeviceListItem> {
   final double ledTickerPadding = 2.0;
   final double ledTickerBorderSize = 1.0;
   final double ledSizeDefault = 3.0;
+
   double ledSize = 3.0;
   double sliderDefaultValue = 1.0;
 
   List<String> verticalTextLines = [];
   int scrollDuration = 0;
   int linePause = 0;
-  double infoOpacityLevel = 1.0;
   double itemListHeight = 84;
   double ledSizeBefore = 0;
   int ledModules = 9;
@@ -526,6 +530,18 @@ class _DeviceListItemState extends State<DeviceListItem> {
                                             standardDesktopSize:
                                                 standardDesktopSize,
                                           ),
+                                        if (width <=
+                                                Globals
+                                                    .mobilePageButtonsMaxWidth &&
+                                            width >
+                                                Globals
+                                                    .deviceListItemSwitchBoundaryFullInfo)
+                                          SizedBox(
+                                            width:
+                                                bigExpandableButtonSizeOnDesktop
+                                                ? bigExpandableButtonsPaddingRight
+                                                : smallExpandableButtonsPaddingRight,
+                                          ),
                                       ],
                                     ),
                                   )
@@ -534,7 +550,8 @@ class _DeviceListItemState extends State<DeviceListItem> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        if (isSmallDeviceWidth == true)
+                                        if (isSmallDeviceWidth == true &&
+                                            !bigExpandableButtonSizeOnMobile)
                                           Padding(
                                             padding: EdgeInsets.only(
                                               right: 12.0,
@@ -550,7 +567,14 @@ class _DeviceListItemState extends State<DeviceListItem> {
                                           ),
                                         if (!isSmallDeviceWidth)
                                           AnimatedOpacity(
-                                            opacity: infoOpacityLevel,
+                                            opacity:
+                                                deviceListItemState
+                                                        .expandableMenuOpened &&
+                                                    width <=
+                                                        Globals
+                                                            .mobilePageButtonsMaxWidth
+                                                ? 0.0
+                                                : 1.0,
                                             duration: Duration(
                                               milliseconds: 400,
                                             ),
@@ -570,7 +594,11 @@ class _DeviceListItemState extends State<DeviceListItem> {
                                               ),
                                             ),
                                           ),
-                                        SizedBox(width: mobileInfoPaddingRight),
+                                        SizedBox(
+                                          width: bigExpandableButtonSizeOnMobile
+                                              ? bigExpandableButtonsPaddingRight
+                                              : smallExpandableButtonsPaddingRight,
+                                        ),
                                       ],
                                     ),
                                   );
@@ -831,6 +859,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
                           }
 
                           return deviceListItemState.expandableMenuOpened &&
+                                  bigExpandableButtonSizeOnDesktop == true &&
                                   width <= Globals.mobilePageButtonsMaxWidth
                               ? SizedBox()
                               : SliderHoverOverlay(
@@ -881,7 +910,11 @@ class _DeviceListItemState extends State<DeviceListItem> {
                     zoneData: i,
                     minDesktopSize: minDesktopSize,
                     standardDesktopSize: standardDesktopSize,
-                    bigExpandableButtonSize: true,
+                    bigExpandableButtonSize:
+                        (Globals.isMobileDevice() &&
+                            bigExpandableButtonSizeOnMobile) ||
+                        (Globals.isDesktopDevice() &&
+                            bigExpandableButtonSizeOnDesktop),
                     isExpanded: ({required bool mode}) {
                       deviceListItemBloc.setExpandableMenuOpened(enabled: mode);
                     },
