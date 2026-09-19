@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Roonmatrix App - display roon, spotify and apple music playout informations and more on 8x8 led matrix display
-# version 2.0.0, date: 08.06.2026
+# version 2.0.0, date: 17.08.2026
 #
 # show what is playing on roon zones and via webservers on Spotify and Apple Music
 # show actual weather, rss feeds and clock
@@ -16,7 +16,7 @@
 # start service: sudo systemctl start roonmatrix.service
 # live log:      journalctl -f
 
-scriptVersion = '2.0.0, date: 08.06.2026'
+scriptVersion = '2.0.0, date: 17.08.2026'
 APP_NAME = "roonmatrix"
 
 startlog = True		# default true: log start and config information
@@ -222,6 +222,9 @@ repeatmode = {} # repeatmode is a dictionary of repeat state of each webserver z
 channels = {} # channels is a dictionary of control_id (key) and zone name (value)
 roon_playouts_raw = {} # zone name and their raw jsonString variant of three_line data (track,artist,album) of played song
 roon_playouts = {} # zone name and their json variant of three_line data (track,artist,album) of played song
+roon_nonblocked_thread_on_appstart = True # true: connect to roon api on appstart by own thread with waiting to response, false: no waiting for response but automatic retry
+roon_nonblocked_thread_on_reconnect = True # true: connect to roon api on reconnect by own thread with waiting to response, false: no waiting for response but automatic retry
+roon_activation_retry_seconds = 15 # time in seconds to retry roon activation
 web_playouts_raw = {} # webserver zone name and their raw jsonString variant of data (track,artist,album) of played song
 web_playouts = {} # webserver zone name and their json variant of data (track,artist,album) of played song
 jobs = {} # map of running threads
@@ -262,6 +265,7 @@ translation_hash = ''
 countrycode = 'auto'
 webserver_url_request_timeout = 10
 spotify_connect = None
+roon_first_connect = False # true: first connection process on device start is successfully done
 updateHash = ''
 infodata_props_to_check = {
     "control_id",
@@ -799,6 +803,7 @@ def setGlobalVarsFromConfigData():
     var['socket_timeout'] = int(config['SYSTEM']['socket_timeout']) # socket timeout in seconds
     var['countrycode'] = config['SYSTEM']['countrycode'] # two char country code like de or en to load the translations specific for this language. auto = get code from public ip address
     #var['ipv4_only'] = eval(config['SYSTEM']['ipv4_only']) if 'ipv4_only' in config['SYSTEM'] else True # true: use only IPv4 (set to True if you have DSlite or IPv6 problems on web requests)
+    var['show_test_only'] = eval(config['SYSTEM']['show_test_only']) if 'show_test_only' in config['SYSTEM'] else False # true: show test informations on display to test hardware (no network required)
     var['alternative_layout'] = eval(config['SYSTEM']['alternative_layout']) if 'alternative_layout' in config['SYSTEM'] else False # true: use alternative keyboard layout (special buttons like lock, shift, BS, enter, moved to spacebar row to get more width for buttons), false: standard keyboard layout 
     var['searchresult_maxlength'] = int(config['SYSTEM']['searchresult_maxlength']) if 'searchresult_maxlength' in config['SYSTEM'] else 100 # max number of search results (Roon, Webserver, Spotify, Apple Music)
 
@@ -843,6 +848,8 @@ def setGlobalVarsFromConfigData():
     var['rss_show'] = eval(config['RSS']['rss_show']) # show rss feeds (true) or not (False)
     var['rss_feeds'] = literal_eval(config['RSS']['feeds']) # list of rss feeds (fields: name, count, url), count = number of messages to display
     
+    var['test_message'] = APP_NAME + ' ' + scriptVersion + ', hostname: ' + hostName + ', modules: ' + str(var['led_modules'])
+
     globals().update(var) # update globals with dict items
 
 def get_spotify_auth_url(spotify_connect_auth_success):
@@ -885,6 +892,7 @@ def getInfoData():
         "map_zone_control": map_zone_control,
         "socket_timeout": socket_timeout,
         "ipv4_only": ipv4_only,
+        "show_test_only": show_test_only,
         "screensaver_seconds": screensaver_seconds,
         "zone_autoswitch": zone_autoswitch,
         "control_zone": control_zone,
@@ -912,6 +920,8 @@ def getInfoData():
         "webserver_head_request_timeout": webserver_head_request_timeout,
         "webserver_url_request_timeout": webserver_url_request_timeout,
         "enable_spotify_connect": enable_spotify_connect,
+        "spotify_connect_auth_success": spotify_connect_auth_success,
+        "spotify_connect_authorized": spotify_connect_authorized,
         "librespot_device": librespot_device,
         "librespot_bitrate": librespot_bitrate,
         "librespot_format": librespot_format,
@@ -1135,6 +1145,10 @@ if with_restserver_fastapi is True:
             ret = False
         return ret
 
+    @app.post("/reset_spotify_tokens/")
+    async def rest_reset_spotify_tokens():
+        return reset_spotify_tokens()
+
     @app.post("/spotify_auth_redirect_url/")
     async def rest_set_spotify_auth_redirect_url(payload: dict = Body(...)):
         return set_spotify_auth_redirect_url(payload)
@@ -1279,6 +1293,10 @@ else:
             
             if self.path == "/zone_control/":
                 self.send_json(set_zone_control(payload))
+                return
+
+            if self.path == "/reset_spotify_tokens/":
+                self.send_json(reset_spotify_tokens())
                 return
 
             if self.path == "/spotify_auth_redirect_url/":
@@ -1835,10 +1853,13 @@ def roon_discover():
             flexprint('[red]==> roon discover error: [/red]', str(e))
             #flexprint(traceback.format_exc())
 
-def get_roon_api(blocking = True):
-    global roonapi, roon_servers, ws_notification_queue
+def get_roon_api(wait_for_response = False, retry = 0):
+    global roonapi, roon_servers, ws_notification_queue, roon_first_connect
 
     try:
+        if roonapi is not None and retry > 0:
+            roonapi.stop()
+
         token = ''
         try:
             if path.exists(tokenfile):
@@ -1849,30 +1870,20 @@ def get_roon_api(blocking = True):
             flexprint("[bold red]Please authorise device in roon app![/bold red]")
 
         if core_ip !='' and core_port != '':
-            flexprint("check RoonApi connection => core_ip: " + str(core_ip) + ", port: " + str(core_port) + ", blocking: " + str(blocking))
+            flexprint("check RoonApi connection => core_ip: " + str(core_ip) + ", port: " + str(core_port) + ", wait_for_response: " + str(wait_for_response))
                         
-            roonapi = RoonApi(appinfo, token, core_ip, int(core_port), blocking)
+            roonapi = RoonApi(appinfo, token, core_ip, int(core_port), wait_for_response)
             time.sleep(1)
 
             data = [core_ip, int(core_port)]
             if len(roon_servers) == 0:
                 roon_servers = [data]
 
-            flexprint("roon api connected: " + str(roonapi is not None) + " => (blocking: " + str(blocking) + ", host: " + str(roonapi.host) + ", core_name: " + str(roonapi.core_name) + ", core_id: " + str(roonapi.core_id) + ", token: " + str(roonapi.token is not None and roonapi.token != '') + ")")
+            flexprint("RoonApi connected: " + str(roonapi is not None) + " => (wait_for_response: " + str(wait_for_response) + ", host: " + str(roonapi.host) + ", core_name: " + str(roonapi.core_name) + ", core_id: " + str(roonapi.core_id) + ", token: " + str(roonapi.token is not None and roonapi.token != '') + ")")
                 
             # This is what we need to reconnect
             core_id = roonapi.core_id
             token = roonapi.token
-                
-            if (core_id is None or token is None) and blocking is False:
-                send_roon_activation_warning()
-                time.sleep(1)
-
-                t = Timer(2, get_roon_api)	# retry after 30s
-                t.start()
-            elif blocking is False:
-                t = Timer(2, get_roon_api)	# retry after 5s
-                t.start()
 
             with open(idfile, "w") as f:
                 f.write(str(core_id))
@@ -1882,22 +1893,49 @@ def get_roon_api(blocking = True):
                 f.write(str(token))
                 f.close()
                 
+            if (core_id is None or token is None) and wait_for_response is False:
+                if retry < 2:
+                    send_roon_activation_warning()
+                time.sleep(1)
+
+                flexprint("RoonApi after send_roon_activation_warning => retry: " + str(retry+1))
+                t = Timer(roon_activation_retry_seconds, get_roon_api, [False,retry+1])	# retry after 30s
+                t.start()
+                return
+            elif roonapi is not None and core_id is not None and token is not None and wait_for_response is False:
+                roonapi.stop()
+                flexprint("RoonApi connection with final wait for response => start")
+                roonapi = RoonApi(appinfo, token, core_ip, int(core_port), True)
+                flexprint("RoonApi connection with final wait for response => done")
+                time.sleep(1)
+                
             set_default_zone()
-            flexprint('register roonapi state callback')
+            flexprint('RoonApi activation done => register RoonApi state callback')
             roonapi.register_state_callback(roon_state_callback)
             
             if core_id is not None and token is not None and 'roon-activation-alert' in ws_notification_queue:
                 ws_notification_queue.remove('roon-activation-alert')
+            roon_first_connect = True
         else:
-            send_roon_activation_warning()
+            if retry < 2:
+                send_roon_activation_warning()
             time.sleep(1)
 
-            t = Timer(30, get_roon_api)	# retry after 30s
+            flexprint("RoonApi after send_roon_activation_warning => retry: " + str(retry+1))
+            t = Timer(roon_activation_retry_seconds, get_roon_api, [False,retry+1])	# retry after 30s
             t.start()
     except Exception as e:
         if errorlog is True: 
-            flexprint('[red]==> get roon api error: [/red]', str(e))
+            flexprint('[red]==> get RoonApi error: [/red]', str(e))
             #flexprint(traceback.format_exc())
+
+def connect_to_roon_server(nonblocked_thread):
+    if roonapi is None:
+        if nonblocked_thread is True:
+            thread = threading.Thread(target=get_roon_api, args=(nonblocked_thread, 0))	# run in own thread to run it non-blocked
+            thread.start()
+        else:
+            get_roon_api(nonblocked_thread)
 
 def convert_config_to_dict(config):
     sections_dict = {}
@@ -2162,6 +2200,7 @@ def getConfigData():
                         {"name": "datetime_only_time", "editable": True, "type": {"type": "bool", "structure": []}, "label": "Show only time part", "unit": "", "value": config['SYSTEM']['datetime_only_time']},
                         {"name": "socket_timeout", "editable": True, "type": {"type": "int", "structure": []}, "label": "Socket timeout", "unit": "seconds", "value": config['SYSTEM']['socket_timeout']},
                         {"name": "ipv4_only", "editable": True, "type": {"type": "bool", "structure": []}, "label": "Use only IPv4 for web requests (fix for DSlite or IPv6 problems)", "unit": "", "value": config['SYSTEM']['ipv4_only']},
+                        {"name": "show_test_only", "editable": True, "type": {"type": "bool", "structure": []}, "label": "Show test informations on display to test hardware (no network required, all other playout is disabled)", "unit": "", "value": config['SYSTEM']['show_test_only']},
                         {"name": "updated_at", "editable": False, "type": {"type": "string", "structure": []}, "label": "updated at", "unit": "", "value": config['SYSTEM']['updated_at'] if 'updated_at' in config['SYSTEM'] else str(datetime.now())}
                     ]
                 },
@@ -2414,8 +2453,8 @@ def save_config(payload):
             if roon_enabled_before is False and roon_show is True:
                 if core_ip == '' or core_port == '':
                     roon_discover()
-                if roonapi is None:
-                    get_roon_api(False)
+                if roonapi is None and roon_first_connect is True:
+                    connect_to_roon_server(roon_nonblocked_thread_on_reconnect)
 
             if (roon_show is False and roonapi is not None) or (roon_enabled_before is True and roon_show is True and (core_ip_before != core_ip or core_port_before != core_port)):
                 #roonapi = None
@@ -2481,6 +2520,30 @@ def set_zone_control(payload):
     except Exception as e:
         if errorlog is True: flexprint('[red]zone control error: ' + str(e) + '[/red]')
         return False
+
+def reset_spotify_tokens():
+    global spotify_auth_redirect_url, spotify_connect_authorized, spotify_connect_auth_success, spotify_connect
+    success = False
+
+    try:
+        spotify_token_file = configs_dir + '.spotify-cache'
+        msg = '[bold magenta]clear spotify-cache (reset spotify tokens)[/bold magenta]'
+        flexprint(msg)
+        
+        spotify_auth_redirect_url = ''
+        spotify_connect_authorized = False
+        spotify_connect_auth_success = False
+
+        open(spotify_token_file, 'w').close()
+
+        spotify_connect = None
+        if show_test_only is False:
+            init_spotify_connect()
+
+        success = True
+    except Exception as e:
+        if errorlog is True: flexprint('[red]reset spotify-cache error: ' + str(e) + '[/red]')    
+    return success
 
 def set_spotify_auth_redirect_url(payload):
     global spotify_auth_redirect_url, spotify_connect_authorized
@@ -2875,8 +2938,8 @@ def is_audioinfo_available():
             roon_active = is_roon_server_active(core_ip, core_port) if (core_ip != '' and core_port != '') else False
             if core_ip == '' or core_port == '':
                 roon_discover()
-            if roonapi is None:
-                get_roon_api(False)
+            if roonapi is None and roon_first_connect is True:
+                connect_to_roon_server(roon_nonblocked_thread_on_reconnect)
             roon_active = is_roon_server_active(core_ip, core_port) if (core_ip != '' and core_port != '') else False
             roon_discover_first_test()
             if roon_active is True and core_ip != '' and core_port != '' and roonapi is not None:
@@ -6284,7 +6347,7 @@ def reconnect_roon_api_if_zone_is_stopped(roon_zones):
         #    flexprint('[red]zone in stopped state found => reconnect roon api[/red]')
         #    roonapi.stop()
         #    roonapi = None
-        #    get_roon_api(False)
+        #    connect_to_roon_server(roon_nonblocked_thread_on_reconnect)
         #    if roonapi is not None:
         #        return list(roonapi.zones.values())
     except Exception as e:
@@ -6362,6 +6425,7 @@ def get_roon_extension_info():
         "email": "support@wilhelm-devblog.de",
         "website": "https://github.com/eventcatcher/roonmatrix"
     }
+    flexprint('[bold green4]get_roon_extension_info[/bold green4]')
     return appinfo
 
 def log_startinfo():
@@ -6430,12 +6494,20 @@ def build_output():
     flexprint('')
 
     try:
-        if roon_show == True:
+        if show_test_only is True:
+            if buildstr != '':
+                buildstr += separator
+            buildstr += convert_special_chars(test_message)
+            if len(buildlines) > 0:
+                buildlines.append('')
+            buildlines = vertical_longtext_split_and_append('> ' + convert_special_chars(test_message),buildlines)
+        
+        if show_test_only is False and roon_show == True:
             roon_active = is_roon_server_active(core_ip, core_port) if (core_ip != '' and core_port != '') else False
             if core_ip == '' or core_port == '':
                 roon_discover()
-            if roonapi is None:
-                get_roon_api(False)
+            if roonapi is None and roon_first_connect is True:
+                connect_to_roon_server(roon_nonblocked_thread_on_reconnect)
             roon_active = is_roon_server_active(core_ip, core_port) if (core_ip != '' and core_port != '') else False
             roon_discover_first_test()
 
@@ -6459,7 +6531,7 @@ def build_output():
                     #if state=='stopped' and 'now_playing' not in zone:
                         #flexprint('[red]stopped state found => reconnect roon api[/red]')
                         #roonapi.stop()
-                        #get_roon_api(False)
+                        #connect_to_roon_server(roon_nonblocked_thread_on_reconnect)
                     
                     if state == "Unknown" or 'now_playing' not in zone:
                         continue
@@ -6603,7 +6675,7 @@ def build_output():
                             else:
                                 buildlines = vertical_longtext_split_and_append('=> ' + convert_special_chars(trackFiltered).replace('"',''),buildlines)
 
-        if webservers_show is True or spotify_connect_enabled() is True:
+        if show_test_only is False and (webservers_show is True or spotify_connect_enabled() is True):
             if vertical_output == True:
                 buildlines = get_playing_apple_or_spotify(webservers_zones,buildlines)
             else:
@@ -6623,7 +6695,7 @@ def build_output():
 
         show_nonaudio_content = (exclusive_audio_mode is False and music_required is False) or (exclusive_audio_mode is True and buildstr == '' and len(buildlines) == 0) or (music_required is True and (buildstr != '' or len(buildlines) > 0))
 
-        if show_nonaudio_content == True and custom_message != '' and custom_message_option != 'exclusive':
+        if show_test_only is False and show_nonaudio_content == True and custom_message != '' and custom_message_option != 'exclusive':
             if buildstr != '':
                 buildstr += separator
             buildstr += convert_special_chars(custom_message)
@@ -6631,7 +6703,7 @@ def build_output():
                 buildlines.append('')
             buildlines = vertical_longtext_split_and_append('> ' + convert_special_chars(custom_message),buildlines)
 
-        if show_nonaudio_content == True and weather_show == True and ((vertical_output is False and weatherstr != '') or (vertical_output is True and len(weatherlines) > 0)):
+        if show_test_only is False and show_nonaudio_content == True and weather_show == True and ((vertical_output is False and weatherstr != '') or (vertical_output is True and len(weatherlines) > 0)):
             if buildstr != '':
                 buildstr += separator
             buildstr += weatherstr
@@ -6639,13 +6711,13 @@ def build_output():
                 buildlines.append('')
             buildlines += weatherlines
 
-        if show_nonaudio_content == True and rss_show == True:
+        if show_test_only is False and show_nonaudio_content == True and rss_show == True:
             if vertical_output == True:
                 buildlines = get_rss_feed(buildlines)
             else:
                 buildstr = get_rss_feed(buildstr)
 
-        if show_nonaudio_content == True and datetime_show == True:
+        if show_test_only is True or (show_nonaudio_content == True and datetime_show == True):
             if buildstr != '':
                 buildstr += separator
             if len(buildlines) > 0:
@@ -6658,7 +6730,7 @@ def build_output():
             buildstr += dtmessage
             buildlines = vertical_longtext_split_and_append(dtmessage,buildlines)
 
-        if custom_message != '' and custom_message_option == 'exclusive':
+        if show_test_only is False and custom_message != '' and custom_message_option == 'exclusive':
             buildstr = separator + convert_special_chars(custom_message)
             buildlines = vertical_longtext_split_and_append('> ' + convert_special_chars(custom_message),[])
         flexprint('### buildstr end: ' + buildstr)
@@ -6824,16 +6896,19 @@ else:
     if is_raspberry_pi is True:
         serial = spi(port=0, device=0, gpio=noop()) # object of serial connection (luna)
 
+show_test_only = eval(config['SYSTEM']['show_test_only']) if 'show_test_only' in config['SYSTEM'] else False # true: show test informations on display to test hardware (no network required)
+
 # set ipv4 only
 ipv4_only = eval(config['SYSTEM']['ipv4_only']) if 'ipv4_only' in config['SYSTEM'] else True # true: use only IPv4 (set to True if you have DSlite or IPv6 problems on web requests)
-if ipv4_only is True:
+if show_test_only is False and ipv4_only is True:
     force_ipv4_only()
 
 # get country code (to select the right translation file)
-if countrycode == 'auto' or countrycode == '':
+if show_test_only is False and (countrycode == 'auto' or countrycode == ''):
     countrycode = get_countrycode_from_public_ip()
 flexprint('countrycode: ' + countrycode)
-update_translations()
+if show_test_only is False:
+    update_translations()
 
 # get host name
 hostName = socket.gethostname()
@@ -6850,7 +6925,8 @@ to_zone = tz.tzlocal()
 setGlobalVarsFromConfigData()
 
 # init weatherbit api with key
-weather_api = Api(weatherbit_api_key)
+if show_test_only is False:
+    weather_api = Api(weatherbit_api_key)
 
 # get last active control zone since boot time
 new_control_zone = None
@@ -6873,7 +6949,8 @@ socket.setdefaulttimeout(socket_timeout)
 ws_manager = ConnectionManager()
 
 # init spotify connect class
-init_spotify_connect()
+if show_test_only is False:
+    init_spotify_connect()
 
 # init and config coverplayer class, set env vars
 init_coverplayer()
@@ -6886,7 +6963,7 @@ if display_cover is False and is_raspberry_pi is True:
     device = init_matrix()
 
 # wait for internet connection
-while True:
+while show_test_only is False:
     if is_url_active(internet_connection_url,internet_connection_timeout) is True:
         # Do somthing
         flexprint("The internet connection is active")
@@ -6899,24 +6976,23 @@ while True:
 appinfo = get_roon_extension_info()
 
 # discover roon server and get roon api access
-if roon_show == True:
-    flexprint('check for roon server now...')
+if show_test_only is False and roon_show == True:
+    flexprint('check for roon server now... roon_nonblocked_thread_on_appstart: ' + str(roon_nonblocked_thread_on_appstart))
     if core_ip == '' or core_port == '':
         roon_discover()
-    if roonapi is None:
-        get_roon_api(False)
+    connect_to_roon_server(roon_nonblocked_thread_on_appstart)
 
 # get weather data and init timer (to get next weather data)
-if weather_show == True:
+if show_test_only is False and weather_show == True:
     get_weather(weather_api,location)
 
 # get webserver data (playout data of local running Spotify and Apple Music App) and init timer (to get next webserver data)
-if webservers_show is True and force_webserver_update is True:
+if show_test_only is False and webservers_show is True and force_webserver_update is True:
     flexprint('check for web servers now...')
     check_webserver_for_playouts()
 
 # check spotify connect authorization
-if enable_spotify_connect is True and spotify_connect is not None:
+if show_test_only is False and enable_spotify_connect is True and spotify_connect is not None:
     flexprint('check spotify connect auth now...')
     spotify_connect_authorized = spotify_connect.get_spotify_connect_auth_state()
 
@@ -6930,7 +7006,7 @@ flexprint('main initialization done')
 flexprint('')
 
 # get active spotify connect zone
-if enable_spotify_connect is True and spotify_connect is not None:
+if show_test_only is False and enable_spotify_connect is True and spotify_connect is not None:
     if spotify_connect_authorized is True:
         active_spotify_connect_zone = get_active_zone_from_spotify_connect_onlinecheck(True)
 
