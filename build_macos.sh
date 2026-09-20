@@ -11,6 +11,7 @@ cd ..
 
 export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
 export SERIOUS_PYTHON_APP=$(pwd)/build/app
+export SERIOUS_PYTHON_BUNDLE_ID=de.eventcatcher.roonmatrixmac
 cd packages/python_backend
 fvm dart run serious_python:main package ../../app/src -p Darwin -r -r -r ../../app/src/requirements.txt
 cd ../../
