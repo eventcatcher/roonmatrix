@@ -11,15 +11,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  serious_python: ^1.0.0
+  serious_python: ^4.7.0
   path_provider: ^2.1.5
 
 platforms:
   macos:
   windows:
   linux:
-
-
-flutter:
-  assets:
-      - assets/backend/

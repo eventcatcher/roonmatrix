@@ -90,36 +90,19 @@ jobs:
           rm -rf app/src/dist
           rm -rf app/src/.dart_tool
 
-      - name: Build Python packages - run 1/2
+      - name: Build Python packages
         working-directory: packages/python_backend
         run: |
-          export SERIOUS_PYTHON_SITE_PACKAGES="$GITHUB_WORKSPACE/app/src/__pypackages__"
-          dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
-
-      - name: Build Python packages - run 2/2
-        working-directory: packages/python_backend
-        run: |
-          export SERIOUS_PYTHON_SITE_PACKAGES="$GITHUB_WORKSPACE/app/src/__pypackages__"
-          dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
-
-      - name: Inspect ZIP
-        run: |
-          echo "ZIP file:"
-          ls -lh packages/python_backend/assets/backend/roonmatrix.zip
-
-          echo ""
-          echo "Disk usage:"
-          du -h packages/python_backend/assets/backend/roonmatrix.zip
-
-          echo ""
-          echo "ZIP contents count:"
-          unzip -l packages/python_backend/assets/backend/roonmatrix.zip | tail -1
+          export SERIOUS_PYTHON_SITE_PACKAGES="$GITHUB_WORKSPACE/build/site-packages"
+          export SERIOUS_PYTHON_APP="$GITHUB_WORKSPACE/build/app"
+          dart run serious_python:main package ../../app/src -p Linux -r -r -r ../../app/src/requirements.txt
 
       - name: Build Flutter Linux release
         env:
           FLUTTER_TARGET: ${{ matrix.arch == 'x86_64' && 'linux-x64' || 'linux-arm64' }}
         run: |
-          export SERIOUS_PYTHON_SITE_PACKAGES="$GITHUB_WORKSPACE/app/src/__pypackages__"
+          export SERIOUS_PYTHON_SITE_PACKAGES="$GITHUB_WORKSPACE/build/site-packages"
+          export SERIOUS_PYTHON_APP="$GITHUB_WORKSPACE/build/app"
           flutter build linux --release --target-platform $FLUTTER_TARGET
 
       - name: Install FUSE for AppImage

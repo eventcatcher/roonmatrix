@@ -1,5 +1,5 @@
 name: roonmatrix
-version: '1.2.3'
+version: '2.0.0'
 summary: App to control your LED-matrix device
 description: |
   App to control your own LED matrix hardware, which can display a wide range of informations: Music played from Roon, Apple Music or Spotify, weather data, RSS feeds, custom text messages, and more. The Roonmatrix is a free maker project, and describes step by step how to build your own LED matrix display hardware. And with this app you can configure your hardware extensively, and specify from which sources the text to display is composed. With the app you can send text messages directly to your device, control the display speed, brightness and much more.
@@ -49,18 +49,18 @@ parts:
     flutter-target: lib/main.dart
   
     build-environment:
-      - SERIOUS_PYTHON_SITE_PACKAGES: "$CRAFT_PROJECT_DIR/app/src/__pypackages__"
+      - SERIOUS_PYTHON_SITE_PACKAGES: "$CRAFT_PROJECT_DIR/build/site-packages"
+      - SERIOUS_PYTHON_APP: "$CRAFT_PROJECT_DIR/build/app"
   
     build-snaps: [flutter/latest/stable]
 
     override-build: |
-      export SERIOUS_PYTHON_SITE_PACKAGES="$CRAFT_PROJECT_DIR/app/src/__pypackages__"
+      export SERIOUS_PYTHON_SITE_PACKAGES="$CRAFT_PROJECT_DIR/build/site-packages"
+      export SERIOUS_PYTHON_APP="$CRAFT_PROJECT_DIR/build/app"
 
       cd packages/python_backend
 
-      dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
-
-      dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
+      dart run serious_python:main package ../../app/src -p Linux -r -r -r ../../app/src/requirements.txt
 
       cd ../../
 

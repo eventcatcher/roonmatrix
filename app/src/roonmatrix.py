@@ -6778,7 +6778,10 @@ if 'configs_dir' in environ:
 
 
 # get current path
-current_path = (path.dirname(path.abspath(__file__)) + '/').replace('\\','/')
+if is_raspberry_pi:
+    current_path = (path.dirname(path.abspath(__file__)) + '/').replace('\\','/')
+else:
+    current_path = configs_dir
 
 # get configs dir
 if is_raspberry_pi:

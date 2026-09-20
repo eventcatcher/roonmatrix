@@ -22,7 +22,7 @@ mkdir -p "$APPDIR/usr/share/icons/hicolor/256x256/apps"
 mkdir -p "$APPDIR/usr/share/applications"
 mkdir -p "$APPDIR/usr/bin/lib"
 mkdir -p "$APPDIR/usr/bin/site-packages"
-mkdir -p "$APPDIR/usr/bin/python3.12"
+mkdir -p "$APPDIR/usr/bin/python3.14"
 
 # -----------------------------
 # Extract version
@@ -72,15 +72,15 @@ fi
 # -------------------
 # Copy Flutter python
 # -------------------
-FLUTTER_PYTH_DIR_X64="$PROJECT_ROOT/build/linux/x64/release/bundle/python3.12"
-FLUTTER_PYTH_DIR_GENERIC="$PROJECT_ROOT/build/linux/release/bundle/python3.12"
+FLUTTER_PYTH_DIR_X64="$PROJECT_ROOT/build/linux/x64/release/bundle/python3.14"
+FLUTTER_PYTH_DIR_GENERIC="$PROJECT_ROOT/build/linux/release/bundle/python3.14"
 
 if [ -d "$FLUTTER_PYTH_DIR_X64" ]; then
   echo "Copying Flutter Python from x64..."
-  cp -r "$FLUTTER_PYTH_DIR_X64/"* "$APPDIR/usr/bin/python3.12/"
+  cp -r "$FLUTTER_PYTH_DIR_X64/"* "$APPDIR/usr/bin/python3.14/"
 elif [ -d "$FLUTTER_PYTH_DIR_GENERIC" ]; then
   echo "Copying Flutter Python from generic path..."
-  cp -r "$FLUTTER_PYTH_DIR_GENERIC/"* "$APPDIR/usr/bin/python3.12/"
+  cp -r "$FLUTTER_PYTH_DIR_GENERIC/"* "$APPDIR/usr/bin/python3.14/"
 else
   echo "WARNING: No Python directory found"
 fi
@@ -110,16 +110,11 @@ cp "$ICON_SRC" "$ICON_FILE"
 # Local Flutter build
 # -----------------------------
 if [ -z "${GITHUB_ACTIONS:-}" ]; then
-  echo "build Python packages (1st run).."
-  export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/app/src/__pypackages__  
+  echo "build Python packages..."
+  export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
+  export SERIOUS_PYTHON_APP=$(pwd)/build/app
   cd packages/python_backend
-  dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
-  cd ../../
-
-  echo "build Python packages (2nd run)..."
-  export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/app/src/__pypackages__  
-  cd packages/python_backend
-  dart run serious_python:main package ../../app/src -p Linux --asset assets/backend/roonmatrix.zip -r -r -r ../../app/src/requirements.txt
+  dart run serious_python:main package ../../app/src -p Linux -r -r -r ../../app/src/requirements.txt
   cd ../../
 
   echo "Running local Flutter build..."
@@ -174,7 +169,8 @@ export GDK_GL=gles
 export GDK_FRAME_CLOCK=stable
 
 # python in-app packages folder
-export SERIOUS_PYTHON_SITE_PACKAGES="$PROJECT_ROOT/app/src/__pypackages__"
+export SERIOUS_PYTHON_SITE_PACKAGES="$PROJECT_ROOT/build/site-packages"
+export SERIOUS_PYTHON_APP="$PROJECT_ROOT/build/app"
 
 exec "$HERE/usr/bin/Roonmatrix" "$@"
 EOF

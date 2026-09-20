@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:serious_python/serious_python.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,11 +13,10 @@ Future<void> pythonRuntimeInit() async {
   final dir = await getApplicationSupportDirectory();
 
   String? response = await SeriousPython.run(
-    'packages/python_backend/assets/backend/roonmatrix.zip',
     appFileName: 'roonmatrix.py',
     environmentVariables: {
       "embedded": "true",
-      "platform": "ios", // Platform.operatingSystem,
+      "platform": Platform.operatingSystem,
       "configs_dir": dir.path,
     },
   );
