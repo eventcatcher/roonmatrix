@@ -129,11 +129,6 @@ parser.add_argument("-e", "--embedded", default=False, action='store_true',
 args = parser.parse_args()
 is_app_embedded = args.embedded
 
-if is_app_embedded is True:
-    import feedparser
-else:
-    import fastfeedparser
-
 # parse env
 if startlog is True:
     print('parse env now...')
@@ -152,6 +147,11 @@ if is_app_embedded is False and 'embedded' in environ:
 if startlog is True:
     print('started as app embedded script: ' + str(is_app_embedded))
     print('')
+
+if is_app_embedded is True:
+    import feedparser
+else:
+    import fastfeedparser
 
 # set important vars
 use_fastapi_on_pi = True # use fastapi package on raspberry pi devices
