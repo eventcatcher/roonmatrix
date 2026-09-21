@@ -22,6 +22,7 @@ APP_NAME = "roonmatrix"
 startlog = True		# default true: log start and config information
 errorlog = True		# default true: log errors
 log = True			# default true: log infos on or off
+log_startup = True	# default false: log basic infos of startup process
 
 debug = False		# default false: log debug messages (memory and variable information)
 silent = False		# default False: print no warnings and no error messages to the console output
@@ -96,6 +97,14 @@ def log_exception(exc_type, exc_value, exc_traceback):
     )
     with open(crashlog_file, "a", encoding="utf-8") as f:
         traceback.print_exception(exc_type, exc_value, exc_traceback, file=f)
+
+def log_startup_info(textlines):
+    startup_log_file = os.path.join(
+        tempfile.gettempdir(),
+        "roonmatrix_python_start.log"
+    )
+    with open(startup_log_file, "a", encoding="utf-8") as f:
+        f.writelines( textlines )
 
 sys.excepthook = log_exception
 
@@ -6835,6 +6844,22 @@ else:
 # get core id and token file paths
 idfile = roon_write_path + 'coreid.txt'
 tokenfile = roon_write_path + 'roontoken.txt'
+
+if is_app_embedded is True and log_startup is True:
+    textlines = []
+    textlines.append('date: ' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\n')
+    textlines.append('platform: ' + str(platform) + '\n')
+    textlines.append('tempfile: ' + tempfile.gettempdir() + '\n')
+    textlines.append('configs_dir: ' + str(configs_dir) + '\n')
+    textlines.append('current_path: ' + str(current_path) + '\n')
+    textlines.append('base_translations_path: ' + str(base_translations_path) + '\n')
+    textlines.append('TEMP_STATE_FILE: ' + str(TEMP_STATE_FILE) + '\n')
+    textlines.append('configReadFile: ' + str(configReadFile) + '\n')
+    textlines.append('configWriteFile: ' + str(configWriteFile) + '\n')
+    textlines.append('roon_write_path: ' + str(roon_write_path) + '\n')
+    textlines.append('environ: ' + str(environ) + '\n')
+    textlines.append('---\n')
+    log_startup_info(textlines)
 
 # read config file
 if startlog is True:
