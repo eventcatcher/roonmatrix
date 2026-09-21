@@ -16,7 +16,7 @@ Future<void> pythonRuntimeInit() async {
     appFileName: 'roonmatrix.py',
     environmentVariables: {
       "embedded": "true",
-      "platform": "ios", // Platform.operatingSystem,
+      "platform": Platform.operatingSystem,
       "configs_dir": dir.path,
     },
   );

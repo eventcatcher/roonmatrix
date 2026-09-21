@@ -6789,15 +6789,16 @@ if 'platform' in environ:
 
 # get optional configs_dir property (in-app)
 configs_dir = None
-if 'configs_dir' in environ:
-    configs_dir = str(environ['configs_dir'] + '/').replace('\\','/')
+if is_app_embedded is True:
+    current_path = environ['PYTHONHOME'] + '/app/'
+    configs_dir = current_path + 'config/'
 
+#if 'configs_dir' in environ:
+#    configs_dir = str(environ['configs_dir'] + '/').replace('\\','/')
 
 # get current path
 if is_raspberry_pi:
     current_path = (path.dirname(path.abspath(__file__)) + '/').replace('\\','/')
-else:
-    current_path = configs_dir
 
 # get configs dir
 if is_raspberry_pi:
@@ -6835,10 +6836,11 @@ if startlog is True:
 
 # get roon config read and write paths  
 if is_app_embedded is True:
-    if path.exists(configs_dir + 'roon_api.ini'):
-        roon_config_path = configs_dir
-    else:
-        roon_config_path = current_path + 'config/'
+    #if path.exists(configs_dir + 'roon_api.ini'):
+    #    roon_config_path = configs_dir
+    #else:
+    #    roon_config_path = current_path + 'config/'
+    roon_config_path = environ['PYTHONHOME'] + '/app/config/'
     roon_write_path = configs_dir
     configReadFile = roon_config_path + 'roon_api.ini'
     configWriteFile = roon_write_path + 'roon_api.ini'
