@@ -111,6 +111,7 @@ cp "$ICON_SRC" "$ICON_FILE"
 # -----------------------------
 if [ -z "${GITHUB_ACTIONS:-}" ]; then
   echo "build Python packages..."
+  export SERIOUS_PYTHON_VERSION=3.14
   export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
   export SERIOUS_PYTHON_APP=$(pwd)/build/app
   cd packages/python_backend
@@ -169,6 +170,7 @@ export GDK_GL=gles
 export GDK_FRAME_CLOCK=stable
 
 # python in-app packages folder
+export SERIOUS_PYTHON_VERSION="3.14"
 export SERIOUS_PYTHON_SITE_PACKAGES="$PROJECT_ROOT/build/site-packages"
 export SERIOUS_PYTHON_APP="$PROJECT_ROOT/build/app"
 

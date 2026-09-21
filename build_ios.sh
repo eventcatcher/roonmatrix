@@ -10,6 +10,7 @@ cd ios
 pod install
 cd ..
 
+export SERIOUS_PYTHON_VERSION=3.14
 export SERIOUS_PYTHON_SITE_PACKAGES=$(pwd)/build/site-packages
 export SERIOUS_PYTHON_APP=$(pwd)/build/app
 export SERIOUS_PYTHON_BUNDLE_ID=de.eventcatcher.roonmatrix

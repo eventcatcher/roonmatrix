@@ -14,6 +14,7 @@ rd /s /q "%userprofile%\AppData\Roaming\de.eventcatcher\roonmatrix\flet"
 echo Running flutter pub get...
 call fvm flutter pub get
 
+set "SERIOUS_PYTHON_VERSION=3.14"
 set "SERIOUS_PYTHON_SITE_PACKAGES=%userprofile%\dev\gits\roonmatrix\build\site-packages"
 set "SERIOUS_PYTHON_APP=%userprofile%\dev\gits\roonmatrix\build\app"
 cd packages/python_backend

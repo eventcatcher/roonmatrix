@@ -15,4 +15,4 @@ pyweatherbit
 certifi
 websockets==13.1
 platformdirs
-fastfeedparser
+feedparser

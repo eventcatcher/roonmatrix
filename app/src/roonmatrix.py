@@ -75,7 +75,6 @@ import zlib
 import ssl
 from roonapi import RoonApi, RoonDiscovery
 from weatherbit.api import Api
-import fastfeedparser
 from spotify_connect import SpotifyConnect
 
 # In Windows, sys.stderr and/or sys.stdout inside Python runtime (serious_python) is not working and results in a exception which will stop running the script. 
@@ -129,6 +128,11 @@ parser.add_argument("-e", "--embedded", default=False, action='store_true',
                     help="started as app embedded script")
 args = parser.parse_args()
 is_app_embedded = args.embedded
+
+if is_app_embedded is True:
+    import feedparser
+else:
+    import fastfeedparser
 
 # parse env
 if startlog is True:
@@ -5678,7 +5682,10 @@ def get_rss_feed(displaystr):
             name = data['name']
             max = data['count']
  
-            feed = fastfeedparser.parse(data['url'])
+            if is_app_embedded is True:
+                feed = feedparser.parse(data['url'])
+            else:
+                feed = fastfeedparser.parse(data['url'])
 
             for entry in feed.entries:
                 count += 1
