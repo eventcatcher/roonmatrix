@@ -5,6 +5,7 @@ abstract class MainState extends Equatable {
   final DateTime? update;
   final String? ipStart;
   final String? ipEnd;
+  final String localHostIp;
   final Map<String, String> searchFilter;
   final List<String> devices;
   final String? activeDeviceIp;
@@ -35,6 +36,7 @@ abstract class MainState extends Equatable {
     this.update,
     this.ipStart,
     this.ipEnd,
+    this.localHostIp = '127.0.0.1',
     this.searchFilter = const {"main": "", "info": "", "config": "", "log": ""},
     this.devices = const [],
     this.activeDeviceIp,
@@ -66,6 +68,7 @@ abstract class MainState extends Equatable {
     DateTime? update,
     String? ipStart,
     String? ipEnd,
+    String? localHostIp,
     Map<String, String>? searchFilter,
     List<String>? devices,
     String? activeDeviceIp,
@@ -96,6 +99,7 @@ abstract class MainState extends Equatable {
       update: update ?? this.update,
       ipStart: ipStart ?? this.ipStart,
       ipEnd: ipEnd ?? this.ipEnd,
+      localHostIp: localHostIp ?? this.localHostIp,
       searchFilter: searchFilter ?? this.searchFilter,
       devices: devices ?? this.devices,
       activeDeviceIp: activeDeviceIp ?? this.activeDeviceIp,
@@ -129,6 +133,7 @@ abstract class MainState extends Equatable {
   @override
   List<Object> get props {
     List<Object> props = [
+      localHostIp,
       searchFilter,
       devices,
       selectedDeviceIp,
@@ -187,6 +192,7 @@ class MainStateLoaded extends MainState {
     required super.update,
     required super.ipStart,
     required super.ipEnd,
+    required super.localHostIp,
     required super.searchFilter,
     required super.devices,
     required super.activeDeviceIp,

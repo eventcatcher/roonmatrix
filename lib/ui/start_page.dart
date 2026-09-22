@@ -19,6 +19,7 @@ import 'package:roonmatrix/ui/layout/loading_indicator_big.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_ios_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/shared_widgets.dart';
+import 'package:roonmatrix/ui/layout/virtual_device_info.dart';
 import 'package:roonmatrix/ui/layout/zone_start_buttons.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
 import 'package:roonmatrix/ui/main/main_state.dart';
@@ -174,6 +175,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 settingsState.miniPlayerShowTextInfoOnTrackChange;
             int miniPlayerTextInfoDuration =
                 settingsState.miniPlayerTextInfoDuration;
+            bool startInAppDeviceServer = settingsState.startInAppDeviceServer;
 
             scrollSpeedDeviceMap = settingsState.scrollSpeedDeviceMap;
 
@@ -326,6 +328,15 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                 translations: translations,
                                 logMessage: mainState.logMessage,
                               ),
+                            VirtualDeviceInfo(
+                              translations: translations,
+                              show:
+                                  startInAppDeviceServer == true &&
+                                  !mainState.info.containsKey(
+                                    mainState.localHostIp,
+                                  ),
+                              withAnimation: true,
+                            ),
                             Expanded(
                               flex: 1,
                               child: idle == true

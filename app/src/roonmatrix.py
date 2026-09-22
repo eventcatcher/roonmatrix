@@ -779,6 +779,7 @@ def setGlobalVarsFromConfigData():
 
     var['led_modules'] = int(config['SYSTEM']['led_modules']) # number of led matrix modules (8x8 led)
 
+    var['config_version'] = config['SYSTEM']['config_version'] if 'config_version' in config['SYSTEM'] else '' # if new configuration properties have been added, the configuration must be replaced with the new one
     var['updated_at'] = config['SYSTEM']['updated_at'] if 'updated_at' in config['SYSTEM'] else str(datetime.now()) # datetime to saved config last time
     var['led_block_orientation'] = int(config['SYSTEM']['led_block_orientation']) # led block_orientation in degrees
     var['led_rotate'] = int(config['SYSTEM']['led_rotate']) # led rotation
@@ -883,6 +884,7 @@ def getInfoData():
     return {
         "time": timeStr,
         "name": hostName,
+        "config_version": config_version,
         "scriptVersion": scriptVersion,
         "is_app_embedded": is_app_embedded,
         "is_raspberry_pi": is_raspberry_pi,
@@ -1976,6 +1978,7 @@ def getConfigData():
                     {
                         "name": "SYSTEM",
                         "items": [
+                            {"name": "config_version", "editable": False, "type": {"type": "string", "structure": []}, "label": "Configuration version", "unit": "", "value": config['SYSTEM']['config_version'] if 'config_version' in config['SYSTEM'] else "init"},
                             {"name": "hostname", "editable": True, "type": {"type": "string(5,32)", "structure": []}, "label": "Hostname (Important)", "unit": "5-32", "value": hostName},
                             {"name": "password", "editable": True, "type": {"type": "string(8,64)", "structure": []}, "label": "Password (Important)", "unit": "8-64", "value": "********"},
                             {"name": "countrycode", "editable": True, "type": {"type": "string(2,4)", "structure": []}, "label": "Countrycode (auto or 2 chars code)", "unit": "2-4", "value": config['SYSTEM']['countrycode']},
@@ -2068,6 +2071,7 @@ def getConfigData():
                     {
                         "name": "SYSTEM",
                         "items": [
+                            {"name": "config_version", "editable": False, "type": {"type": "string", "structure": []}, "label": "Configuration version", "unit": "", "value": config['SYSTEM']['config_version'] if 'config_version' in config['SYSTEM'] else "init"},
                             {"name": "countrycode", "editable": True, "type": {"type": "string(2,4)", "structure": []}, "label": "Countrycode (auto or 2 chars code)", "unit": "2-4", "value": config['SYSTEM']['countrycode']},
                             {"name": "led_scroll_delay", "editable": True, "type": {"type": "int(12,50)", "structure": []}, "label": "LED scroll delay", "unit": "12-50 ms", "value": config['SYSTEM']['led_scroll_delay']},
                             {"name": "led_vertical_scroll_delay", "editable": True, "type": {"type": "int(12,200)", "structure": []}, "label": "LED vertical scroll delay (line by line)", "unit": "12-200 ms", "value": config['SYSTEM']['led_vertical_scroll_delay']},
@@ -2176,6 +2180,7 @@ def getConfigData():
                 {
                     "name": "SYSTEM",
                     "items": [
+                        {"name": "config_version", "editable": False, "type": {"type": "string", "structure": []}, "label": "Configuration version", "unit": "", "value": config['SYSTEM']['config_version'] if 'config_version' in config['SYSTEM'] else "init"},
                         {"name": "hostname", "editable": True, "type": {"type": "string(5,32)", "structure": []}, "label": "Hostname (Important)", "unit": "5-32", "value": hostName},
                         {"name": "password", "editable": True, "type": {"type": "string(8,64)", "structure": []}, "label": "Password (Important)", "unit": "8-64", "value": "********"},
                         {"name": "countrycode", "editable": True, "type": {"type": "string(2,4)", "structure": []}, "label": "Countrycode (auto or 2 chars code)", "unit": "2-4", "value": config['SYSTEM']['countrycode']},
@@ -6836,7 +6841,18 @@ if startlog is True:
 # get roon config read and write paths  
 if is_app_embedded is True:
     if path.exists(configs_dir + 'roon_api.ini'): # check version too
-        roon_config_path = configs_dir
+        config_exist = configparser.ConfigParser()
+        config_exist.read(configs_dir + 'roon_api.ini')
+        config_version_exist = config_exist['SYSTEM']['config_version'] if 'config_version' in config_exist['SYSTEM'] else ''
+
+        config_new = configparser.ConfigParser()
+        config_new.read(environ['PYTHONHOME'] + '/app/config/roon_api.ini')
+        config_version_new = config_new['SYSTEM']['config_version'] if 'config_version' in config_new['SYSTEM'] else ''
+        
+        if config_version_exist == config_version_new:
+            roon_config_path = configs_dir
+        else:
+            roon_config_path = environ['PYTHONHOME'] + '/app/config/'
     else:
         roon_config_path = environ['PYTHONHOME'] + '/app/config/'
     roon_write_path = configs_dir
@@ -6852,11 +6868,19 @@ else:
 idfile = roon_write_path + 'coreid.txt'
 tokenfile = roon_write_path + 'roontoken.txt'
 
+# read config file
+if startlog is True:
+    print('read main ini')
+config = configparser.ConfigParser()
+config.read(configReadFile)
+cv = config['SYSTEM']['config_version'] if 'config_version' in config['SYSTEM'] else ''
+
 if is_app_embedded is True and log_startup is True:
     textlines = []
     textlines.append('date: ' + datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\n')
     textlines.append('platform: ' + str(platform) + '\n')
     textlines.append('tempfile: ' + tempfile.gettempdir() + '\n')
+    textlines.append('config_version: ' + str(cv) + '\n')
     textlines.append('configs_dir: ' + str(configs_dir) + '\n')
     textlines.append('current_path: ' + str(current_path) + '\n')
     textlines.append('base_translations_path: ' + str(base_translations_path) + '\n')
@@ -6867,12 +6891,6 @@ if is_app_embedded is True and log_startup is True:
     textlines.append('environ: ' + str(environ) + '\n')
     textlines.append('---\n')
     log_startup_info(textlines)
-
-# read config file
-if startlog is True:
-    print('read main ini')
-config = configparser.ConfigParser()
-config.read(configReadFile)
 
 # get part of config data
 translation_hash = config['LANGUAGE']['translation_hash']

@@ -17,8 +17,7 @@ cd packages/python_backend
 fvm dart run serious_python:main package ../../app/src -p Darwin -r -r -r ../../app/src/requirements.txt
 cd ../../
 
-find build/site-packages/ -type d -name 'charset_normalizer*' -exec rm -r {} \;
-find build/site-packages/websockets -type f -name '*.so' -exec rm {} \;
+#find build/site-packages -type f -name '*.so' -exec rm -f {} +
 
 fvm flutter build macos
 #fvm flutter run --release

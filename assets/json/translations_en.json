@@ -188,7 +188,9 @@
     "restartAppConfirmationConfirmText": "Yes",
     "restartAppConfirmationCancelText": "Later",
     "spotifyConnectAuthUrlMissing": "Spotify Connect Login URL is missing...",
+    "startingVirtualDeviceInfo": "Starting virtual device",
     "config": {
+        "config_version": "Configuration version",
         "hostname": "Hostname (Important)",
         "password": "Password (Important)",
         "countrycode": "Countrycode (auto or 2 chars code ISO-639 Set 1)",

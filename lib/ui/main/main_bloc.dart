@@ -79,11 +79,25 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     // ====================== //
     on<MainEvent>((event, emit) async {
       if (event is MainStateLoadDefaults) {
+        String localHostIp = '127.0.0.1';
+        try {
+          final info = NetworkInfo();
+          localHostIp = (await info.getWifiIP()) ?? '127.0.0.1';
+        } catch (e) {
+          debugPrint(
+            'error to get network ip: $e => use fallback to 127.0.0.1',
+          );
+        }
+
         if (Platform.isMacOS) {
           String macosVersion = await Globals.getMacosVersion();
 
           emit(
-            state.copyWith(update: DateTime.now(), macosVersion: macosVersion),
+            state.copyWith(
+              update: DateTime.now(),
+              macosVersion: macosVersion,
+              localHostIp: localHostIp,
+            ),
           );
         }
         if (Platform.isIOS) {
@@ -97,6 +111,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               update: DateTime.now(),
               ipStart: state.ipStart,
               ipEnd: state.ipEnd,
+              localHostIp: localHostIp,
               searchFilter: state.searchFilter,
               devices: [],
               activeDeviceIp: null,
@@ -1632,14 +1647,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     final List<String> found = [];
     const timeout = Duration(milliseconds: 300);
 
-    String localHostIp = '127.0.0.1';
-    try {
-      final info = NetworkInfo();
-      localHostIp = (await info.getWifiIP()) ?? '127.0.0.1';
-    } catch (e) {
-      debugPrint('error to get network ip: $e => use fallback to 127.0.0.1');
-    }
-    debugPrint('virtual in-app device ip: $localHostIp');
+    debugPrint('virtual in-app device ip: ${state.localHostIp}');
 
     // get debug log in linux snap:
     // final file = File('/home/parallels/flutter_debug.log');
@@ -1650,13 +1658,13 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     if (withLocalHostIp == true) {
       futures.add(
-        isPortOpen(localHostIp, port, timeout).then((open) {
+        isPortOpen(state.localHostIp, port, timeout).then((open) {
           if (open) {
             if (kDebugMode) {
-              debugPrint('Open: $localHostIp:$port');
+              debugPrint('Open: $state.localHostIp:$port');
             }
-            found.add(localHostIp);
-            inAppVirtualDeviceIp = localHostIp;
+            found.add(state.localHostIp);
+            inAppVirtualDeviceIp = state.localHostIp;
           }
         }),
       );
@@ -1664,7 +1672,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     for (int i = start; i <= end; i++) {
       String ip = '$subnet.$i';
-      if (ip != localHostIp || !withLocalHostIp) {
+      if (ip != state.localHostIp || !withLocalHostIp) {
         futures.add(
           isPortOpen(ip, port, timeout).then((open) {
             if (open) {

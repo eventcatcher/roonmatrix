@@ -10,6 +10,4 @@ cd packages/python_backend
 fvm dart run serious_python:main package ../../app/src -p Linux -r -r -r ../../app/src/requirements.txt
 cd ../../
 
-#find build/site-packages -type f -name '*.so' -exec rm -f {} +
-
 fvm flutter build linux --release

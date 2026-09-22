@@ -18,7 +18,6 @@ cd packages/python_backend
 fvm dart run serious_python:main package ../../app/src -p iOS -r -r -r ../../app/src/requirements.txt
 cd ../../
 
-find build/site-packages/iphoneos.arm64 -type d -name 'opt' -exec rm -r {} \;
-find build/site-packages/iphoneos.arm64/PIL -type f -name '*.so' -exec rm {} \;
+#find build/site-packages -type f -name '*.so' -exec rm -f {} +
 
 fvm flutter build ipa --release

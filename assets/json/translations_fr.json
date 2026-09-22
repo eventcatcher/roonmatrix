@@ -188,7 +188,9 @@
     "restartAppConfirmationConfirmText": "Oui",
     "restartAppConfirmationCancelText": "Plus tard",
     "spotifyConnectAuthUrlMissing": "L'URL de connexion à Spotify Connect est manquante...",
+    "startingVirtualDeviceInfo": "Démarrage d'un périphérique virtuel",
     "config": {
+        "config_version": "Version de configuration",
 		"hostname": "Nom d'hôte (important)",
         "password": "Mot de passe (important)",
         "countrycode": "Code pays (code auto ou à 2 caractères ISO-639 Set 1)",
