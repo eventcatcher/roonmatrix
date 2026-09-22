@@ -21,6 +21,7 @@ class MobilePageButtons extends StatefulWidget {
   final Map<String, dynamic> zoneData;
   final Size minDesktopSize;
   final Size standardDesktopSize;
+  final double maxWidth;
   final bool bigExpandableButtonSize;
   final Function({required bool mode}) isExpanded;
   final Function({required String url}) setSpotifyAuthRedirectUrl;
@@ -36,6 +37,7 @@ class MobilePageButtons extends StatefulWidget {
     required this.zoneData,
     required this.minDesktopSize,
     required this.standardDesktopSize,
+    required this.maxWidth,
     this.bigExpandableButtonSize = false,
     required this.isExpanded,
     required this.setSpotifyAuthRedirectUrl,
@@ -55,6 +57,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
   Map<String, dynamic> get zoneData => widget.zoneData;
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
+  double get maxWidth => widget.maxWidth;
   bool get bigExpandableButtonSize => widget.bigExpandableButtonSize;
   Function({required bool mode}) get isExpanded => widget.isExpanded;
   Function({required String url}) get setSpotifyAuthRedirectUrl =>
@@ -71,6 +74,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
   void initState() {
     isExpanded(mode: false);
     generateButtons();
+
     super.initState();
   }
 
@@ -301,6 +305,7 @@ class _MobilePageButtonsState extends State<MobilePageButtons> {
             ), // main item expandable for mobile
             width: getExpandableButtonSize(),
             height: getExpandableButtonSize(),
+            maxWidth: maxWidth,
             animationSpeed: animationSpeed,
             backgroundColor: ColorDefs.buttonRowBackgroundColor(
               context: context,

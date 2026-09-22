@@ -106,7 +106,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
   bool get forceTickerUpdateActive => widget.forceTickerUpdateActive;
   void Function(String caller) get updateSizes => widget.updateSizes;
 
-  final bool bigExpandableButtonSizeOnDesktop = false;
+  final bool bigExpandableButtonSizeOnDesktop = true;
   final bool bigExpandableButtonSizeOnMobile = true;
 
   final int cyclePause = 2;
@@ -910,6 +910,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
                     zoneData: i,
                     minDesktopSize: minDesktopSize,
                     standardDesktopSize: standardDesktopSize,
+                    maxWidth: MediaQuery.of(context).size.width - 16,
                     bigExpandableButtonSize:
                         (Globals.isMobileDevice() &&
                             bigExpandableButtonSizeOnMobile) ||

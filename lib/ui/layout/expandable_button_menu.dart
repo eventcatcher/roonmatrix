@@ -13,6 +13,9 @@ class ExpandableButtonMenu extends StatefulWidget {
   /// This property declare height of widget.
   final double height;
 
+  /// This property declare max width of widget.
+  final double maxWidth;
+
   /// This property will contains items in list of menu.
   final List<Widget> items;
 
@@ -43,6 +46,7 @@ class ExpandableButtonMenu extends StatefulWidget {
     super.key,
     this.width = 70.0,
     this.height = 70.0,
+    required this.maxWidth,
     required this.items,
     this.backgroundColor = const Color(0xFF4B5042),
     this.iconColor = Colors.white,
@@ -61,6 +65,7 @@ class ExpandableButtonMenuState extends State<ExpandableButtonMenu>
     with TickerProviderStateMixin {
   double get width => widget.width;
   double get height => widget.height;
+  double get maxWidth => widget.maxWidth;
   List<Widget> get items => widget.items;
   Color get backgroundColor => widget.backgroundColor;
   Color get iconColor => widget.iconColor;
@@ -80,6 +85,8 @@ class ExpandableButtonMenuState extends State<ExpandableButtonMenu>
       ExpandableMenuController();
 
   final double buttonPadding = 8.0;
+
+  final double toggleButtonAndCoverWidth = 136;
 
   /// This private property declare items in widgets.
   List<Widget> _listWidget = <Widget>[];
@@ -149,12 +156,7 @@ class ExpandableButtonMenuState extends State<ExpandableButtonMenu>
     super.initState();
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      _listWidth =
-          (width * Globals.mobileExpandableInnerIconSizeFactor +
-              buttonPadding) *
-          items.length; // add padding width to each item
-      _width =
-          _listWidth + width; // width of icons with padding plus toggle icon
+      updateWidth();
     });
   }
 
@@ -165,8 +167,20 @@ class ExpandableButtonMenuState extends State<ExpandableButtonMenu>
         'ExpandableButtonMenu didUpdateWidget (items: ${items.length})',
       );
     }
+    updateWidth();
+
     _listWidget = items;
     super.didUpdateWidget(oldWidget);
+  }
+
+  void updateWidth() {
+    _listWidth =
+        (width * Globals.mobileExpandableInnerIconSizeFactor + buttonPadding) *
+        items.length; // add padding width to each item
+    if ((_listWidth + toggleButtonAndCoverWidth) > maxWidth) {
+      _listWidth = maxWidth - toggleButtonAndCoverWidth;
+    }
+    _width = _listWidth + width; // width of icons with padding plus toggle icon
   }
 
   @override
