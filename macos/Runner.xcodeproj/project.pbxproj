@@ -187,6 +187,7 @@
 				3399D490228B24CF009A79C7 /* ShellScript */,
 				85B6622F4D50B37BEBF47A6C /* [CP] Embed Pods Frameworks */,
 				2EDF8ACC7D64AD0AA875D002 /* [CP] Copy Pods Resources */,
+				AF3D30B73064435000C4E426 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -327,6 +328,24 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		AF3D30B73064435000C4E426 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "find \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\" -type f \\( -name \"*.so\" -o -name \"*.dylib\" \\) -exec codesign --force --sign - {} +\n";
 		};
 		E946041904A6B9BA09648345 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
