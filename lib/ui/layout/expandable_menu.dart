@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/ui/layout/expandable.icon.dart';
 
 /// This class is main class of [ExpandableMenu] widget.
@@ -189,6 +190,10 @@ class ExpandableMenuState extends State<ExpandableMenu>
           constraints: BoxConstraints(minWidth: width, minHeight: height),
           decoration: BoxDecoration(
             color: backgroundColor,
+            border: Border.all(
+              color: ColorDefs.expandableButtonBorderColor(context: context),
+              width: 1,
+            ),
             borderRadius: BorderRadius.all(
               Radius.circular(width >= height ? width : height),
             ),
@@ -197,7 +202,7 @@ class ExpandableMenuState extends State<ExpandableMenu>
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(width: width * .15),
+              SizedBox(width: width * .13),
               ExpandableIcon(
                 width: width,
                 height: height,

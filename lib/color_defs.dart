@@ -79,6 +79,20 @@ class ColorDefs {
     return Theme.of(context).colorScheme.inverseSurface;
   }
 
+  static Color expandableButtonBorderColor({required BuildContext context}) {
+    if (Globals.inIosStyle()) {
+      return Globals.brightness() == Brightness.dark
+          ? CupertinoColors.inactiveGray
+          : CupertinoColors.white;
+    }
+    if (Globals.inMacosStyle()) {
+      return Globals.brightness() == Brightness.dark
+          ? MacosColors.systemGrayColor
+          : MacosColors.white;
+    }
+    return Theme.of(context).colorScheme.inverseSurface;
+  }
+
   static Color iconColor({required BuildContext context}) =>
       textColor(context: context);
 

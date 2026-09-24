@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/expandable_buttons_icon.dart';
 
@@ -86,7 +87,7 @@ class ExpandableButtonMenuState extends State<ExpandableButtonMenu>
 
   final double buttonPadding = 8.0;
 
-  final double toggleButtonAndCoverWidth = 136;
+  final double toggleButtonAndCoverWidth = 140;
 
   /// This private property declare items in widgets.
   List<Widget> _listWidget = <Widget>[];
@@ -207,50 +208,65 @@ class ExpandableButtonMenuState extends State<ExpandableButtonMenu>
         Container(width: 20.0), // left margin before menu part
         Container(
           clipBehavior: Clip.antiAlias,
-          width: _width * _containerProgress,
-          constraints: BoxConstraints(minWidth: width, minHeight: height),
+          height: height,
           decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.all(
-              Radius.circular(width >= height ? width : height),
+            color: ColorDefs.tileBackgroundColor(context: context),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(height),
+              bottomLeft: Radius.circular(height),
             ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(width: width * .15),
-              ExpandableButtonIcon(
-                width: width,
-                height: height,
-                iconColor: iconColor,
-                animationSpeed: animationSpeed,
-                controller: _iconController,
-                onClicked: () {
-                  onExpandableIconClicked();
-                },
+          child: Container(
+            clipBehavior: Clip.antiAlias,
+            width: _width * _containerProgress,
+            constraints: BoxConstraints(minWidth: width, minHeight: height),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border.all(
+                color: ColorDefs.expandableButtonBorderColor(context: context),
+                width: 1,
               ),
-              SizedBox(
-                width: _containerProgress < 0.9
-                    ? 0
-                    : _listWidth * _containerProgress,
-                height: height - 8,
-                child: Directionality(
-                  textDirection: _listWidget.length > 1
-                      ? Directionality.of(context) == TextDirection.rtl
-                            ? TextDirection.ltr
-                            : TextDirection.rtl
-                      : TextDirection.ltr,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16.0),
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: _listWidget,
+              borderRadius: BorderRadius.all(
+                Radius.circular(width >= height ? width : height),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(width: width * .15),
+                ExpandableButtonIcon(
+                  width: width,
+                  height: height,
+                  iconColor: iconColor,
+                  animationSpeed: animationSpeed,
+                  controller: _iconController,
+                  onClicked: () {
+                    onExpandableIconClicked();
+                  },
+                ),
+                SizedBox(
+                  width: _containerProgress < 0.9
+                      ? 0
+                      : _listWidth * _containerProgress,
+                  height: height - 8,
+                  child: Directionality(
+                    textDirection: _listWidget.length > 1
+                        ? Directionality.of(context) == TextDirection.rtl
+                              ? TextDirection.ltr
+                              : TextDirection.rtl
+                        : TextDirection.ltr,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(height / 2),
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: _listWidget,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
