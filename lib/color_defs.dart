@@ -90,7 +90,7 @@ class ColorDefs {
           ? MacosColors.systemGrayColor
           : MacosColors.white;
     }
-    return Theme.of(context).colorScheme.inverseSurface;
+    return Globals.brightness() == Brightness.dark ? Colors.grey : Colors.white;
   }
 
   static Color iconColor({required BuildContext context}) =>
