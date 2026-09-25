@@ -292,3 +292,10 @@ class SetTileExpanded extends MainEvent {
   @override
   List<Object> get props => [name, expanded];
 }
+
+class ResetVirtualDevice extends MainEvent {
+  const ResetVirtualDevice();
+
+  @override
+  List<Object> get props => [];
+}

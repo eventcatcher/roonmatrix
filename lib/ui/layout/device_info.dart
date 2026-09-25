@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:intl/intl.dart';
+import 'package:language_code/language_code.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/model/ping_data.dart';
 import 'package:roonmatrix/ui/layout/ripple_ping.dart';
 
 class DeviceInfo extends StatefulWidget {
@@ -10,7 +13,7 @@ class DeviceInfo extends StatefulWidget {
   final String ip;
   final Map<String, dynamic> info;
   final bool connected;
-  final bool ping;
+  final PingData? pingData;
   final double height;
   final VoidCallback onFinishedPing;
 
@@ -19,7 +22,7 @@ class DeviceInfo extends StatefulWidget {
     required this.translations,
     required this.ip,
     required this.connected,
-    required this.ping,
+    required this.pingData,
     required this.info,
     required this.height,
     required this.onFinishedPing,
@@ -133,11 +136,14 @@ class _DeviceInfoState extends State<DeviceInfo> {
               SizedBox(width: 16.0),
               Tooltip(
                 message:
-                    widget.translations['devicePingStatusLabel'] ??
-                    'Device response received',
+                    (widget.translations['devicePingStatusLabel'] ??
+                        'Device response received') +
+                    (widget.pingData != null
+                        ? ' (${DateFormat.yMd(LanguageCode.code.locale.languageCode).add_jms().format(widget.pingData!.updatedAt)})'
+                        : ''),
                 waitDuration: Globals.tooltipWaitDuration,
                 child: RipplePing(
-                  trigger: widget.ping,
+                  trigger: widget.pingData?.ping ?? false,
                   color: Colors.red.shade800,
                   dotSize: 6,
                   maxRadius: widget.height / 2,

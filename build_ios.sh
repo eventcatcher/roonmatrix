@@ -21,3 +21,4 @@ cd ../../
 #find build/site-packages -type f -name '*.so' -exec rm -f {} +
 
 fvm flutter build ipa --release
+#fvm flutter run --release

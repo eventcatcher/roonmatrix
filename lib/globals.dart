@@ -49,7 +49,7 @@ class Globals {
 
   static final double mobileButtonSize = 40.0;
   static final double mobileExpandableButtonSize = 38.0;
-  static final double mobileExpandableButtonSizeBig = 66.0;
+  static final double mobileExpandableButtonSizeBig = 68.0;
   static final double mobileExpandableInnerIconSizeFactor = 0.8;
 
   static final double mobileFontSizeSmall = 32.0;

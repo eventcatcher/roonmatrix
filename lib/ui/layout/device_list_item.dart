@@ -8,6 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
+import 'package:roonmatrix/model/ping_data.dart';
 import 'package:roonmatrix/model/scroll_speed_variant.dart';
 import 'package:roonmatrix/ui/details/cover_page.dart';
 import 'package:roonmatrix/ui/details/scroll_matrix_page.dart';
@@ -36,7 +37,7 @@ class DeviceListItem extends StatefulWidget {
   final String ip;
   final String activeIp;
   final bool connected;
-  final bool ping;
+  final PingData? pingData;
   final bool showSlider;
   final Map<String, dynamic> info;
   final String spotifyAuthUrl;
@@ -65,7 +66,7 @@ class DeviceListItem extends StatefulWidget {
     required this.ip,
     required this.activeIp,
     required this.connected,
-    required this.ping,
+    required this.pingData,
     required this.showSlider,
     required this.info,
     required this.spotifyAuthUrl,
@@ -154,7 +155,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
   late DeviceListItemBloc deviceListItemBloc;
   late String ip;
   late bool connected;
-  late bool ping;
+  late PingData? pingData;
   late Map<String, dynamic> info;
   late double scrollSpeedScrollMatrix;
   late double scrollSpeedDevice;
@@ -225,7 +226,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
   void updateProps() {
     ip = widget.ip;
     connected = widget.connected;
-    ping = widget.ping;
+    pingData = widget.pingData;
     info = widget.info;
     scrollSpeedScrollMatrix = widget.scrollSpeedScrollMatrix;
     scrollSpeedDevice = widget.scrollSpeedDevice;
@@ -451,7 +452,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
                                   translations: translations,
                                   ip: ip,
                                   connected: connected,
-                                  ping: ping,
+                                  pingData: pingData,
                                   info: info,
                                   height:
                                       Globals.mobileExpandableButtonSize - 4,
@@ -946,7 +947,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
               if (Globals.isMobileDevice() ||
                   width <= Globals.mobilePageButtonsMaxWidth)
                 Positioned(
-                  top: 10.0,
+                  top: 8.0,
                   right: 0.0,
                   child: MobilePageButtons(
                     navigatorKey: navigatorKey,
@@ -979,7 +980,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
                   ),
                 ),
               Positioned(
-                top: 0,
+                top: -1,
                 right: 32,
                 child: BlocBuilder(
                   bloc: deviceListItemBloc,

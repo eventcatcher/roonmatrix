@@ -19,6 +19,7 @@ import 'package:roonmatrix/model/config_definition_area.dart';
 import 'package:roonmatrix/model/config_definition_item.dart';
 import 'package:roonmatrix/model/cover_model.dart';
 import 'package:roonmatrix/model/item_type_structure.dart';
+import 'package:roonmatrix/model/ping_data.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/helper/websocket_service.dart';
 import 'package:roonmatrix/ui/layout/editable_multiline_text.dart';
@@ -118,7 +119,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               selectedDeviceIp: '',
               tileExpanded: {},
               connected: {},
-              ping: {},
+              pingData: {},
               notifications: {},
               info: {},
               config: {},
@@ -177,9 +178,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         String ip = event.ip;
         bool ping = event.ping;
 
-        Map<String, bool> pingList = Map.from(state.ping);
-        pingList[ip] = ping;
-        emit(state.copyWith(update: DateTime.now(), ping: pingList));
+        Map<String, PingData> pingData = Map.from(state.pingData);
+        pingData[ip] = PingData(ping: ping, updatedAt: DateTime.now());
+        emit(state.copyWith(update: DateTime.now(), pingData: pingData));
       }
 
       if (event is SetNotification) {
@@ -946,6 +947,27 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             }
           }
         }
+      }
+
+      if (event is ResetVirtualDevice) {
+        // wait for first ping after lifecycle resume
+        Future.delayed(Duration(seconds: 30), () async {
+          if (state.localHostIp.isNotEmpty &&
+              state.info.containsKey(state.localHostIp)) {
+            Map<String, dynamic> info = state.info;
+            DateTime? updatedAt = state.pingData[state.localHostIp]?.updatedAt;
+            if (updatedAt != null &&
+                DateTime.now().difference(updatedAt).inSeconds > 45) {
+              debugPrint('restart app...');
+              // ping refresh on device is set to 15 seconds
+              info.remove(state.localHostIp);
+              emit(state.copyWith(update: DateTime.now(), info: info));
+              Future.delayed(Duration(seconds: 5), () async {
+                restartAppAndPythonRuntime();
+              });
+            }
+          }
+        });
       }
     });
 
@@ -3221,6 +3243,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   void selectDeviceNext({required String ip}) {
     add(SelectDeviceNext(ip: ip));
+  }
+
+  void resetVirtualDevice() {
+    add(ResetVirtualDevice());
   }
 
   @override

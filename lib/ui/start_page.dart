@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/config_definition.dart';
+import 'package:roonmatrix/model/ping_data.dart';
 import 'package:roonmatrix/model/scroll_speed_variant.dart';
 import 'package:roonmatrix/ui/layout/approve_modal.dart';
 import 'package:roonmatrix/ui/layout/search_field.dart';
@@ -31,6 +32,7 @@ import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StartPage extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
@@ -120,12 +122,23 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     // }
   }
 
+  Future<void> restartInAppDeviceServer() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool startInAppDeviceServer =
+        prefs.getBool('startInAppDeviceServer') ?? false;
+
+    if (startInAppDeviceServer == true) {
+      mainBloc.resetVirtualDevice();
+    }
+  }
+
   Widget body() => AppLifecyclePageWrapper(
     onResume: () {
       if (kDebugMode) {
         debugPrint('AppLifecycle => onResume');
       }
       if (Globals.isMobileDevice() == true) {
+        restartInAppDeviceServer();
         mainBloc.resetWebSocketServices();
       }
       WidgetsBinding.instance.addPostFrameCallback((timestamp) {
@@ -220,7 +233,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                     mainState.spotifyAuthUrls;
                 bool idle = mainState.idle;
                 Map<String, bool> connected = mainState.connected;
-                Map<String, bool> ping = mainState.ping;
+                Map<String, PingData> pingData = mainState.pingData;
                 Map<String, Set<String>> notifications =
                     mainState.notifications;
                 definitions = mainState.definitions;
@@ -365,7 +378,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                         String ip = devices[index];
                                         bool connectedItem =
                                             connected[ip] ?? false;
-                                        bool pingItem = ping[ip] ?? false;
+                                        PingData? pingItem = pingData[ip];
                                         bool verticalOutput =
                                             ip.isNotEmpty &&
                                                 mainBloc.state.info[ip] != null
@@ -424,7 +437,7 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                             ip: ip,
                                             activeIp: selectedDeviceIp,
                                             connected: connectedItem,
-                                            ping: pingItem,
+                                            pingData: pingItem,
                                             showSlider: definitions.containsKey(
                                               ip,
                                             ),

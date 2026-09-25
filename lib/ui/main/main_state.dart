@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:roonmatrix/model/config_definition.dart';
+import 'package:roonmatrix/model/ping_data.dart';
 
 abstract class MainState extends Equatable {
   final DateTime? update;
@@ -12,7 +13,7 @@ abstract class MainState extends Equatable {
   final String selectedDeviceIp;
   final Map<String, bool> tileExpanded;
   final Map<String, bool> connected;
-  final Map<String, bool> ping;
+  final Map<String, PingData> pingData;
   final Map<String, Set<String>> notifications;
   final Map<String, dynamic> info;
   final Map<String, dynamic> config;
@@ -43,7 +44,7 @@ abstract class MainState extends Equatable {
     this.selectedDeviceIp = '',
     this.tileExpanded = const {},
     this.connected = const {},
-    this.ping = const {},
+    this.pingData = const {},
     this.notifications = const {},
     this.info = const {},
     this.config = const {},
@@ -75,7 +76,7 @@ abstract class MainState extends Equatable {
     String? selectedDeviceIp,
     Map<String, bool>? tileExpanded,
     Map<String, bool>? connected,
-    Map<String, bool>? ping,
+    Map<String, PingData>? pingData,
     Map<String, Set<String>>? notifications,
     Map<String, dynamic>? info,
     Map<String, dynamic>? config,
@@ -106,7 +107,7 @@ abstract class MainState extends Equatable {
       selectedDeviceIp: selectedDeviceIp ?? this.selectedDeviceIp,
       tileExpanded: tileExpanded ?? this.tileExpanded,
       connected: connected ?? this.connected,
-      ping: ping ?? this.ping,
+      pingData: pingData ?? this.pingData,
       notifications: notifications ?? this.notifications,
       info: info ?? this.info,
       config: config ?? this.config,
@@ -138,7 +139,7 @@ abstract class MainState extends Equatable {
       devices,
       selectedDeviceIp,
       connected,
-      ping,
+      pingData,
       notifications,
       info,
       tileExpanded,
@@ -199,7 +200,7 @@ class MainStateLoaded extends MainState {
     required super.selectedDeviceIp,
     required super.tileExpanded,
     required super.connected,
-    required super.ping,
+    required super.pingData,
     required super.notifications,
     required super.info,
     required super.config,
