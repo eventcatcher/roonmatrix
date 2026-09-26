@@ -1809,10 +1809,10 @@ def roon_discover(connect):
     if roonapi is not None:
         return
 
-    if sys.platform == 'ios':
+    #if sys.platform == 'ios':
         # udp multicast/broadcast (SOOD) needs the com.apple.developer.networking.multicast entitlement on iOS
-        flexprint('[yellow]roon_discover skipped on iOS (multicast entitlement missing) => please set core ip and port manually[/yellow]')
-        return
+        #flexprint('[yellow]roon_discover skipped on iOS (multicast entitlement missing) => please set core ip and port manually[/yellow]')
+        #return
 
     try:
         if path.exists(idfile):
