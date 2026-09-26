@@ -44,6 +44,7 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
 
   Map<String, dynamic> info = {};
   Widget progressBarWidget = SizedBox();
+  DateTime nextInfoReadAfter = DateTime.now();
   int lastProgressPosition = 0;
   int progressBarPosition = 0;
   String lastProgressId = '';
@@ -80,11 +81,14 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
         isRadio: isRadio,
       );
 
-      setProgressBarArea(zoneData: data['zone']);
+      setProgressBarArea(zoneData: data['zone'], position: data['position']);
     }
 
     mainBlocSubscription = mainBloc.stream.listen((MainState mainState) {
       if (mainState is MainStateLoaded) {
+        if (DateTime.now().isBefore(nextInfoReadAfter)) {
+          return;
+        }
         info = mainState.info[ip] ?? {};
 
         if (info != {} && info['control_id'] != null) {
@@ -132,19 +136,29 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
                 }
               });
             }
-            setProgressBarArea(zoneData: data['zone']);
+            setProgressBarArea(
+              zoneData: data['zone'],
+              position: data['position'],
+            );
           }
         }
       }
     });
   }
 
-  void setProgressBarArea({required Map<String, dynamic>? zoneData}) {
+  void setProgressBarArea({
+    required Map<String, dynamic>? zoneData,
+    required int position,
+  }) {
+    if (kDebugMode) {
+      debugPrint('setProgressBarArea position: $position');
+    }
     if (zoneData != null && zoneData.isNotEmpty) {
       String id = zoneData['id'] ?? zoneData['hash'] ?? '';
-      int actualProgressPosition = zoneData['position'] != null
-          ? int.parse(zoneData['position'].toString())
-          : 0;
+      // int actualProgressPosition = zoneData['position'] != null
+      //     ? int.parse(zoneData['position'].toString())
+      //     : 0;
+      int actualProgressPosition = position;
       int total = isRadio == true ? actualProgressPosition : this.total;
       if ((actualProgressPosition != lastProgressPosition &&
               (actualProgressPosition - progressBarPosition).abs() >
@@ -257,6 +271,13 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
                 : ColorDefs.textColor(context: context),
           ),
           onSeek: (Duration duration) {
+            setState(() {
+              nextInfoReadAfter = DateTime.now().add(
+                const Duration(seconds: 5),
+              );
+              progressBarPosition = duration.inSeconds;
+              progress = duration.inSeconds;
+            });
             seek(duration: duration);
           },
         ),

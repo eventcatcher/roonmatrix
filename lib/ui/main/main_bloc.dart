@@ -787,9 +787,19 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           );
 
           if (response.statusCode == 200) {
+            // Map<String, dynamic> info = Map<String, dynamic>.from(state.info);
+            // if (state.info.containsKey(ip)) {
+            //   info[ip] = updateZoneDataForControlId(
+            //     info: info[ip],
+            //     controlId: controlId,
+            //     key: 'position',
+            //     value: duration.inSeconds.toString(),
+            //   );
+            //   emit(state.copyWith(update: DateTime.now(), info: info));
+            // }
             if (kDebugMode) {
               debugPrint(
-                'SetPlayPosition => ip: $ip, controlId: $controlId, position: ${duration.inSeconds}}',
+                'SetPlayPosition => ip: $ip, controlId: $controlId, position: ${duration.inSeconds}',
               );
             }
           }
@@ -2816,6 +2826,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
 
     Map<String, dynamic> channels = info['channels'];
+    int position = 0;
 
     if (controlId != null &&
         controlId.isNotEmpty &&
@@ -2832,6 +2843,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           );
 
           if (zone != null) {
+            position = info['playpositions'][controlId] ?? 0;
             zone['server'] = serverName;
             isRadio =
                 zone['zone'] == 'Apple Music' &&
@@ -2851,6 +2863,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         if (info['roon_playouts'][zoneName] != null) {
           zone = info['roon_playouts'][zoneName];
           if (zone != null) {
+            position = info['playpositions'][controlId] ?? 0;
             zone['zone'] = zoneName;
             zone['server'] = 'roon';
             isRadio = zone['total'] == null;
@@ -2860,7 +2873,47 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
     }
 
-    return {"zone": zone, "isRadio": isRadio};
+    return {"zone": zone, "position": position, "isRadio": isRadio};
+  }
+
+  Map<String, dynamic> updateZoneDataForControlId({
+    required Map<String, dynamic> info,
+    required String? controlId,
+    required String key,
+    required String value,
+  }) {
+    Map<String, dynamic> channels = info['channels'];
+
+    if (controlId != null &&
+        controlId.isNotEmpty &&
+        channels.keys.contains(controlId)) {
+      if (channels[controlId] == 'webserver' ||
+          channels[controlId] == 'spotifyconnect') {
+        List<String> controlIdParts = controlId.split('-');
+        String serverName = controlIdParts[0];
+        String zoneName = controlIdParts[1];
+        if (info['web_playouts'][serverName] != null) {
+          List<dynamic> zones = info['web_playouts'][serverName];
+          int zoneIndex = zones.indexWhere(
+            (dynamic el) => (el['zone'] as String) == zoneName,
+          );
+
+          if (zoneIndex != -1) {
+            info['web_playouts'][serverName][zoneIndex][key] =
+                value; // update key value
+          }
+        }
+      } else {
+        String zoneName = channels[controlId];
+        if (info['roon_playouts'][zoneName] != null) {
+          if (info['roon_playouts'][zoneName] != null) {
+            info['roon_playouts'][zoneName][key] = value;
+          }
+        }
+      }
+    }
+
+    return info;
   }
 
   String replaceIllegalCharsInTickerString({
