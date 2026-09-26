@@ -1039,6 +1039,19 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                             controlId,
                                                                         coverPadding:
                                                                             coverPadding,
+                                                                        seek:
+                                                                            ({
+                                                                              required Duration
+                                                                              duration,
+                                                                            }) {
+                                                                              mainBloc.setPlayPosition(
+                                                                                ip: ip,
+                                                                                controlId:
+                                                                                    controlId ??
+                                                                                    '',
+                                                                                duration: duration,
+                                                                              );
+                                                                            },
                                                                       ),
                                                                     ),
                                                                 ],
@@ -1183,6 +1196,19 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                             controlId,
                                                                         coverPadding:
                                                                             coverPadding,
+                                                                        seek:
+                                                                            ({
+                                                                              required Duration
+                                                                              duration,
+                                                                            }) {
+                                                                              mainBloc.setPlayPosition(
+                                                                                ip: ip,
+                                                                                controlId:
+                                                                                    controlId ??
+                                                                                    '',
+                                                                                duration: duration,
+                                                                              );
+                                                                            },
                                                                       ),
                                                                     ),
                                                                   ),
@@ -1475,6 +1501,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                       controlId: controlId,
                                                                                       coverPadding: coverPadding,
                                                                                       verticalPadding: 10.0,
+                                                                                      seek:
+                                                                                          ({
+                                                                                            required Duration duration,
+                                                                                          }) {
+                                                                                            mainBloc.setPlayPosition(
+                                                                                              ip: ip,
+                                                                                              controlId:
+                                                                                                  controlId ??
+                                                                                                  '',
+                                                                                              duration: duration,
+                                                                                            );
+                                                                                          },
                                                                                     ),
                                                                                   ),
                                                                                 );
@@ -1694,6 +1732,18 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                 controlId,
                                                                             coverPadding:
                                                                                 coverPadding,
+                                                                            seek:
+                                                                                ({
+                                                                                  required Duration duration,
+                                                                                }) {
+                                                                                  mainBloc.setPlayPosition(
+                                                                                    ip: ip,
+                                                                                    controlId:
+                                                                                        controlId ??
+                                                                                        '',
+                                                                                    duration: duration,
+                                                                                  );
+                                                                                },
                                                                           ),
                                                                         ),
                                                                       );
@@ -1840,6 +1890,20 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                       controlId,
                                                                   coverPadding:
                                                                       coverPadding,
+                                                                  seek:
+                                                                      ({
+                                                                        required Duration
+                                                                        duration,
+                                                                      }) {
+                                                                        mainBloc.setPlayPosition(
+                                                                          ip: ip,
+                                                                          controlId:
+                                                                              controlId ??
+                                                                              '',
+                                                                          duration:
+                                                                              duration,
+                                                                        );
+                                                                      },
                                                                 ),
                                                               ),
                                                             ),

@@ -50,24 +50,22 @@ class ControlButtonsState extends State<ControlButtons> {
   final Color enableIconColor = Colors.green;
   final Color disabledIconColorLight = Colors.grey.shade600;
   final Color disabledIconColorDark = Colors.grey.shade300;
-  final double controlAreaInCrossMinHeight =
-      Globals.isDesktopDevice() ? 100 : 150;
+  final double controlAreaInCrossMinHeight = Globals.isDesktopDevice()
+      ? 100
+      : 150;
   final int cols = 9;
 
   BoxDecoration areaDecorationFilledLightStyle() => BoxDecoration(
-        borderRadius: Globals.borderRadius(),
-        color: Color.fromARGB(30, 70, 70, 70),
-      );
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(30, 70, 70, 70),
+  );
 
   BoxDecoration areaDecorationFilledDarkStyle() => BoxDecoration(
-        borderRadius: Globals.borderRadius(),
-        color: Color.fromARGB(30, 140, 140, 140),
-      );
+    borderRadius: Globals.borderRadius(),
+    color: Color.fromARGB(30, 140, 140, 140),
+  );
 
-  double getButtonSize({
-    required double size,
-    required bool inRow,
-  }) =>
+  double getButtonSize({required double size, required bool inRow}) =>
       (size - padding) / (inRow ? cols : 3);
 
   bool idle = false;
@@ -91,307 +89,320 @@ class ControlButtonsState extends State<ControlButtons> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      double maxWidth = constraints.maxWidth;
-      double maxHeight = constraints.maxHeight == double.infinity
-          ? MediaQuery.of(context).size.height
-          : constraints.maxHeight;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double maxWidth = constraints.maxWidth;
+        double maxHeight = constraints.maxHeight == double.infinity
+            ? MediaQuery.of(context).size.height
+            : constraints.maxHeight;
 
-      inRow = maxHeight < controlAreaInCrossMinHeight;
-      double size =
-          inRow ? maxWidth : (maxWidth < maxHeight ? maxWidth : maxHeight);
-      double buttonSize = getButtonSize(size: size, inRow: inRow);
-      bool textOff = maxHeight < (buttonSize + 8);
-      if (textOff) {
-        buttonSize = maxHeight - 8;
-      }
-      double verticalTooltipOffset = buttonSize / 2;
-      double width = (inRow ? cols : 3) * buttonSize;
-      double height = (inRow ? 1 : 3) * buttonSize;
-      double iconSize = buttonSize * 0.6;
+        inRow = maxHeight < controlAreaInCrossMinHeight;
+        double size = inRow
+            ? maxWidth
+            : (maxWidth < maxHeight ? maxWidth : maxHeight);
+        double buttonSize = getButtonSize(size: size, inRow: inRow);
+        bool textOff = maxHeight < (buttonSize + 8);
+        if (textOff) {
+          buttonSize = maxHeight - 8;
+        }
+        double verticalTooltipOffset = buttonSize / 2;
+        double width = (inRow ? cols : 3) * buttonSize;
+        double height = (inRow ? 1 : 3) * buttonSize;
+        double iconSize = buttonSize * 0.6;
 
-      double boxHeight = inRow ? buttonSize : size - padding;
-      if (boxHeight < 10) {
-        boxHeight = 10;
-      }
-      if (height < 10) {
-        height = 10;
-      }
-      if (width < 10) {
-        width = 10;
-      }
-      if (buttonSize < 10) {
-        buttonSize = 10;
-      }
+        double boxHeight = inRow ? buttonSize : size - padding;
+        if (boxHeight < 10) {
+          boxHeight = 10;
+        }
+        if (height < 10) {
+          height = 10;
+        }
+        if (width < 10) {
+          width = 10;
+        }
+        if (buttonSize < 10) {
+          buttonSize = 10;
+        }
 
-      return Container(
-        width: size - padding,
-        constraints: BoxConstraints(minWidth: 10, minHeight: boxHeight),
-        height: boxHeight,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  constraints:
-                      BoxConstraints(minWidth: 10, minHeight: boxHeight),
-                  width: width,
-                  height: height,
-                  decoration: inRow && width < (maxWidth - padding)
-                      ? Globals.brightness() == Brightness.dark
-                          ? areaDecorationFilledDarkStyle()
-                          : areaDecorationFilledLightStyle()
-                      : null,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (!inRow)
-                        Row(
-                          children: [
-                            SizedBox(width: buttonSize),
-                            ControlButton(
-                              buttonSize: buttonSize,
-                              iconSize: buttonSize * 0.6,
-                              verticalTooltipOffset: verticalTooltipOffset,
-                              tooltipText:
-                                  translations['controlButtonRepeatText'] ??
-                                      'repeat',
-                              icon: Icon(
-                                Icons.repeat,
-                                color: repeat
-                                    ? enableIconColor
-                                    : Globals.brightness() == Brightness.dark
-                                        ? disabledIconColorDark
-                                        : disabledIconColorLight,
-                              ),
-                              readOnly: isRadio,
-                              onPressed: () {
-                                if (!readOnly) {
-                                  mainBloc.zoneControl(
+        return Container(
+          width: size - padding,
+          constraints: BoxConstraints(minWidth: 10, minHeight: boxHeight),
+          height: boxHeight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    constraints: BoxConstraints(
+                      minWidth: 10,
+                      minHeight: boxHeight,
+                    ),
+                    width: width,
+                    height: height,
+                    decoration: inRow && width < (maxWidth - padding)
+                        ? Globals.brightness() == Brightness.dark
+                              ? areaDecorationFilledDarkStyle()
+                              : areaDecorationFilledLightStyle()
+                        : null,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!inRow)
+                          Row(
+                            children: [
+                              SizedBox(width: buttonSize),
+                              ControlButton(
+                                buttonSize: buttonSize,
+                                iconSize: buttonSize * 0.6,
+                                verticalTooltipOffset: verticalTooltipOffset,
+                                tooltipText:
+                                    translations['controlButtonRepeatText'] ??
+                                    'repeat',
+                                icon: Icon(
+                                  Icons.repeat,
+                                  color: repeat
+                                      ? enableIconColor
+                                      : Globals.brightness() == Brightness.dark
+                                      ? disabledIconColorDark
+                                      : disabledIconColorLight,
+                                ),
+                                readOnly: isRadio,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
                                       ip: ip,
                                       controlId: controlId,
                                       cmd: 'repeatmode',
-                                      enable: !repeat);
-                                  if (mounted) {
-                                    setState(() {
-                                      repeat = !repeat;
-                                    });
+                                      enable: !repeat,
+                                    );
+                                    if (mounted) {
+                                      setState(() {
+                                        repeat = !repeat;
+                                      });
+                                    }
                                   }
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                      Row(
-                        children: [
-                          if (inRow) ...[
-                            ControlButton(
-                              buttonSize: buttonSize,
-                              iconSize: buttonSize * 0.7,
-                              horizontalMargin: iconSize / 2,
-                              verticalTooltipOffset: verticalTooltipOffset,
-                              tooltipText:
-                                  translations['controlButtonShuffleText'] ??
-                                      'shuffle',
-                              icon: Icon(
-                                Icons.shuffle,
-                                color: shuffle
-                                    ? enableIconColor
-                                    : Globals.brightness() == Brightness.dark
-                                        ? disabledIconColorDark
-                                        : disabledIconColorLight,
+                                },
                               ),
-                              readOnly: isRadio,
-                              onPressed: () {
-                                if (!readOnly) {
-                                  mainBloc.zoneControl(
+                            ],
+                          ),
+                        Row(
+                          children: [
+                            if (inRow) ...[
+                              ControlButton(
+                                buttonSize: buttonSize,
+                                iconSize: buttonSize * 0.7,
+                                horizontalMargin: iconSize / 2,
+                                verticalTooltipOffset: verticalTooltipOffset,
+                                tooltipText:
+                                    translations['controlButtonShuffleText'] ??
+                                    'shuffle',
+                                icon: Icon(
+                                  Icons.shuffle,
+                                  color: shuffle
+                                      ? enableIconColor
+                                      : Globals.brightness() == Brightness.dark
+                                      ? disabledIconColorDark
+                                      : disabledIconColorLight,
+                                ),
+                                readOnly: isRadio,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
                                       ip: ip,
                                       controlId: controlId,
                                       cmd: 'shufflemode',
-                                      enable: !shuffle);
-                                  if (mounted) {
-                                    setState(() {
-                                      shuffle = !shuffle;
-                                    });
+                                      enable: !shuffle,
+                                    );
+                                    if (mounted) {
+                                      setState(() {
+                                        shuffle = !shuffle;
+                                      });
+                                    }
                                   }
-                                }
-                              },
-                            ),
-                            ControlButton(
-                              buttonSize: buttonSize,
-                              iconSize: buttonSize * 0.7,
-                              horizontalMargin: iconSize / 2,
-                              verticalTooltipOffset: verticalTooltipOffset,
-                              tooltipText:
-                                  translations['controlButtonRepeatText'] ??
-                                      'repeat',
-                              icon: Icon(
-                                Icons.repeat,
-                                color: repeat
-                                    ? enableIconColor
-                                    : Globals.brightness() == Brightness.dark
-                                        ? disabledIconColorDark
-                                        : disabledIconColorLight,
+                                },
                               ),
-                              readOnly: isRadio,
-                              onPressed: () {
-                                if (!readOnly) {
-                                  mainBloc.zoneControl(
+                              ControlButton(
+                                buttonSize: buttonSize,
+                                iconSize: buttonSize * 0.7,
+                                horizontalMargin: iconSize / 2,
+                                verticalTooltipOffset: verticalTooltipOffset,
+                                tooltipText:
+                                    translations['controlButtonRepeatText'] ??
+                                    'repeat',
+                                icon: Icon(
+                                  Icons.repeat,
+                                  color: repeat
+                                      ? enableIconColor
+                                      : Globals.brightness() == Brightness.dark
+                                      ? disabledIconColorDark
+                                      : disabledIconColorLight,
+                                ),
+                                readOnly: isRadio,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
                                       ip: ip,
                                       controlId: controlId,
                                       cmd: 'repeatmode',
-                                      enable: !repeat);
-                                  if (mounted) {
-                                    setState(() {
-                                      repeat = !repeat;
-                                    });
+                                      enable: !repeat,
+                                    );
+                                    if (mounted) {
+                                      setState(() {
+                                        repeat = !repeat;
+                                      });
+                                    }
                                   }
-                                }
-                              },
-                            ),
-                            SizedBox(width: buttonSize),
-                          ],
-                          ControlButton(
-                            buttonSize: buttonSize,
-                            iconSize: buttonSize,
-                            horizontalMargin: inRow ? iconSize / 2 : null,
-                            verticalTooltipOffset: verticalTooltipOffset,
-                            tooltipText:
-                                translations['controlButtonPreviousText'] ??
-                                    'previous track',
-                            icon: Icon(
-                              Icons.keyboard_arrow_left,
-                              color: (isRadio || idle)
-                                  ? Globals.brightness() == Brightness.dark
-                                      ? disabledIconColorDark
-                                      : disabledIconColorLight
-                                  : null,
-                            ),
-                            color: Globals.brightness() == Brightness.dark
-                                ? ColorDefs.controlIconColorLight
-                                : ColorDefs.controlIconColorDark,
-                            readOnly: isRadio || idle,
-                            onPressed: () {
-                              if (!readOnly) {
-                                mainBloc.zoneControl(
+                                },
+                              ),
+                              SizedBox(width: buttonSize),
+                            ],
+                            ControlButton(
+                              buttonSize: buttonSize,
+                              iconSize: buttonSize,
+                              horizontalMargin: inRow ? iconSize / 2 : null,
+                              verticalTooltipOffset: verticalTooltipOffset,
+                              tooltipText:
+                                  translations['controlButtonPreviousText'] ??
+                                  'previous track',
+                              icon: Icon(
+                                Icons.keyboard_arrow_left,
+                                color: (isRadio || idle)
+                                    ? Globals.brightness() == Brightness.dark
+                                          ? disabledIconColorDark
+                                          : disabledIconColorLight
+                                    : null,
+                              ),
+                              color: Globals.brightness() == Brightness.dark
+                                  ? ColorDefs.controlIconColorLight
+                                  : ColorDefs.controlIconColorDark,
+                              readOnly: isRadio || idle,
+                              onPressed: () {
+                                if (!readOnly) {
+                                  mainBloc.zoneControl(
                                     ip: ip,
                                     controlId: controlId,
-                                    cmd: 'previous');
-                              }
-                            },
-                          ),
-                          ControlButton(
-                            buttonSize: buttonSize,
-                            iconSize: buttonSize * 0.7,
-                            horizontalMargin: inRow ? iconSize / 2 : null,
-                            verticalTooltipOffset: verticalTooltipOffset,
-                            tooltipText:
-                                translations['controlButtonPlaymodeText'] ??
-                                    'pause/play',
-                            icon: Icon(
-                              idle ? Icons.play_arrow : Icons.pause,
-                            ),
-                            color: Globals.brightness() == Brightness.dark
-                                ? ColorDefs.controlIconColorLight
-                                : ColorDefs.controlIconColorDark,
-                            readOnly: false,
-                            onPressed: () {
-                              if (!readOnly) {
-                                mainBloc.zoneControl(
-                                  ip: ip,
-                                  controlId: controlId,
-                                  cmd: 'playmode',
-                                  enable: idle,
-                                );
-                                if (mounted) {
-                                  setState(() {
-                                    idle = !idle;
-                                  });
+                                    cmd: 'previous',
+                                  );
                                 }
-                              }
-                            },
-                          ),
-                          ControlButton(
-                            buttonSize: buttonSize,
-                            iconSize: buttonSize,
-                            horizontalMargin: inRow ? iconSize / 2 : null,
-                            verticalTooltipOffset: verticalTooltipOffset,
-                            tooltipText:
-                                translations['controlButtonNextText'] ??
-                                    'next track',
-                            icon: Icon(
-                              Icons.keyboard_arrow_right,
-                              color: (isRadio || idle)
-                                  ? Globals.brightness() == Brightness.dark
-                                      ? disabledIconColorDark
-                                      : disabledIconColorLight
-                                  : null,
+                              },
                             ),
-                            color: Globals.brightness() == Brightness.dark
-                                ? ColorDefs.controlIconColorLight
-                                : ColorDefs.controlIconColorDark,
-                            readOnly: isRadio || idle,
-                            onPressed: () {
-                              if (!readOnly) {
-                                if (mounted) {
-                                  setState(() {
-                                    idle = false;
-                                  });
-                                }
-                                mainBloc.zoneControl(
-                                    ip: ip, controlId: controlId, cmd: 'next');
-                              }
-                            },
-                          ),
-                        ],
-                      ),
-                      if (!inRow)
-                        Row(
-                          children: [
-                            SizedBox(width: buttonSize),
                             ControlButton(
                               buttonSize: buttonSize,
-                              iconSize: buttonSize * 0.6,
+                              iconSize: buttonSize * 0.7,
+                              horizontalMargin: inRow ? iconSize / 2 : null,
                               verticalTooltipOffset: verticalTooltipOffset,
-                              tooltipText:
-                                  translations['controlButtonShuffleText'] ??
-                                      'shuffle',
-                              icon: Icon(
-                                Icons.shuffle,
-                                color: shuffle
-                                    ? enableIconColor
-                                    : Globals.brightness() == Brightness.dark
-                                        ? disabledIconColorDark
-                                        : disabledIconColorLight,
-                              ),
-                              readOnly: isRadio,
+                              tooltipText: idle
+                                  ? translations['controlButtonPlayText'] ??
+                                        'play'
+                                  : translations['controlButtonPauseText'] ??
+                                        'pause',
+                              icon: Icon(idle ? Icons.play_arrow : Icons.pause),
+                              color: Globals.brightness() == Brightness.dark
+                                  ? ColorDefs.controlIconColorLight
+                                  : ColorDefs.controlIconColorDark,
+                              readOnly: false,
                               onPressed: () {
                                 if (!readOnly) {
                                   mainBloc.zoneControl(
-                                      ip: ip,
-                                      controlId: controlId,
-                                      cmd: 'shufflemode',
-                                      enable: !shuffle);
+                                    ip: ip,
+                                    controlId: controlId,
+                                    cmd: 'playmode',
+                                    enable: idle,
+                                  );
                                   if (mounted) {
                                     setState(() {
-                                      shuffle = !shuffle;
+                                      idle = !idle;
                                     });
                                   }
                                 }
                               },
                             ),
+                            ControlButton(
+                              buttonSize: buttonSize,
+                              iconSize: buttonSize,
+                              horizontalMargin: inRow ? iconSize / 2 : null,
+                              verticalTooltipOffset: verticalTooltipOffset,
+                              tooltipText:
+                                  translations['controlButtonNextText'] ??
+                                  'next track',
+                              icon: Icon(
+                                Icons.keyboard_arrow_right,
+                                color: (isRadio || idle)
+                                    ? Globals.brightness() == Brightness.dark
+                                          ? disabledIconColorDark
+                                          : disabledIconColorLight
+                                    : null,
+                              ),
+                              color: Globals.brightness() == Brightness.dark
+                                  ? ColorDefs.controlIconColorLight
+                                  : ColorDefs.controlIconColorDark,
+                              readOnly: isRadio || idle,
+                              onPressed: () {
+                                if (!readOnly) {
+                                  if (mounted) {
+                                    setState(() {
+                                      idle = false;
+                                    });
+                                  }
+                                  mainBloc.zoneControl(
+                                    ip: ip,
+                                    controlId: controlId,
+                                    cmd: 'next',
+                                  );
+                                }
+                              },
+                            ),
                           ],
                         ),
-                    ],
+                        if (!inRow)
+                          Row(
+                            children: [
+                              SizedBox(width: buttonSize),
+                              ControlButton(
+                                buttonSize: buttonSize,
+                                iconSize: buttonSize * 0.6,
+                                verticalTooltipOffset: verticalTooltipOffset,
+                                tooltipText:
+                                    translations['controlButtonShuffleText'] ??
+                                    'shuffle',
+                                icon: Icon(
+                                  Icons.shuffle,
+                                  color: shuffle
+                                      ? enableIconColor
+                                      : Globals.brightness() == Brightness.dark
+                                      ? disabledIconColorDark
+                                      : disabledIconColorLight,
+                                ),
+                                readOnly: isRadio,
+                                onPressed: () {
+                                  if (!readOnly) {
+                                    mainBloc.zoneControl(
+                                      ip: ip,
+                                      controlId: controlId,
+                                      cmd: 'shufflemode',
+                                      enable: !shuffle,
+                                    );
+                                    if (mounted) {
+                                      setState(() {
+                                        shuffle = !shuffle;
+                                      });
+                                    }
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    });
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

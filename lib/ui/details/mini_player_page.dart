@@ -663,6 +663,21 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                                   coverPadding: coverPadding,
                                                   brightness: Brightness.dark,
                                                   isCoverOverlay: true,
+                                                  seek:
+                                                      ({
+                                                        required Duration
+                                                        duration,
+                                                      }) {
+                                                        mainBloc
+                                                            .setPlayPosition(
+                                                              ip: ip,
+                                                              controlId:
+                                                                  controlId ??
+                                                                  '',
+                                                              duration:
+                                                                  duration,
+                                                            );
+                                                      },
                                                 ),
                                               ],
                                             ),

@@ -17,6 +17,7 @@ class ProgressBarWidget extends StatefulWidget {
   final double verticalPadding;
   final Brightness? brightness;
   final bool isCoverOverlay;
+  final Function({required Duration duration}) seek;
 
   const ProgressBarWidget({
     super.key,
@@ -26,6 +27,7 @@ class ProgressBarWidget extends StatefulWidget {
     this.verticalPadding = 0,
     this.brightness,
     this.isCoverOverlay = false,
+    required this.seek,
   });
 
   @override
@@ -36,6 +38,7 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
   String get ip => widget.ip;
   double get coverPadding => widget.coverPadding;
   Brightness? get brightness => widget.brightness;
+  Function({required Duration duration}) get seek => widget.seek;
 
   final int toleranceInSeconds = 5;
 
@@ -253,8 +256,8 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
                 ? Colors.white
                 : ColorDefs.textColor(context: context),
           ),
-          onSeek: (duration) {
-            //_player.seek(duration);
+          onSeek: (Duration duration) {
+            seek(duration: duration);
           },
         ),
       ),

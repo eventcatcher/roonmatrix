@@ -758,6 +758,48 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
+      if (event is SetPlayPosition) {
+        String ip = event.ip;
+        String controlId = event.controlId;
+        Duration duration = event.duration; // duration is format h:mm:ss.mmmmmm
+
+        Map<String, String> headers = {
+          "Content-Type": 'application/json; charset=utf-8',
+          "Accept": 'application/json',
+        };
+
+        Map<String, dynamic> payload = {
+          "control_id": controlId,
+          "position": duration.inSeconds,
+        };
+
+        String url = 'http://$ip:$portRestServer/set_play_position/';
+        try {
+          Uri uri = Uri.parse(url);
+
+          if (kDebugMode) {
+            debugPrint('send set_play_position => payload: $payload');
+          }
+          http.Response response = await client.post(
+            uri,
+            headers: headers,
+            body: json.encode(payload),
+          );
+
+          if (response.statusCode == 200) {
+            if (kDebugMode) {
+              debugPrint(
+                'SetPlayPosition => ip: $ip, controlId: $controlId, position: ${duration.inSeconds}}',
+              );
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            debugPrint('SetPlayPosition error by access to $url: $e');
+          }
+        }
+      }
+
       if (event is ResetSpotifyTokensState) {
         emit(state.copyWith(update: DateTime.now(), resetSpotifyTokens: false));
       }
@@ -3206,6 +3248,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     bool enable = false,
   }) {
     add(ZoneControl(ip: ip, controlId: controlId, cmd: cmd, enable: enable));
+  }
+
+  void setPlayPosition({
+    required String ip,
+    required String controlId,
+    required Duration duration,
+  }) {
+    add(SetPlayPosition(ip: ip, controlId: controlId, duration: duration));
   }
 
   void resetSpotifyTokens({required String ip}) {

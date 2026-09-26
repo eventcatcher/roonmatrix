@@ -143,6 +143,21 @@ class ZoneControl extends MainEvent {
   List<Object> get props => [ip, controlId, cmd, enable];
 }
 
+class SetPlayPosition extends MainEvent {
+  final String ip;
+  final String controlId;
+  final Duration duration;
+
+  const SetPlayPosition({
+    required this.ip,
+    required this.controlId,
+    required this.duration,
+  });
+
+  @override
+  List<Object> get props => [ip, controlId, duration];
+}
+
 class ResetSpotifyTokens extends MainEvent {
   final String ip;
 
