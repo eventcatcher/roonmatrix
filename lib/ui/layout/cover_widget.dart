@@ -274,7 +274,6 @@ class _CoverWidgetState extends State<CoverWidget> {
                                     child: CoverOverlayButton(
                                       alignment: Alignment.topLeft,
                                       coverWidth: coverWidth,
-                                      isPlaying: false,
                                       sizeFactor: 0.8,
                                       additionalVisibility: false,
                                       svg: SvgPicture.asset(
@@ -327,7 +326,6 @@ class _CoverWidgetState extends State<CoverWidget> {
                                   CoverOverlayButton(
                                     alignment: Alignment.center,
                                     coverWidth: coverWidth,
-                                    isPlaying: coverModel.status == 'playing',
                                     additionalVisibility:
                                         (statusUpdateInProgress &&
                                             (statusInProgress == 'playing' ||
@@ -386,7 +384,6 @@ class _CoverWidgetState extends State<CoverWidget> {
                                     child: CoverOverlayButton(
                                       alignment: Alignment.centerLeft,
                                       coverWidth: coverWidth,
-                                      isPlaying: coverModel.status == 'playing',
                                       additionalVisibility:
                                           statusUpdateInProgress &&
                                           statusInProgress == 'previous',
@@ -403,8 +400,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                           translations['controlButtonPreviousText'] ??
                                           'previous track',
                                       onPressed: () {
-                                        if (!statusUpdateInProgress &&
-                                            coverModel.status == 'playing') {
+                                        if (coverModel.status == 'playing') {
                                           setButtonStatusSwitchInProgressTimer();
                                           setState(() {
                                             statusInProgress = 'previous';
@@ -424,7 +420,6 @@ class _CoverWidgetState extends State<CoverWidget> {
                                     child: CoverOverlayButton(
                                       alignment: Alignment.centerRight,
                                       coverWidth: coverWidth,
-                                      isPlaying: coverModel.status == 'playing',
                                       additionalVisibility:
                                           statusUpdateInProgress &&
                                           statusInProgress == 'next',
@@ -441,8 +436,7 @@ class _CoverWidgetState extends State<CoverWidget> {
                                           translations['controlButtonNextText'] ??
                                           'next track',
                                       onPressed: () {
-                                        if (!statusUpdateInProgress &&
-                                            coverModel.status == 'playing') {
+                                        if (coverModel.status == 'playing') {
                                           setButtonStatusSwitchInProgressTimer();
                                           setState(() {
                                             statusInProgress = 'next';

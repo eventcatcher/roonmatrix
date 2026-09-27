@@ -7,7 +7,6 @@ class CoverOverlayButton extends StatefulWidget {
   final bool showDarkMode;
   final Alignment alignment;
   final double coverWidth;
-  final bool isPlaying;
   final bool additionalVisibility;
   final double? sizeFactor;
   final SvgPicture? svg;
@@ -20,7 +19,6 @@ class CoverOverlayButton extends StatefulWidget {
     this.showDarkMode = false,
     required this.alignment,
     required this.coverWidth,
-    required this.isPlaying,
     this.additionalVisibility = false,
     this.sizeFactor = 1.0,
     required this.icon,
@@ -37,7 +35,6 @@ class _CoverOverlayButtonState extends State<CoverOverlayButton> {
   Alignment get alignment => widget.alignment;
   double get coverWidth => widget.coverWidth;
   bool get additionalVisibility => widget.additionalVisibility;
-  bool get isPlaying => widget.isPlaying;
   double get sizeFactor => widget.sizeFactor!;
   SvgPicture? get svg => widget.svg;
   Icon get icon => widget.icon;

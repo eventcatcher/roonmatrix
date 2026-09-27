@@ -691,7 +691,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                     showDarkMode: true,
                                     alignment: Alignment.center,
                                     coverWidth: coverWidth ?? 0,
-                                    isPlaying: coverModel!.status == 'playing',
                                     additionalVisibility:
                                         (statusUpdateInProgress &&
                                             (statusInProgress == 'playing' ||
@@ -780,8 +779,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                       showDarkMode: true,
                                       alignment: Alignment.centerLeft,
                                       coverWidth: coverWidth ?? 0,
-                                      isPlaying:
-                                          coverModel!.status == 'playing',
                                       additionalVisibility:
                                           statusUpdateInProgress &&
                                           statusInProgress == 'previous',
@@ -795,8 +792,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                           translations['controlButtonPreviousText'] ??
                                           'previous track',
                                       onPressed: () {
-                                        if (!statusUpdateInProgress &&
-                                            coverModel!.status == 'playing') {
+                                        if (coverModel!.status == 'playing') {
                                           setButtonStatusSwitchInProgressTimer();
                                           setState(() {
                                             statusInProgress = 'previous';
@@ -817,8 +813,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                       showDarkMode: true,
                                       alignment: Alignment.centerRight,
                                       coverWidth: coverWidth ?? 0,
-                                      isPlaying:
-                                          coverModel!.status == 'playing',
                                       additionalVisibility:
                                           statusUpdateInProgress &&
                                           statusInProgress == 'next',
@@ -832,8 +826,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                           translations['controlButtonNextText'] ??
                                           'next track',
                                       onPressed: () {
-                                        if (!statusUpdateInProgress &&
-                                            coverModel!.status == 'playing') {
+                                        if (coverModel!.status == 'playing') {
                                           setButtonStatusSwitchInProgressTimer();
                                           setState(() {
                                             statusInProgress = 'next';
