@@ -72,7 +72,10 @@ class _VirtualDeviceInfoState extends State<VirtualDeviceInfo>
           child: Text(
             translations['startingVirtualDeviceInfo'] ??
                 'Starting virtual device',
-            style: TextStyle(fontSize: 24.0),
+            style: TextStyle(
+              fontSize: 24.0,
+              color: ColorDefs.textColor(context: context),
+            ),
           ),
         ),
         Padding(

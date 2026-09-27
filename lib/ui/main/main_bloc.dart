@@ -1735,7 +1735,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         isPortOpen(state.localHostIp, port, timeout).then((open) {
           if (open) {
             if (kDebugMode) {
-              debugPrint('Open: $state.localHostIp:$port');
+              debugPrint('Open: ${state.localHostIp}:$port');
             }
             found.add(state.localHostIp);
             inAppVirtualDeviceIp = state.localHostIp;

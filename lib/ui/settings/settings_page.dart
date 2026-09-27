@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:python_backend/python_runtime.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/helper/ip_address_input_formatter.dart';
@@ -354,6 +355,15 @@ class _SettingsPageState extends State<SettingsPage> {
               enabled: startInAppDeviceServer,
               onChanged: (value) {
                 settingsBloc.setStartInAppDeviceServer(enabled: value);
+                // auto-restart app if python runtime is not working 5 minutes ago since start
+                if (value == true &&
+                    (mainBloc.state.localHostIp.isEmpty ||
+                        mainBloc.state.info.containsKey(
+                              mainBloc.state.localHostIp,
+                            ) ==
+                            false)) {
+                  pythonRuntimeInit();
+                }
               },
             ),
           ),

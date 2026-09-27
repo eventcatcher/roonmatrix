@@ -109,6 +109,7 @@ class RoonMatrixState extends State<RoonMatrix> {
   final FileRepository fileRepository = FileRepository();
   final String title = Globals.mainWindowTitle;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
+  final pythonRuntimeStartTimeoutInSeconds = 120;
 
   Map<String, dynamic> translations = {};
   Map<String, dynamic> info = {};
@@ -142,6 +143,15 @@ class RoonMatrixState extends State<RoonMatrix> {
     debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
 
     if (startInAppDeviceServer == true) {
+      Future.delayed(Duration(seconds: pythonRuntimeStartTimeoutInSeconds), () {
+        // auto-restart app if python runtime is not working 5 minutes ago since start
+        if (mainBloc.state.localHostIp.isEmpty ||
+            mainBloc.state.info.containsKey(mainBloc.state.localHostIp) ==
+                false) {
+          mainBloc.restartAppAndPythonRuntime();
+        }
+      });
+
       pythonRuntimeInit();
     }
   }
