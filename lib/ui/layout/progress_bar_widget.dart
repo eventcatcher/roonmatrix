@@ -81,7 +81,11 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
         isRadio: isRadio,
       );
 
-      setProgressBarArea(zoneData: data['zone'], position: data['position']);
+      setProgressBarArea(
+        zoneData: data['zone'],
+        position: data['position'],
+        total: isRadio == true ? data['position'] : total,
+      );
     }
 
     mainBlocSubscription = mainBloc.stream.listen((MainState mainState) {
@@ -131,6 +135,11 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
                           data['zone'] != null && data['zone']['total'] != null
                           ? int.parse(data['zone']['total'].toString())
                           : 0;
+                      setProgressBarArea(
+                        zoneData: data['zone'],
+                        position: data['position'],
+                        total: isRadio == true ? data['position'] : total,
+                      );
                     }
                   });
                 }
@@ -139,6 +148,7 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
             setProgressBarArea(
               zoneData: data['zone'],
               position: data['position'],
+              total: isRadio == true ? data['position'] : total,
             );
           }
         }
@@ -149,6 +159,7 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
   void setProgressBarArea({
     required Map<String, dynamic>? zoneData,
     required int position,
+    required int total,
   }) {
     if (kDebugMode) {
       debugPrint('setProgressBarArea position: $position');
@@ -159,7 +170,6 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
       //     ? int.parse(zoneData['position'].toString())
       //     : 0;
       int actualProgressPosition = position;
-      int total = isRadio == true ? actualProgressPosition : this.total;
       if ((actualProgressPosition != lastProgressPosition &&
               (actualProgressPosition - progressBarPosition).abs() >
                   toleranceInSeconds) ||
