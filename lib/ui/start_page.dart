@@ -139,6 +139,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
       }
       if (Globals.isMobileDevice() == true) {
         restartInAppDeviceServer();
+        mainBloc.startPythonRuntimeIfRequirementsFulfilled(
+          initPythonRuntime: false,
+        );
         mainBloc.resetWebSocketServices();
       }
       WidgetsBinding.instance.addPostFrameCallback((timestamp) {

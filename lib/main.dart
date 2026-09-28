@@ -26,10 +26,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:terminate_restart/terminate_restart.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:python_backend/python_runtime.dart';
 
 Future<void> _configureMacosWindowUtils() async {
   const MacosWindowUtilsConfig config = MacosWindowUtilsConfig(
@@ -109,7 +107,6 @@ class RoonMatrixState extends State<RoonMatrix> {
   final FileRepository fileRepository = FileRepository();
   final String title = Globals.mainWindowTitle;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey();
-  final pythonRuntimeStartTimeoutInSeconds = 120;
 
   Map<String, dynamic> translations = {};
   Map<String, dynamic> info = {};
@@ -134,27 +131,6 @@ class RoonMatrixState extends State<RoonMatrix> {
   late SettingsBloc settingsBloc;
   late ConnectionStatusBloc connectionStatusBloc;
   late MainBloc mainBloc;
-
-  Future<void> startPythonRuntimeIfRequirementsFulfilled() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool startInAppDeviceServer =
-        prefs.getBool('startInAppDeviceServer') ?? false;
-
-    debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
-
-    if (startInAppDeviceServer == true) {
-      Future.delayed(Duration(seconds: pythonRuntimeStartTimeoutInSeconds), () {
-        // auto-restart app if python runtime is not working 5 minutes ago since start
-        if (mainBloc.state.localHostIp.isEmpty ||
-            mainBloc.state.info.containsKey(mainBloc.state.localHostIp) ==
-                false) {
-          mainBloc.restartAppAndPythonRuntime();
-        }
-      });
-
-      pythonRuntimeInit();
-    }
-  }
 
   @override
   void initState() {
@@ -186,7 +162,7 @@ class RoonMatrixState extends State<RoonMatrix> {
       }
     });
 
-    startPythonRuntimeIfRequirementsFulfilled();
+    mainBloc.startPythonRuntimeIfRequirementsFulfilled(initPythonRuntime: true);
 
     super.initState();
   }

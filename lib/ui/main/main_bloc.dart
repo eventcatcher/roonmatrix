@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:json_repair_flutter/json_repair_flutter.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:python_backend/python_runtime.dart';
 import 'package:restart_app/restart_app.dart' as restart_app;
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/file_repository.dart';
@@ -61,6 +62,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final int portWebSocket = 8100;
   final bool restartWithConfirmation =
       Platform.isWindows || Platform.isLinux; // || Platform.isIOS
+  final int pythonRuntimeStartTimeoutInSeconds = 120;
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
@@ -1030,6 +1032,30 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   // ============== //
   // public methods //
   // ============== //
+
+  Future<void> startPythonRuntimeIfRequirementsFulfilled({
+    required bool initPythonRuntime,
+  }) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool startInAppDeviceServer =
+        prefs.getBool('startInAppDeviceServer') ?? false;
+
+    debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
+
+    if (startInAppDeviceServer == true) {
+      Future.delayed(Duration(seconds: pythonRuntimeStartTimeoutInSeconds), () {
+        // auto-restart app if python runtime is not working 5 minutes ago since start
+        if (state.localHostIp.isEmpty ||
+            state.info.containsKey(state.localHostIp) == false) {
+          restartAppAndPythonRuntime();
+        }
+      });
+
+      if (initPythonRuntime == true) {
+        pythonRuntimeInit();
+      }
+    }
+  }
 
   void stringExportToFile(String fileStr) async {
     if (fileStr.isNotEmpty) {
