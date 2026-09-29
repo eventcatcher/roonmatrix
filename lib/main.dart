@@ -162,7 +162,8 @@ class RoonMatrixState extends State<RoonMatrix> {
       }
     });
 
-    mainBloc.startPythonRuntimeIfRequirementsFulfilled(initPythonRuntime: true);
+    //mainBloc.startPythonRuntime();
+    mainBloc.restartAppForVirtualDeviceNotFoundOrSendDataTimeOut();
 
     super.initState();
   }

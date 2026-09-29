@@ -32,7 +32,6 @@ import 'package:roonmatrix/ui/settings/settings_state.dart';
 import 'package:roonmatrix/ui/translations/translations_bloc.dart';
 import 'package:roonmatrix/ui/translations/translations_state.dart';
 import 'package:roonmatrix/ui/helper/string_extension.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class StartPage extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
@@ -122,32 +121,12 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
     // }
   }
 
-  Future<void> restartInAppDeviceServer() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool startInAppDeviceServer =
-        prefs.getBool('startInAppDeviceServer') ?? false;
-
-    if (startInAppDeviceServer == true) {
-      mainBloc.resetVirtualDevice();
-    }
-  }
-
   Widget body() => AppLifecyclePageWrapper(
     onResume: () {
       if (kDebugMode) {
         debugPrint('AppLifecycle => onResume');
       }
-      if (Globals.isMobileDevice() == true) {
-        restartInAppDeviceServer();
-        mainBloc.startPythonRuntimeIfRequirementsFulfilled(
-          initPythonRuntime: false,
-        );
-        mainBloc.resetWebSocketServices();
-      }
-      WidgetsBinding.instance.addPostFrameCallback((timestamp) {
-        mainBloc.restartPollingTimer();
-        mainBloc.searching(idle: Globals.isMobileDevice());
-      });
+      mainBloc.appLifeCycleResume();
     },
     child: BlocBuilder(
       bloc: translationsBloc,
@@ -344,6 +323,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                 translations: translations,
                                 logMessage: mainState.logMessage,
                               ),
+                            Text(
+                              'localHostIp: ${mainState.localHostIp}, dev: ${mainState.devices.contains(mainState.localHostIp)}, info: ${mainState.info.containsKey(mainState.localHostIp)}, updatedAt: ${mainState.pingData[mainState.localHostIp]?.updatedAt}',
+                            ),
                             VirtualDeviceInfo(
                               translations: translations,
                               show:

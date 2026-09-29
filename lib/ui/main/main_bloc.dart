@@ -58,11 +58,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final List<String> allowedDeviceTypes = ['roonmatrix', 'coverplayer'];
   final int pollingIntervalInSeconds = 30;
   final int reconnectDelayInSeconds = 3;
+  final int parallelScanTimeoutInMs = 300;
   final int portRestServer = 8000;
   final int portWebSocket = 8100;
   final bool restartWithConfirmation =
       Platform.isWindows || Platform.isLinux; // || Platform.isIOS
-  final int pythonRuntimeStartTimeoutInSeconds = 120;
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
@@ -74,6 +74,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   String? ipStart;
   String? ipEnd;
   Timer? timer;
+  Timer? virtualDevicePingCheckOnRestarTimer;
+  Timer? virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer;
+  Timer? appLifeCycleResumeTimer;
   Display? primaryDisplay;
 
   MainBloc({required this.fileRepository}) : super(const MainStateInitial()) {
@@ -165,15 +168,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
 
       if (event is ResetWebSocketServices) {
-        if (kDebugMode) {
-          debugPrint(
-            'ResetWebSocketServices @ ${DateTime.now().toLocal()}, services: ${services.length}',
-          );
-        }
-        for (WebSocketService service in services) {
-          service.dispose();
-        }
-        services = [];
+        doResetWebSocketServices();
       }
 
       if (event is SetPing) {
@@ -447,9 +442,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             // if (inAppVirtualDeviceIp.isNotEmpty && !restartWithConfirmation) {
             //   sendExitNow();
             // }
+            if (restartWithConfirmation == true) {
+              setRestartApproveMode(enabled: true);
+            }
             Future.delayed(Duration(seconds: 5), () async {
               //pythonRuntimeRestart();
-              restartAppAndPythonRuntime();
+              restartApp();
             });
           }
         }
@@ -545,9 +543,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   //     !restartWithConfirmation) {
                   //   sendExitNow();
                   // }
+                  if (restartWithConfirmation == true) {
+                    setRestartApproveMode(enabled: true);
+                  }
                   Future.delayed(Duration(seconds: 5), () async {
                     //pythonRuntimeRestart()
-                    restartAppAndPythonRuntime();
+                    restartApp();
                   });
                 }
               }
@@ -916,10 +917,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       }
 
       if (event is RestartPollingTimer) {
-        if (timer == null || !timer!.isActive) {
-          timer?.cancel();
-          setPollingTimer();
-        }
+        doRestartPollingTimer();
       }
 
       if (event is DisableListItemsRendering) {
@@ -1003,25 +1001,63 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
       }
 
-      if (event is ResetVirtualDevice) {
-        // wait for first ping after lifecycle resume
-        Future.delayed(Duration(seconds: 30), () async {
-          if (state.localHostIp.isNotEmpty &&
-              state.info.containsKey(state.localHostIp)) {
-            Map<String, dynamic> info = state.info;
-            DateTime? updatedAt = state.pingData[state.localHostIp]?.updatedAt;
-            if (updatedAt != null &&
-                DateTime.now().difference(updatedAt).inSeconds > 45) {
-              debugPrint('restart app...');
-              // ping refresh on device is set to 15 seconds
-              info.remove(state.localHostIp);
-              emit(state.copyWith(update: DateTime.now(), info: info));
-              Future.delayed(Duration(seconds: 5), () async {
-                restartAppAndPythonRuntime();
-              });
-            }
-          }
-        });
+      if (event is ResetVirtualDeviceOnPingTimeout) {
+        doResetVirtualDeviceOnPingTimeout();
+      }
+
+      if (event is RemoveVirtualDeviceFromState) {
+        bool withSearching = event.withSearching;
+
+        List<String> devices = state.devices;
+        Map<String, dynamic> info = state.info;
+        Map<String, PingData> pingData = state.pingData;
+
+        if (state.localHostIp.isNotEmpty &&
+            (devices.contains(state.localHostIp) ||
+                info.containsKey(state.localHostIp))) {
+          devices.remove(state.localHostIp);
+          info.remove(state.localHostIp);
+          pingData.remove(state.localHostIp);
+
+          emit(
+            state.copyWith(
+              update: DateTime.now(),
+              devices: devices,
+              pingData: pingData,
+              info: info,
+            ),
+          );
+        }
+
+        if (withSearching == true) {
+          searching(idle: state.devices.isEmpty);
+        }
+      }
+
+      if (event is RemoveVirtualDeviceFromStateAndRestartApp) {
+        List<String> devices = state.devices;
+        Map<String, dynamic> info = state.info;
+        Map<String, PingData> pingData = state.pingData;
+
+        if (state.localHostIp.isNotEmpty &&
+            (devices.contains(state.localHostIp) ||
+                info.containsKey(state.localHostIp))) {
+          devices.remove(state.localHostIp);
+          info.remove(state.localHostIp);
+          pingData.remove(state.localHostIp);
+
+          emit(
+            state.copyWith(
+              update: DateTime.now(),
+              devices: devices,
+              pingData: pingData,
+              info: info,
+            ),
+          );
+          Future.delayed(Duration(seconds: 5), () async {
+            restartApp();
+          });
+        }
       }
     });
 
@@ -1033,26 +1069,190 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   // public methods //
   // ============== //
 
-  Future<void> startPythonRuntimeIfRequirementsFulfilled({
-    required bool initPythonRuntime,
-  }) async {
+  void doRestartPollingTimer() {
+    if (timer == null || !timer!.isActive) {
+      print('eegethn doRestartPollingTimer');
+      timer?.cancel();
+      setPollingTimer();
+    }
+  }
+
+  void doResetVirtualDeviceOnPingTimeout() async {
+    print('eegethn doResetVirtualDeviceOnPingTimeout');
+    // wait for first ping after lifecycle resume
+    final int pingCheckTimeout =
+        30; // seconds after check if a ping was received (enough time to get first ping)
+    final int pingTimeout =
+        45; // seconds the last ping must be received, otherwise restartApp (ping refresh on device is set to 15 seconds)
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool startInAppDeviceServer =
         prefs.getBool('startInAppDeviceServer') ?? false;
 
-    debugPrint('startInAppDeviceServer: $startInAppDeviceServer');
+    if (startInAppDeviceServer == true) {
+      print('eegethn start virtualDevicePingCheckOnRestarTimer');
+      virtualDevicePingCheckOnRestarTimer = Timer.periodic(
+        Duration(seconds: pingCheckTimeout),
+        (Timer timer) {
+          print('eegethn entered virtualDevicePingCheckOnRestarTimer');
+          virtualDevicePingCheckOnRestarTimer!.cancel();
+          List<String> devices = state.devices;
+          if (state.localHostIp.isNotEmpty &&
+              devices.contains(state.localHostIp)) {
+            DateTime? updatedAt = state.pingData[state.localHostIp]?.updatedAt;
+            if (updatedAt == null ||
+                DateTime.now().difference(updatedAt).inSeconds > pingTimeout) {
+              print(
+                'eegethn updatedAt: $updatedAt => removeVirtualDeviceFromStateAndRestartApp',
+              );
+              removeVirtualDeviceFromStateAndRestartApp(); // emit
+            }
+          }
+        },
+      );
+    }
+  }
+
+  Future<void> restartApp() async {
+    print('eegethn restartApp...');
+    if (Platform.isIOS) {
+      await TerminateRestart.instance.restartApp(
+        options: const TerminateRestartOptions(
+          terminate: true,
+          clearData: true,
+          preserveKeychain: true,
+          preserveUserDefaults: true,
+        ),
+      );
+    }
+    if (Platform.isAndroid || Platform.isMacOS) {
+      final restart_app.RestartCapability capability =
+          await restart_app.Restart.restartCapability();
+      restart_app.RestartMode mode =
+          restart_app.RestartMode.notificationFallback;
+      if (capability.flutterEngineRestart == true) {
+        mode = restart_app.RestartMode.flutterEngine;
+        debugPrint('set RestartMode to flutterEngine');
+      }
+      if (capability.fullProcessRestart == true) {
+        mode = restart_app.RestartMode.process;
+        debugPrint('set RestartMode to process');
+      }
+      print('eegethn restartApp => loadDefaults');
+      loadDefaults(); // emit
+      restart_app.Restart.restartApp(mode: mode, forceKill: true);
+    }
+  }
+
+  void doResetWebSocketServices() {
+    print(
+      'eegethn ResetWebSocketServices @ ${DateTime.now().toLocal()}, services: ${services.length}',
+    );
+
+    for (WebSocketService service in services) {
+      service.dispose();
+    }
+    services = [];
+  }
+
+  Future<void> appLifeCycleResume() async {
+    // wait 5 seconds for network connection after app resume
+    appLifeCycleResumeTimer = Timer.periodic(Duration(seconds: 5), (Timer t) {
+      print('eegethn appLifeCycleResume');
+      appLifeCycleResumeTimer!.cancel();
+      timer?.cancel();
+      virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
+      virtualDevicePingCheckOnRestarTimer?.cancel();
+
+      doResetWebSocketServices();
+      doRestartPollingTimer(); // Timer.periodic => emit Searching
+
+      if (Globals.isMobileDevice() == true) {
+        restartAppForVirtualDeviceNotFoundOrSendDataTimeOut(); // Future.delayed => emit LoadDefaults, call restartApp (no emit)
+      }
+
+      searching(idle: state.devices.isEmpty); // emit Searching
+    });
+  }
+
+  Future<void> startPythonRuntime() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool startInAppDeviceServer =
+        prefs.getBool('startInAppDeviceServer') ?? false;
+
+    print(
+      'eegethn startPythonRuntime, startInAppDeviceServer: $startInAppDeviceServer',
+    );
 
     if (startInAppDeviceServer == true) {
-      Future.delayed(Duration(seconds: pythonRuntimeStartTimeoutInSeconds), () {
-        // auto-restart app if python runtime is not working 5 minutes ago since start
-        if (state.localHostIp.isEmpty ||
-            state.info.containsKey(state.localHostIp) == false) {
-          restartAppAndPythonRuntime();
-        }
-      });
+      print('eegethn startPythonRuntime => pythonRuntimeInit');
 
-      if (initPythonRuntime == true) {
+      try {
         pythonRuntimeInit();
+      } catch (e) {
+        print('eegethn startPythonRuntime => pythonRuntimeInit error: $e');
+        restartApp();
+      }
+    }
+  }
+
+  Future<void> restartAppForVirtualDeviceNotFoundOrSendDataTimeOut() async {
+    final int pythonRuntimeStartTimeoutInSeconds = 120;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool startInAppDeviceServer =
+        prefs.getBool('startInAppDeviceServer') ?? false;
+
+    print(
+      'eegethn restartAppForVirtualDeviceNotFoundOrSendDataTimeOut, startInAppDeviceServer: $startInAppDeviceServer',
+    );
+
+    if (startInAppDeviceServer == true) {
+      bool isOnline = state.localHostIp.isNotEmpty
+          ? await isPortOpen(
+              state.localHostIp,
+              portRestServer,
+              Duration(milliseconds: parallelScanTimeoutInMs),
+            )
+          : false;
+
+      print(
+        'eegethn restartAppForVirtualDeviceNotFoundOrSendDataTimeOut => server: ${state.localHostIp}, isOnline: $isOnline',
+      );
+
+      if (isOnline == true) {
+        inAppVirtualDeviceIp = state.localHostIp;
+        print('eegethn doResetVirtualDeviceOnPingTimeout');
+        doResetVirtualDeviceOnPingTimeout(); // Future.delayed => emit RemoveVirtualDeviceFromStateAndRestartApp
+      } else {
+        if (state.localHostIp.isEmpty ||
+            state.devices.contains(state.localHostIp) == false ||
+            state.info.containsKey(state.localHostIp) == false) {
+          print(
+            'eegethn restartAppForVirtualDeviceNotFoundOrSendDataTimeOut => startPythonRuntime',
+          );
+          removeVirtualDeviceFromState(withSearching: false); // emit
+          startPythonRuntime();
+        }
+
+        virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer = Timer.periodic(
+          Duration(seconds: pythonRuntimeStartTimeoutInSeconds),
+          (Timer timer) {
+            print(
+              'eegethn virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer entered',
+            );
+            virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer!.cancel();
+            // auto-restart app if python runtime is not working 2 minutes ago since start
+            if (state.localHostIp.isEmpty ||
+                state.devices.contains(state.localHostIp) == false ||
+                state.info.containsKey(state.localHostIp) == false) {
+              print('eegethn restartApp');
+              restartApp();
+            } else {
+              print('eegethn doResetVirtualDeviceOnPingTimeout');
+              doResetVirtualDeviceOnPingTimeout(); // Future.delayed => emit RemoveVirtualDeviceFromStateAndRestartApp
+            }
+          },
+        );
       }
     }
   }
@@ -1745,7 +1945,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }) async {
     final List<Future> futures = <Future>[];
     final List<String> found = [];
-    const timeout = Duration(milliseconds: 300);
+    Duration timeout = Duration(milliseconds: parallelScanTimeoutInMs);
 
     debugPrint('virtual in-app device ip: ${state.localHostIp}');
 
@@ -2124,14 +2324,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   void setPollingTimer() {
-    if (kDebugMode) {
-      debugPrint(
-        'setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds',
-      );
-    }
+    print(
+      'eegethn setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds',
+    );
+
     timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds), (
       Timer timer,
     ) {
+      print(
+        'eegethn pollingTimer entered => searching (idle: ${state.devices.isEmpty})',
+      );
       searching(idle: state.devices.isEmpty);
     });
   }
@@ -3165,39 +3367,6 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     ];
   }
 
-  Future<void> restartAppAndPythonRuntime() async {
-    if (restartWithConfirmation == true) {
-      setRestartApproveMode(enabled: true);
-    }
-
-    if (Platform.isIOS) {
-      await TerminateRestart.instance.restartApp(
-        options: const TerminateRestartOptions(
-          terminate: true,
-          clearData: true,
-          preserveKeychain: true,
-          preserveUserDefaults: true,
-        ),
-      );
-    }
-    if (Platform.isAndroid || Platform.isMacOS) {
-      final restart_app.RestartCapability capability =
-          await restart_app.Restart.restartCapability();
-      restart_app.RestartMode mode =
-          restart_app.RestartMode.notificationFallback;
-      if (capability.flutterEngineRestart == true) {
-        mode = restart_app.RestartMode.flutterEngine;
-        debugPrint('set RestartMode to flutterEngine');
-      }
-      if (capability.fullProcessRestart == true) {
-        mode = restart_app.RestartMode.process;
-        debugPrint('set RestartMode to process');
-      }
-      loadDefaults();
-      restart_app.Restart.restartApp(mode: mode, forceKill: true);
-    }
-  }
-
   Future<void> sendExitNow() async {
     if (inAppVirtualDeviceIp.isNotEmpty) {
       String ip = inAppVirtualDeviceIp;
@@ -3374,13 +3543,25 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     add(SelectDeviceNext(ip: ip));
   }
 
-  void resetVirtualDevice() {
-    add(ResetVirtualDevice());
+  void resetVirtualDeviceOnPingTimeout() {
+    add(ResetVirtualDeviceOnPingTimeout());
+  }
+
+  void removeVirtualDeviceFromStateAndRestartApp() {
+    add(RemoveVirtualDeviceFromStateAndRestartApp());
+  }
+
+  void removeVirtualDeviceFromState({required bool withSearching}) {
+    add(RemoveVirtualDeviceFromState(withSearching: withSearching));
   }
 
   @override
   Future<void> close() {
+    print('eegethn close => cancel all timers and dispose websockets');
     timer?.cancel();
+    appLifeCycleResumeTimer?.cancel();
+    virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
+    virtualDevicePingCheckOnRestarTimer?.cancel();
     for (WebSocketService service in services) {
       service.dispose();
     }

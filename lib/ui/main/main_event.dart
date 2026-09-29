@@ -308,9 +308,25 @@ class SetTileExpanded extends MainEvent {
   List<Object> get props => [name, expanded];
 }
 
-class ResetVirtualDevice extends MainEvent {
-  const ResetVirtualDevice();
+class ResetVirtualDeviceOnPingTimeout extends MainEvent {
+  const ResetVirtualDeviceOnPingTimeout();
 
   @override
   List<Object> get props => [];
+}
+
+class RemoveVirtualDeviceFromStateAndRestartApp extends MainEvent {
+  const RemoveVirtualDeviceFromStateAndRestartApp();
+
+  @override
+  List<Object> get props => [];
+}
+
+class RemoveVirtualDeviceFromState extends MainEvent {
+  final bool withSearching;
+
+  const RemoveVirtualDeviceFromState({required this.withSearching});
+
+  @override
+  List<Object> get props => [withSearching];
 }
