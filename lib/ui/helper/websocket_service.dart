@@ -27,6 +27,8 @@ class WebSocketService {
 
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
+  Timer? _pingTimeoutTimer;
+  bool _disposed = false;
 
   Future<void> connect() async {
     String url = 'ws://$ip:$port/ws';
@@ -36,10 +38,12 @@ class WebSocketService {
       );
     }
     final Uri wsUrl = Uri.parse(url);
-    _channel = WebSocketChannel.connect(wsUrl);
+    final WebSocketChannel channel = WebSocketChannel.connect(wsUrl);
+    _channel = channel;
     try {
-      await _channel!.ready;
+      await channel.ready;
     } on SocketException catch (e) {
+      if (_disposed) return;
       if (kDebugMode) {
         debugPrint(
           "ws123 WebSocketService @ ${DateTime.now().toLocal()} => SocketException => connect error $e, url: $url",
@@ -49,6 +53,7 @@ class WebSocketService {
       onConnect(false);
       return;
     } on WebSocketChannelException catch (e) {
+      if (_disposed) return;
       if (kDebugMode) {
         debugPrint(
           "ws123 WebSocketService @ ${DateTime.now().toLocal()} => WebSocketChannelException => connect error $e, url: $url",
@@ -58,11 +63,16 @@ class WebSocketService {
       onConnect(false);
       return;
     }
+    // disposed while connecting (e.g. on app lifecycle resume) => don't report anything
+    if (_disposed) {
+      channel.sink.close();
+      return;
+    }
     onConnect(true);
 
     DateTime lastPing = DateTime.now();
 
-    Timer timer = Timer.periodic(Duration(seconds: 5), (Timer timer) {
+    _pingTimeoutTimer = Timer.periodic(Duration(seconds: 5), (Timer timer) {
       DateTime afterPing = lastPing.add(
         Duration(seconds: pingSecondsPeriodic + pingSecondTimeout),
       );
@@ -84,9 +94,9 @@ class WebSocketService {
       }
     });
 
-    _subscription = _channel!.stream.listen(
+    _subscription = channel.stream.listen(
       (dynamic message) {
-        _channel!.sink.add('received');
+        channel.sink.add('received');
         //_channel!.sink.close(status.goingAway, 'closed');
         lastPing = DateTime.now();
 
@@ -117,7 +127,7 @@ class WebSocketService {
         }
       },
       onDone: () {
-        timer.cancel();
+        _pingTimeoutTimer?.cancel();
         if (kDebugMode) {
           debugPrint(
             "ws123 WebSocketService @ ${DateTime.now().toLocal()} => disconnected from $url. try again to connect...",
@@ -126,7 +136,7 @@ class WebSocketService {
         onConnect(false);
       },
       onError: (error) {
-        timer.cancel();
+        _pingTimeoutTimer?.cancel();
         if (kDebugMode) {
           debugPrint(
             "WebSocketService @ ${DateTime.now().toLocal()} => error for $url: ${error.toString()}",
@@ -139,6 +149,10 @@ class WebSocketService {
   }
 
   void dispose() {
+    _disposed = true;
+    // cancel ping timeout timer too, otherwise it fires onConnect(false) later
+    // and removes the new service for the same url
+    _pingTimeoutTimer?.cancel();
     _subscription?.cancel();
     _channel?.sink.close();
     _channel = null;

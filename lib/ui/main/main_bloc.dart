@@ -300,7 +300,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         }
 
         if (!exist) {
-          WebSocketService service = WebSocketService(
+          late final WebSocketService service;
+          service = WebSocketService(
             ip: ip,
             port: portWebSocket,
             onInfoMessage: (String jsonStr) {
@@ -330,23 +331,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             onConnect: (bool connected) {
               setConnected(ip: ip, connected: connected);
               if (!connected) {
-                List<WebSocketService> servicesToRemove = [];
-                for (WebSocketService service in services) {
-                  if (url == service.url) {
-                    if (kDebugMode) {
-                      debugPrint(
-                        'remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}',
-                      );
-                    }
-                    service.dispose();
-                    servicesToRemove.add(service);
-                  }
+                // remove only this service, not a newer one for the same url
+                if (kDebugMode) {
+                  debugPrint(
+                    'remove WebSocketService @ ${DateTime.now().toLocal()}: ${service.url}',
+                  );
                 }
-                if (servicesToRemove.isNotEmpty) {
-                  for (WebSocketService service in servicesToRemove) {
-                    services.remove(service);
-                  }
-                }
+                service.dispose();
+                services.remove(service);
 
                 Future.delayed(
                   Duration(seconds: reconnectDelayInSeconds),
@@ -1081,7 +1073,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     print('eegethn doResetVirtualDeviceOnPingTimeout');
     // wait for first ping after lifecycle resume
     final int pingCheckTimeout =
-        30; // seconds after check if a ping was received (enough time to get first ping)
+        45; // seconds after check if a ping was received (enough time to get first ping: scan + websocket connect + ping interval 15s), was 30
     final int pingTimeout =
         45; // seconds the last ping must be received, otherwise restartApp (ping refresh on device is set to 15 seconds)
 
@@ -1164,15 +1156,64 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
       virtualDevicePingCheckOnRestarTimer?.cancel();
 
+      // checkRestServerOnResume(); // debug: rest server reachable via wifi ip and/or loopback?
+
       doResetWebSocketServices();
       doRestartPollingTimer(); // Timer.periodic => emit Searching
 
       if (Globals.isMobileDevice() == true) {
-        restartAppForVirtualDeviceNotFoundOrSendDataTimeOut(); // Future.delayed => emit LoadDefaults, call restartApp (no emit)
+        // python runtime is still running after resume => never start it a second time in the same process
+        restartAppForVirtualDeviceNotFoundOrSendDataTimeOut(
+          startPythonRuntimeIfOffline: false,
+        ); // Future.delayed => emit LoadDefaults, call restartApp (no emit)
       }
 
       searching(idle: state.devices.isEmpty); // emit Searching
     });
+  }
+
+  Future<void> checkRestServerOnResume() async {
+    for (final String host in [state.localHostIp, '127.0.0.1']) {
+      if (host.isEmpty) continue;
+      for (final int port in [portRestServer, portWebSocket]) {
+        final bool open = await isPortOpen(
+          host,
+          port,
+          const Duration(seconds: 2),
+        );
+        print(
+          'eegethn checkRestServerOnResume @ ${DateTime.now().toLocal()} => $host:$port tcp open: $open',
+        );
+      }
+
+      // tcp connect succeeds as soon as the kernel accepts the connection,
+      // so check if the python servers really answer
+      final Uri restUri = Uri.parse('http://$host:$portRestServer/');
+      await probeHttp('rest (fresh client)', () => http.get(restUri));
+      await probeHttp('rest (shared client)', () => client.get(restUri));
+      // websocket server answers a plain http request with an error status if its event loop is alive
+      await probeHttp(
+        'websocket',
+        () => http.get(Uri.parse('http://$host:$portWebSocket/ws')),
+      );
+    }
+  }
+
+  Future<void> probeHttp(
+    String label,
+    Future<http.Response> Function() request,
+  ) async {
+    try {
+      final http.Response response = await request().timeout(
+        const Duration(seconds: 3),
+      );
+      final String body = response.body;
+      print(
+        'eegethn checkRestServerOnResume $label => status: ${response.statusCode}, body: ${body.substring(0, body.length < 80 ? body.length : 80)}',
+      );
+    } catch (e) {
+      print('eegethn checkRestServerOnResume $label => error: $e');
+    }
   }
 
   Future<void> startPythonRuntime() async {
@@ -1196,7 +1237,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
   }
 
-  Future<void> restartAppForVirtualDeviceNotFoundOrSendDataTimeOut() async {
+  Future<void> restartAppForVirtualDeviceNotFoundOrSendDataTimeOut({
+    bool startPythonRuntimeIfOffline = true,
+  }) async {
     final int pythonRuntimeStartTimeoutInSeconds = 120;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool startInAppDeviceServer =
@@ -1231,7 +1274,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             'eegethn restartAppForVirtualDeviceNotFoundOrSendDataTimeOut => startPythonRuntime',
           );
           removeVirtualDeviceFromState(withSearching: false); // emit
-          startPythonRuntime();
+          if (startPythonRuntimeIfOffline == true) {
+            startPythonRuntime();
+          }
         }
 
         virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer = Timer.periodic(
@@ -1997,9 +2042,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
 
     if (isScanning == true) {
-      if (kDebugMode) {
-        debugPrint('networkscan is running...');
-      }
+      // print('eegethn searchDevices skipped: networkscan is running...');
     } else {
       List<String> devices = [];
       isScanning = true;
@@ -2028,6 +2071,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             port: portRestServer,
             withLocalHostIp: startInAppDeviceServer,
           );
+          // print('eegethn searchDevices tcp open: $ipList');
 
           for (String ip in ipList) {
             if (kDebugMode) {
@@ -2067,9 +2111,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 }
               }
             } catch (e) {
-              if (kDebugMode) {
-                debugPrint('error by access to $url: $e');
-              }
+              // print('eegethn searchDevices error by access to $url: $e');
             }
           }
 
@@ -2088,6 +2130,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               }
             }
           }
+          // print('eegethn searchDevices => LoadDevices: $devices');
           add(LoadDevices(devices: devices));
         }
 
