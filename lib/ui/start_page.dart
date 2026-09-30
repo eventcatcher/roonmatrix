@@ -323,9 +323,10 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                 translations: translations,
                                 logMessage: mainState.logMessage,
                               ),
-                            Text(
-                              'localHostIp: ${mainState.localHostIp}, dev: ${mainState.devices.contains(mainState.localHostIp)}, info: ${mainState.info.containsKey(mainState.localHostIp)}, updatedAt: ${mainState.pingData[mainState.localHostIp]?.updatedAt}',
-                            ),
+                            if (mainBloc.logAppCycleResume == true)
+                              Text(
+                                'localHostIp: ${mainState.localHostIp}, dev: ${mainState.devices.contains(mainState.localHostIp)}, info: ${mainState.info.containsKey(mainState.localHostIp)}, updatedAt: ${mainState.pingData[mainState.localHostIp]?.updatedAt}',
+                              ),
                             VirtualDeviceInfo(
                               translations: translations,
                               show:

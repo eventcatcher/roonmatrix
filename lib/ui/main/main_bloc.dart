@@ -63,6 +63,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final int portWebSocket = 8100;
   final bool restartWithConfirmation =
       Platform.isWindows || Platform.isLinux; // || Platform.isIOS
+  final bool logAppCycleResume = false;
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
@@ -1061,16 +1062,23 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   // public methods //
   // ============== //
 
+  void debugPrintAppCycleResume({required String text}) {
+    if (logAppCycleResume == true) {
+      debugPrint('logAppCycleResume: $text');
+    }
+  }
+
   void doRestartPollingTimer() {
     if (timer == null || !timer!.isActive) {
-      print('eegethn doRestartPollingTimer');
+      debugPrintAppCycleResume(text: 'doRestartPollingTimer');
+
       timer?.cancel();
       setPollingTimer();
     }
   }
 
   void doResetVirtualDeviceOnPingTimeout() async {
-    print('eegethn doResetVirtualDeviceOnPingTimeout');
+    debugPrintAppCycleResume(text: 'doResetVirtualDeviceOnPingTimeout');
     // wait for first ping after lifecycle resume
     final int pingCheckTimeout =
         45; // seconds after check if a ping was received (enough time to get first ping: scan + websocket connect + ping interval 15s), was 30
@@ -1082,11 +1090,15 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         prefs.getBool('startInAppDeviceServer') ?? false;
 
     if (startInAppDeviceServer == true) {
-      print('eegethn start virtualDevicePingCheckOnRestarTimer');
+      debugPrintAppCycleResume(
+        text: 'virtualDevicePingCheckOnRestarTimer => start',
+      );
       virtualDevicePingCheckOnRestarTimer = Timer.periodic(
         Duration(seconds: pingCheckTimeout),
         (Timer timer) {
-          print('eegethn entered virtualDevicePingCheckOnRestarTimer');
+          debugPrintAppCycleResume(
+            text: 'virtualDevicePingCheckOnRestarTimer => timeout',
+          );
           virtualDevicePingCheckOnRestarTimer!.cancel();
           List<String> devices = state.devices;
           if (state.localHostIp.isNotEmpty &&
@@ -1094,8 +1106,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             DateTime? updatedAt = state.pingData[state.localHostIp]?.updatedAt;
             if (updatedAt == null ||
                 DateTime.now().difference(updatedAt).inSeconds > pingTimeout) {
-              print(
-                'eegethn updatedAt: $updatedAt => removeVirtualDeviceFromStateAndRestartApp',
+              debugPrintAppCycleResume(
+                text:
+                    'virtualDevicePingCheckOnRestarTimer => updatedAt: $updatedAt => removeVirtualDeviceFromStateAndRestartApp',
               );
               removeVirtualDeviceFromStateAndRestartApp(); // emit
             }
@@ -1106,7 +1119,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   Future<void> restartApp() async {
-    print('eegethn restartApp...');
+    debugPrintAppCycleResume(text: 'restartApp => check requirements');
     if (Platform.isIOS) {
       await TerminateRestart.instance.restartApp(
         options: const TerminateRestartOptions(
@@ -1130,15 +1143,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         mode = restart_app.RestartMode.process;
         debugPrint('set RestartMode to process');
       }
-      print('eegethn restartApp => loadDefaults');
+      debugPrintAppCycleResume(text: 'restartApp => loadDefaults');
       loadDefaults(); // emit
       restart_app.Restart.restartApp(mode: mode, forceKill: true);
     }
   }
 
   void doResetWebSocketServices() {
-    print(
-      'eegethn ResetWebSocketServices @ ${DateTime.now().toLocal()}, services: ${services.length}',
+    debugPrintAppCycleResume(
+      text:
+          'doResetWebSocketServices @ ${DateTime.now().toLocal()}, services: ${services.length}',
     );
 
     for (WebSocketService service in services) {
@@ -1148,15 +1162,15 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   Future<void> appLifeCycleResume() async {
+    debugPrintAppCycleResume(text: 'appLifeCycleResume start');
+    virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
+    virtualDevicePingCheckOnRestarTimer?.cancel();
+    appLifeCycleResumeTimer!.cancel();
+    timer?.cancel();
+
     // wait 5 seconds for network connection after app resume
     appLifeCycleResumeTimer = Timer.periodic(Duration(seconds: 5), (Timer t) {
-      print('eegethn appLifeCycleResume');
-      appLifeCycleResumeTimer!.cancel();
-      timer?.cancel();
-      virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
-      virtualDevicePingCheckOnRestarTimer?.cancel();
-
-      // checkRestServerOnResume(); // debug: rest server reachable via wifi ip and/or loopback?
+      checkRestServerOnResume(); // debug: rest server reachable via wifi ip and/or loopback?
 
       doResetWebSocketServices();
       doRestartPollingTimer(); // Timer.periodic => emit Searching
@@ -1170,10 +1184,30 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       searching(idle: state.devices.isEmpty); // emit Searching
     });
+    debugPrintAppCycleResume(text: 'appLifeCycleResume end');
   }
 
   Future<void> checkRestServerOnResume() async {
-    for (final String host in [state.localHostIp, '127.0.0.1']) {
+    // localHostIp is only set on app start => check if wifi ip has changed while app was paused
+    String? currentWifiIp;
+    try {
+      currentWifiIp = await NetworkInfo().getWifiIP();
+    } catch (e) {
+      debugPrintAppCycleResume(
+        text: 'checkRestServerOnResume => getWifiIP error: $e',
+      );
+    }
+    debugPrintAppCycleResume(
+      text:
+          'checkRestServerOnResume @ ${DateTime.now().toLocal()} => state.localHostIp: ${state.localHostIp}, current wifi ip: $currentWifiIp, changed: ${currentWifiIp != state.localHostIp}',
+    );
+
+    final List<String> hosts = [state.localHostIp, '127.0.0.1'];
+    if (currentWifiIp != null && !hosts.contains(currentWifiIp)) {
+      hosts.insert(1, currentWifiIp);
+    }
+
+    for (final String host in hosts) {
       if (host.isEmpty) continue;
       for (final int port in [portRestServer, portWebSocket]) {
         final bool open = await isPortOpen(
@@ -1181,8 +1215,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           port,
           const Duration(seconds: 2),
         );
-        print(
-          'eegethn checkRestServerOnResume @ ${DateTime.now().toLocal()} => $host:$port tcp open: $open',
+        debugPrintAppCycleResume(
+          text:
+              'checkRestServerOnResume @ ${DateTime.now().toLocal()} => $host:$port tcp open: $open',
         );
       }
 
@@ -1208,11 +1243,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         const Duration(seconds: 3),
       );
       final String body = response.body;
-      print(
-        'eegethn checkRestServerOnResume $label => status: ${response.statusCode}, body: ${body.substring(0, body.length < 80 ? body.length : 80)}',
+      debugPrintAppCycleResume(
+        text:
+            'checkRestServerOnResume/probeHttp $label => status: ${response.statusCode}, body: ${body.substring(0, body.length < 80 ? body.length : 80)}',
       );
     } catch (e) {
-      print('eegethn checkRestServerOnResume $label => error: $e');
+      debugPrintAppCycleResume(
+        text: 'checkRestServerOnResume/probeHttp $label => error: $e',
+      );
     }
   }
 
@@ -1221,17 +1259,21 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     bool startInAppDeviceServer =
         prefs.getBool('startInAppDeviceServer') ?? false;
 
-    print(
-      'eegethn startPythonRuntime, startInAppDeviceServer: $startInAppDeviceServer',
+    debugPrintAppCycleResume(
+      text:
+          'startPythonRuntime => check requirements => startInAppDeviceServer: $startInAppDeviceServer',
     );
 
     if (startInAppDeviceServer == true) {
-      print('eegethn startPythonRuntime => pythonRuntimeInit');
+      debugPrintAppCycleResume(text: 'startPythonRuntime => pythonRuntimeInit');
 
       try {
         pythonRuntimeInit();
       } catch (e) {
-        print('eegethn startPythonRuntime => pythonRuntimeInit error: $e');
+        debugPrintAppCycleResume(
+          text:
+              'startPythonRuntime => pythonRuntimeInit error: $e => restartApp',
+        );
         restartApp();
       }
     }
@@ -1244,9 +1286,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool startInAppDeviceServer =
         prefs.getBool('startInAppDeviceServer') ?? false;
-
-    print(
-      'eegethn restartAppForVirtualDeviceNotFoundOrSendDataTimeOut, startInAppDeviceServer: $startInAppDeviceServer',
+    debugPrintAppCycleResume(
+      text:
+          'restartAppForVirtualDeviceNotFoundOrSendDataTimeOut check requirements => startInAppDeviceServer: $startInAppDeviceServer',
     );
 
     if (startInAppDeviceServer == true) {
@@ -1258,20 +1300,25 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             )
           : false;
 
-      print(
-        'eegethn restartAppForVirtualDeviceNotFoundOrSendDataTimeOut => server: ${state.localHostIp}, isOnline: $isOnline',
+      debugPrintAppCycleResume(
+        text:
+            'restartAppForVirtualDeviceNotFoundOrSendDataTimeOut => server: ${state.localHostIp}, isOnline: $isOnline',
       );
 
       if (isOnline == true) {
         inAppVirtualDeviceIp = state.localHostIp;
-        print('eegethn doResetVirtualDeviceOnPingTimeout');
+        debugPrintAppCycleResume(
+          text:
+              'restartAppForVirtualDeviceNotFoundOrSendDataTimeOut => doResetVirtualDeviceOnPingTimeout',
+        );
         doResetVirtualDeviceOnPingTimeout(); // Future.delayed => emit RemoveVirtualDeviceFromStateAndRestartApp
       } else {
         if (state.localHostIp.isEmpty ||
             state.devices.contains(state.localHostIp) == false ||
             state.info.containsKey(state.localHostIp) == false) {
-          print(
-            'eegethn restartAppForVirtualDeviceNotFoundOrSendDataTimeOut => startPythonRuntime',
+          debugPrintAppCycleResume(
+            text:
+                'restartAppForVirtualDeviceNotFoundOrSendDataTimeOut => removeVirtualDeviceFromState, startPythonRuntimeIfOffline: $startPythonRuntimeIfOffline',
           );
           removeVirtualDeviceFromState(withSearching: false); // emit
           if (startPythonRuntimeIfOffline == true) {
@@ -1279,21 +1326,31 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           }
         }
 
+        debugPrintAppCycleResume(
+          text: 'virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer start',
+        );
         virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer = Timer.periodic(
           Duration(seconds: pythonRuntimeStartTimeoutInSeconds),
           (Timer timer) {
-            print(
-              'eegethn virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer entered',
+            debugPrintAppCycleResume(
+              text:
+                  'virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer timeout',
             );
             virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer!.cancel();
             // auto-restart app if python runtime is not working 2 minutes ago since start
             if (state.localHostIp.isEmpty ||
                 state.devices.contains(state.localHostIp) == false ||
                 state.info.containsKey(state.localHostIp) == false) {
-              print('eegethn restartApp');
+              debugPrintAppCycleResume(
+                text:
+                    'virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer => restartApp',
+              );
               restartApp();
             } else {
-              print('eegethn doResetVirtualDeviceOnPingTimeout');
+              debugPrintAppCycleResume(
+                text:
+                    'virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer => doResetVirtualDeviceOnPingTimeout',
+              );
               doResetVirtualDeviceOnPingTimeout(); // Future.delayed => emit RemoveVirtualDeviceFromStateAndRestartApp
             }
           },
@@ -2042,7 +2099,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     }
 
     if (isScanning == true) {
-      // print('eegethn searchDevices skipped: networkscan is running...');
+      debugPrintAppCycleResume(
+        text: 'searchDevices skipped: networkscan is running...',
+      );
     } else {
       List<String> devices = [];
       isScanning = true;
@@ -2071,7 +2130,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             port: portRestServer,
             withLocalHostIp: startInAppDeviceServer,
           );
-          // print('eegethn searchDevices tcp open: $ipList');
+          debugPrintAppCycleResume(text: 'searchDevices tcp open: $ipList');
 
           for (String ip in ipList) {
             if (kDebugMode) {
@@ -2111,7 +2170,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 }
               }
             } catch (e) {
-              // print('eegethn searchDevices error by access to $url: $e');
+              debugPrintAppCycleResume(
+                text: 'searchDevices error by access to $url: $e',
+              );
             }
           }
 
@@ -2130,7 +2191,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               }
             }
           }
-          // print('eegethn searchDevices => LoadDevices: $devices');
+          debugPrintAppCycleResume(
+            text: 'searchDevices => LoadDevices: $devices',
+          );
           add(LoadDevices(devices: devices));
         }
 
@@ -2367,15 +2430,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   }
 
   void setPollingTimer() {
-    print(
-      'eegethn setPollingTimer, pollingIntervalInSeconds: $pollingIntervalInSeconds',
+    debugPrintAppCycleResume(
+      text:
+          'setPollingTimer => pollingIntervalInSeconds: $pollingIntervalInSeconds => start',
     );
 
     timer = Timer.periodic(Duration(seconds: pollingIntervalInSeconds), (
       Timer timer,
     ) {
-      print(
-        'eegethn pollingTimer entered => searching (idle: ${state.devices.isEmpty})',
+      debugPrintAppCycleResume(
+        text:
+            'pollingTimer timeout => searching (idle: ${state.devices.isEmpty})',
       );
       searching(idle: state.devices.isEmpty);
     });
@@ -3600,7 +3665,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   @override
   Future<void> close() {
-    print('eegethn close => cancel all timers and dispose websockets');
+    debugPrintAppCycleResume(
+      text: 'close => cancel all timers and dispose websockets',
+    );
     timer?.cancel();
     appLifeCycleResumeTimer?.cancel();
     virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
