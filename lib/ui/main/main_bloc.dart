@@ -1165,12 +1165,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     debugPrintAppCycleResume(text: 'appLifeCycleResume start');
     virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
     virtualDevicePingCheckOnRestarTimer?.cancel();
-    appLifeCycleResumeTimer!.cancel();
+    appLifeCycleResumeTimer?.cancel();
     timer?.cancel();
 
-    // wait 5 seconds for network connection after app resume
-    appLifeCycleResumeTimer = Timer.periodic(Duration(seconds: 5), (Timer t) {
-      checkRestServerOnResume(); // debug: rest server reachable via wifi ip and/or loopback?
+    // wait 5 seconds for network connection after app resume (one-shot timer)
+    appLifeCycleResumeTimer = Timer(Duration(seconds: 5), () {
+      if (logAppCycleResume == true) {
+        checkRestServerOnResume(); // debug: rest server reachable via wifi ip and/or loopback?
+      }
 
       doResetWebSocketServices();
       doRestartPollingTimer(); // Timer.periodic => emit Searching
