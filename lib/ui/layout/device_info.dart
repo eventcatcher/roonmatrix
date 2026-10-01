@@ -13,6 +13,7 @@ class DeviceInfo extends StatefulWidget {
   final String ip;
   final Map<String, dynamic> info;
   final bool connected;
+  final bool isVirtualDevice;
   final PingData? pingData;
   final double height;
   final VoidCallback onFinishedPing;
@@ -22,6 +23,7 @@ class DeviceInfo extends StatefulWidget {
     required this.translations,
     required this.ip,
     required this.connected,
+    required this.isVirtualDevice,
     required this.pingData,
     required this.info,
     required this.height,
@@ -95,6 +97,14 @@ class _DeviceInfoState extends State<DeviceInfo> {
                         maxLines: 1,
                         style: TextStyle(fontSize: fontSizeIp, height: 1.3),
                       ),
+                      if (widget.isVirtualDevice)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Badge(
+                            label: Text('VM'),
+                            backgroundColor: Colors.orange.shade900,
+                          ),
+                        ),
                       if (widget.info[widget.ip]['reboot_python'] == true)
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0),

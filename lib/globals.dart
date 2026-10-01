@@ -27,12 +27,16 @@ class Globals {
     defaultDesktopHeight,
   );
 
+  static final double deviceListCoverSize = 68.0;
   static final double maxFontSizeForCoverText = 48.0;
   static final double midFontSizeForCoverText = 24.0;
   static final double stdFontSizeForCoverText = 16.0;
 
   static final String placeholderSvgAssetPath =
       'assets/svg/8-8-led-matrix-display-unit.svg';
+
+  static final String virtualDeviceSvgAssetPath =
+      'assets/svg/virtual_device.svg';
 
   static final String appIconAssetPath = 'assets/svg/roonmatrix-app-icon.svg';
 

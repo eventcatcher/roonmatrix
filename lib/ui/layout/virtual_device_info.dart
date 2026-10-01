@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:roonmatrix/color_defs.dart';
+import 'package:roonmatrix/globals.dart';
 
 class VirtualDeviceInfo extends StatefulWidget {
   const VirtualDeviceInfo({
@@ -67,6 +69,18 @@ class _VirtualDeviceInfoState extends State<VirtualDeviceInfo>
     height: tileListHeight,
     child: Row(
       children: [
+        SizedBox(width: 8.0),
+        SizedBox(
+          width: Globals.deviceListCoverSize,
+          height: Globals.deviceListCoverSize,
+          child: SvgPicture.asset(
+            Globals.virtualDeviceSvgAssetPath,
+            allowDrawingOutsideViewBox: false,
+            fit: BoxFit.cover,
+            clipBehavior: Clip.hardEdge,
+          ),
+        ),
+
         Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: Text(

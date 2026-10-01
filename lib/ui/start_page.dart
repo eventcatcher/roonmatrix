@@ -421,6 +421,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 standardDesktopSize,
                                             translations: translations,
                                             ip: ip,
+                                            isVirtualDevice:
+                                                ip == mainState.localHostIp,
                                             activeIp: selectedDeviceIp,
                                             connected: connectedItem,
                                             pingData: pingItem,

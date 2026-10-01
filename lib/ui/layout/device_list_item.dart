@@ -38,6 +38,7 @@ class DeviceListItem extends StatefulWidget {
   final String activeIp;
   final bool connected;
   final PingData? pingData;
+  final bool isVirtualDevice;
   final bool showSlider;
   final Map<String, dynamic> info;
   final String spotifyAuthUrl;
@@ -67,6 +68,7 @@ class DeviceListItem extends StatefulWidget {
     required this.activeIp,
     required this.connected,
     required this.pingData,
+    required this.isVirtualDevice,
     required this.showSlider,
     required this.info,
     required this.spotifyAuthUrl,
@@ -111,7 +113,6 @@ class _DeviceListItemState extends State<DeviceListItem> {
   final bool bigExpandableButtonSizeOnMobile = true;
 
   final int cyclePause = 2;
-  final double deviceListCoverSize = 68.0;
   final double bigExpandableButtonsPaddingRight = 72.0;
   final double smallExpandableButtonsPaddingRight = 48.0;
   final double hideInfoAndTickerIfWidthBelow = 640;
@@ -237,7 +238,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
 
     double ledSizeNew = ledSize;
     double nettoWidth =
-        width - deviceListCoverSize - tickerHorizontalPadding * 3 - 3;
+        width - Globals.deviceListCoverSize - tickerHorizontalPadding * 3 - 3;
     if (ledModules * ledSize * 8 + ledGap * 8 >
         nettoWidth - tickerHorizontalPadding * 2) {
       ledSizeNew = nettoWidth / (ledModules * 8 + ledGap * 8);
@@ -369,8 +370,8 @@ class _DeviceListItemState extends State<DeviceListItem> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: deviceListCoverSize,
-                        height: deviceListCoverSize,
+                        width: Globals.deviceListCoverSize,
+                        height: Globals.deviceListCoverSize,
                         child: Tooltip(
                           message:
                               translations['openCoverPageButtonLabel'] ??
@@ -398,8 +399,8 @@ class _DeviceListItemState extends State<DeviceListItem> {
                               child: coverUrl != null
                                   ? Image.network(
                                       coverUrl,
-                                      width: deviceListCoverSize,
-                                      height: deviceListCoverSize,
+                                      width: Globals.deviceListCoverSize,
+                                      height: Globals.deviceListCoverSize,
                                       colorBlendMode: idle
                                           ? ColorDefs.idleZoneColorBlendMode
                                           : null,
@@ -451,6 +452,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
                                 child: DeviceInfo(
                                   translations: translations,
                                   ip: ip,
+                                  isVirtualDevice: widget.isVirtualDevice,
                                   connected: connected,
                                   pingData: pingData,
                                   info: info,
@@ -640,7 +642,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
                     (ledTickerInDeviceListActive
                         ? 21 - (ledSingleModuleSize + 2 * ledTickerPadding)
                         : 0),
-                left: deviceListCoverSize + 8,
+                left: Globals.deviceListCoverSize + 8,
                 child: NotificationListener<SizeChangedLayoutNotification>(
                   onNotification: (notification) {
                     updateSizes('NotificationListener');
