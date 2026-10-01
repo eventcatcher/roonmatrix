@@ -1169,7 +1169,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     timer?.cancel();
 
     // wait 5 seconds for network connection after app resume (one-shot timer)
-    appLifeCycleResumeTimer = Timer(Duration(seconds: 5), () {
+    appLifeCycleResumeTimer = Timer.periodic(Duration(seconds: 5), (Timer t) {
+      appLifeCycleResumeTimer!.cancel();
+
       if (logAppCycleResume == true) {
         checkRestServerOnResume(); // debug: rest server reachable via wifi ip and/or loopback?
       }
