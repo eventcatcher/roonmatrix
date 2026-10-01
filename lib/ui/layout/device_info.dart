@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
@@ -101,8 +102,11 @@ class _DeviceInfoState extends State<DeviceInfo> {
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0),
                           child: Badge(
-                            label: Text('VM'),
-                            backgroundColor: Colors.orange.shade900,
+                            label: Text(
+                              'VM',
+                              style: TextStyle(fontSize: fontSizeIp - 1),
+                            ),
+                            backgroundColor: CupertinoColors.activeBlue.color,
                           ),
                         ),
                       if (widget.info[widget.ip]['reboot_python'] == true)
