@@ -64,6 +64,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   final bool restartWithConfirmation =
       Platform.isWindows || Platform.isLinux; // || Platform.isIOS
   final bool logAppCycleResume = false;
+  final bool logRestServerChecks = false;
 
   http.Client client = http.Client();
   Map<String, dynamic> translations = {};
@@ -77,7 +78,10 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Timer? timer;
   Timer? virtualDevicePingCheckOnRestarTimer;
   Timer? virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer;
+  Timer? removeVirtualDeviceFromStateAndRestartTimer;
   Timer? appLifeCycleResumeTimer;
+  Timer? loadInfoRestartTimer;
+  Timer? getInfoRestartTimer;
   Display? primaryDisplay;
 
   MainBloc({required this.fileRepository}) : super(const MainStateInitial()) {
@@ -438,8 +442,14 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             if (restartWithConfirmation == true) {
               setRestartApproveMode(enabled: true);
             }
-            Future.delayed(Duration(seconds: 5), () async {
-              //pythonRuntimeRestart();
+            debugPrintAppCycleResume(text: 'loadInfoRestartTimer => start');
+            loadInfoRestartTimer = Timer.periodic(Duration(seconds: 5), (
+              Timer timer,
+            ) {
+              loadInfoRestartTimer!.cancel();
+              debugPrintAppCycleResume(
+                text: 'loadInfoRestartTimer => restartApp',
+              );
               restartApp();
             });
           }
@@ -539,8 +549,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   if (restartWithConfirmation == true) {
                     setRestartApproveMode(enabled: true);
                   }
-                  Future.delayed(Duration(seconds: 5), () async {
-                    //pythonRuntimeRestart()
+                  debugPrintAppCycleResume(
+                    text: 'getInfoRestartTimer => start',
+                  );
+                  getInfoRestartTimer = Timer.periodic(Duration(seconds: 5), (
+                    Timer timer,
+                  ) {
+                    getInfoRestartTimer!.cancel();
+                    debugPrintAppCycleResume(
+                      text: 'getInfoRestartTimer => restartApp',
+                    );
                     restartApp();
                   });
                 }
@@ -1047,9 +1065,21 @@ class MainBloc extends Bloc<MainEvent, MainState> {
               info: info,
             ),
           );
-          Future.delayed(Duration(seconds: 5), () async {
-            restartApp();
-          });
+
+          debugPrintAppCycleResume(
+            text: 'removeVirtualDeviceFromStateAndRestartTimer => start',
+          );
+          removeVirtualDeviceFromStateAndRestartTimer = Timer.periodic(
+            Duration(seconds: 5),
+            (Timer timer) {
+              removeVirtualDeviceFromStateAndRestartTimer!.cancel();
+              debugPrintAppCycleResume(
+                text:
+                    'removeVirtualDeviceFromStateAndRestartTimer => restartApp',
+              );
+              restartApp();
+            },
+          );
         }
       }
     });
@@ -1096,10 +1126,12 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       virtualDevicePingCheckOnRestarTimer = Timer.periodic(
         Duration(seconds: pingCheckTimeout),
         (Timer timer) {
+          virtualDevicePingCheckOnRestarTimer!.cancel();
+
           debugPrintAppCycleResume(
             text: 'virtualDevicePingCheckOnRestarTimer => timeout',
           );
-          virtualDevicePingCheckOnRestarTimer!.cancel();
+
           List<String> devices = state.devices;
           if (state.localHostIp.isNotEmpty &&
               devices.contains(state.localHostIp)) {
@@ -1164,6 +1196,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Future<void> appLifeCycleResume() async {
     debugPrintAppCycleResume(text: 'appLifeCycleResume start');
     virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
+    removeVirtualDeviceFromStateAndRestartTimer?.cancel();
+    loadInfoRestartTimer?.cancel();
+    getInfoRestartTimer?.cancel();
     virtualDevicePingCheckOnRestarTimer?.cancel();
     appLifeCycleResumeTimer?.cancel();
     timer?.cancel();
@@ -1172,7 +1207,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     appLifeCycleResumeTimer = Timer.periodic(Duration(seconds: 5), (Timer t) {
       appLifeCycleResumeTimer!.cancel();
 
-      if (logAppCycleResume == true) {
+      if (logAppCycleResume == true && logRestServerChecks == true) {
         checkRestServerOnResume(); // debug: rest server reachable via wifi ip and/or loopback?
       }
 
@@ -1336,11 +1371,11 @@ class MainBloc extends Bloc<MainEvent, MainState> {
         virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer = Timer.periodic(
           Duration(seconds: pythonRuntimeStartTimeoutInSeconds),
           (Timer timer) {
+            virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer!.cancel();
             debugPrintAppCycleResume(
               text:
                   'virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer timeout',
             );
-            virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer!.cancel();
             // auto-restart app if python runtime is not working 2 minutes ago since start
             if (state.localHostIp.isEmpty ||
                 state.devices.contains(state.localHostIp) == false ||
@@ -3675,6 +3710,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     timer?.cancel();
     appLifeCycleResumeTimer?.cancel();
     virtualDeviceNotFoundOrSendDataTimeOutOnRestarTimer?.cancel();
+    removeVirtualDeviceFromStateAndRestartTimer?.cancel();
+    loadInfoRestartTimer?.cancel();
+    getInfoRestartTimer?.cancel();
     virtualDevicePingCheckOnRestarTimer?.cancel();
     for (WebSocketService service in services) {
       service.dispose();

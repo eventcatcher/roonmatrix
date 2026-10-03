@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:intl/intl.dart';
 import 'package:language_code/language_code.dart';
+import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/model/ping_data.dart';
 import 'package:roonmatrix/ui/layout/ripple_ping.dart';
@@ -104,7 +105,10 @@ class _DeviceInfoState extends State<DeviceInfo> {
                           child: Badge(
                             label: Text(
                               'VM',
-                              style: TextStyle(fontSize: fontSizeIp - 1),
+                              style: TextStyle(
+                                fontSize: fontSizeIp - 1,
+                                color: Colors.white,
+                              ),
                             ),
                             backgroundColor: CupertinoColors.activeBlue.color,
                           ),
