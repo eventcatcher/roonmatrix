@@ -1,12 +1,8 @@
 import Cocoa
 import FlutterMacOS
 import macos_window_utils
-import bitsdojo_window_macos
 
-class MainFlutterWindow: BitsdojoWindow {
-  // override func bitsdojo_window_configure() -> UInt {
-  //   return BDW_CUSTOM_FRAME | BDW_HIDE_ON_STARTUP
-  // }
+class MainFlutterWindow: NSWindow {
 
   override func awakeFromNib() {
     let windowFrame = self.frame
@@ -17,15 +13,30 @@ class MainFlutterWindow: BitsdojoWindow {
     /* Initialize the macos_window_utils plugin */
     MainFlutterWindowManipulator.start(mainFlutterWindow: self)
 
+    let channel = FlutterMethodChannel(
+      name: "roonmatrix/macos",
+      binaryMessenger:
+        macOSWindowUtilsViewController
+          .flutterViewController
+          .engine
+          .binaryMessenger
+    )
+
+    channel.setMethodCallHandler { call, result in
+      switch call.method {
+      case "terminate":
+        NSApp.terminate(nil)
+        result(nil)
+
+      default:
+        result(FlutterMethodNotImplemented)
+      }
+    }
+
     RegisterGeneratedPlugins(registry: macOSWindowUtilsViewController.flutterViewController)
 
-//    let flutterViewController = FlutterViewController.init()
-//    let windowFrame = self.frame
-//    self.contentViewController = flutterViewController
-//    self.setFrame(windowFrame, display: true)
-//
-//    RegisterGeneratedPlugins(registry: flutterViewController)
-
     super.awakeFromNib()
+
+    self.setFrameAutosaveName("RoonMatrix")
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:roonmatrix/color_defs.dart';
@@ -142,6 +143,15 @@ class _PageWithToolbarFlutterStyleState
       isFullscreen = false;
       appBarWithActions = getAppBar();
     });
+  }
+
+  @override
+  Future<void> onWindowClose() async {
+    if (Platform.isMacOS) {
+      await MethodChannel('roonmatrix/macos').invokeMethod(
+        'terminate',
+      ); // click on red close button => clean terminate like Command-Q (to preserve window position, size and display on close)
+    }
   }
 
   @override

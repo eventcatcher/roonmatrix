@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roonmatrix/globals.dart';
 import 'package:roonmatrix/ui/layout/slider_expandable.dart';
 import 'package:roonmatrix/ui/layout/slider_mobile.dart';
 import 'package:roonmatrix/ui/main/main_bloc.dart';
+import 'package:window_manager/window_manager.dart';
 
 class PageWithToolbarIosStyle extends StatefulWidget {
   final int iosMajorVersion;
@@ -45,7 +47,8 @@ class PageWithToolbarIosStyle extends StatefulWidget {
       _PageWithToolbarIosStyleState();
 }
 
-class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
+class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle>
+    with WindowListener {
   String get title => widget.title;
   double get sliderDefaultValue => widget.sliderDefaultValue;
   bool get showSlider => widget.showSlider;
@@ -75,6 +78,10 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
     double appBarHeight = appBarWithActions.preferredSize.height;
     setAppBarHeight(height: appBarHeight);
 
+    if (Platform.isMacOS) {
+      windowManager.addListener(this);
+    }
+
     super.initState();
   }
 
@@ -90,6 +97,15 @@ class _PageWithToolbarIosStyleState extends State<PageWithToolbarIosStyle> {
     );
     double appBarHeight = appBarWithActions.preferredSize.height;
     setAppBarHeight(height: appBarHeight);
+  }
+
+  @override
+  Future<void> onWindowClose() async {
+    if (Platform.isMacOS) {
+      await MethodChannel('roonmatrix/macos').invokeMethod(
+        'terminate',
+      ); // click on red close button => clean terminate like Command-Q (to preserve window position, size and display on close)
+    }
   }
 
   ObstructingPreferredSizeWidget getAppBar({

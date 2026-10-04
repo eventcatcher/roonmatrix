@@ -85,6 +85,11 @@ void main() async {
       appWindow.show();
     });
     await windowManager.ensureInitialized();
+    if (Platform.isMacOS) {
+      await windowManager.setPreventClose(
+        true,
+      ); // important (without this, terminate is not working) before calling of MethodChannel('roonmatrix/macos').invokeMethod('terminate')
+    }
   }
 }
 
