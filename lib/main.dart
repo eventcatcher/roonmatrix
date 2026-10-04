@@ -30,14 +30,16 @@ import 'package:terminate_restart/terminate_restart.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> _configureMacosWindowUtils() async {
-  const MacosWindowUtilsConfig config = MacosWindowUtilsConfig(
-    makeTitlebarTransparent: true,
-    toolbarStyle: NSWindowToolbarStyle.automatic,
-  );
-
   final String macosVersion = await Globals.getMacosVersion();
   final int macosVersionMajor = int.parse(macosVersion.split('.').first);
   if (macosVersionMajor >= 13) {
+    MacosWindowUtilsConfig config = MacosWindowUtilsConfig(
+      makeTitlebarTransparent: true,
+      toolbarStyle: macosVersionMajor >= 26
+          ? NSWindowToolbarStyle.unifiedCompact
+          : NSWindowToolbarStyle.automatic,
+    );
+
     await config.apply(); // crashing on older macs with macos version < 13.0
   }
 }

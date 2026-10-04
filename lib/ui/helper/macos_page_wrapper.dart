@@ -97,6 +97,17 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
     super.dispose();
   }
 
+  double getTopPaddiong() {
+    if (isFullscreen && macosVersionMajor >= 26) {
+      return 40.0;
+    }
+    if (isFullscreen && macosVersionMajor >= 13) {
+      return 38.0;
+    }
+
+    return 0.0;
+  }
+
   @override
   Widget build(BuildContext context) => MacosWindow(
     child: MacosScaffold(
@@ -106,9 +117,7 @@ class _MacosPageWrapperState extends State<MacosPageWrapper>
           builder: ((context, scrollController) {
             return Container(
               color: Colors.transparent,
-              padding: EdgeInsets.only(
-                top: isFullscreen && macosVersionMajor >= 13 ? 38 : 0,
-              ),
+              padding: EdgeInsets.only(top: getTopPaddiong()),
               child: Material(
                 color: Colors.transparent,
                 child: Theme(
