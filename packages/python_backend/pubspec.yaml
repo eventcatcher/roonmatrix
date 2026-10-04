@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  serious_python: ^4.7.0
+  serious_python: ^5.0.0
   path_provider: ^2.1.5
 
 platforms:
