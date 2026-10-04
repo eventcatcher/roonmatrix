@@ -75,7 +75,10 @@ void main() async {
   if (Globals.isDesktopDevice()) {
     doWhenWindowReady(() {
       appWindow.minSize = Globals.minDesktopSize;
-      appWindow.size = Globals.standardDesktopSize;
+
+      // set start position and height
+      // appWindow.size = Globals.standardDesktopSize;
+      // appWindow.alignment = Alignment.center;
 
       appWindow.show();
     });
