@@ -72,8 +72,9 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
     if (info != null &&
         info != {} &&
         info!.keys.isNotEmpty &&
-        (info![info!.keys.first] as Map<String, dynamic>)
-            .containsKey('channels')) {
+        (info![info!.keys.first] as Map<String, dynamic>).containsKey(
+          'channels',
+        )) {
       Map<String, dynamic> channels = info![info!.keys.first]['channels'];
       Map<String, dynamic> webPlayouts =
           info![info!.keys.first]['web_playouts'];
@@ -86,21 +87,24 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
               zone['zone'] != 'SpotifyConnect') {
             String zoneName = '$serverName-${zone['zone']}';
 
-            String? controlId =
-                channels.keys.firstWhereOrNull((el) => el == zoneName);
+            String? controlId = channels.keys.firstWhereOrNull(
+              (el) => el == zoneName,
+            );
 
             if (controlId != null) {
-              buttons.add(ZoneStartButton(
-                label: zoneName,
-                onPressed: () {
-                  mainBloc.zoneControl(
-                    ip: info!.keys.first,
-                    controlId: controlId,
-                    cmd: 'playmode',
-                    enable: true,
-                  );
-                },
-              ));
+              buttons.add(
+                ZoneStartButton(
+                  label: zoneName,
+                  onPressed: () {
+                    mainBloc.zoneControl(
+                      ip: info!.keys.first,
+                      controlId: controlId,
+                      cmd: 'playmode',
+                      enable: true,
+                    );
+                  },
+                ),
+              );
             }
           }
         }
@@ -117,8 +121,8 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
     double addOn = orientation == Orientation.portrait
         ? notRunningButtonsExpandableMenuWidthStandardAddon
         : Platform.isAndroid
-            ? notRunningButtonsExpandableMenuWidthStandardAddon
-            : -46;
+        ? notRunningButtonsExpandableMenuWidthStandardAddon
+        : -46;
 
     if (length > 0) {
       if (keyZoneNotRunningButtonsKey.currentContext != null) {
@@ -153,9 +157,12 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
         }
       } else {
         if (retry < 10) {
-          Future<void>.delayed(Duration(milliseconds: 500)).then((value) =>
-              updateZoneNotRunningButtonsWidth(
-                  length: length, retry: retry += 1));
+          Future<void>.delayed(Duration(milliseconds: 500)).then(
+            (value) => updateZoneNotRunningButtonsWidth(
+              length: length,
+              retry: retry += 1,
+            ),
+          );
         }
       }
     }
@@ -170,20 +177,24 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
             MediaQuery.of(context).size.width <=
                 Globals.mobilePageButtonsMaxWidth
         ? SizedBox(
-            width: (zoneNotRunningButtonsWidth ?? buttonsWidthDefault) -
+            width:
+                (zoneNotRunningButtonsWidth ?? buttonsWidthDefault) -
                 (Globals.inMacosStyle() || Globals.inIosStyle() ? 8.0 : 0.0),
             height: expandableSize,
             child: ScrollConfiguration(
-              behavior:
-                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              behavior: ScrollConfiguration.of(
+                context,
+              ).copyWith(scrollbars: false),
               child: ExpandableMenu(
                 key: ValueKey(
-                    'ExpandableMenuZoneButtons-$zoneNotRunningButtonsWidth'), // zone button menu in cover area
+                  'ExpandableMenuZoneButtons-$zoneNotRunningButtonsWidth',
+                ), // zone button menu in cover area
                 width: expandableSize,
                 height: expandableSize,
                 animationSpeed: animationSpeed,
-                backgroundColor:
-                    ColorDefs.buttonRowBackgroundColor(context: context),
+                backgroundColor: ColorDefs.buttonRowBackgroundColor(
+                  context: context,
+                ),
                 items: [
                   Wrap(
                     direction: Axis.horizontal,
@@ -226,9 +237,11 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
               Text(
                 (translations['startZone'] ?? 'start').toString().toFirstUpper,
                 style: TextStyle(
-                  color: ColorDefs.textColor(context: context),
+                  color: Globals.brightness() == Brightness.dark
+                      ? Colors.blue.shade100
+                      : Colors.blue.shade800,
                   fontWeight: FontWeight.w400,
-                  fontSize: 19.0,
+                  fontSize: 14.0,
                 ),
               ),
               Flexible(
@@ -236,9 +249,7 @@ class ZoneStartButtonsState extends State<ZoneStartButtons> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   physics: AlwaysScrollableScrollPhysics(),
-                  child: Row(
-                    children: buttons,
-                  ),
+                  child: Row(children: buttons),
                 ),
               ),
             ],
