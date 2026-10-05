@@ -13,6 +13,7 @@ import 'package:roonmatrix/ui/main/main_state.dart';
 class ProgressBarWidget extends StatefulWidget {
   final String ip;
   final String? controlId;
+  final double? topMargin;
   final double coverPadding;
   final double verticalPadding;
   final Brightness? brightness;
@@ -23,6 +24,7 @@ class ProgressBarWidget extends StatefulWidget {
     super.key,
     required this.ip,
     this.controlId,
+    this.topMargin,
     required this.coverPadding,
     this.verticalPadding = 0,
     this.brightness,
@@ -237,7 +239,9 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
 
   Widget getProgressBar({required int progress, required int total}) {
     return Container(
-      margin: EdgeInsets.only(top: coverPadding),
+      margin: widget.topMargin != null
+          ? EdgeInsets.only(top: widget.topMargin!)
+          : null,
       padding: widget.verticalPadding > 0
           ? EdgeInsets.symmetric(vertical: widget.verticalPadding)
           : null,

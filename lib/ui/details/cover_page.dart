@@ -845,6 +845,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                         ip: ip,
                                                                         controlId:
                                                                             controlId,
+                                                                        topMargin:
+                                                                            coverPadding,
                                                                         coverPadding:
                                                                             coverPadding,
                                                                         seek:
@@ -1008,6 +1010,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                         ip: ip,
                                                                         controlId:
                                                                             controlId,
+                                                                        topMargin:
+                                                                            coverPadding,
                                                                         coverPadding:
                                                                             coverPadding,
                                                                         seek:
@@ -1316,6 +1320,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                     child: ProgressBarWidget(
                                                                                       ip: ip,
                                                                                       controlId: controlId,
+                                                                                      topMargin: coverPadding,
                                                                                       coverPadding: coverPadding,
                                                                                       verticalPadding: 10.0,
                                                                                       seek:
@@ -1553,6 +1558,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                             ip: ip,
                                                                             controlId:
                                                                                 controlId,
+                                                                            topMargin:
+                                                                                coverPadding,
                                                                             coverPadding:
                                                                                 coverPadding,
                                                                             seek:
