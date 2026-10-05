@@ -365,7 +365,13 @@ class _CoverWidgetState extends State<CoverWidget> {
                                               : 'pause';
                                         });
                                         mainBloc.zoneControl(
-                                          ip: mainBloc.state.activeDeviceIp!,
+                                          ip:
+                                              mainBloc
+                                                  .state
+                                                  .selectedDeviceIp
+                                                  .isNotEmpty
+                                              ? mainBloc.state.selectedDeviceIp
+                                              : mainBloc.state.activeDeviceIp!,
                                           controlId: coverModel.controlId,
                                           cmd: 'playmode',
                                           enable:

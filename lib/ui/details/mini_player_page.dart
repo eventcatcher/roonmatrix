@@ -725,7 +725,13 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                               : 'paused';
                                         });
                                         mainBloc.zoneControl(
-                                          ip: mainBloc.state.activeDeviceIp!,
+                                          ip:
+                                              mainBloc
+                                                  .state
+                                                  .selectedDeviceIp
+                                                  .isNotEmpty
+                                              ? mainBloc.state.selectedDeviceIp
+                                              : mainBloc.state.activeDeviceIp!,
                                           controlId: coverModel!.controlId,
                                           cmd: 'playmode',
                                           enable:
