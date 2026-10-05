@@ -84,16 +84,20 @@ class CoverTextArea extends StatelessWidget {
         .toString()
         .toFirstUpper;
 
+    // Only include what is actually displayed: the status is shown just as
+    // "paused" or nothing, so transitions like loading -> playing must not
+    // change the key (otherwise the same text gets animated again).
+    bool paused = status == 'paused';
     String hash = md5
-        .convert(utf8.encode('$zoneName-$artist-$album-$track-$status'))
+        .convert(utf8.encode('$zoneName-$artist-$album-$track-$paused'))
         .toString();
 
     if (selectedZone == null ||
         selectedZone!.isEmpty ||
         selectedZone!['cover'] == null) {
-      // zone is inactive
+      // zone is inactive, only the zone name is displayed
       return textBox(
-        key: ValueKey('Text-inactive-$hash'),
+        key: ValueKey('Text-inactive-$zoneName'),
         child: AutoSizeText.rich(
           TextSpan(
             children: [
