@@ -564,10 +564,9 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                     '${translations['zoneSelectionPlaceholder'] ?? 'Select zone'}...',
                 inRow: true,
                 noVerticalSpace: false,
-                elementExpanded:
-                    width != null && width <= 300, // maybe throws error
+                elementExpanded: width != null, // maybe throws error
                 readOnly: false,
-                maxWidth: width != null && width <= 300 ? width - 70 : null,
+                maxWidth: width != null ? width - 70 : null,
                 selected: options[selectedZoneId] != null
                     ? selectedZoneId
                     : null,
