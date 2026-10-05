@@ -468,7 +468,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                 orientation: orientation,
                                 translations: translations,
                                 devices: devices,
-                                activeDeviceIp: activeDeviceIp,
+                                activeDeviceIp: selectedDeviceIp.isNotEmpty
+                                    ? selectedDeviceIp
+                                    : activeDeviceIp,
                                 info: info,
                                 appBarHeight: appBarHeight,
                                 coverRowArtist: coverRowArtist,
@@ -498,7 +500,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                     orientation: orientation,
                                     translations: translations,
                                     devices: devices,
-                                    activeDeviceIp: activeDeviceIp,
+                                    activeDeviceIp: selectedDeviceIp.isNotEmpty
+                                        ? selectedDeviceIp
+                                        : activeDeviceIp,
                                     info: info,
                                     appBarHeight: appBarHeight,
                                     coverRowArtist: coverRowArtist,

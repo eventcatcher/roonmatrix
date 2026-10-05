@@ -2336,7 +2336,9 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
   List<CoverModel> getCoversModel({required bool showWebCoverNotRunning}) {
     Map<String, dynamic> info = state.info;
-    String? activeDeviceIp = state.activeDeviceIp;
+    String? activeDeviceIp = state.selectedDeviceIp.isNotEmpty
+        ? state.selectedDeviceIp
+        : state.activeDeviceIp;
 
     List<CoverModel> covers = [];
 
