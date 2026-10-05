@@ -609,9 +609,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
     padding: portraitMode ? EdgeInsets.all(0) : EdgeInsets.all(coverPadding),
     child: LayoutBuilder(
       builder: (context, constraints) {
-        double maxSize = max(constraints.maxWidth, constraints.maxHeight);
         double minSize = min(constraints.maxWidth, constraints.maxHeight);
-
         if (minSize < zoneCornerLabelMinCoverSize) {
           return ZoneCornerLabel(
             zoneName: '-${selectedZone?['zone'] ?? name}',
@@ -669,8 +667,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                 : null,
                             errorBuilder: (context, error, stackTrace) {
                               return SizedBox(
-                                width: maxSize,
-                                height: maxSize,
+                                width: minSize,
+                                height: minSize,
                                 child: SvgPicture.asset(
                                   Globals.placeholderSvgAssetPath,
                                   allowDrawingOutsideViewBox: false,
@@ -686,8 +684,8 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                             },
                           )
                         : SizedBox(
-                            width: maxSize,
-                            height: maxSize,
+                            width: minSize,
+                            height: minSize,
                             child: SvgPicture.asset(
                               Globals.placeholderSvgAssetPath,
                               allowDrawingOutsideViewBox: false,
