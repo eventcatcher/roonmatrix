@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:card_swiper/card_swiper.dart';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +11,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:roonmatrix/color_defs.dart';
 import 'package:roonmatrix/data/main_repository.dart';
 import 'package:roonmatrix/globals.dart';
-import 'package:roonmatrix/model/cover_model.dart';
-import 'package:roonmatrix/ui/helper/string_extension.dart';
 import 'package:roonmatrix/ui/layout/control_buttons.dart';
-import 'package:roonmatrix/ui/layout/cover_text_overlay_extended.dart';
+import 'package:roonmatrix/ui/layout/cover_text_area.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_flutter_style.dart';
 import 'package:roonmatrix/ui/layout/page_with_toolbar_mac_style.dart';
 import 'package:roonmatrix/ui/layout/progress_bar_widget.dart';
@@ -61,7 +56,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey portraitTextAreaKey = GlobalKey();
+  final GlobalKey textAreaKey = GlobalKey();
   final SwiperController swiperController = SwiperController();
 
   final double coverPadding = 16.0;
@@ -228,191 +223,6 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
         }
       }
     });
-  }
-
-  Widget getTextArea({
-    required GlobalKey key,
-    required bool portraitMode,
-    required bool threeCols,
-    required double width,
-    required double height,
-  }) {
-    Widget inner = SizedBox();
-
-    if (selectedZone == null ||
-        selectedZone!.isEmpty ||
-        selectedZone!['cover'] == null) {
-      // zone is inactive
-      inner = Container(
-        key: ValueKey('Text-$idle-inactive'),
-        // width: width,
-        // height: height - 5,
-        constraints: threeCols
-            ? null
-            : BoxConstraints(
-                minHeight: Globals.isMobileDevice()
-                    ? minTextAreaHeightMobile
-                    : minTextAreaHeightDesktop,
-                //maxHeight: height - 32,
-              ),
-        child: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Center(
-            child: Container(
-              //margin: EdgeInsets.symmetric(horizontal: 16.0),
-              padding: EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                borderRadius: Globals.borderRadius(),
-                color: Globals.brightness() == Brightness.dark
-                    ? Colors.grey.shade800
-                    : Colors.grey.shade300,
-                boxShadow: [
-                  BoxShadow(
-                    color: Globals.brightness() == Brightness.dark
-                        ? Colors.white.withValues(alpha: 0.5)
-                        : Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 5.0,
-                  ),
-                ],
-              ),
-              child: AutoSizeText.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text:
-                          '${translations['coverZoneHeader'] ?? 'Zone'}: ${(selectedZone?['server'] == 'roon' ? selectedZone!['zone'] : selectedZone?['server'] ?? '').toString().toFirstUpper}',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    TextSpan(
-                      text: ' (${translations['inactive'] ?? 'inactive zone'})',
-                      style: TextStyle(
-                        color: Globals.brightness() == Brightness.dark
-                            ? Colors.red.shade400
-                            : Colors.red.shade700,
-                      ),
-                    ),
-                  ],
-                ),
-                maxLines: 2,
-                minFontSize: 2,
-                maxFontSize: Globals.adaptiveMaxFontSizeForCoverText(
-                  width: width,
-                ),
-                stepGranularity: 0.5,
-                wrapWords: true,
-                style: TextStyle(
-                  fontSize: Globals.adaptiveMaxFontSizeForCoverText(
-                    width: width,
-                  ),
-                  color: Globals.brightness() == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    } else {
-      if (selectedZone != null &&
-          selectedZone!.isNotEmpty &&
-          selectedZone!['artist'] != null) {
-        String zoneName = selectedZone!['zone'] != null
-            ? (selectedZone!['server'] == 'roon'
-                      ? selectedZone!['zone']
-                      : selectedZone!['server'])
-                  .toString()
-                  .toFirstUpper
-            : '';
-
-        String hash = md5
-            .convert(
-              utf8.encode(
-                '$zoneName-${selectedZone!['artist']}-${selectedZone!['album']}-${selectedZone!['track']}-${selectedZone!['status']}',
-              ),
-            )
-            .toString();
-
-        CoverModel coverModel = CoverModel(
-          hash: hash,
-          controlId: zoneName,
-          zoneName: zoneName,
-          isRadio: false,
-          coverUrl: '',
-          artist: selectedZone!['artist'],
-          album: selectedZone!['album'],
-          track: selectedZone!['track'],
-          status: selectedZone!['status'],
-        );
-
-        inner = Container(
-          key: ValueKey('Text-$idle-$hash'),
-          //width: width,
-          //height: height - 5,
-          constraints: threeCols
-              ? null
-              : BoxConstraints(
-                  minHeight: Globals.isMobileDevice()
-                      ? minTextAreaHeightMobile
-                      : minTextAreaHeightDesktop,
-                  //maxHeight: height - 32,
-                ),
-          child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Center(
-              child: Container(
-                //margin: EdgeInsets.symmetric(horizontal: 16.0),
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  borderRadius: Globals.borderRadius(),
-                  color: Globals.brightness() == Brightness.dark
-                      ? Colors.grey.shade800
-                      : Colors.grey.shade300,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Globals.brightness() == Brightness.dark
-                          ? Colors.white.withValues(alpha: 0.5)
-                          : Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 5.0,
-                    ),
-                  ],
-                ),
-                child: CoverTextOverlayExtended(
-                  coverModel: coverModel,
-                  maxFontSize: Globals.adaptiveMaxFontSizeForCoverText(
-                    width: width,
-                  ),
-                  color: Globals.brightness() == Brightness.dark
-                      ? Colors.white
-                      : Colors.black,
-                  translations: translations,
-                  coverRowArtist: true,
-                  coverRowAlbum: true,
-                  coverRowTrack: true,
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    return ClipRRect(
-      key: key,
-      child: AnimatedSwitcher(
-        duration: Globals.coverSwitchDefaultFadeAnimationDuration * 0.6,
-        transitionBuilder: (child, animation) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: Offset(0, 1),
-              end: Offset(0, 0),
-            ).animate(animation),
-            child: child,
-          );
-        },
-        child: inner,
-      ),
-    );
   }
 
   Map<String, dynamic> updateZoneSelection({required String? newValue}) {
@@ -993,7 +803,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                 (
                                                                                   _,
                                                                                 ) {
-                                                                                  final keyContext = portraitTextAreaKey.currentContext;
+                                                                                  final keyContext = textAreaKey.currentContext;
                                                                                   if (keyContext !=
                                                                                       null) {
                                                                                     final box =
@@ -1011,14 +821,15 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                 },
                                                                               );
 
-                                                                              return Container(
-                                                                                child: getTextArea(
-                                                                                  key: portraitTextAreaKey,
-                                                                                  portraitMode: portraitMode,
-                                                                                  threeCols: threeCols,
-                                                                                  width: constraints.maxWidth,
-                                                                                  height: height,
-                                                                                ),
+                                                                              return CoverTextArea(
+                                                                                mainKey: textAreaKey,
+                                                                                translations: translations,
+                                                                                portraitMode: portraitMode,
+                                                                                threeCols: threeCols,
+                                                                                idle: idle,
+                                                                                width: constraints.maxWidth,
+                                                                                height: height,
+                                                                                selectedZone: selectedZone,
                                                                               );
                                                                             },
                                                                       ),
@@ -1160,17 +971,23 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                             withAnimatedBackground:
                                                                                 withAnimatedBackground,
                                                                           ),
-                                                                    child: getTextArea(
-                                                                      key:
-                                                                          portraitTextAreaKey,
+                                                                    child: CoverTextArea(
+                                                                      mainKey:
+                                                                          textAreaKey,
+                                                                      translations:
+                                                                          translations,
                                                                       portraitMode:
                                                                           portraitMode,
                                                                       threeCols:
                                                                           threeCols,
+                                                                      idle:
+                                                                          idle,
                                                                       width: constraints
                                                                           .maxWidth,
                                                                       height:
                                                                           controlsHeight,
+                                                                      selectedZone:
+                                                                          selectedZone,
                                                                     ),
                                                                   ),
                                                                 ),
@@ -1447,7 +1264,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                     (
                                                                                       _,
                                                                                     ) {
-                                                                                      final keyContext = portraitTextAreaKey.currentContext;
+                                                                                      final keyContext = textAreaKey.currentContext;
                                                                                       if (keyContext !=
                                                                                           null) {
                                                                                         final box =
@@ -1465,12 +1282,15 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                                     },
                                                                                   );
 
-                                                                                  return getTextArea(
-                                                                                    key: portraitTextAreaKey,
+                                                                                  return CoverTextArea(
+                                                                                    mainKey: textAreaKey,
+                                                                                    translations: translations,
                                                                                     portraitMode: portraitMode,
                                                                                     threeCols: threeCols,
+                                                                                    idle: idle,
                                                                                     width: width,
                                                                                     height: height,
+                                                                                    selectedZone: selectedZone,
                                                                                   );
                                                                                 },
                                                                           ),
@@ -1660,7 +1480,7 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                         _,
                                                                       ) {
                                                                         final keyContext =
-                                                                            portraitTextAreaKey.currentContext;
+                                                                            textAreaKey.currentContext;
                                                                         if (keyContext !=
                                                                             null) {
                                                                           final box =
@@ -1681,17 +1501,23 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                         }
                                                                       });
 
-                                                                      return getTextArea(
-                                                                        key:
-                                                                            portraitTextAreaKey,
+                                                                      return CoverTextArea(
+                                                                        mainKey:
+                                                                            textAreaKey,
+                                                                        translations:
+                                                                            translations,
                                                                         portraitMode:
                                                                             portraitMode,
                                                                         threeCols:
                                                                             threeCols,
+                                                                        idle:
+                                                                            idle,
                                                                         width:
                                                                             width,
                                                                         height:
                                                                             height,
+                                                                        selectedZone:
+                                                                            selectedZone,
                                                                       );
                                                                     },
                                                               ),
@@ -1854,16 +1680,21 @@ class _CoverPageState extends State<CoverPage> with WindowListener {
                                                                             withAnimatedBackground,
                                                                       ),
 
-                                                                child: getTextArea(
-                                                                  key:
-                                                                      portraitTextAreaKey,
+                                                                child: CoverTextArea(
+                                                                  mainKey:
+                                                                      textAreaKey,
+                                                                  translations:
+                                                                      translations,
                                                                   portraitMode:
                                                                       portraitMode,
                                                                   threeCols:
                                                                       threeCols,
+                                                                  idle: idle,
                                                                   width: width,
                                                                   height:
                                                                       height,
+                                                                  selectedZone:
+                                                                      selectedZone,
                                                                 ),
                                                               ),
                                                             ),
