@@ -2547,14 +2547,16 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       minDesktopSize.height + 10,
     );
 
-    await windowManager.setPosition(Offset.zero);
+    await windowManager.setAlignment(Alignment.topLeft);
     windowManager.setSize(newSize, animate: true);
   }
 
   Future<void> windowResize({required Size size, Offset? position}) async {
     Size newSize = Size(size.width, size.height);
 
-    await windowManager.setPosition(position ?? Offset.zero);
+    if (position != null) {
+      await windowManager.setPosition(position);
+    }
     windowManager.setSize(newSize, animate: true);
   }
 

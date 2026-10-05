@@ -535,7 +535,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     windowManager.setClosable(true);
 
     if (!isFullscreen) {
-      mainBloc.windowResize(size: actualSize, position: actualPosition);
+      mainBloc.windowResize(size: actualSize);
     }
   }
 
