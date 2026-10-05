@@ -85,12 +85,17 @@ class _DeviceInfoState extends State<DeviceInfo> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.info[widget.ip]['name'],
-                    softWrap: false,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: fontSizeName, height: 1.3),
+                  Tooltip(
+                    message:
+                        '${widget.translations['deviceName'] ?? 'Device name'}: ${widget.info[widget.ip]['name']}',
+                    waitDuration: Globals.tooltipWaitDuration,
+                    child: Text(
+                      widget.info[widget.ip]['name'],
+                      softWrap: false,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: fontSizeName, height: 1.3),
+                    ),
                   ),
                   Row(
                     children: [
