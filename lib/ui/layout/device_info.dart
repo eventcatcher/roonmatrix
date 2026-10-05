@@ -77,9 +77,10 @@ class _DeviceInfoState extends State<DeviceInfo> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            Container(
               width: widthNameAndIpArea,
               height: widget.height,
+              padding: EdgeInsets.only(right: 4),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,6 +89,7 @@ class _DeviceInfoState extends State<DeviceInfo> {
                     widget.info[widget.ip]['name'],
                     softWrap: false,
                     maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: fontSizeName, height: 1.3),
                   ),
                   Row(
@@ -98,20 +100,6 @@ class _DeviceInfoState extends State<DeviceInfo> {
                         maxLines: 1,
                         style: TextStyle(fontSize: fontSizeIp, height: 1.3),
                       ),
-                      if (widget.isVirtualDevice)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Badge(
-                            label: Text(
-                              'VM',
-                              style: TextStyle(
-                                fontSize: fontSizeIp - 1,
-                                color: Colors.white,
-                              ),
-                            ),
-                            backgroundColor: CupertinoColors.activeBlue.color,
-                          ),
-                        ),
                       if (widget.info[widget.ip]['reboot_python'] == true)
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0),
@@ -134,6 +122,37 @@ class _DeviceInfoState extends State<DeviceInfo> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: SizedBox(
+                  child: widget.isVirtualDevice
+                      ? Padding(
+                          padding: const EdgeInsets.only(
+                            top: 2.0,
+                            left: 12.0,
+                            right: 8.0,
+                          ),
+                          child: Tooltip(
+                            message:
+                                widget
+                                    .translations['virtualDeviceBadgeTooltip'] ??
+                                'Virtual device',
+                            waitDuration: Globals.tooltipWaitDuration,
+                            child: Badge(
+                              label: Text(
+                                'VM',
+                                style: TextStyle(
+                                  fontSize: fontSizeIp - 1,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              backgroundColor: CupertinoColors.activeBlue.color,
+                            ),
+                          ),
+                        )
+                      : SizedBox(width: 45.0),
+                ),
+              ),
               Tooltip(
                 message:
                     widget.translations['deviceConnectionStatusLabel'] ??
@@ -150,7 +169,7 @@ class _DeviceInfoState extends State<DeviceInfo> {
                   ),
                 ),
               ),
-              SizedBox(width: 16.0),
+              SizedBox(width: 12.0),
               Tooltip(
                 message:
                     (widget.translations['devicePingStatusLabel'] ??

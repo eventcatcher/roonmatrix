@@ -189,6 +189,7 @@
     "restartAppConfirmationCancelText": "Später",
     "spotifyConnectAuthUrlMissing": "Die Anmelde-URL für Spotify Connect fehlt...",
     "startingVirtualDeviceInfo": "Virtuelles Gerät starten",
+    "virtualDeviceBadgeTooltip": "Virtuelles Gerät",
     "config": {
         "config_version": "Konfigurationsversion",
         "hostname": "Hostname [Wichtig]",

@@ -189,6 +189,7 @@
     "restartAppConfirmationCancelText": "Later",
     "spotifyConnectAuthUrlMissing": "Spotify Connect Login URL is missing...",
     "startingVirtualDeviceInfo": "Starting virtual device",
+    "virtualDeviceBadgeTooltip": "Virtual device",
     "config": {
         "config_version": "Configuration version",
         "hostname": "Hostname (Important)",
