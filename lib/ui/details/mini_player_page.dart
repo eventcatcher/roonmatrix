@@ -67,7 +67,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   Size get standardDesktopSize => widget.standardDesktopSize;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final Color textAreaBackgroundColor = Color.fromARGB(200, 0, 0, 0);
   final int textInfoOnTrackChangeDurationInSeconds = 10;
 
   final double coverPadding = 16.0;
@@ -633,12 +632,11 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                                   width: coverWidth != null
                                                       ? coverWidth! - 32.0
                                                       : 80,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        Globals.borderRadius(),
-                                                    color:
-                                                        textAreaBackgroundColor,
-                                                  ),
+                                                  decoration:
+                                                      ColorDefs.areaDecorationFilledOverlayDarkStyle(
+                                                        withAnimatedBackground:
+                                                            false,
+                                                      ),
                                                   padding:
                                                       const EdgeInsets.symmetric(
                                                         horizontal: 12.0,
@@ -657,6 +655,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                                                     coverRowTrack: true,
                                                   ),
                                                 ),
+                                                SizedBox(height: 8.0),
                                                 ProgressBarWidget(
                                                   ip: ip,
                                                   controlId: controlId,

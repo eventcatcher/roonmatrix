@@ -253,9 +253,8 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
           ? ColorDefs.areaDecorationFilledOverlayDarkStyle(
               withAnimatedBackground: false,
             )
-          : Globals.brightness() == Brightness.dark ||
-                brightness == Brightness.dark
-          ? ColorDefs.areaDecorationFilledOverlayDarkStyle(
+          : (brightness ?? Globals.brightness()) == Brightness.dark
+          ? ColorDefs.areaDecorationFilledDarkStyle(
               withAnimatedBackground: false,
             )
           : ColorDefs.areaDecorationFilledLightStyle(

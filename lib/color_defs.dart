@@ -40,7 +40,7 @@ class ColorDefs {
     required bool withAnimatedBackground,
   }) => BoxDecoration(
     borderRadius: Globals.borderRadius(),
-    color: Color.fromARGB(withAnimatedBackground ? 255 : 200, 0, 0, 0),
+    color: Color.fromARGB(withAnimatedBackground ? 255 : 200, 30, 30, 30),
   );
 
   static final Color hoverButtonBackground = Color.fromARGB(60, 255, 255, 255);
