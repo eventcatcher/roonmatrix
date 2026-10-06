@@ -42,7 +42,9 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
   Brightness? get brightness => widget.brightness;
   Function({required Duration duration}) get seek => widget.seek;
 
-  final int toleranceInSeconds = 5;
+  final int toleranceInSeconds = 0;
+  final int addReceiveFromRoonDelay = 0;
+  final int addReceiveFromWebDelay = 1;
 
   Map<String, dynamic> info = {};
   Widget progressBarWidget = SizedBox();
@@ -85,7 +87,11 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
 
       setProgressBarArea(
         zoneData: data['zone'],
-        position: data['position'],
+        position:
+            data['position'] +
+            (data['zone']['server'] == 'roon'
+                ? addReceiveFromRoonDelay
+                : addReceiveFromWebDelay),
         total: isRadio == true ? data['position'] : total,
       );
     }
@@ -139,7 +145,11 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
                           : 0;
                       setProgressBarArea(
                         zoneData: data['zone'],
-                        position: data['position'],
+                        position:
+                            data['position'] +
+                            (data['zone']['server'] == 'roon'
+                                ? addReceiveFromRoonDelay
+                                : addReceiveFromWebDelay),
                         total: isRadio == true ? data['position'] : total,
                       );
                     }
@@ -149,7 +159,11 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
             }
             setProgressBarArea(
               zoneData: data['zone'],
-              position: data['position'],
+              position:
+                  data['position'] +
+                  (data['zone']['server'] == 'roon'
+                      ? addReceiveFromRoonDelay
+                      : addReceiveFromWebDelay),
               total: isRadio == true ? data['position'] : total,
             );
           }
@@ -163,76 +177,79 @@ class ProgressBarWidgetState extends State<ProgressBarWidget> {
     required int position,
     required int total,
   }) {
-    if (kDebugMode) {
-      debugPrint('setProgressBarArea position: $position');
-    }
     if (zoneData != null && zoneData.isNotEmpty) {
       String id = zoneData['id'] ?? zoneData['hash'] ?? '';
-      // int actualProgressPosition = zoneData['position'] != null
-      //     ? int.parse(zoneData['position'].toString())
-      //     : 0;
-      int actualProgressPosition = position;
-      if ((actualProgressPosition != lastProgressPosition &&
-              (actualProgressPosition - progressBarPosition).abs() >
-                  toleranceInSeconds) ||
+
+      if (position != lastProgressPosition ||
           lastProgressPosition == 0 ||
           lastProgressId != id) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            setState(() {
-              progressBarPosition = actualProgressPosition;
-              lastProgressPosition = actualProgressPosition;
-              lastProgressId = id;
-              if (kDebugMode) {
-                debugPrint(
-                  'setProgressBarArea (update) => id: $id, progress: $progressBarPosition, total: $total, isRadio: $isRadio',
-                );
-              }
-              progressBarWidget = total == 0
-                  ? SizedBox()
-                  : getProgressBar(
-                      progress: actualProgressPosition,
-                      total: total,
-                    );
+        int timeDiff = (position - progressBarPosition).abs();
+        bool outOfTolerance =
+            position != progressBarPosition && timeDiff > toleranceInSeconds;
 
-              if (progressBarTimer != null && progressBarTimer!.isActive) {
-                progressBarTimer!.cancel();
+        if (kDebugMode) {
+          debugPrint(
+            'setProgressBarArea (new position) => id: $id, lastProgressPosition: $lastProgressPosition, new position: $position, progressBarPosition: $progressBarPosition, timeDiff: $timeDiff, outOfTolerance: $outOfTolerance, total: $total, isRadio: $isRadio',
+          );
+        }
+
+        lastProgressPosition = position;
+
+        if (outOfTolerance == true) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
                 if (kDebugMode) {
-                  debugPrint('setProgressBarArea => cancel timer');
+                  debugPrint(
+                    'setProgressBarArea (update) => id: $id, lastProgressPosition: $lastProgressPosition, new position: $position, progressBarPosition: $progressBarPosition, total: $total, isRadio: $isRadio',
+                  );
                 }
-              }
+                progressBarPosition = position;
+                lastProgressPosition = position;
+                lastProgressId = id;
+                progressBarWidget = total == 0
+                    ? SizedBox()
+                    : getProgressBar(progress: position, total: total);
 
-              progressBarTimer = Timer.periodic(Duration(seconds: 1), (
-                Timer timer,
-              ) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    setState(() {
-                      if ((isRadio == true || progressBarPosition < total) &&
-                          !idle) {
-                        progressBarPosition += 1;
-                        if (isRadio == true) {
-                          total = progressBarPosition;
-                        }
-                      }
-                      if (kDebugMode) {
-                        debugPrint(
-                          'setProgressBarArea (timer) => id: $id, position: $progressBarPosition, total: $total, isRadio: $isRadio',
-                        );
-                      }
-                      progressBarWidget = total == 0
-                          ? SizedBox()
-                          : getProgressBar(
-                              progress: progressBarPosition,
-                              total: total,
-                            );
-                    });
+                if (progressBarTimer != null && progressBarTimer!.isActive) {
+                  progressBarTimer!.cancel();
+                  if (kDebugMode) {
+                    debugPrint('setProgressBarArea => cancel timer');
                   }
+                }
+
+                progressBarTimer = Timer.periodic(Duration(seconds: 1), (
+                  Timer timer,
+                ) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      setState(() {
+                        if ((isRadio == true || progressBarPosition < total) &&
+                            !idle) {
+                          progressBarPosition += 1;
+                          if (isRadio == true) {
+                            total = progressBarPosition;
+                          }
+                        }
+                        if (kDebugMode) {
+                          debugPrint(
+                            'setProgressBarArea (timer) => id: $id, position: $progressBarPosition, total: $total, isRadio: $isRadio',
+                          );
+                        }
+                        progressBarWidget = total == 0
+                            ? SizedBox()
+                            : getProgressBar(
+                                progress: progressBarPosition,
+                                total: total,
+                              );
+                      });
+                    }
+                  });
                 });
               });
-            });
-          }
-        });
+            }
+          });
+        }
       }
     }
   }
