@@ -85,11 +85,19 @@ class SelectBoxState extends State<SelectBox> {
     switch (aligned) {
       case "left":
         margin = const EdgeInsets.only(
-            left: 16.0, right: 8.0, top: 16.0, bottom: 5.0);
+          left: 16.0,
+          right: 8.0,
+          top: 16.0,
+          bottom: 5.0,
+        );
         break;
       case "right":
         margin = const EdgeInsets.only(
-            left: 8.0, right: 16.0, top: 16.0, bottom: 5.0);
+          left: 8.0,
+          right: 16.0,
+          top: 16.0,
+          bottom: 5.0,
+        );
         break;
       case "leftSmallBottom":
         margin = const EdgeInsets.only(left: 16.0, right: 8.0, bottom: 5.0);
@@ -108,14 +116,16 @@ class SelectBoxState extends State<SelectBox> {
         break;
       default:
         margin = const EdgeInsets.only(
-            left: 16.0, right: 16.0, top: 16.0, bottom: 5.0);
+          left: 16.0,
+          right: 16.0,
+          top: 16.0,
+          bottom: 5.0,
+        );
     }
     super.initState();
   }
 
-  Widget dropdownReadonlyElement({
-    required BuildContext context,
-  }) {
+  Widget dropdownReadonlyElement({required BuildContext context}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -146,32 +156,35 @@ class SelectBoxState extends State<SelectBox> {
           : Text(
               selected != null
                   ? showValue!
-                      ? options![selected]
-                      : selected!
+                        ? options![selected]
+                        : selected!
                   : translations['zonePickerSelectionEmpty'] ?? 'Please Select',
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             );
 
       return options!.keys.toList().isEmpty
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  translations['zonePickerOptionsEmpty'] ?? 'none',
-                ),
-              ],
+          ? SizedBox(
+              width: maxWidth,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    translations['zonePickerOptionsEmpty'] ?? 'none',
+                    style: TextStyle(
+                      color: ColorDefs.selectboxDisabledColor(context: context),
+                    ),
+                  ),
+                ],
+              ),
             )
           : CupertinoButton(
               padding: EdgeInsets.zero,
               sizeStyle: CupertinoButtonSize.small,
               child: SizedBox(
                 width: maxWidth,
-                child: elementExpanded
-                    ? Center(
-                        child: text,
-                      )
-                    : text,
+                child: elementExpanded ? Center(child: text) : text,
               ),
               onPressed: () => options != null
                   ? SharedWidgets.showIosPickerDialog(
@@ -181,8 +194,11 @@ class SelectBoxState extends State<SelectBox> {
                       selected: selected,
                       showValue: showValue!,
                       isObject: false,
-                      onApproved: () => onChanged(options!.keys
-                          .toList()[selectedItem >= 0 ? selectedItem : 0]),
+                      onApproved: () => onChanged(
+                        options!.keys.toList()[selectedItem >= 0
+                            ? selectedItem
+                            : 0],
+                      ),
                       onSelectedItemChanged: (int index) {
                         selectedItem = index;
                       },
@@ -192,32 +208,70 @@ class SelectBoxState extends State<SelectBox> {
     }
 
     return Globals.inMacosStyle()
-        ? MacosPopupButton<String>(
-            value: selected,
-            onChanged: (String? value) {
-              onChanged(value);
-            },
-            items: (options != null && options!.isNotEmpty)
-                ? options!.keys.map<MacosPopupMenuItem<String>>((String key) {
-                    return MacosPopupMenuItem<String>(
-                      value: key,
-                      child: SizedBox(
-                        width: maxWidth,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical:
-                                  optionsWithVerticalSpace == true ? 8.0 : 0.0),
+        ? options!.keys.toList().isEmpty
+              ? Container(
+                  width: maxWidth != null ? maxWidth! + 35 : null,
+                  decoration: BoxDecoration(
+                    color: Globals.brightness() == Brightness.dark
+                        ? Color.fromARGB(130, 70, 70, 70)
+                        : Color.fromARGB(130, 220, 220, 220),
+                    borderRadius: Globals.borderRadius(),
+                    border: Border.all(
+                      color: ColorDefs.borderColor(context: context),
+                      width: 0,
+                      style: BorderStyle.solid,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: Text(
-                            showValue! ? options![key]! : key,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
+                            translations['zonePickerOptionsEmpty'] ?? 'none',
+                            style: TextStyle(
+                              color: ColorDefs.selectboxDisabledColor(
+                                context: context,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }).toList()
-                : [],
-          )
+                      ],
+                    ),
+                  ),
+                )
+              : MacosPopupButton<String>(
+                  value: selected,
+                  onChanged: (String? value) {
+                    onChanged(value);
+                  },
+                  items: (options != null && options!.isNotEmpty)
+                      ? options!.keys.map<MacosPopupMenuItem<String>>((
+                          String key,
+                        ) {
+                          return MacosPopupMenuItem<String>(
+                            value: key,
+                            child: SizedBox(
+                              width: maxWidth,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: optionsWithVerticalSpace == true
+                                      ? 8.0
+                                      : 0.0,
+                                ),
+                                child: Text(
+                                  showValue! ? options![key]! : key,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList()
+                      : [],
+                )
         : SizedBox(
             width: maxWidth,
             child: DropdownButton<String>(
@@ -239,13 +293,8 @@ class SelectBoxState extends State<SelectBox> {
               ),
               iconSize: 32,
               elevation: 16,
-              style: TextStyle(
-                color: ColorDefs.textColor(context: context),
-              ),
-              underline: Container(
-                height: 0,
-                color: Colors.blue,
-              ),
+              style: TextStyle(color: ColorDefs.textColor(context: context)),
+              underline: Container(height: 0, color: Colors.blue),
               onChanged: (String? value) {
                 onChanged(value);
               },
@@ -256,9 +305,10 @@ class SelectBoxState extends State<SelectBox> {
                         child: SizedBox(
                           child: Padding(
                             padding: EdgeInsets.symmetric(
-                                vertical: optionsWithVerticalSpace == true
-                                    ? 8.0
-                                    : 0.0),
+                              vertical: optionsWithVerticalSpace == true
+                                  ? 8.0
+                                  : 0.0,
+                            ),
                             child: Text(
                               showValue! ? options![key]! : key,
                               overflow: TextOverflow.ellipsis,
@@ -277,29 +327,29 @@ class SelectBoxState extends State<SelectBox> {
     required bool expanded,
     required bool elementExpanded,
     required BuildContext context,
-  }) =>
-      Container(
-        width: expanded ? double.infinity : null,
-        height: Globals.inIosStyle()
-            ? 56.0
-            : Globals.selectBoxInMacStyle()
-                ? null
-                : 36.0,
-        padding: Globals.inMacosStyle()
-            ? null
-            : const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-        decoration: Globals.inMacosStyle()
-            ? null
-            : RoonmatrixStyles.boxDecoration(
-                fillColor: ColorDefs.elementBackgroundColor(context: context),
-              ),
-        child: readOnly == true
-            ? dropdownReadonlyElement(context: context)
-            : dropdownElement(
-                context: context,
-                expanded: expanded,
-                elementExpanded: elementExpanded),
-      );
+  }) => Container(
+    width: expanded ? double.infinity : null,
+    height: Globals.inIosStyle()
+        ? 56.0
+        : Globals.selectBoxInMacStyle()
+        ? null
+        : 36.0,
+    padding: Globals.inMacosStyle()
+        ? null
+        : const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+    decoration: Globals.inMacosStyle()
+        ? null
+        : RoonmatrixStyles.boxDecoration(
+            fillColor: ColorDefs.elementBackgroundColor(context: context),
+          ),
+    child: readOnly == true
+        ? dropdownReadonlyElement(context: context)
+        : dropdownElement(
+            context: context,
+            expanded: expanded,
+            elementExpanded: elementExpanded,
+          ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -319,7 +369,8 @@ class SelectBoxState extends State<SelectBox> {
                       child: Text(
                         label!,
                         style: TextStyle(
-                          color: labelColor ??
+                          color:
+                              labelColor ??
                               ColorDefs.textColor(context: context),
                           fontSize: labelFontSize,
                           fontWeight: labelWeight,
@@ -327,9 +378,10 @@ class SelectBoxState extends State<SelectBox> {
                       ),
                     ),
                   dropdown(
-                      expanded: expanded!,
-                      elementExpanded: elementExpanded!,
-                      context: dropdownContext),
+                    expanded: expanded!,
+                    elementExpanded: elementExpanded!,
+                    context: dropdownContext,
+                  ),
                 ],
               )
             : Column(
@@ -344,14 +396,13 @@ class SelectBoxState extends State<SelectBox> {
                         fontSize: labelFontSize,
                       ),
                     ),
-                    const SizedBox(
-                      height: 4.0,
-                    ),
+                    const SizedBox(height: 4.0),
                   ],
                   dropdown(
-                      expanded: expanded!,
-                      elementExpanded: elementExpanded!,
-                      context: dropdownContext),
+                    expanded: expanded!,
+                    elementExpanded: elementExpanded!,
+                    context: dropdownContext,
+                  ),
                 ],
               ),
       ),

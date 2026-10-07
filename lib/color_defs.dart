@@ -156,6 +156,11 @@ class ColorDefs {
       ? Colors.grey.shade800
       : MacosColors.white;
 
+  static Color selectboxDisabledColor({required BuildContext context}) =>
+      Globals.brightness() == Brightness.dark
+      ? Colors.grey.shade400
+      : Colors.grey.shade700;
+
   static Color areaBackgroundColor({required BuildContext context}) {
     if (Globals.inIosStyle()) {
       return Globals.brightness() == Brightness.dark
