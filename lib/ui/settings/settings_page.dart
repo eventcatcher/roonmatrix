@@ -524,96 +524,98 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: 10.0,
-              left: 16.0,
-              top: 16.0,
-              bottom: 16.0,
-            ),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: Text(
-                translations['miniPlayerHeadline'] ?? 'Mini Player',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w400,
-                  color: ColorDefs.textColor(context: context),
+          if (Globals.isDesktopDevice()) ...[
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 10.0,
+                left: 16.0,
+                top: 16.0,
+                bottom: 16.0,
+              ),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  translations['miniPlayerHeadline'] ?? 'Mini Player',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w400,
+                    color: ColorDefs.textColor(context: context),
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
-            child: SwitchButton(
-              label:
-                  translations['alwaysOnTopLabel'] ??
-                  'Show always on top of all other windows',
-              enabled: miniPlayerAlwaysOnTop,
-              onChanged: (value) {
-                settingsBloc.setMiniPlayerAlwaysOnTopMode(enabled: value);
-              },
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
+              child: SwitchButton(
+                label:
+                    translations['alwaysOnTopLabel'] ??
+                    'Show always on top of all other windows',
+                enabled: miniPlayerAlwaysOnTop,
+                onChanged: (value) {
+                  settingsBloc.setMiniPlayerAlwaysOnTopMode(enabled: value);
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
-            child: SwitchButton(
-              label:
-                  translations['preventCloseAppLabel'] ??
-                  'Hide button to close the app',
-              enabled: miniPlayerPreventCloseApp,
-              onChanged: (value) {
-                settingsBloc.setMiniPlayerPreventCloseAppMode(enabled: value);
-              },
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
+              child: SwitchButton(
+                label:
+                    translations['preventCloseAppLabel'] ??
+                    'Hide button to close the app',
+                enabled: miniPlayerPreventCloseApp,
+                onChanged: (value) {
+                  settingsBloc.setMiniPlayerPreventCloseAppMode(enabled: value);
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
-            child: SwitchButton(
-              label:
-                  translations['showTextInfoOnTrackChange'] ??
-                  'Show track information automatically when the track changes',
-              enabled: miniPlayerShowTextInfoOnTrackChange,
-              onChanged: (value) {
-                settingsBloc.setMiniPlayerShowTextInfoOnTrackChangeMode(
-                  enabled: value,
-                );
-              },
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
+              child: SwitchButton(
+                label:
+                    translations['showTextInfoOnTrackChange'] ??
+                    'Show track information automatically when the track changes',
+                enabled: miniPlayerShowTextInfoOnTrackChange,
+                onChanged: (value) {
+                  settingsBloc.setMiniPlayerShowTextInfoOnTrackChangeMode(
+                    enabled: value,
+                  );
+                },
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: EditableSinglelineText(
-              translations: translations,
-              inputType: TextInputType.number,
-              debounce: false,
-              formatters: [FilteringTextInputFormatter.digitsOnly],
-              noCounter: true,
-              label:
-                  translations['textInfoDuration'] ??
-                  'Track Info Duration in seconds',
-              text: miniPlayerTextInfoDuration.toString(),
-              errorMessageHandler: (String newValue) {
-                return mainBloc.getNumberFieldErrorMessage(
-                  value: newValue,
-                  translations: translations,
-                );
-              },
-              validation: (String text) {
-                int? num = int.tryParse(text);
-                if (num == null) {
-                  return false;
-                }
-                return num > 0;
-              },
-              onChanged: (String value) {
-                settingsBloc.setMiniPlayerTextInfoDuration(
-                  seconds: int.tryParse(value) ?? 10,
-                );
-              },
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: EditableSinglelineText(
+                translations: translations,
+                inputType: TextInputType.number,
+                debounce: false,
+                formatters: [FilteringTextInputFormatter.digitsOnly],
+                noCounter: true,
+                label:
+                    translations['textInfoDuration'] ??
+                    'Track Info Duration in seconds',
+                text: miniPlayerTextInfoDuration.toString(),
+                errorMessageHandler: (String newValue) {
+                  return mainBloc.getNumberFieldErrorMessage(
+                    value: newValue,
+                    translations: translations,
+                  );
+                },
+                validation: (String text) {
+                  int? num = int.tryParse(text);
+                  if (num == null) {
+                    return false;
+                  }
+                  return num > 0;
+                },
+                onChanged: (String value) {
+                  settingsBloc.setMiniPlayerTextInfoDuration(
+                    seconds: int.tryParse(value) ?? 10,
+                  );
+                },
+              ),
             ),
-          ),
+          ],
         ],
       ),
     ),

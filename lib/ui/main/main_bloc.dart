@@ -273,8 +273,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           info: state.info,
           connected: connectedList,
         );
+        String selectedDeviceIp =
+            (state.selectedDeviceIp.isEmpty ||
+                !state.devices.contains(state.selectedDeviceIp))
+            ? (activeDeviceIp ?? '') == '127.0.0.1'
+                  ? inAppVirtualDeviceIp
+                  : (activeDeviceIp ?? '')
+            : state.selectedDeviceIp;
         if (kDebugMode && activeDeviceIp != state.activeDeviceIp) {
-          debugPrint('activeDeviceIp: $activeDeviceIp');
+          debugPrint(
+            'SetConnected => activeDeviceIp: $activeDeviceIp, selectedDeviceIp: $selectedDeviceIp',
+          );
         }
 
         emit(
@@ -282,6 +291,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
             update: DateTime.now(),
             connected: connectedList,
             activeDeviceIp: activeDeviceIp,
+            selectedDeviceIp: selectedDeviceIp,
           ),
         );
       }
@@ -571,8 +581,17 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                 info: info,
                 connected: state.connected,
               );
+              String selectedDeviceIp =
+                  (state.selectedDeviceIp.isEmpty ||
+                      !state.devices.contains(state.selectedDeviceIp))
+                  ? (activeDeviceIp ?? '') == '127.0.0.1'
+                        ? inAppVirtualDeviceIp
+                        : (activeDeviceIp ?? '')
+                  : state.selectedDeviceIp;
               if (kDebugMode && activeDeviceIp != state.activeDeviceIp) {
-                debugPrint('activeDeviceIp: $activeDeviceIp');
+                debugPrint(
+                  'GetInfo => activeDeviceIp: $activeDeviceIp, selectedDeviceIp: $selectedDeviceIp',
+                );
               }
 
               emit(
@@ -582,6 +601,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
                   subPageIdle: false,
                   spotifyAuthUrls: spotifyAuthUrls,
                   activeDeviceIp: activeDeviceIp,
+                  selectedDeviceIp: selectedDeviceIp,
                 ),
               );
             }

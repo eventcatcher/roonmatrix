@@ -55,7 +55,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         int miniPlayerTextInfoDuration =
             prefs.getInt('miniPlayerTextInfoDuration') ?? 10;
         bool startInAppDeviceServer =
-            prefs.getBool('startInAppDeviceServer') ?? false;
+            prefs.getBool('startInAppDeviceServer') ?? true;
 
         emit(
           SettingsStateLoaded(

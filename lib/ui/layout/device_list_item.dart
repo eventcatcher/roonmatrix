@@ -43,6 +43,7 @@ class DeviceListItem extends StatefulWidget {
   final Map<String, dynamic> info;
   final String spotifyAuthUrl;
   final bool isSmallDeviceWidth;
+  final bool showPlaycountOnMobileWithBigButton;
   final bool moreInfo;
   final double scrollSpeedScrollMatrix;
   final double scrollSpeedDevice;
@@ -73,6 +74,7 @@ class DeviceListItem extends StatefulWidget {
     required this.info,
     required this.spotifyAuthUrl,
     required this.isSmallDeviceWidth,
+    required this.showPlaycountOnMobileWithBigButton,
     required this.moreInfo,
     required this.scrollSpeedScrollMatrix,
     required this.scrollSpeedDevice,
@@ -101,6 +103,8 @@ class _DeviceListItemState extends State<DeviceListItem> {
   String get activeIp => widget.activeIp;
   String get spotifyAuthUrl => widget.spotifyAuthUrl;
   bool get isSmallDeviceWidth => widget.isSmallDeviceWidth;
+  bool get showPlaycountOnMobileWithBigButton =>
+      widget.showPlaycountOnMobileWithBigButton;
   bool get moreInfo => widget.moreInfo;
   bool get verticalTickerActive => widget.verticalTickerActive;
   bool get ledTickerInDeviceListActive => widget.ledTickerInDeviceListActive;
@@ -574,7 +578,9 @@ class _DeviceListItemState extends State<DeviceListItem> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         if (isSmallDeviceWidth == true &&
-                                            !bigExpandableButtonSizeOnMobile)
+                                            (!bigExpandableButtonSizeOnMobile ||
+                                                showPlaycountOnMobileWithBigButton ==
+                                                    true))
                                           Padding(
                                             padding: EdgeInsets.only(
                                               right: 12.0,

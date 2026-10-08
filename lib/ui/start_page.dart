@@ -285,6 +285,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
                     double deviceWidth = MediaQuery.of(context).size.width;
                     bool isSmallDeviceWidth = deviceWidth < 700;
+                    bool showPlaycountOnMobileWithBigButton =
+                        deviceWidth >= 440;
 
                     return Container(
                       key: windowKey,
@@ -434,6 +436,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 spotifyAuthUrls[ip] ?? '*',
                                             isSmallDeviceWidth:
                                                 isSmallDeviceWidth,
+                                            showPlaycountOnMobileWithBigButton:
+                                                showPlaycountOnMobileWithBigButton,
                                             moreInfo: moreInfo,
                                             scrollSpeedScrollMatrix:
                                                 scrollSpeedDeviceMap[scrollSpeedStandAloneKey] ??

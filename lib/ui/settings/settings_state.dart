@@ -40,7 +40,7 @@ abstract class SettingsState extends Equatable {
     this.miniPlayerPreventCloseApp = false,
     this.miniPlayerShowTextInfoOnTrackChange = false,
     this.miniPlayerTextInfoDuration = 10,
-    this.startInAppDeviceServer = false,
+    this.startInAppDeviceServer = true,
   });
 
   SettingsState copyWith({
