@@ -190,6 +190,7 @@
     "spotifyConnectAuthUrlMissing": "Die Anmelde-URL für Spotify Connect fehlt...",
     "startingVirtualDeviceInfo": "Virtuelles Gerät starten",
     "virtualDeviceBadgeTooltip": "Virtuelles Gerät",
+    "roonErrorTooltip": "Roon-Verbindungsfehler",
     "config": {
         "config_version": "Konfigurationsversion",
         "hostname": "Hostname [Wichtig]",

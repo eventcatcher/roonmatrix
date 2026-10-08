@@ -190,6 +190,7 @@
     "spotifyConnectAuthUrlMissing": "Spotify Connect Login URL is missing...",
     "startingVirtualDeviceInfo": "Starting virtual device",
     "virtualDeviceBadgeTooltip": "Virtual device",
+    "roonErrorTooltip": "Roon connection error",
     "config": {
         "config_version": "Configuration version",
         "hostname": "Hostname (Important)",

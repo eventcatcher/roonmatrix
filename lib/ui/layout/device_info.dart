@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:language_code/language_code.dart';
 import 'package:roonmatrix/globals.dart';
@@ -36,16 +37,21 @@ class DeviceInfo extends StatefulWidget {
 }
 
 class _DeviceInfoState extends State<DeviceInfo> {
-  final double widthNameAndIpArea = 150;
+  final double widthNameAndIpArea = 140;
   final double fontSizeName = 14.0;
   final double fontSizeIp = 11.0;
 
   Color rebootIconColor = Colors.red;
+  bool roonConnectionError = false;
+  String lastRoonErrorLabelPart = '';
 
   late Timer timer;
 
   @override
   void initState() {
+    roonConnectionError = getRoonConnectionError();
+    lastRoonErrorLabelPart = getLastRoonErrorLabelPart();
+
     timer = Timer.periodic(
       Duration(seconds: 1),
       (timer) => SchedulerBinding.instance.addPostFrameCallback((_) async {
@@ -63,9 +69,40 @@ class _DeviceInfoState extends State<DeviceInfo> {
   }
 
   @override
+  void didUpdateWidget(DeviceInfo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (roonConnectionError != getRoonConnectionError() ||
+        lastRoonErrorLabelPart != getLastRoonErrorLabelPart()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            roonConnectionError = getRoonConnectionError();
+            lastRoonErrorLabelPart = getLastRoonErrorLabelPart();
+          });
+        }
+      });
+    }
+  }
+
+  @override
   void dispose() {
     super.dispose();
     timer.cancel();
+  }
+
+  bool getRoonConnectionError() {
+    bool roonShow = widget.info[widget.ip]['roon_show'] ?? false;
+    bool roonActive = widget.info[widget.ip]['roon_active'] ?? false;
+    String lastRoonError = widget.info[widget.ip]?['last_roon_error'] ?? '';
+
+    return roonShow == true && (!roonActive || lastRoonError.isNotEmpty);
+  }
+
+  String getLastRoonErrorLabelPart() {
+    String lastRoonError = widget.info[widget.ip]?['last_roon_error'] ?? '';
+
+    return lastRoonError.isNotEmpty ? ': $lastRoonError' : '';
   }
 
   @override
@@ -105,13 +142,42 @@ class _DeviceInfoState extends State<DeviceInfo> {
                         maxLines: 1,
                         style: TextStyle(fontSize: fontSizeIp, height: 1.3),
                       ),
+                      SizedBox(
+                        child: widget.isVirtualDevice
+                            ? Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Tooltip(
+                                  message:
+                                      widget
+                                          .translations['virtualDeviceBadgeTooltip'] ??
+                                      'Virtual device',
+                                  waitDuration: Globals.tooltipWaitDuration,
+                                  child: Badge(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 3.0,
+                                      vertical: 0.0,
+                                    ),
+                                    label: Text(
+                                      'VM',
+                                      style: TextStyle(
+                                        fontSize: fontSizeIp - 3,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    backgroundColor:
+                                        CupertinoColors.activeBlue.color,
+                                  ),
+                                ),
+                              )
+                            : SizedBox(),
+                      ),
                       if (widget.info[widget.ip]['reboot_python'] == true)
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0),
                           child: Icon(
                             key: ValueKey('pythonRebootIcon-$rebootIconColor'),
                             Icons.restart_alt,
-                            size: 18,
+                            size: 16,
                             color: rebootIconColor,
                           ),
                         ),
@@ -127,37 +193,6 @@ class _DeviceInfoState extends State<DeviceInfo> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: SizedBox(
-                  child: widget.isVirtualDevice
-                      ? Padding(
-                          padding: const EdgeInsets.only(
-                            top: 2.0,
-                            left: 12.0,
-                            right: 8.0,
-                          ),
-                          child: Tooltip(
-                            message:
-                                widget
-                                    .translations['virtualDeviceBadgeTooltip'] ??
-                                'Virtual device',
-                            waitDuration: Globals.tooltipWaitDuration,
-                            child: Badge(
-                              label: Text(
-                                'VM',
-                                style: TextStyle(
-                                  fontSize: fontSizeIp - 1,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              backgroundColor: CupertinoColors.activeBlue.color,
-                            ),
-                          ),
-                        )
-                      : SizedBox(width: 45.0),
-                ),
-              ),
               Tooltip(
                 message:
                     widget.translations['deviceConnectionStatusLabel'] ??
@@ -191,6 +226,27 @@ class _DeviceInfoState extends State<DeviceInfo> {
                   onFinished: () => widget.onFinishedPing(),
                 ),
               ),
+              if (roonConnectionError == true)
+                Tooltip(
+                  message:
+                      (widget.translations['roonErrorTooltip'] ??
+                          'Roon error') +
+                      lastRoonErrorLabelPart,
+                  waitDuration: Globals.tooltipWaitDuration,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4.0, right: 12.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: SvgPicture.asset(
+                        Globals.roonConnectionErrorSvgAssetPath,
+                        allowDrawingOutsideViewBox: false,
+                        fit: BoxFit.cover,
+                        clipBehavior: Clip.hardEdge,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

@@ -38,6 +38,9 @@ class Globals {
   static final String virtualDeviceSvgAssetPath =
       'assets/svg/virtual_device.svg';
 
+  static final String roonConnectionErrorSvgAssetPath =
+      'assets/svg/roon-connection-error.svg';
+
   static final String appIconAssetPath = 'assets/svg/roonmatrix-app-icon.svg';
 
   static final String placeholderPngAssetPath = 'assets/icon/icon.png';
