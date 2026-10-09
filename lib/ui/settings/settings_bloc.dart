@@ -79,6 +79,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
                 miniPlayerShowTextInfoOnTrackChange,
             miniPlayerTextInfoDuration: miniPlayerTextInfoDuration,
             startInAppDeviceServer: startInAppDeviceServer,
+            inAppServerStarted: state.inAppServerStarted,
           ),
         );
       }
@@ -86,6 +87,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetIpRange) {
         String ipStart = event.ipStart;
         String ipEnd = event.ipEnd;
+        bool inAppServerStarted = event.inAppServerStarted;
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         if (validateIp(ip: ipStart) && validateIp(ip: ipEnd)) {
@@ -93,7 +95,13 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
           prefs.setString('ipEnd', ipEnd);
         }
 
-        emit(state.copyWith(ipStart: ipStart, ipEnd: ipEnd));
+        emit(
+          state.copyWith(
+            ipStart: ipStart,
+            ipEnd: ipEnd,
+            inAppServerStarted: inAppServerStarted,
+          ),
+        );
       }
 
       if (event is SetMoreInfoMode) {
@@ -266,6 +274,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
         emit(state.copyWith(startInAppDeviceServer: enabled));
       }
+
+      if (event is SetStartInAppDeviceServer) {
+        emit(state.copyWith(inAppServerStarted: true));
+      }
     });
 
     loadDefaults();
@@ -359,8 +371,18 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     add(SettingsStateLoadDefaults());
   }
 
-  void setIpRange({required String ipStart, required String ipEnd}) {
-    add(SetIpRange(ipStart: ipStart, ipEnd: ipEnd));
+  void setIpRange({
+    required String ipStart,
+    required String ipEnd,
+    required bool inAppServerStarted,
+  }) {
+    add(
+      SetIpRange(
+        ipStart: ipStart,
+        ipEnd: ipEnd,
+        inAppServerStarted: inAppServerStarted,
+      ),
+    );
   }
 
   void setMoreInfoMode({required bool enabled}) {
@@ -429,5 +451,9 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   void setStartInAppDeviceServer({required bool enabled}) {
     add(SetStartInAppDeviceServer(enabled: enabled));
+  }
+
+  void setInAppServerStarted() {
+    add(SetInAppServerStarted());
   }
 }

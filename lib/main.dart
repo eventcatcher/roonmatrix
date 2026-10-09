@@ -153,7 +153,10 @@ class RoonMatrixState extends State<RoonMatrix> {
     connectionStatusBloc = ConnectionStatusBloc();
 
     connectionStatusBloc.init();
-    mainBloc = MainBloc(fileRepository: fileRepository);
+    mainBloc = MainBloc(
+      fileRepository: fileRepository,
+      settingsBloc: settingsBloc,
+    );
     mainBloc.loadDefaults();
 
     connectionStatusStreamSubscription = connectionStatusBloc.stream.listen((

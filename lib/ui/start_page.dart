@@ -188,8 +188,9 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
 
                 updateSizes('NotificationListener');
 
-                if ((mainState.ipStart == null || mainState.ipEnd == null) &&
-                    !settingsPageLoaded) {
+                if (!settingsPageLoaded &&
+                    (mainState.ipStart == null || mainState.ipEnd == null) &&
+                    !startInAppDeviceServer) {
                   settingsPageLoaded = true;
 
                   SchedulerBinding.instance.addPostFrameCallback((_) async {

@@ -39,6 +39,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 //ignore:depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:roonmatrix/ui/settings/settings_bloc.dart';
 import 'package:screen_retriever/screen_retriever.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:terminate_restart/terminate_restart.dart';
@@ -48,6 +49,7 @@ import 'package:window_manager/window_manager.dart';
 
 class MainBloc extends Bloc<MainEvent, MainState> {
   final FileRepository fileRepository;
+  final SettingsBloc settingsBloc;
 
   final Map<String, TextEditingController> controllerSearch = {
     "main": TextEditingController(),
@@ -84,7 +86,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Timer? getInfoRestartTimer;
   Display? primaryDisplay;
 
-  MainBloc({required this.fileRepository}) : super(const MainStateInitial()) {
+  MainBloc({required this.fileRepository, required this.settingsBloc})
+    : super(const MainStateInitial()) {
     // ====================== //
     // event to state handler //
     // ====================== //
@@ -1137,7 +1140,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool startInAppDeviceServer =
-        prefs.getBool('startInAppDeviceServer') ?? false;
+        prefs.getBool('startInAppDeviceServer') ?? true;
 
     if (startInAppDeviceServer == true) {
       debugPrintAppCycleResume(
@@ -1316,7 +1319,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
   Future<void> startPythonRuntime() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool startInAppDeviceServer =
-        prefs.getBool('startInAppDeviceServer') ?? false;
+        prefs.getBool('startInAppDeviceServer') ?? true;
 
     debugPrintAppCycleResume(
       text:
@@ -1327,6 +1330,7 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       debugPrintAppCycleResume(text: 'startPythonRuntime => pythonRuntimeInit');
 
       try {
+        settingsBloc.setInAppServerStarted();
         pythonRuntimeInit();
       } catch (e) {
         debugPrintAppCycleResume(
@@ -1344,7 +1348,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
     final int pythonRuntimeStartTimeoutInSeconds = 120;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     bool startInAppDeviceServer =
-        prefs.getBool('startInAppDeviceServer') ?? false;
+        prefs.getBool('startInAppDeviceServer') ??
+        true; // preset with virtual device
     debugPrintAppCycleResume(
       text:
           'restartAppForVirtualDeviceNotFoundOrSendDataTimeOut check requirements => startInAppDeviceServer: $startInAppDeviceServer',
@@ -2131,19 +2136,21 @@ class MainBloc extends Bloc<MainEvent, MainState> {
       );
     }
 
-    for (int i = start; i <= end; i++) {
-      String ip = '$subnet.$i';
-      if (ip != state.localHostIp || !withLocalHostIp) {
-        futures.add(
-          isPortOpen(ip, port, timeout).then((open) {
-            if (open) {
-              if (kDebugMode) {
-                debugPrint('Open: $ip:$port');
+    if (start > 0 && end > 0 && subnet.isNotEmpty) {
+      for (int i = start; i <= end; i++) {
+        String ip = '$subnet.$i';
+        if (ip != state.localHostIp || !withLocalHostIp) {
+          futures.add(
+            isPortOpen(ip, port, timeout).then((open) {
+              if (open) {
+                if (kDebugMode) {
+                  debugPrint('Open: $ip:$port');
+                }
+                found.add(ip);
               }
-              found.add(ip);
-            }
-          }),
-        );
+            }),
+          );
+        }
       }
     }
 
@@ -2167,20 +2174,24 @@ class MainBloc extends Bloc<MainEvent, MainState> {
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool startInAppDeviceServer =
-          prefs.getBool('startInAppDeviceServer') ?? false;
+          prefs.getBool('startInAppDeviceServer') ?? true;
 
       try {
         if (kDebugMode) {
           debugPrint('start networkscan');
         }
 
-        if (ipStart != null && ipEnd != null) {
-          final int firstHostId = int.parse(ipStart!.split('.').last);
-          final int lastHostId = int.parse(ipEnd!.split('.').last);
-          final String subnet = ipStart!.substring(
-            0,
-            ipStart!.lastIndexOf('.'),
-          );
+        if ((ipStart != null && ipEnd != null) ||
+            startInAppDeviceServer == true) {
+          final int firstHostId = ipStart != null && ipEnd != null
+              ? int.parse(ipStart!.split('.').last)
+              : 0;
+          final int lastHostId = ipStart != null && ipEnd != null
+              ? int.parse(ipEnd!.split('.').last)
+              : 0;
+          final String subnet = ipStart != null && ipEnd != null
+              ? ipStart!.substring(0, ipStart!.lastIndexOf('.'))
+              : '';
 
           List<String> ipList = await parallelScan(
             subnet: subnet,

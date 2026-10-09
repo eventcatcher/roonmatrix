@@ -15,11 +15,16 @@ class SettingsStateLoadDefaults extends SettingsEvent {
 class SetIpRange extends SettingsEvent {
   final String ipStart;
   final String ipEnd;
+  final bool inAppServerStarted;
 
-  const SetIpRange({required this.ipStart, required this.ipEnd});
+  const SetIpRange({
+    required this.ipStart,
+    required this.ipEnd,
+    required this.inAppServerStarted,
+  });
 
   @override
-  List<Object> get props => [ipStart, ipEnd];
+  List<Object> get props => [ipStart, ipEnd, inAppServerStarted];
 }
 
 class SetMoreInfoMode extends SettingsEvent {
@@ -184,4 +189,11 @@ class SetStartInAppDeviceServer extends SettingsEvent {
 
   @override
   List<Object> get props => [enabled];
+}
+
+class SetInAppServerStarted extends SettingsEvent {
+  const SetInAppServerStarted();
+
+  @override
+  List<Object> get props => [];
 }

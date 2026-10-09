@@ -289,10 +289,35 @@ class _SettingsPageState extends State<SettingsPage> {
                                                   ) ==
                                                   true
                                           ? () async {
+                                              bool startInAppServer =
+                                                  startInAppDeviceServer ==
+                                                      true &&
+                                                  (settingsBloc
+                                                          .state
+                                                          .ipStart
+                                                          .isEmpty ||
+                                                      settingsBloc
+                                                          .state
+                                                          .ipEnd
+                                                          .isEmpty);
+
                                               settingsBloc.setIpRange(
                                                 ipStart: ipStart.text,
                                                 ipEnd: ipEnd.text,
+                                                inAppServerStarted:
+                                                    startInAppServer ||
+                                                    settingsBloc
+                                                        .state
+                                                        .inAppServerStarted,
                                               );
+
+                                              if (startInAppServer == true &&
+                                                  !settingsBloc
+                                                      .state
+                                                      .inAppServerStarted) {
+                                                pythonRuntimeInit();
+                                              }
+
                                               Navigator.pop(
                                                 context,
                                               ); // close settings page
@@ -357,11 +382,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 settingsBloc.setStartInAppDeviceServer(enabled: value);
                 // auto-restart app if python runtime is not working 5 minutes ago since start
                 if (value == true &&
+                    !settingsBloc.state.inAppServerStarted &&
                     (mainBloc.state.localHostIp.isEmpty ||
                         mainBloc.state.info.containsKey(
                               mainBloc.state.localHostIp,
                             ) ==
                             false)) {
+                  settingsBloc.setInAppServerStarted();
                   pythonRuntimeInit();
                 }
               },

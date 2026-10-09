@@ -20,6 +20,7 @@ abstract class SettingsState extends Equatable {
   final bool miniPlayerShowTextInfoOnTrackChange;
   final int miniPlayerTextInfoDuration;
   final bool startInAppDeviceServer;
+  final bool inAppServerStarted;
 
   const SettingsState({
     this.ipStart = '',
@@ -41,6 +42,7 @@ abstract class SettingsState extends Equatable {
     this.miniPlayerShowTextInfoOnTrackChange = false,
     this.miniPlayerTextInfoDuration = 10,
     this.startInAppDeviceServer = true,
+    this.inAppServerStarted = false,
   });
 
   SettingsState copyWith({
@@ -63,6 +65,7 @@ abstract class SettingsState extends Equatable {
     bool? miniPlayerShowTextInfoOnTrackChange,
     int? miniPlayerTextInfoDuration,
     bool? startInAppDeviceServer,
+    bool? inAppServerStarted,
   }) {
     return SettingsStateLoaded(
       ipStart: ipStart ?? this.ipStart,
@@ -94,6 +97,7 @@ abstract class SettingsState extends Equatable {
           miniPlayerTextInfoDuration ?? this.miniPlayerTextInfoDuration,
       startInAppDeviceServer:
           startInAppDeviceServer ?? this.startInAppDeviceServer,
+      inAppServerStarted: inAppServerStarted ?? this.inAppServerStarted,
     );
   }
 
@@ -119,6 +123,7 @@ abstract class SettingsState extends Equatable {
       miniPlayerShowTextInfoOnTrackChange,
       miniPlayerTextInfoDuration,
       startInAppDeviceServer,
+      inAppServerStarted,
     ];
 
     return props;
@@ -156,6 +161,7 @@ class SettingsStateLoaded extends SettingsState {
     required super.miniPlayerShowTextInfoOnTrackChange,
     required super.miniPlayerTextInfoDuration,
     required super.startInAppDeviceServer,
+    required super.inAppServerStarted,
   });
 
   @override
