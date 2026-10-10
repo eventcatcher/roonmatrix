@@ -419,6 +419,8 @@ class MainBloc extends Bloc<MainEvent, MainState> {
           debugPrint('active websocket connections: ${services.length}');
         }
 
+        settingsBloc.initScrollSpeedDeviceMap(devices: event.devices);
+
         emit(
           state.copyWith(
             update: DateTime.now(),

@@ -278,6 +278,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       if (event is SetStartInAppDeviceServer) {
         emit(state.copyWith(inAppServerStarted: true));
       }
+
+      if (event is SetScrollSpeedDeviceMap) {
+        Map<String, dynamic> scrollSpeedDeviceMap = event.scrollSpeedDeviceMap;
+        emit(state.copyWith(scrollSpeedDeviceMap: scrollSpeedDeviceMap));
+      }
     });
 
     loadDefaults();
@@ -361,6 +366,38 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         '$ip-${variant.isStandAlone}-${variant.isLedVariant}-${variant.isVertical}';
 
     return key;
+  }
+
+  bool checkBit(int value, int bit) => (value & (1 << bit)) != 0;
+
+  Future<void> initScrollSpeedDeviceMap({required List<String> devices}) async {
+    Map<String, dynamic> scrollSpeedDeviceMap = Map<String, dynamic>.from(
+      state.scrollSpeedDeviceMap,
+    );
+
+    bool added = false;
+
+    for (String device in devices) {
+      if (device.isNotEmpty &&
+          device.contains('.') &&
+          !scrollSpeedDeviceMap.containsKey('$device-false-false-false')) {
+        for (int variant = 0; variant < 8; variant++) {
+          String key =
+              '$device-${checkBit(variant, 2)}-${checkBit(variant, 1)}-${checkBit(variant, 0)}';
+          scrollSpeedDeviceMap[key] = 1.0;
+        }
+        added = true;
+        if (kDebugMode) {
+          debugPrint('initScrollSpeedMap => init for device: $device');
+        }
+      }
+    }
+
+    if (added == true) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('scrollSpeedDeviceMap', jsonEncode(scrollSpeedDeviceMap));
+      setScrollSpeedDeviceMap(scrollSpeedDeviceMap: scrollSpeedDeviceMap);
+    }
   }
 
   // ==================== //
@@ -455,5 +492,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   void setInAppServerStarted() {
     add(SetInAppServerStarted());
+  }
+
+  void setScrollSpeedDeviceMap({
+    required Map<String, dynamic> scrollSpeedDeviceMap,
+  }) {
+    add(SetScrollSpeedDeviceMap(scrollSpeedDeviceMap: scrollSpeedDeviceMap));
   }
 }

@@ -197,3 +197,12 @@ class SetInAppServerStarted extends SettingsEvent {
   @override
   List<Object> get props => [];
 }
+
+class SetScrollSpeedDeviceMap extends SettingsEvent {
+  final Map<String, dynamic> scrollSpeedDeviceMap;
+
+  const SetScrollSpeedDeviceMap({required this.scrollSpeedDeviceMap});
+
+  @override
+  List<Object> get props => [scrollSpeedDeviceMap];
+}
