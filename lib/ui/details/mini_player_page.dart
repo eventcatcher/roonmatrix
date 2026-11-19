@@ -103,7 +103,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   Size defaultSize = Size(600, 600);
   double appBarHeight = 0;
   double? coverWidth;
-  double? windowWidth;
   Timer? statusInProgressTimer;
 
   late MainRepository mainRepository;
@@ -220,6 +219,12 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     final Size size = await windowManager.getSize();
     final double realHeight = size.height - additionalHeight;
     final double side = size.width < realHeight ? size.width : realHeight;
+
+    if (kDebugMode) {
+      debugPrint(
+        'MiniPlayerPage => setWindowSize, width: $side, height: ${side + additionalHeight}, additionalHeight: $additionalHeight',
+      );
+    }
 
     await windowManager.setSize(Size(side, side + additionalHeight));
   }
@@ -559,8 +564,6 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
                     disabled: !withAnimatedBackground,
                     child: OrientationBuilder(
                       builder: (BuildContext context, Orientation orientation) {
-                        windowWidth = MediaQuery.of(context).size.width;
-
                         return LayoutBuilder(
                           builder: (context, constraints) {
                             final double coverSize = constraints.maxWidth;
@@ -579,7 +582,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
                             if (kDebugMode) {
                               debugPrint(
-                                'portraitMode cover + controlArea => maxWidth: ${constraints.maxWidth}, coverWidth: $coverWidth, controlsHeight: $controlsHeight',
+                                'MiniPlayerPage => maxWidth: ${constraints.maxWidth}, maxHeight: ${constraints.maxHeight}, coverWidth: $coverWidth, controlsHeight: $controlsHeight',
                               );
                             }
 
