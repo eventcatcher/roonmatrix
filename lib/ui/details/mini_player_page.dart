@@ -215,7 +215,10 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   }
 
   Future<void> setWindowSize() async {
-    final double additionalHeight = getAdditionalWindowHeight();
+    double additionalHeight = getAdditionalWindowHeight();
+    if (Platform.isLinux || Platform.isWindows) {
+      additionalHeight += 24; // add menu height
+    }
     final Size size = await windowManager.getSize();
     final double realHeight = size.height - additionalHeight;
     final double side = size.width < realHeight ? size.width : realHeight;
