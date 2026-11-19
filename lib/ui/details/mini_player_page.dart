@@ -235,7 +235,10 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   Future<void> asynInitDesktopDevice() async {
     final Size size = await windowManager.getSize();
     final Offset position = await windowManager.getPosition();
-    final double additionalHeight = getAdditionalWindowHeight();
+    double additionalHeight = getAdditionalWindowHeight();
+    if (Platform.isLinux || Platform.isWindows) {
+      additionalHeight += 24; // add menu height
+    }
 
     windowManager.setFullScreen(false);
     windowManager.setBackgroundColor(Colors.black);
