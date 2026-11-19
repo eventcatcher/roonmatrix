@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Roonmatrix App - display roon, spotify and apple music playout informations and more on 8x8 led matrix display
-# version 2.0.0, date: 27.09.2026
+# version 2.0.0, date: 16.10.2026
 #
 # show what is playing on roon zones and via webservers on Spotify and Apple Music
 # show actual weather, rss feeds and clock
@@ -16,7 +16,7 @@
 # start service: sudo systemctl start roonmatrix.service
 # live log:      journalctl -f
 
-scriptVersion = '2.0.0, date: 27.09.2026'
+scriptVersion = '2.0.0, date: 16.10.2026'
 APP_NAME = "roonmatrix"
 
 startlog = True		# default true: log start and config information
@@ -274,7 +274,9 @@ weather_timer = None
 callbacks_initialized = False
 reboot_python = False
 roon_active = False
+last_roon_activation_call = None
 last_roon_error = ''
+roon_activation_next_try_in_seconds = 45
 ws_update_queue = {}
 ws_notification_queue = [];
 test_roon_discover = False # true: call RoonDiscovery to check for roon servers
@@ -1022,6 +1024,7 @@ def getInfoData():
         "reboot_python": reboot_python,
         "roon_active": roon_active,
         "last_roon_error": last_roon_error,
+        "last_roon_activation_call": last_roon_activation_call.strftime('%Y-%m-%d %H:%M:%S') if last_roon_activation_call is not None else '',
         "config_updated_at": updated_at
     }
 
@@ -1958,7 +1961,7 @@ def roon_discover(connect):
             #flexprint(traceback.format_exc())
 
 def get_roon_api(wait_for_response = False, retry = 0):
-    global roonapi, roon_servers, ws_notification_queue, roon_first_connect, last_roon_error
+    global roonapi, roon_servers, ws_notification_queue, roon_first_connect, last_roon_error, last_roon_activation_call
 
     try:
         if roonapi is not None and retry > 0:
@@ -1986,7 +1989,11 @@ def get_roon_api(wait_for_response = False, retry = 0):
                     threadTimer = threading.Timer(5, send_roon_activation_warning) # 5 sec timer
                     threadTimer.start()
 
-            roonapi = RoonApi(appinfo, token, core_ip, int(core_port), wait_for_response)
+                if last_roon_activation_call is None or ((datetime.now() - last_roon_activation_call).total_seconds() > roon_activation_next_try_in_seconds):
+                    last_roon_activation_call = datetime.now()
+                    roonapi = RoonApi(appinfo, token, core_ip, int(core_port), wait_for_response)
+                else:
+                    return
 
             data = [core_ip, int(core_port)]
             if len(roon_servers) == 0:
@@ -2027,8 +2034,9 @@ def get_roon_api(wait_for_response = False, retry = 0):
                 time.sleep(1)
                 
             set_default_zone()
-            flexprint('RoonApi activation done => register RoonApi state callback')
-            roonapi.register_state_callback(roon_state_callback)
+            if roonapi is not None:
+                flexprint('RoonApi activation done => register RoonApi state callback')
+                roonapi.register_state_callback(roon_state_callback)
             
             if core_id is not None and token is not None and 'roon-activation-alert' in ws_notification_queue:
                 ws_notification_queue.remove('roon-activation-alert')
@@ -2042,7 +2050,7 @@ def get_roon_api(wait_for_response = False, retry = 0):
             time.sleep(1)
 
             flexprint("RoonApi after send_roon_activation_warning => retry: " + str(retry+1))
-            t = Timer(roon_activation_retry_seconds, get_roon_api, [False,retry+1])	# retry after 30s
+            t = Timer(roon_activation_retry_seconds, get_roon_api, [True,retry+1])	# retry after 30s
             t.start()
     except Exception as e:
         if threadTimer is not None:
