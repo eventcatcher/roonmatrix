@@ -248,8 +248,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     windowManager.setAlwaysOnTop(widget.miniPlayerAlwaysOnTop);
     windowManager.setClosable(!widget.miniPlayerPreventCloseApp);
     if (Platform.isLinux) {
-      double extraHeight =
-          linuxWindowHeadHeight + inlineMenuHeight + additionalHeight - 1;
+      double extraHeight = linuxWindowHeadHeight + additionalHeight - 1;
       double minWidth = minDesktopSize.width;
       double minHeight = minDesktopSize.width + extraHeight;
       if (minHeight < minDesktopSize.height) {
@@ -557,6 +556,10 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     windowManager.setAlwaysOnTop(false);
     windowManager.setSkipTaskbar(false);
     windowManager.setClosable(true);
+
+    if (Platform.isLinux) {
+      windowManager.setMinimumSize(minDesktopSize);
+    }
 
     if (!isFullscreen) {
       mainBloc.windowResize(size: actualSize);
