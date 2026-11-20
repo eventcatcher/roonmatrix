@@ -198,6 +198,9 @@ class Globals {
     if (Platform.isLinux) {
       minHeight = 456;
     }
+    if (Platform.isWindows) {
+      minHeight = 502;
+    }
     if (Platform.isMacOS &&
         Globals.inMacosStyle() == false &&
         Globals.inIosStyle() == false) {

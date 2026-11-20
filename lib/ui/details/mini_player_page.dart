@@ -70,6 +70,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   final int textInfoOnTrackChangeDurationInSeconds = 10;
 
   final double linuxWindowHeadHeight = 48.0;
+  final double windowsWindowHeadHeight = 30.0;
   final double inlineMenuHeight = 24.0;
 
   final double coverPadding = 16.0;
@@ -247,8 +248,11 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     windowManager.setBackgroundColor(Colors.black);
     windowManager.setAlwaysOnTop(widget.miniPlayerAlwaysOnTop);
     windowManager.setClosable(!widget.miniPlayerPreventCloseApp);
-    if (Platform.isLinux) {
-      double extraHeight = linuxWindowHeadHeight + additionalHeight - 1;
+    if (Platform.isLinux || Platform.isWindows) {
+      double extraHeight =
+          (Platform.isLinux ? linuxWindowHeadHeight : windowsWindowHeadHeight) +
+          additionalHeight -
+          1;
       double minWidth = minDesktopSize.width;
       double minHeight = minDesktopSize.width + extraHeight;
       if (minHeight < minDesktopSize.height) {
