@@ -69,6 +69,9 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final int textInfoOnTrackChangeDurationInSeconds = 10;
 
+  final double linuxWindowHeadHeight = 48.0;
+  final double inlineMenuHeight = 24.0;
+
   final double coverPadding = 16.0;
   final double zoneCornerLabelMinCoverSize = 150;
   final bool withAnimatedBackground = false;
@@ -217,7 +220,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
   Future<void> setWindowSize() async {
     double additionalHeight = getAdditionalWindowHeight();
     if (Platform.isLinux || Platform.isWindows) {
-      additionalHeight += 24; // add menu height
+      additionalHeight += inlineMenuHeight; // add menu height
     }
     final Size size = await windowManager.getSize();
     final double realHeight = size.height - additionalHeight;
@@ -225,7 +228,7 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
 
     if (kDebugMode) {
       debugPrint(
-        'MiniPlayerPage => setWindowSize, width: $side, height: ${side + additionalHeight}, additionalHeight: $additionalHeight',
+        'MiniPlayerPage => setWindowSize, width: $side, height: ${side + additionalHeight}, additionalHeight: $additionalHeight, minDesktopSize: $minDesktopSize',
       );
     }
 
@@ -237,13 +240,24 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
     final Offset position = await windowManager.getPosition();
     double additionalHeight = getAdditionalWindowHeight();
     if (Platform.isLinux || Platform.isWindows) {
-      additionalHeight += 24; // add menu height
+      additionalHeight += inlineMenuHeight;
     }
 
     windowManager.setFullScreen(false);
     windowManager.setBackgroundColor(Colors.black);
     windowManager.setAlwaysOnTop(widget.miniPlayerAlwaysOnTop);
     windowManager.setClosable(!widget.miniPlayerPreventCloseApp);
+    if (Platform.isLinux) {
+      double extraHeight =
+          linuxWindowHeadHeight + inlineMenuHeight + additionalHeight - 1;
+      double minWidth = minDesktopSize.width;
+      double minHeight = minDesktopSize.width + extraHeight;
+      if (minHeight < minDesktopSize.height) {
+        minWidth = minDesktopSize.height - extraHeight;
+        minHeight = minDesktopSize.height;
+      }
+      windowManager.setMinimumSize(Size(minWidth, minHeight));
+    }
 
     WindowOptions windowOptions = WindowOptions(
       size: defaultSize,
