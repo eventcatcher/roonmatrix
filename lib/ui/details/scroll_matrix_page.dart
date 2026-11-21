@@ -349,7 +349,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
           double tickerWidth = ledTickerOnTickerPageActive
               ? ledModules * ledSize * 8
               : ledModules * fontSize;
-          if ((ledTickerFullWidthActive == true && !verticalOutput) ||
+          if ((Globals.isDesktopDevice() &&
+                  ledTickerFullWidthActive == true &&
+                  !verticalOutput) ||
               tickerWidth > width) {
             tickerWidth = width;
           }
@@ -359,12 +361,15 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
             double ledMaxSize = 28.0; // max size for smallest possible height
             int newLedModules =
-                ledTickerFullWidthActive == true && !verticalOutput
+                Globals.isDesktopDevice() &&
+                    ledTickerFullWidthActive == true &&
+                    !verticalOutput
                 ? (width / (ledMaxSize * 8)).ceil()
                 : i['led_modules'];
 
             if (!fontSizeInitialized ||
-                (ledTickerFullWidthActive == true &&
+                (Globals.isDesktopDevice() &&
+                    ledTickerFullWidthActive == true &&
                     !verticalOutput &&
                     width != newWidth) ||
                 ledModules != newLedModules ||
@@ -376,7 +381,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                 if (mounted) {
                   setState(() {
                     ledModules = newLedModules;
-                    if (ledTickerFullWidthActive == true && !verticalOutput) {
+                    if (Globals.isDesktopDevice() &&
+                        ledTickerFullWidthActive == true &&
+                        !verticalOutput) {
                       ledSize = width / ledModules / 8;
                     }
                     verticalOutput = i['vertical_output'] ?? false;
