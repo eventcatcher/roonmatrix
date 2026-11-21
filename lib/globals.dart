@@ -194,7 +194,7 @@ class Globals {
       .replaceFirst('-Apple Music', '');
 
   static double getWindowMinHeight() {
-    double minHeight = Platform.isWindows ? 392 : 320;
+    double minHeight = 344;
     if (Platform.isLinux) {
       minHeight = 456;
     }
