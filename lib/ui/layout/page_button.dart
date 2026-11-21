@@ -57,6 +57,7 @@ class PageButtonState extends State<PageButton> {
               withCircle: true,
               icon: icon,
               moreInfo: moreInfo,
+              size: size,
               onPressed: () => SharedWidgets.openPage(
                 context: context,
                 navigatorKey: navigatorKey,

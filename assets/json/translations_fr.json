@@ -135,6 +135,7 @@
     "ledTickerInDeviceListSelectorLabel" : "Afficher le ticker LED dans la liste des appareils",
     "ledTickerOnTickerPageSelectorLabel" : "Afficher le téléscripteur LED sur la page du ticker",
     "ledTickerPixelShift": "Défilement pixel par pixel du bandeau LED (défilement fluide et précis au pixel près)",
+    "ledTickerFullWidthLabel" : "Afficher le bandeau LED en pleine largeur (sinon, la largeur d'origine du matériel est utilisée)",
     "forceTickerUpdate": "Mettre à jour immédiatement le téléscripteur lors des mises à jour de texte (interrompt le téléscripteur en cours d'exécution)",
     "miniPlayerHeadline" : "Mini-Lecteur",
     "alwaysOnTopLabel": "Toujours afficher au-dessus de toutes les autres fenêtres",

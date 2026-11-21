@@ -51,6 +51,7 @@ class DeviceListItem extends StatefulWidget {
   final bool ledTickerInDeviceListActive;
   final bool ledTickerOnTickerPageActive;
   final bool ledTickerPixelShiftActive;
+  final bool ledTickerFullWidthActive;
   final bool forceTickerUpdateActive;
   final void Function(String caller) updateSizes;
 
@@ -82,6 +83,7 @@ class DeviceListItem extends StatefulWidget {
     required this.ledTickerInDeviceListActive,
     required this.ledTickerOnTickerPageActive,
     required this.ledTickerPixelShiftActive,
+    required this.ledTickerFullWidthActive,
     required this.forceTickerUpdateActive,
     required this.updateSizes,
   });
@@ -110,6 +112,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
   bool get ledTickerInDeviceListActive => widget.ledTickerInDeviceListActive;
   bool get ledTickerOnTickerPageActive => widget.ledTickerOnTickerPageActive;
   bool get ledTickerPixelShiftActive => widget.ledTickerPixelShiftActive;
+  bool get ledTickerFullWidthActive => widget.ledTickerFullWidthActive;
   bool get forceTickerUpdateActive => widget.forceTickerUpdateActive;
   void Function(String caller) get updateSizes => widget.updateSizes;
 
@@ -144,8 +147,10 @@ class _DeviceListItemState extends State<DeviceListItem> {
   int linePause = 0;
   double itemListHeight = 84;
   double ledSizeBefore = 0;
+  double widthBefore = 0;
   int ledModules = 9;
   bool ledTickerInDeviceListActiveBefore = false;
+  bool ledTickerFullWidthActiveBefore = false;
   bool verticalTickerActiveBefore = false;
 
   double pixelsPerSecond = 20;
@@ -176,6 +181,7 @@ class _DeviceListItemState extends State<DeviceListItem> {
     deviceListItemBloc = DeviceListItemBloc();
 
     ledTickerInDeviceListActiveBefore = ledTickerInDeviceListActive;
+    ledTickerFullWidthActiveBefore = ledTickerFullWidthActive;
     verticalTickerActiveBefore = verticalTickerActive;
     ledSingleModuleSize = ledSize * 8 + ledGap * 8;
     tickerWidth = ledTickerInDeviceListActive
@@ -243,8 +249,16 @@ class _DeviceListItemState extends State<DeviceListItem> {
     double ledSizeNew = ledSize;
     double nettoWidth =
         width - Globals.deviceListCoverSize - tickerHorizontalPadding * 3 - 3;
-    if (ledModules * ledSize * 8 + ledGap * 8 >
-        nettoWidth - tickerHorizontalPadding * 2) {
+
+    if (ledTickerFullWidthActive == true && !verticalOutput) {
+      ledModules = (nettoWidth / (ledSizeDefault * 8)).ceil();
+    }
+
+    if ((ledTickerFullWidthActive == true &&
+            !verticalOutput &&
+            widthBefore != width) ||
+        (ledModules * ledSize * 8 + ledGap * 8 >
+            nettoWidth - tickerHorizontalPadding * 2)) {
       ledSizeNew = nettoWidth / (ledModules * 8 + ledGap * 8);
       if (ledSizeNew > ledSizeDefault) {
         ledSizeNew = ledSizeDefault;
@@ -253,15 +267,21 @@ class _DeviceListItemState extends State<DeviceListItem> {
       ledSizeNew = ledSizeDefault;
     }
 
-    if (ledSizeNew != ledSizeBefore ||
+    if (ledTickerFullWidthActive == true &&
+            !verticalOutput &&
+            widthBefore != width ||
+        ledSizeNew != ledSizeBefore ||
         ledTickerInDeviceListActiveBefore != ledTickerInDeviceListActive ||
+        ledTickerFullWidthActiveBefore != ledTickerFullWidthActive ||
         verticalTickerActiveBefore != verticalTickerActive) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
+            widthBefore = width;
             ledSize = ledSizeNew;
             ledSizeBefore = ledSize;
             ledTickerInDeviceListActiveBefore = ledTickerInDeviceListActive;
+            ledTickerFullWidthActiveBefore = ledTickerFullWidthActive;
             verticalTickerActiveBefore = verticalTickerActive;
             verticalOutput = i['vertical_output'] ?? false;
             ledSingleModuleSize = ledSize * 8 + ledGap * 8;
@@ -702,6 +722,8 @@ class _DeviceListItemState extends State<DeviceListItem> {
                                 verticalTickerActive: verticalTickerActive,
                                 ledTickerOnTickerPageActive:
                                     ledTickerOnTickerPageActive,
+                                ledTickerFullWidthActive:
+                                    ledTickerFullWidthActive,
                                 ledTickerPixelShiftActive:
                                     ledTickerPixelShiftActive,
                                 forceTickerUpdateActive:

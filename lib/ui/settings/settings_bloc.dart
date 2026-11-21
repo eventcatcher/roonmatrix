@@ -44,6 +44,8 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             prefs.getBool('ledTickerOnTickerPageActive') ?? true;
         bool ledTickerPixelShiftActive =
             prefs.getBool('ledTickerPixelShiftActive') ?? true;
+        bool ledTickerFullWidthActive =
+            prefs.getBool('ledTickerFullWidthActive') ?? true;
         bool forceTickerUpdateActive =
             prefs.getBool('forceTickerUpdateActive') ?? false;
         bool miniPlayerAlwaysOnTop =
@@ -72,6 +74,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
             ledTickerInDeviceListActive: ledTickerInDeviceListActive,
             ledTickerOnTickerPageActive: ledTickerOnTickerPageActive,
             ledTickerPixelShiftActive: ledTickerPixelShiftActive,
+            ledTickerFullWidthActive: ledTickerFullWidthActive,
             forceTickerUpdateActive: forceTickerUpdateActive,
             miniPlayerAlwaysOnTop: miniPlayerAlwaysOnTop,
             miniPlayerPreventCloseApp: miniPlayerPreventCloseApp,
@@ -193,6 +196,15 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         emit(state.copyWith(ledTickerPixelShiftActive: enabled));
       }
 
+      if (event is SetLedTickerFullWidthActiveMode) {
+        bool enabled = event.enabled;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('ledTickerFullWidthActive', enabled);
+
+        emit(state.copyWith(ledTickerFullWidthActive: enabled));
+      }
+
       if (event is SetForceTickerUpdateActiveMode) {
         bool enabled = event.enabled;
 
@@ -308,6 +320,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       'ledTickerInDeviceListActive',
       'ledTickerOnTickerPageActive',
       'ledTickerPixelShiftActive',
+      'ledTickerFullWidthActive',
       'forceTickerUpdateActive',
       'miniPlayerAlwaysOnTop',
       'miniPlayerPreventCloseApp',
@@ -464,6 +477,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
   void setLedTickerPixelShiftActiveMode({required bool enabled}) {
     add(SetLedTickerPixelShiftActiveMode(enabled: enabled));
+  }
+
+  void setLedTickerFullWidthActiveMode({required bool enabled}) {
+    add(SetLedTickerFullWidthActiveMode(enabled: enabled));
   }
 
   void setForceTickerUpdateActiveMode({required bool enabled}) {

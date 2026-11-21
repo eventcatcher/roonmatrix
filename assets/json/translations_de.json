@@ -135,6 +135,7 @@
     "ledTickerInDeviceListSelectorLabel" : "LED-Ticker in Geräteliste anzeigen",
     "ledTickerOnTickerPageSelectorLabel" : "LED-Ticker auf der Ticker-Seite anzeigen",
     "ledTickerPixelShift": "LED-Ticker pixelweise scrollen (pixelgenaues, flüssiges Scrollen)",
+    "ledTickerFullWidthLabel" : "LED-Ticker in voller Breite anzeigen (andernfalls wird die Original-Breite der Hardware verwendet)",
     "forceTickerUpdate": "Ticker sofort aktualisieren bei Text-Updates (unterbricht laufenden Ticker)",
     "miniPlayerHeadline" : "Mini-Player",
     "alwaysOnTopLabel": "Immer über allen anderen Fenstern anzeigen",

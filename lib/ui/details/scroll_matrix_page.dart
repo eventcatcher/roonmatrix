@@ -34,10 +34,11 @@ class ScrollMatrixPage extends StatefulWidget {
   final double scrollSpeed;
   final bool verticalTickerActive;
   final bool ledTickerOnTickerPageActive;
+  final bool ledTickerFullWidthActive;
   final bool ledTickerPixelShiftActive;
   final bool forceTickerUpdateActive;
   final Function({required String scrollSpeedKey, required double speed})
-      speedChanged;
+  speedChanged;
 
   const ScrollMatrixPage({
     super.key,
@@ -50,6 +51,7 @@ class ScrollMatrixPage extends StatefulWidget {
     required this.scrollSpeed,
     required this.verticalTickerActive,
     required this.ledTickerOnTickerPageActive,
+    required this.ledTickerFullWidthActive,
     required this.ledTickerPixelShiftActive,
     required this.forceTickerUpdateActive,
     required this.speedChanged,
@@ -67,7 +69,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   Size get minDesktopSize => widget.minDesktopSize;
   Size get standardDesktopSize => widget.standardDesktopSize;
   Function({required String scrollSpeedKey, required double speed})
-      get speedChanged => widget.speedChanged;
+  get speedChanged => widget.speedChanged;
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -93,6 +95,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   String title = '';
   double width = 1280;
   double height = 768;
+  double newWidth = 0;
   double fontSize = 1.0;
   double mobileFontSize = 1.0;
   double pixelsPerSecond = 20;
@@ -116,6 +119,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   late String scrollSpeedKey;
   late bool verticalTickerActive;
   late bool ledTickerOnTickerPageActive;
+  late bool ledTickerFullWidthActive;
   late bool ledTickerPixelShiftActive;
   late bool forceTickerUpdateActive;
 
@@ -131,6 +135,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
     verticalTickerActive = widget.verticalTickerActive;
     ledTickerOnTickerPageActive = widget.ledTickerOnTickerPageActive;
+    ledTickerFullWidthActive = widget.ledTickerFullWidthActive;
     ledTickerPixelShiftActive = widget.ledTickerPixelShiftActive;
     forceTickerUpdateActive = widget.forceTickerUpdateActive;
 
@@ -144,11 +149,14 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
       asynInitDesktopDevice();
     }
 
-    settingsBlocSubscription =
-        settingsBloc.stream.listen((SettingsState settingsState) {
+    settingsBlocSubscription = settingsBloc.stream.listen((
+      SettingsState settingsState,
+    ) {
       if (settingsState is SettingsStateLoaded) {
         if (settingsState.ledTickerOnTickerPageActive !=
                 ledTickerOnTickerPageActive ||
+            settingsState.ledTickerFullWidthActive !=
+                ledTickerFullWidthActive ||
             settingsState.verticalTickerActive != verticalTickerActive ||
             settingsState.ledTickerPixelShiftActive !=
                 ledTickerPixelShiftActive ||
@@ -158,6 +166,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
               setState(() {
                 ledTickerOnTickerPageActive =
                     settingsState.ledTickerOnTickerPageActive;
+                ledTickerFullWidthActive =
+                    settingsState.ledTickerFullWidthActive;
                 verticalTickerActive = settingsState.verticalTickerActive;
                 ledTickerPixelShiftActive =
                     settingsState.ledTickerPixelShiftActive;
@@ -200,7 +210,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
 
       if (!isFullscreenStatus) {
         mainBloc.windowResizeToFullWidthAndMinimumHeight(
-            minDesktopSize: minDesktopSize);
+          minDesktopSize: minDesktopSize,
+        );
       }
     });
   }
@@ -324,238 +335,262 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
   }
 
   Widget body() => SizedBox(
-        width: double.infinity,
-        child: RoonmatrixAnimatedGradient(
-          child: BlocBuilder(
-              bloc: mainBloc,
-              builder: (context, MainState mainState) {
-                if (mainState is! MainStateLoaded ||
-                    !mainState.definitions.containsKey(ip)) {
-                  return SizedBox();
-                }
-                definitions = mainState.definitions[ip];
+    width: double.infinity,
+    child: RoonmatrixAnimatedGradient(
+      child: BlocBuilder(
+        bloc: mainBloc,
+        builder: (context, MainState mainState) {
+          if (mainState is! MainStateLoaded ||
+              !mainState.definitions.containsKey(ip)) {
+            return SizedBox();
+          }
+          definitions = mainState.definitions[ip];
 
-                double tickerWidth = ledTickerOnTickerPageActive
-                    ? ledModules * ledSize * 8
-                    : ledModules * fontSize;
-                if (tickerWidth > width) {
-                  tickerWidth = width;
-                }
+          double tickerWidth = ledTickerOnTickerPageActive
+              ? ledModules * ledSize * 8
+              : ledModules * fontSize;
+          if ((ledTickerFullWidthActive == true && !verticalOutput) ||
+              tickerWidth > width) {
+            tickerWidth = width;
+          }
 
-                if (mainState.devices.isNotEmpty &&
-                    mainState.info.containsKey(ip)) {
-                  Map<String, dynamic> i = mainState.info[ip];
+          if (mainState.devices.isNotEmpty && mainState.info.containsKey(ip)) {
+            Map<String, dynamic> i = mainState.info[ip];
 
-                  if (!fontSizeInitialized ||
-                      ledModules != i['led_modules'] ||
-                      verticalOutput != i['vertical_output']) {
-                    ledModules = i['led_modules'];
+            double ledMaxSize = 30.0;
+            int newLedModules =
+                ledTickerFullWidthActive == true && !verticalOutput
+                ? (width / (ledMaxSize * 8)).ceil()
+                : i['led_modules'];
+
+            if (!fontSizeInitialized ||
+                (ledTickerFullWidthActive == true &&
+                    !verticalOutput &&
+                    width != newWidth) ||
+                ledModules != newLedModules ||
+                verticalOutput != i['vertical_output']) {
+              ledModules = newLedModules;
+              verticalOutput = i['vertical_output'] ?? false;
+
+              SchedulerBinding.instance.addPostFrameCallback((_) async {
+                if (mounted) {
+                  setState(() {
+                    ledModules = newLedModules;
+                    if (ledTickerFullWidthActive == true && !verticalOutput) {
+                      ledSize = width / ledModules / 8;
+                    }
                     verticalOutput = i['vertical_output'] ?? false;
-
-                    SchedulerBinding.instance.addPostFrameCallback((_) async {
-                      if (mounted) {
-                        setState(() {
-                          ledModules = i['led_modules'];
-                          verticalOutput = i['vertical_output'] ?? false;
-                          if (!fontSizeInitialized) {
-                            initMobileFontSize();
-                            fontSizeInitialized = true;
-                          }
-                        });
-                      }
-                    });
-                  }
-
-                  String displaystrNew = verticalOutput && verticalTickerActive
-                      ? ''
-                      : i['app_displaystr'];
-                  if (verticalOutput && verticalTickerActive) {
-                    List<String> lines = [];
-                    for (String line in List<String>.from(i['vert_strlines'])) {
-                      lines.add(
-                        mainBloc.replaceIllegalCharsInTickerString(
-                          ip: ip,
-                          verticalOutput: verticalOutput,
-                          verticalTickerActive: verticalTickerActive,
-                          str: line,
-                          replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
-                        ),
-                      );
+                    if (!fontSizeInitialized) {
+                      initMobileFontSize();
+                      fontSizeInitialized = true;
                     }
-                    verticalTextLines = lines;
-                    if (!verticalTickerActive) {
-                      displaystrNew = lines.join();
-                    }
-                  }
-
-                  linePause = i['vertical_scroll_delay'];
-
-                  if (displaystrNew != displaystr) {
-                    scrollText = mainBloc.replaceIllegalCharsInTickerString(
-                      ip: ip,
-                      verticalOutput: verticalOutput,
-                      verticalTickerActive: verticalTickerActive,
-                      str: displaystrNew,
-                      replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
-                    );
-                    if (kDebugMode) {
-                      debugPrint('==> new scrollText: $scrollText');
-                    }
-                  }
+                    newWidth = width;
+                  });
                 }
+              });
+            }
 
-                return OrientationBuilder(
-                    builder: (BuildContext context, Orientation o) {
-                  if (o != orientation) {
-                    orientation = o;
-                    SchedulerBinding.instance.addPostFrameCallback((_) async {
-                      if (mounted) {
-                        setState(() {
-                          orientation = o;
-                        });
-                      }
+            String displaystrNew = verticalOutput && verticalTickerActive
+                ? ''
+                : i['app_displaystr'];
+            if (verticalOutput && verticalTickerActive) {
+              List<String> lines = [];
+              for (String line in List<String>.from(i['vert_strlines'])) {
+                lines.add(
+                  mainBloc.replaceIllegalCharsInTickerString(
+                    ip: ip,
+                    verticalOutput: verticalOutput,
+                    verticalTickerActive: verticalTickerActive,
+                    str: line,
+                    replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
+                  ),
+                );
+              }
+              verticalTextLines = lines;
+              if (!verticalTickerActive) {
+                displaystrNew = lines.join();
+              }
+            }
+
+            linePause = i['vertical_scroll_delay'];
+
+            if (displaystrNew != displaystr) {
+              scrollText = mainBloc.replaceIllegalCharsInTickerString(
+                ip: ip,
+                verticalOutput: verticalOutput,
+                verticalTickerActive: verticalTickerActive,
+                str: displaystrNew,
+                replaceActiveZoneMarker: !ledTickerOnTickerPageActive,
+              );
+              if (kDebugMode) {
+                debugPrint('==> new scrollText: $scrollText');
+              }
+            }
+          }
+
+          return OrientationBuilder(
+            builder: (BuildContext context, Orientation o) {
+              if (o != orientation) {
+                orientation = o;
+                SchedulerBinding.instance.addPostFrameCallback((_) async {
+                  if (mounted) {
+                    setState(() {
+                      orientation = o;
                     });
-                    initMobileFontSize();
                   }
+                });
+                initMobileFontSize();
+              }
 
-                  return NotificationListener<SizeChangedLayoutNotification>(
-                    onNotification: (notification) {
-                      updateSizes('NotificationListener');
-                      build(context);
-                      return false;
-                    },
-                    child: SizeChangedLayoutNotifier(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: tickerVerticalPadding),
-                        height: height - 52,
-                        child: verticalOutput && verticalTickerActive
-                            ? Center(
-                                child: SizedBox(
-                                  width: tickerWidth,
-                                  child: ledTickerOnTickerPageActive
-                                      ? Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: ledSize * 0.7),
-                                          color: Colors.grey.shade700,
-                                          child: Container(
-                                            color: ledTickerPixelShiftActive
-                                                ? Colors.black
-                                                : Colors.grey.shade800,
-                                            child: UpdatableVerticalLedTicker(
-                                              key: ValueKey(
-                                                  'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                                              modules: ledModules,
-                                              useProportionalFont: true,
-                                              enableSmoothScrolling:
-                                                  ledTickerPixelShiftActive,
-                                              center: true,
-                                              ledSize: ledSize,
-                                              ledGap: ledGap,
-                                              onColor: ledOnColor,
-                                              offColor: ledOffColor,
-                                              texts: verticalTextLines,
-                                              scrollDuration: Duration(
-                                                  milliseconds:
-                                                      (scrollDelay * 8)
-                                                          .floor()),
-                                              linePause:
-                                                  Duration(seconds: linePause),
-                                              cyclePause:
-                                                  Duration(seconds: cyclePause),
-                                            ),
-                                          ),
-                                        )
-                                      : UpdatableVerticalTicker(
+              return NotificationListener<SizeChangedLayoutNotification>(
+                onNotification: (notification) {
+                  updateSizes('NotificationListener');
+                  build(context);
+                  return false;
+                },
+                child: SizeChangedLayoutNotifier(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: tickerVerticalPadding,
+                    ),
+                    height: height - 52,
+                    child: verticalOutput && verticalTickerActive
+                        ? Center(
+                            child: SizedBox(
+                              width: tickerWidth,
+                              child: ledTickerOnTickerPageActive
+                                  ? Container(
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: ledSize * 0.7,
+                                      ),
+                                      color: Colors.grey.shade700,
+                                      child: Container(
+                                        color: ledTickerPixelShiftActive
+                                            ? Colors.black
+                                            : Colors.grey.shade800,
+                                        child: UpdatableVerticalLedTicker(
                                           key: ValueKey(
-                                              'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
+                                            'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize',
+                                          ),
+                                          modules: ledModules,
+                                          useProportionalFont: true,
+                                          enableSmoothScrolling:
+                                              ledTickerPixelShiftActive,
+                                          center: true,
+                                          ledSize: ledSize,
+                                          ledGap: ledGap,
+                                          onColor: ledOnColor,
+                                          offColor: ledOffColor,
                                           texts: verticalTextLines,
                                           scrollDuration: Duration(
-                                              milliseconds:
-                                                  (scrollDelay * 8).floor()),
-                                          linePause:
-                                              Duration(seconds: linePause),
-                                          cyclePause:
-                                              Duration(seconds: cyclePause),
-                                          textStyle: TextStyle(
-                                            fontFamily:
-                                                Globals.tickerFontFamily,
-                                            fontFamilyFallback: Globals
-                                                .fontFamilyFallback, // fallback for Linux to get the correct symbols
-                                            fontSize: fontSize / 1.2,
-                                            color: Colors.black,
+                                            milliseconds: (scrollDelay * 8)
+                                                .floor(),
                                           ),
-                                        ),
-                                ),
-                              )
-                            : ledTickerOnTickerPageActive
-                                ? Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: ledSize * 0.4),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Container(
-                                                width: tickerWidth,
-                                                color: ledTickerPixelShiftActive
-                                                    ? Colors.black
-                                                    : Colors.grey.shade800,
-                                                child: UpdatableLedTicker(
-                                                  key: ValueKey(
-                                                      'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                                                  updatableText: scrollText,
-                                                  modules: ledModules,
-                                                  useProportionalFont: true,
-                                                  enableSmoothScrolling:
-                                                      ledTickerPixelShiftActive,
-                                                  ledSize: ledSize,
-                                                  ledGap: ledGap,
-                                                  onColor: ledOnColor,
-                                                  offColor: ledOffColor,
-                                                  pixelsPerSecond:
-                                                      pixelsPerSecond,
-                                                  forceUpdate: widget
-                                                      .forceTickerUpdateActive,
-                                                  separator:
-                                                      Globals.tickerSeparator,
-                                                ),
-                                              ),
-                                            ],
+                                          linePause: Duration(
+                                            seconds: linePause,
+                                          ),
+                                          cyclePause: Duration(
+                                            seconds: cyclePause,
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  )
-                                : UpdatableTicker(
-                                    key: ValueKey(
-                                        'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize'),
-                                    updatableText: scrollText,
-                                    style: TextStyle(
-                                      fontFamily: Globals.tickerFontFamily,
-                                      fontFamilyFallback: Globals
-                                          .fontFamilyFallback, // fallback for Linux to get the correct symbols
-                                      fontSize: fontSize / 1.2,
-                                      color: Colors.black,
+                                    )
+                                  : UpdatableVerticalTicker(
+                                      key: ValueKey(
+                                        'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize',
+                                      ),
+                                      texts: verticalTextLines,
+                                      scrollDuration: Duration(
+                                        milliseconds: (scrollDelay * 8).floor(),
+                                      ),
+                                      linePause: Duration(seconds: linePause),
+                                      cyclePause: Duration(seconds: cyclePause),
+                                      textStyle: TextStyle(
+                                        fontFamily: Globals.tickerFontFamily,
+                                        fontFamilyFallback: Globals
+                                            .fontFamilyFallback, // fallback for Linux to get the correct symbols
+                                        fontSize: fontSize / 1.2,
+                                        color: Colors.black,
+                                      ),
                                     ),
-                                    pixelsPerSecond: getPixelsPerSecond(
-                                      fontSize: fontSize,
-                                      sliderValue: sliderValue,
+                            ),
+                          )
+                        : ledTickerOnTickerPageActive
+                        ? Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      color: Colors.grey.shade700,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: ledSize * 0.4,
+                                        horizontal:
+                                            ledTickerFullWidthActive ||
+                                                tickerWidth == width
+                                            ? 0.0
+                                            : ledSize * 0.4,
+                                      ),
+                                      child: Container(
+                                        width: tickerWidth,
+                                        color: ledTickerPixelShiftActive
+                                            ? Colors.black
+                                            : Colors.grey.shade800,
+                                        child: UpdatableLedTicker(
+                                          key: ValueKey(
+                                            'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize',
+                                          ),
+                                          updatableText: scrollText,
+                                          modules: ledModules,
+                                          useProportionalFont: true,
+                                          enableSmoothScrolling:
+                                              ledTickerPixelShiftActive,
+                                          ledSize: ledSize,
+                                          ledGap: ledGap,
+                                          onColor: ledOnColor,
+                                          offColor: ledOffColor,
+                                          pixelsPerSecond: pixelsPerSecond,
+                                          forceUpdate:
+                                              widget.forceTickerUpdateActive,
+                                          separator: Globals.tickerSeparator,
+                                        ),
+                                      ),
                                     ),
-                                    forceUpdate: widget.forceTickerUpdateActive,
-                                    center: true,
-                                    separator: Globals.tickerSeparator,
-                                  ),
-                      ),
-                    ),
-                  );
-                });
-              }),
-        ),
-      );
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        : UpdatableTicker(
+                            key: ValueKey(
+                              'UpdatableTickerMatrixPage-${orientation == Orientation.portrait ? 'portrait' : 'landscape'}-${width}x$height-$fontSize',
+                            ),
+                            updatableText: scrollText,
+                            style: TextStyle(
+                              fontFamily: Globals.tickerFontFamily,
+                              fontFamilyFallback: Globals
+                                  .fontFamilyFallback, // fallback for Linux to get the correct symbols
+                              fontSize: fontSize / 1.2,
+                              color: Colors.black,
+                            ),
+                            pixelsPerSecond: getPixelsPerSecond(
+                              fontSize: fontSize,
+                              sliderValue: sliderValue,
+                            ),
+                            forceUpdate: widget.forceTickerUpdateActive,
+                            center: true,
+                            separator: Globals.tickerSeparator,
+                          ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -572,7 +607,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
               onPressed: () {
                 if (Globals.isDesktopDevice() && !isFullscreen) {
                   mainBloc.windowResize(
-                      size: actualSize, position: actualPosition);
+                    size: actualSize,
+                    position: actualPosition,
+                  );
                 }
                 mainBloc.disableListItemsRendering(disable: false);
                 Navigator.pop(context);
@@ -583,7 +620,8 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
               child: definitions != null
                   ? MobileSpeedSliderAndFontsizeControls(
                       key: ValueKey(
-                          'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput'),
+                        'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput',
+                      ),
                       translations: translations,
                       ip: ip,
                       ledModules: ledModules,
@@ -594,7 +632,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       scrollSpeed: sliderValue,
                       speedChanged: (double speed) {
                         speedChanged(
-                            scrollSpeedKey: scrollSpeedKey, speed: speed);
+                          scrollSpeedKey: scrollSpeedKey,
+                          speed: speed,
+                        );
                         setState(() => sliderValue = speed);
                       },
                       sizeChanged: (double size) =>
@@ -622,7 +662,9 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
                       value: sliderValue,
                       updateValue: (double value) {
                         speedChanged(
-                            scrollSpeedKey: scrollSpeedKey, speed: value);
+                          scrollSpeedKey: scrollSpeedKey,
+                          speed: value,
+                        );
                         setState(() {
                           sliderValue = value;
                         });
@@ -637,157 +679,174 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
     }
 
     return BlocBuilder(
-        bloc: mainBloc,
-        builder: (context, MainState mainState) {
-          if (mainState is! MainStateLoaded) {
-            return Container();
-          }
+      bloc: mainBloc,
+      builder: (context, MainState mainState) {
+        if (mainState is! MainStateLoaded) {
+          return Container();
+        }
 
-          macosVersion = mainState.macosVersion;
-          definitions = mainState.definitions[ip];
+        macosVersion = mainState.macosVersion;
+        definitions = mainState.definitions[ip];
 
-          return Globals.inMacosStyle()
-              ? PageWithToolbarMacStyle(
-                  translations: translations,
-                  title: title,
-                  standardDesktopSize: standardDesktopSize,
-                  macosVersion: macosVersion,
-                  actions: [
-                    CustomToolbarItem(
-                      inToolbarBuilder: (context) => Padding(
-                        padding: const EdgeInsets.only(
-                            left: 8.0, right: 8.0, bottom: 0.0),
-                        child: TitlebarInfoContent(
-                          ip: ip,
-                          translations: translations,
-                        ),
+        return Globals.inMacosStyle()
+            ? PageWithToolbarMacStyle(
+                translations: translations,
+                title: title,
+                standardDesktopSize: standardDesktopSize,
+                macosVersion: macosVersion,
+                actions: [
+                  CustomToolbarItem(
+                    inToolbarBuilder: (context) => Padding(
+                      padding: const EdgeInsets.only(
+                        left: 8.0,
+                        right: 8.0,
+                        bottom: 0.0,
                       ),
-                      inOverflowedBuilder: (context) =>
-                          Container(color: Colors.grey, width: 30, height: 1),
-                    ),
-                    const ToolBarSpacer(),
-                  ],
-                  additionalFullscreenTitleContent: TitlebarInfoContent(
-                    ip: ip,
-                    translations: translations,
-                  ),
-                  body: Stack(
-                    children: [
-                      body(),
-                      if (definitions != null)
-                        Positioned(
-                          bottom: -10,
-                          right: 10,
-                          child: SliderHoverOverlay(
-                            label: '${translations['speed'] ?? 'speed:'}:',
-                            width: width > Globals.sliderOverlayMaxWidth
-                                ? Globals.sliderOverlayMaxWidth
-                                : width,
-                            min: Globals.sliderMinValue,
-                            max: Globals.sliderMaxValue,
-                            defaultValue: sliderDefaultValue,
-                            value: sliderValue,
-                            updateValue: (double value) {
-                              speedChanged(
-                                  scrollSpeedKey: scrollSpeedKey, speed: value);
-                              setState(() {
-                                sliderValue = value;
-                              });
-                            },
-                          ),
-                        ),
-                    ],
-                  ),
-                  backButtonPressed: () {
-                    if (Globals.isDesktopDevice() && !isFullscreen) {
-                      mainBloc.windowResize(
-                          size: actualSize, position: actualPosition);
-                    }
-                    mainBloc.disableListItemsRendering(disable: false);
-                  },
-                  resizeToFullWidth: () {
-                    mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                        minDesktopSize: minDesktopSize);
-                  },
-                )
-              : PageWithToolbarFlutterStyle(
-                  scaffoldKey: scaffoldKey,
-                  translations: translations,
-                  title: title,
-                  sliderDefaultValue: sliderDefaultValue,
-                  showSlider: Globals.isMobileDevice() && definitions != null,
-                  showExpandableSpeedSlider: false,
-                  scrollSpeedDevice: 1.0,
-                  standardDesktopSize: standardDesktopSize,
-                  actions: [
-                    if (Globals.isDesktopDevice())
-                      Padding(
-                        padding: const EdgeInsets.only(right: 24.0),
-                        child: TitlebarInfoContent(
-                          ip: ip,
-                          translations: translations,
-                        ),
-                      ),
-                    if (Globals.isMobileDevice() && definitions != null)
-                      MobileSpeedSliderAndFontsizeControls(
-                        key: ValueKey(
-                            'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput'),
-                        translations: translations,
+                      child: TitlebarInfoContent(
                         ip: ip,
-                        ledModules: ledModules,
-                        verticalOutput: verticalOutput && verticalTickerActive,
-                        ledTickerActive: ledTickerOnTickerPageActive,
-                        width: width,
-                        sliderDefaultValue: sliderDefaultValue,
-                        scrollSpeed: sliderValue,
-                        speedChanged: (double speed) {
-                          speedChanged(
-                              scrollSpeedKey: scrollSpeedKey, speed: speed);
-                          setState(() => sliderValue = speed);
-                        },
-                        sizeChanged: (double size) =>
-                            setState(() => mobileFontSize = size),
+                        translations: translations,
+                      ),
+                    ),
+                    inOverflowedBuilder: (context) =>
+                        Container(color: Colors.grey, width: 30, height: 1),
+                  ),
+                  const ToolBarSpacer(),
+                ],
+                additionalFullscreenTitleContent: TitlebarInfoContent(
+                  ip: ip,
+                  translations: translations,
+                ),
+                body: Stack(
+                  children: [
+                    body(),
+                    if (definitions != null)
+                      Positioned(
+                        bottom: -10,
+                        right: 10,
+                        child: SliderHoverOverlay(
+                          label: '${translations['speed'] ?? 'speed:'}:',
+                          width: width > Globals.sliderOverlayMaxWidth
+                              ? Globals.sliderOverlayMaxWidth
+                              : width,
+                          min: Globals.sliderMinValue,
+                          max: Globals.sliderMaxValue,
+                          defaultValue: sliderDefaultValue,
+                          value: sliderValue,
+                          updateValue: (double value) {
+                            speedChanged(
+                              scrollSpeedKey: scrollSpeedKey,
+                              speed: value,
+                            );
+                            setState(() {
+                              sliderValue = value;
+                            });
+                          },
+                        ),
                       ),
                   ],
-                  body: Stack(
-                    children: [
-                      body(),
-                      if (Globals.isDesktopDevice() && definitions != null)
-                        Positioned(
-                          bottom: -10,
-                          right: 10,
-                          child: SliderHoverOverlay(
-                            label: '${translations['speed'] ?? 'speed:'}:',
-                            width: width > Globals.sliderOverlayMaxWidth
-                                ? Globals.sliderOverlayMaxWidth
-                                : width,
-                            min: Globals.sliderMinValue,
-                            max: Globals.sliderMaxValue,
-                            defaultValue: sliderDefaultValue,
-                            value: sliderValue,
-                            updateValue: (double value) {
-                              speedChanged(
-                                  scrollSpeedKey: scrollSpeedKey, speed: value);
-                              setState(() {
-                                sliderValue = value;
-                              });
-                            },
-                          ),
+                ),
+                backButtonPressed: () {
+                  if (Globals.isDesktopDevice() && !isFullscreen) {
+                    mainBloc.windowResize(
+                      size: actualSize,
+                      position: actualPosition,
+                    );
+                  }
+                  mainBloc.disableListItemsRendering(disable: false);
+                },
+                resizeToFullWidth: () {
+                  mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                    minDesktopSize: minDesktopSize,
+                  );
+                },
+              )
+            : PageWithToolbarFlutterStyle(
+                scaffoldKey: scaffoldKey,
+                translations: translations,
+                title: title,
+                sliderDefaultValue: sliderDefaultValue,
+                showSlider: Globals.isMobileDevice() && definitions != null,
+                showExpandableSpeedSlider: false,
+                scrollSpeedDevice: 1.0,
+                standardDesktopSize: standardDesktopSize,
+                actions: [
+                  if (Globals.isDesktopDevice())
+                    Padding(
+                      padding: const EdgeInsets.only(right: 24.0),
+                      child: TitlebarInfoContent(
+                        ip: ip,
+                        translations: translations,
+                      ),
+                    ),
+                  if (Globals.isMobileDevice() && definitions != null)
+                    MobileSpeedSliderAndFontsizeControls(
+                      key: ValueKey(
+                        'MobileSpeedSliderAndFontsizeControls-$ledModules-$orientation-$verticalOutput',
+                      ),
+                      translations: translations,
+                      ip: ip,
+                      ledModules: ledModules,
+                      verticalOutput: verticalOutput && verticalTickerActive,
+                      ledTickerActive: ledTickerOnTickerPageActive,
+                      width: width,
+                      sliderDefaultValue: sliderDefaultValue,
+                      scrollSpeed: sliderValue,
+                      speedChanged: (double speed) {
+                        speedChanged(
+                          scrollSpeedKey: scrollSpeedKey,
+                          speed: speed,
+                        );
+                        setState(() => sliderValue = speed);
+                      },
+                      sizeChanged: (double size) =>
+                          setState(() => mobileFontSize = size),
+                    ),
+                ],
+                body: Stack(
+                  children: [
+                    body(),
+                    if (Globals.isDesktopDevice() && definitions != null)
+                      Positioned(
+                        bottom: -10,
+                        right: 10,
+                        child: SliderHoverOverlay(
+                          label: '${translations['speed'] ?? 'speed:'}:',
+                          width: width > Globals.sliderOverlayMaxWidth
+                              ? Globals.sliderOverlayMaxWidth
+                              : width,
+                          min: Globals.sliderMinValue,
+                          max: Globals.sliderMaxValue,
+                          defaultValue: sliderDefaultValue,
+                          value: sliderValue,
+                          updateValue: (double value) {
+                            speedChanged(
+                              scrollSpeedKey: scrollSpeedKey,
+                              speed: value,
+                            );
+                            setState(() {
+                              sliderValue = value;
+                            });
+                          },
                         ),
-                    ],
-                  ),
-                  backButtonPressed: () {
-                    if (Globals.isDesktopDevice() && !isFullscreen) {
-                      mainBloc.windowResize(
-                          size: actualSize, position: actualPosition);
-                    }
-                    mainBloc.disableListItemsRendering(disable: false);
-                  },
-                  resizeToFullWidth: () {
-                    mainBloc.windowResizeToFullWidthAndMinimumHeight(
-                        minDesktopSize: minDesktopSize);
-                  },
-                );
-        });
+                      ),
+                  ],
+                ),
+                backButtonPressed: () {
+                  if (Globals.isDesktopDevice() && !isFullscreen) {
+                    mainBloc.windowResize(
+                      size: actualSize,
+                      position: actualPosition,
+                    );
+                  }
+                  mainBloc.disableListItemsRendering(disable: false);
+                },
+                resizeToFullWidth: () {
+                  mainBloc.windowResizeToFullWidthAndMinimumHeight(
+                    minDesktopSize: minDesktopSize,
+                  );
+                },
+              );
+      },
+    );
   }
 }

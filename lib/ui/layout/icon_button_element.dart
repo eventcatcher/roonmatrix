@@ -87,7 +87,7 @@ class IconButtonElement extends StatelessWidget {
     return Globals.inMacosStyle()
         ? withCircle
               ? CircleAvatar(
-                  radius: 20,
+                  radius: size / 2,
                   backgroundColor: noBackground
                       ? null
                       : readOnly
@@ -106,7 +106,7 @@ class IconButtonElement extends StatelessWidget {
               : macButton()
         : withCircle
         ? CircleAvatar(
-            radius: 18,
+            radius: size / 2 - 2,
             backgroundColor: noBackground
                 ? null
                 : readOnly

@@ -135,6 +135,7 @@
     "ledTickerInDeviceListSelectorLabel" : "Display LED ticker in device list",
     "ledTickerOnTickerPageSelectorLabel" : "Display LED ticker on the ticker page",
     "ledTickerPixelShift": "Scroll LED ticker pixel by pixel (pixel-precise smooth scrolling)",
+    "ledTickerFullWidthLabel" : "Show full width LED ticker (otherwise like hardware device)",
     "forceTickerUpdate": "Update ticker immediately on text updates (interrupts running ticker)",
     "miniPlayerHeadline" : "Mini Player",
     "alwaysOnTopLabel": "Show always on top of all other windows",

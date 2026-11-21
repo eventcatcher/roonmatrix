@@ -137,6 +137,15 @@ class SetLedTickerPixelShiftActiveMode extends SettingsEvent {
   List<Object> get props => [enabled];
 }
 
+class SetLedTickerFullWidthActiveMode extends SettingsEvent {
+  final bool enabled;
+
+  const SetLedTickerFullWidthActiveMode({required this.enabled});
+
+  @override
+  List<Object> get props => [enabled];
+}
+
 class SetForceTickerUpdateActiveMode extends SettingsEvent {
   final bool enabled;
 

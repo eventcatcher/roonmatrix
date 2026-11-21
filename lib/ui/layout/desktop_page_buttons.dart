@@ -213,6 +213,7 @@ class DesktopPageButtonsState extends State<DesktopPageButtons> {
               standardDesktopSize: standardDesktopSize,
             ),
           ),
+          SizedBox(width: 2),
         ],
       ],
     );

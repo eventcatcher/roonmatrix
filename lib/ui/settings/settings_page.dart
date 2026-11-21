@@ -62,6 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool ledTickerInDeviceListActive = false;
   bool ledTickerOnTickerPageActive = false;
   bool ledTickerPixelShiftActive = false;
+  bool ledTickerFullWidthActive = false;
   bool forceTickerUpdateActive = false;
   bool miniPlayerAlwaysOnTop = false;
   bool miniPlayerPreventCloseApp = false;
@@ -543,6 +544,18 @@ class _SettingsPageState extends State<SettingsPage> {
             padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
             child: SwitchButton(
               label:
+                  translations['ledTickerFullWidthLabel'] ??
+                  'Show full width LED ticker (otherwise like hardware device)',
+              enabled: ledTickerFullWidthActive,
+              onChanged: (value) {
+                settingsBloc.setLedTickerFullWidthActiveMode(enabled: value);
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0, bottom: 16.0),
+            child: SwitchButton(
+              label:
                   translations['forceTickerUpdate'] ??
                   'Update ticker immediately on text updates (interrupts running ticker)',
               enabled: forceTickerUpdateActive,
@@ -730,6 +743,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         settingsState.ledTickerOnTickerPageActive;
                     ledTickerPixelShiftActive =
                         settingsState.ledTickerPixelShiftActive;
+                    ledTickerFullWidthActive =
+                        settingsState.ledTickerFullWidthActive;
                     forceTickerUpdateActive =
                         settingsState.forceTickerUpdateActive;
                     miniPlayerAlwaysOnTop = settingsState.miniPlayerAlwaysOnTop;

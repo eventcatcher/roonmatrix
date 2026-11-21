@@ -14,6 +14,7 @@ abstract class SettingsState extends Equatable {
   final bool ledTickerInDeviceListActive;
   final bool ledTickerOnTickerPageActive;
   final bool ledTickerPixelShiftActive;
+  final bool ledTickerFullWidthActive;
   final bool forceTickerUpdateActive;
   final bool miniPlayerAlwaysOnTop;
   final bool miniPlayerPreventCloseApp;
@@ -36,6 +37,7 @@ abstract class SettingsState extends Equatable {
     this.ledTickerInDeviceListActive = false,
     this.ledTickerOnTickerPageActive = false,
     this.ledTickerPixelShiftActive = false,
+    this.ledTickerFullWidthActive = true,
     this.forceTickerUpdateActive = false,
     this.miniPlayerAlwaysOnTop = false,
     this.miniPlayerPreventCloseApp = false,
@@ -59,6 +61,7 @@ abstract class SettingsState extends Equatable {
     bool? ledTickerInDeviceListActive,
     bool? ledTickerOnTickerPageActive,
     bool? ledTickerPixelShiftActive,
+    bool? ledTickerFullWidthActive,
     bool? forceTickerUpdateActive,
     bool? miniPlayerAlwaysOnTop,
     bool? miniPlayerPreventCloseApp,
@@ -84,6 +87,8 @@ abstract class SettingsState extends Equatable {
           ledTickerOnTickerPageActive ?? this.ledTickerOnTickerPageActive,
       ledTickerPixelShiftActive:
           ledTickerPixelShiftActive ?? this.ledTickerPixelShiftActive,
+      ledTickerFullWidthActive:
+          ledTickerFullWidthActive ?? this.ledTickerFullWidthActive,
       forceTickerUpdateActive:
           forceTickerUpdateActive ?? this.forceTickerUpdateActive,
       miniPlayerAlwaysOnTop:
@@ -117,6 +122,7 @@ abstract class SettingsState extends Equatable {
       ledTickerInDeviceListActive,
       ledTickerOnTickerPageActive,
       ledTickerPixelShiftActive,
+      ledTickerFullWidthActive,
       forceTickerUpdateActive,
       miniPlayerAlwaysOnTop,
       miniPlayerPreventCloseApp,
@@ -155,6 +161,7 @@ class SettingsStateLoaded extends SettingsState {
     required super.ledTickerInDeviceListActive,
     required super.ledTickerOnTickerPageActive,
     required super.ledTickerPixelShiftActive,
+    required super.ledTickerFullWidthActive,
     required super.forceTickerUpdateActive,
     required super.miniPlayerAlwaysOnTop,
     required super.miniPlayerPreventCloseApp,

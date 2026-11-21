@@ -161,6 +161,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                 settingsState.ledTickerOnTickerPageActive;
             bool ledTickerPixelShiftActive =
                 settingsState.ledTickerPixelShiftActive;
+            bool ledTickerFullWidthActive =
+                settingsState.ledTickerFullWidthActive;
             bool forceTickerUpdateActive =
                 settingsState.forceTickerUpdateActive;
             bool miniPlayerAlwaysOnTop = settingsState.miniPlayerAlwaysOnTop;
@@ -454,6 +456,8 @@ class StartPageState extends State<StartPage> with TickerProviderStateMixin {
                                                 ledTickerOnTickerPageActive,
                                             ledTickerPixelShiftActive:
                                                 ledTickerPixelShiftActive,
+                                            ledTickerFullWidthActive:
+                                                ledTickerFullWidthActive,
                                             forceTickerUpdateActive:
                                                 forceTickerUpdateActive,
                                             updateSizes: updateSizes,
