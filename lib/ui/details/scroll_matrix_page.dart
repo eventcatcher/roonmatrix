@@ -357,7 +357,7 @@ class _ScrollMatrixPageState extends State<ScrollMatrixPage>
           if (mainState.devices.isNotEmpty && mainState.info.containsKey(ip)) {
             Map<String, dynamic> i = mainState.info[ip];
 
-            double ledMaxSize = 30.0;
+            double ledMaxSize = 28.0; // max size for smallest possible height
             int newLedModules =
                 ledTickerFullWidthActive == true && !verticalOutput
                 ? (width / (ledMaxSize * 8)).ceil()
