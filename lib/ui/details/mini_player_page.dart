@@ -280,9 +280,9 @@ class _MiniPlayerPageState extends State<MiniPlayerPage> with WindowListener {
           actualSize = size;
         });
       }
-      if (!Platform.isLinux) {
-        windowManager.setAspectRatio(1);
-      }
+
+      //windowManager.setAspectRatio(1);
+
       mainBloc.windowResize(
         size: Size(defaultSize.width, defaultSize.height + additionalHeight),
       );
