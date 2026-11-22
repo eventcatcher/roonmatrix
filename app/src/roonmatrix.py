@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 #
 # Roonmatrix App - display roon, spotify and apple music playout informations and more on 8x8 led matrix display
-# version 2.0.0, date: 16.10.2026
+# version 2.0.0, date: 22.11.2026
 #
 # show what is playing on roon zones and via webservers on Spotify and Apple Music
 # show actual weather, rss feeds and clock
 #
-# © Stephan Wilhelm, Bielefeld, Germany, coded @ 2024 - 2025
+# © Stephan Wilhelm, Bielefeld, Germany, coded @ 2024 - 2026
 #
 # copy to /home/rmuser/FTP
 # config file: /usr/local/Roon/etc/roon_api.ini
@@ -16,7 +16,7 @@
 # start service: sudo systemctl start roonmatrix.service
 # live log:      journalctl -f
 
-scriptVersion = '2.0.0, date: 16.10.2026'
+scriptVersion = '2.0.0, date: 22.11.2026'
 APP_NAME = "roonmatrix"
 
 startlog = True		# default true: log start and config information

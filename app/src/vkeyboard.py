@@ -3,7 +3,7 @@
 #
 # VirtualKeyboard Class - display virtual keyboard
 # Roonmatrix extension class
-# version 1.2.0, date: 06.12.2025
+# version 2.0.0, date: 22.11.2026
 #
 # © Abhineet Kelley, coded @ 2022
 # © Stephan Wilhelm, Bielefeld, Germany, based on code of Abhineet Kelley, coded @ 2025

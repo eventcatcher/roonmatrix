@@ -3,7 +3,7 @@
 #
 # SpotifyConnect Class - Roonmatrix extension to support Spotify Connect
 # Roonmatrix extension class
-# version 1.2.0, date: 06.12.2025
+# version 2.0.0, date: 22.11.2026
 #
 # control and play music via Spotify Connect
 #
