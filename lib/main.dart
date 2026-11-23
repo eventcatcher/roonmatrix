@@ -176,7 +176,12 @@ class RoonMatrixState extends State<RoonMatrix> {
     });
 
     //mainBloc.startPythonRuntime();
-    mainBloc.restartAppForVirtualDeviceNotFoundOrSendDataTimeOut();
+    Timer? startPythonTimer;
+    startPythonTimer = Timer.periodic(Duration(seconds: 5), (Timer timer) {
+      startPythonTimer?.cancel();
+      mainBloc
+          .restartAppForVirtualDeviceNotFoundOrSendDataTimeOut(); // start virtual device with a delay to preserve app initializing is done, and virtual device which was running before restart was removed fine from running tasks
+    });
 
     super.initState();
   }
