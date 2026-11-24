@@ -12,3 +12,4 @@ fvm dart run serious_python:main package ../../app/src -p Android -r -r -r ../..
 cd ../../
 
 fvm flutter build apk
+fvm flutter build appbundle
