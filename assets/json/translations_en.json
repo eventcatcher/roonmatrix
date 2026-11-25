@@ -186,6 +186,7 @@
     "notificationRoonActivation": "Please enable the device [DEVICENAME] in the Roon settings for extensions.",
     "restartAppConfirmationTitle": "Restart of App required",
     "restartAppConfirmationMessage": "Configuration data has been changed, so the app needs to be restarted. Restart now?",
+    "closeAppConfirmationMessage": "Configuration data has been changed, so the app needs to be restarted. Restart now?",
     "restartAppConfirmationConfirmText": "Yes",
     "restartAppConfirmationCancelText": "Later",
     "spotifyConnectAuthUrlMissing": "Spotify Connect Login URL is missing...",

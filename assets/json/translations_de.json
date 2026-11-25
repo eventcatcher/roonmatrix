@@ -186,6 +186,7 @@
     "notificationRoonActivation": "Bitte aktiviere das Gerät [DEVICENAME] in den Roon Einstellungen für Erweiterungen.",
     "restartAppConfirmationTitle": "Neustart der App erforderlich",
     "restartAppConfirmationMessage": "Es wurden Konfigurationsdaten geändert, daher ist ein Neustart der App erforderlich. Jetzt neu starten?",
+    "closeAppConfirmationMessage": "Es wurden Konfigurationsdaten geändert, daher ist ein Neustart der App erforderlich. Jetzt neu starten?",
     "restartAppConfirmationConfirmText": "Ja",
     "restartAppConfirmationCancelText": "Später",
     "spotifyConnectAuthUrlMissing": "Die Anmelde-URL für Spotify Connect fehlt...",

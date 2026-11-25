@@ -261,7 +261,7 @@ class RoonMatrixState extends State<RoonMatrix> {
               translations['restartAppConfirmationTitle'] ??
               'Restart of App required',
           question:
-              translations['closeAppConfirmationMessage'] ??
+              translations['restartAppConfirmationMessage'] ??
               'Configuration data has been changed, so the app needs to be restarted. You must restart manually. Close now?',
           okText: translations['restartAppConfirmationConfirmText'] ?? 'Yes',
           cancelText:

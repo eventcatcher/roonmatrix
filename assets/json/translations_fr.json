@@ -186,6 +186,7 @@
     "notificationRoonActivation": "Veuillez activer le périphérique [DEVICENAME] dans les paramètres Roon pour lui accorder les extensions.",
     "restartAppConfirmationTitle": "Redémarrage de l'application requis",
     "restartAppConfirmationMessage": "Les données de configuration ont été modifiées ; l'application doit donc être redémarrée. Voulez-vous la redémarrer maintenant ?",
+    "closeAppConfirmationMessage": "Les données de configuration ont été modifiées ; l'application doit donc être redémarrée. Voulez-vous la redémarrer maintenant ?",
     "restartAppConfirmationConfirmText": "Oui",
     "restartAppConfirmationCancelText": "Plus tard",
     "spotifyConnectAuthUrlMissing": "L'URL de connexion à Spotify Connect est manquante...",
