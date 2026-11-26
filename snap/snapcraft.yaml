@@ -73,6 +73,10 @@ parts:
 
       # Drop stale build output copied from the source tree (old CMake cache).
       rm -rf build/linux build/app build/site-packages
+      # Never ship locally installed packages from the source tree: they may be
+      # built for a different Python (e.g. system 3.12) and would shadow the
+      # 3.14 packages in site-packages/ (app/__pypackages__ comes first on sys.path).
+      rm -rf app/src/__pypackages__
 
       cd packages/python_backend
       dart run serious_python:main package ../../app/src -p Linux -r -r -r ../../app/src/requirements.txt
